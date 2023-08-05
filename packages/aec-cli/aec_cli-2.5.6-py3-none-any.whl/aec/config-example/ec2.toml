@@ -1,0 +1,35 @@
+# example config, update this for your aws account
+
+default_profile = "syd"
+
+# tags added to ec2 instances during launch
+additional_tags = { Owner = "alice@little.co", Project = "example project" }
+
+[syd]
+region = "ap-southeast-2"
+key_name = "my-key"
+iam_instance_profile_arn = "arn:aws:iam::123456789012:instance-profile/ec2_my_default"
+vpc = { name = "public A", subnet = "subnet-12345678",  security_group = "sg-12345678901234567" }
+kms_key_id = "arn:aws:kms:ap-southeast-2:123456789012:key/abcdef"
+# include these accounts when listing AMIs
+describe_images_owners = "self"
+volume_size = 100
+
+[syd.ssm]
+# log output of ssm commands to this location
+s3bucket = "logs"
+s3prefix = "ssm-command"
+
+[us]
+region = "us-east-1"
+key_name = "my-key-us"
+iam_instance_profile_arn = "arn:aws:iam::123456789012:instance-profile/ec2_my_default"
+vpc = { name = "private B", subnet = "subnet-87654321",  security_group = ["sg-0123456","sg-7123456789"], associate_public_ip_address = true }
+
+# include my account and the Canonical (Ubuntu) account when listing AMIs
+describe_images_owners = ["self", "099720109477"]
+# show only the ubuntu focal images
+describe_images_name_match = "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64"
+
+[no-region]
+# no region specified so will default to $AWS_DEFAULT_REGION, and then ~/.aws/config
