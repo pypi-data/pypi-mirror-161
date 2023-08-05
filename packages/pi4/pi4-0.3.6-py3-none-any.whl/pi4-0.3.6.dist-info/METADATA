@@ -1,0 +1,414 @@
+Metadata-Version: 2.1
+Name: pi4
+Version: 0.3.6
+Summary: Raspberry Pi Applications.
+Home-page: https://github.com/zhangys11/pi4
+Author: Yinsheng Zhang (Ph.D.)
+Author-email: oo@zju.edu.cn
+Project-URL: Bug Tracker, https://github.com/zhangys11/pi/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: ttkbootstrap
+Requires-Dist: send2trash
+Requires-Dist: regex
+Requires-Dist: matplotlib
+
+# pi - Raspberry (Raspberry Pi 4B) related codes
+
+OS : raspbian 64-bit.  
+
+<img src='raspbian.png'>    
+
+Development on pi is quite comfortable. It is essentially linux-based app development, with some GPIO/I2C/SENSOR programmings.
+
+# Vehicle
+
+The GUI uses ttkbootstrap, tkinter, pyqt, opencv etc.
+
+### vehicle acc (adaptive cruise control)
+
+<img src='vehicle.jpg'>
+
+    * The vehicle has a supersonic sensor, short-distance collision detection sensors, fall detection sensor and a pan-tilt-mounted infra-red camera.  
+    * The vehicle currently USED PINS:
+
+    3V3  (1) (2)  5V    
+    - GPIO2 PCA9685 SDA (3) (4)  5V    
+    - GPIO3 PCA9685 SCL (5) (6)  GND   
+    - GPIO4 IR Control (7) (8)  - GPIO14 UART TX
+    GND  (9) (10) - GPIO15 UART RX
+    * GPIO17 (11) (12) - GPIO18
+    - GPIO27 (13) (14) GND   
+    - GPIO22 (15) (16) - GPIO23
+    3V3 (17) (18) - GPIO24
+    * GPIO10 SPI (19) (20) GND   
+    * GPIO9 SPI (21) (22) - GPIO25
+    * GPIO11 SPI (23) (24) * GPIO8 SPI0 CE0
+    GND (25) (26) * GPIO7 SPI0 CE1
+    - GPIO0 (27) EEPROM SDA (28) - GPIO1 EEPROM SCL | CAT24C32: EEPROM 串行 32-Kb I2C
+    - GPIO5 (29) (30) GND   
+    - GPIO6 (31) (32) - GPIO12
+    - GPIO13 (33) (34) GND   
+    - GPIO19 (35) (36) - GPIO16
+    - GPIO26 (37) (38) - GPIO20
+    GND (39) (40) - GPIO21
+
+[demo video](https://www.bilibili.com/video/BV1XB4y1H7J5/)
+
+
+# Medical Device
+
+<img src='medical_camera.jpg'>
+
+    * This is a 4b-based medical device prototype. The GUI provides camera liveview, image capturing, browsing, uploading.
+
+
+# IOT
+
+Raspberry pi-based iot experiments code. 
+
+<img src="hardware - anno.jpg">
+
+Some sensors can be replaced by other types. e.g., touch sensor -> tilt / vibration / reed / push button.   
+
+With the i2c chip (8591), you can use analog output sensors, such as joystick, raindrop, smog, flame, thermo-resistor, photo-resistor, noise, etc.
+
+# edge-computing and AI
+
+This package also include an 'ai' module. The module is mainly targeted at edge devices (largely depends on tf-lite, efficientnet, mobilenet and other lightweight models or frameworks). However, it can also be used for general-purposed ai and image processing applications. 
+
+# Setup the raspberry pi os
+
+0. Use the official Raspi Imager tool to setup Raspbian 64 bit OS to SD card
+
+1. If you haven't configured wifi in Raspi Imager, create the wpa_supplicant.conf file in boot folder: 
+
+country=CN
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+  scan_ssid=1
+  ssid="2701" # wifi name
+  psk="xxx" # password
+  priority=1
+}
+
+2. create an empty file named ssh in boot folder.
+
+3. Boot device
+
+4. Use the wireless router's admin panel to check the pi's ip:
+
+SSID1 raspberrypi 192.168.5.xxx e4:5f:01:9c:1b:c4
+
+5. > ssh pi@192.168.5.xxx
+   
+    The authenticity of host '192.168.5.120 (192.168.5.120)' can't be established.
+    ECDSA key fingerprint is SHA256:Qj+rFMb4dTkKNh6SeADd30S9KK8N1mSyTvKFqSEq8M4.
+    Are you sure you want to continue connecting (yes/no/[fingerprint])? y
+    Please type 'yes', 'no' or the fingerprint: yes
+    Warning: Permanently added '192.168.5.120' (ECDSA) to the list of known hosts.
+    pi@192.168.5.120's password:
+    Linux raspberrypi 5.15.32-v7l+ #1538 SMP Thu Mar 31 19:39:41 BST 2022 armv7l
+
+    > pinout
+
+    pi@raspberrypi:~ $ pinout
+    ,--------------------------------.
+    | oooooooooooooooooooo J8   +======
+    | 1ooooooooooooooooooo  PoE |   Net
+    |  Wi                    1o +======
+    |  Fi  Pi Model 4B  V1.5 oo      |
+    |        ,----. +---+         +====
+    | |D|    |SoC | |RAM|         |USB3
+    | |S|    |    | |   |         +====
+    | |I|    `----' +---+            |
+    |                   |C|       +====
+    |                   |S|       |USB2
+    | pwr   |hd|   |hd| |I||A|    +====
+    `-| |---|m0|---|m1|----|V|-------'
+
+6. pi@raspberrypi:~ $ raspi-config 
+
+    Enable VNC in the interface settings
+    Change VNC resolution to 1280x720 in the display settings. (to enhance response speed)
+    Expand SD storage. then df-h to check
+
+7. Connect SPI screen and reboot
+
+    If wifi is disabled, the SPI screen will show; otherwise use ssh, VNC or Teamviewer.
+
+    > sudo nano /boot/config.txt
+    
+    Uncomment the dtoverlay=vc4-kms-v3d
+
+    > sudo reboot
+
+8. Connect SPI camera
+
+    > libcamera-hello
+    [OBSOLETE] > sudo raspistill -o myimg.jpg
+
+9.  Plugin the camera and test 
+
+    > sudo apt-get update && sudo apt-get upgrade
+    > sudo apt-get install fcitx fcitx-googlepinyin # optional: install IME
+
+    > sudo apt-get install luvcview
+    > luvcview # a live view of /dev/video0
+
+    > sudo apt install fswebcam
+    > fswebcam -r 1280x720 --no-banner image1.jpg # capture image
+
+10. update eeprom: this helps to reduce CPU temperature
+    
+    > sudo rpi-eeprom-update -a  
+    > sudo reboot
+
+11. Install numpy and opencv
+
+    [Optional] When the network speed is unbearable )NOTE: The file content for 32 and 64 bit OS differ):
+    > sudo nano /etc/apt/sources.list   
+    > sudo nano /etc/apt/sources.list.d/raspi.list   
+    Replace deb and deb-src with domestic mirrors. e.g., http://mirrors.tuna.tsinghua.edu.cn/raspberrypi/ bullseye ...   
+
+    
+    > sudo pip install --upgrade cmake numpy opencv-python opencv-contrib-python -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+12. WringPi
+
+    64bit: wget https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61-1-arm64.deb
+
+    or 
+    
+    32bit: wget https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61-1-armhf.deb
+
+    sudo dpkg -i wiringpi-latest.deb
+    gpio -v
+    gpio readall
+
+13. Setup GPIOZero and/or RPi.GPIO
+
+    sudo apt install python3-gpiozero   
+    gpiozero can be simpler than RPi.GPIO and more friendly to beginners.   
+    The gpiozero module always uses Broadcom GPIO numbering to identify a GPIO.  
+    The RPi.GPIO module can use physical pin numbering (BOARD) or Broadcom GPIO numbering (BCM). The physical pin 21 is connected to GPIO 9.
+
+14. I2C device setup
+
+    > gpio i2cdetect
+
+<pre>
+        0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+    00:                         -- -- -- -- -- -- -- -- 
+    10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    20: -- -- -- -- -- -- -- 27 -- -- -- -- -- -- -- -- 
+    30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    40: 40 41 -- -- -- -- -- -- 48 -- -- -- -- -- -- -- 
+    50: -- -- -- -- -- -- -- 57 -- -- -- -- -- -- -- -- 
+    60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    70: 70 -- -- -- -- -- -- --   </pre>
+
+    0x27 - LCD1602 PCF8574  
+    0x40 - servo: PCA9685 16-channel PWM driver  
+    0x41 - 6WD control board    
+    0x48 - ADC: PCF8591  
+    0x57 - SpO2 sensor  
+    0x70 - 
+
+    I2C is not hot-pluggable. You must restart to add a new I2C device.  
+
+    To check a full list of I2C addresses, go to https://i2cdevices.org/addresses
+
+14.  [Optional] Setup ir (infra-red). This is the most painful part. Take patience.
+    
+    sudo apt install lirc liblircclient-dev ir-keytable # lirc: Linux Infrared Remote Control
+
+    sudo nano /boot/config.txt
+    dtoverlay=gpio-ir,gpio_pin=17 #4
+    dtoverlay=gpio-ir-tx,gpio_pin=18 #5 
+
+    sudo reboot
+
+    pi@raspberrypi:~ $ sudo ir-keytable -c -p all -t
+    Old keytable cleared
+    Protocols changed to unknown other lirc rc-5 rc-5-sz jvc sony nec sanyo mce_kbd rc-6 sharp xmp cec imon rc-mm 
+    Loaded BPF protocol xbox-dvd
+    Testing events. Please, press CTRL-C to abort.
+
+    [press some key on the remote controller]
+
+    237.470055: lirc protocol(nec): scancode = 0x45
+    237.470076: event type EV_MSC(0x04): scancode = 0x45
+    237.470076: event type EV_SYN(0x00).
+    237.530059: lirc protocol(nec): scancode = 0x45 repeat
+    237.530079: event type EV_MSC(0x04): scancode = 0x45
+    237.530079: event type EV_SYN(0x00).
+    238.790052: lirc protocol(nec): scancode = 0x46
+    238.790071: event type EV_MSC(0x04): scancode = 0x46
+    238.790071: event type EV_SYN(0x00).
+
+
+    sudo nano /etc/lirc/lirc_options.conf
+
+    driver = default
+    device = /dev/lirc1
+
+    pi@raspberrypi:~ $ sudo systemctl stop lircd.service
+    Warning: Stopping lircd.service, but it can still be activated by:
+    lircd.socket
+    pi@raspberrypi:~ $ sudo mode2 -d /dev/lirc1
+    [Press some keys on the remote controller]
+    Using driver default on device /dev/lirc1
+    Trying device: /dev/lirc1
+    Using device: /dev/lirc1
+    Running as regular user pi
+    pulse 9071
+    space 4471
+    pulse 608
+    space 519
+    pulse 589
+    ...
+
+    把lircd.conf 传到pi目录下；
+    sudo cp lircd.conf /etc/lirc/lircd.conf
+
+    sudo reboot
+
+
+    pi@raspberrypi:~ $ irw
+    0000000000000001 00 KEY_CHANNELDOWN ./lircd.conf
+    0000000000000002 00 KEY_CHANNEL ./lircd.conf
+    0000000000000008 00 KEY_VOLUMEDOWN ./lircd.conf
+    0000000000000007 00 KEY_VOLUMEUP ./lircd.conf
+
+
+15.   Enable 1 Wire
+
+    enable "1 wire" and add "dtoverlay=w1-gpio" to /boot/config.txt
+    
+    reboot
+
+    Connect the 1-wire temperature sensor
+
+    pi@raspberrypi:/sys/bus/w1/devices/28-012029342a03 $ cat w1_slave
+    c2 01 4b 46 7f ff 0c 10 a8 : crc=a8 YES
+    c2 01 4b 46 7f ff 0c 10 a8 t=28125
+    pi@raspberrypi:/sys/bus/w1/devices/28-012029342a03 $ cat w1_slave
+    c2 01 4b 46 7f ff 0c 10 a8 : crc=a8 YES
+    c2 01 4b 46 7f ff 0c 10 a8 t=28125
+
+16.  ap
+
+    git clone https://github.com/oblique/create_ap.git  
+    cd create_ap  
+    sudo make install  
+    sudo apt-get install dnsmasq  
+    sudo apt-get install util-linux procps hostapd iproute2 iw haveged  
+
+    sudo create_ap wlan0 eth0 热点名 密码
+
+    optional:   
+    sudo nano /etc/rc.local   
+    add create_ap ...  
+
+17.  GUI dev: ttkbootstrap, webview, qt
+
+    [gtk backend for webview] > sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-webkit2-4.0   
+    [optional if use qt backend for webview] > sudo apt install python3-pyqt5 python3-pyqt5.qtwebengine python3-pyqt5.qtwebchannel libqt5webkit5-dev   
+    
+    > sudo pip install ttkbootstrap pywebview -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+    > sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtcreator qtdeclarative5-dev  
+
+18. [Optional] Data Science 
+
+    sudo apt-get install r-base r-base-dev   
+    sudo pip install sklearn  
+
+    if you want to do some deep learning,   
+    sudo pip install Cython==0.29.16   
+    go to https://github.com/Qengineering/TensorFlow-Raspberry-Pi_64-bit to download a correct whl   
+    sudo pip install tensorflow-2.9.1-cp39-cp39-linux_aarch64.whl  
+    sudo pip install keras   
+    sudo pip install torch-1.11.0a0+gitbc2c6ed-cp39-cp39-linux_aarch64.whl   
+    
+    if you want to C/C++ programming, do the following:  
+
+        sudo apt-get install libopencv-dev # codeblocks    
+        add /usr/include/opencv4/ to 'search directories'
+
+        wget https://github.com/tensorflow/tensorflow/archive/v2.6.5.zip   
+        unzip  
+        ./tensorflow/lite/tools/make/download_dependencies.sh  
+        ./tensorflow/lite/tools/make/build_aarch64_lib.sh  
+
+        According to https://qengineering.eu/install-tensorflow-2-lite-on-raspberry-64-os.html, we need to compile newer version of flatbuffers:  
+        cd tensorflow/lite/tools/make/downloads  
+        rm -rf flatbuffers  
+        git clone -b v2.0.0 --depth=1 --recursive https://github.com/google/flatbuffers.git  
+        cd flatbuffers && mkdir build && cd build && cmake .. && make -j4  
+        sudo make install && sudo ldconfig  
+
+    
+19. Customize splashscreen
+
+    > nano /boot/cmdline.txt  
+    console=serial0,115200 console=tty1 root=PARTUUID=ae28fe49-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles console=tty3 logo.nologo loglevel=3 vt.global_cursor_default=0 plymouth.enable=0
+
+    Plymouth is the application which provides the graphical "splash" screen when booting and shutting down an Ubuntu system.
+
+    > nano /boot/config.txt   
+    disable_splash=1
+
+    > sudo apt install fbi  
+    > sudo nano /etc/systemd/system/splashscreen.service
+
+    [Unit]
+    Description=Splash screen
+    DefaultDependencies=no
+    After=local-fs.target
+    [Service]
+    ExecStart=/usr/bin/fbi -d /dev/fb0 --noverbose -a /home/pi/your_image.jpg
+    StandardInput=tty
+    StandardOutput=tty
+    [Install]
+    WantedBy=sysinit.target
+
+    > sudo systemctl enable splashscreen
+
+# Install
+
+    pip install pi4
+
+# Run
+
+    IoT GUI: `sudo python -m pi.iot.vehicle`
+    
+    Camera GUI: `sudo python -m pi.camera.ttk`
+
+    AI GUI: `sudo python -m pi.ai.demo`
+
+    If you run under Windows, the native GPIO and SMBus will be replaced by a simulator.
+
+        if sys.platform == 'win32':
+            sys.path.append(os.path.dirname(__file__))
+            from simulator import GPIO, SMBus, PWM
+        else:
+            from RPi import GPIO
+            from smbus import SMBus
+
+# Autostart
+
+    If you need to autostart a GUI app,
+
+    > sudo nano /etc/xdg/autostart/picam.desktop
+               
+	[Desktop Entry]
+	Name = PiCam
+	Exec=/usr/bin/python3 -m pi.gui.camera.ttk
