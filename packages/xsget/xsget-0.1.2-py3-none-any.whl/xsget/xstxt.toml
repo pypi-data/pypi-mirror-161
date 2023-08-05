@@ -1,0 +1,75 @@
+# Config file for xsget command-line app.
+# The default value within this file matches the defaults in
+# app.
+
+# To obtain the CSS path for both title and body of the
+# novel, in Mozilla Firefox browser:
+#
+#   1. Right click the hyperlink, select `Inspect`. The
+#      `Inspector` tab will open up at the bottom highlighting
+#      the HTML of the hyperlink.
+#   2. Right click again on the highlited HTML, select
+#      `Copy` and select `CSS Path`.
+#
+
+# CSS path of the chapter title of header.
+title_css_path = "title"
+
+# CSS path of the body of a chapter.
+body_css_path = "body"
+
+# Search and replace string within the HTML file. This
+# process runs first before the txt file replacement.
+#
+# Uncomment below example to test it out.
+#
+# Example:
+#   html_replace = [
+#       ["<br>", "\n"], # replace line break with newline
+#   ]
+html_replace = []
+
+# Search and replace string within plain text extracted from
+# `title_css_path` and `body_css_path`.
+#
+# Uncomment below example to test it out.
+# Example:
+#   txt_replace = [
+#       ['\r\n', '\n'], # convert dos to unix newline
+#       ['\s+', ''], # remove empty spaces
+#       ['^.*<KEYWORD>.*$\n', ''], # remove line with <KEYWORD>
+#       ['\n{3,}', ''], # replace two or more empty lines
+#       ['“', '「'], # replace opening quote
+#       ['”', '」'], # replace ending quote
+#       ['^\u0020\u0020\u0020\u0020', '\u3000\u3000'], # replace 4 spaces with 2 ideographic spaces
+#   ]
+txt_replace = []
+
+# The title of the book which show on top of file set in
+# `output` .
+book_title = "不详"
+
+# The author of the book which show on top of file set in
+# `output` .
+book_author = "不详"
+
+# List of glob-patterns to include HTML files for
+# conversion.
+input = ["./*.html"]
+
+# List of glob-patterns to exclude HTML files for
+# conversion.
+exclude = []
+
+# Number of HTML files to process. Default to 3 files so
+# that we can tweak both the `html_replace` and
+# `txt_replace` until we're satisfy before change to higher
+# number to process all files.
+limit = 3
+
+# Set the output filename.
+output = "book.txt"
+
+# Set this to true to show more debugging details like
+# timestamp and stacktrace.
+debug = false
