@@ -1,0 +1,24 @@
+{% extends 'rp_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block centered_container %}
+
+<div class="col-12 p-4">
+    {% csrf_token %}
+    <h4 class="text-left">
+        {% trans "User attributes" %}
+    </h4>
+
+    <dl class="mt-4 mb-4">
+        {% for attribute, value in oidc_rp_user_attrs.items %}
+        <dt>{{ attribute }}:</dt>
+        <dd>{{ value }}</dd>
+        {% endfor %}
+    </dl>
+
+    <a href="{% url 'spid_cie_rpinitiated_logout' %}" class="btn btn-secondary" role="button">Log out</a>
+
+</div>
+
+{% endblock %}
