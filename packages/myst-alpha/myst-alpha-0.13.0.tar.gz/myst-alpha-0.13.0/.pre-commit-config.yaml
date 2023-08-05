@@ -1,0 +1,53 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: requirements-txt-fixer
+        files: .*requirements(-.*|)\.txt
+
+  - repo: https://github.com/lucasmbrown/mirrors-autoflake
+    rev: v1.3
+    hooks:
+      - id: autoflake
+        args:
+          [
+            --in-place,
+            --remove-all-unused-imports,
+            --remove-unused-variable,
+            --ignore-init-module-imports,
+          ]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.9.2
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  - repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        language_version: python3.7
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910
+    hooks:
+      - id: mypy
+        additional_dependencies: ["pydantic[email]==1.8.2"]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.3.2
+    hooks:
+      # Auto-format html, javascript (including typescript), json, css, markdown, and yaml files.
+      - id: prettier
+
+  - repo: https://github.com/terrencepreilly/darglint
+    rev: v1.8.0
+    hooks:
+      - id: darglint
+        language_version: python3.7
+        # Exclude test files.
+        exclude: ^.*(_test.py)$

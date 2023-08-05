@@ -1,0 +1,53 @@
+{%- if model.required_properties or model.optional_properties -%}{#- Nontrivial model -#}
+from typing import Any, Dict, List, Optional, Type, TypeVar, Tuple, Optional, BinaryIO, TextIO, Union
+from typing_extensions import Literal
+
+from pydantic import Field
+
+from myst.models import base_model
+{% for relative in model.relative_imports %}
+{{ relative }}
+{% endfor %}
+
+{% if model.additional_properties %}
+{% set additional_property_type = 'Any' if model.additional_properties == True else model.additional_properties.get_type_string() %}
+{% endif %}
+
+{% set module_name = model.class_info.module_name %}
+
+{% from "property_macros.py.jinja" import get_type_string %}
+
+{%- macro get_field_string(prop) -%}
+{% set default = prop.default or "..." %}
+{% if prop.values|count == 1 and prop.default is not none -%}{#-Singleton literal -#}
+  {%- if prop.python_name != prop.name -%} = Field("{{ prop.values[prop.values|first] }}", alias="{{ prop.name }}")
+  {%- else -%} = "{{ prop.values[prop.values|first] }}"
+  {%- endif -%}
+{%- elif prop.python_name != prop.name %} = Field({{ default }}, alias="{{ prop.name }}")
+{%- elif prop.default is not none -%} = {{ prop.default }}
+{%- elif not prop.required or prop.nullable -%} = None
+{%- endif -%}
+{%- endmacro -%}
+
+class {{ model.class_info.name }}(base_model.BaseModel):
+    """{{ model.description }}"""
+
+    {% for prop in model.required_properties + model.optional_properties %}
+    {{ prop.python_name }}: {{ get_type_string(prop) }}{{ get_field_string(prop) }}
+    {% endfor %}
+
+{%- else -%}{#- Relatively useless model. It's just an alias for `Dict[str, Any]`. -#}
+from typing import Any, Dict
+
+from myst.models import base_model
+
+
+class {{ model.class_info.name }}(base_model.BaseModel):
+    """{{ model.description }}"""
+
+    __root__: Dict[str, Any]
+
+    def __getitem__(self, item: str) -> Any:
+        return self.__root__[item]
+
+{%- endif -%}

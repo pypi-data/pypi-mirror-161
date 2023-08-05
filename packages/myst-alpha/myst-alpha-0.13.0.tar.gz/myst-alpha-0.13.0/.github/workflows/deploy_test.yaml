@@ -1,0 +1,63 @@
+name: PyPI Deploy - Test
+on: workflow_dispatch
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi-test
+
+    outputs:
+      package_version: ${{ steps.version-extractor.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install flit
+        run: pip install flit
+
+      - name: Build using flit
+        run: flit build
+
+      - name: Publish the package to PyPI test
+        run: flit publish
+        env:
+          FLIT_INDEX_URL: "https://test.pypi.org/legacy/"
+          FLIT_USERNAME: "__token__"
+          FLIT_PASSWORD: ${{ secrets.MYST_ALPHA_PYPI_TOKEN }}
+
+      - name: Install toml
+        run: pip install toml
+
+      - name: Extract package version
+        id: version-extractor
+        run: echo "::set-output name=version::$(python -c "import toml; print(toml.load(\"pyproject.toml\")[\"project\"][\"version\"])")"
+
+
+  # Install in a separate job so that we don't have access to the repository.
+  installation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Install the package from the end user perspective, using `pip`. Note that we specify the `--extra-index-url`
+      # as the real PyPI so that we can pull dependencies from the real PyPI if needed.
+      - name: Install from PyPI Test
+        run: pip install myst-alpha==${{ needs.deployment.outputs.package_version }} --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+
+      # The distributed package does not contain tests; ergo, we just make sure we can import the package without errors.
+      - name: Ensure import myst works
+        run: python -c "import myst"
+
+    needs: deployment

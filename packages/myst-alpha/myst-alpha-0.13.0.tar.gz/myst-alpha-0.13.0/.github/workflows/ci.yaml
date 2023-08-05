@@ -1,0 +1,68 @@
+name: CI
+on: [push]
+jobs:
+  package:
+    name: Ensure import myst works
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Ensure import myst works
+        run: |
+          pip install .
+          python -c "import myst"
+  test:
+    name: Test on ${{ matrix.os }} / ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [ubuntu, windows]
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install flit
+        run: pip install flit
+
+      - name: Install the library with flit
+        run: flit install
+
+      - name: Run all the tests
+        run: pytest .
+  coverage:
+    name: Compute test coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install flit
+        run: pip install flit
+
+      - name: Install the library with flit
+        run: flit install
+
+      - name: Compute test coverage
+        run: pytest --cov=myst --cov-config=.coveragerc --cov-fail-under=90

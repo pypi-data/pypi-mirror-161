@@ -1,0 +1,42 @@
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+
+import httpx
+
+from myst.client import Client
+
+{% for relative in endpoint.relative_imports %}
+{{ relative }}
+{% endfor %}
+
+{% from "endpoint_macros.py.jinja" import header_params, cookie_params, query_params, json_body, multipart_body, arguments, client, parse_response %}
+
+{% set return_string = endpoint.response_type() %}
+{% set parsed_responses = (endpoint.responses | length > 0) and return_string != "Any" %}
+
+{% if parsed_responses %}
+{% set primary_response_type = (endpoint.responses|first).prop.class_info.name %}
+def request_sync(
+    {{ arguments(endpoint) | indent(4) }}
+) -> {{ primary_response_type }}:
+    """{{ endpoint.description }}"""
+    {{ header_params(endpoint) | indent(4) }}
+    {{ cookie_params(endpoint) | indent(4) }}
+    {{ query_params(endpoint) | indent(4) }}
+    {{ multipart_body(endpoint) | indent(4) }}
+
+    return client.request(
+        method="{{ endpoint.method }}",
+        path=f"{{ endpoint.path }}",
+        response_class={{ primary_response_type }},
+        {% if endpoint.form_body_class %}
+        data=form_data.to_dict(),
+        {% elif endpoint.multipart_body %}
+        files={{ "multipart_" + endpoint.multipart_body.python_name }},
+        {% elif endpoint.json_body %}
+        request_model=json_body,
+        {% endif %}
+        {% if endpoint.query_parameters %}
+        params=params,
+        {% endif %}
+    )
+{% endif %}

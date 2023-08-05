@@ -1,0 +1,28 @@
+name: PyPI Deploy
+on: workflow_dispatch
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install flit
+        run: pip install flit
+
+      - name: Build using flit
+        run: flit build
+
+      - name: Publish the package to PyPI
+        run: flit publish
+        env:
+          FLIT_USERNAME: "__token__"
+          FLIT_PASSWORD: ${{ secrets.MYST_ALPHA_PYPI_TOKEN }}

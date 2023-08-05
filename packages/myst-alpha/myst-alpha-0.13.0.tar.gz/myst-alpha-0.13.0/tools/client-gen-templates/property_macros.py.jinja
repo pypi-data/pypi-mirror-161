@@ -1,0 +1,33 @@
+{%- macro get_inner_type_string(prop) -%}
+    {%- if prop.values|count == 1 -%}
+        Literal["{{ prop.values[prop.values|first] }}"]{# TODO: Figure out how to test for string-valued enum. Don't quote other types. #}
+    {%- elif prop.class_info -%}{#- Model property -#}
+        {%- if prop.required_properties or not prop.additional_properties -%}
+            {{ prop.class_info.name }}
+        {%- elif prop.additional_properties is defined and prop.additional_properties is sameas true -%}{# Additional properties defaults to `true` if there is no additional schema info, thus refers to "Any" type #}
+            Dict[str, {{ "Any" }}]
+        {%- elif prop.additional_properties -%}
+            Dict[str, Optional[{{ get_inner_type_string(prop.additional_properties) }}]]
+        {%- else -%}{#- No information -#}
+            Any
+        {%- endif -%}
+    {%- elif prop.inner_properties -%}{#- Union property -#}
+        Union[
+        {%- for inner_prop in prop.inner_properties -%}
+            {{ get_inner_type_string(inner_prop) }}{{ ", " if not loop.last }}
+        {%- endfor -%}
+        ]
+    {%- elif prop.inner_property -%}{#- List property, i think? -#}
+        List[{{ get_inner_type_string(prop.inner_property) }}]
+    {%- else -%}
+        {{ prop._type_string or "Any" }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_type_string(prop) -%}
+    {%- if prop.required and not prop.nullable -%}
+        {{ get_inner_type_string(prop) }}
+    {%- else -%}
+        Optional[{{ get_inner_type_string(prop) }}]
+    {%- endif -%}
+{%- endmacro -%}
