@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+#
+# Author: Klaus K. Holst
+#
+# kvaser multiple file processer
+#
+
+import kvaser as kv
+import argparse
+import re
+import os
+import subprocess
+from rich.console import Console
+from rich.style import Style
+
+
+input_str = '@in'
+output_str = '@out'
+
+if __name__ == '__main__':
+   parser = argparse.ArgumentParser(description='Kvaser Multiple File Processing',
+                                    epilog='''Example: mproc -m ^test head @in;
+                                    Example: mproc -m ^test 'mv @in @out';
+                                    Same as: mproc -m ^test mv''')
+   parser.add_argument('-m', '--match', dest='match',
+                       default='.',
+                       help='regex search string (default \'.\')')
+   parser.add_argument('-o', '--output', dest="replace",
+                       default=None,
+                       help='Optional replacement string')
+   parser.add_argument('-p', '--path', dest='path',
+                       default='.',
+                       help='path to process (default current working directory)')
+   parser.add_argument('-s', '--silent', dest='silent',
+                        action='store_true',
+                        help='silent mode')
+   parser.add_argument('cmd',
+                       nargs=argparse.REMAINDER,
+                       default='',
+                       help='shell command to be called with two arguments (input and output)')
+
+
+   args = parser.parse_args()
+   match = args.match
+   replacement = args.replace
+
+   filelist = [f for f in os.listdir(args.path) if re.search(match, f)]
+
+   console = Console()
+   cmd = ' '.join(args.cmd)
+   # print("'" + cmd + "'" + "\n")
+   verbose = not args.silent
+   base_hd = Style.parse("bold red") + Style(underline=True)
+
+   for filename in filelist:
+      if replacement is None:
+         nfilename = filename
+      else:
+         nfilename = re.sub(match, replacement, filename, count=1)
+      if verbose and cmd == '':
+         console.print(filename, ' -> ', nfilename, style=Style.parse("red"))
+      filename = os.path.join(args.path, filename)
+      nfilename = os.path.join(args.path, nfilename)
+      if cmd != '':
+         cmd0 = cmd
+         if re.search(input_str, cmd0):
+            cmd0 = re.sub(input_str, filename, cmd0)
+            cmd0 = re.sub(output_str, nfilename, cmd0)
+         else:
+            cmd0 = cmd0 + ' ' + filename + ' ' + nfilename
+         if verbose:
+            console.print(cmd0, style=base_hd)
+         val = subprocess.run(cmd0, capture_output=True, shell=True)
+         if verbose:
+            res = val.stdout.decode()
+            console.print(res)
