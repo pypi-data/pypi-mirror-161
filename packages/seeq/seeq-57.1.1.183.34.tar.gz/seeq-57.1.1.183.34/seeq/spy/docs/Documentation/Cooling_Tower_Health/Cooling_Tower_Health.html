@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <h1>Cooling Tower Health</h1>
+    <p class="lead">North American Operations</p>
+    <hr>
+    ${display(asset.Incident_Display(), date_range=asset.Last_Two_Months(), width=700, height=400)}
+    <img src="${image('United_States_Map.png')}">
+    <table>
+      <tbody>
+        <tr>
+          <td class="" contenteditable="true"
+                  style="background-color:LightGray;">
+            <span style="display:inline-block;">Area&nbsp;</span>
+          </td>
+          <td contenteditable="true" style="background-color:LightGray;">
+            <span style="display:inline-block;">Chart</span>
+          </td>
+          <td contenteditable="true" style="background-color:LightGray;">
+            <span style="display:inline-block;">Notes</span>
+          </td>
+        </tr>
+        % for area in sorted(asset.Areas().assets(), key=lambda a: a['Name']):
+        <tr>
+          <td class="" contenteditable="true">
+            <span style="display:inline-block;">Area ${area['Name']}</span>
+          </td>
+          <td class="" contenteditable="true">
+            <span style="display:inline-block;">
+              ${display(area.Detail(), date_range=asset.Last_Week(), width=700, height=400)}
+            </span>
+          </td>
+          <td class="" contenteditable="true">
+            <span style="display:inline-block;">
+            </span>
+          </td>
+        </tr>
+        % endfor
+      </tbody>
+    </table>
+  </body>
+</html>
