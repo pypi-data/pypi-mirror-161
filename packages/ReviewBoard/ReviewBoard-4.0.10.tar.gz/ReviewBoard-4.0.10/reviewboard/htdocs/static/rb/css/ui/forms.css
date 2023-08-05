@@ -1,0 +1,765 @@
+/**
+ * Styles for forms and form fields.
+ */
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=text],
+input[type=url] {
+  border: 1px #999999 solid;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: inherit;
+  padding: 4px 8px;
+}
+textarea {
+  border: 1px #999999 solid;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: inherit;
+}
+.CodeMirror {
+  border: 1px #999999 solid;
+  border-radius: 4px;
+  cursor: text;
+}
+/**
+ * Django form validation error list.
+ *
+ * These are some default styles for errorlists that provide a default look
+ * when in typical forms.
+ *
+ * Note:
+ *     The ``.rb-c-form-field`` component specializes this, changing the
+ *     presentation to better fit in with the rest of the enhanced form UI.
+ *     It's recommended that consumers make use of that component.
+ *
+ * Structure:
+ *     <ul class="errorlist">
+ *      <li>...</li>
+ *      ...
+ *     </ul>
+ */
+.errorlist {
+  color: #DD0000;
+  display: inline;
+  font-weight: bold;
+  margin: 0 0 0 15px;
+  padding: 4px 8px;
+}
+.errorlist li {
+  display: inline;
+}
+/**
+ * A standard form.
+ *
+ * This provides consistent styling for forms, providing modifiers to easily
+ * make form inputs (and related content, like help text and errors) line up
+ * to the right of labels.
+ *
+ * When placed in a standard ``.rb-c-content-box``, it's recommended that
+ * you set ``<body class="-is-content-flush-on-mobile">`` and
+ * ``<div class="rb-c-content-box -is-content-flush">``.
+ *
+ * Modifiers:
+ *     -is-aligned:
+ *         Aligns inputs, help text, errors, and similar content for all fields
+ *         into the column, positioned right of a column of labels.
+ *
+ * Structure:
+ *     <form class="rb-c-form [modifiers]">
+ *      <fieldset class="rb-c-form-fieldset">...</fieldset>
+ *      ...
+ *
+ *      <div class="rb-c-form__actions">
+ *       ...
+ *      </div>
+ *     </form>
+ */
+.rb-c-form {
+  margin: 0;
+  padding: 0;
+  /**
+   * An action that can be taken on a form.
+   *
+   * This is used for things like submit buttons, or for links that in some
+   * way interact with the form.
+   *
+   * Structure:
+   *     <input class="rb-c-form__action" type="submit">
+   *     <button class="rb-c-form__action">Delete</button>
+   *     <a href="#" class="rb-c-form__action">Frobnicate</button>
+   */
+  /**
+   * The action area for a form.
+   *
+   * This contains up to two action areas: A primary set of actions (required),
+   * and a secondary set of actions (optional).
+   *
+   * This is usually positioned at the bottom of the form.
+   *
+   * Structure:
+   *     <div class="rb-c-form__actions">
+   *      <div class="rb-c-form__actions-primary">...</div>
+   *      <div class="rb-c-form__actions-secondary">...</div>
+   *     </div>
+   */
+  /**
+   * The primary set of actions for a form.
+   *
+   * This is intended to contain form submission buttons and any other
+   * prominent actions that the user may want to invoke.
+   *
+   * This is displayed on the left of the action area.
+   *
+   * Structure:
+   *     <div class="rb-c-form__actions-primary">
+   *      <input class="rb-c-form__action" type="submit">
+   *      <button class="rb-c-form__action">...</button>
+   *      ...
+   *     </div>
+   */
+  /**
+   * A secondary set of actions for a form.
+   *
+   * This is intended to contain form submission buttons and any other
+   * prominent actions that the user may want to invoke.
+   *
+   * This is displayed on the right of the action area.
+   *
+   * Structure:
+   *     <div class="rb-c-form__actions-secondary">
+   *      <button class="rb-c-form__action">...</button>
+   *      <a href="rb-c-form__action">...</a>
+   *      ...
+   *     </div>
+   */
+}
+.rb-c-form.-is-aligned {
+  /*
+     * The goal is to align the fields alongside the labels without the
+     * input/help text area wrapping below the label when that content wraps.
+     * We want to keep that area aligned.
+     *
+     * The very easiest, safest way to do this is to use table-based layout,
+     * which will turn on table's alignment and wrapping rules.
+     *
+     * We only need to set `display: table-cell` for the aligned parts:
+     * .rb-c-form-field__label and .rb-c-form-field__input.
+     */
+}
+@media only screen and (min-width: 1024px) {
+  .rb-c-form.-is-aligned .rb-c-form-field__label {
+    /*
+         * We're using min/max-width to force this width to stick when the
+         * .rb-c-form-field__input is set to 100%. If we just used `width:`,
+         * these would collapse down to a minimum width.
+         */
+    min-width: 160px;
+    max-width: 160px;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-fieldset.-is-wide .rb-c-form-field__label {
+    /*
+         * We're using min/max-width to force this width to stick when the
+         * .rb-c-form-field__input is set to 100%. If we just used `width:`,
+         * these would collapse down to a minimum width.
+         */
+    min-width: 200px;
+    max-width: 200px;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-field.-has-input-first {
+    display: block;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-field.-has-input-first .rb-c-form-field__input {
+    display: inline-block;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-field.-has-input-first .rb-c-form-field__label {
+    display: inline-block;
+    min-width: 0;
+    max-width: none;
+    margin-top: 0;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-field__label {
+    display: table-cell;
+    margin-bottom: 0;
+    /* Help align the labels with most input content. */
+    margin-top: 4px;
+  }
+  .rb-c-form.-is-aligned .rb-c-form-field__input {
+    display: table-cell;
+  }
+}
+.rb-c-form__action {
+  box-sizing: border-box;
+  font-size: 13px;
+  text-align: center;
+  /*
+     * See the comment for &__actions below to see how we're handling the
+     * spacing around actions.
+     */
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-form__action {
+    margin: 1em 1em 0 0;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-form__action {
+    margin: 1em 0 0 0;
+    width: 100%;
+    /* Force one action per line. */
+    float: left;
+    clear: left;
+  }
+}
+.rb-c-form__actions {
+  display: inline-block;
+  display: block;
+  /*
+     * In order to ensure proper spacing along the sides and between each
+     * action (when in one row and when wrapped), we need to divvy up which
+     * element is responsible for which part of the padding.
+     *
+     * On desktop, the bottom and left of this container will contain padding.
+     * The top and right of each action will contain a margin with the same
+     * padding value. In the end, this creates a consistent padding across all
+     * actions and the container.
+     *
+     * Mobile is similar, but each action on mobile gets a full width and its
+     * own row, so we're going to want to let this container own the padding
+     * on both sides.
+     */
+}
+.rb-c-form__actions:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-form__actions {
+    padding: 0 0 1em 1em;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-form__actions {
+    padding: 0 1em 1em 1em;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-form__actions-primary {
+    float: left;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-form__actions-secondary {
+    float: right;
+  }
+}
+.rb-c-form__actions-primary,
+.rb-c-form__actions-secondary {
+  /* Remove any extra whitespace gaps between actions. */
+  font-size: 0;
+}
+/**
+ * A field on a form.
+ *
+ * Form fields contain a label, input widget, help text, and errors. Their
+ * presentation depends on the display modifiers set on the parent
+ * ``.rb-c-form``.
+ *
+ * Modifiers:
+ *     -has-errors:
+ *         This field has errors.
+ *
+ *     -has-input-first:
+ *         The field input is before the label. This is intended for field
+ *         inputs like checkboxes or radio buttons.
+ *
+ *     -is-required:
+ *         Whether the field is required. This will place a visual marker
+ *         after the label.
+ *
+ *         Inputs should also have their ``required`` attribute set.
+ *
+ * Structure:
+ *     <div class="rb-c-form-field [modifiers]">
+ *      <div class="rb-c-form-field__errors">...</div>
+ *      <label class="rb-c-form-field__label" for="...">...</label>
+ *      <div class="rb-c-form-field__input">...</div>
+ *     </div>
+ */
+.rb-c-form-field {
+  /**
+   * Errors shown for the field.
+   *
+   * This is shown before the row containing the label and input. It's meant
+   * to contain a Django ``ul.errorlist``.
+   *
+   * Structure:
+   *     <div class="rb-c-form-field__errors">
+   *      <ul class="errorlist">...</ul>
+   *     </div>
+   */
+  /**
+   * Help text offering guidance for the field.
+   *
+   * Structure:
+   *     <div class="rb-c-form-field__help">
+   *      ...
+   *     </div>
+   */
+  /**
+   * The container for an input widget for the field.
+   *
+   * This may contain a standard field input, like ``<input>`` or
+   * ``<textarea>``, or a potentially more complex custom widget.
+   * It may also contain help text.
+   *
+   * Structure:
+   *     <div class="rb-c-form-field__input">
+   *      <input ...>
+   *      <div class="rb-c-form-field__help">...</div>
+   *     </div>
+   */
+  /**
+   * The field's label.
+   *
+   * Structure:
+   *     <label class="rb-c-form-field__label" for="...">...</label>
+   */
+  /**
+   * The read-only value for a field.
+   *
+   * This is used in place of an input when the field is representing a
+   * read-only value.
+   *
+   * Structure:
+   *     <div class="rb-c-form-field__readonly-value">...</div>
+   */
+}
+.rb-c-form-field.-has-errors .rb-c-form-field__label {
+  color: #CB0000;
+}
+.rb-c-form-field.-has-errors .rb-c-form-field__input input,
+.rb-c-form-field.-has-errors .rb-c-form-field__input select,
+.rb-c-form-field.-has-errors .rb-c-form-field__input textarea {
+  border-color: #CB0000;
+}
+.rb-c-form-field.-has-input-first .rb-c-form-field__input {
+  /*
+       * We'll be setting this to not wrap, and then setting the label to
+       * wrap, so that if the label is long (which may easily happen on
+       * mobile), it won't wrap below the checkbox/radio input. If we didn't
+       * do this, the entire label would move below the input.
+       */
+  white-space: nowrap;
+}
+.rb-c-form-field.-has-input-first .rb-c-form-field__label {
+  display: inline-block;
+  font-weight: normal;
+  margin-bottom: 0;
+  margin-top: 0;
+  white-space: normal;
+}
+.rb-c-form-field.-is-required .rb-c-form-field__label:after,
+label.required:after {
+  color: #CB0000;
+  content: ' *';
+  font-size: 10px;
+  font-weight: bold;
+}
+.rb-c-form-field__errors {
+  border-radius: 4px;
+  border: 1px transparent solid;
+  margin: 0 0 1em 0;
+  padding: 1em;
+  /**
+   * Content to display within the alert.
+   *
+   * If showing only a single paragraph of text, this should be a ``<p>`` tag.
+   * If showing multiple paragraphs, or other HTML content, use a ``<div>``
+   * with the content inside.
+   *
+   * Structure:
+   *     <p class="rb-c-alert__content">...</p>
+   *
+   *     <div class="rb-c-alert__content">
+   *      <h3 class="rb-c-alert__heading">...</h3>
+   *      <p>...</p>
+   *      ...
+   *     </div>
+   */
+  /**
+   * An optional header above content in the alert.
+   *
+   * This may be used anywhere within an ``.rb-c-alert__content`` to provide
+   * a heading above some part of the content. A common usage would be to
+   * provide it as the first element to create a prominent heading for the
+   * alert.
+   *
+   * Structure:
+   *     <h3 class="rb-c-alert__heading">
+   *      text...
+   *     </h3>
+   */
+  background: #FFD6DC;
+  border-color: #ff8a9b;
+}
+.rb-c-form-field__errors:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  float: left;
+  font-size: 18px;
+  margin-right: 0.5em;
+  text-align: center;
+  width: 18px;
+}
+.rb-c-form-field__errors:last-child {
+  margin-bottom: 0;
+}
+.rb-c-form-field__errors.-is-error {
+  background: #FFD6DC;
+  border-color: #ff8a9b;
+}
+.rb-c-form-field__errors.-is-error:before {
+  content: "\f06a";
+}
+.rb-c-form-field__errors.-is-info {
+  background: #DAEBFF;
+  border-color: #8ec2ff;
+}
+.rb-c-form-field__errors.-is-info:before {
+  content: "\f05a";
+}
+.rb-c-form-field__errors.-is-success {
+  background: #D1F5A9;
+  border-color: #6dbc16;
+}
+.rb-c-form-field__errors.-is-success:before {
+  content: "\f00c";
+}
+.rb-c-form-field__errors.-is-warning {
+  background: #FFF4B0;
+  border-color: #caad00;
+}
+.rb-c-form-field__errors.-is-warning:before {
+  content: "\f071";
+}
+.rb-c-form-field__errors__content {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.rb-c-form-field__errors__content > :first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+.rb-c-form-field__errors__content > :last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.rb-c-form-field__errors__heading {
+  font-size: 100%;
+  font-weight: bold;
+  margin: 2em 0 1em 0;
+  padding: 0;
+}
+.rb-c-form-field__errors:before {
+  content: "\f06a";
+}
+.rb-c-form-field__errors .errorlist,
+.djblets-c-config-forms-page__content .rb-c-form-field__errors .errorlist {
+  color: inherit;
+  display: inline;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__errors .errorlist li,
+.djblets-c-config-forms-page__content .rb-c-form-field__errors .errorlist li {
+  display: inline;
+}
+.rb-c-form-field__help {
+  color: #555555;
+  font-size: 10px;
+  margin: 0;
+  padding: 8px 0 0 16px;
+  position: relative;
+}
+.rb-c-form-field__help:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  content: "\f29c";
+  font-size: 12px;
+  position: absolute;
+  left: 0;
+}
+.rb-c-form-field__input {
+  display: inline-block;
+  vertical-align: top;
+  /*
+     * Make sure this gets as much space as possible, so that any widgets
+     * nested within will not be constrained.
+     */
+  width: 100%;
+  /* Radio buttons and multi-select checkboxes. */
+}
+.rb-c-form-field__input > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input > ul > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input > ul > li + li {
+  margin-top: 1em;
+}
+.rb-c-form-field__input input[type=checkbox],
+.rb-c-form-field__input input[type=radio] {
+  /* Help these inputs align with their labels and help text. */
+  margin: 0;
+}
+.rb-c-form-field__label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  vertical-align: top;
+  word-wrap: break-word;
+}
+/**
+ * A fieldset containing an optional title and one or more rows of fields.
+ *
+ * Fieldsets can optionally be collapsable, allowing more advanced fields
+ * to be hidden by default.
+ *
+ * DOM Attributes:
+ *     data-subform-group (string):
+ *         The group that this subform belongs to, if using ``-is-subform``.
+ *         All subforms that are part of the same location in the form or
+ *         should be considered together for visibility purposes should have
+ *         the same group.
+ *
+ *         This should not be specified if ``data-subform-controller` is set.
+ *
+ *     data-subform-controller (string):
+ *         A selector for a ``<select>`` (or another element that returns
+ *         a value) that controls the presence of this subform, if using
+ *         ``-is-subform``. The input should have a ``data-subform-group``
+ *         attribute set.
+ *
+ *     data-subform-id (string):
+ *         A unique ID for this subform, if using ``-is-subform``. This
+ *         must be unique within the group (see ``data-subform-group``).
+ *
+ *     disabled:
+ *         Disable the fieldset, preventing fields from being sent to the
+ *         server.
+ *
+ *         This should be used along with ``hidden`` if using the
+ *         ``-is-subform`` modifier and the subform is not intended to be
+ *         shown.
+ *
+ *     hidden:
+ *         Hides the fieldset.
+ *
+ *         This should be used along with ``disabled`` if using the
+ *         ``-is-subform`` modifier and the subform is not intended to be
+ *         shown.
+ *
+ * Modifiers:
+ *     -is-collapsed:
+ *         Collapses the fieldset by default, requiring it to be uncollapsed
+ *         manually before fields can be shown and modified.
+ *
+ *     -is-subform:
+ *         Marks this as a subform, which is a set of fields within a form
+ *         that may be conditionally hidden or shown based on another
+ *         condition or value within the form. Users of this should set
+ *         the ``hidden`` and ``disabled`` attributes to hide the subform and
+ *         prevent its contents from being sent to the server, and should
+ *         provide the appropriate ``data-`` attributes.
+ *
+ * Structure:
+ *     <fieldset class="rb-c-form-fieldset [modifiers]">
+ *      <legend class="rb-c-form-fieldset__name">...</legend>
+ *      <div class="rb-c-form-fieldset__content">...</div>
+ *     </fieldset>
+ *
+ *     <fieldset class="rb-c-form-fieldset -is-subform"
+ *               data-subform-controller="..."
+ *               data-subform-id="...">"
+ *      <legend class="rb-c-form-fieldset__name">...</legend>
+ *      <div class="rb-c-form-fieldset__content">...</div>
+ *     </fieldset>
+ *
+ *     <fieldset class="rb-c-form-fieldset -is-subform"
+ *               data-subform-group="..."
+ *               data-subform-id="...">"
+ *      <legend class="rb-c-form-fieldset__name">...</legend>
+ *      <div class="rb-c-form-fieldset__content">...</div>
+ *     </fieldset>
+ */
+.rb-c-form-fieldset {
+  border: 0;
+  border-top: 1px #C0C0C0 solid;
+  margin: 2em 0 0 0;
+  padding: 0 1em;
+  /**
+   * The content area of a fieldset.
+   *
+   * This contains any descriptive content and the container for the fields.
+   *
+   * Structure:
+   *     <div class="rb-c-form-fieldset__content">
+   *      <div class="rb-c-form-fieldset__description">...</div>
+   *      <div class="rb-c-form-fieldset__fields">...</div>
+   *     </div>
+   */
+  /**
+   * The description of the fields in a fieldset.
+   *
+   * Structure:
+   *     <div class="rb-c-form-fieldset__description">
+   *      ...
+   *     </div>
+   */
+  /**
+   * The fields that make up the fieldset.
+   *
+   * Structure:
+   *     <div class="rb-c-form-fieldset__fields">
+   *      <div class="rb-c-form-row">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * The name of the form.
+   *
+   * This is shown at the top of the fieldset.
+   *
+   * Structure:
+   *     <legend class="rb-c-form-fieldset__name">
+   *      text...
+   *      <a href="#" class="rb-c-form-fieldset__toggle">...</a>
+   *     </legend>
+   */
+  /**
+   * The toggle for expanding or collapsing a fieldset.
+   *
+   * Structure:
+   *     <a href="#" class="rb-c-form-fieldset__toggle">...</a>
+   */
+}
+.rb-c-form-fieldset:first-of-type {
+  margin-top: 0;
+  border-top: 0;
+}
+.rb-c-form-fieldset:first-of-type > .rb-c-form-fieldset__name {
+  padding-top: 0;
+}
+.rb-c-form-fieldset.-is-collapsed {
+  background: #E9E9E9;
+  border-top: 1px #C0C0C0 solid;
+  border-bottom: 1px #C0C0C0 solid;
+}
+.rb-c-form-fieldset.-is-collapsed + .rb-c-form-fieldset {
+  border-top: 0;
+  margin-top: 0;
+}
+.rb-c-form-fieldset.-is-collapsed > .rb-c-form-fieldset__content {
+  display: none;
+}
+.rb-c-form-fieldset.-is-collapsed > .rb-c-form-fieldset__name {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.rb-c-form-fieldset.-is-subform .rb-c-form-fieldset {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+.rb-c-form-fieldset__content {
+  clear: both;
+  overflow-y: hidden;
+}
+.rb-c-form-fieldset__description {
+  padding: 0;
+  margin: 1em 0;
+}
+.rb-c-form-fieldset__name {
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+  /*
+     * Browsers render <legend> in such a way where it overlaps the border.
+     * The fixes for these are all a bit hacky, but one solution is to
+     * float and apply a clearfix.
+     */
+  float: left;
+  display: inline-block;
+  margin: 1em 0;
+  padding: 0;
+  width: 100%;
+}
+.rb-c-form-fieldset__name:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+.rb-c-form-fieldset__toggle {
+  font-size: 80%;
+  font-weight: normal;
+  margin-left: 1em;
+}
+/**
+ * A row in a form containing a field.
+ *
+ * Structure:
+ *  <div class="rb-c-form-row">
+ *   <div class="rb-c-form-field">...</div>
+ *  </div>
+ */
+.rb-c-form-row,
+.djblets-c-config-forms-page__content .rb-c-form-row.fields-row,
+.config-forms-page-content .rb-c-form-row.fields-row {
+  margin: 1em 0;
+  padding: 0;
+}
+/* Legacy styles. */
+form td {
+  padding: 8px 8px 4px 4px;
+}
+form td.label {
+  text-align: right;
+  font-weight: bold;
+}
+form th {
+  text-align: right;
+  vertical-align: top;
+}
+td.help {
+  font-size: 10px;
+  color: #333;
+  padding-top: 0;
+}
+/*# sourceMappingURL=forms.css.map */

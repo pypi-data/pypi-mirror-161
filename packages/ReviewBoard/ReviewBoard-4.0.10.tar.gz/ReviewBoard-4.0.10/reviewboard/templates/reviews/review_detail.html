@@ -1,0 +1,101 @@
+{% extends "reviews/reviewable_base.html" %}
+{% load i18n djblets_deco djblets_js pipeline reviewtags staticfiles %}
+
+{% block title %}{{review_request_details.summary}} | {% trans "Review Request" %}{% endblock %}
+
+{% block css %}
+{{block.super}}
+
+{%  if siteconfig_settings.diffviewer_show_trailing_whitespace %}
+<style type="text/css">
+  .ew { background: #ee3434; }
+</style>
+{%  endif %}
+{% endblock css %}
+
+
+{% block js-page-view-type %}RB.ReviewRequestPage.ReviewRequestPageView{% endblock %}
+{% block js-page-model-type %}RB.ReviewRequestPage.ReviewRequestPage{% endblock %}
+{% block js-page-model-attrs %}{
+    updatesURL: "{% url 'review-request-updates' review_request.display_id %}",
+    {% reviewable_page_model_data %}
+}{% endblock js-page-model-attrs%}
+
+
+{% block content %}
+<div id="review-request">
+ <div id="review-request-banners"></div>
+{% display_review_request_trophies review_request %}
+ <div class="review-request">
+{%   include "reviews/review_request_header.html" %}
+
+  <div class="review-request-body">
+{%   include "reviews/review_request_box.html" with show_issue_summary_table=True %}
+  </div>
+ </div>
+</div>
+
+<div id="reviews">
+{%  render_review_request_entries entries.initial %}
+
+ <ul id="view_controls">
+{%  if entries %}
+  <li>
+   <a href="#" id="expand-all">
+    <span class="fa fa-plus"></span>
+    <span>{% trans "Expand All" %}</span>
+   </a>
+  </li>
+  <li>
+   <a href="#" id="collapse-all">
+    <span class="fa fa-minus"></span>
+    <span>{% trans "Collapse All" %}</span>
+   </a>
+  </li>
+{%  endif %}
+ </ul>
+
+{%  render_review_request_entries entries.main %}
+</div>
+{% endblock content %}
+
+{% block scripts-post %}
+{{block.super}}
+{%  javascript 'review-request-page' %}
+{% endblock scripts-post %}
+
+
+{% block js_extensions %}
+{%  comment %}
+We have to load all of the review request fields after the extensions JS,
+because extension-provided field classes have to be defined at the time that
+this code runs.
+{%  endcomment %}
+
+{{block.super}}
+
+<script>
+{%  include "reviews/review_request_box.js" %}
+
+    RB.PageManager.beforeRender(function(page) {
+{%  for entry in entries.initial %}
+{%   if entry.js_template_name %}
+{%    include entry.js_template_name %}
+{%   endif %}
+{%  endfor %}
+
+{%  for entry in entries.main %}
+{%   if entry.js_template_name %}
+{%    include entry.js_template_name %}
+{%   endif %}
+{%  endfor %}
+    });
+
+{%  if request.GET.reply_id and request.GET.reply_type %}
+    RB.PageManager.ready(function(page) {
+        page.openCommentEditor("{{request.GET.reply_type|escapejs}}",
+                               parseInt("{{request.GET.reply_id|escapejs}}", 10));
+    });
+{%  endif %}
+</script>
+{% endblock %}

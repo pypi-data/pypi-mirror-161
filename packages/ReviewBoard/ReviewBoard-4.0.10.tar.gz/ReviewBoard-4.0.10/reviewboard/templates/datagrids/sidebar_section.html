@@ -1,0 +1,18 @@
+<li class="rb-c-sidebar__section -has-icons{% if active %} -is-active{% endif %}{% if css_classes %} {{css_classes|join:' '}}{% endif %}">
+ <header class="rb-c-sidebar__section-header">
+  {% if url %}<a href="{{url}}">{% endif %}
+  {% if icon_name %}<div class="rb-icon {{icon_name}}"></div>{% endif %}
+  {{label}}
+{% if has_count %}
+  <span class="rb-c-sidebar__item-value{% if count == 0 %} -is-dimmed{% endif %}">{{count}}</span>
+{% endif %}
+  {% if url %}</a>{% endif %}
+ </header>
+{% if items %}
+ <ul class="rb-c-sidebar__items">
+{%  for item in items %}
+{{item.render}}
+{%  endfor %}
+ </ul>
+{% endif %}
+</li>

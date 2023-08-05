@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load accounts djblets_extensions djblets_js djblets_utils %}
+{% load features i18n pipeline rbproduct staticfiles %}
+
+<html>
+ <head>
+{% block global-vars %}{% endblock %}
+  <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+  <title>{% block title %}{% endblock %} | {{PRODUCT_NAME}}</title>
+{% block extrahead %}{% endblock %}
+{% template_hook_point "base-extrahead" %}
+  <script type="text/javascript">
+    var AJAX_SERIAL = "{{AJAX_SERIAL}}",
+        TEMPLATE_SERIAL = "{{settings.TEMPLATE_SERIAL}}",
+        SITE_ROOT = "{{SITE_ROOT}}",
+        MANUAL_URL = '{{RB_MANUAL_URL}}',
+        STATIC_URLS = {
+            'rb/images/favicon_notify.ico': '{% static "rb/images/favicon_notify.ico" %}',
+            'rb/images/resize-grip.png': '{% static "rb/images/resize-grip.png" %}',
+            'rb/images/logo.png': '{% static "rb/images/logo.png" %}'
+        };
+{% block jsconsts %}{% endblock %}
+  </script>
+  <link rel="shortcut icon" type="image/x-icon" href="{% static "rb/images/favicon.ico" %}" />
+  <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static "rb/images/apple-home-icon.png" %}" />
+{% block css %}
+{%  stylesheet 'common' %}
+{%  stylesheet 'djblets-ui' %}
+{% endblock css %}
+{% load_extensions_css "reviewboard.extensions" %}
+{% template_hook_point "base-css" %}
+{% javascript '3rdparty-base' %}
+{% block scripts %}{% endblock %}
+{% template_hook_point "base-scripts" %}
+ </head>
+{% block bodytag %}
+ <body class="{% block page_class %}default-page{% endblock %} {% if is_read_only %}read-only{% endif %}">
+{% endblock %}
+
+{%  definevar "sidebar_content" strip %}
+{%   block sidebar %}{% endblock %}
+{%  enddefinevar %}
+{%  definevar "sidebar_css_classes" spaceless %}
+{%   block sidebar-css-classes %}{% endblock %}
+{%  enddefinevar %}
+{%  definevar "page_sidebar_css_classes" spaceless %}
+{%   block page-sidebar-css-classes %}{% endblock %}
+{%  enddefinevar %}
+
+  <div id="container">
+   <header id="topbar" role="banner">
+{% block headerbar %}
+{%  include "base/headerbar.html" %}
+{%  template_hook_point "base-before-navbar" %}
+    <div id="navbar-container">
+     <nav aria-label="{% trans 'Main pages' %}">
+{%  block navbar %}
+{%   include "base/navbar.html" %}
+{%  endblock %}
+     </nav>
+{%  template_hook_point "base-after-navbar" %}
+{%  block read_only_banner %}
+{%   if siteconfig_settings.site_read_only %}
+     <div id="read-only-banner">
+      <h2 id="read-only-banner-header">
+{%    blocktrans %}
+       {{PRODUCT_NAME}} is in read-only mode.
+{%    endblocktrans %}
+      </h2>
+{%    if read_only_message %}
+      <span id="read-only-banner-message">{{read_only_message}}</span>
+{%    endif %}
+     </div>
+{%   endif %}
+{%  endblock read_only_banner %}
+{%  block navbar_post %}{% endblock %}
+     <noscript>
+      <div class="rb-c-alert -is-error">
+       <div class="rb-c-alert__content">
+        <h3 class="rb-c-alert__heading">{% spaceless %}
+{%    blocktrans %}
+         {{PRODUCT_NAME}} requires JavaScript to be enabled.
+{%    endblocktrans %}
+{%   endspaceless %}</h3>
+        <p>
+{%   blocktrans %}
+         Please make sure that JavaScript is enabled in your browser. If you
+         are using a browser extension to selectively enable or disable
+         JavaScript, make sure it's enabled for this server.
+{%   endblocktrans %}
+        </p>
+       </div>
+      </div>
+     </noscript>
+    </div>
+{% endblock %}
+   </header>
+
+{%  include "base/page_sidebar.html" %}
+
+   <div id="page-container">
+    <div id="error"></div>
+    <div id="content_container">
+     <main id="content">
+{% template_hook_point "base-before-content" %}
+{% block main_content %}
+{%  block content %}{% endblock %}
+{% endblock %}
+{% template_hook_point "base-after-content" %}
+     </main>
+    </div>
+   </div>
+  </div>
+  <div id="activity-indicator">
+   <span class="fa fa-spinner fa-pulse"></span>
+   <span class="indicator-text">{% trans "Loading..." %}</span>
+  </div>
+  <script src="{% url 'js-catalog' %}"></script>
+  {% javascript '3rdparty' %}
+  {% javascript 'djblets-gravy' %}
+  {% javascript 'djblets-utils' %}
+  {% javascript 'djblets-extensions' %}
+  {% javascript 'djblets-widgets' %}
+  {% javascript 'common' %}
+  <script>
+    RB.Product = {% js_product_info %};
+    RB.UserSession.create({% js_user_session_info %});
+    RB.EnabledFeatures = {
+        issueVerification: {% if_feature_enabled 'reviews.issue_verification' %}true{% else %}false{% endif_feature_enabled %},
+        generalComments: {% if_feature_enabled 'reviews.general_comments' %}true{% else %}false{% endif_feature_enabled %}
+    };
+  </script>
+{% block scripts-post %}{% endblock %}
+{% block setup-page %}
+  <script>
+    RB.PageManager.setupPage({
+        viewType: {% block js-page-view-type %}RB.PageView{% endblock %},
+        viewOptions: {% spaceless %}{% block js-page-view-options %}{}{% endblock %}{% endspaceless %},
+        modelType: {% block js-page-model-type %}RB.Page{% endblock %},
+        modelAttrs: {% spaceless %}
+          {% block js-page-model-attrs %}{
+            {% block js-page-model-attrs-items %}{% endblock %}
+          }{% endblock %}
+        {% endspaceless %},
+        modelOptions: {% spaceless %}{% block js-page-model-options %}{}{% endblock %}{% endspaceless %}
+    });
+  </script>
+{% endblock setup-page %}
+{% block js_extensions %}
+{%  load_extensions_js "reviewboard.extensions" %}
+{%  init_js_extensions "reviewboard.extensions" %}
+{% endblock %}
+{% template_hook_point "base-scripts-post" %}
+ </body>
+</html>

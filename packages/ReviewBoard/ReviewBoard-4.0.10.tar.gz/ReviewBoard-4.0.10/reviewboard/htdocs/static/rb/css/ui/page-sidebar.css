@@ -1,0 +1,356 @@
+/**
+ * Main sidebar for the page.
+ *
+ * This component comprises the main part of the UI shell controlling the
+ * layout of page sidebars and their inclusion in mobile mode's hamburger
+ * menu.
+ */
+/**
+ * The main sidebar and mobile navigation menu shown on a page.
+ *
+ * This houses one or more sidebar panes, which may be shown on the page
+ * in desktop mode (if ``<body>`` has the ``-has-sidebar`` CSS modifier
+ * class applied) or when in mobile mode. Only one pane should be shown at
+ * a time.
+ *
+ * When ``<body>`` has the ``-is-content-full-page`` CSS modifier class
+ * applied, the main page sidebar will be scrollable. This is managed in
+ * :file:`css/pages/base.less`.
+ *
+ * The page sidebar can transition between a desktop mode (where the sidebar
+ * is shown on the left-hand side of the page) and a mobile mode (where it
+ * comprises the entirety of the hamburger menu). Some of the elements used in
+ * this component are specific to the mobile mode, and are hidden in desktop
+ * mode.
+ *
+ * Modifiers:
+ *     -is-connected:
+ *         Whether the sidebar items are connected directly to a content box
+ *         on the right. This will provide a visual indicator associating the
+ *         active sidebar entry with the content.
+ *
+ * Structure:
+ *     <div class="rb-c-page-sidebar">
+ *      <header class="rb-c-page-sidebar__mobile-header">...</header>
+ *      <div class="rb-c-page-sidebar__panes">...</div>
+ *      <footer class="rb-c-page-sidebar__mobile-footer">...</footer>
+ *     </div>
+ */
+.rb-c-page-sidebar {
+  box-sizing: border-box;
+  position: absolute;
+  transition: 0.3s transform ease-out;
+  z-index: 20;
+  /**
+   * Footer shown at the bottom of the mobile menu.
+   *
+   * Structure:
+   *     <footer class="rb-c-page-sidebar__mobile-footer">
+   *      <ul>
+   *       <li><a href="...">...</a></li>
+   *      </ul>
+   *     </footer>
+   */
+  /**
+   * Header shown at the top of the mobile menu.
+   *
+   * Structure:
+   *     <header class="rb-c-page-sidebar__mobile-header">
+   *      <img class="djblets-o-avatar" ...>
+   *      <span class="rb-c-page-sidebar__mobile-username">...</span>
+   *      <ul class="rb-c-page-sidebar__mobile-user-actions">
+   *       <li>...</li>
+   *      </ul>
+   *     </header>
+   */
+  /**
+   * The current user's username.
+   *
+   * Structure:
+   *     <span class="rb-c-page-sidebar__mobile-username">...</span>
+   */
+  /**
+   * A collection of panes in the sidebar.
+   *
+   * This is used primarily for pane placement and lookup purposes, and does
+   * not include any styling.
+   *
+   * Structure:
+   *     <div class="rb-c-page-sidebar__panes">
+   *      <div class="rb-c-page-sidebar__pane">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * A layered pane in the sidebar.
+   *
+   * Panes can scroll if there's too much content to display (and the page is
+   * set up to constrain the height of ``.rb-c-page-sidebar``). The outer pane
+   * handles the scrolling and basic state, and the
+   * ``.rb-c-page-sidebar__pane-content` child element contains any content to
+   * show in the pane.
+   *
+   * Panes can be shown or hidden. Only one pane should be shown at a time. By
+   * default, transitioning that state will result in a fade-in/out effect,
+   * though specialized panes can provide their own transition effect.
+   *
+   * Modifiers:
+   *     -is-shown:
+   *         The pane is currently shown on the screen.
+   *
+   * Structure:
+   *     <div class="rb-c-page-sidebar__pane -is-shown">
+   *      <div class="rb-c-page-sidebar__pane-content">
+   *       ...
+   *      </div>
+   *     </div>
+   */
+  /**
+   * Content shown in a sidebar pane.
+   *
+   * This is generally going to have a ``.rb-c-sidebar`` component inside of
+   * it, but can display any form of content appropriate for the page.
+   *
+   * Structure:
+   *     <div class="rb-c-page-sidebar__pane-content">
+   *      ...
+   *     </div>
+   */
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar {
+    /* Note: Colors here are going to be set by the theme. */
+    box-sizing: border-box;
+    border: 0;
+    border-right: 1px transparent solid;
+    top: 0;
+    left: -300px;
+    height: 100%;
+    width: 300px;
+  }
+  .rb-c-page-sidebar .rb-c-sidebar__nav-item:hover,
+  .rb-c-page-sidebar .rb-c-sidebar__nav-section-header:hover,
+  .rb-c-page-sidebar .rb-c-sidebar__nav-item.-is-active,
+  .rb-c-page-sidebar .rb-c-sidebar__nav-section-header.-is-active {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .rb-c-page-sidebar .rb-c-sidebar__nav-item:hover,
+  .rb-c-page-sidebar .rb-c-sidebar__nav-section-header:hover {
+    border-right: 1px #888A85 solid;
+  }
+  .rb-c-page-sidebar .rb-c-sidebar__nav-item.-is-active,
+  .rb-c-page-sidebar .rb-c-sidebar__nav-section-header.-is-active {
+    border-right: 1px transparent solid;
+  }
+  .rb-c-page-sidebar .rb-c-page-sidebar__pane {
+    padding-right: 0;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar {
+    margin: 0 0 1.5em 1px;
+  }
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-item:hover,
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-section-header:hover,
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-item.-is-active,
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-section-header.-is-active {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-item:hover,
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-section-header:hover {
+    border-right: 1px #888A85 solid;
+  }
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-item.-is-active,
+  .rb-c-page-sidebar.-is-connected .rb-c-sidebar__nav-section-header.-is-active {
+    border-right: 1px transparent solid;
+  }
+  .rb-c-page-sidebar.-is-connected .rb-c-page-sidebar__pane {
+    padding-right: 0;
+  }
+}
+.rb-c-page-sidebar__mobile-footer {
+  font-size: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar__mobile-footer {
+    display: flex;
+    justify-content: space-evenly;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar__mobile-footer {
+    display: none;
+  }
+}
+.rb-c-page-sidebar__mobile-footer li {
+  display: inline-block;
+  font-size: 12px;
+  text-align: center;
+}
+.rb-c-page-sidebar__mobile-footer li a {
+  box-sizing: border-box;
+  color: inherit;
+  display: block;
+  height: 100%;
+  padding: 1em;
+}
+.rb-c-page-sidebar__mobile-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-page-sidebar__mobile-header {
+  font-size: 120%;
+  height: 50px;
+  overflow: hidden;
+  padding: 5px;
+  white-space: nowrap;
+  vertical-align: middle;
+  /**
+     * A list of account-related actions the user can perform.
+     *
+     * This will be shown alongside the avatar and username (or below it if
+     * the username is too long).
+     *
+     * Structure:
+     *     <ul class="rb-c-page-sidebar__mobile-user-actions">
+     *      <li>...</li>
+     *     </ul>
+     */
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar__mobile-header {
+    display: block;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar__mobile-header {
+    display: none;
+  }
+}
+.rb-c-page-sidebar__mobile-header .djblets-o-avatar {
+  display: inline-block;
+  vertical-align: middle;
+}
+.rb-c-page-sidebar__mobile-header .rb-c-page-sidebar__mobile-user-actions {
+  float: right;
+  font-size: 10px;
+  line-height: inherit;
+  list-style: none;
+  margin: 4px 8px 0 0;
+  padding: 0;
+  white-space: nowrap;
+}
+.rb-c-page-sidebar__mobile-header .rb-c-page-sidebar__mobile-user-actions li {
+  display: inline-block;
+  margin: 0 0 0 2em;
+  padding: 4px 0;
+  text-align: center;
+}
+.rb-c-page-sidebar__mobile-header .rb-c-page-sidebar__mobile-user-actions li a {
+  color: inherit;
+}
+.rb-c-page-sidebar__mobile-header .rb-c-page-sidebar__mobile-user-actions li span {
+  line-height: inherit;
+}
+.rb-c-page-sidebar__mobile-header .rb-c-page-sidebar__mobile-user-actions li .fa {
+  font-size: 18px;
+  vertical-align: middle;
+}
+.rb-c-page-sidebar__mobile-username {
+  vertical-align: middle;
+}
+.rb-c-page-sidebar__pane {
+  box-sizing: border-box;
+  opacity: 0;
+  transition: 0.2s linear opacity, 0.2s linear visibility;
+  visibility: hidden;
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar__pane {
+    position: absolute;
+    top: 50px;
+    bottom: 50px;
+    left: 0;
+    right: -1px;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar__pane {
+    direction: rtl;
+    /* Position the scrollbar on the left. */
+    padding: 3em 1em 0 1em;
+  }
+  .rb-c-page-sidebar__pane .rb-c-page-sidebar__pane-content {
+    direction: ltr;
+    /* Restore the default direction of the content. */
+  }
+}
+.rb-c-page-sidebar__pane.-is-shown {
+  opacity: 1;
+  visibility: visible;
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar__pane-content .rb-c-sidebar {
+    /*
+         * Give the sidebar some breathing room so it's not overlapping the
+         * top or bottom set of links in the mobile sidebar.
+         */
+    padding: 0.5em 0 0.5em 0.5em;
+    width: 100%;
+    /*
+         * We might have a nested deprecated sidebar element. Fix its styling
+         * here so that it may properly fit within the page.
+         */
+  }
+  .rb-c-page-sidebar__pane-content .rb-c-sidebar #page_sidebar {
+    position: relative;
+    margin: 0;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar__pane-content .rb-c-sidebar {
+    position: relative;
+  }
+}
+body.full-page-content,
+body.-is-content-full-page {
+  /*
+   * Make sure the sidebar is scrollable in order to allow the user to
+   * access any parts of it.
+   */
+}
+body.full-page-content .rb-c-page-sidebar__pane,
+body.-is-content-full-page .rb-c-page-sidebar__pane {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media only screen and (max-width: 800px) {
+  /* On mobile, the sidebar must always be scrollable. */
+  .rb-c-page-sidebar__pane {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+/* Set a default width for the sidebar. */
+@media only screen and (min-width: 801px) {
+  /*
+         * This may be called as a top-level rule, or as part of a CSS class
+         * on ``<body>``. Support both.
+         */
+  body.-has-sidebar #content {
+    margin-left: 21em;
+  }
+  .rb-c-page-sidebar {
+    width: 21em;
+  }
+}
+/*# sourceMappingURL=page-sidebar.css.map */

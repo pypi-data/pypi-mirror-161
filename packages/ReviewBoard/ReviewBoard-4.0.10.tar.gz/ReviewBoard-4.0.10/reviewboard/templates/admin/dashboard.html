@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load djblets_js %}
+
+{% block js-page-view-type %}RB.Admin.DashboardPageView{% endblock %}
+{% block js-page-model-type %}RB.Admin.DashboardPage{% endblock %}
+{% block js-page-model-attrs-items %}
+ {{page_model_attrs|json_dumps_items}}
+{% endblock js-page-model-attrs-items %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div id="admin-dashboard" style="visibility: hidden">
+ <div id="support-banner"></div>
+ <div id="dashboard-view">
+  <div class="rb-c-admin-widgets">
+   <div class="rb-c-admin-widgets__sizer-column"></div>
+   <div class="rb-c-admin-widgets__sizer-gutter"></div>
+   <div class="rb-c-admin-widgets__main">{{widgets_html}}</div>
+  </div>
+ </div>
+</div>
+{% endblock content %}

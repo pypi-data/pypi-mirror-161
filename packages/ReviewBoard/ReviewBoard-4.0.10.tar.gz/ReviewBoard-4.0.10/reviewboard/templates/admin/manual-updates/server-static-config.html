@@ -1,0 +1,52 @@
+{% load i18n %}
+<div class="box-head">
+ <h1 class="box-title">{% trans "Static media directory changes" %}</h1>
+</div>
+<div class="box-main">
+ <p>
+{% blocktrans %}
+  The location of static media files (CSS, JavaScript, images) has changed.
+  You will need to make manual changes to your web server configuration.
+{% endblocktrans %}
+ </p>
+ <h2>{% trans "Apache" %}</h2>
+ <pre>
+  Alias {{SITE_ROOT}}static "{{STATIC_ROOT}}"
+
+  &lt;Location "{{SITE_ROOT}}static"&gt;
+      SetHandler None
+  &lt;/Location&gt;
+</pre>
+ <p>
+ <h2>{% trans "lighttpd" %}</h2>
+ <p>
+{% blocktrans %}
+  Add the following to <code>alias.url</code>:
+{% endblocktrans %}
+ </p>
+ <pre>
+  "{{SITE_ROOT}}static" =&gt; "{{STATIC_ROOT}}",
+</pre>
+ <p>
+{% blocktrans %}
+  And this to <code>url.rewrite-once</code>:
+{% endblocktrans %}
+ </p>
+ <pre>
+  "^({{SITE_ROOT}}static/.*)$" =&gt; "$1",
+</pre>
+<p>
+{% blocktrans %}
+  These lines will look similar to the existing lines for the media files.
+{% endblocktrans %}
+ </p>
+ <h2>{% trans "Finishing up" %}</h2>
+ <p>
+{% blocktrans %}
+  Once you have made these changes, type the following to resolve this:
+{% endblocktrans %}
+ </p>
+ <pre>
+  $ rb-site manage {{SITE_DIR}} resolve-check static-media
+ </pre>
+</div>

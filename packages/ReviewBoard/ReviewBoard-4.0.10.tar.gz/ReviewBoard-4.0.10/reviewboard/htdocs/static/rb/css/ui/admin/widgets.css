@@ -1,0 +1,278 @@
+/** Administration widget component. */
+/**
+ * A container handling the layout and management of widgets.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widgets">
+ *      <div class="rb-c-admin-widgets__sizer-column"></div>
+ *      <div class="rb-c-admin-widgets__sizer-gutter"></div>
+ *      <div class="rb-c-admin-widgets__main">
+ *       ...
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-widgets {
+  /**
+   * A button for adding new widgets.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__add-button">
+   *      <a>Add Widgets</a>
+   *     </div>
+   */
+  /**
+   * The main section containing the widgets.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__main">
+   *      <div class="rb-c-admin-widget">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * A utility element used by Masonry to compute column sizes.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__sizer-column"></div>
+   */
+  /**
+   * A utility element used by Masonry to compute gutter sizes.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__sizer-gutter"></div>
+   */
+}
+.rb-c-admin-widgets__add-button {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+}
+.rb-c-admin-widgets__add-button a {
+  color: #124BBD;
+  font-weight: bold;
+  font-size: 13px;
+}
+.rb-c-admin-widgets__add-button a:hover {
+  color: black;
+  cursor: pointer;
+}
+.rb-c-admin-widgets__main {
+  position: relative;
+  width: 100%;
+}
+.rb-c-admin-widgets__sizer-column {
+  width: 220px;
+  height: 0;
+}
+.rb-c-admin-widgets__sizer-gutter {
+  width: 20px;
+  height: 0;
+}
+/**
+ * A widget on the admin dashboard.
+ *
+ * Widgets can display information about Review Board, provide convenient
+ * actions, and more.
+ *
+ * Widgets are positioned on the dashboard in a "masonry" layout, organized
+ * as tiles that fit together based on available space. By default, a widget
+ * is 2 "columns" wide, and can easily be positioned to a smaller (1 column)
+ * size, a larger (3 columns) size, or a full-width size. If needed, widgets
+ * can specify a custom size, but it's advised to stick with one of the
+ * standard sizes.
+ *
+ * Each widget must define a size using the ``-is-large`` or ``-is-small``
+ * modifier. This corresponds to which container the widget is part of.
+ *
+ * Modifiers:
+ *     -is-full-width:
+ *         A full-width widget.
+ *
+ *     -is-large:
+ *         A large widget. This is 3 column lengths.
+ *
+ *     -is-small:
+ *         A small widget. This is 1 column length.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget -is-{size}">
+ *      <header class="rb-c-admin-widget__header">...</header>
+ *      <div class="rb-c-admin-widget__content">...</div>
+ *      <footer class="rb-c-admin-widget__footer">...</footer>
+ *     </div>
+ */
+.rb-c-admin-widget {
+  background-color: white;
+  border: 1px solid #999999;
+  border-radius: 2px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  margin: 0 0 20px 0;
+  padding: 0;
+  /**
+   * A container for a list of actions appearing in a header or footer.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-widget__actions">
+   *      <li class="rb-c-admin-wiget__action">...</li>
+   *     </ul>
+   */
+  /**
+   * An action shown in the header or footer.
+   *
+   * This can be a free-standing element, or may contain a child ``<a>``,
+   * ``<div>``, or ``<span>`` element (for links or icons).
+   *
+   * Modifiers:
+   *     -is-right:
+   *         Whether to float the action to the right. This only applies to
+   *         actions in the footer.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-widget__action"><a href="...">...</a></li>
+   *     <li class="rb-c-admin-widget__action">
+   *      <span class="rb-icon rb-icon-foo"></span>
+   *     </li>
+   *     ...
+   */
+  /**
+   * The main content area of a widget.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widget__content">
+   *      ...
+   *     </div>
+   */
+  /**
+   * The footer of a widget.
+   *
+   * Structure:
+   *     <footer class="rb-c-admin-widget__footer">
+   *      <ul class="rb-c-admin-widget__actions">...</ul>
+   *     </footer>
+   */
+  /**
+   * The header of a widget.
+   *
+   * Structure:
+   *     <header class="rb-c-admin-widget__header">
+   *      <h1>...</h1>
+   *      <ul class="rb-c-admin-widget__actions">...</ul>
+   *     </header>
+   */
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-admin-widget {
+    width: 460px;
+  }
+  .rb-c-admin-widget.-is-full-with {
+    width: 100%;
+  }
+  .rb-c-admin-widget.-is-large {
+    width: 700px;
+  }
+  .rb-c-admin-widget.-is-small {
+    width: 220px;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-admin-widget {
+    width: 100%;
+  }
+}
+.rb-c-admin-widget__actions {
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+.rb-c-admin-widget__action {
+  cursor: pointer;
+  display: block;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+  /* These must be defined as two rules, or Firefox will drop them both. */
+}
+.rb-c-admin-widget__action::selection {
+  background: transparent;
+}
+.rb-c-admin-widget__action::-moz-selection {
+  background: transparent;
+}
+.rb-c-admin-widget__action :link {
+  color: #124BBD;
+}
+.rb-c-admin-widget__content {
+  position: relative;
+  margin: 1em;
+  padding: 0;
+}
+.rb-c-admin-widget__footer {
+  margin: 1em 0 0 0;
+  padding: 0;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__actions {
+  /*
+       * Actions have a shortened horizontal padding (@_padding / 2) to add
+       * enough area for taps on mobile. We need to compensate on the
+       * left/right-hand sides of this container so the actions are ultimately
+       * aligned with the content.
+       */
+  margin: 1em 0.5em 0 0.5em;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__action {
+  float: left;
+  padding: 1em 0.5em;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__action.btn-right,
+.rb-c-admin-widget__footer .rb-c-admin-widget__action.-is-right {
+  float: right;
+  border-right: none;
+}
+.rb-c-admin-widget__header {
+  color: #777777;
+  font-size: 13px;
+  margin: 1em;
+  padding: 0;
+}
+.rb-c-admin-widget__header h1 {
+  color: inherit;
+  display: inline-block;
+  font-weight: normal;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__actions {
+  float: right;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action {
+  opacity: 0.5;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action:hover {
+  opacity: 1;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action.fa {
+  font-size: 110%;
+}
+.rb-c-admin-widget-no-results {
+  border: 2px dashed #CCC;
+  font-weight: bold;
+  text-transform: capitalize;
+  line-height: 1.9em;
+  margin: 0;
+  padding: 1em;
+  text-align: center;
+}
+/*# sourceMappingURL=widgets.css.map */

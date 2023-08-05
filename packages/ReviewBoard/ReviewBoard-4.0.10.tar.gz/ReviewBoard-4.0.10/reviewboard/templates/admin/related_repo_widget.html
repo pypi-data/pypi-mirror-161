@@ -1,0 +1,16 @@
+{% load djblets_js i18n %}
+
+{{input_html}}
+
+<script>
+$(function() {
+    var view = new RB.RelatedRepoSelectorView({
+        $input: $('#{{input_id|escapejs}}'),
+        initialOptions: {{repos|json_dumps}},
+{% if local_site_name %}
+        localSitePrefix: 's/{{local_site_name|escapejs}}/',
+{% endif %}
+        multivalued: {{multivalued|yesno:'true,false'}}
+    }).render();
+});
+</script>

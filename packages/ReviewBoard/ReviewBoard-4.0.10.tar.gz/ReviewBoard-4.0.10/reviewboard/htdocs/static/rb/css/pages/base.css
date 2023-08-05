@@ -1,0 +1,768 @@
+/**
+ * The main body element for the page.
+ *
+ * Modifiers:
+ *     -has-sidebar:
+ *         Whether the page has a sidebar shown.
+ *
+ *     -is-content-flush:
+ *         Removes any margins and padding between the page content and the
+ *         UI shell.
+ *
+ *     -is-content-flush-on-desktop:
+ *         Removes any margins and padding between the page content and the
+ *         UI shell when in desktop mode.
+ *
+ *     -is-content-flush-on-mobile:
+ *         Removes any margins and padding between the page content and the
+ *         UI shell when in mobile mode.
+ *
+ *     -is-content-full-page:
+ *         Whether the content area should take up the full visual width
+ *         and height of the page container. This keeps the content within
+ *         the viewport, and allows the content to take care of its own
+ *         scrolling.
+ */
+body {
+  background-color: #F9F9F9;
+  color: #000000;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  margin: 0;
+  padding: 0;
+}
+body.-is-content-flush #page-container {
+  padding: 0;
+}
+body.-is-content-flush #topbar {
+  margin-bottom: 0;
+}
+@media only screen and (max-width: 800px) {
+  body {
+    background: #FFFFFF;
+    /*
+     * If the page indicates it's showing a sidebar, and the UI shell is in
+     * mobile mode, override the content placement so it's not offset by the
+     * size of the sidebar.
+     */
+  }
+  body.js-mobile-menu-open {
+    /*
+       * When opening the mobile sidebar menu, lock the viewport so the user
+       * can't scroll, and shift everything on the page over by the menu's
+       * width. This will animate them, using the transitions set on the
+       * elements.
+       */
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+  body.js-mobile-menu-open #container {
+    transform: translate(300px, 0);
+    height: 100%;
+  }
+  body.-has-sidebar #content {
+    margin-left: 0;
+  }
+  body.-is-content-flush-on-mobile #page-container {
+    padding: 0;
+  }
+  body.-is-content-flush-on-mobile #topbar {
+    margin-bottom: 0;
+  }
+}
+@media only screen and (min-width: 801px) {
+  body.-has-sidebar .rb-c-page-sidebar {
+    display: block;
+  }
+  body.-has-sidebar #page-container {
+    padding-left: 0;
+  }
+  body.js-rb-c-drawer-is-shown #page-sidebar-main-pane {
+    opacity: 0;
+  }
+  body.-is-content-flush-on-desktop #page-container {
+    padding: 0;
+  }
+  body.-is-content-flush-on-desktop #topbar {
+    margin-bottom: 0;
+  }
+  body .rb-c-page-sidebar {
+    display: none;
+  }
+}
+body.full-page-content,
+body.-is-content-full-page {
+  /*
+   * Set the page to not scroll and have all content take up the maximum
+   * height.
+   */
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  /*
+   * Set the content to take up the full height of #page-container. It's
+   * expected that RB.PageView will size #page-container appropriately for
+   * the page.
+   */
+  /*
+   * Hide both the page sidebar panes and page container by default, so we
+   * can display them initially at the correct height.
+   */
+}
+body.full-page-content #container,
+body.-is-content-full-page #container,
+body.full-page-content #content_container,
+body.-is-content-full-page #content_container,
+body.full-page-content #content,
+body.-is-content-full-page #content {
+  height: 100%;
+  margin-bottom: 0;
+  vertical-align: top;
+}
+@media only screen and (min-width: 801px) {
+  body.full-page-content,
+  body.-is-content-full-page {
+    /*
+     * Set the page sidebar's panes container and all panes to allocate
+     * the full height of #page-sidebar, so that #page-sidebar's scrolling
+     * will be allowed to kick in. It's expected that RB.PageView will size
+     * #page-sidebar appropriately for the page.
+     */
+  }
+  body.full-page-content #page-sidebar-panes,
+  body.-is-content-full-page #page-sidebar-panes,
+  body.full-page-content .rb-c-page-sidebar__pane,
+  body.-is-content-full-page .rb-c-page-sidebar__pane {
+    height: 100%;
+  }
+}
+body.full-page-content #page-container,
+body.-is-content-full-page #page-container,
+body.full-page-content #page-sidebar-main-pane,
+body.-is-content-full-page #page-sidebar-main-pane {
+  display: none;
+}
+/*
+ * Set the mobile widths on some components.
+ */
+@media only screen and (min-width: 801px) {
+  .rb-c-page-content-box {
+    background-color: #FFFFFF;
+    border: 1px #888A85 solid;
+    border-radius: 6px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+    padding: 1em;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-page-content-box {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-content-header.-is-main {
+    /* Desktop mode. */
+    margin: 1em;
+  }
+  .rb-c-content-header.-is-main .rb-c-content-header__title {
+    font-size: 120%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-content-header.-is-main {
+    /* Mobile mode. */
+    margin: 1em 0;
+    /*
+           * If the body is making content flush, we still want to have the
+           * margin on the left for headers.
+           */
+  }
+  body.-is-content-flush-on-mobile .rb-c-content-header.-is-main {
+    margin: 1em;
+  }
+  .rb-c-content-header.-is-main .rb-c-content-header__title {
+    font-size: 130%;
+  }
+}
+a:link,
+a:visited {
+  color: #124BBD;
+  text-decoration: none;
+}
+a:hover {
+  color: #0e398e;
+  text-decoration: underline;
+}
+h1 {
+  font-size: 10pt;
+}
+h3 {
+  margin-top: 2em;
+}
+img {
+  border: 0;
+}
+pre,
+textarea,
+.CodeMirror,
+.editable.field-text-area {
+  font-size: 13px;
+  font-family: monospace;
+  line-height: 17px;
+}
+.editable.field-text-area {
+  /*
+   * Always show the text cursor when hovering over an editable text field
+   * placeholder, so the entire thing feels like a text field.
+   */
+  cursor: text;
+}
+textarea {
+  resize: none;
+}
+/*
+ * The account and support menu drop-down region of the header bar.
+ */
+#accountnav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+  float: right;
+}
+@media only screen and (max-width: 800px) {
+  #accountnav {
+    display: none;
+  }
+}
+#accountnav li {
+  border: 1px transparent solid;
+  border-top: 0;
+  display: block;
+  float: right;
+  margin: -5px 0;
+  padding: 0;
+  position: relative;
+  white-space: nowrap;
+}
+#accountnav li:hover {
+  border-color: #888;
+}
+#accountnav li:hover ul {
+  border: 1px #888 solid;
+  display: block;
+  margin-right: -1px;
+  z-index: 110;
+}
+#accountnav li:hover ul li {
+  border: 0;
+}
+#accountnav li a {
+  color: inherit;
+  display: block;
+  font-size: 110%;
+  margin: 0;
+  padding: 0 1em;
+  text-decoration: none;
+  height: 32px;
+  vertical-align: middle;
+  line-height: 32px;
+}
+#accountnav li a.user-nav-item {
+  padding-left: 0.2em;
+}
+#accountnav li img {
+  display: inline;
+  vertical-align: top;
+  margin: 0;
+  padding: 0;
+}
+#accountnav li ul {
+  display: none;
+  margin: 0;
+  min-width: 9em;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  border-radius: 0 0 6px 6px;
+}
+#accountnav li ul li {
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+#accountnav li ul li:last-child {
+  border-radius: 0 0 6px 6px;
+}
+#accountnav li ul li a {
+  margin: 0;
+}
+#accountnav li .fa {
+  margin-right: 0.2em;
+  min-width: 14px;
+  text-align: center;
+}
+/*
+ * The "Loading..." indicator shown during AJAX operations.
+ */
+#activity-indicator {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 0;
+  text-align: center;
+  font-weight: bold;
+  background-color: #fce94f;
+  border: 1px #c4a000 solid;
+  border-top: 0;
+  width: 8em;
+  margin-left: -4em;
+  padding: 0.5em 0.5em;
+  z-index: 140;
+}
+#activity-indicator span {
+  vertical-align: middle;
+  line-height: 16px;
+}
+#activity-indicator .fa-spinner {
+  font-size: 16px;
+}
+#activity-indicator.error {
+  background-color: #ffcd9c;
+  width: 28em;
+  margin-left: -14em;
+  background-image: none;
+  padding-left: 0.6em;
+}
+#activity-indicator.error a {
+  margin-left: 1em;
+  color: #0000CC;
+  text-decoration: none;
+}
+@media only screen and (max-width: 800px) {
+  #container {
+    position: relative;
+    transition: 0.3s transform ease-out;
+  }
+}
+#content_container {
+  position: relative;
+}
+/*
+ * The error information shown when an AJAX operation fails.
+ */
+#error div {
+  background: #ffcd9c;
+  border: 1px #9a4306 solid;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+}
+#error h1 {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+#error input[type='submit'] {
+  margin-left: 10px;
+}
+/*
+ * The header bar at the top of the page. This contains the branding,
+ * search field, and the accountnav element.
+ *
+ * This has the following children:
+ *
+ *    * #rbinfo
+ *    * #accountnav
+ *    * #search
+ */
+#headerbar {
+  margin: 0;
+  padding: 5px;
+  height: 22px;
+  vertical-align: middle;
+  z-index: 50;
+}
+#headerbar br {
+  clear: both;
+  height: 0;
+}
+#headerbar #logo {
+  position: absolute;
+  top: 3px;
+  left: 8px;
+  z-index: 50;
+}
+#headerbar #nav_toggle {
+  color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  display: none;
+  font-size: 16px;
+  padding: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+}
+#headerbar #nav_toggle .fa {
+  vertical-align: middle;
+}
+#headerbar #title {
+  color: inherit;
+  display: inline;
+  font-weight: normal;
+  font-size: 125%;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+#headerbar #title a {
+  color: inherit;
+  font-size: 120%;
+  text-decoration: none;
+}
+#headerbar #title .version {
+  font-weight: normal;
+  font-size: 90%;
+}
+#headerbar #search {
+  float: right;
+  margin: 0 1em;
+}
+#headerbar #search input {
+  border: 1px #CCC solid;
+  margin: 0;
+  padding: 2px;
+  border-radius: 6px;
+  background-color: #EEEEEE;
+  font-size: 1.2em;
+  -webkit-appearance: textfield;
+}
+@media only screen and (max-width: 800px) {
+  #headerbar {
+    border-bottom: 1px solid;
+    height: auto;
+    position: relative;
+    text-align: center;
+    transition: 0.3s transform ease-out;
+  }
+  #headerbar #logo {
+    position: relative;
+    top: 0;
+    height: 32px;
+    width: 32px;
+    z-index: 50;
+  }
+  #headerbar #nav_toggle {
+    display: block;
+  }
+  #headerbar #search {
+    box-sizing: border-box;
+    float: none;
+    margin: 0.5em 0.5em 0 0.5em;
+  }
+  #headerbar #search input {
+    /*
+         * Style the search input to appear more like the saerch bars on
+         * most mobile apps and sites, giving more breathing room.
+         */
+    background-color: white;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    margin: 0;
+    width: 100%;
+  }
+  #headerbar #title {
+    margin-left: 0.5em;
+  }
+  #headerbar #title .version {
+    display: none;
+  }
+}
+/*
+ * The branding section of the headerbar, containing the logo and versioning
+ * information.
+ */
+#rbinfo {
+  float: left;
+  position: absolute;
+  left: 0;
+  padding-top: 0.2em;
+  padding-left: 76px;
+}
+@media only screen and (max-width: 800px) {
+  #rbinfo {
+    /*
+     * Reset positioning and floating so that on mobile, this will take the
+     * full width of the page.
+     */
+    float: none;
+    position: relative;
+    padding: 0;
+  }
+}
+#rbinfo img {
+  display: inline;
+  vertical-align: middle;
+}
+/*
+ * An event mask overlaying the content of the page. It's shown only when
+ * the mobile menu is shown. There is nothing visible, allowing the page
+ * content to fully show through.
+ */
+#mobile_menu_mask {
+  display: none;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 199;
+}
+/*
+ * The container for the desktop navigation bar. This is not shown when in
+ * mobile mode.
+ */
+#navbar-container {
+  /*
+   * Alerts embedded in the navbar area should appear flush with the
+   * navigation container.
+   */
+}
+#navbar-container a {
+  font-size: 110%;
+  text-decoration: none;
+}
+#navbar-container .rb-c-alert {
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  border-radius: 0;
+}
+/*
+ * The navigation bar.
+ *
+ * This is the bar showing such items as "My Dashboard"< "New Review Request",
+ * etc.
+ */
+#navbar {
+  border-bottom: 1px solid;
+  list-style: none;
+  margin: 0;
+  min-height: 1.5em;
+  padding: 5px;
+  padding-left: 76px;
+}
+#navbar li {
+  display: inline;
+  height: 30px;
+  margin: 0 1em 0 0;
+}
+#navbar .newreviewrequest {
+  text-align: right;
+}
+@media only screen and (max-width: 800px) {
+  #navbar {
+    display: none;
+    padding-left: 10px;
+    margin-top: 10px;
+  }
+  #navbar li {
+    display: block;
+  }
+}
+/*
+ * The main container for the page's content.
+ */
+#page-container {
+  padding: 0 1.5em 1.5em 1.5em;
+}
+@media only screen and (max-width: 800px) {
+  #page-container {
+    position: relative;
+    transition: 0.3s transform ease-out;
+  }
+}
+#read-only-banner {
+  background: #FFF4B0;
+  border-bottom: 1px #968200 solid;
+  font-size: 110%;
+  padding: 5px;
+  padding-left: 76px;
+  vertical-align: middle;
+}
+#read-only-banner-header {
+  display: inline;
+  font-size: 100%;
+  padding-right: 5px;
+}
+#read-only-banner-message {
+  vertical-align: middle;
+}
+#topbar {
+  margin: 0 0 1.5em 0;
+}
+/*
+ * The box containing information on an AJAX error.
+ */
+.server-error-box .response-data {
+  margin-top: 2em;
+}
+/****************************************************************************
+ * Page themes
+ ****************************************************************************/
+/*
+ * Default color scheme, used for the dashboard, My Account page, and others
+ * featuring largely blue-ish colors.
+ */
+#accountnav li:hover {
+  background: #ffffff;
+  border-color: #adadad;
+}
+#accountnav li:hover ul {
+  border-color: #a0a0a0;
+}
+#accountnav li:hover ul li:hover {
+  background: #ffffff;
+}
+#accountnav li:hover ul li.menu-info-box,
+#accountnav li:hover ul li.menu-info-box:hover {
+  /*
+             * These are currently only used in RBCommons, but may be useful
+             * for future accountnav features.
+             */
+  background: #f4f9ff;
+  border-bottom: 1px #c1ddff solid;
+  padding: 1em;
+}
+#accountnav li:hover ul li.menu-info-box,
+#accountnav li:hover ul li.menu-info-box:hover,
+#accountnav li:hover ul li.menu-info-box *,
+#accountnav li:hover ul li.menu-info-box:hover * {
+  cursor: default;
+}
+#accountnav li ul {
+  background: #DAEBFF;
+}
+#headerbar {
+  border-bottom-color: #a0a0a0;
+}
+#headerbar #nav_toggle {
+  color: rgba(0, 0, 0, 0.8);
+}
+#headerbar #search input {
+  border-color: #a0a0a0;
+}
+#navbar-container {
+  background: #DAEBFF;
+  border-color: #a0a0a0;
+}
+#navbar {
+  border-bottom-color: #a0a0a0;
+}
+#navbar a {
+  color: #124BBD;
+}
+@media only screen and (max-width: 800px) {
+  #page-sidebar {
+    background-color: #DAEBFF;
+    border-right-color: #a0a0a0;
+  }
+}
+#topbar {
+  background: #DAEBFF;
+  color: #000000;
+}
+#topbar .version {
+  color: #555555;
+}
+.rb-c-drawer__content {
+  background: #DAEBFF;
+  border-color: #a0a0a0;
+  color: #000000;
+}
+#page-container .datagrid-header,
+.datagrid-header-drag.datagrid-header {
+  background: #DAEBFF;
+}
+/* Reviewable pages (review request, diff, file attachment, etc.) are brown. */
+.reviewable-page #accountnav li:hover {
+  background: #f7f1db;
+  border-color: #909090;
+}
+.reviewable-page #accountnav li:hover ul {
+  border-color: #838383;
+}
+.reviewable-page #accountnav li:hover ul li:hover {
+  background: #f7f1db;
+}
+.reviewable-page #accountnav li:hover ul li.menu-info-box,
+.reviewable-page #accountnav li:hover ul li.menu-info-box:hover {
+  /*
+             * These are currently only used in RBCommons, but may be useful
+             * for future accountnav features.
+             */
+  background: #f2e9c7;
+  border-bottom: 1px #e8d99d solid;
+  padding: 1em;
+}
+.reviewable-page #accountnav li:hover ul li.menu-info-box,
+.reviewable-page #accountnav li:hover ul li.menu-info-box:hover,
+.reviewable-page #accountnav li:hover ul li.menu-info-box *,
+.reviewable-page #accountnav li:hover ul li.menu-info-box:hover * {
+  cursor: default;
+}
+.reviewable-page #accountnav li ul {
+  background: #EDE1B2;
+}
+.reviewable-page #headerbar {
+  border-bottom-color: #838383;
+}
+.reviewable-page #headerbar #nav_toggle {
+  color: rgba(0, 0, 0, 0.8);
+}
+.reviewable-page #headerbar #search input {
+  border-color: #838383;
+}
+.reviewable-page #navbar-container {
+  background: #EDE1B2;
+  border-color: #838383;
+}
+.reviewable-page #navbar {
+  border-bottom-color: #838383;
+}
+.reviewable-page #navbar a {
+  color: #124BBD;
+}
+@media only screen and (max-width: 800px) {
+  .reviewable-page #page-sidebar {
+    background-color: #EDE1B2;
+    border-right-color: #838383;
+  }
+}
+.reviewable-page #topbar {
+  background: #EDE1B2;
+  color: #000000;
+}
+.reviewable-page #topbar .version {
+  color: #555555;
+}
+.reviewable-page .rb-c-drawer__content {
+  background: #EDE1B2;
+  border-color: #838383;
+  color: #000000;
+}
+.reviewable-page #page-container .datagrid-header,
+.reviewable-page .datagrid-header-drag.datagrid-header {
+  background: #EDE1B2;
+}
+/*# sourceMappingURL=base.css.map */

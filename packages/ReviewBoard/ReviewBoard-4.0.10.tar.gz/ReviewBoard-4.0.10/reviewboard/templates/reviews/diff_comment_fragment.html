@@ -1,0 +1,128 @@
+{% load difftags djblets_utils i18n reviewtags %}
+
+<table{% attr "class" %}
+ sidebyside
+{%  if comment.filediff.is_new %}newfile{% endif %}
+{%  if expandable_above or header.left or header.right %}has-diff-header-above{% endif %}
+{%  if expandable_below %}has-diff-header-below{% endif %}
+{% endattr %}>
+ <colgroup>
+{% if not comment.filediff.is_new %}
+  <col class="line" />
+  <col class="left" />
+{% endif %}
+  <col class="line" />
+  <col class="right" />
+ </colgroup>
+ <thead>
+  <tr class="filename-row">
+   <th colspan="{% if comment.filediff.is_new %}2{% else %}4{% endif %}" class="filename">
+    <a href="{{comment.get_absolute_url}}">{{comment.filediff.dest_file_display}}</a>
+    <span class="diffrevision">
+{% if comment.interfilediff %}
+     (Diff revisions {{comment.filediff.diffset.revision}} - {{comment.interfilediff.diffset.revision}})
+{% else %}
+     (Diff revision {{comment.filediff.diffset.revision}})
+{% endif %}
+    </span>
+   </th>
+  </tr>
+ </thead>
+{% if expandable_above or header.left or header.right %}
+ <tbody class="diff-header diff-header-above">
+{%  if expandable_above %}
+  <tr>
+   <td><div>
+    {% expand_fragment_link 'below' _('Show 20 more lines above') 20 0 %}
+   </div></td>
+   <td colspan="{% if comment.filediff.is_new %}1{% else %}3{% endif %}"><div>
+    {% definevar 'link_text' %}{{lines_above}} lines{% enddefinevar %}
+    {% expand_fragment_link 'all'  _('Show all lines') lines_above 0 link_text %}
+   </div></td>
+  </tr>
+{%  endif %}
+{%  if header.left or header.right %}
+  <tr>
+   <td colspan="1"></td>
+{%   if header.left.text == header.right.text and header.left.line == header.right.line %}
+   <td colspan="3"><div>
+    {% expand_fragment_header_link header.left %}
+   </div></td>
+{%   else %}
+{%    if not comment.filediff.is_new %}
+   <td><div>
+{%     if header.left %}
+       {% expand_fragment_header_link header.left %}
+{%     endif %}
+   </div></td>
+   <td></td>
+{%    endif %}
+   <td><div>
+{%    if header.right %}
+    {% expand_fragment_header_link header.right %}
+{%    endif %}
+   </div></td>
+{%   endif %}
+  </tr>
+{%  endif %}
+ </tbody>
+{% endif %}
+{% for chunk in chunks %}
+ <tbody class="{{chunk.change}}{% if collapsible and chunk.lines.0 == comment.first_line %} begin-comment-range{% endif %}">
+{#  <tr><td colspan="4">{{chunk.meta}}</td></tr> #}
+{% for line in chunk.lines %}
+<tr{% attr "class" %}
+{%   if forloop.first %}first{% endif %}
+{%   if forloop.last %}last{% endif %}
+{%   if collapsible %}
+{%    if line.0 == comment.first_line %}first-comment-line{% endif %}
+{%    if line.0 == comment.last_line %}last-comment-line{% endif %}
+{%   endif %}
+{%  endattr %}>
+
+{%  if not comment.filediff.is_new %}
+    <th>{{line.1}}</th>
+    <td>
+{%   if collapsible and forloop.parentloop.first and forloop.first %}
+     <div class="collapse-floater">
+      <div class="diff-collapse-btn" title="Collapse lines" data-comment-id="{{ comment.id }}" data-lines-of-context="0,0">
+       <div class="rb-icon rb-icon-diff-collapse-chunk"></div>
+       </div>
+{%   endif %}
+        <pre>{{line.2|highlightregion:line.3|showextrawhitespace}}</pre>
+{%   if collapsible and forloop.parentloop.first and forloop.first %}
+       </div>
+{%   endif %}
+    </td>
+{%  endif %}
+    <th>{{line.4}}</td>
+    <td>
+{%  if collapsible and comment.filediff.is_new and forloop.parentloop.first and forloop.first %}
+     <div class="collapse-floater">
+      <div class="diff-collapse-btn" title="Collapse lines" data-comment-id="{{ comment.id }}" data-lines-of-context="0,0">
+       <div class="rb-icon rb-icon-diff-collapse-chunk"></div>
+       </div>
+{%  endif %}
+        <pre>{{line.5|highlightregion:line.6|showextrawhitespace}}</pre>
+{% if collapsible and comment.filediff.is_new and forloop.parentloop.first and forloop.first %}
+     </div>
+{%  endif %}
+    </td>
+  </tr>
+{% endfor %}
+ </tbody>
+{% endfor %}{# chunks #}
+{% if expandable_below %}
+ <tbody class="diff-header diff-header-below">
+  <tr>
+   <td><div>
+    {% expand_fragment_link 'above' _('Show 20 more lines below') 0 20 %}
+   </div></td>
+   <td colspan="3"><div>
+    {% definevar 'link_text' %}{{lines_below}} lines{% enddefinevar %}
+    {% expand_fragment_link 'all' _('Show all lines') 0 lines_below link_text %}
+   </div></td>
+  </tr>
+ </tbody>
+{% endif %}
+</table>

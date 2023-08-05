@@ -1,0 +1,276 @@
+/****************************************************************************
+ * Rich text
+ ****************************************************************************/
+.rich-text {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 17px;
+  /*
+   * NOTE: See .cm-rb-markdown-code in pages/reviews.less for details on
+   *       how we're approaching displaying borders.
+   *
+   *       Much of this should eventually be moved back into Djblets.
+   */
+}
+.rich-text * {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  text-rendering: inherit;
+  white-space: normal;
+}
+.rich-text * br {
+  display: block;
+}
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4,
+.rich-text h5,
+.rich-text h6 {
+  font-size: 100%;
+}
+.rich-text p {
+  white-space: inherit;
+  /* Don't show both the <br> and the blank line. */
+}
+.rich-text p br {
+  display: none;
+}
+.rich-text ul,
+.rich-text ol {
+  line-height: 0;
+  margin: 0;
+  padding: 0;
+}
+.rich-text ul p,
+.rich-text ol p {
+  /*
+       * <p> tags in a list do not preserve whitespace, since there's
+       * mandatory leading whitespace before the content.
+       */
+}
+.rich-text ul p br,
+.rich-text ol p br {
+  display: block;
+}
+.rich-text ul ul,
+.rich-text ol ul,
+.rich-text ul ol,
+.rich-text ol ol {
+  margin-left: 2ch;
+}
+.rich-text ol {
+  /*
+     * We want to keep wrapped text within the confines of the list item. So:
+     *
+     * 1. This is long text that
+     *    wraps like this.
+     *
+     * Instead of:
+     *
+     * 1. This is long text that
+     * wraps like this.
+     *
+     * To do this, we need to use display: table and display: table-cell.
+     * However, that loses item counter rendering, so we have to do counters
+     * ourselves. In combination with StyledOListBlockProcessor in
+     * reviewboard/reviews/markdown_extensions.py, this maintains compatibility
+     * with the start= attribute.
+     */
+  counter-reset: li;
+  display: table;
+  list-style-position: inside;
+}
+.rich-text ol > li {
+  counter-increment: li;
+  display: table;
+}
+.rich-text ol > li::before {
+  content: counter(li) ". ";
+  padding-right: 1ch;
+  display: table-cell;
+  text-align: right;
+}
+.rich-text ul {
+  list-style-position: outside;
+  list-style: disc;
+  margin-left: 2ch;
+}
+.rich-text li {
+  line-height: 17px;
+}
+.rich-text li ~ li:last-child p:last-child {
+  margin-bottom: 0;
+}
+.rich-text li p {
+  margin-bottom: 17px;
+  /*
+       * If the list item ends up with a sole <p>, just remove the margins.
+       * Depending on neighboring elements, Python Markdown will sometimes
+       * create list items this way.
+       */
+}
+.rich-text li p:first-child:last-child {
+  margin: 0;
+}
+.rich-text table {
+  border-collapse: collapse;
+  margin-left: 4px;
+}
+.rich-text table td,
+.rich-text table th {
+  padding: 0.2em 1em;
+}
+.rich-text table td {
+  border: 1px solid #bbbbbb;
+}
+.rich-text table th {
+  border-bottom: 1px solid #000000;
+  border-left: 1px solid #bbbbbb;
+  border-right: 1px solid #bbbbbb;
+}
+.rich-text table thead tr:last-child th {
+  padding-bottom: 0.5em;
+}
+.rich-text table tbody tr:first-child td {
+  padding-top: 0.5em;
+}
+.rich-text table tbody tr:last-child td {
+  border-bottom: none;
+}
+.rich-text code {
+  background-color: #FBFAF8;
+  border: 1px solid #E3E3E3;
+  border-radius: 3px;
+  color: #BB1144;
+  display: inline-block;
+  margin: -1px;
+  /*
+     * Add just enough spacing to represent the backtick (`) before and after
+     * the code block, so we can leave room there. The goal is to align the
+     * content the best we can, so there's a more predictable width for the
+     * line.
+     */
+}
+.rich-text code:before,
+.rich-text code:after {
+  content: "`";
+  visibility: hidden;
+}
+.rich-text pre {
+  font-size: inherit;
+  margin-left: 2.5em;
+  white-space: pre-wrap;
+}
+.rich-text pre * {
+  white-space: pre-wrap;
+}
+.rich-text blockquote {
+  border-left: 1px solid #bbb;
+  padding-left: 1em;
+  margin-left: 0.5em;
+}
+.rich-text hr {
+  border: 1px solid #ddd;
+}
+.rich-text .codehilite {
+  background-color: #FBFAF8;
+  border: 1px solid #DDD;
+  border-radius: 3px;
+  margin: -4px -11px;
+  padding: 3px 10px;
+}
+.rich-text .codehilite code {
+  /*
+       * Undo all the rules above. This is necessary with Python-Markdown 3.2+,
+       * which places a <code> around the code block. Previous versions did
+       * not do this.
+       */
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: inherit;
+  display: inline;
+  margin: 0;
+}
+.rich-text .codehilite code:before,
+.rich-text .codehilite code:after {
+  content: none;
+}
+.rich-text .codehilite pre {
+  margin-left: 0;
+  padding: 0;
+}
+.rich-text .codehilite.codehilite-multiline-start {
+  border-bottom: 0;
+  border-radius: 3px 3px 0 0;
+}
+.rich-text .codehilite.codehilite-multiline-middle {
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 0;
+}
+.rich-text .codehilite.codehilite-multiline-end {
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+}
+.rich-text .codehilite {
+  border: 0;
+  border-radius: 0;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+.rich-text .codehilite:before {
+  content: "";
+  position: absolute;
+  border: 1px #DDD solid;
+  border-radius: 3px;
+  top: -1px;
+  left: -10px;
+  right: -10px;
+  bottom: -1px;
+}
+.rich-text .codehilite code {
+  /* Undo the default `code` border rules below. */
+  padding: 0;
+}
+.rich-text .codehilite code:after,
+.rich-text .codehilite code:before {
+  display: none;
+}
+.rich-text code {
+  white-space: pre-wrap;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding-left: 1ch;
+  padding-right: 1ch;
+  position: relative;
+}
+.rich-text code:after {
+  content: "";
+}
+.rich-text code:before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border: 1px #E3E3E3 solid;
+  border-radius: 3px;
+  visibility: visible;
+}
+.rich-text img {
+  max-width: 100%;
+  height: auto;
+}
+.rich-text .emoji {
+  width: auto;
+  height: 1rem;
+  vertical-align: text-top;
+}
+/*# sourceMappingURL=markdown.css.map */

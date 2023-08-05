@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls i18n pipeline %}
+
+{% block scripts-post %}
+{{block.super}}
+{%  javascript 'repositoryform' %}
+
+<script>
+{% include "admin/repository_fields.js" with form=adminform.form %}
+</script>
+{% endblock scripts-post %}
+
+
+{% block form-alerts %}
+{%  include "admin/repository_confirmations.html" with form=adminform.form %}
+{{block.super}}
+{% endblock form-alerts %}
+
+
+{% block form_top %}
+{% comment %}
+This tricks the browser into autofilling this field and not subsequent
+fields. Since there's no name=, nothing will be sent to the server.
+{% endcomment %}
+<div style="position: absolute; left: -10000px; top: -10000px"><input type="password" value="" tabindex="-1" /></div>
+{% endblock form_top %}

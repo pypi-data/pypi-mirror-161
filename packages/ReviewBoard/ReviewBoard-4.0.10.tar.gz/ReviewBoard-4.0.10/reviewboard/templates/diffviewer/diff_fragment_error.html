@@ -1,0 +1,46 @@
+{% extends "diffviewer/diff_fragment_error_base.html" %}
+{% load djblets_utils i18n %}
+
+{% block tbody %}
+<tr>
+ <td colspan="2">
+  <h2>
+   <div class="rb-icon rb-icon-warning"></div>
+   {% trans "There was an error displaying this diff." %}
+  </h2>
+{%  if error %}
+{%   if error.message_html %}
+  {{error.message_html}}
+{%   else %}
+  <p>{{error}}</p>
+{%   endif %}
+{%  endif %}
+  <p>
+{%  blocktrans %}
+   This may be a a temporary outage or an issue with the format of your diff.
+{%  endblocktrans %}
+  </p>
+  <p>
+{%  url 'support' as support_url %}
+{%  blocktrans %}
+   Please try again, and if you still have trouble,
+   <a href="{{support_url}}">contact support</a>.
+{%  endblocktrans %}
+  </p>
+ </td>
+</tr>
+{%  if trace %}
+<tr>
+ <td colspan="2">
+{%   definevar "link_suffix" %}{{file.filediff.pk}}{% if comment %}-{{comment.pk}}{% endif %}{% enddefinevar %}
+  <a id="diff-error-link-{{link_suffix}}" href="#"
+     onclick="$('#diff-error-details-{{link_suffix}}').toggle(); return false;">{% trans "Details" %}</a>
+ </td>
+</tr>
+<tr class="error-details" id="diff-error-details-{{link_suffix}}">
+ <td colspan="2">
+  <pre>{{trace}}</pre>
+ </td>
+</tr>
+{%  endif %}
+{% endblock %}

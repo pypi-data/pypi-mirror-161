@@ -1,0 +1,350 @@
+/** Styles for the Administration UI change forms. */
+/**
+ * A group of inline objects shown in a change page.
+ *
+ * Each inline is an object related to the main object being modified on
+ * the change page, and can be saved along with that main object.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-form-inline-group">
+ *      <h2 class="rb-c-admin-form-inline-group__title">...</h2>
+ *      <div class="rb-c-admin-form-inline-group__inlines">
+ *       ...
+ *      </div>
+ *      <div class="rb-c-admin-form-inline-group__add-action">...</div>
+ *     </div>
+ */
+.rb-c-admin-form-inline-group {
+  margin: 2em 0 0 0;
+  /**
+   * A list of inline objects.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-form-inline-group__inlines">
+   *      <div class="rb-c-admin-form-inline">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * The title of a group of inlines.
+   *
+   * Structure:
+   *     <h2 class="rb-c-admin-form-inline-group__title">...</h2>
+   */
+}
+.rb-c-admin-form-inline-group__add-action {
+  display: inline-block;
+  padding: 1em;
+}
+.rb-c-admin-form-inline-group__add-action:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #006400;
+  content: "\f067";
+  font-size: 140%;
+  vertical-align: text-top;
+}
+.rb-c-admin-form-inline-group__title {
+  background: #FFF4B0;
+  border-top: 1px #C0C0C0 solid;
+  border-bottom: 1px #C0C0C0 solid;
+  margin: 0;
+  padding: 1em;
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+/**
+ * An inline object shown in a change page.
+ *
+ * An inline object is related to the main object being modified on the
+ * change page, and can be saved along with that main object.
+ *
+ * Modifiers:
+ *     -is-template:
+ *         This inline is a template for new entries. It will be removed from
+ *         the DOM when the JavaScript classes render the inline group, but
+ *         will be hidden until then.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-form-inline">
+ *      <h3 class="rb-c-admin-form-inline__title">...</h3>
+ *      <fieldset>...</fieldset>
+ *      ...
+ *     </div>
+ */
+.rb-c-admin-form-inline {
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  /**
+   * An action that deletes the inline.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__delete-action">...</span>
+   */
+  /**
+   * Actions that can be performed on the inline.
+   *
+   * This houses the Delete action.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-form-inline__actions">
+   *      <div class="rb-c-admin-form-inline__action">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * The title for an inline.
+   *
+   * This will contain a string representation of an inline object and may
+   * also contain zero or more actions.
+   *
+   * Structure:
+   *     <h3 class="rb-c-admin-form-inline__title">
+   *      <span class="rb-c-admin-form-inline__title-prefix">...</span>
+   *      <span class="rb-c-admin-form-inline__title-object">...</span>
+   *      <span class="rb-c-admin-form-inline__title-index">...</span>
+   *      <span class="rb-c-admin-form-inline__actions">...</span>
+   *     </h3>
+   */
+  /**
+   * The index of the inline.
+   *
+   * This will be replaced when inlines are added or removed.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-index">#...</span>
+   */
+  /**
+   * The title of the inline object.
+   *
+   * This is generally a string representation of the object.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-object">...</span>
+   */
+  /**
+   * The prefix for a title of the inline object.
+   *
+   * This is generally a string representation of the type of object, followed
+   * by a colon and space.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-object">...: </span>
+   */
+}
+.rb-c-admin-form-inline.-is-template {
+  display: none;
+}
+.rb-c-admin-form-inline__delete-action {
+  color: #8B0000;
+  cursor: pointer;
+}
+.rb-c-admin-form-inline__actions {
+  float: right;
+}
+.rb-c-admin-form-inline__title {
+  border-bottom: 1px #C0C0C0 solid;
+  margin: 1em 0;
+  padding: 0.5em;
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.rb-c-admin-form-inline__title-object {
+  text-transform: none;
+}
+/*
+ * Django widgets.
+ *
+ * These provide styling overrides for some Django widgets, ensuring that
+ * they look correct when shown in the administration UI.
+ */
+.rb-c-form-field__input {
+  /**
+   * Django split date/time input.
+   *
+   * Structure:
+   *     <p class="datetime">
+   *      <input class="vDateField" type="text" ...>
+   *      <input class="vTimeField" type="text" ...>
+   *     </p>
+   */
+  /**
+   * Django clearable file upload widget.
+   *
+   * This is defined in Django's ``admin/widgets/clearable_file_input.html``
+   * template.
+   *
+   * Structure:
+   *     <p class="file-upload">
+   *      text...
+   *      <a href="...">...</a>
+   *      <span class="clearable-file-input">
+   *       <input type="checkbox" name="..." id="...">
+   *       <label for="...">...</label>
+   *      </span>
+   *      <br>
+   *      text...
+   *      <input ...>
+   *     </p>
+   */
+  /**
+   * Django raw ID related lookup input.
+   *
+   * This is defined in Django's ``admin/widgets/foreign_key_raw_id.html``
+   * template.
+   *
+   * Structure:
+   *     <a class="related-lookup" href="..."></a>
+   */
+  /**
+   * Django related object drop-down.
+   *
+   * This is defined in Django's ``admin/widgets/related_widget_wrapper.html``
+   * template.
+   *
+   * Structure:
+   *     <div class="related-widget-wrapper">...</div>
+   */
+  /**
+   * Django side-by-side selector widget.
+   *
+   * Structure:
+   *     <div class="selector">
+   *      <div class="selector-available">
+   *       <h2>
+   *        text...
+   *        <span class="help help-tooltip help-icon" ...></span>
+   *       </h2>
+   *       <p id="..." class="selector-filter">
+   *        <label for="...">
+   *         <span class="help-tooltip search-label-icon"></span>
+   *        </label>
+   *       </p>
+   *       <select class="filtered" ...>
+   *        <option ...>...</option>
+   *        ...
+   *       </select>
+   *       <a class="selector-chooseall active" ...>...</a>
+   *      </div>
+   *      <ul class="selector-chooser">
+   *       <li><a href="#" class="selector-add">...</a></li>
+   *       <li><a href="#" class="selector-remove">...</a></li>
+   *      </ul>
+   *      <div class="selector-chosen">
+   *       <h2>
+   *        text...
+   *        <span class="help help-tooltip help-icon" ...></span>
+   *       </h2>
+   *       <select class="filtered" ...>
+   *        <option ...>...</option>
+   *        ...
+   *       </select>
+   *       <a class="selector-clearall active" ...>...</a>
+   *      </div>
+   *     </div>
+   */
+}
+.rb-c-form-field__input .datetime {
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input .datetime .vDateField,
+.rb-c-form-field__input .datetime .vTimeField {
+  width: 8em;
+}
+.rb-c-form-field__input .datetime .vDateField {
+  margin-bottom: 0.5em;
+}
+.rb-c-form-field__input .file-upload {
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input .file-upload input[type="file"] {
+  margin-top: 0.5em;
+}
+.rb-c-form-field__input .file-upload .clearable-file-input {
+  margin-left: 1em;
+}
+.rb-c-form-field__input .related-lookup {
+  margin-right: 1em;
+}
+.rb-c-form-field__input .related-lookup:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: black;
+  content: "\f002";
+  font-size: 140%;
+}
+.rb-c-form-field__input .related-widget-wrapper {
+  float: none;
+}
+.rb-c-form-field__input .selector select {
+  /*
+       * Remove the weird padding around the <select>, and add padding instead
+       * to the options within it.
+       */
+  padding: 0;
+}
+.rb-c-form-field__input .selector select option {
+  padding: 5px 10px;
+}
+.rb-c-form-field__input .selector .selector-available h2,
+.rb-c-form-field__input .selector .selector-chosen h2 {
+  /*
+       * Make the font size consistent with the rest of the form, but give the
+       * headers a bit of padding.
+       */
+  font-size: inherit;
+  margin-bottom: 0;
+  padding: 0.4em;
+}
+.rb-c-form-field__input .selector .selector-available h2 .help,
+.rb-c-form-field__input .selector .selector-chosen h2 .help {
+  color: inherit;
+}
+.rb-c-form-field__input .selector .selector-available h2 .help-icon,
+.rb-c-form-field__input .selector .selector-chosen h2 .help-icon {
+  /* Remove their help icon in favor of our own in the main .help rule. */
+  background: none;
+}
+.rb-c-form-field__input .selector .selector-available select {
+  /*
+         * Try to align this with the chosen selector. This is a specific
+         * number, but so is the original in Django. Ours is just better tuned
+         * to our sizes.
+         */
+  height: 200px;
+}
+.rb-c-form-field__input .selector .selector-chosen h2 {
+  background: #D0E6FF;
+  color: black;
+}
+.rb-c-form-field__input .selector .selector-chosen select {
+  /*
+         * Try to align this with the available selector. This is a specific
+         * number, but so is the original in Django. Ours is just better tuned
+         * to our sizes.
+         */
+  height: 238px;
+}
+.rb-c-form-field__input .selector .selector-filter label {
+  /*
+       * Fix alignment of the magnifying glass icon so that it's better
+       * aligned with the (slightly larger than default) filter text box.
+       */
+  margin-top: 3px;
+}
+/*# sourceMappingURL=change-form.css.map */

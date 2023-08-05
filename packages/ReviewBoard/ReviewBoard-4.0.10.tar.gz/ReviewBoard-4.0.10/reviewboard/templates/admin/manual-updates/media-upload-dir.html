@@ -1,0 +1,33 @@
+{% load i18n %}
+<div class="box-head">
+ <h1 class="box-title">{% trans "Media directory changes" %}</h1>
+</div>
+<div class="box-main">
+ <p>
+{% blocktrans %}
+  Your Review Board installation does not have a
+  <code>{{MEDIA_ROOT}}/uploaded/images</code> directory.
+{% endblocktrans %}
+ </p>
+ <h3>{% trans "If this is a new installation..." %}</h3>
+ <p>
+{% blocktrans %}
+  Create both <code>{{MEDIA_ROOT}}/uploaded</code> and
+  <code>{{MEDIA_ROOT}}/uploaded/images</code> on the server and make both
+  directories writable by the web server. You can do so with the following
+  commands:
+{% endblocktrans %}
+ </p>
+ <pre>
+  $ cd {{MEDIA_ROOT}}
+  $ mkdir -p uploaded/images
+  $ sudo chown -R www-data.www-data uploaded
+ </pre>
+ <h3>{% trans "If this is an existing installation..." %}</h3>
+ <p>
+{% blocktrans %}
+  Something may have changed with your filesystem. Please check that the
+  above directory structure exists and is accessible by the web server.
+{% endblocktrans %}
+ </p>
+</div>

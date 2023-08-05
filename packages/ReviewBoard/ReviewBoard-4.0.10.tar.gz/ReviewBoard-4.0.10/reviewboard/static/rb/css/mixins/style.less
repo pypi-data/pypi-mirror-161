@@ -1,0 +1,228 @@
+/*
+ * These are obsolete now that LESS compilation includes autoprefixer. They're
+ * left here for compatibility when building extensions, but should be
+ * considered deprecated in favor of just using the standard CSS rules.
+ */
+.border-radius(...) { border-radius: @arguments; }
+.box-shadow(...) { box-shadow: @arguments; }
+.box-sizing(...) { box-sizing: @arguments; }
+.grab-cursor() { cursor: grab; }
+.grabbing-cursor-important() { cursor: grabbing !important; }
+.opacity(@value) { opacity: @value / 100; }
+.pre-wrap() { white-space: pre-wrap; }
+.transform(...) { transform: @arguments; }
+.transition(...) { transition: @arguments; }
+.transition-transform(@duration, @rest...) {
+  transition: @duration transform @rest;
+}
+
+
+/*
+ * Ellipsizes the text content in an element on supported browsers.
+ */
+.ellipsize() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Sets whether selection of text is allowed on an element.
+ */
+.user-select(@arg) {
+  user-select: @arg;
+  -moz-user-select: @arg;
+  -ms-user-select: @arg;
+  -webkit-user-select: @arg;
+}
+
+.unselectable() {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* These must be defined as two rules, or Firefox will drop them both. */
+  &::selection {
+    background: transparent;
+  }
+
+  &::-moz-selection {
+    background: transparent;
+  }
+}
+
+/**
+ * Only apply styles if on a mobile display with a width <= 720px.
+ *
+ * Deprecated:
+ *     4.0:
+ *     While heavily in use, this is planned for removal in favor of the
+ *     following::
+ *
+ *         #rb-ns-ui.screen.on-width-lte(<width>, {
+ *             <rules>
+ *         });
+ *
+ *     Rather than a fixed global width, suitable widths should be chosen
+ *     based on where the UI "breaks."
+ *
+ * Args:
+ *     @rules (rules):
+ *         The rules to apply to the containing element.
+ */
+.on-mobile-medium-screen-720(@rules) {
+  @media screen and (max-width: @mobile-medium-width-720),
+         screen and (max-device-width: @mobile-medium-width-720) and
+                     (orientation: landscape) {
+    @rules();
+  }
+}
+
+/**
+ * Display the element only when the screen has a width <= 720px.
+ *
+ * Deprecated:
+ *     4.0:
+ *     While heavily in use, this is planned for removal in favor of the
+ *     following::
+ *
+ *         #rb-ns-ui.screen.on-width-lte(<width>, {
+ *             display: none;
+ *         }, @else: {
+ *             display: block;
+ *         });
+ *
+ *     Rather than a fixed global width, suitable widths should be chosen
+ *     based on where the UI "breaks."
+ *
+ * Args:
+ *     @display-mode (keyword):
+ *         The display mode to set when on mobile mode.
+ */
+.mobile-only(@display-mode: block) {
+  display: none;
+
+  .on-mobile-medium-screen-720({
+    display: @display-mode;
+  });
+}
+
+/**
+ * Display the element only when the screen has a width > 720px.
+ *
+ * Deprecated:
+ *     4.0:
+ *     While heavily in use, this is planned for removal in favor of the
+ *     following::
+ *
+ *         #rb-ns-ui.screen.on-width-lt(<width>, {
+ *             display: none;
+ *         });
+ *
+ *     Rather than a fixed global width, suitable widths should be chosen
+ *     based on where the UI "breaks."
+ */
+.desktop-only() {
+  .on-mobile-medium-screen-720({
+    display: none;
+  });
+}
+
+/*
+ * Disable scrolling on the page.
+ *
+ * This will both turn off scrollbars and set the page to be fixed, so that
+ * mobile phones don't allow for any form of scrolling whatsoever.
+ */
+.no-page-scroll() {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Makes an element vertically scrollable.
+ *
+ * On mobile devices, this will use momentum-based scrolling.
+ */
+.scrollable-y(@type: auto) {
+  overflow-y: @type;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make code blocks flush against the sides of the field. */
+.flush-codehilite() {
+  &:before {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Keep the label from shifting when the pencil icon is hidden/shown. */
+.inline-editor-label() {
+  display: block;
+  line-height: 16px;
+  vertical-align: top;
+}
+
+/* Adds a left-facing arrow to the left-hand side of a box. */
+.left-arrow-callout(@color) {
+  position: relative;
+
+  &:before, &:after {
+    border: 1px transparent solid;
+    content: " ";
+    display: block;
+    height: 0;
+    left: -20px;
+    position: absolute;
+    right: 100%;
+    top: 12px;
+    width: 0;
+  }
+
+  &:before {
+    border-right-color: @box-border-color;
+    border-width: 10px;
+  }
+
+  &:after {
+    border-right-color: @color;
+    border-width: 9px;
+    margin-left: 2px;
+    margin-top: 1px;
+  }
+}
+
+/* Changes the color of an existing callout arrow. */
+.left-arrow-callout-color(@color) {
+  &:after {
+    border-right-color: @color;
+  }
+}
+
+/* Changes the border color of an existing callout arrow. */
+.left-arrow-callout-border-color(@color) {
+  &:before {
+    border-right-color: @color;
+  }
+}
+
+/* Styles the status label of a review request. */
+.review-request-label(@color, @border-color, @text-color) {
+  background-color: @color;
+  border: 1px @border-color solid;
+  border-radius: 5px;
+  color: @text-color;
+  font-size: 75%;
+  font-weight: normal;
+  padding: 0.1em 0.35em 0.25em 0.35em;
+}

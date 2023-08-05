@@ -1,0 +1,114 @@
+{% extends "reviews/reviewable_base.html" %}
+{% load difftags djblets_deco djblets_js djblets_utils i18n reviewtags %}
+{% load staticfiles %}
+
+
+{% block title %}{{review_request_details.summary}} | {% trans "Diff Viewer" %}{% endblock %}
+
+
+{% block css %}
+{{block.super}}
+
+{%  if siteconfig_settings.diffviewer_show_trailing_whitespace %}
+<style type="text/css">
+  #diffs.ewhl table.sidebyside .ew { background: #ee3434; }
+</style>
+{%  endif %}
+{% endblock css %}
+
+
+{% block js-page-view-type %}RB.DiffViewerPageView{% endblock %}
+{% block js-page-model-type %}RB.DiffViewerPage{% endblock %}
+{% block js-page-model-attrs %}{
+{%  if not error %}
+    {{diff_context|json_dumps_items}},
+    checkUpdatesType: 'diff',
+    {% reviewable_page_model_data %}
+{%  endif %}
+}{% endblock js-page-model-attrs%}
+
+
+{% block content %}
+{%  if error %}
+{%   errorbox %}
+<h2>{% trans "There was an internal error displaying the diff." %}</h2>
+<p><strong>{% blocktrans %}Details:</strong> {{error}}{% endblocktrans %}</p>
+{%    if request.user.is_superuser %}
+{%     if trace %}<pre>{{trace|escape}}</pre>{% endif %}
+{%    endif %}
+{%   enderrorbox %}
+{%  else %}{# !error #}
+
+<div id="review-request">
+ <div id="review-request-banners"></div>
+{% display_review_request_trophies review_request %}
+
+ <div class="review-request">
+{%   include "reviews/review_request_header.html" %}
+
+  <div class="review-request-body">
+{%    include "reviews/review_request_box.html" %}
+
+   <div id="diff-details" class="review-request-section loading">
+    <a name="index_header"></a>
+    <div id="diff_revision_label"></div>
+    <div id="diff_revision_selector"></div>
+    <div id="diff_comments_hint"></div>
+{%    if review_request.created_with_history %}
+    <div id="diff_commit_list">
+      <h2 class="section-header-label">{% trans "Commits" %}</h2>
+      <div class="commit-list-container">
+        <span class="fa fa-spinner fa-pulse"></span>
+      </div>
+    </div>
+{%    endif %}
+    <div id="diff_index">
+{%    if review_request.created_with_history %}
+      <h2 class="section-header-label">{% trans "Files" %}</h2>
+{%    endif %}
+      <div class="diff-index-container">
+        <span class="fa fa-spinner fa-pulse"></span>
+      </div>
+    </div>
+    <div id="pagination1"></div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<ul id="view_controls">
+{%    if collapseall %}
+ <li><a href=".?expand=1" rel="nofollow"><span class="fa fa-plus"></span> {% trans "Expand changes" %}</a></li>
+{%    else %}
+ <li><a href=".?collapse=1" rel="nofollow"><span class="fa fa-minus"></span> {% trans "Collapse changes" %}</a></li>
+{%    endif %}
+{%    if siteconfig_settings.diffviewer_show_trailing_whitespace %}
+ <li class="ew" style="display:none;"><a href="#" class="toggle-show-whitespace"><span class="fa fa-minus"></span> {% trans "Hide extra whitespace" %}</a></li>
+ <li class="ew"><a href="#" class="toggle-show-whitespace"><span class="fa fa-plus"></span> {% trans "Show extra whitespace" %}</a></li>
+{%    endif %}
+ <li class="ws"><a href="#" class="toggle-whitespace-only-chunks"><span class="fa fa-minus"></span> {% trans "Hide whitespace changes" %}</a></li>
+ <li  class="ws" style="display:none;"><a href="#" class="toggle-whitespace-only-chunks"><span class="fa fa-plus"></span> {% trans "Show whitespace changes" %}</a></li>
+</ul>
+
+<div id="diffs"></div>
+<div id="pagination2"></div>
+
+{%  endif %}{# !error #}
+{% endblock content %}
+
+
+{% block js_extensions %}
+{%  comment %}
+We have to load all of the review request fields after the extensions JS,
+because extension-provided field classes have to be defined at the time that
+this code runs.
+{%  endcomment %}
+
+{{block.super}}
+
+{%  if not error %}
+<script>
+{%   include "reviews/review_request_box.js" %}
+</script>
+{%  endif %}
+{% endblock %}
