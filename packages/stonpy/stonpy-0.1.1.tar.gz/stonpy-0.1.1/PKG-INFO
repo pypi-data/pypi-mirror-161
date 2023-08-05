@@ -1,0 +1,64 @@
+Metadata-Version: 2.1
+Name: stonpy
+Version: 0.1.1
+Summary: SBGN to Neo4j database
+Author: Adrien Rougny
+Author-email: Adrien Rougny <adrienrougny@gmail.com>
+License: stonpy is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+        
+        stonpy is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+        
+        You should have received a copy of the GNU General Public License
+        along with sbgntikz.  If not, see <http://www.gnu.org/licenses/>.
+        
+Project-URL: Homepage, https://github.com/adrienrougny/stonpy
+Project-URL: Bug Tracker, https://github.com/adrienrougny/stonpy/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# stonpy
+
+stonpy is a package that allows users to store SBGN maps into a Neo4j database, query the database, and convert query results back to valid SBGN maps.
+
+## Installation
+
+stonpy can be installed using `pip`:
+
+```
+pip install stonpy
+```
+
+## Quickstart
+
+```python
+from stonpy.core import STON
+
+ston = STON("URI", "USER", "PASSWORD")
+ston.create_map(sbgn_map="my_sbgn_file.sbgn", map_id="my_map_id")
+my_query = """
+   MATCH (m:Map {id: 'my_map_id'})-[r:HAS_GLYPH]->(p:StoichiometricProcess)
+   RETURN p
+"""
+sbgn_files = ston.query_to_sbgn_file(
+   query=my_query,
+   sbgn_file="my_query_result.sbgn",
+   complete=True,
+   merge_records=False
+)
+
+print(sbgn_files)
+```
+
+## Documentation
+
+A complete documentation is available [here](https://stonpy.readthedocs.io/en/latest/).
