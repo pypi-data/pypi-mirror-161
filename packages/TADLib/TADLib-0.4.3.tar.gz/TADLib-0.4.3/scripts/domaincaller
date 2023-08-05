@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Created on Sun May 22 14:37:37 2016
+
+@author: wxt
+
+"""
+import argparse, sys, os, logging, logging.handlers, traceback, tadlib
+
+currentVersion = tadlib.__version__
+
+def getargs():
+    ## Construct an ArgumentParser object for command-line arguments
+    parser = argparse.ArgumentParser(usage = '%(prog)s <--uri cool -O output> [options]',
+                                     description = '''Detect minimum domains using adaptive DI''',
+                                     formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+    
+    parser.add_argument('-v', '--version', action = 'version',
+                        version = ' '.join(['%(prog)s', currentVersion]),
+                        help = 'Print version number and exit')
+
+    # Output
+    parser.add_argument('--uri',
+                        help = 'Cool URI.')
+    parser.add_argument('-O', '--output')
+    parser.add_argument('-D', '--DI-output')
+    parser.add_argument('-W', '--weight-col', default='weight',
+                        help = '''Name of the column in .cool to be used to construct the
+                        normalized matrix. Specify "-W RAW" if you want to run with the raw matrix.''')
+    parser.add_argument('--exclude', nargs = '*', default = ['chrY','chrM'],
+                        help = '''List of chromosomes to exclude.''')
+    parser.add_argument('-p', '--cpu-core', type = int, default = 1,
+                        help = 'Number of processes to launch.')
+    parser.add_argument('--removeCache', action = 'store_true',
+                        help = '''Remove cache data before exiting.''')
+    
+    parser.add_argument('--logFile', default = 'domaincaller.log', help = '''Logging file name.''')
+    
+    ## Parse the command-line arguments
+    commands = sys.argv[1:]
+    if not commands:
+        commands.append('-h')
+    args = parser.parse_args(commands)
+    
+    return args, commands
+
+def run():
+    # Parse Arguments
+    args, commands = getargs()
+    # Improve the performance if you don't want to run it
+    if commands[0] not in ['-h', '-v', '--help', '--version']:
+        ## Root Logger Configuration
+        logger = logging.getLogger()
+        logger.setLevel(10)
+        console = logging.StreamHandler()
+        filehandler = logging.handlers.RotatingFileHandler(args.logFile,
+                                                           maxBytes = 200000,
+                                                           backupCount = 5)
+        # Set level for Handlers
+        console.setLevel('INFO')
+        filehandler.setLevel('DEBUG')
+        # Customizing Formatter
+        formatter = logging.Formatter(fmt = '%(name)-25s %(levelname)-7s @ %(asctime)s: %(message)s',
+                                      datefmt = '%m/%d/%y %H:%M:%S')
+        ## Unified Formatter
+        console.setFormatter(formatter)
+        filehandler.setFormatter(formatter)
+        # Add Handlers
+        logger.addHandler(console)
+        logger.addHandler(filehandler)
+        
+        ## Logging for argument setting
+        arglist = ['# ARGUMENT LIST:',
+                   '# Output TAD file = {0}'.format(args.output),
+                   '# Output DI file = {0}'.format(args.DI_output),
+                   '# Cool URI = {0}'.format(args.uri),
+                   '# Column for matrix balancing = {0}'.format(args.weight_col),
+                   '# Excluded Chromosomes = {0}'.format(args.exclude),
+                   '# Number of processes used = {0}'.format(args.cpu_core),
+                   '# Remove cache data = {0}'.format(args.removeCache),
+                   '# Log file name = {0}'.format(args.logFile)
+                   ]
+        
+        argtxt = '\n'.join(arglist)
+        logger.info('\n' + argtxt)
+        
+        from tadlib.domaincaller.genomeLev import Genome
+        
+        try:
+            logger.info('Loading Hi-C matrix ...')
+            cachefolder = os.path.expanduser('.domaincaller')
+            G = Genome(args.uri, balance_type=args.weight_col,
+                       cache=cachefolder, exclude=args.exclude, DIout=args.DI_output)
+            logger.info('Done!')
+            logger.debug('Learning HMM parameters ...')
+            G.learning(cpu_core=args.cpu_core)
+            logger.info('Detecting TADs ...')
+            kwargs = {'cpu_core':args.cpu_core}
+            G.callDomains(**kwargs)
+            logger.info('Done!')
+            logger.info('Output domains ...')
+            G.outputDomain(args.output)
+            logger.info('Done!\n')
+            if args.removeCache:
+                G.wipeDisk()
+        except:
+            traceback.print_exc(file = open(args.logFile, 'a'))
+            sys.exit(1)
+
+if __name__ == '__main__':
+    run()
