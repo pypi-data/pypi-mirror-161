@@ -1,0 +1,616 @@
+Metadata-Version: 2.1
+Name: kitconcept.contentcreator
+Version: 5.0.5
+Summary: Create Plone content via JSON
+Home-page: https://github.com/kitconcept/kitconcept.contentcreator
+Author: kitconcept GmbH
+Author-email: info@kitconcept.com
+License: GPL version 2
+Keywords: Python Plone
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Plone
+Classifier: Framework :: Plone :: 5.2
+Classifier: Framework :: Plone :: 6.0
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 6 - Mature
+Classifier: License :: OSI Approved :: GNU General Public License v2 (GPLv2)
+Provides-Extra: test
+
+.. This README is meant for consumption by humans and pypi. Pypi can render rst files so please do not use Sphinx features.
+   If you want to learn more about writing documentation, please check out: http://docs.plone.org/about/documentation_styleguide.html
+   This text does not appear on pypi or github. It is a comment.
+
+==============================================================================
+kitconcept.contentcreator
+==============================================================================
+
+.. image:: https://kitconcept.com/logo.svg
+   :alt: kitconcept
+   :target: https://kitconcept.com/
+
+
+This package is the responsible for automated content creation via
+plone.restapi serializers/creators.
+
+Initially based on ``collective.contentcreator`` written by Johannes Raggam (@thet) and evolved and improved from it.
+
+
+Code Health
+-----------
+
+.. |ci| image:: https://github.com/kitconcept/kitconcept.contentcreator/workflows/kitconcept.contentcreator%20CI/badge.svg
+    :target: https://github.com/kitconcept/kitconcept.contentcreator/actions?query=workflow%3A%22kitconcept.contentcreator+CI%22
+
+.. |latest| image:: https://img.shields.io/pypi/v/kitconcept.contentcreator.svg
+    :target: https://pypi.python.org/pypi/kitconcept.contentcreator/
+    :alt: Latest Version
+
+.. |license| image:: https://img.shields.io/pypi/l/kitconcept.contentcreator.svg
+    :target: https://pypi.python.org/pypi/kitconcept.contentcreator/
+    :alt: License
+
+.. |versions| image:: https://img.shields.io/pypi/pyversions/kitconcept.contentcreator.svg
+    :target: https://pypi.python.org/pypi/kitconcept.contentcreator/
+    :alt: Supported Python versions
+
++-----------+-----------+-----------+-----------+
+| |ci|      | |latest|  | |versions|| |license| |
++-----------+-----------+-----------+-----------+
+
+Usage
+=====
+
+Basic
+-----
+
+It allows to have a structure in your policy package like::
+
+  |-content_creator
+      |- content.json
+      |- siteroot.json
+      |- de.mysection.json
+      |- ...
+      |- images
+  |-content_images
+
+using these names (for both files and folders) as sensible defaults. This is the
+recommended way, although you can specify runners for custom JSON files (see below).
+
+and creates the content in a tree like from `content.json` using the runner, and
+object by object using the standalone json files.
+
+The ``images`` folder is blacklisted to support the images folder to be inside the creator folder.
+
+In your setuphandlers.py you need to::
+
+  from kitconcept.contentcreator.creator import content_creator_from_folder
+  ...
+
+  content_creator_from_folder()
+
+the method ``content_creator_from_folder`` has the following signature::
+
+  def content_creator_from_folder(
+    folder_name=os.path.join(os.path.dirname(__file__), "content_creator"),
+    base_image_path=os.path.join(os.path.dirname(__file__), "content_images"),
+    default_lang=None,
+    default_wf_state=None,
+    ignore_wf_types=["Image", "File"],
+    logger=logger,
+    temp_enable_content_types=[],
+    custom_order=[],
+    do_not_edit_if_modified_after=None,
+    exclude=[],
+  ):
+
+The creator will bail out (raise) if any object errors on creation (or edition). There are
+a couple of environment variables to control this behavior: ``CREATOR_DEBUG`` and
+``CREATOR_CONTINUE_ON_ERROR``.
+
+One can exclude elements (ids, without .json sufix) using the ``exclude`` kwargs.
+
+You can control if the edit should happen or not for a given element providing the modified date
+of the element is after the one specified in ``do_not_edit_if_modified_after`` kwargs.
+
+Creator runner given a single file
+----------------------------------
+
+Given a JSON file containing an array of objects to be created, this runner takes this
+array content (should have plone.restapi syntax compliant structure) and creates content
+out of it. You can load it using the method: ``load_json``::
+
+  from kitconcept.contentcreator.creator import load_json
+
+  content_structure = load_json('testcontent/content.json', __file__)
+
+Then you can call the runner with the method ``create_item_runner``::
+
+  from kitconcept.contentcreator.creator import create_item_runner
+
+  create_item_runner(
+      api.portal.get(),
+      content_structure,
+      default_lang='en',
+      default_wf_state='published'
+  )
+
+Creator runner given a folder with multiple files
+-------------------------------------------------
+
+Each file should contain a single p.restapi JSON compliant object (non arrayed, can't
+contain other objects). It takes the placement in the tree hierarchy and the object id
+from the filename name (eg. de.beispiele.bildergroessen.json)
+
+Setup runners from external modules/packages
+--------------------------------------------
+
+Alternativelly, you can create custom content creators in other packages and
+call them all at the same time, via a custom adapter::
+
+  from kitconcept.contentcreator.interfaces import ICreateTestContent
+
+  for name, provider in getAdapters((api.portal.get(), ), ICreateTestContent):
+    provider()
+
+this should be the declaration in the other package::
+
+  @implementer(ICreateTestContent)
+  @adapter(IPloneSiteRoot)
+  class CreatePFGContent(object):
+      """Adapter to create PFG initial content."""
+
+      def __init__(self, context):
+          self.context = context
+
+      def __call__(self):
+          content_structure = load_json('testcontent/content.json', __file__)
+
+          create_item_runner(
+              api.portal.get(),
+              content_structure,
+              default_lang='en',
+              default_wf_state='published',
+              ignore_wf_types=[
+                  'FormBooleanField',
+                  'FormDateField',
+                  'FormFileField',
+                  'FormFixedPointField',
+                  'FormIntegerField',
+                  'FormLabelField',
+                  'FormLinesField',
+                  'FormPasswordField',
+              ],
+          )
+
+other common use is calling from a folder::
+
+  from kitconcept.contentcreator.creator import content_creator_from_folder
+
+  content_creator_from_folder(
+      folder_name=os.path.join(os.path.dirname(__file__), "content_creator"),
+      base_image_path=os.path.join(os.path.dirname(__file__), "images"),
+      default_lang='en',
+      default_wf_state='published',
+      ignore_wf_types=[
+          'FormBooleanField',
+          'FormDateField',
+          'FormFileField',
+          'FormFixedPointField',
+          'FormIntegerField',
+          'FormLabelField',
+          'FormLinesField',
+          'FormPasswordField',
+      ],
+      logger=logger,
+      temp_enable_content_types=[],
+      custom_order=[
+        'object-id-2.json',
+        'object-id-3.json',
+        'object-id-1.json',
+      ],
+  )
+
+Images and Files
+----------------
+
+For the creation of images, you can use the plone.restapi approach using the
+following serialization mapping containg the file data and some additional
+metadata:
+
+- ``data`` - the base64 encoded contents of the file
+- ``encoding`` - the encoding you used to encode the data, so usually `base64`
+- ``content-type`` - the MIME type of the file
+- ``filename`` - the name of the file, including extension
+
+.. code-block:: json
+
+      {
+        "...": "",
+        "@type": "File",
+        "title": "My file",
+        "file": {
+            "data": "TG9yZW0gSXBzdW0uCg==",
+            "encoding": "base64",
+            "filename": "lorem.txt",
+            "content-type": "text/plain"}
+      }
+
+Alternatively, you can provide the image an extra property ``set_dummy_image``
+with an array of (image) field names that will create a dummy image placeholder
+in the specified fields in the to be created content type::
+
+      {
+        "id": "an-image",
+        "@type": "Image",
+        "title": "Test Image",
+        "set_dummy_image": ["image"]
+      }
+
+A deprecated syntax form is also supported (it will create the image in the
+``image`` field)::
+
+      {
+        "id": "an-image",
+        "@type": "Image",
+        "title": "Test Image",
+        "set_dummy_image": true
+      }
+
+You can specify a real image too, using a dict in the ``set_local_image`` JSON
+attribute with the field name and the filename of the real image::
+
+      {
+        "id": "another-image",
+        "@type": "Image",
+        "title": "Another Test Image",
+        "set_local_image": {"image": "image.png"}
+      }
+
+Again, a deprecated form is also supported (it will create the image in the
+``image`` field)::
+
+      {
+        "id": "another-image",
+        "@type": "Image",
+        "title": "Another Test Image",
+        "set_local_image": "image.png"
+      }
+
+By default, image scales are generated immediately. To disable this,
+set the ``CREATOR_SKIP_SCALES`` environment variable.
+
+The same syntax is valid for files::
+
+      {
+        "id": "an-file",
+        "@type": "File",
+        "title": "Test File",
+        "set_dummy_file": ["file"]
+      }
+
+The deprecated form is also supported (it will create the file in the
+``file`` field)::
+
+      {
+        "id": "an-file",
+        "@type": "File",
+        "title": "Test File",
+        "set_dummy_file": true
+      }
+
+You can specify a real file too, using a dict in the ``set_local_file`` JSON
+attribute with the field name and the filename of the real file::
+
+      {
+        "id": "another-file",
+        "@type": "File",
+        "title": "Another Test File",
+        "set_local_file": {"file": "file.png"}
+      }
+
+the deprecated form is also supported (it will create the file in the
+``file`` field)::
+
+      {
+        "id": "another-file",
+        "@type": "File",
+        "title": "Another Test File",
+        "set_local_file": "file.png"
+      }
+
+For all local images and files specified, you can specify the ``base_path`` for the image in the ``create_item_runner``::
+
+  create_item_runner(
+      api.portal.get(),
+      content_structure,
+      default_lang='en',
+      default_wf_state='published',
+      base_image_path=__file__
+  )
+
+Translations
+------------
+
+If you are using plone.app.multilingual and creating items from a folder,
+you can link translations using ``translations.csv`` in this format::
+
+    canonical,translation
+    /de/path/to/canonical,/en/path/to/translation
+
+
+Development
+-----------
+
+Requirements:
+
+- Python 3
+- venv
+
+Setup::
+
+  make
+
+Run Static Code Analysis::
+
+  make lint
+
+Run Unit / Integration Tests::
+
+  make test
+
+
+Contributors
+============
+
+- kitconcept GmbH, info@kitconcept.com
+
+
+Changelog
+=========
+
+5.0.5 (2022-07-28)
+------------------
+
+- ``content_creator_from_folder`` now accepts an optional list ``types_order``
+  to prefer loading particular content types earlier
+  [davisagli]
+
+- Improved logging to include the content type.
+  [davisagli]
+
+- Refactored to use ``pathlib`` internally.
+  [davisagli]
+
+5.0.4 (2022-07-26)
+------------------
+
+- Add a feature for linking translations using ``translations.csv``
+  [davisagli]
+
+- Add the option to disable creating image scales immediately
+  by setting the ``CREATOR_SKIP_SCALES`` environment variable.
+  [davisagli]
+
+- If the ``id`` in JSON doesn't match the id from the filename,
+  prefer the one in the JSON.
+  [davisagli]
+
+
+5.0.3 (2022-06-23)
+------------------
+
+- Don't swallow ValueError while importing a content item.
+  [davisagli]
+
+
+5.0.2 (2022-04-21)
+------------------
+
+- Fix language when the deserialization dict does not contain a ``language`` key.
+  This was hidden by the general ``reindexObject`` that was removed previously.
+  [sneridagh]
+
+
+5.0.1 (2022-04-20)
+------------------
+
+- Remove "always reindex" on finish object, since that was happening twice (on creation and on edit)
+  [sneridagh]
+
+- Fix on edit content issue notify event (the content was not being reindexed on deserialization)
+  [sneridagh]
+
+
+5.0.0 (2022-04-13)
+------------------
+
+- Include kitconcept.api as dependency
+  [ericof]
+
+- Drop support for Python 3.7
+  [ericof]
+
+- Remove buildout
+  [ericof]
+
+- Update Github Actions
+  [ericof]
+
+4.0.0 (2022-01-21)
+------------------
+
+Breaking:
+
+- Remove support for Archetypes and Python 2.
+  [sneridagh]
+
+- Refactor the creator to break by default. Added a scapehatch to not to break and for
+  open a debug session on fail via ``CREATOR_DEBUG`` and ``CREATOR_CONTINUE_ON_ERROR``
+  environment variables.
+  [sneridagh]
+
+3.3.0 (2022-01-11)
+------------------
+
+FEATURE:
+
+- Add ability to exclude files from the file list (content_creator_from_folder)
+  [sneridagh]
+
+INTERNAL:
+
+- Move to latest 5.2.6 build
+  [sneridagh]
+
+
+3.2.0 (2021-12-03)
+------------------
+
+- Guess content id if missing, taking into account that the content might already be there.
+  [sneridagh]
+
+
+3.1.0 (2021-12-03)
+------------------
+
+- Use an improved logging infrasttructure
+  [sneridagh]
+
+3.0.2 (2021-11-28)
+------------------
+
+- Use debug log level when generating image scales
+  [timo]
+
+- Make log messages more consistent
+  [timo]
+
+- Do not use colors for info messages
+  [timo]
+
+
+3.0.1 (2021-11-11)
+------------------
+
+- Add classifiers to setup.py for Python 3.8, 3.9 and maturity.
+  [timo]
+
+- Set effective date if the content ``review_state`` is ``published``
+  [sneridagh]
+
+3.0.0 (2021-11-10)
+------------------
+
+
+- Explicitly include dependencies (supporting pip installations)
+  [ericof]
+
+- Use plone/setup-plone@v1.0.0 in Github actions
+  [ericof]
+
+- Require plone.restapi 7.5.0 or superior (volto-slate blocks: resolveuid for links, transformer support)
+  [ericof]
+
+
+2.1.0 (2021-10-13)
+------------------
+
+- New ``do_not_edit_if_modified_after`` option. Allows to not edit if the given date is lesser than the object modification date.
+  [sneridagh]
+
+2.0.0 (2021-07-09)
+------------------
+
+Breaking:
+
+- Use Slate as default text block
+  [sneridagh]
+
+
+1.2.1 (2021-07-09)
+------------------
+
+Bugfix:
+
+- Add refresh of the created content for updating the serialized blocks with the
+  resolveuid information
+  [sneridagh]
+
+Internal:
+
+- Remove some unused imports [timo]
+- Add flake8 check on CI [timo]
+
+
+1.2.0 (2021-04-08)
+------------------
+
+- Black list ``images`` foder inside the create content folders
+  [sneridagh]
+- Improve error detection and report
+  [sneridagh]
+
+1.1.0 (2021-01-26)
+------------------
+
+- Improve content language detection if the field is not present
+  [sneridagh]
+- Fix and improve language inferring in the editing of an existing content
+  [sneridagh]
+
+1.0.6 (2020-05-08)
+------------------
+
+- Publish package on pypi.
+  [timo]
+
+- Added the from a folder content creation.
+  [sneridagh]
+
+
+1.0.5 (2019-11-22)
+------------------
+
+- Improve error reporting in create_item_runner.
+  [timo]
+
+
+1.0.4 (2019-11-21)
+------------------
+
+- Re-release.
+  [timo]
+
+
+1.0.3 (2019-05-06)
+------------------
+
+- Re-release.
+  [sneridagh]
+
+
+1.0.2 (2019-05-06)
+------------------
+
+- Nothing changed yet.
+
+
+1.0.1 (unreleased)
+------------------
+
+- Port to Python 3.
+  [sneridagh]
+
+- Documentation.
+  [sneridagh]
+
+
+1.0.0 (2019-03-26)
+------------------
+
+- Initial release.
+  [kitconcept]
