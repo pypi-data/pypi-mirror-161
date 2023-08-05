@@ -1,0 +1,182 @@
+Metadata-Version: 2.1
+Name: imitation
+Version: 0.3.1
+Summary: Implementation of modern reward and imitation learning algorithms.
+Home-page: https://github.com/HumanCompatibleAI/imitation
+Author: Center for Human-Compatible AI and Google
+License: MIT
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Python: >=3.8.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: gym[classic_control] (==0.21.0)
+Requires-Dist: matplotlib
+Requires-Dist: numpy (>=1.15)
+Requires-Dist: torch (>=1.4.0)
+Requires-Dist: tqdm
+Requires-Dist: scikit-learn (>=0.21.2)
+Requires-Dist: stable-baselines3 (>=1.6.0)
+Requires-Dist: chai-sacred (>=0.8.3)
+Requires-Dist: tensorboard (>=1.14)
+Provides-Extra: dev
+Requires-Dist: autopep8 ; extra == 'dev'
+Requires-Dist: awscli ; extra == 'dev'
+Requires-Dist: ntfy[slack] ; extra == 'dev'
+Requires-Dist: ipdb ; extra == 'dev'
+Requires-Dist: isort (~=5.0) ; extra == 'dev'
+Requires-Dist: codespell ; extra == 'dev'
+Requires-Dist: seals ; extra == 'dev'
+Requires-Dist: black[jupyter] ; extra == 'dev'
+Requires-Dist: coverage ; extra == 'dev'
+Requires-Dist: codecov ; extra == 'dev'
+Requires-Dist: darglint ; extra == 'dev'
+Requires-Dist: filelock ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: flake8-blind-except ; extra == 'dev'
+Requires-Dist: flake8-builtins ; extra == 'dev'
+Requires-Dist: flake8-commas ; extra == 'dev'
+Requires-Dist: flake8-debugger ; extra == 'dev'
+Requires-Dist: flake8-docstrings ; extra == 'dev'
+Requires-Dist: flake8-isort ; extra == 'dev'
+Requires-Dist: hypothesis ; extra == 'dev'
+Requires-Dist: ipykernel ; extra == 'dev'
+Requires-Dist: jupyter ; extra == 'dev'
+Requires-Dist: jupyter-client (<7.0) ; extra == 'dev'
+Requires-Dist: pandas ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: pytest-notebook ; extra == 'dev'
+Requires-Dist: pytest-xdist ; extra == 'dev'
+Requires-Dist: scipy (>=1.8.0) ; extra == 'dev'
+Requires-Dist: wandb ; extra == 'dev'
+Requires-Dist: ray[debug,tune] (>=1.13.0) ; extra == 'dev'
+Requires-Dist: pytype ; extra == 'dev'
+Requires-Dist: sphinx (~=5.0.2) ; extra == 'dev'
+Requires-Dist: sphinx-autodoc-typehints ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme ; extra == 'dev'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: sphinx (~=5.0.2) ; extra == 'docs'
+Requires-Dist: sphinx-autodoc-typehints ; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'docs'
+Provides-Extra: mujoco
+Requires-Dist: gym[classic_control,mujoco] (==0.21.0) ; extra == 'mujoco'
+Provides-Extra: parallel
+Requires-Dist: ray[debug,tune] (>=1.13.0) ; extra == 'parallel'
+Provides-Extra: test
+Requires-Dist: seals ; extra == 'test'
+Requires-Dist: black[jupyter] ; extra == 'test'
+Requires-Dist: coverage ; extra == 'test'
+Requires-Dist: codecov ; extra == 'test'
+Requires-Dist: codespell ; extra == 'test'
+Requires-Dist: darglint ; extra == 'test'
+Requires-Dist: filelock ; extra == 'test'
+Requires-Dist: flake8 ; extra == 'test'
+Requires-Dist: flake8-blind-except ; extra == 'test'
+Requires-Dist: flake8-builtins ; extra == 'test'
+Requires-Dist: flake8-commas ; extra == 'test'
+Requires-Dist: flake8-debugger ; extra == 'test'
+Requires-Dist: flake8-docstrings ; extra == 'test'
+Requires-Dist: flake8-isort ; extra == 'test'
+Requires-Dist: hypothesis ; extra == 'test'
+Requires-Dist: ipykernel ; extra == 'test'
+Requires-Dist: jupyter ; extra == 'test'
+Requires-Dist: jupyter-client (<7.0) ; extra == 'test'
+Requires-Dist: pandas ; extra == 'test'
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pytest-cov ; extra == 'test'
+Requires-Dist: pytest-notebook ; extra == 'test'
+Requires-Dist: pytest-xdist ; extra == 'test'
+Requires-Dist: scipy (>=1.8.0) ; extra == 'test'
+Requires-Dist: wandb ; extra == 'test'
+Requires-Dist: ray[debug,tune] (>=1.13.0) ; extra == 'test'
+Requires-Dist: pytype ; extra == 'test'
+
+[![CircleCI](https://circleci.com/gh/HumanCompatibleAI/imitation.svg?style=svg)](https://circleci.com/gh/HumanCompatibleAI/imitation)
+[![Documentation Status](https://readthedocs.org/projects/imitation/badge/?version=latest)](https://imitation.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/HumanCompatibleAI/imitation/branch/master/graph/badge.svg)](https://codecov.io/gh/HumanCompatibleAI/imitation)
+[![PyPI version](https://badge.fury.io/py/imitation.svg)](https://badge.fury.io/py/imitation)
+
+
+# Imitation Learning Baseline Implementations
+
+This project aims to provide clean implementations of imitation and reward learning algorithms.
+Currently, we have implementations of Behavioral Cloning, [DAgger](https://arxiv.org/pdf/1011.0686.pdf) (with synthetic examples), density-based reward modeling, [Maximum Causal Entropy Inverse Reinforcement Learning](https://www.cs.cmu.edu/~bziebart/publications/maximum-causal-entropy.pdf), [Adversarial Inverse Reinforcement Learning](https://arxiv.org/abs/1710.11248), [Generative Adversarial Imitation Learning](https://arxiv.org/abs/1606.03476) and [Deep RL from Human Preferences](https://arxiv.org/abs/1706.03741).
+
+Read [the documentation here](https://imitation.readthedocs.io/en/latest/).
+
+## Installation:
+
+### Installing PyPI release
+
+```
+pip install imitation
+```
+
+### Install latest commit
+
+```
+git clone http://github.com/HumanCompatibleAI/imitation
+cd imitation
+pip install -e .
+```
+
+### Optional Mujoco Dependency:
+
+Follow instructions to install [mujoco\_py v1.5 here](https://github.com/openai/mujoco-py/tree/498b451a03fb61e5bdfcb6956d8d7c881b1098b5#install-mujoco).
+
+
+## CLI Quickstart:
+
+We provide several CLI scripts as a front-end to the algorithms implemented in `imitation`. These use [Sacred](https://github.com/idsia/sacred) for configuration and replicability.
+
+From [examples/quickstart.sh:](examples/quickstart.sh)
+
+```bash
+# Train PPO agent on pendulum and collect expert demonstrations. Tensorboard logs saved in quickstart/rl/
+python -m imitation.scripts.train_rl with pendulum common.fast train.fast rl.fast fast common.log_dir=quickstart/rl/
+
+# Train GAIL from demonstrations. Tensorboard logs saved in output/ (default log directory).
+python -m imitation.scripts.train_adversarial gail with pendulum common.fast demonstrations.fast train.fast rl.fast fast demonstrations.rollout_path=quickstart/rl/rollouts/final.pkl
+
+# Train AIRL from demonstrations. Tensorboard logs saved in output/ (default log directory).
+python -m imitation.scripts.train_adversarial airl with pendulum common.fast demonstrations.fast train.fast rl.fast fast demonstrations.rollout_path=quickstart/rl/rollouts/final.pkl
+```
+Tips:
+  * Remove the "fast" options from the commands above to allow training run to completion.
+  * `python -m imitation.scripts.train_rl print_config` will list Sacred script options. These configuration options are documented in each script's docstrings.
+
+For more information on how to configure Sacred CLI options, see the [Sacred docs](https://sacred.readthedocs.io/en/stable/).
+
+
+## Python Interface Quickstart:
+
+See [examples/quickstart.py](examples/quickstart.py) for an example script that loads CartPole-v1 demonstrations and trains BC, GAIL, and AIRL models on that data.
+
+
+### Density reward baseline
+
+We also implement a density-based reward baseline. You can find an [example notebook here](examples/density_baseline_demo.ipynb).
+
+# Citations (BibTeX)
+```
+@misc{wang2020imitation,
+  author = {Wang, Steven and Toyer, Sam and Gleave, Adam and Emmons, Scott},
+  title = {The {\tt imitation} Library for Imitation Learning and Inverse Reinforcement Learning},
+  year = {2020},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/HumanCompatibleAI/imitation}},
+}
+```
+
+# Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md).
