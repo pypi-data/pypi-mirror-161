@@ -1,0 +1,60 @@
+{
+  "name": "ipymuvue",
+  "version": "0.0.5",
+  "description": "Reactive Jupyter Widgets (ipymuvue-implementation repackaged for Jupyter Notebooks, JupyterLab, …)",
+  "author": "Julian Rüth",
+  "main": "src/index.js",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flatsurf/ipymuvue.git"
+  },
+  "keywords": [
+    "jupyter",
+    "widgets",
+    "ipython",
+    "ipywidgets",
+    "jupyterlab-extension"
+  ],
+  "files": [
+    "src/**/*.js",
+    "dist/*.js"
+  ],
+  "scripts": {
+    "clean": "rimraf dist/ && rimraf ../ipymuvue/labextension/ && rimraf ../ipymuvue/nbextension",
+    "prepublish": "yarn run clean && (cd ../ts && yarn run build:prod) && yarn run build:prod",
+    "build": "yarn run build:nbextension && yarn run build:labextension",
+    "build:prod": "yarn run build:nbextension:prod && yarn run build:labextension:prod",
+    "build:nbextension": "webpack --mode=development",
+    "build:nbextension:prod": "webpack --mode=production",
+    "build:labextension": "jupyter labextension build --development True .",
+    "build:labextension:prod": "jupyter labextension build .",
+    "dev": "webpack --watch --mode=development"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^3.0.0",
+    "rimraf": "^2.6.1",
+    "webpack": "^5"
+  },
+  "dependencies": {
+    "@jupyter-widgets/base": "^1.1 || ^2 || ^3 || ^4",
+    "ipymuvueimplementation": "../ts",
+    "lodash": "^4.17.21"
+  },
+  "jupyterlab": {
+    "extension": "src/labplugin",
+    "outputDir": "../ipymuvue/labextension",
+    "sharedPackages": {
+      "@jupyter-widgets/base": {
+        "bundled": false,
+        "singleton": true
+      },
+      "vue": {},
+      "vue/dist/vue.esm-bundler.js": {}
+    },
+    "_build": {
+      "load": "static/remoteEntry.612ae6d1e706fb800c29.js",
+      "extension": "./extension"
+    }
+  }
+}
