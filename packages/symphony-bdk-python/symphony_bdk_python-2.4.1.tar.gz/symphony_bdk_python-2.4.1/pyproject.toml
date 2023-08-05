@@ -1,0 +1,65 @@
+[tool.poetry]
+name = "symphony_bdk_python"
+version = "2.4.1"
+license = "Apache-2.0"
+description = "Symphony Bot Development Kit for Python"
+readme = "README.md"
+authors = ["Symphony Platform Solutions <symphony@finos.org>"]
+repository = "https://github.com/finos/symphony-bdk-python"
+documentation = "https://symphony-bdk-python.finos.org/"
+packages = [
+    { include = "symphony" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+nulltype = "^2.3.1"
+python-dateutil = "^2.8.2"
+urllib3 = "^1.26.9"
+aiohttp = "^3.8.1"
+pyyaml = "^6.0"
+PyJWT = "^2.3.0"
+cryptography = "^36.0.0"
+tenacity = "^8.0.1"
+defusedxml = "^0.7.1"
+docutils = "0.16"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+pylint = "^2.6.0"
+pytest-cov = "^3.0.0"
+pytest-asyncio = "^0.18.2"
+Sphinx = "^4.4.0"
+recommonmark = "^0.7.1"
+furo = "^2022.3.4"
+hazelcast-python-client = "^5.0.1"
+safety = "^1.10.3"
+liccheck = "^0.6.2"
+coverage = {version = "^6.0b1", extras = ["toml"]}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--junitxml=test-results/junit.xml --cov --cov-report=html"
+testpaths = ["tests"]
+norecursedirs = ["*.egg", ".*", "build", "dist", "venv", "legacy"]
+junit_logging = "all"
+
+[tool.coverage.run]
+branch = true
+source = ["symphony"]
+omit = ["symphony/bdk/gen/*"]
+
+[tool.coverage.report]
+fail_under = 90.0
+
+[tool.liccheck]
+authorized_licenses = [
+    "BSD",
+    "GNU Library or Lesser General Public License (LGPL)",
+    "MIT",
+    "Apache Software",
+    "Python Software Foundation"
+]
