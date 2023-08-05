@@ -1,0 +1,91 @@
+Metadata-Version: 1.2
+Name: scallop
+Version: 1.3.0
+Summary: Robustness of single-cell clustering solutions.
+Home-page: https://gitlab.com/alexmascension/robin
+Author: Alex M. Ascensión, Olga Ibañez-Solé
+Author-email: alexmascension@gmail.com, olga.ibanez@biodonostia.org
+License: BSD
+Description: # Scallop - quantitative evaluation of single-cell cluster memberships
+        [![pipeline status](https://img.shields.io/gitlab/pipeline/olgaibanez/scallop/master)](https://gitlab.com/olgaibanez/scallop/commits/master)
+        [![Coverage report master](https://codecov.io/gl/olgaibanez/scallop/branch/master/graph/badge.svg)](https://codecov.io/gl/olgaibanez/scallop/branch/master)
+        [![Documentation Status Master](https://readthedocs.org/projects/scallop/badge/?version=latest)](https://scallop.readthedocs.io/en/latest/)
+        [![Pypi version](https://img.shields.io/pypi/v/scallop)](https://pypi.org/project/scallop/)
+        
+        Scallop is a method for the quantification of the membership single-cells have for their clusters. Membership can be thought of as a measure of transcriptional stability. The greater the membership score of a cell to its cell type cluster, the more robustly the transcriptional signature of its corresponding cell type is expressed by that cell. Check our preprint [Lack of evidence for increased transcriptional noise in aged tissues](https://www.biorxiv.org/content/10.1101/2022.05.18.492432v1) in bioRxiv. 
+        
+        
+        ## Install
+        Scallop can be installed via pip:
+        
+        ```python
+        pip install scallop
+        ```
+        
+        ## Basic usage
+        
+        Import scanpy and scallop:
+        ```python
+        import scanpy as sc
+        import scallop as sl
+        ```
+        Initialize scallop object:
+        ```python
+        adata = sc.read("/path_to_file/filename")
+        ```
+        
+        Initialize scallop object:
+        ```python
+        scal = sl.Scallop(adata)
+        ```
+        Run scallop using on 95% of the cells in each iteration (30 iterations) and giving the resolution parameter a value of 1.2. 
+        ```python
+        sl.tl.getScore(scal, res=1.2, n_trials=30, frac_cells=0.95)
+        ```
+        
+        ## How to cite
+        Lack of evidence for increased transcriptional noise in aged tissues
+        Olga Ibáñez-Solé, Alex M. Ascensión, Marcos J. Araúzo-Bravo, Ander Izeta
+        bioRxiv 2022.05.18.492432; doi: https://doi.org/10.1101/2022.05.18.492432 
+        
+        ## FAQ
+        
+        **What is the membership score?**
+        
+        The membership score isthe frequency with which the most frequently assigned cluster label was assigned to a cell. That is to say, if a cell has a membership score of 0.7, that means that the cell was assigned to the same cluster in 70% of the bootstrap iterations. The greater the membership score, the more drawn a cell is to its cell type cluster. 
+        
+        **What value should I give to the ```n_trials``` parameter?**
+        
+        This parameter defines the number of bootstrap iterations to run. We recommend using ```n_trials``` > 30. This recommendation is based on our analysis of the convergence of membership scores when gradually increasing the number of bootstrap iterations on five different sc-RNAseq datasets. The output of the analysis is shown in the Supplement 1 to Figure 1 in our [preprint](https://www.biorxiv.org/content/10.1101/2022.05.18.492432v1).
+        
+        **What value should I give to the ```frac_cells``` parameter?**
+        
+        This parameter defines the fraction of randomly selected cells to use in each bootstrap iteration. We recommend using ```frac_cells``` > 0.8 to ensure that rare cell types are not entirely excluded from the analysis.
+        
+        **How do you define equivalent clusters across bootstrap iterations?**
+        
+        When iteratively running a clustering algorithm, the labels given to clusters by the clustering algorithm depend on cluster size. With Leiden, the biggest cluster will be named "0", the second biggest will be named "1", and so on. In order to make cluster labels equivalent across iterations, a relabeling step is run within the scallop pipeline. Clusters are relabeled so that the number of cells in common between them is maximized. The relabeling process is explained in more detail in the *Scallop* subsection within the *Methods* section of our [preprint](https://www.biorxiv.org/content/10.1101/2022.05.18.492432v1).
+        
+        **Can I use a clustering algorithm other than Leiden?**
+        
+        Yes. There are several options: Louvain, K-means, DBscan, etc.
+        
+        
+        
+        
+        
+        
+Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Natural Language :: English
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Python: >=3.6

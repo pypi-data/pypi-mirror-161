@@ -1,0 +1,47 @@
+image: python:3.7
+
+stages:
+  - build
+  - test
+  - codecov
+
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V               # Print out python version for debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+
+build:system:
+  stage: build
+  script:
+    - pip install pytest pytest-xdist pytest-cov pytest-sugar pytest-ordering codecov
+    - pip install -r requirements.txt
+
+test:system:
+  stage: test
+  script:
+    - bash scallop/test/run_tests.sh
+    - ls
+
+  artifacts:
+    paths:
+    - ./.cov*
+    - ./htmlcov
+    expire_in: 1 week
+
+codecov:
+  stage: codecov
+  script:
+    - codecov --token=088d8e8c-2e15-45e6-b235-6b3bd521d241
+
+
+
