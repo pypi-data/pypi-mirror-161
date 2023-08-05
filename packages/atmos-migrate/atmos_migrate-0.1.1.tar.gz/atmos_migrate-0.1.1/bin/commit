@@ -1,0 +1,138 @@
+#! /usr/bin/env python3
+
+import os
+import hashlib
+import yamale
+import yaml
+from ruamel.yaml import YAML
+ruamel_yaml = YAML()
+
+# ----------------------------------------------------------------------------------------------------------------------
+# This function calculates the hash for the given inputs.
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def calculate_hash(body, previous_hash):
+    body = (str(body),
+            "{}\n".format(previous_hash) + str(body))[previous_hash != None]
+    return hashlib.sha1(bytes(body, 'utf-8')).hexdigest()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Get the list of committed migrations. Then define the file name for the next migration.
+# ----------------------------------------------------------------------------------------------------------------------
+
+cwd = os.getcwd()
+path = "{}/migrations/committed".format(cwd)
+dir_list = os.listdir(path)
+dir_list.sort()
+filename = "{}.yaml".format(str(len(dir_list) + 1).zfill(6))
+
+
+previous_hash = None
+previous_data = None
+# ----------------------------------------------------------------------------------------------------------------------
+# Ensure the integrity of all committed migrations.
+# ----------------------------------------------------------------------------------------------------------------------
+
+for dir_list_item in dir_list:
+    with open('./migrations/committed/{}'.format(dir_list_item)) as file:
+        try:
+            data = yaml.safe_load(file)
+            if previous_data:
+                migrations = {
+                    'migrations': data.get('migrations', None)
+                }
+                if data.get('hash', None) != calculate_hash(
+                        migrations, data.get('previous', None)):
+                    print('Error: hash mismatch for {}'.format(dir_list_item))
+                    exit(1)
+            previous_data = data
+            previous = data['previous']
+            previous_hash = data['hash']
+
+        except yaml.YAMLError as exception:
+            print(exception)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Set the value for previous_hash. If there are no committed migrations, set previous_hash to None.
+# ----------------------------------------------------------------------------------------------------------------------
+
+if len(dir_list) > 0:
+    previous_file = dir_list[-1]
+    with open('./migrations/committed/{}'.format(previous_file)) as file:
+        try:
+            previous_data = yaml.safe_load(file)
+            previous_hash = previous_data['hash']
+        except yaml.YAMLError as exception:
+            print(exception)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Ensure that current.yaml is valid
+# ----------------------------------------------------------------------------------------------------------------------
+
+try:
+    schema = yamale.make_schema('./migrations/schema.yaml')
+    data = yamale.make_data('./migrations/current.yaml')
+    yamale.validate(schema, data)
+except ValueError as e:
+    print('Validation failed!\n%s' % str(e))
+    exit(1)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Load the current.yaml file.
+# ----------------------------------------------------------------------------------------------------------------------
+
+with open('./migrations/current.yaml') as file:
+    try:
+        current_data = yaml.safe_load(file)
+    except yaml.YAMLError as exception:
+        print(exception)
+
+# print('current_data: {}'.format(str(current_data)))
+# print('abcd: {}'.format(abcd))
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Create a migration from the current.yaml file.
+# ----------------------------------------------------------------------------------------------------------------------
+hash = calculate_hash(current_data, previous_hash)
+
+hashes = {'hash': hash, 'previous': previous_hash}
+
+migration = hashes | current_data
+
+with open("./migrations/committed/{}".format(filename), 'w') as file:
+    ruamel_yaml.indent(sequence=4, offset=2)
+    ruamel_yaml.dump(migration, file)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Make the migration read only.
+# ----------------------------------------------------------------------------------------------------------------------
+os.chmod("./migrations/committed/{}".format(filename), 0o644)
+
+current = open('./migrations/current.yaml', "w")
+current.write("""# Example Migration File
+# migrations:
+#   - component-name:
+#       description: Add component-name component in all stacks
+#       steps:
+#         - component: component-name
+#           stacks:
+#             - data-devdata-root
+#             - data-proddata-root
+#             - data-stagedata-root
+#             - mgmt-audit-root
+#             - mgmt-automation-root
+#             - mgmt-corp-root
+#             - mgmt-demo-root
+#             - mgmt-dns-root
+#             - mgmt-identity-root
+#             - mgmt-jcfs-root
+#             - mgmt-network-root
+#             - mgmt-security-root
+#             - platform-platformdev-root
+#             - platform-platformstaging-root
+#             - platform-platformprod-root
+""")
+current.close()
