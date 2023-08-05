@@ -1,0 +1,301 @@
+#!/usr/bin/env bash
+#-------------------------------------------------------------------------------
+# Copyright (C) British Crown (Met Office) & Contributors.
+#
+# This file is part of Rose, a framework for meteorological suites.
+#
+# Rose is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rose is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rose. If not, see <http://www.gnu.org/licenses/>.
+#     Refer to COPYRIGHT.txt of this distribution for details.
+#-------------------------------------------------------------------------------
+# NAME
+#     rose mpi-launch
+#
+# SYNOPSIS
+#     1. rose mpi-launch -f FILE
+#     2. rose mpi-launch
+#     3. rose mpi-launch COMMAND [ARGS ...]
+#
+# DESCRIPTION
+#     Provide a portable way to launch an MPI command.
+#
+#     1. If `--command-file=FILE` (or `-f FILE`) is specified, `FILE` is
+#        assumed to be the command file to be submitted to the MPI launcher
+#        command.
+#     2. Alternatively, if `$PWD/rose-mpi-launch.rc` exists and
+#        `--command-file=FILE` (or `-f FILE`) is not specified, it is assumed
+#        to be the command file to be submitted to the MPI launcher command.
+#     3. In the final form, it will attempt to submit `COMMAND` with the MPI
+#        launcher command.
+#
+#     In all cases, the remaining arguments will be appended to the command
+#     line of the launcher program.
+#
+# OPTIONS
+#     --command-file=FILE, -f FILE
+#         Specify a command file for the MPI launcher.
+#     --debug
+#         Switch on xtrace, i.e. `set -x`.
+#     --quiet, -q
+#         Decrement verbosity.
+#     --verbose, -v
+#         Increment verbosity. Print command on `-v` mode. Run `printenv`,
+#         `ldd` on a binary executable, and `ulimit -a` on `-v -v` mode.
+#
+# CONFIGURATION
+#     The command reads from the `[rose-mpi-launch]` section in
+#     the Rose configuration.
+#
+#     Valid settings are:
+#
+#     launcher-list=LIST
+#         Specify a list of launcher commands.
+#
+#         E.g:
+#
+#         * `launcher-list=poe mpiexec`
+#
+#     launcher-fileopts.LAUNCHER=OPTION-TEMPLATE
+#         Specify the options to a `LAUNCHER` for launching with a command file.
+#         The template string should contain `$ROSE_COMMAND_FILE` (or
+#         `${ROSE_COMMAND_FILE}`), which will be expanded to the path to the
+#         command file.
+#
+#         E.g.:
+#
+#         * `launcher-fileopts.mpiexec=-f $ROSE_COMMAND_FILE`
+#         * `launcher-fileopts.poe=-cmdfile $ROSE_COMMAND_FILE`
+#
+#     launcher-(pre|post)opts.LAUNCHER=OPTION-TEMPLATE
+#         Specify the options to a `LAUNCHER` for launching with a command.
+#         `preopts` are options placed after the launcher command but before
+#         `COMMAND`. `postopts` are options placed after `COMMAND` but before
+#         the remaining arguments.
+#
+#         E.g.:
+#
+#         * `launcher-preopts.mpiexec=-n $PROC`
+#
+# ENVIRONMENT VARIABLES
+#     optional ROSE_LAUNCHER
+#         Specify the launcher program.
+#     optional ROSE_LAUNCHER_LIST
+#         Override `launcher-list` setting in configuration.
+#     optional ROSE_LAUNCHER_FILEOPTS
+#         Override `launcher-fileopts.LAUNCHER` setting for the selected
+#         `LAUNCHER`.
+#     optional ROSE_LAUNCHER_PREOPTS
+#         Override `launcher-preopts.LAUNCHER` setting for the selected
+#         `LAUNCHER`.
+#     optional ROSE_LAUNCHER_POSTOPTS
+#         Override `launcher-postopts.LAUNCHER` setting for the selected
+#         `LAUNCHER`.
+#     optional ROSE_LAUNCHER_ULIMIT_OPTS
+#         Only relevant when launching with a command. Tell launcher to run
+#         `rose mpi-launch --inner $@`. Specify the arguments to `ulimit`.
+#         E.g. Setting this variable to `-a -s unlimited -d unlimited -a`
+#         results in `ulimit -a; ulimit -s unlimited; ulimit -d unlimited;
+#         ulimit -a`.
+#     optional NPROC
+#         Specify the number of processors to run on. Default is 1.
+#
+# DIAGNOSTICS
+#     Return 0 on success, 1 or exit code of the launcher program on failure.
+#-------------------------------------------------------------------------------
+set -eu
+# shellcheck source=metomi/rose/etc/lib/bash/rose_log
+. "$(rose resource lib/bash/rose_log)"
+# shellcheck source=metomi/rose/etc/lib/bash/rose_usage
+. "$(rose resource lib/bash/rose_usage)"
+
+ROSE_CMD="${ROSE_NS}-${ROSE_UTIL}"
+
+# ------------------------------------------------------------------------------
+ROSE_COMMAND=
+ROSE_COMMAND_FILE=
+while (($# > 0)); do
+    case $1 in
+    --help)
+        rose_help
+        exit
+        :;;
+    --command-file=*)
+        ROSE_COMMAND_FILE=${1#*=}
+        shift 1
+        :;;
+    --debug)
+        shift 1
+        set -x
+        :;;
+    -f) shift 1
+        ROSE_COMMAND_FILE=$1
+        shift 1
+        :;;
+    --inner)
+        shift 1
+        if [[ -n ${ROSE_LAUNCHER_ULIMIT_OPTS:-} ]]; then
+            # shellcheck disable=SC2086
+            # permit word splitting in ROSE_LAUNCHER_ULIMIT_OPTS
+            # alternative would be to use an array
+            while getopts 'HST:ab:c:d:e:f:i:l:m:n:p:q:r:s:t:u:v:x:' \
+                OPT $ROSE_LAUNCHER_ULIMIT_OPTS
+            do
+                case "$OPT" in
+                  '?')
+                      err "ROSE_LAUNCHER_ULIMIT_OPTS=$ROSE_LAUNCHER_ULIMIT_OPTS"
+                      :;;
+                    *)
+                      ulimit -$OPT ${OPTARG:-} || err \
+                          "ROSE_LAUNCHER_ULIMIT_OPTS=$ROSE_LAUNCHER_ULIMIT_OPTS"
+                      :;;
+                esac
+            done
+        fi
+        if ((ROSE_VERBOSITY >= 3)); then
+            run ulimit -a
+        fi
+        info 2 exec "$@"
+        exec "$@"
+        :;;
+    -q) shift 1
+        ((--ROSE_VERBOSITY))
+        :;;
+    --quiet)
+        shift 1
+        ((--ROSE_VERBOSITY))
+        :;;
+    -v) shift 1
+        ((++ROSE_VERBOSITY))
+        :;;
+    --verbose)
+        shift 1
+        ((++ROSE_VERBOSITY))
+        :;;
+    --) shift 1
+        break
+        :;;
+    -*) rose_usage 1
+        :;;
+    *)  break
+        :;;
+    esac
+done
+
+# ------------------------------------------------------------------------------
+if [[ -n $ROSE_COMMAND_FILE ]]; then
+    if [[ ! -f $ROSE_COMMAND_FILE || ! -r $ROSE_COMMAND_FILE ]]; then
+        err "$ROSE_COMMAND_FILE: cannot read file"
+    fi
+elif [[ -f 'rose-mpi-launch.rc' && -r 'rose-mpi-launch.rc' ]]; then
+    ROSE_COMMAND_FILE=$PWD/rose-mpi-launch.rc
+else
+    if (($# < 1)); then
+        rose_usage 1
+    fi
+    if ! ROSE_COMMAND="$(type -P "$1")"; then
+        err "$1: COMMAND not found"
+    fi
+    shift 1
+fi
+
+ROSE_LAUNCHER_LIST=${ROSE_LAUNCHER_LIST:-$( \
+    rose config --default= "$ROSE_CMD" launcher-list)}
+export NPROC=${NPROC:-1}
+
+#-------------------------------------------------------------------------------
+# 0. ROSE_LAUNCHER_MPICH is deprecated. Alternative launchers should be
+# specified in build specific run time scripts using ROSE_LAUNCHER
+#-------------------------------------------------------------------------------
+ROSE_LAUNCHER_LIST="${ROSE_LAUNCHER_MPICH:-} $ROSE_LAUNCHER_LIST"
+
+#-------------------------------------------------------------------------------
+# 1. Assign a value to ROSE_LAUNCHER if it is not already set.
+#-------------------------------------------------------------------------------
+if ! printenv ROSE_LAUNCHER >/dev/null; then
+    ROSE_LAUNCHER=
+    for LAUNCHER in $ROSE_LAUNCHER_LIST; do
+        if type -P "$LAUNCHER" >/dev/null; then
+            ROSE_LAUNCHER=$LAUNCHER
+            break
+        fi
+    done
+fi
+
+#-------------------------------------------------------------------------------
+# 2. Find the full path of ROSE_LAUNCHER and set up the pre/post options.
+#-------------------------------------------------------------------------------
+ROSE_LAUNCHER_BASE=
+if [[ -n $ROSE_LAUNCHER ]]; then
+    # ROSE_LAUNCHER should be able to contain multiple commands.
+    # Each command should be handled separately by `type -P` so we must
+    # allow word splitting.
+    # shellcheck disable=SC2086
+    if ! ROSE_LAUNCHER_PATH="$(type -P $ROSE_LAUNCHER)"; then
+        err "ROSE_LAUNCHER: $ROSE_LAUNCHER: command not found"
+    fi
+    ROSE_LAUNCHER=$ROSE_LAUNCHER_PATH
+    ROSE_LAUNCHER_BASE="$(basename "$ROSE_LAUNCHER")"
+fi
+
+#-------------------------------------------------------------------------------
+# 3. Launch the program.
+#-------------------------------------------------------------------------------
+if [[ -n $ROSE_COMMAND_FILE ]]; then
+    if [[ -z $ROSE_LAUNCHER_BASE ]]; then
+        err "ROSE_LAUNCHER not defined, command file not supported."
+    fi
+    ROSE_LAUNCHER_FILEOPTS=${ROSE_LAUNCHER_FILEOPTS:-$( \
+        rose config --default= \
+        "$ROSE_CMD" "launcher-fileopts.$ROSE_LAUNCHER_BASE")}
+    eval "info 2 exec $ROSE_LAUNCHER $ROSE_LAUNCHER_FILEOPTS $*"
+    eval "exec $ROSE_LAUNCHER $ROSE_LAUNCHER_FILEOPTS $*"
+else
+    if [[ -n $ROSE_LAUNCHER_BASE ]]; then
+        ROSE_LAUNCH_INNER=
+        if [[ -n ${ROSE_LAUNCHER_ULIMIT_OPTS:-} ]]; then
+             ROSE_LAUNCH_INNER="${0}$(optv) --inner"
+        fi
+        # Options
+        ROSE_LAUNCHER_PREOPTS=${ROSE_LAUNCHER_PREOPTS:-$(rose config -E \
+            --default= "$ROSE_CMD" "launcher-preopts.$ROSE_LAUNCHER_BASE")}
+        ROSE_LAUNCHER_POSTOPTS=${ROSE_LAUNCHER_POSTOPTS:-$(rose config -E \
+            --default= "$ROSE_CMD" "launcher-postopts.$ROSE_LAUNCHER_BASE")}
+    else
+        ROSE_LAUNCH_INNER=
+        ROSE_LAUNCHER_PREOPTS=
+        ROSE_LAUNCHER_POSTOPTS=
+    fi
+    if ((ROSE_VERBOSITY >= 3)); then
+        info 3 printenv
+        printenv | sort
+        run ldd "$ROSE_COMMAND" || true 2>/dev/null
+    fi
+    # shellcheck disable=SC2086
+    # permit word splitting in command / argument strings
+    info 2 exec \
+        $ROSE_LAUNCHER \
+        $ROSE_LAUNCHER_PREOPTS \
+        $ROSE_LAUNCH_INNER \
+        "$ROSE_COMMAND" \
+        $ROSE_LAUNCHER_POSTOPTS \
+        "$@"
+    # shellcheck disable=SC2086
+    # permit word splitting in command / argument strings
+    exec \
+        $ROSE_LAUNCHER \
+        $ROSE_LAUNCHER_PREOPTS \
+        $ROSE_LAUNCH_INNER \
+        "$ROSE_COMMAND" \
+        $ROSE_LAUNCHER_POSTOPTS \
+        "$@"
+fi

@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#-------------------------------------------------------------------------------
+# Copyright (C) British Crown (Met Office) & Contributors.
+#
+# This file is part of Rose, a framework for meteorological suites.
+#
+# Rose is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rose is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rose. If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+# NAME
+#     rose tutorial
+#
+# SYNOPSIS
+#     # Print list of available suites.
+#     rose tutorial
+#     # Copy SUITE to DIR (defaults to ~/cylc-run/SUITE).
+#     rose tutorial SUITE [DIR]
+#
+# DESCRIPTION
+#     Make a copy of one of the tutorial SUITE in the cylc-run directory.
+#-------------------------------------------------------------------------------
+set -eu
+
+if [[ ${1:-} == '--help' ]]; then
+    # shellcheck source=metomi/rose/etc/lib/bash/rose_usage
+    . "$(rose resource lib/bash/rose_usage)"
+    rose_help
+    exit 0
+fi
+
+mkdir -p "$HOME/cylc-run"
+
+API_KEYS="$(rose resource tutorial/api-keys)"
+TUT_DIR="$(dirname "${API_KEYS}")"
+
+usage () {
+    echo 'rose tutorial SUITE [DIR]'
+    echo
+    echo 'Available tutorial suites:'
+    rose resource tutorial | sed -n 's/^  tutorial\/\(.*\)/\1/p; s/api-keys/api-key/'
+}
+
+api-key () {
+    # Pick a Datapoint API key at random from the api-keys file.
+    sort -R "${API_KEYS}" | head -n 1
+}
+
+if [[ $# == 1 ]]; then
+    DIRECTORY="$HOME/cylc-run/$1"
+elif [[ $# == 2 ]]; then
+    DIRECTORY="$2"
+else
+    usage
+    exit 0
+fi
+
+# If api-key generate key and exit.
+if [[ $1 == 'api-key' ]]; then
+    api-key
+    exit 0
+fi
+
+SRC_PATH="${TUT_DIR}/$1"
+if [[ ! -d "${SRC_PATH}" ]]; then
+    echo "Tutorial '$1' does not exist" >&2
+    echo
+    usage
+    exit 1
+fi
+
+# Prompt user if directory exists.
+if [[ -d $DIRECTORY ]]; then
+    while read -rp "Directory $DIRECTORY exists, overwrite it (y/n)? " usr
+    do
+        case "${usr}" in
+            [Yy])
+                break
+                ;;
+            [Nn])
+                exit 1
+                ;;
+        esac
+    done
+fi
+
+# Copy files.
+echo -n "Copying tutorial files to ${DIRECTORY} ... "
+
+mkdir -p "$(dirname "${DIRECTORY}")"
+if rsync -rLptgoD "${TUT_DIR}/$1/" "${DIRECTORY}" \
+    --exclude='.validate'; then
+    find "${DIRECTORY}" -type f \
+        -exec sed -i "s/DATAPOINT_API_KEY/$(api-key)/" {} \;
+    echo 'done'
+else
+    echo
+    echo "rose tutorial $1: failed" >&2
+    exit 1
+fi
