@@ -1,0 +1,91 @@
+Metadata-Version: 2.1
+Name: rf_otp
+Version: 0.1.10
+Summary: RobotFramework tools provided by QA team
+Home-page: https://argon.ceti.etat-ge.ch/gitlab/performancetests/robotframework/rf-otp
+Author: Pedro Lopez Perez
+Author-email: Pedro Lopez Perez <pedro.lopez-perez@etat.ge.ch>
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# rf-otp
+
+    RobotFramework tools provided by QA team
+
+## Documentation
+    https://packaging.python.org/en/latest/tutorials/packaging-projects/ 
+
+## Configuration .pypirc 
+    File in ~/.pypirc
+    https://packaging.python.org/en/latest/specifications/pypirc/
+    https://python-packaging.readthedocs.io/en/latest/dependencies.html
+
+## Packaging
+### Prerequisite
+	Configure python virtual env
+	- python -m venv .venv
+	Activate pyhton virtual env
+	- .venv\Scripts\activate
+	Update pip
+	- %CD%\.venv\Scripts\python.exe -m pip install --upgrade pip
+    Install/Update setuptools
+    - pip install --upgrade setuptools
+    Intall build package
+    - pip install --upgrade build
+    Install twine package
+    - pip install twine
+
+### Intall package associated to the tools
+    Need by biuldOTP.py
+    - pip install pyotp==2.6.0
+
+### Build the package
+    Change version in files:
+    - pyproject.toml
+    - setup.cfg
+    - setup.py
+    Build the package
+    - python -m build
+    Will create files .tar.gz and .whl in ./dist directory
+
+### Upload package
+    In current terminal define proxy your proxy
+    set PROXY=http://[username]:[password]@proxygeadm.etat-ge.ch:3128
+    set HTTP_PROXY=%PROXY%
+    set HTTPS_PROXY=%PROXY%
+
+    Execute commande
+    - python -m twine upload --repository pypi dist/*
+    Or
+    - twine upload --repository pypi dist/*
+
+### pip installation
+    pip install rf_otp==0.1.0
+
+### pdm installation
+    pdm add --save-exact rf_otp==0.1.0
+
+## Project configuration
+
+### Use library in robot file.
+    Add the library in robot file
+    - Library   rf_otp
+
+    Use the library in robot file
+
+    - ${BUILDED_CODE} get otp ${SECRET}
+
+    ${SECRET} is extract from the QR Code as follow:
+    QR Code as URI => otpauth://[URL]?secret=[SECRET]&issuer=[TEXTE]
+    Extract [SECRET] and use it in statement of your robot file
+    - ${SECRET} [SECRET]
+
+    ${BUILDED_CODE} is the variable with the 6 digits code.
+
+
+
+
+
+
