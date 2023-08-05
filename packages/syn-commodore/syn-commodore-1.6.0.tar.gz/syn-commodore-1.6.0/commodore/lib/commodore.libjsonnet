@@ -1,0 +1,427 @@
+local kap = import 'lib/kapitan.libjsonnet';
+local kube = import 'lib/kube.libjsonnet';
+
+local inventory =
+  // std.native() returns null if the function isn't defined.
+  // We name our native inventory function `commodore_inventory` to avoid
+  // accidentally binding Kapitan's native `inventory` function which has
+  // different arguments.
+  local comInv = std.native('commodore_inventory');
+  if comInv == null then
+    kap.inventory
+  else
+    comInv;
+
+local params = inventory().parameters;
+
+local namespaced(ns, obj) =
+  obj {
+    metadata+: { namespace: ns },
+  };
+
+/**
+ * \brief A function to filter NULL values.
+ *
+ * \arg `list` The array to filter
+ *
+ * \deprecated Use `std.prune(a)` instead.
+ */
+local filterNull(list) = std.trace('filterNull is deprecated, use std.prune(a) instead', std.filter(function(obj) obj != null, list));
+
+/**
+ * \brief Load all objects from a YAML stream document
+ *
+ * \arg yaml_file the YAML document to load
+ */
+local yaml_load_all = std.native('yaml_load_all');
+
+/**
+ * \brief Add namespace `namespace` in all objects defined in file `obj_file`.
+ *
+ * This method uses the `yaml_load_all` native callback to load a
+ * multi-document YAML file and sets metadata.namespace to the argument
+ * namespace for objects which have kind in kinds.
+ *
+ * \arg `obj_file` The file name of the input file. Loaded as multid-document
+ *      YAML.
+ * \arg `namespace` The namespace to patch into the objects
+ * \arg `kinds` An array defining which object kinds to patch. If this
+ *      argument is `null`, all objects in the input will be patched. Defaults
+ *      to null.
+ */
+local patch_namespace(obj_file, namespace, kinds=null, exclude_objects=[]) =
+  // read objects from input file, drop null objects
+  local objs = std.filter(function(o) o != null, yaml_load_all(obj_file));
+  // convert kinds array into set
+  local kindset = if kinds != null then std.set(kinds);
+  // generate object filter function depending on whether we want to only
+  // patch specific object kinds.
+  local kindfilter = if kinds != null then
+    function(o) std.setMember(o.kind, kindset)
+  else
+    function(o) true;
+  local include = if std.length(exclude_objects) > 0 then
+    local filterfn(o) =
+      local conds = std.map(function(e) e.kind == o.kind && e.name == o.metadata.name,
+                            exclude_objects);
+      !std.foldl(function(aggregate, cond) aggregate || cond, conds, false);
+    filterfn
+  else
+    function(o) true;
+  // helper to patch the objects
+  local addns(obj) = obj { metadata+: { namespace: namespace } };
+  // add namespace to objects for which objfilter returns true
+  [
+    if kindfilter(obj) && include(obj) then addns(obj) else obj
+    for obj in objs
+  ];
+
+/**
+ * \brief list files in a directory
+ *
+ * \arg dir The directory to list
+ * \arg basename if true, only return the name of the file, otherwise return
+ * the full path.
+ */
+local list_dir(dir, basename=true) =
+  std.native('list_dir')(dir, basename);
+
+local addNamespaceToHelmOutput(template_dir, namespace, exclude_objects=[]) =
+  local chart_files = list_dir(template_dir);
+  local input_file(elem) = template_dir + '/' + elem;
+  local stem(elem) =
+    local elems = std.split(elem, '.');
+    std.join('.', elems[:std.length(elems) - 1]);
+  {
+    [stem(elem)]: patch_namespace(input_file(elem),
+                                  namespace,
+                                  exclude_objects=exclude_objects)
+    for elem in chart_files
+  };
+
+/**
+* \brief Helper to inject proxy variables into a containers environment.
+*
+* HTTP proxy configuration is supposed to be done at `parameters.global` and
+* meant to be used by all components. This helper makes it easy to add those
+* values to a containers environment. No need to do any checks whether or not
+* they have to be added.
+*
+* This helper is suitable to be used with `env_:` from the Kubernetes Jsonnet
+* library. If the list form is used, combine it with `com.envList`.
+*
+* \return Dictionary. When configured, contains the http proxy environment
+*         variables in both upper and lower case form. Will be empty otherwise.
+*/
+local proxyVars = if std.objectHas(params, 'global') then {
+  [if std.objectHas(params.global, 'http_proxy') then 'HTTP_PROXY']: params.global.http_proxy,
+  [if std.objectHas(params.global, 'http_proxy') then 'http_proxy']: params.global.http_proxy,
+  [if std.objectHas(params.global, 'https_proxy') then 'HTTPS_PROXY']: params.global.https_proxy,
+  [if std.objectHas(params.global, 'https_proxy') then 'https_proxy']: params.global.https_proxy,
+  [if std.objectHas(params.global, 'no_proxy') then 'NO_PROXY']: params.global.no_proxy,
+  [if std.objectHas(params.global, 'no_proxy') then 'no_proxy']: params.global.no_proxy,
+} else {};
+
+/**
+* \brief Helper function to convert a dictionary into an environment list.
+*
+* Kubernetes containers require environment variables to be a list of objects.
+* In its simplest form, the object contains the keys `name` and `value`.
+*
+* This helper converts a dictionary into such a list where keys become `name`,
+* and values become `value`.
+*
+* \arg map Dictionary to be converted.
+*
+* \return List of dictionaries with `name`, `value` keys.
+*/
+local envList(map) = [
+  if std.type(map[x]) == 'object'
+  then {
+    name: x,
+    valueFrom: map[x],
+  } else {
+    // Let `null` value stay as such (vs string-ified)
+    name: x,
+    value: if map[x] == null then null else std.toString(map[x]),
+  }
+  for x in std.objectFields(map)
+];
+
+/**
+ * \brief Helper to get a fields value or a default.
+ *
+ * \arg dict An arbitrary dictionary data structure.
+ * \arg field The name of a field.
+ * \arg default The value to return if the field is not present on the dict.
+ */
+local getValueOrDefault(dict, field, default) =
+  if std.objectHas(dict, field) then dict[field] else default;
+
+/**
+ * \brief makes an object deep mergeable
+ *
+ * Builds a new object from its input.
+ * All keys which contain an object or array will be suffixed with `+` in the result.
+ *
+ * \arg o An arbitrary object.
+ * \return The transformed object.
+ */
+local makeMergeable(o) = {
+  [key]+: makeMergeable(o[key])
+  for key in std.objectFields(o)
+  if std.isObject(o[key])
+} + {
+  [key]+: o[key]
+  for key in std.objectFields(o)
+  if std.isArray(o[key])
+} + {
+  [key]: o[key]
+  for key in std.objectFields(o)
+  if !std.isObject(o[key]) && !std.isArray(o[key])
+};
+
+/**
+ * \brief compute file name without extension for `file`
+ *
+ * \arg file the file name (without path) for which to compute the name w/o
+ * extension.
+ */
+local stem(elem) =
+  local elems = std.split(elem, '.');
+  std.join('.', elems[:std.length(elems) - 1]);
+
+/**
+ * \brief apply fixupfn to all objects in `obj_file`
+ *
+ * \arg obj_file the YAML document containing the objects to fixup
+ * \arg fixupfn A Jsonnet function taking one argument (the object) and
+ * returning the adjusted object.
+ */
+local fixup(obj_file, fixupfn) =
+  local objs = std.filter(
+    function(it) it != null,
+    yaml_load_all(obj_file)
+  );
+  // process all objects
+  std.map(fixupfn, objs);
+
+/**
+ * \brief apply `fixupfn` to all objects in all files in directory `dir`
+ *
+ * This function assumes that all files in `dir` are YAML files
+ *
+ * \arg dir The directory in which to look for files
+ * \arg fixupfn A Jsonnet function taking one argument (the object) and
+ * returning the adjusted object. The function is applied to all objects in
+ * all files.
+ *
+ * \returns A Jsonnet object suitable as output for a Commodore postprocessing
+ * filter.
+ */
+local fixupDir(dir, fixupfn) =
+  local files = list_dir(dir);
+  local filepath(file) = dir + '/' + file;
+  {
+    [stem(file)]: fixup(filepath(file), fixupfn)
+    for file in files
+  };
+
+/**
+ * \brief Render array of strings with removable entries
+ *
+ * This function renders an array which allows removing entries by prefixing
+ * them with `~`.
+ * The filtering is processed based on element order, adding the same element
+ * again after removing it results in the element being present in the final
+ * array.
+ *
+ * NOTE: The function doesn't conserve element order in the resulting array.
+ *
+ * This function only supports arrays of strings.
+ *
+ * \returns The filtered array
+ */
+local renderArray(arr) =
+  // extract real value of array entry
+  local realval(v) = std.lstripChars(v, '~');
+  // Compute whether each element should be included by keeping track of
+  // whether its last occurrence in the input array was prefixed with ~ or
+  // not.
+  local val_state = std.foldl(
+    function(a, it) a + it,
+    [
+      assert
+        std.isString(v) :
+        "renderArray() doesn't support arrays with non-string entries";
+      { [realval(v)]: !std.startsWith(v, '~') }
+      for v in arr
+    ],
+    {}
+  );
+  // Return filtered array containing only elements whose last occurrence
+  // wasn't prefixed by ~.
+  std.filter(
+    function(val) val_state[val],
+    std.objectFields(val_state)
+  );
+
+/**
+ * \brief Generate array of Resources based on `resourceFn`
+ *
+ * \arg resources Object containing (partial) resource definitions
+ * \arg resourceFn Kube-libsonnet style function which emits a valid minimal
+ *                 Kubernetes manifest. The function is expected to take one
+ *                 argument which is used as `.metadata.name` of the resulting
+ *                 manifest.
+ *
+ * \returns Array of rendered resources
+ *
+ * The function renders resource manifests based on the output of `resourceFn`
+ * overlaid with each value specified in `resources`. The keys of `resources`
+ * are used as resource names in the resulting manifests.
+ *
+ * The function provides the usual convenience features we use when generating
+ * resources in components, such as ignoring input entries which are
+ * null-values, to allow removing resources defined higher-up in the
+ * hierarchy.
+ *
+ * The function supports both supplying a kube-libsonnet resource function as
+ * `resourceFn()` or a custom function which wraps or mimics a kube-libsonnet
+ * resource function.
+ *
+ * The object values overlaid on the result of `resourceFn()` without any
+ * validation. If validation is wanted or required, callers must validate the
+ * contents of `resources` before calling this function.
+ *
+ * Example:
+ *
+ * The following Jsonnet takes the contents of `resources` and generates a
+ * list of Kubernetes `Secret` manifests by applying each provided
+ * configuration to an empty `Secret` manifest.
+ *
+ * ```jsonnet
+ * local com = import 'lib/commodore.libjsonnet';
+ * local kube = import 'lib/kube.libjsonnet';
+ *
+ * local resources = {
+ *   secret1: {
+ *     stringData: {
+ *       secret: 'value',
+ *     },
+ *   },
+ *   secret2: {
+ *     stringData: {
+ *       secret: 'another',
+ *     },
+ *   },
+ *   secret3: null,
+ * };
+ *
+ * local secrets = com.generateResources(resources, kube.Secret);
+ *
+ * {
+ *   secrets: secrets,
+ * }
+ * ```
+ *
+ * The JSON output generated by Jsonnet looks as follows.
+ * Note that the field `res3` has been omitted in the output.
+ *
+ * ```json
+ * {
+ *   "secrets": [
+ *     {
+ *       "apiVersion": "v1",
+ *       "data": {},
+ *       "kind": "Secret",
+ *       "metadata": {
+ *         "annotations": {},
+ *         "labels": {
+ *           "name": "res1"
+ *         },
+ *         "name": "res1"
+ *       },
+ *       "stringData": {
+ *         "secret": "value"
+ *       },
+ *       "type": "Opaque"
+ *     },
+ *     {
+ *       "apiVersion": "v1",
+ *       "data": {},
+ *       "kind": "Secret",
+ *       "metadata": {
+ *         "annotations": {},
+ *         "labels": {
+ *           "name": "res2"
+ *         },
+ *         "name": "res2"
+ *       },
+ *       "stringData": {
+ *         "secret": "another"
+ *       },
+ *       "type": "Opaque"
+ *     }
+ *   ]
+ * }
+ * ```
+ *
+ * If the initial Jsonnet is part of a Commodore component, the final
+ * result will be a file `secrets.yaml` with the following content
+ *
+ * ```yaml
+ * ---
+ * apiVersion: v1
+ * data: {}
+ * kind: Secret
+ * metadata:
+ *   annotations: {}
+ *   labels:
+ *     name: res1
+ *   name: res1
+ * stringData:
+ *   secret: value
+ * type: Opaque
+ * ---
+ * apiVersion: v1
+ * data: {}
+ * kind: Secret
+ * metadata:
+ *   annotations: {}
+ *   labels:
+ *     name: res2
+ *   name: res2
+ * stringData:
+ *   secret: another
+ * type: Opaque
+ * ```
+ */
+local generateResources(resources, resourceFn) =
+  std.filter(
+    function(it) it != null,
+    [
+      local rname = kube.hyphenate(r);
+      if resources[r] != null then
+        resourceFn(rname) + makeMergeable(resources[r])
+      for r in std.objectFields(resources)
+    ]
+  );
+
+{
+  inventory: inventory,
+  list_dir: list_dir,
+  yaml_load: std.native('yaml_load'),
+  yaml_load_all: yaml_load_all,
+  namespaced: namespaced,
+  filterNull: filterNull,
+  patchNamespace: patch_namespace,
+  addNamespaceToHelmOutput: addNamespaceToHelmOutput,
+  proxyVars: proxyVars,
+  envList: envList,
+  getValueOrDefault: getValueOrDefault,
+  makeMergeable: makeMergeable,
+  fixupDir: fixupDir,
+  renderArray: renderArray,
+  generateResources: generateResources,
+}
