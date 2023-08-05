@@ -1,0 +1,60 @@
+name: Tests
+
+on: [push, pull_request]
+
+env:
+  FORCE_COLOR: "1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, windows-latest, macos-latest]
+        pyv: ['3.8', '3.9', '3.10']
+        include:
+        - os: ubuntu-latest
+          pyv: 'pypy-3.8'
+        - os: ubuntu-latest
+          pyv: '3.11-dev'
+          nox_session: 'tests-3.11'
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.pyv }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.pyv }}
+
+    - name: Upgrade pip and nox
+      run: |
+        python -m pip install --upgrade pip nox
+        pip --version
+        nox --version
+
+    - name: Lint code and check dependencies
+      continue-on-error: ${{ matrix.pyv == '3.11-dev' }}
+      run: nox -s lint safety
+
+    - name: Run tests
+      continue-on-error: ${{ matrix.pyv == '3.11-dev' }}
+      run: nox -s $TEST_SESSION -- --cov-report=xml
+      shell: bash
+      env:
+        TEST_SESSION: ${{ matrix.nox_session || format('tests-{0}', matrix.pyv) }}
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3.1.0
+
+    - name: Build package
+      run: nox -s build
