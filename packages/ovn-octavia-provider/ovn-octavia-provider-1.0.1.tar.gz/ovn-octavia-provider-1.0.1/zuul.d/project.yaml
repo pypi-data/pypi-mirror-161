@@ -1,0 +1,19 @@
+- project:
+    templates:
+      - publish-openstack-docs-pti
+      - release-notes-jobs-python3
+      - check-requirements
+      - openstack-python3-wallaby-jobs-neutron
+      - openstack-cover-jobs
+    check:
+      jobs:
+        - openstack-tox-cover:
+            required-projects:
+              - openstack/neutron
+        - ovn-octavia-provider-functional-release
+        - ovn-octavia-provider-tempest-release
+    gate:
+      fail-fast: true
+      jobs:
+        - ovn-octavia-provider-functional-release
+        - ovn-octavia-provider-tempest-release

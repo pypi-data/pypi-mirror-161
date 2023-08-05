@@ -1,0 +1,164 @@
+- job:
+    name: ovn-octavia-provider-functional-base
+    parent: devstack-minimal
+    description: Run OVN Octavia provider functional tests
+    timeout: 7800
+    required-projects:
+      - opendev.org/openstack/devstack
+      - openstack/neutron
+      - openstack/requirements
+    roles:
+      - zuul: openstack/devstack
+    pre-run: playbooks/configure_functional_job.yaml
+    run: playbooks/run_functional_job.yaml
+    post-run: playbooks/post_functional_job.yaml
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+    vars:
+      devstack_services:
+        # Ignore any default set by devstack. Emit a "disable_all_services".
+        base: false
+      devstack_localrc:
+        INSTALL_TESTONLY_PACKAGES: true
+        DATABASE_PASSWORD: stackdb
+      tox_envlist: dsvm-functional
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/openstack/requirements/upper-constraints.txt'
+      zuul_copy_output:
+        # We need to copy directory with logs to have it in job artifacts also,
+        # /opt/stack/logs is default logs directory defined in neutron's
+        # tox.ini file
+        '{{ devstack_base_dir }}/logs/dsvm-functional-logs': logs
+
+- job:
+    name: ovn-octavia-provider-functional-release
+    parent: ovn-octavia-provider-functional-base
+    description: Run OVN Octavia provider functional tests
+    vars:
+      OVN_BUILD_FROM_SOURCE: True
+      Q_BUILD_OVS_FROM_GIT: True
+      INSTALL_OVN: True
+      OVN_BRANCH: v20.06.1
+      OVS_BRANCH: 0047ca3a0290f1ef954f2c76b31477cf4b9755f5
+
+- job:
+    name: ovn-octavia-provider-tempest-base
+    parent: devstack-tempest
+    abstract: true
+    timeout: 7800
+    required-projects:
+      - openstack/neutron
+      - openstack/octavia
+      - openstack/octavia-lib
+      - openstack/octavia-tempest-plugin
+      - openstack/python-octaviaclient
+      - openstack/ovn-octavia-provider
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^releasenotes/.*$
+    vars:
+      devstack_localrc:
+        Q_AGENT: ovn
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: ovn,logger
+        Q_ML2_PLUGIN_TYPE_DRIVERS: local,flat,vlan,geneve
+        Q_ML2_TENANT_NETWORK_TYPE: geneve
+        USE_PYTHON3: True
+        TEMPEST_PLUGINS: '/opt/stack/octavia-tempest-plugin'
+        OCTAVIA_NODE: api
+        OCTAVIA_TEMPEST_PLUGIN_CUSTOMIZE_IMAGE: true
+        DISABLE_AMP_IMAGE_BUILD: true
+        OVN_L3_CREATE_PUBLIC_NETWORK: true
+        Q_USE_PROVIDERNET_FOR_PUBLIC: true
+        PHYSICAL_NETWORK: public
+        ENABLE_CHASSIS_AS_GW: true
+        OVN_DBS_LOG_LEVEL: dbg
+      devstack_local_conf:
+        post-config:
+          $OCTAVIA_CONF:
+            api_settings:
+              enabled_provider_drivers: 'ovn:OVN provider driver'
+              default_provider_driver: 'ovn'
+        test-config:
+          "$TEMPEST_CONFIG":
+            load_balancer:
+              provider: 'ovn'
+              enable_security_groups: True
+              enabled_provider_drivers: 'ovn:OVN provider driver'
+              test_sctp_protocol: True
+            loadbalancer-feature-enabled:
+              health_monitor_enabled: True
+              pool_algorithms_enabled: False
+              l7_protocol_enabled: False
+              l4_protocol: "TCP"
+              session_persistence_enabled: False
+              not_implemented_is_error: False
+      devstack_services:
+        c-bak: false
+        ceilometer-acentral: false
+        ceilometer-acompute: false
+        ceilometer-alarm-evaluator: false
+        ceilometer-alarm-notifier: false
+        ceilometer-anotification: false
+        ceilometer-api: false
+        ceilometer-collector: false
+        c-sch: false
+        c-api: false
+        c-vol: false
+        cinder: false
+        q-svc: true
+        q-dns: true
+        q-dhcp: false
+        q-agt: false
+        q-meta: false
+        q-l3: false
+        ovn-northd: true
+        ovn-controller: true
+        q-ovn-metadata-agent: true
+        octavia: true
+        o-api: true
+        o-da: true
+        o-hk: true
+        o-cw: false
+        o-hm: false
+        swift: false
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        tempest: true
+        etcd: false
+      devstack_plugins:
+        neutron: https://opendev.org/openstack/neutron.git
+        octavia: https://opendev.org/openstack/octavia.git
+        octavia-tempest-plugin: https://opendev.org/openstack/octavia-tempest-plugin.git
+        ovn-octavia-provider: https://opendev.org/openstack/ovn-octavia-provider
+      tempest_test_regex: "^octavia_tempest_plugin.tests.(api|scenario).v2"
+      tempest_exclude_regex: "\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_basic_http_traffic)|\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_basic_tcp_traffic)|\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_basic_udp_traffic)|\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_basic_sctp_traffic)|\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_source_ip_port_tcp_traffic)|\
+        (^octavia_tempest_plugin.tests.scenario.v2.test_traffic_ops.TrafficOperationsScenarioTest.test_source_ip_port_udp_traffic)"
+      zuul_copy_output:
+        '{{ devstack_base_dir }}/data/ovs': 'logs'
+        '{{ devstack_base_dir }}/data/ovn': 'logs'
+        '{{ devstack_log_dir }}/ovsdb-server-nb.log': 'logs'
+        '{{ devstack_log_dir }}/ovsdb-server-sb.log': 'logs'
+      tempest_concurrency: 2
+      tox_envlist: all
+
+- job:
+    name: ovn-octavia-provider-tempest-release
+    parent: ovn-octavia-provider-tempest-base
+    vars:
+      devstack_localrc:
+        OVN_BUILD_FROM_SOURCE: True
+        Q_BUILD_OVS_FROM_GIT: True
+        INSTALL_OVN: True
+        OVN_BRANCH: v20.06.1
+        OVS_BRANCH: 0047ca3a0290f1ef954f2c76b31477cf4b9755f5
