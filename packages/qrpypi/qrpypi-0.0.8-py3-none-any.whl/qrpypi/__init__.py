@@ -1,0 +1,1 @@
+from .qrpypi import qrcode
