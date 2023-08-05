@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{package_name}}</title>
+    </head>
+    <body>
+        <h1>{{package_name}}</h1>
+        <p>
+            Latest version:
+            <input
+                type="text"
+                value="{{requirement}}"
+                id="requirement"
+                style="font-family: monospace; width: {{requirement|length}}ch;"
+                readonly="readonly"
+            />
+        </p>
+        {% if generate_timestamp %}
+            <p>Generated on {{date}}.</p>
+        {% endif %}
+        <ul>
+            {% for file in files|reverse %}
+                <li>
+                    <a
+                        href="{{file.url(packages_url)}}"
+                        {%- if file.requires_python %}
+                            data-requires-python="{{file.requires_python}}"
+                        {%- endif %}
+                    >{{file.filename}}</a>
+                    ({{file.info_string}})
+                </li>
+            {% endfor %}
+        </ul>
+
+        <script>
+            document.getElementById('requirement').onfocus = (e) => e.target.select();
+        </script>
+    </body>
+</html>
+
+{# vim: ft=jinja
+#}
