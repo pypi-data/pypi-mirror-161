@@ -1,0 +1,72 @@
+# Definitions
+
+# This defines the structure of a configuration file.
+# # character is a comment
+# [] encloses an optional entry or block of entries
+# <> value to specify. Note that the terms file, filename and filepath within <> are synonymous
+
+[
+# optional jumpboxes. these are potentially intermediary nodes, and can only be accessed through ssh
+# example: ssh [-i key_file] [username@]node [-p port]
+# jumbox1
+jump_cmd = ssh
+node = <node>
+[username = <username>]  # will be prompted if not provided
+[
+[
+[key_file = <ssh security key file>]  # will not be prompted if not provided. this would usually be a private key file on your local machine
+[passphrase = <passphrase of key_file>]  # if your private key file was created with a passphrase for additional security, you will have to specify it here. Note that this entry is optional if you are not using a passphrase
+]
+# or
+[password = <password>]  # will be prompted if not provided. meaningless if key_file is provided
+]
+[port = <port number>]   # specify a custom ssh port number. default is 22
+[cmd_file = <filepath>]
+[log_file = <log filename>]
+[delay = <pause time before running next command>]  # defaults to 0 sec
+[cmd_timeout = <maximum time to wait for command execution>]  # maximum amount of time to wait (in seconds) for output from a command. it defaults to 0.5 sec. increase this value if you are missing some output. meaningless in blocking mode
+[prompts = <string of characters representing prompts on the node>]  # for blocking execution, the script blocks until it detects one of the prompts specified here. default is $#?<> . meaningless in non-blocking mode
+end
+
+
+#jumpbox2
+...
+
+#jumpboxN
+...
+]
+
+# and/or
+
+[
+# optional final node(s). these are similar nodes sharing the same login username, the same password (if key files are not used), and understanding the same commands. can either be accessed through ssh or amos/moshell
+# the name of each log file will be a combination of its corresponding IP/node name with date and timestamp. 
+# Note that if there happens to be a local tmp/ folder, the script will silently move the logs files to that tmp/ folder as a measure to avoid cludder in the working directory
+nodes = <comma seperated list of nodes (either node names or IP addresses)>
+
+[
+# optional ssh security key files for the above final nodes 
+# the first key file is for the secure login to the first node, the second key file to the second node, etc.
+# if there are more nodes than key files, the last key file will be used to login to the remaining nodes
+# if there are less nodes than key files, the excess key files are ignored
+# Note that individual passphrases are not allowed in this section for each final node
+key_files = <comma seperated list of ssh security key files>
+]
+
+# command files for the above final nodes
+# the first command file is run on the first node, the second command file on the second node, etc.
+# if there are more nodes than command files, the last command file will be run on the remaining nodes
+# if there are less nodes than command files, the excess command files are ignored
+cmd_files = <comma seperated list of filepaths>
+
+# defines common parameters for the final nodes
+jump_cmd  = amos or moshell or ssh  # examples: amos node or moshell node or ssh [-i key_file] [username@]node [-p port]
+[username = <username>]  # mandatory if using ssh. my amos/moshell does not use username
+[password = <password>]  # mandatory if using ssh and no key_files have been specified. this password will be used to login on all final nodes. meaningless if key_files are provided. my amos/moshell does not use password authentication
+[passphrase = <passphrase for one, some or all key_files>]  # you may define and use a common passphrase for one, all or some of the final nodes/key files. specifying a passcode here for some of the key files will not interfere with the other key files that do not require a passphrase
+[port = <port number>]   # specify a custom ssh port number. default is 22
+[delay = <pause time before running next command>]  # defaults to 0 sec
+[cmd_timeout = <maximum time to wait for command execution>]  # maximum amount of time to wait (in seconds) for output from a command. it defaults to 0.5 sec. increase this value if you are missing some output. meaningless in blocking mode
+[prompts = <string of characters representing prompts on the nodes>]  # for blocking execution, the script blocks until it detects one of the prompts specified here. default is $#?<> . meaningless in non-blocking mode 
+end
+]
