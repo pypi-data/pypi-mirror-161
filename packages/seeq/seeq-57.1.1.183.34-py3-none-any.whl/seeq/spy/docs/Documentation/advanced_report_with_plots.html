@@ -1,0 +1,20 @@
+##
+## Similar to advanced_report.html, this is a Mako template file.
+##
+<html>
+<body>
+
+    <p>Hello there!</p>
+    
+    % for section in asset.Sections().assets():
+    
+    ## Just like in advanced_report.html, we'll put in the section name and the Ambient_Conditions display.
+    <h1>${section['Name']}</h1>    
+    <div>${display(display=section.Ambient_Conditions(), date_range=asset.First_Week_Of_2020())}</div>
+    
+    ## Now let's embed the Plots that we will be rendering in Python using matplotlib.
+    <div>${plot(section.Scattermatrix(), date_range=asset.First_Week_Of_2020())}</div>
+    <div>${plot(section.Scatterplot3D(), date_range=asset.First_Week_Of_2020())}</div>
+    % endfor
+</body>
+</html>

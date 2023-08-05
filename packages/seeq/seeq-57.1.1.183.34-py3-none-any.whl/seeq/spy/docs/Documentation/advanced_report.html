@@ -1,0 +1,42 @@
+##
+## This file is a Mako template. It allows you to construct an HTML file easily using embedded Python
+## code. You can learn more about Mako syntax here:
+##
+## https://docs.makotemplates.org/en/latest/syntax.html
+##
+
+<html>
+<body>
+    
+    ## We can embed image files using the following syntax. They should be in the same folder as the
+    ## template file. 
+    <center><img src="${image('company_logo.png')}"></center>
+    
+    ##
+    ## Our choice was to define this template in terms of a Facility.
+    ##
+    ## We want to loop through all of the Sections and define a heading and a display for each one.
+    ##
+    ## In our My_Document() function, we passed in render_template(asset=self), which means we can
+    ## access other functions on the Facility asset. Here we are going to retrieve all of the metadata
+    ## for the Sections of the facility and loop over each Section's asset object to embed its
+    ## display using a normal Python "for" loop.
+    ##
+
+    % for section in asset.Sections().assets():
+
+    ## We can evaluate some Python code and embed it in the document using the ${code} syntax.
+    ## Here we are retrieving the Section name and enclosing it in a heading <h1> tag.
+
+    <h1>${section['Name']}</h1>
+
+    ## The display() function allows you to embed a particular display. All embedded content
+    ## in Seeq should be tied to a Date Range, which we defined in our Facility class.
+    
+    <div>${display(section.Ambient_Conditions(), date_range=asset.First_Week_Of_2020(), size='medium', shape='rectangle')}</div>
+    
+    ## Python control-flow statements must be closed with endfor, endif etc.    
+    % endfor
+    
+</body>
+</html>
