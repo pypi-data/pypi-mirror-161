@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% load templates_tags_geral_site %}
+{% configuracao_autenticacao_geral as configuracao_autenticacao_geral %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if configuracao_autenticacao_geral.logo %}
+    <link rel="shortcut icon" href="{{configuracao_autenticacao_geral.logo.url}}" type="image/x-icon">
+    {% endif %}
+
+    <title>{% block title %}{% endblock %}</title>
+    {% if configuracao_autenticacao_geral and configuracao_autenticacao_geral.extra_head %}
+        {{configuracao_autenticacao_geral.extra_head|safe}}
+    {% endif %}
+
+    {% block extra_head %}
+    
+    {% endblock %}
+    <style>
+        {% if configuracao_autenticacao_geral and configuracao_autenticacao_geral.extra_style %}
+        {{configuracao_autenticacao_geral.extra_style|safe}}
+        {% endif %}
+
+        {% block extra_style %}
+
+        {% endblock %}
+    </style>
+    
+</head>
+<body class=".body">
+    {% block content %}
+
+    {% endblock %}
+
+
+    <script>
+    {% if configuracao_autenticacao_geral and configuracao_autenticacao_geral.extra_js %}
+        {{configuracao_autenticacao_geral.extra_js|safe}}
+    {% endif %}
+    </script>
+    <script>
+    {% block extra_js %}
+
+    {% endblock %}
+    </script>
+</body>
+</html>

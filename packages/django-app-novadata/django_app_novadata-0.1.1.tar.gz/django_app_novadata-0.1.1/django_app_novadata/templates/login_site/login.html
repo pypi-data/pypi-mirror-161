@@ -1,0 +1,56 @@
+{% extends 'login_site/base.html' %}
+{% load i18n %}
+{% load templates_tags_geral_site %}
+
+{% block title %}
+    {% if config_site %}
+    {{config_site.titulo|default_if_none:"Login"}}
+    {% else %}
+    Login
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+{% if config_site and config_site.extra_head %}
+    {{config_site.extra_head|safe}}
+{% endif %}
+{% endblock %}
+
+{% block extra_style %}
+{% if config_site and config_site.extra_style %}
+    {{config_site.extra_style|safe}}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% configuracao_autenticacao_geral as configuracao_autenticacao_geral %}
+    <main class="login_site">
+        <div class="container">
+    
+            <form class="form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Entrar" />
+                <input type="hidden" name="next" value="{{ next }}" />
+            </form>
+            {% if configuracao_autenticacao_geral.possui_troca_senha %}
+            <p>
+                Esqueceu sua senha? 
+                <a class="btn btn-primary" href="{% url 'password_reset' %}">Clique Aqui</a>.
+            </p>
+            {% endif %}
+            {% if configuracao_autenticacao_geral.possui_cadastro %}
+            <p>
+                Ainda não possui cadastro? 
+                <a class="btn btn-secundary" href="{% url 'register' %}">Registre-se</a>.
+            </p>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+{% if config_site and config_site.extra_js %}
+    {{config_site.extra_js|safe}}
+{% endif %}
+{% endblock %}

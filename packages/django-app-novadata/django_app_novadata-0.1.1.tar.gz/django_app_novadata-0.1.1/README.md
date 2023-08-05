@@ -1,0 +1,58 @@
+# django_app_novadata
+Django App novadata PyPI package.
+
+## Getting Started
+O objetivo desse pacote, é automatizar o retrabalho de tarefas com django.
+Dessa forma é possível aplicar em diversos outros projetos com apenas poucos comandos no terminal.
+
+#### Dependencies
+Você precisa do Python 3.6 or superior para usar **pacotepypi**. você pode encontrar em [python.org](https://www.python.org/).
+Você também precisa de setuptools, pacotes de wheel e twine, que estão disponíveis em [PyPI](https://pypi.org). Em seu pip, basta executar:
+```
+pip install setuptools
+pip install wheel
+pip install twine
+```
+
+#### Installation
+1. Esse pacote está disponível Python Package Index (PyPI):
+```
+pip install django-app-novadata
+```
+
+2. Adicione os seguintes trechos de códigos em seu arquivo settings.py:
+
+2.1 Adicione o pacote na variavel INSTALLED_APPS como PRIMEIRA OPÇÃO!
+```
+# Definição das apps
+INSTALLED_APPS = [
+    'django_app_novadata',
+    ...
+]
+```
+
+2.2 Variaveis utilizadas na autenticação do pacote.
+```
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+```
+
+3. Abra o terminal e aplique os seguintes comandos para adicionar as migrações e arquivos estaticos da nova App:
+
+Migração:
+```
+python manage.py migrate
+```
+
+Arquivos Estáticos:
+```
+python manage.py collectstatic
+```
+
+4. Por fim, adicione as urls do pacote no url.py na da app principal:
+```
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('django_app_novadata.urls')),
+]
+```

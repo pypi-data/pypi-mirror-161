@@ -1,0 +1,24 @@
+{% extends 'login_site/base.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% if config_site %}
+    {{config_site.titulo|default_if_none:"Cadastro"}}
+    {% else %}
+    Cadastro
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="register_site">
+    <div class="container">
+        <h1>Crie sua conta</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-primary" type="submit" value="Registrar">
+        </form>
+    </div>
+</main>
+{% endblock %}
+    

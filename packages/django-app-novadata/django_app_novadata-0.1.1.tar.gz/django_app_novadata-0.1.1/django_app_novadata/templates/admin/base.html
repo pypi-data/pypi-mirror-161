@@ -1,0 +1,30 @@
+{% extends 'admin/base.html' %}
+{% load templates_tags_admin %}
+{% load static %}
+
+{% block extrahead %}
+{% customizados_style_admin as customizados_style_admin %}
+{% customizados_script_admin as customizados_script_admin %}
+{% customizados_head_admin as customizados_head_admin %}
+
+<!-- Head Customizado-->
+{% for head_custom in customizados_head_admin %}
+{{head_custom|safe}}
+{% endfor %}
+
+<!-- Style Customizado-->
+<style>
+	{% for estilo in customizados_style_admin %}
+	{{estilo|safe}}
+	{% endfor %}
+</style>
+
+<!-- Script Customizado-->
+<script>
+	{% for customjs in customizados_script_admin %}
+	{{customjs|safe}}
+	{% endfor %}
+</script>
+{% endblock %}
+
+
