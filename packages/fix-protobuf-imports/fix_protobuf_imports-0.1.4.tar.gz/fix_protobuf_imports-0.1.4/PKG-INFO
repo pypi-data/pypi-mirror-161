@@ -1,0 +1,82 @@
+Metadata-Version: 2.1
+Name: fix_protobuf_imports
+Version: 0.1.4
+Summary: A script to fix relative imports (from and to nested sub-directories) within compiled `*_pb2.py` Protobuf files.
+Author-email: Markus Wegmann <mw@technokrat.ch>, Noah Hüsser <nh@technokrat.ch>
+License: Copyright 2022 Markus Wegmann
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/technokrat/fix_protobuf_imports
+Project-URL: Bug Tracker, https://github.com/technokrat/fix_protobuf_imports/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# fix-protobuf-imports
+
+This script will fix relative imports (from and to nested sub-directories) within compiled `*pb2.py` and `*pb2.pyi` Protobuf files/modules generated from `protoc --python_out --mypy_out`:
+
+```bash
+fix-protobuf-imports /path/to/python_out/dir
+```
+
+## When do I need to fix my imports?
+
+E.g. you might have the following file/module structure:
+
+- `./`
+  - `a_pb2.py`
+  - `b_pb2.py`
+  - `./sub/`
+    - `c_pb2.py`
+    - `./nested/`
+      - `d_pb2.py`
+      - `__init__.py`
+    - `__init__.py`
+  - `__init__.py`
+
+Now assume, `a_sub.proto` is importing `a.proto`, `b.proto` and `c.proto`.
+
+`protoc` will generate the following import statements:
+
+```python
+# a_sub_pb2.py
+
+from google.protobuf import descriptor as _descriptor
+
+import a_pb2 as a__pb2
+import b_pb2 as b__pb2
+
+from sub.nested import d_pb2 as sub_dot_nested__d__pb2
+
+# ...
+```
+
+Using these modules will not work under Python 3, as the imports are not relative. As it can get quite cumbersome to fix these issues, this script will convert the imports automatically.
+
+```bash
+fix-protobuf-imports /path/to/python_out/dir
+```
+
+This will result in the following working imports:
+
+```python
+# a_sub_pb2.py
+
+from google.protobuf import descriptor as _descriptor
+
+from .. import a_pb2 as a__pb2
+from .. import b_pb2 as b__pb2
+
+from ..sub.nested import d_pb2 as sub_dot_nested__d__pb2
+
+# ...
+```
