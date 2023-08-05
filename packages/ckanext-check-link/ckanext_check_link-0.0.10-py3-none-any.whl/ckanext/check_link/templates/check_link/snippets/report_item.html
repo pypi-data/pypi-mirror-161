@@ -1,0 +1,57 @@
+{#
+report
+#}
+
+
+<hr/>
+{% block item %}
+    {% set res = report.details.resource %}
+    {% set pkg = report.details.package %}
+
+    {% block copy %}
+        <button class="btn btn-secondary btn-sm pull-right float-end"
+                title="{{ _("Copy URL") }}"
+                data-module="copy-into-buffer" data-module-copy-value="{{ report.url }}">
+            <i class="fa fa-copy"></i>
+            {{ _("Copy URL") }}
+        </button>
+    {% endblock copy %}
+
+    {% block resource scoped %}
+        <p class="h4">
+            {{ _("Resource:") }}
+            <a href="{{ h.url_for("resource.read", id=pkg.name, resource_id=res.id) }}">{{ res.name or _("Unknown") }}</a>
+        </p>
+    {% endblock resource %}
+
+    {% block checked_at %}
+        <p class="h5">
+            {{ _("Date of check:") }}
+            <date>
+                {{ h.render_datetime(report.created_at, None, true) }}
+            </date>
+            [{{ h.time_ago_from_timestamp(report.created_at) }}]
+        </p>
+    {% endblock checked_at %}
+
+    {% block state %}
+        <p class="h5">
+            {{ _("State:") }}
+            {{ report.state }}
+        </p>
+    {% endblock state %}
+
+    {% block package scoped %}
+        <p class="h5">
+            {{ _("Dataset:") }}
+            <a href="{{ h.url_for(pkg.type ~ ".read", id=pkg.name) }}">{{ pkg.title }}</a>
+        </p>
+    {% endblock package %}
+
+    {% block explanation %}
+        <p>
+            {{ report.details.explanation }}
+        </p>
+    {% endblock explanation %}
+
+{% endblock item %}
