@@ -1,0 +1,62 @@
+Metadata-Version: 2.1
+Name: media-manager
+Version: 0.0.1
+Summary: Download audio/videos from the internet!
+Home-page: https://github.com/Knucklessg1/media-manager
+Author: Audel Rouhi
+Author-email: knucklessg1@gmail.com
+License: Unlicense
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: Public Domain
+Classifier: Environment :: Console
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: ffmpeg-python
+
+# Media Manager
+*Version: 0.0.1*
+
+Manage your media
+- Automatically clean file names 
+- Set Title and Comment metadata to match filename
+- Apply subtitles in media's "Sub" directory automatically
+- Move media to desired destination
+
+### Usage:
+| Short Flag | Long Flag   | Description                                 |
+|------------|-------------|---------------------------------------------|
+| -h         | --help      | See usage                                   |
+| -s         | --subtitle  | Apply Subtitle in local "Sub" directory     |
+| -m         | --move      | Movie media to final destination            |
+| -d         | --directory | Directory to scan for media                 |
+
+
+### Example:
+```bash
+media-manager -d "/home/User/Downloads" -m "/media/" -s
+```
+#### Before
+> /home/User/Downloads/The.Lion.King.1993.1080p.[TheBay].YIFY/The.Lion.King.1993.1080p.[TheBay].YIFY.mp4 
+
+#### After
+> /media/The Lion King 1993 1080p/The Lion King 1993 1080p.mp4
+
+#### Build Instructions
+Build Python Package
+
+```bash
+sudo chmod +x ./*.py
+sudo pip install .
+python setup.py bdist_wheel --universal
+# Test Pypi
+twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose -u "Username" -p "Password"
+# Prod Pypi
+twine upload dist/* --verbose -u "Username" -p "Password"
+```
+
+
