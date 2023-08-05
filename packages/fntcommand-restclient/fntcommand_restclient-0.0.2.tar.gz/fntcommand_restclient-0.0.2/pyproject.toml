@@ -1,0 +1,55 @@
+[project]
+name = 'fntcommand-restclient'
+description = 'REST client for FNT Command (https://www.fntsoftware.com/en/products/fnt-command)'
+author = 'Dennis Klein'
+author_email = 'd.klein@gsi.de'
+license = 'LGPL-3.0-only'
+url = 'https://github.com/dennisklein/fntcommand-restclient'
+dynamic = ['version']
+requires-python = '>=3.6'
+
+[project.scripts]
+fnt = 'fnt.cli:main'
+
+[build-system]
+requires = ['hatchling']
+build-backend = 'hatchling.build'
+
+[tool.hatch.build]
+sources = ['fnt']
+
+[tool.hatch.version]
+path = 'fnt/__init__.py'
+
+[tool.hatch.envs.test]
+dependencies = [
+  'coverage[toml]',
+  'pytest',
+  'pytest-cov',
+]
+
+[tool.hatch.envs.test.scripts]
+cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
+
+[[tool.hatch.envs.test.matrix]]
+python = ['36', '37', '38', '39', '310']
+
+[tool.hatch.envs.docs]
+dependencies = [
+  'sphinx',
+  'sphinx_toolbox',
+  'extras_require',
+  'sphinxemoji',
+  'sphinx-notfound-page',
+  'sphinx_copybutton',
+  'default_values',
+  'toctree_plus',
+  'sphinx_debuginfo',
+  'sphinx_licenseinfo',
+  'seed_intersphinx_mapping',
+  'html_section',
+]
+
+[tool.hatch.envs.docs.scripts]
+build = 'sphinx-build -b html docs docs/build'
+serve = 'python3 -m http.server --bind localhost --directory docs/build 8000'
