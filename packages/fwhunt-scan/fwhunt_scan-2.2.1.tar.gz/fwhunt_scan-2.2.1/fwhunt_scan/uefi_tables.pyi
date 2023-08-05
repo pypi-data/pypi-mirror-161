@@ -1,0 +1,9 @@
+from _typeshed import Incomplete
+
+EFI_BOOT_SERVICES_64_BIT: Incomplete
+EFI_RUNTIME_SERVICES_64_BIT: Incomplete
+EFI_SMM_SYSTEM_TABLE2_64_BIT: Incomplete
+BS_PROTOCOLS: Incomplete
+BS_PROTOCOLS_INFO_64_BIT: Incomplete
+OFFSET_TO_SERVICE: Incomplete
+EFI_PEI_SERVICES_32_BIT: Incomplete

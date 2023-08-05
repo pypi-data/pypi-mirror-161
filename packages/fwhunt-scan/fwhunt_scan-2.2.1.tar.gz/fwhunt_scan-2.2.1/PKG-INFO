@@ -1,0 +1,140 @@
+Metadata-Version: 2.1
+Name: fwhunt_scan
+Version: 2.2.1
+Summary: Tools for analyzing UEFI firmware and checking UEFI modules with FwHunt rules
+Home-page: https://github.com/binarly-io/fwhunt-scan
+Author: FwHunt team
+Author-email: fwhunt@binarly.io
+License: GPL-3.0
+Description: [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+        [![fwhunt-scan CI](https://github.com/binarly-io/fwhunt-scan/actions/workflows/ci.yml/badge.svg)](https://github.com/binarly-io/fwhunt-scan/actions)
+        [![fwhunt-scan pypi](https://img.shields.io/pypi/v/fwhunt-scan.svg)](https://pypi.org/project/fwhunt-scan)
+        
+        <p align="center">
+          <img alt="fwhunt Logo" src="https://raw.githubusercontent.com/binarly-io/fwhunt-scan/master/pics/fwhunt_logo.png" width="20%">
+        </p>
+        
+        # FwHunt Community Scanner
+        
+        Tools for analyzing UEFI firmware and checking UEFI modules with [FwHunt rules](https://github.com/binarly-io/fwhunt).
+        
+        # Dependencies
+        
+        rizin (v0.3.4-v0.4.0)
+        
+        # Installation
+        
+        Install with `pip` (tested on `python3.6` and above):
+        
+        ```
+        $ python -m pip install fwhunt-scan
+        ```
+        
+        Install manually:
+        
+        ```
+        $ git clone https://github.com/binarly-io/fwhunt-scan.git && cd fwhunt_scan
+        $ python setup.py install
+        ```
+        
+        # Example
+        
+        ### With script
+        
+        Analyze/scan separate module:
+        
+        ```
+        $ python3 fwhunt_scan_analyzer.py analyze-image {image_path} -o out.json
+        $ python3 fwhunt_scan_analyzer.py scan --rule {rule_path} {image_path}
+        ```
+        
+        Scan the entire firmware image:
+        
+        ```
+        $ python3 fwhunt_scan_analyzer.py scan-firmware -r rules/BRLY-2021-001.yml -r rules/BRLY-2021-004.yml -r rules/RsbStuffingCheck.yml test/fw.bin
+        ```
+        
+        ### With docker
+        
+        To avoid installing dependencies, you can use the docker image.
+        
+        You can build a docker image locally:
+        
+        ```
+        docker build -t ghcr.io/binarly-io/fwhunt_scan:latest .
+        ```
+        
+        Or pull it from `ghcr`:
+        
+        ```
+        docker pull ghcr.io/binarly-io/fwhunt_scan:latest # pull docker image from ghcr
+        ```
+        
+        Example of use:
+        
+        ```
+        docker run --rm -it -v {module_path}:/tmp/image:ro \
+          ghcr.io/binarly-io/fwhunt_scan:latest \
+          analyze-image /tmp/image # to analyze image
+        
+        docker run --rm -it -v {module_path}:/tmp/image:ro -v {rule_path}:/tmp/rule.yml:ro \
+          ghcr.io/binarly-io/fwhunt_scan:latest \
+          scan /tmp/image -r /tmp/rule.yml # to scan image with specified FwHunt rule
+        ```
+        
+        All these steps are automated in the `fwhunt_scan_docker.py` script.
+        
+        ### From code
+        
+        #### UefiAnalyzer
+        
+        Basic usage examples:
+        
+        ```python
+        from fwhunt_scan import UefiAnalyzer
+        
+        ...
+        uefi_analyzer = UefiAnalyzer(image_path=image_path)
+        print(uefi_analyzer.get_summary())
+        uefi_analyzer.close()
+        ```
+        
+        ```python
+        from fwhunt_scan import UefiAnalyzer
+        
+        ...
+        with UefiAnalyzer(image_path=image_path) as uefi_analyzer:
+            print(uefi_analyzer.get_summary())
+        ```
+        
+        On Linux platforms, you can pass blob for analysis instead of file:
+        
+        ```python
+        from fwhunt_scan import UefiAnalyzer
+        
+        ...
+        with UefiAnalyzer(blob=data) as uefi_analyzer:
+            print(uefi_analyzer.get_summary())
+        ```
+        
+        #### UefiScanner
+        
+        ```python
+        from fwhunt_scan import UefiAnalyzer, UefiRule, UefiScanner
+        
+        ...
+        uefi_analyzer = UefiAnalyzer(image_path)
+        
+        # rule1 and rule2 - contents of the rules on YAML format
+        uefi_rules = [UefiRule(rule1), UefiRule(rule2)]
+        
+        scanner = UefiScanner(uefi_analyzer, uefi_rules)
+        result = scanner.result
+        ```
+        
+Platform: Platform Independent
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/markdown
