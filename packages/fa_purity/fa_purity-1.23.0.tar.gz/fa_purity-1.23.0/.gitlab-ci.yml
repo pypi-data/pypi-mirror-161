@@ -1,0 +1,116 @@
+stages:
+  - lint
+  - build
+  - test
+  - deploy
+
+.with_nix: &with_nix
+  image: nixos/nix:2.6.0
+  before_script:
+    - cp ./nix.conf /etc/nix/nix.conf
+    - nix-env -iA nixpkgs.jq
+    - nix-env -iA cachix -f https://cachix.org/api/v1/install
+    - source ./ci/utils.sh
+
+
+.in_dev_branch: &in_dev_branch
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
+      when: never
+    - if: '$CI_COMMIT_BRANCH =~ /^v\d+$/'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - when: on_success
+
+.in_prod_branch: &in_prod_branch
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^v\d+$/'
+      when: on_success
+    - when: never
+
+.new_version: &new_version
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+      when: on_success
+
+format-code:
+  image: ghcr.io/fluidattacks/makes:21.11
+  stage: lint
+  <<: *in_dev_branch
+  script:
+    - m . /formatPython
+
+lint-nix:
+  image: ghcr.io/fluidattacks/makes:21.11
+  stage: lint
+  <<: *in_dev_branch
+  script: m . /formatNix && m . /lintNix
+
+lint-bash:
+  image: ghcr.io/fluidattacks/makes:21.11
+  stage: lint
+  <<: *in_dev_branch
+  script: m . /formatBash && m . /lintBash
+
+build-runtime-env:
+  <<: *with_nix
+  <<: *in_dev_branch
+  stage: build
+  script:
+    - build ".#python38.env.runtime"
+
+build-dev-env:
+  <<: *with_nix
+  <<: *in_dev_branch
+  stage: build
+  script:
+    - build ".#python38.env.dev"
+
+arch-check:
+  <<: *with_nix
+  <<: *in_dev_branch
+  stage: test
+  script:
+    - build ".#python38.check.arch"
+
+test-check:
+  <<: *with_nix
+  <<: *in_dev_branch
+  stage: test
+  script:
+    - build ".#python38.check.tests"
+
+type-check:
+  <<: *with_nix
+  <<: *in_dev_branch
+  stage: test
+  script:
+    - build ".#python38.check.types"
+
+build-for-min-python:
+  <<: *with_nix
+  <<: *new_version
+  stage: build
+  script:
+    - build ".#python38.pkg"
+
+deploy-to-pypi:
+  <<: *with_nix
+  <<: *new_version
+  stage: deploy
+  script:
+    - src=$(pwd)
+    - nix develop -i
+      -k FLIT_USERNAME
+      -k FLIT_PASSWORD
+      ".#publish" -c
+        flit -f "${src}/pyproject.toml" publish
