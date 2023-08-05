@@ -1,0 +1,93 @@
+Metadata-Version: 2.1
+Name: aioairtable
+Version: 0.0.19
+Summary: Asynchronous client library for Airtable API
+Home-page: https://github.com/gleb-chipiga/aioairtable
+Author: Gleb Chipiga
+License: MIT
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Topic :: Internet
+Classifier: Framework :: AsyncIO
+Classifier: Topic :: Office/Business
+Classifier: Topic :: Office/Business :: Financial :: Spreadsheet
+Classifier: Topic :: Office/Business :: Groupware
+Classifier: Topic :: Office/Business :: Scheduling
+Requires-Python: >=3.8,<3.11
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+
+============================================
+Asynchronous client library for Airtable API
+============================================
+
+Key Features
+============
+
+* Asyncio and `aiohttp <https://github.com/aio-libs/aiohttp>`_ based
+* All `airtable REST API <https://airtable.com/api>`_ methods supported
+* API rate limit support
+* Fully type annotated (`PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_)
+
+Installation
+============
+aioairtable is available on PyPI. Use pip to install it:
+
+.. code-block:: bash
+
+    pip install aioairtable
+
+Requirements
+============
+
+* Python >= 3.8
+* `aiohttp <https://github.com/aio-libs/aiohttp>`_
+* `multidict <https://github.com/aio-libs/multidict>`_
+* `backoff <https://github.com/litl/backoff>`_
+* `aiofreqlimit <https://github.com/gleb-chipiga/aiofreqlimit>`_
+* `yarl <https://github.com/aio-libs/yarl>`_
+
+Using aioairtable
+==================
+Pass a value of any hashable type to `acquire` or do not specify any parameter:
+
+.. code-block:: python
+
+    import asyncio
+
+    from aioairtable import Airtable, SortDirection
+
+
+    async def main():
+        airtable = Airtable(api_key='some_key')
+        base = airtable.base('base_id')
+        table = base.table('table_name')
+        records, offset = await table.list_records(
+            fields=('field_1', 'field_2'),
+            filter_by_formula='{field_3}',
+            max_records=100500,
+            page_size=3,
+            sort=(('field_1', SortDirection.ASC),
+                  ('field_2', SortDirection.DESC)),
+            view='table3',
+            offset='record033'
+        )
+        for record in records:
+            print(record)
+
+        record = await table.create_record({'field_1': 'value_1_new_001',
+                                            'field_2': 'value_2_new_001',
+                                            'field_3': 'value_3_new_001'})
+        await record.delete()
+
+
+    asyncio.run(main())
