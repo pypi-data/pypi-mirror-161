@@ -1,0 +1,152 @@
+Metadata-Version: 2.1
+Name: adop
+Version: 0.0.1a3
+Summary: Automatic deployment on-prem from zip archives
+Home-page: https://gitlab.com/fholmer/adop
+Author: Frode Holmer
+Author-email: fholmer+adop@gmail.com
+License: BSD
+Keywords: rest,api,post,zip,auto,deploy,on-prem
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Development Status :: 3 - Alpha
+Requires-Dist: Flask (==2.1.2)
+Requires-Dist: waitress (==2.1.2)
+
+====
+adop
+====
+
+* Source Code: https://gitlab.com/fholmer/adop
+* PyPI: https://pypi.org/project/adop/
+* License: BSD License
+
+Summary
+=======
+
+Automatic deployment on-prem from zip archives.
+
+Warning
+=======
+
+This is an alpha release. Not ready for production.
+
+Docs
+====
+
+Not available yet. Scheduled for beta release.
+
+Installation
+============
+
+Open command line and and install using pip:
+
+.. code-block:: doscon
+
+    > pip install adop
+
+Usage
+=====
+
+adop is available as console script and library module
+
+.. code-block:: doscon
+
+    > adop -h
+    > python -m adop -h
+
+Print general help
+
+.. code-block:: doscon
+
+    > adop -h
+
+Help on serving rest api
+
+.. code-block:: doscon
+
+    > adop serve-api -h
+
+Serve rest api on http://127.0.0.1:8000
+
+.. code-block:: doscon
+
+    > adop serve-api
+
+Find the generated access token
+
+* Windows
+
+  .. code-block:: doscon
+
+    > type work/adop.ini | findstr token
+
+* Linux
+
+  .. code-block:: bash
+
+    $ cat work/adop.ini | grep token
+
+Test rest api with curl
+
+.. code-block:: doscon
+
+    > curl -H "Token: paste-token-here" http://127.0.0.1:8000/api/v1/test
+
+Upload and deploy a zip-library:
+
+.. code-block:: doscon
+
+    > curl -H "Content-Type: application/zip" -H "Root: mylib" -H "Token: T" --data-binary @work/mylib.zip http://127.0.0.1:8000/api/v1/deploy/zip
+
+Zip file layout
+===============
+
+Zip files with exactly one root directory are valid and can be distributed.
+The root directory name must be unique if many zip files are to be distributed.
+
+Example of a valid zip file layout:
+
+.. code-block:: text
+
+    /mylib
+        /README.rst
+        /main.py
+        /mypackage1
+            /__init__.py
+            /__main__.py
+        /mypackage2
+            /__init__.py
+            /__main__.py
+
+Following layout is **not** valid:
+
+.. code-block:: text
+
+    /README.rst
+    /mylib1
+        /__init__.py
+        /__main__.py
+    /mylib2
+        /__init__.py
+        /__main__.py
+
+API
+===
+
+======================================= ======= ======= ============================
+Description                             result  method  endpoint
+======================================= ======= ======= ============================
+Check that the API is up                json    GET     /api/v1/test
+Sha sum for all deployed zipfiles       json    GET     /api/v1/state
+Sha sum for given deployed root         json    GET     /api/v1/state/<root>
+Start auto-fetch routine if enabled     json    GET     /api/v1/trigger/fetch
+Download zipfile of given root          zip     GET     /api/v1/download/zip/<root>
+Upload and deploy a zipfile             json*1  POST    /api/v1/deploy/zip
+Upload a zipfile without deploying it   json*1  POST    /api/v1/upload/zip
+Deploy a pre uploaded zip-file          json*1  GET     /api/v1/deploy/zip
+Zipfile unpacking progress              json    GET     /api/v1/progress
+======================================= ======= ======= ============================
+
+
