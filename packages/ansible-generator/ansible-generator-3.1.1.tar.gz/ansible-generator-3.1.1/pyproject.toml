@@ -1,0 +1,87 @@
+[tool.poetry]
+name = "ansible-generator"
+version = "3.1.1"
+description = "Ansible project generation tool"
+authors = ["Kevin Kirsche <kev.kirsche@gmail.com>"]
+license = "BSD-4-Clause"
+readme = "README.md"
+
+repository = "https://github.com/kkirsche/ansible-generator"
+keywords = ["development", "ansible", "generator"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Development Status :: 5 - Production/Stable",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ansible = "*"
+sentry-sdk = "^1.9.0"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config"
+markers = ["destructive", "mutative"]
+minversion = "7.0"
+testpaths = ["tests"]
+
+
+[tool.poetry.dev-dependencies]
+bandit = "^1.7.4"
+black = { extras = ["colorama", "uvloop"], version = "^22.6.0" }
+codespell = "^2.1.0"
+example-isort-formatting-plugin = "^0.0.4"
+example-isort-sorting-plugin = "^0.0.3"
+flake8 = "^4.0.1"
+flake8-bugbear = "^22.7.1"
+interrogate = "^1.5.0"
+isort = { extras = ["colors"], version = "^5.10.1" }
+mypy = "^0.971"
+setuptools = "^63.2.0"
+types-setuptools = "^63.2.1"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool.poetry.scripts]
+ansible-generate = "ansible_generator:cli"
+
+[tool.isort]
+formatter = "example"
+profile = "black"
+remove_redundant_aliases = true
+sort_order = "natural_plus"
+
+[tool.mypy]
+exclude = ""                   # regular expression
+follow_imports = "normal"
+plugins = []
+python_version = "3.8"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unreachable = true
+disallow_any_unimported = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = false
+module = []
+
+[tool.interrogate]
+color = true
+exclude = ["tests"]
+fail-under = 95
+ignore-init-method = false
+ignore-init-module = false
+ignore-magic = false
+ignore-module = true
+ignore-nested-classes = false
+ignore-nested-functions = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-semiprivate = false
+ignore-setters = false
+quiet = false
+verbose = 1
