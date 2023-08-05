@@ -1,0 +1,1 @@
+snake_case_functions = ('block_matching_image_filter', 'image_registration_method', 'mesh_source', 'mesh_to_mesh_filter', 'multi_resolution_image_registration_method', 'multi_resolution_pyramid_image_filter', 'point_set_to_point_set_registration_method', 'recursive_multi_resolution_pyramid_image_filter', )
