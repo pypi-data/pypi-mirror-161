@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load datagrid djblets_utils i18n %}
+
+{% block title %}{% trans "Search Review Requests" %}{% endblock %}
+
+{% block content %}
+<div id="search_results">
+ <div class="search-results-filters">
+{%  for filter_id, filter_type in filter_types.items %}
+  <a href="?q={{query}}{% if filter_id %}&model_filter={{filter_id}}{% endif %}" rel="nofollow"{% if filter_type.active %} class="active"{% endif %}>{{filter_type.name}}</a>
+{%  endfor %}
+ </div>
+
+{%  if hits_returned == 0 %}
+{%   blocktrans %}
+ No review requests matching your query: <strong>{{query}}</strong>
+{%   endblocktrans %}
+{%  else %}
+ <div class="search-results-stats">
+{%   blocktrans count hits_returned=hits_returned %}
+ <strong>{{hits_returned}}</strong> result for <strong>{{query}}</strong>
+{%   plural %}
+ <strong>{{hits_returned}}</strong> results for <strong>{{query}}</strong>
+{%   endblocktrans %}
+ </div>
+{%  endif %}
+ <br><br>
+ <form method="get" action=".">
+{%  for result in page_obj %}
+{%   if result.content_type == "reviews.reviewrequest" %}
+{%    include "search/_review_request.html" %}
+{%   elif result.content_type == "auth.user" %}
+{%    include "search/_user.html" %}
+{%   endif %}
+{%  endfor %}
+
+{%  if is_paginated %}
+  <div class="paginator">
+{%   if show_first_page %}
+   <a href="?q={{query}}&amp;page=1" rel="nofollow">&laquo; {% trans "First Page" %}</a>
+{%   endif %}
+{%   if page_obj.has_previous %}
+   <a href="?q={{query}}&amp;page={{page_obj.previous_page_number}}" rel="nofollow">&lt; {% trans "Previous" %}</a>
+{%   endif %}
+
+{%   for pagenum in page_numbers %}
+{%    if page_obj.number == pagenum %}
+   <strong>{{pagenum}}</strong>
+{%    else %}
+   <a href="?q={{query}}&amp;page={{pagenum}}" rel="nofollow">{{pagenum}}</a>
+{%    endif %}
+{%   endfor %}
+
+{%   if page_obj.has_next %}
+   <a href="?q={{query}}&amp;page={{page_obj.next_page_number}}" rel="nofollow">{% trans "Next" %} &gt;</a>
+{%   endif %}
+{%   if show_last_page %}
+   <a href="?q={{query}}&amp;page={{last_page_num}}" rel="nofollow">{% trans "Last Page" %} &raquo;</a>
+{%   endif %}
+  </div>
+{%  endif %}
+ </form>
+</div>
+{% endblock %}

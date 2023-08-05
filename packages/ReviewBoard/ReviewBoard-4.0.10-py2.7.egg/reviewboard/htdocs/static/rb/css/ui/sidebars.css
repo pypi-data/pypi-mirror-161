@@ -1,0 +1,472 @@
+@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row,
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+    border-top-right-radius: 0;border-bottom-right-radius: 0;
+  }
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+    border-right: 1px #888A85 solid;
+  }
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+  .rb-c-page-sidebar #page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row {
+    border-right: 1px transparent solid;
+  }
+}@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row,
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+    border-top-right-radius: 0;border-bottom-right-radius: 0;
+  }
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+    border-right: 1px #888A85 solid;
+  }
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+  .rb-c-page-sidebar.-is-connected #page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row {
+    border-right: 1px transparent solid;
+  }
+}@media only screen and (max-width: 800px) {
+  .rb-c-page-sidebar__pane-content #page_sidebar {
+    /*
+         * Give the sidebar some breathing room so it's not overlapping the
+         * top or bottom set of links in the mobile sidebar.
+         */padding: 0.5em 0 0.5em 0.5em;width: 100%;/*
+         * We might have a nested deprecated sidebar element. Fix its styling
+         * here so that it may properly fit within the page.
+         */
+  }
+  .rb-c-page-sidebar__pane-content #page_sidebar #page_sidebar {
+    position: relative;margin: 0;
+  }
+}@media only screen and (min-width: 801px) {
+  .rb-c-page-sidebar__pane-content #page_sidebar {
+    position: relative;
+  }
+}@media only screen and (min-width: 801px) {
+  body.has-sidebar #content {
+    margin-left: 21em;
+  }
+}
+@media only screen and (max-width: 800px) {
+  body.has-sidebar #content {
+    margin-left: 0;
+  }
+}@media only screen and (min-width: 801px) {
+  body.has-sidebar .rb-c-page-sidebar {
+    display: block;
+  }
+  body.has-sidebar #page-container {
+    padding-left: 0;
+  }
+}/**
+ * Defines a sidebar on the page.
+ *
+ * Sidebars allow for navigation between pages or within a page. They're
+ * composed of items organized by sections. Each item can display a label,
+ * along with an optional icon and value.
+ *
+ * Pages displaying a sidebar should set the ``-has-sidebar`` class on
+ * ``<body>``.
+ *
+ * Accessibility Notes:
+ *     Consumers of this component should generally use either ``<nav>`` or
+ *     ``<section>``, in order to define a suitable landmark for the sidebar
+ *     content.
+ *
+ *     Using ``<nav>`` will communicate to screen readers that there are
+ *     navigation items available in the sidebar. Using ``<section>`` instead
+ *     will communicate a general landmark.
+ *
+ *     Sidebars should always use an ``aria-label`` to distinguish between
+ *     them.
+ *
+ * DOM Attributes:
+ *     aria-label (string):
+ *         A label describing this sidebar. This may simply be "Sidebar", but
+ *         if the page makes use of multiple sidebars (such as a slide-out
+ *         sidebar), there should be distinct labels.
+ *
+ * Modifiers:
+ *     -has-icons:
+ *         Items may have icons. This provides sufficient spacing for icons
+ *         on the left of all items in the sidebar.
+ *
+ * Structure:
+ *     <nav class="rb-c-sidebar" aria-label="...">
+ *      <ul class="rb-c-sidebar__items">
+ *       <li class="rb-c-sidebar__section">
+ *        ...
+ *       </li>
+ *       ...
+ *      </ul>
+ *     </nav>
+ *
+ *     <section class="rb-c-sidebar" aria-label="...">...</section>
+ */
+.rb-c-sidebar,
+#page_sidebar {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+.rb-c-sidebar a,
+.rb-c-sidebar a:link,
+.rb-c-sidebar a:visited,
+#page_sidebar a,
+#page_sidebar a:link,
+#page_sidebar a:visited {
+  color: inherit;
+  display: block;
+  text-decoration: none;
+}
+/**
+ * A list of items/sections in a sidebar's top level or in a section.
+ *
+ * These should contain a list of ``<li class="rb-c-sidebar__item">`` or
+ * ``<li class="rb-c-sidebar__section">`` elements.
+ *
+ * Two of these can be placed adjacent to each other to create a visual
+ * separation within a section.
+ *
+ * Structure:
+ *     <ul class="rb-c-sidebar__items">
+ *      <li class="rb-c-sidebar__item">
+ *       ...
+ *      </li>
+ *      ...
+ *     </ul>
+ */
+.rb-c-sidebar__items,
+#page_sidebar .page-sidebar-items,
+#page_sidebar .page-sidebar-items li ul {
+  list-style: none;
+  margin: 0;
+  /*
+   * Prevent the shadow from going off the right-hand side (so the overlap
+   * onto the content is correct), but ensure it doesn't disappear below the
+   * last item in the section.
+   */
+  padding: 0 0 3px 0;
+  overflow-x: hidden;
+}
+.rb-c-sidebar__items + .rb-c-sidebar__items {
+  /* New subsection */
+  margin-bottom: 1em;
+}
+/**
+ * An item in a sidebar.
+ *
+ * These must contain a ``.rb-c-sidebar__item-label`` child, and may also
+ * contain an icon (``.rb-c-sidebar__icon``) and/or value
+ * (``.rb-c-sidebar__item-value``).
+ *
+ * For navigating to a page, the more specific ``.rb-c-sidebar__nav-item``
+ * may be used.
+ *
+ * Structure:
+ *     <li class="rb-c-sidebar__item">
+ *      <div class="rb-c-sidebar__icon rb-icon rb-icon-edit"></div>
+ *      <span class="rb-c-sidebar__item-label">Label</a>
+ *      <span class="rb-c-sidebar__item-value">42</span>
+ *     </li>
+ */
+.rb-c-sidebar__item,
+.rb-c-sidebar__nav-item,
+.rb-c-sidebar__section-header,
+#page_sidebar .page-sidebar-items li,
+.rb-c-sidebar__nav-section-header,
+#page_sidebar .page-sidebar-items li.has-url,
+#page_sidebar .page-sidebar-items li.section > .page-sidebar-row .label {
+  display: block;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  position: relative;
+  text-align: left;
+  word-break: break-all;
+  /* Match the border on the active row, to prevent content jumps. */
+  border: 1px transparent solid;
+}
+/**
+ * A navigation item in a sidebar.
+ *
+ * These must contain a ``.rb-c-sidebar__item-label`` child, and may also
+ * contain an icon (``.rb-c-sidebar__icon``) and/or value
+ * (``.rb-c-sidebar__item-value``).
+ *
+ * Labels should use an ``<a href="...">`` tag.
+ *
+ * Modifiers:
+ *     -is-active:
+ *         This item represents the current page view.
+ *
+ * Structure:
+ *     <li class="rb-c-sidebar__nav-item">
+ *      <div class="rb-icon rb-icon-edit"></div>
+ *      <a class="rb-c-sidebar__item-label" href="/page/">Label</a>
+ *      <span class="rb-c-sidebar__item-value">42</span>
+ *     </li>
+ */
+/**
+ * An icon for an item in the sidebar.
+ *
+ * This can be an ``<img>``, ``.rb-icon``, or any other class. The size
+ * should be 20x20 pixels or smaller.
+ *
+ * If used, the parent ``.rb-c-sidebar`` or ``.rb-c-sidebar__section`` must
+ * use the ``.-has-icons`` modifier.
+ *
+ * Structure:
+ *     <span class="rb-c-sidebar__icon rb-icon rb-icon-edit"></span>
+ */
+.rb-c-sidebar__icon,
+#page_sidebar .page-sidebar-items li .rb-icon {
+  position: absolute;
+  display: inline-block;
+  vertical-align: middle;
+  left: 10px;
+  pointer-events: none;
+  /* This trick will properly center-align our icon. */
+  top: 50%;
+  transform: translateY(-50%);
+}
+a.rb-c-sidebar__icon,
+a#page_sidebar .page-sidebar-items li .rb-icon {
+  pointer-events: all;
+}
+/**
+ * A label for an item in the sidebar.
+ *
+ * If this is a navigation item, this should be a ``<a href="...">``.
+ *
+ * Structure:
+ *     <a class="rb-c-sidebar__item-label" href="/page/">Label</a>
+ */
+.rb-c-sidebar__item-label,
+#page_sidebar .page-sidebar-items li a {
+  display: block;
+  padding: 5px 10px;
+}
+/**
+ * The value shown in a sidebar item.
+ *
+ * This can be used to show a short value, such as a number of a boolean,
+ * indicating the item's state.
+ *
+ * If the value is an empty/disabled sort of value (like 0 or false), then
+ * this can use the ``.-is-dimmed`` class to dim the appearance.
+ *
+ * Modifiers:
+ *     -is-dimmed:
+ *         Dims the display of the value.
+ *
+ * Structure:
+ *     <span class="rb-c-sidebar__item-value">42</span>
+ *
+ *     <span class="rb-c-sidebar__item-value -is-dimmed">0</span>
+ */
+.rb-c-sidebar__item-value,
+.rb-c-sidebar__nav-section-header:after,
+#page_sidebar .page-sidebar-items li .count {
+  color: #124BBD;
+  position: absolute;
+  right: 20px;
+  font-size: 95%;
+  padding: 0px 0 0px 8px;
+  margin-top: 0px;
+  /* Make sure we can click through the value. */
+  pointer-events: none;
+  /* Vertically-align the value. */
+  top: 50%;
+  transform: translateY(-50%);
+}
+.rb-c-sidebar__item-value.-is-dimmed,
+#page_sidebar .page-sidebar-items li .count.count-zero {
+  color: #C0C0C0;
+}
+/**
+ * A section in a sidebar.
+ *
+ * Sections must have a section header (``.rb-c-sidebar__section-header``)
+ * and should have a list of items (``.rb-c-sidebar__items``).
+ *
+ * Modifiers:
+ *     -has-icons:
+ *         Items may have icons. This provides sufficient spacing for icons
+ *         on the left of all items in the section.
+ *
+ *     -is-desktop-only:
+ *         The section will only be displayed if the page shell is in desktop
+ *         mode.
+ *
+ *     -is-mobile-only:
+ *         The section will only be displayed if the page shell is in mobile
+ *         mode.
+ *
+ * Structure:
+ *     <li class="rb-c-sidebar__section">
+ *      <header class="rb-c-sidebar__section-header">Header</header>
+ *      <ul class="rb-c-sidebar__items">
+ *       ...
+ *      </ul>
+ *     </li>
+ */
+.rb-c-sidebar__section,
+#page_sidebar .page-sidebar-items li.section {
+  list-style: none;
+  margin: 0 0 1em 0;
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-sidebar__section.-is-mobile-only {
+    display: list-item;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-sidebar__section.-is-mobile-only {
+    display: none;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-sidebar__section.-is-desktop-only {
+    display: none;
+  }
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-sidebar__section.-is-desktop-only {
+    display: list-item;
+  }
+}
+/**
+ * The header for a section.
+ *
+ * Modifiers:
+ *     -is-active:
+ *         This section header represents the current page view. This is
+ *         used for section headers that double as navigation elements.
+ *
+ * Structure:
+ *     <header class="rb-c-sidebar__section-header">Header</header>
+ */
+.rb-c-sidebar__section-header,
+.rb-c-sidebar__nav-section-header,
+#page_sidebar .page-sidebar-items li.section > .page-sidebar-row .label {
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding-left: 10px;
+}
+/**
+ * A section header that works as a navigation item.
+ *
+ * This allows a header to have the same visuals that a nav item would have,
+ * and to shoe as active when it matches the current page.
+ *
+ * Structure:
+ *     <header class="rb-c-sidebar__nav-section-header">
+ *      <a href="/page/">Label</a>
+ *     </header>
+ */
+.rb-c-sidebar__nav-section-header {
+  display: block;
+  padding: 5px 10px 5px 10px;
+}
+.rb-c-sidebar__nav-section-header:after {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: inherit;
+  content: "\f0da";
+}
+/* Modifier options common to the sidebar and sections. */
+.rb-c-sidebar.-has-icons .rb-c-sidebar__item-label,
+.rb-c-sidebar__section.-has-icons .rb-c-sidebar__item-label,
+#page_sidebar.-has-icons .rb-c-sidebar__item-label {
+  padding-left: 30px;
+}
+/* Navigation visuals for nav items and section headers. */
+.rb-c-sidebar__nav-item,
+.rb-c-sidebar__nav-section-header,
+#page_sidebar .page-sidebar-items li.has-url {
+  cursor: pointer;
+}
+.rb-c-sidebar__nav-item:hover,
+.rb-c-sidebar__nav-section-header:hover,
+#page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+  background: #ffffff;
+  border: 1px #d4d5d3 solid;
+}
+.rb-c-sidebar__nav-item:hover,
+.rb-c-sidebar__nav-section-header:hover,
+.rb-c-sidebar__nav-item.-is-active,
+.rb-c-sidebar__nav-section-header.-is-active,
+#page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+#page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row,
+#page_sidebar .page-sidebar-items li.has-url:hover .page-sidebar-row {
+  border-radius: 15px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+}
+.rb-c-sidebar__nav-item.-is-active,
+.rb-c-sidebar__nav-section-header.-is-active,
+#page_sidebar .page-sidebar-items li.active .page-sidebar-row,
+#page_sidebar .page-sidebar-items li.active.has-url:hover .page-sidebar-row {
+  background: #FFFFFF;
+  border: 1px #888A85 solid;
+}
+/****************************************************************************
+ * Deprecated styles
+ ****************************************************************************/
+#page_sidebar {
+  /*
+   * We're using the same basic positioning and styling that we used in 3.0
+   * for the legacy page_sidebar, to ensure presentation is correct for any
+   * extensions that are setting up their own sidebars. They'll likely base
+   * other layout requirements on these values. We don't want to use the
+   * modern ones we're defining for a page sidebar, for this reason.
+   */
+  direction: rtl;
+  /* Position the scrollbar on the left. */
+  position: absolute;
+  top: 0;
+  bottom: 1px;
+  margin: 3em -1px 0 1px;
+  padding: 1em 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#page_sidebar .page-sidebar-items li {
+  border: 0;
+}
+#page_sidebar .page-sidebar-items li.has-url {
+  border: 0;
+}
+#page_sidebar .page-sidebar-items li.new-subsection {
+  margin-top: 10px;
+}
+#page_sidebar .page-sidebar-items li.section > .page-sidebar-row .label {
+  margin: 0;
+}
+#page_sidebar .page-sidebar-items li .label {
+  border: 0;
+}
+#page_sidebar .page-sidebar-items li .page-sidebar-row {
+  border: 1px transparent solid;
+  position: relative;
+}
+#page_sidebar .page-sidebar-items li .page-sidebar-row.overview-section-row {
+  line-height: normal;
+  vertical-align: middle;
+}
+#page_sidebar .page-sidebar-items li .page-sidebar-row.overview-section-row a {
+  padding-left: 10px;
+}
+#page_sidebar .page-sidebar-items li .page-sidebar-row.overview-section-row .label {
+  padding-left: 0;
+}
+#page_sidebar .page-sidebar-items li .overview-count {
+  font-size: 135%;
+  padding-right: 0;
+}
+/*# sourceMappingURL=sidebars.css.map */

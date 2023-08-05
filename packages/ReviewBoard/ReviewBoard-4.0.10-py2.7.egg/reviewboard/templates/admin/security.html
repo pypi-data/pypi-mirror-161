@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n log rbadmintags staticfiles %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block content %}
+<div id="content-main">
+ <div class="rb-c-page-content-box">
+  <ul class="admin-security-checklist">
+{%  for check in test_results %}
+   <li class="admin-security-check">
+    <h3>{{check.name}}</h3>
+    <p>{{check.desc}}</p>
+    <div class="admin-security-check-result">
+     <p class="admin-security-check-status {{check.result|yesno:"pass,fail"}}">
+{%   if check.result %}
+       {% trans "Test Passed!" %}
+{%   else %}
+       {% trans "Test Failed!" %}
+{%   endif %}
+     </p>
+{%   if check.error_msg %}
+     <p>{{check.error_msg}}</p>
+     <p>{{check.fix_info|safe}}</p>
+{%   else %}
+{%   endif %}
+    </div>
+   </li>
+{%  endfor %}
+  </ul>
+ </div>
+</div>
+{% endblock %}

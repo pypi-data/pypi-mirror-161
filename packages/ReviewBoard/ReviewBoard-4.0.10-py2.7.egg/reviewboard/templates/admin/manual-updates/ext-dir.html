@@ -1,0 +1,38 @@
+{% load i18n %}
+<div class="box-head">
+ <h1 class="box-title">{% trans "Extensions static media directory changes" %}</h1>
+</div>
+<div class="box-main">
+ <p>
+{% blocktrans %}
+  Your site's extensions static media directory isn't properly set up. This
+  directory is where Review Board will store various extension media files.
+
+{% endblocktrans %}
+ </p>
+ <p>
+{% blocktrans %}
+  Your extensions static media directory is currently at:
+  <code>{{ext_dir}}</code>
+{% endblocktrans %}
+ </p>
+
+{% if not writable and ext_dir != "" %}
+ <h3>{% trans "Permission problems" %}</h3>
+ <p>
+{% blocktrans %}
+  The directory must be writable by the web server. On Linux/Unix/Mac,
+  you can fix this by typing:
+{% endblocktrans %}
+ </p>
+<pre>
+    $ sudo chown -R {{server_user}} "{{ext_dir}}"
+</pre>
+ <p>
+{% blocktrans %}
+  On Windows, right-click the data directory and change the ownership to
+  <code>{{server_user}}</code>.
+{% endblocktrans %}
+ </p>
+{% endif %}
+</div>

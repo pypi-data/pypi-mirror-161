@@ -1,0 +1,188 @@
+/**
+ * Styles for the Drawer UI component.
+ */
+/**
+ * A slide-out drawer for info and actions that overlay a sidebar.
+ *
+ * Drawers are used to provide optional UI elements that aren't shown by
+ * default, but can be activated by some action (a button click or item
+ * selections). They're useful for multi-selection DataGrids.
+ *
+ * These can only be used on pages with a sidebar, as they overlay the
+ * sidebar area.
+ *
+ * The drawer will display when the ``<body>`` tag is given a
+ * ``js-rb-c-drawer-is-shown`` CSS class. This is used instead of a modifier
+ * on the component due to other page-level changes that need to occur
+ * simultaneously.
+ *
+ * Note that drawer colors (background, border colors, text color) are all
+ * set by the page theme.
+ *
+ * Structure:
+ *     <div class="rb-c-drawer">
+ *      <div class="rb-c-drawer__content">
+ *       ...
+ *      </div>
+ *     </div>
+ */
+.rb-c-drawer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /**
+   * A container of actions that can be performed.
+   *
+   * This contains one or more action groups, which provide visually-separated
+   * lists of actions that can be performed.
+   *
+   * Structure:
+   *     <div class="rb-c-drawer__actions">
+   *      <ul class="rb-c-drawer__action-group">
+   *       ...
+   *      </ul>
+   *      ...
+   *     </div>
+   */
+  /**
+   * A group of actions in a drawer.
+   *
+   * Structure:
+   *     <ul class="rb-c-drawer__action-group">
+   *      <li class="rb-c-drawer__action">...</li>
+   *      ...
+   *     </ul>
+   */
+  /**
+   * An action that can be performed.
+   *
+   * The contents are generally expected to be text, with event handlers
+   * attached to this element.
+   *
+   * Structure:
+   *     <li class="rb-c-drawer__action">...</li>
+   */
+  /**
+   * The main content area of a drawer.
+   *
+   * Structure:
+   *     <div class="rb-c-drawer__content">
+   *      <p class="rb-c-drawer__summary">...</p>
+   *      <div class="rb-c-drawer__actions">...</div>
+   *     </div>
+   */
+  /**
+   * Summary text shown before any actions.
+   *
+   * This can be used to show how many items are selected, for example.
+   *
+   * Structure:
+   *     <p class="rb-c-drawer__summary">...</p>
+   */
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-drawer {
+    top: 0;
+    right: 1px;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-drawer {
+    height: 15em;
+    transform: translateY(100%);
+  }
+  .rb-c-drawer .rb-c-drawer__actions {
+    display: flex;
+  }
+  .rb-c-drawer .rb-c-drawer__action-group {
+    flex: auto;
+    flex-direction: row;
+    text-align: center;
+    margin: 0;
+  }
+  .rb-c-drawer .rb-c-drawer__action {
+    flex: auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 1em;
+  }
+  .rb-c-drawer .rb-c-drawer__content {
+    padding: 1em;
+  }
+  .rb-c-drawer .rb-c-drawer__summary {
+    margin: 1em 0 2em 0;
+  }
+}
+.rb-c-drawer__actions {
+  font-size: 110%;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-drawer__action-group {
+  margin: 3em 0 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+}
+.rb-c-drawer__action {
+  cursor: pointer;
+  margin: 1em 0;
+  padding: 0;
+}
+.rb-c-drawer__action a {
+  color: inherit;
+  text-decoration: none;
+}
+.rb-c-drawer__content {
+  box-sizing: border-box;
+  padding: 2em;
+  position: absolute;
+  left: 0;
+  right: 0;
+  transition: 0.2s linear transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-drawer__content {
+    border-width: 1px;
+    border-style: solid;
+    border-right: 0;
+    border-radius: 6px 0 0 6px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+    left: 2em;
+    top: 7em;
+    bottom: 6em;
+    transform: translateX(100%);
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-drawer__content {
+    border-top-width: 1px;
+    border-top-style: solid;
+    height: 100%;
+  }
+}
+.rb-c-drawer__summary {
+  margin: 0 0 2em 0;
+  padding: 0;
+  text-align: center;
+}
+body.js-rb-c-drawer-is-shown .rb-c-drawer {
+  pointer-events: all;
+}
+@media only screen and (min-width: 801px) {
+  body.js-rb-c-drawer-is-shown .rb-c-drawer__content {
+    transform: translateX(0);
+  }
+}
+@media only screen and (max-width: 800px) {
+  body.js-rb-c-drawer-is-shown .rb-c-drawer {
+    transform: translateY(0);
+    z-index: 100;
+  }
+}
+/*# sourceMappingURL=drawer.css.map */

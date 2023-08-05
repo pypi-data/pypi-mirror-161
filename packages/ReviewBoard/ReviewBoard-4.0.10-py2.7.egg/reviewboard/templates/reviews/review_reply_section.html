@@ -1,0 +1,28 @@
+{% load i18n reviewtags %}
+
+<div id="{{context_id}}-{{review.pk}}" class="comment-section"
+     data-context-type="{{context_type}}"
+     data-reply-anchor-prefix="{{reply_anchor_prefix}}"
+     {% if comment %}data-context-id="{{comment.pk}}"{% endif %}>
+ <div class="issue-indicator"></div>
+ <ol class="reply-comments">
+{% if comment %}
+  {% comment_replies review comment context_id %}
+{% else %}
+  {% review_body_replies review context_type context_id %}
+{% endif %}
+ </ol>
+{% if user.is_authenticated and not is_read_only %}
+ <ul class="controls">
+  <li>
+   <a href="#" class="add_comment_link">
+{%  if reply_to_is_empty %}
+    <span class="fa fa-comment"></span> {% trans "Comment" %}
+{%  else %}
+    <span class="fa fa-reply"></span> {% trans "Reply" %}
+{%  endif %}
+   </a>
+  </li>
+ </ul>
+{% endif %}
+</div>

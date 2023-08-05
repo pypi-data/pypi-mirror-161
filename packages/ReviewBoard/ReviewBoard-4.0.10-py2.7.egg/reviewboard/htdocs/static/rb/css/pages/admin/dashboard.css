@@ -1,0 +1,288 @@
+/***************************************************************************
+ * Administration Dashboard
+ ***************************************************************************/
+.rb-c-tabs__tab:hover {
+  background: #ececec;
+  border-color: #a6a6a6;
+}
+.rb-c-tabs__tab.-is-active {
+  background: #F9F9F9;
+  border-color: #999999;
+}
+#admin-actions {
+  background: #F0F0F2;
+  border-right: 1px #888A85 solid;
+  border-bottom: 1px #888A85 solid;
+  float: left;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 19.5em;
+  box-sizing: border-box;
+  z-index: 130;
+}
+#admin-actions .admin-version {
+  font-weight: bold;
+  margin-top: 1em;
+}
+#all-primary-widgets,
+#all-secondary-widgets {
+  display: none;
+}
+#navbar {
+  margin-left: -1px;
+  padding-left: 19.5em;
+}
+#navbar .rb-c-tabs__tab {
+  padding-top: 8px;
+}
+#navbar .rb-c-tabs__tab.-is-active {
+  border-bottom: 1px transparent solid;
+}
+.clear {
+  clear: both;
+}
+/**************************************************************************
+ * Built-in widget styles
+ **************************************************************************/
+/**
+ * The Review Board News widget.
+ *
+ * This displays the latest headlines from the Review Board news feed.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-news-widget">
+ *      <div clas="rb-c-admin-widget__content">
+ *       <a class="rb-c-admin-news-widget__item">
+ *        ...
+ *       </a>
+ *       ...
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-news-widget {
+  /**
+   * An item from the news feed.
+   *
+   * Each item is styled as its own row in the widget.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-news-widget__item">
+   *      <span class="rb-c-admin-news-widget__item-date">...</span>
+   *      <span class="rb-c-admin-news-widget__item-title">...</span>
+   *     </a>
+   */
+  /**
+   * The date of a news post.
+   *
+   * This is positioned to the left of the news item's title.
+   *
+   * Structure:
+   *      <span class="rb-c-admin-news-widget__item-date">...</span>
+   */
+  /**
+   * The title of a news post.
+   *
+   * This is positioned to the right of the news item's date.
+   *
+   * Structure:
+   *      <span class="rb-c-admin-news-widget__item-title">...</span>
+   */
+}
+.rb-c-admin-news-widget__item {
+  display: table-row;
+}
+.rb-c-admin-news-widget__item-date,
+.rb-c-admin-news-widget__item-title {
+  display: table-cell;
+  padding: 0.5em;
+}
+.rb-c-admin-news-widget__item-date {
+  text-align: right;
+  white-space: nowrap;
+}
+.rb-c-admin-news-widget__item-title {
+  color: black;
+}
+/* Server Cache widget */
+#server-cache-widget td,
+#server-cache-widget th {
+  font-size: 10px;
+  text-align: left;
+}
+/* Review Board Activity widget */
+#activity-graph-widget .legendLabel {
+  font-size: 10px;
+}
+#activity-graph-widget .legend-btn {
+  position: absolute;
+  left: 30px;
+  top: 10px;
+  display: none;
+  cursor: pointer;
+}
+/**
+ * The repositories widget.
+ *
+ * This displays links to the most recently-added repositories, and provides
+ * actions for viewing all repositories or adding a new one.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-repositories-widget">
+ *      <div class="rb-c-admin-widget__content">
+ *       <div class="rb-c-admin-repositories-widget__repos">
+ *        ...
+ *       </div>
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-repositories-widget {
+  /**
+   * Instructions for configuring repositories.
+   */
+  /**
+   * A list of repositories.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-repositories-widget__items">
+   *      <li class="rb-c-admin-repositories-widget__item">...</li>
+   *      ...
+   *     </ul>
+   */
+  /**
+   * A repository item.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-repositories-widget__item">
+   *      <a class="rb-c-admin-repositories-widget__repo" href="...">...</a>
+   *     </li>
+   */
+  /**
+   * A repository in the list.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-repositories-widget__repo" href="...">
+   *      <span class="rb-c-admin-repositories-widget__repo-name">...</span>
+   *      <span class="rb-c-admin-repositories-widget__repo-service">...</span>
+   *     </a>
+   */
+  /**
+   * The name of the repository.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-repositories-widget__repo-name">...</span>
+   */
+  /**
+   * The service backing a repository.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-repositories-widget__repo-service">...</span>
+   */
+}
+.rb-c-admin-repositories-widget__items {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-column-gap: 1em;
+  grid-row-gap: 1em;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-admin-repositories-widget__item {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-admin-repositories-widget__repo:hover {
+  text-decoration: none;
+}
+.rb-c-admin-repositories-widget__repo:hover .rb-c-admin-repositories-widget__repo-name {
+  text-decoration: underline;
+}
+.rb-c-admin-repositories-widget__repo-name {
+  display: block;
+}
+.rb-c-admin-repositories-widget__repo-service {
+  color: #444444;
+}
+/**
+ * The User Activity widget.
+ *
+ * This displays a graph showing the number of active users for different
+ * ranges of times.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-user-activity-widget">
+ *      <div class="rb-c-admin-widget__content">
+ *       <div class="rb-c-admin-user-activity-widget__chart">...</div>
+ *       <div class="rb-c-admin-user-activity-widget__user-total">...</div>
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-user-activity-widget {
+  /**
+   * The container for the chart to render into.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-user-activity-widget__chart">
+   *      ...
+   *     </div>
+   */
+  /**
+   * A label listing the total number of users on the server.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-user-activity-widget__user-total">
+   *      ...
+   *     </div>
+   */
+}
+.rb-c-admin-user-activity-widget__chart {
+  width: 100%;
+  height: 160px;
+}
+.rb-c-admin-user-activity-widget__user-total {
+  bottom: 10px;
+  color: #545454;
+  position: absolute;
+  text-align: left;
+  right: 1em;
+}
+/***************************************************************************
+ * Support banner
+ ***************************************************************************/
+#support-banner {
+  border: 1px solid #888A85;
+  border-radius: 6px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  margin: 0 0 1.5em 0;
+  padding: 1em;
+}
+#support-banner.loading {
+  text-align: center;
+}
+#support-banner.error,
+#support-banner.community-support {
+  background-color: #FFE4E1;
+}
+#support-banner.basic-support,
+#support-banner.premium-support {
+  background-color: #fdf2a0;
+  background-image: url('../../../images/gold_box_top_bg.png');
+}
+#support-banner h1,
+#support-banner h2,
+#support-banner h3 {
+  font-size: 110%;
+  margin-top: 0;
+}
+#support-banner p {
+  margin: 0.5em 0;
+}
+#support-banner p:first-child {
+  margin-top: 0;
+}
+#support-banner p:last-child {
+  margin-bottom: 0;
+}
+/*# sourceMappingURL=dashboard.css.map */

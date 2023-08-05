@@ -1,0 +1,58 @@
+{% extends "datagrid/datagrid.html" %}
+{% load djblets_js pipeline %}
+
+{% block extrahead %}
+{# Empty this out. We use "scripts" and "scripts-post" in Review Board. #}
+{# Also, add some meta tags for the viewport. #}
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+{% endblock %}
+
+{% block css %}
+{%  stylesheet 'djblets-datagrid' %}
+{{block.super}}
+{%  for css_bundle in datagrid.css_bundle_names %}
+{%   stylesheet css_bundle %}
+{%  endfor %}
+{% endblock css %}
+
+{% block mobile_nav %}
+{%   for item in datagrid.sidebar_items %}
+{%    if item.is_visible %}
+{{item.render}}
+{%    endif %}
+{%   endfor %}
+{% endblock %}
+
+{% block page_class %}datagrid-page -is-content-full-page{% if datagrid.sidebar %} -has-sidebar{% endif %}{% endblock %}
+
+{% block page-sidebar-css-classes %}-is-connected{% endblock %}
+
+{% block sidebar %}
+{{block.super}}
+{%  if datagrid.sidebar %}
+{%   for item in datagrid.sidebar_items %}
+{%    if item.is_visible %}
+{{item.render}}
+{%    endif %}
+{%   endfor %}
+{%  endif %}
+{% endblock sidebar %}
+
+{% block content %}
+{{datagrid.render_listview}}
+{% endblock content %}
+
+{% block scripts-post %}
+{{block.super}}
+{%  javascript 'djblets-datagrid' %}
+{%  javascript 'datagrid-pages' %}
+{%  for js_bundle in datagrid.js_bundle_names %}
+{%   javascript js_bundle %}
+{%  endfor %}
+{% endblock %}
+
+{% block js-page-model-type %}{{datagrid.js_model_class}}{% endblock %}
+{% block js-page-model-attrs %}{{datagrid.get_js_model_attrs|json_dumps}}{% endblock %}
+{% block js-page-model-options %}{{datagrid.get_js_model_options|json_dumps}}{% endblock %}
+{% block js-page-view-type %}{{datagrid.js_view_class}}{% endblock %}
+{% block js-page-view-options %}{{datagrid.get_js_view_options|json_dumps}}{% endblock %}

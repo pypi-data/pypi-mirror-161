@@ -1,0 +1,19 @@
+{% extends "accounts/login.html" %}
+{% load i18n pipeline %}
+
+{% block title %}{{title}} | {% trans "Administration" %}{% endblock %}
+
+{% block css %}
+{{block.super}}
+{%  stylesheet 'admin' %}
+{% endblock %}
+
+{% block bodytag %}
+<body class="admin login">
+{% endblock %}
+
+ {% block hidden_fields %}
+ {% csrf_token %}
+ <input type="hidden" name="this_is_the_login_form" value="1" />
+ <input type="hidden" name="next" value="{{next}}" />
+ {% endblock %}

@@ -1,0 +1,53 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+
+{% block main_content %}
+<header class="rb-c-content-header -is-main">
+ <h1 class="rb-c-content-header__title">{% trans "Database Management" %}</h1>
+</header>
+
+{%  if app_list %}
+<div class="rb-c-page-content-box">
+ <div class="rb-c-alert -is-warning">
+  <p class="rb-c-alert__content">
+{%   blocktrans %}
+   Be careful when making changes to the database. Not all data is safe to
+   edit in production.
+{%   endblocktrans %}
+  </p>
+ </div>
+ <div class="rb-c-admin-models-list">
+{%   for app in app_list %}
+  <div class="rb-c-admin-models-list__app">
+   <header class="rb-c-admin-models-list__app-name rb-c-content-header">
+    <h2 class="rb-c-content-header__title">{{app.name}}</h2>
+   </header>
+   <ul class="rb-c-admin-models-list__models">
+{%    for model in app.models %}
+    <li class="rb-c-admin-models-list__model">
+{%     if model.add_url %}
+     <a class="rb-c-admin-models-list__model-action-add rb-icon rb-icon-admin-add" href="{{model.add_url}}" title="{% trans "Add an entry" %}"></a>
+{%     endif %}
+{%     if model.admin_url %}
+     <a class="rb-c-admin-models-list__model-name" href="{{model.admin_url}}">{{model.name}}</a>
+{%     else %}
+     <span class="rb-c-admin-models-list__model-name">{{model.name}}</span>
+{%     endif %}
+    </li>
+{%    endfor %}
+   </ul>
+  </div>
+{%   endfor %}
+ </div>
+</div>
+{%  else %}
+<div class="rb-c-alert -is-error">
+ <p class="rb-c-alert__content">
+{%   blocktrans %}
+  You don't have permission to edit anything in the database.
+{%   endblocktrans %}
+ </p>
+</div>
+{%  endif %}
+{% endblock main_content %}
