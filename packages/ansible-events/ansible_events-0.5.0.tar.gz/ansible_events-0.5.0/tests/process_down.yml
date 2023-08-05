@@ -1,0 +1,29 @@
+---
+- name: Automatic Remediation of a webserver
+  hosts: localhost
+  sources:
+    - name: ping web server
+      ping:
+        ips:
+          - 127.0.0.1
+        timeout: 1
+        delay: 10
+    - name: process check
+      process_check:
+    - name: file facts
+      file:
+        files:
+        - facts.yml
+  rules:
+    - name: If webserver is down remediate the problem
+      condition:
+        all:
+          - facts.process_pid << fact.pid is defined
+          - events.ping << event.ping.timeout == false   # no host info
+          - events.process_down << event.process_check.pid == facts.process_pid.pid and event.process_check.status == "stopped"
+      action:
+        run_playbook:
+          name: start_app.yml
+          copy_files: true
+
+...

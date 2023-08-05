@@ -1,0 +1,18 @@
+---
+- name: Demo rules multiple conditions reference assignment
+  hosts: localhost
+  sources:
+    - range:
+        limit: 5
+  rules:
+    - name: multiple conditions
+      condition:
+        all:
+          - events.first << event.i == 0
+          - events.second << event.i == 1
+          - events.third << event.i == events.first.i + 2
+      action:
+        debug:
+          first: "{{events.first}}"
+          second: "{{events.second}}"
+          third: "{{events.third}}"

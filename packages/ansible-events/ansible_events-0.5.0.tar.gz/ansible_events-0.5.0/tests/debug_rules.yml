@@ -1,0 +1,19 @@
+---
+- name: Debug rules
+  hosts: all
+  sources:
+    - name: range
+      range:
+        limit: 5
+  rules:
+    - name: run debug playbook
+      condition: event.i == 2
+      action:
+        run_playbook:
+          name: debug_playbook.yml
+          post_events: true
+    - name: blue_fish found
+      condition: +event.blue_fish
+      action:
+        debug:
+

@@ -1,0 +1,22 @@
+---
+- name: 05 Post event
+  hosts: all
+  sources:
+    - name: range
+      range:
+        limit: 5
+  rules:
+    - name: 
+      condition: event.i == 1
+      action:
+        post_event:
+          event:
+            msg: hello world
+    - name: matches the event
+      condition: event.msg == "hello world"
+      action:
+        print_event:
+    - name: events only match 1 rule
+      condition: event.msg == "hello world"
+      action:
+        debug:

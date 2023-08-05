@@ -1,0 +1,19 @@
+---
+- name: My Debug Playbook
+  hosts: localhost
+  tasks:
+  - name: Single event
+    ansible.builtin.debug:
+       msg: Event {{ event }}
+    when: event is defined
+  - name: Multiple events
+    ansible.builtin.debug:
+       msg: Event {{ events }}
+    when: events is defined
+  - name: Set Facts
+    ansible.builtin.set_fact:
+      one_fish: 1
+      two_fish: 2
+      blue_fish: blue
+      execution: "Execution {{ ansible_date_time.iso8601 }}"
+      cacheable: yes
