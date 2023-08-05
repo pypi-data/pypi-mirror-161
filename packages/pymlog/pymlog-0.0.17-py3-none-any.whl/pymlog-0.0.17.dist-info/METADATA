@@ -1,0 +1,89 @@
+Metadata-Version: 2.1
+Name: pymlog
+Version: 0.0.17
+Summary: A minimal logging utility for machine learning experiments
+Project-URL: Homepage, https://github.com/g-s-p-r-d/mlog
+Author: gsprd
+License: MIT License
+        
+        Copyright (c) 2022 Gaspard Lambrechts
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.7
+Requires-Dist: matplotlib>=3.5
+Requires-Dist: pandas>=1.4
+Description-Content-Type: text/markdown
+
+# MLog
+
+A minimal logging utility for machine learning experiments.
+
+## Installation
+
+```
+pip install mlog
+```
+
+## Logging
+
+```python3
+import mlog
+import random
+
+CONFIG = {'num_epochs': 100}
+
+# Create a new run with an associated configuration
+run = mlog.start(run='run_name', config=CONFIG, save='train.py')
+
+# Log seamlessly
+for epoch in range(CONFIG['num_epochs']):
+    loss = random.random() * (1.05 ** (- epoch))
+    run.log(epoch=epoch, loss=loss)
+    metric = random.random()
+    run.log(epoch=epoch, metric=metric)
+```
+
+## Quick preview
+
+```sh
+mlog plot epoch loss --group
+mlog plot epoch loss --group --aggregate median
+mlog plot epoch loss --group --aggregate median --intervals max
+mlog plot loss metric --scatter
+```
+
+## Plotting
+
+```python3
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Retrieve data
+df = mlog.get('epoch', 'loss')
+df = df.groupby('epoch').aggregate(['mean', 'min', 'max'])
+
+# Plot data
+fig, ax = plt.subplots()
+ax.plot(df.index, df.loss['mean'])
+ax.fill_between(df.index, df.loss['min'], df.loss['max'], alpha=0.4)
+plt.show()
+```
