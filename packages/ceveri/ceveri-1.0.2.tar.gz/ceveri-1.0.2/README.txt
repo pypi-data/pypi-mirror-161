@@ -1,0 +1,1 @@
+CeVeri is a library that aims to translate text-based data collected mainly in western languages to under-resourced languages with the Google Translate API, thus preventing the skewed distribution that occurs in natural language processing studies.
