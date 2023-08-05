@@ -1,0 +1,320 @@
+#!/bin/bash
+###############################################################
+#                Unofficial 'Bash strict mode'                #
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
+###############################################################
+set -euo pipefail
+IFS=$'\n\t'
+###############################################################
+
+
+wait_for () {
+    WAIT_COUNTER=0
+    SLEEP_TIME=1
+    MAX_WAIT_TIME=15
+
+    command="$1"
+    until eval "${command}" &> /dev/null; do
+        echo .
+        sleep "${SLEEP_TIME}"
+        WAIT_COUNTER=$(( WAIT_COUNTER + 1 ))
+
+        if [ "${WAIT_COUNTER}" -eq "${MAX_WAIT_TIME}" ]; then
+            echo "Error: timeout waiting for '${command}' to succeed for ${MAX_WAIT_TIME} seconds, exiting"
+            return 1
+        fi
+    done
+}
+
+
+start_xvfb() {
+    if [ "${DISPLAY_ID}" == "000" ]; then
+        return
+    fi
+
+    if ps aux | grep "Xvfb :${DISPLAY_ID}" | grep -v grep -q; then
+        echo "Virtual display ${DISPLAY_ID} already exists"
+        return
+    fi
+
+    echo "Starting virtual display ${DISPLAY_ID}..."
+    Xvfb ":${DISPLAY_ID}" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}" &
+    echo "Xvfb PID is $!"
+    PIDS+=("$!")
+}
+
+
+set_background_colour() {
+    xsetroot -solid "${BACKGROUND_COLOUR}" -d ":${DISPLAY_ID}"
+}
+
+
+start_x11vnc() {
+    x11vnc_command="x11vnc -rfbport '${VNC_PORT}' -forever -shared -display ':${DISPLAY_ID}' -nopw"
+
+    if [ -n "${WINDOW_TITLE}" ]; then
+        WINDOW_ID=""
+        WAIT_COUNTER=0
+        SLEEP_TIME=1
+        MAX_WAIT_TIME=15
+
+        # Wait until window shows up or timeout
+        while [ -z "${WINDOW_ID}" ] && [ $WAIT_COUNTER -lt $MAX_WAIT_TIME ]; do
+            WINDOW_ID=$(DISPLAY=:${DISPLAY_ID} wmctrl -l | grep "${WINDOW_TITLE}" | awk '{print $1}')
+            if [ -z "${WINDOW_ID}" ]; then
+                echo "Window '${WINDOW_TITLE}' not found, sleeping for ${SLEEP_TIME}..."
+                sleep "${SLEEP_TIME}"
+                WAIT_COUNTER=$(( WAIT_COUNTER + 1 ))
+            fi
+        done
+
+        if [ -z "${WINDOW_ID}" ]; then
+            echo "Couldn't find a window id for the provided window name '${WINDOW_TITLE}' in desktop '${DISPLAY_ID}'"
+            return 1
+        fi
+
+        x11vnc_command+=" -sid '${WINDOW_ID}'"
+    fi
+    x11vnc_command+=" &"
+    echo "Starting x11vnc using port ${VNC_PORT}..."
+    eval "${x11vnc_command}"
+
+    echo "x11vnc PID is $!"
+    PIDS+=("$!")
+}
+
+
+start_novnc() {
+    echo "Starting novnc server using http port ${HTTP_PORT}..."
+    novnc_command="/usr/share/novnc/utils/launch.sh  --listen ${HTTP_PORT} --vnc localhost:${VNC_PORT}"
+    if [ -f "${SSL_CERT}" ]; then
+        echo "Using certificate in ${SSL_CERT}"
+        novnc_command+=" --cert ${SSL_CERT}"
+    fi
+    novnc_command+=" &"
+    eval "${novnc_command}"
+
+    echo "novnc PID is $!"
+    PIDS+=("$!")
+
+    sleep 2
+}
+
+
+kill_pids() {
+    for PID in "${PIDS[@]}"; do
+        echo "Killing PID ${PID}..."
+        if [ -n "${PID}" ]; then
+            kill "${PID}" || true
+        fi
+    done
+}
+
+
+create_pid_file() {
+    echo "Storing PIDs into ${PIDS_FILE}"
+    printf "%s\n" "${PIDS[@]}" > "${PIDS_FILE}"
+}
+
+
+start_window_manager() {
+    eval "DISPLAY=:${DISPLAY_ID} bspwm &"
+    PIDS+=("$!")
+    sleep 2
+
+    # Custom rule to handle 'wpa_gui'
+    DISPLAY=:"${DISPLAY_ID}" bspc rule -a wpa_gui state=tiled
+}
+
+
+run_on_start_command() {
+    if [ -n "${RUN_COMMAND}" ]; then
+        eval "DISPLAY=:${DISPLAY_ID} ${RUN_COMMAND} &"
+        PIDS+=("$!")
+    fi
+}
+
+
+wait_for_display() {
+    echo "Waiting for display ${DISPLAY_ID} to become available..."
+    wait_for "DISPLAY=:${DISPLAY_ID} xrandr --query"
+    return "$?"
+}
+
+
+do_start() {
+    do_stop
+
+    # Create virtual display if necessary
+    start_xvfb || (kill_pids && exit 1)
+
+    # Wait for display to become available
+    wait_for_display || (kill_pids && exit 1)
+
+    # Load window manager if requested
+    if [ -n "${USE_WINDOW_MANAGER}" ]; then
+        start_window_manager || (kill_pids && exit 1)
+    fi
+
+    # Set background colour
+    if [ -n "${BACKGROUND_COLOUR}" ]; then
+        set_background_colour || echo "Couldn't set the background colour to '${BACKGROUND_COLOUR}"
+    fi
+
+    # Run provided command
+    run_on_start_command
+
+    # Start VNC & novnc
+    start_x11vnc || (kill_pids && exit 1)
+    start_novnc || (kill_pids && exit 1)
+
+    create_pid_file
+}
+
+
+do_stop() {
+    if [ -f "${PIDS_FILE}" ]; then
+        # Kill PIDs of processes associated with DISPLAY_ID
+        echo "Found PIDs file ${PIDS_FILE}"
+        while read PID ; do
+            PIDS+=("$PID")
+        done < "${PIDS_FILE}"
+
+        kill_pids
+
+        echo "Removing ${PIDS_FILE}"
+        rm -r "${PIDS_FILE}"
+    else
+        echo "No PID file for display ${DISPLAY_ID}, skipping..."
+    fi
+}
+
+
+get_url() {
+    echo "http://$(hostname).local:${HTTP_PORT}/vnc.html?autoconnect=true&resize=scale"
+}
+
+
+get_clients() {
+    clients=$(x11vnc -quiet -query client_count -display :"${DISPLAY_ID}" 2>/dev/null | sed 's/aro=client_count://')
+    [ -z "${clients}" ] && clients=0
+    echo "$clients"
+}
+
+
+usage() {
+  echo -e "Usage:\n\tpt-web-vnc <COMMAND> --display-id <DISPLAY_ID> --height <SCREEN_HEIGHT> --width <SCREEN_WIDTH> --ssl-certificate <SSL_CERTIFICATE> --window-title <WINDOW_TITLE> --run <RUN_COMMAND> --background-colour <COLOUR> --with-window-manager"
+  echo "where:"
+  echo -e "\tCOMMAND: start, stop, url, clients."
+  echo -e "\t--display-id DISPLAY_ID: integer, id for the display to use/create."
+  echo -e "\t--height SCREEN_HEIGHT: integer, height in pixels for the virtual display to create. Defaults to 1080."
+  echo -e "\t--width SCREEN_WIDTH: integer, width in pixels for the virtual display to create. Defaults to 1920."
+  echo -e "\t--depth SCREEN_DEPTH: integer, pixel depth for the virtual display to create. Defaults to 24."
+  echo -e "\t--ssl-certificate SSL_CERTIFICATE: path to combined SSL certificate & key file. Optional."
+  echo -e "\t--window-title WINDOW_TITLE: Title of a window in a display to share over VNC. Optional."
+  echo -e "\t--run RUN_COMMAND: Command to run before starting VNC server."
+  echo -e "\t--background-colour COLOUR: string with a colour name to use as background for the virtual display."
+  echo -e "\t--with-window-manager: start 'bspwm' window manager in the specified DISPLAY_ID."
+}
+
+
+PIDS=""
+DISPLAY_ID=""
+SSL_CERT=""
+WINDOW_TITLE=""
+RUN_COMMAND=""
+PIDS_FILE=""
+SCREEN_HEIGHT="1080"
+SCREEN_WIDTH="1920"
+SCREEN_DEPTH="24"
+USE_WINDOW_MANAGER=""
+BACKGROUND_COLOUR=""
+
+# Parse options
+VALID_ARGS="$(getopt -o w:i:s:r:v:o:d:b:mh --long window-title:,display-id:,ssl-certificate:,run:,height:,width:,depth:,background-colour:,with-window-manager,help --name pt-web-vnc -- "$@")"
+if [[ $? -ne 0 ]]; then
+    usage
+    exit 1;
+fi
+
+eval set -- "$VALID_ARGS"
+while [ : ]; do
+    case "$1" in
+        -w | --window-title)
+            WINDOW_TITLE="${2}"
+            USE_WINDOW_MANAGER="1"
+            shift 2
+            ;;
+        -i | --display-id)
+            DISPLAY_ID=$(printf "%03d" ${2})
+            VNC_PORT="41${DISPLAY_ID}"
+            HTTP_PORT="61${DISPLAY_ID}"
+            PIDS_FILE="/tmp/.pt-os-web-portal-vnc.${DISPLAY_ID}.pid"
+            shift 2
+            ;;
+        -s | --ssl-certificate)
+            SSL_CERT="${2}"
+            shift 2
+            ;;
+        -v | --height)
+            SCREEN_HEIGHT="${2}"
+            shift 2
+            ;;
+        -o | --width)
+            SCREEN_WIDTH="${2}"
+            shift 2
+            ;;
+        -d | --depth)
+            SCREEN_DEPTH="${2}"
+            shift 2
+            ;;
+        -r | --run)
+            RUN_COMMAND="${2}"
+            shift 2
+            ;;
+        -b | --background-colour)
+            BACKGROUND_COLOUR="${2}"
+            shift 2
+            ;;
+        -m | --with-window-manager)
+            USE_WINDOW_MANAGER="1"
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        --) shift;
+            break
+            ;;
+    esac
+done
+
+
+# Parse positional argument
+COMMAND=${@:$OPTIND:1}
+case "${COMMAND}" in
+    start)
+        [ -z "${DISPLAY_ID}" ] && usage && exit 1
+        do_start
+        ;;
+    stop)
+        [ -z "${DISPLAY_ID}" ] && echo "No display id provided" && usage && exit 1
+        [ ! -f "${PIDS_FILE}" ] && echo "No active session in display ${DISPLAY_ID}" && exit 1
+        do_stop
+        ;;
+    url)
+        [ -z "${DISPLAY_ID}" ] && echo "No display id provided" && usage && exit 1
+        [ ! -f "${PIDS_FILE}" ] && echo "No active session in display ${DISPLAY_ID}" && exit 1
+        get_url
+        ;;
+    clients)
+        [ -z "${DISPLAY_ID}" ] && echo "No display id provided" && usage && exit 1
+        [ ! -f "${PIDS_FILE}" ] && echo "No active session in display ${DISPLAY_ID}" && exit 1
+        get_clients
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
