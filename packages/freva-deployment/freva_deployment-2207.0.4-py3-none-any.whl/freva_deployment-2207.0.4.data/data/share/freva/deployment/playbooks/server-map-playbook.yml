@@ -1,0 +1,69 @@
+---
+- hosts: freva_map
+
+  vars:
+    - docker_cmd: "-v /opt/freva/server-map:/var/freva/:z --name freva-map -p {{ port }}:5008 -t freva-map:latest"
+  tasks:
+    - name: Copying docker/podman wrapper script
+      copy:
+        src: "{{ asset_dir }}/scripts/docker-or-podman"
+        dest: /usr/local/bin/docker-or-podman
+        mode: "0775"
+      become: true
+    - name: Registering systemctl path
+      stat:
+        path: /usr/bin/systemctl
+      register: systemctl
+    - name: Stopping services
+      shell: systemctl stop freva-map; systemctl stop freva-map; echo 0
+      when: wipe == true
+    - pause: seconds=2
+    - name: Deleting existing contianer
+      shell: >
+        /usr/local/bin/docker-or-podman stop freva-map;
+        /usr/local/bin/docker-or-podman rm freva-map;
+        /usr/local/bin/docker-or-podman rmi -f freva-map;
+        /usr/local/bin/docker-or-podman rmi -f python;
+        echo 0
+      become: true
+      when: wipe == true
+    - name: Cleaning existing directory structure
+      file:
+        path: /opt/freva/server-map
+        state: absent
+      become: true
+      when: wipe == true
+    - name: Copy systemd files
+      copy:
+        src: "{{ asset_dir }}/scripts/create_systemd.py"
+        dest: /tmp/create_systemd.py
+        mode: "0755"
+    - name: Copying auxillary files to target machine
+      copy: src="{{ asset_dir }}/servers" dest=/tmp
+    - name: Building docker images
+      shell:
+        chdir: /tmp/servers
+        cmd: /usr/local/bin/docker-or-podman build -t freva-map:latest .
+      become: true
+    - name: Creating directory structure
+      file:
+        path: /opt/freva/server-map
+        state: directory
+        owner: 9999
+        group: 9999
+      become: true
+    - name: Creating the freva-map docker container
+      become: true
+      shell: /usr/local/bin/docker-or-podman run -d {{docker_cmd }}
+    - name: Starting freva-map service
+      become: true
+      shell: "/tmp/create_systemd.py freva-map"
+      when: systemctl.stat.exists == true
+    - pause: seconds=3
+    - name: Deleting other files
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - "/tmp/create_systemd.py"
+        - "/tmp/servers"

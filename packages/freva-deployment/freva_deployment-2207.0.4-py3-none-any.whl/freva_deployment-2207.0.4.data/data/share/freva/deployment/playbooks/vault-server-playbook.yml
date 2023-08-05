@@ -1,0 +1,98 @@
+---
+- hosts: vault
+
+  vars:
+    - ansible_python_interpreter: "{{ db_ansible_python_interpreter }}"
+    - continer_name: "{{ vault_name }}"
+    - docker_cmd: >
+        --net {{ project_name }} --cap-add=IPC_LOCK
+        -v /opt/freva/{{project_name}}/vault_service:/data:z
+        -p 5002:5002 --name={{ vault_name }} {{ vault_name }}:latest
+  tasks:
+    - name: Copying docker/podman wrapper script
+      copy:
+        src: "{{ asset_dir }}/scripts/docker-or-podman"
+        dest: /usr/local/bin/docker-or-podman
+        mode: "0775"
+      become: true
+    - name: Registering systemctl path
+      stat:
+        path: /usr/bin/systemctl
+      register: systemctl
+    - name: Registering vault volume path
+      stat:
+        path: /usr/bin/systemctl
+      register: vault_volume
+    - name: Set vault valume path
+      set_fact:
+        exists: vault_volume.stat.exists
+    - name: Stopping services and deleting existing containers
+      shell: >
+        systemctl stop {{vault_name}};
+        /usr/local/bin/docker-or-podman rm {{vault_name}};
+        /usr/local/bin/docker-or-podman rmi -f {{vault_name}};
+        /usr/local/bin/docker-or-podman rmi -f vault;
+        exit 0
+      ignore_errors: true
+      become: true
+    - name: Pulling container
+      become: true
+      shell: /usr/local/bin/docker-or-podman pull vault:latest
+    - name: Creating docker network
+      shell: >
+        /usr/local/bin/docker-or-podman network create "{{ project_name }}";
+        exit 0
+      ignore_errors: true
+      become: true
+    - name: Copying auxillary files to target machine
+      copy: src="{{ asset_dir }}/vault" dest=/tmp
+    - name: Copying systemd files
+      copy:
+        src: "{{ asset_dir }}/scripts/create_systemd.py"
+        dest: /tmp/create_systemd.py
+        mode: "0755"
+    - name: Creating directory structure
+      file:
+        state: directory
+        path: /opt/freva/{{ project_name }}/vault_service
+      become: true
+    - name: Copying public key file to target machine
+      copy:
+        src: "{{ vault_keyfile }}"
+        dest: "/opt/freva/{{project_name}}/vault_service/freva.crt"
+      become: true
+    - name: Building vault images
+      shell:
+        chdir: /tmp/vault
+        cmd: >
+          /usr/local/bin/docker-or-podman build
+          --build-arg=project={{ project_name }}
+          --build-arg=rootpw='{{ root_passwd }}' -t {{ vault_name }}:latest .
+      become: true
+    - name: Starting vault container
+      shell: /usr/local/bin/docker-or-podman run -d {{docker_cmd}}
+      become: true
+    - name: Creating system service
+      become: true
+      shell: >
+          /tmp/create_systemd.py {{vault_name}}
+      ignore_errors: true
+    - pause: seconds=3
+    - name: Inserting server infrastructure
+      become: true
+      shell: >
+        /usr/local/bin/docker-or-podman exec -it {{ vault_name }}
+        vault kv put kv/read-eval db.container={{ vault_name }}
+        db.host={{ vault_host }}
+        db.port={{ db_port }}
+        db.passwd='{{ vault_passwd }}'
+        db.user={{ db_user }}
+        db.db={{ db_db }}
+      become: true
+    - name: Deleting auxillary files
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - "/tmp/vault"
+        - "/tmp/create_systemd.py"
