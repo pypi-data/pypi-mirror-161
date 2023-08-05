@@ -1,0 +1,16 @@
+{% load i18n %}
+<h1>{{ service_description.title }} {{ accept_operations|dictsort:0|join:"/" }}</h1>
+{% if service_description.abstract %}{{ service_description.abstract|linebreaks }}{% endif %}
+
+{% if service_description.keywords %}
+<p>{% trans "Keywords" %}: {% for keyword in service_description.keywords %}{{ keyword }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+{% if service_description.provider_name %}
+  {% trans "Provider" %}: {% if service_description.provider_site %}<a href="{{ service_description.provider_site }}">{% endif %}{{ service_description.provider_name }}{% if service_description.provider_site %}</a>{% endif %}
+  {% if service_description.contact_person %}<p>{% trans "Contact" %}: {{ service_description.contact_person }}</p>{% endif %}
+{% endif %}
+{% if connect_url %}
+<h2>{% trans "Using This WFS" %}</h2>
+<p>{% trans "Add the following URL to your GIS application:" %}</p>
+<blockquote><code>{{ connect_url }}</code></blockquote>
+{% endif %}
