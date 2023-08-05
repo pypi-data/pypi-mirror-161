@@ -1,0 +1,40 @@
+---
+- name: Install ansible
+  ansible.builtin.dnf:
+    name:
+      - ansible
+    state: present
+  become: true
+
+- name: Install packit-service dependencies
+  ansible.builtin.command: ansible-playbook -e "ansible_python_interpreter=/usr/bin/python3" -v -c local -i localhost, files/install-deps.yaml
+  args:
+    chdir: "{{ reverse_dir }}"
+  become: true
+  environment:
+    SOURCE_BRANCH: "{{ zuul.branch }}"
+
+- name: Install packit-worker dependencies
+  ansible.builtin.command: ansible-playbook -e "ansible_python_interpreter=/usr/bin/python3" -v -c local -i localhost, files/install-deps-worker.yaml
+  args:
+    chdir: "{{ reverse_dir }}"
+  become: true
+  environment:
+    SOURCE_BRANCH: "{{ zuul.branch }}"
+
+- name: Install packit-service test dependencies
+  ansible.builtin.command: ansible-playbook -e "ansible_python_interpreter=/usr/bin/python3" -v -c local -i localhost, files/recipe-tests.yaml
+  args:
+    chdir: "{{ reverse_dir }}"
+  become: true
+
+- name: Create a .config directory
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config"
+    state: directory
+
+- name: Create a symlink to service config
+  ansible.builtin.file:
+    src: "{{ reverse_dir}}/files/packit-service.yaml"
+    dest: "{{ ansible_user_dir }}/.config/packit-service.yaml"
+    state: link
