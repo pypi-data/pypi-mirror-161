@@ -1,0 +1,72 @@
+[tool.poetry]
+name = 'flake8-type-checking'
+version = "2.1.0"
+description = 'A flake8 plugin for managing type-checking imports & forward references'
+homepage = 'https://github.com/snok'
+repository = 'https://github.com/snok/flake8-type-checking'
+authors = ['Sondre Lillebø Gundersen <sondrelg@live.no>']
+license = 'BSD-3-Clause'
+readme = 'README.md'
+keywords = ['flake8', 'plugin', 'linting', 'type hint', 'typing', 'imports']
+packages = [{ include = 'flake8_type_checking' }]
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Environment :: Console',
+    'Operating System :: OS Independent',
+    'License :: OSI Approved :: BSD License',
+    'Topic :: Software Development :: Quality Assurance',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Typing :: Typed',
+]
+
+[tool.poetry.urls]
+"Releases" = "https://github.com/snok/flake8-type-checking/releases"
+
+[tool.poetry.dependencies]
+python = '^3.8'
+flake8 = '*'
+astor = {python = "<3.9", version = "*"}
+classify-imports = '*'
+
+[tool.poetry.dev-dependencies]
+pytest = '*'
+ipython = '*'
+coverage = '*'
+pre-commit = '*'
+pytest-flake8-path = '*'
+
+[tool.poetry.plugins]
+[tool.poetry.plugins.'flake8.extension']
+TC = 'flake8_type_checking.plugin:Plugin'
+
+[build-system]
+requires = ['poetry-core>=1.0.0']
+build-backend = 'poetry.core.masonry.api'
+
+[tool.black]
+quiet = true
+line-length = 120
+skip-string-normalization = true
+preview = true
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.coverage.run]
+source = ['flake8_type_checking']
+omit = ['flake8_type_checking/types.py']
+branch = false
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    'if TYPE_CHECKING:',
+    'pragma: no cover'
+]
