@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import sys
+
+import radical.utils as ru
+
+namespaces = sys.argv[1:]
+if not namespaces:
+    namespaces = ['radical']
+
+stack = ru.stack(namespaces)
+
+print()
+for key in sorted(stack['sys'].keys()):
+    print('  %-20s : %s' % (key, stack['sys'][key]))
+print()
+
+for ns in stack:
+    if ns == 'sys':
+        continue
+
+    for key in sorted(stack[ns].keys()):
+
+        print('  %-20s : %s' % (key, stack[ns][key]))
+
+    print()
+
+# ------------------------------------------------------------------------------
+
