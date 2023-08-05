@@ -1,0 +1,182 @@
+[project]
+authors = [
+    { name = "frostming", email = "mianghong@gmail.com" },
+]
+dynamic = []
+requires-python = ">=3.7"
+dependencies = [
+    "blinker",
+    "packaging",
+    "platformdirs",
+    "rich>=12.3.0",
+    "virtualenv>=20",
+    "pep517>=0.11.0",
+    "requests-toolbelt",
+    "unearth>=0.6.0",
+    "findpython>=0.2.0",
+    "tomlkit>=0.8.0,<1",
+    "shellingham>=1.3.2",
+    "python-dotenv>=0.15",
+    "resolvelib>=0.8,<0.9",
+    "installer>=0.5.1,<0.6",
+    "pdm-pep517>=1.0.0,<2.0.0",
+    "cachecontrol[filecache]>=0.12.11",
+    "tomli>=1.1.0; python_version < \"3.11\"",
+    "typing-extensions; python_version < \"3.8\"",
+    "importlib-metadata; python_version < \"3.8\"",
+    "certifi>=2022.6.15",
+]
+name = "pdm"
+description = "A modern Python package and dependency manager supporting the latest PEP standards"
+readme = "README.md"
+keywords = [
+    "packaging",
+    "dependency",
+    "workflow",
+]
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+version = "2.1.0"
+
+[project.license]
+text = "MIT"
+
+[project.urls]
+Homepage = "https://pdm.fming.dev"
+Repository = "https://github.com/pdm-project/pdm"
+Documentation = "https://pdm.fming.dev"
+Changelog = "https://pdm.fming.dev/latest/dev/changelog/"
+
+[project.optional-dependencies]
+
+[project.scripts]
+pdm = "pdm.core:main"
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.build]
+includes = [
+    "pdm",
+]
+excludes = [
+    "./**/.git",
+]
+source-includes = [
+    "tests",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+]
+editable-backend = "path"
+
+[tool.pdm.scripts]
+pre_release = "python tasks/max_versions.py"
+release = "python tasks/release.py"
+test = "pytest"
+tox = "tox"
+lint = "pre-commit run --all-files"
+benchmark = "python tasks/benchmarks/main.py"
+
+[tool.pdm.scripts.doc]
+shell = "cd docs && mkdocs serve"
+help = "Start the dev server for doc preview"
+
+[tool.pdm.scripts.complete]
+call = "tasks.complete:main"
+help = "Create autocomplete files for bash and fish"
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-xdist>=1.31.0",
+]
+tox = [
+    "tox",
+    "tox-pdm>=0.5",
+]
+doc = [
+    "mkdocs>=1.1",
+    "mkdocs-material>=7.3",
+    "mkdocstrings[python]>=0.18",
+    "markdown-include>=0.5.1",
+    "mike>=1.1.2",
+    "setuptools>=62.3.3",
+    "markdown-exec>=0.7.0",
+]
+workflow = [
+    "parver>=0.3.1",
+    "towncrier>=20",
+    "pycomplete~=0.3",
+]
+
+[tool.black]
+line-length = 88
+exclude = "/(\n    \\.eggs\n  | \\.git\n  | \\.hg\n  | \\.mypy_cache\n  | \\.tox\n  | \\.venv\n  | _build\n  | buck-out\n  | build\n  | dist\n  | tests/fixtures\n)/\n"
+
+[tool.towncrier]
+package = "pdm"
+filename = "CHANGELOG.md"
+issue_format = "[#{issue}](https://github.com/pdm-project/pdm/issues/{issue})"
+directory = "news/"
+title_format = "Release v{version} ({project_date})"
+template = "news/towncrier_template.md"
+underlines = "-~^"
+type = [
+    { directory = "break", name = "Breaking Changes", showcontent = true },
+    { directory = "feature", name = "Features & Improvements", showcontent = true },
+    { directory = "bugfix", name = "Bug Fixes", showcontent = true },
+    { directory = "doc", name = "Documentation", showcontent = true },
+    { directory = "dep", name = "Dependencies", showcontent = true },
+    { directory = "removal", name = "Removals and Deprecations", showcontent = true },
+    { directory = "misc", name = "Miscellany", showcontent = true },
+]
+
+[tool.isort]
+profile = "black"
+atomic = true
+skip_glob = [
+    "*/setup.py",
+]
+filter_files = true
+known_first_party = [
+    "pdm",
+]
+known_third_party = [
+    "platformdirs",
+    "packaging",
+    "pytest",
+    "findpython",
+    "tomlkit",
+    "unearth",
+    "requests",
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "network: Tests that require network",
+    "integration: Run with all Python versions",
+    "path: Tests that compare with the system paths",
+    "deprecated: Tests about deprecated features",
+]
+addopts = "-ra"
+testpaths = [
+    "tests/",
+]
+
+[build-system]
+requires = [
+    "pdm-pep517>=1.0",
+]
+build-backend = "pdm.pep517.api"
