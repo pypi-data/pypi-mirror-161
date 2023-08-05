@@ -1,0 +1,73 @@
+{% extends "reviews/reviewable_base.html" %}
+{% load djblets_utils %}
+
+
+{% block title %}
+ {{review_ui.name}}{% if caption %}: {{caption}}{% endif %}
+{% endblock %}
+
+
+{% block css %}
+{{block.super}}
+{%  block review_ui_css %}{% endblock %}
+{% endblock css %}
+
+
+{% block content %}
+{%  definevar "review_ui_box_content" %}{% block review_ui_box_content %}{% endblock %}{% enddefinevar %}
+
+{%  if prev_file_attachment %}
+<div class="review-ui-prev-attachment">
+ <a href="{% url 'file-attachment' review_request_id=review_request.display_id file_attachment_id=prev_file_attachment.pk %}">
+  <div class="file-container">
+   <div class="file">
+    <div class="file-thumbnail-container">
+     <div class="file-thumbnail">{{prev_file_attachment.thumbnail}}</div>
+    </div>
+    <div class="file-caption-container">
+     <div class="file-caption">{{prev_file_attachment.display_name}}</div>
+    </div>
+   </div>
+  </div>
+  <span class="fa fa-chevron-left" aria-hidden="true"></span>
+ </a>
+</div>
+{%  endif %}
+
+{%  if next_file_attachment %}
+<div class="review-ui-next-attachment">
+ <a href="{% url 'file-attachment' review_request_id=review_request.display_id file_attachment_id=next_file_attachment.pk %}">
+  <span class="fa fa-chevron-right" aria-hidden="true"></span>
+  <div class="file-container">
+   <div class="file">
+    <div class="file-thumbnail-container">
+     <div class="file-thumbnail">{{next_file_attachment.thumbnail}}</div>
+    </div>
+    <div class="file-caption-container">
+     <div class="file-caption">{{next_file_attachment.display_name}}</div>
+    </div>
+   </div>
+  </div>
+ </a>
+</div>
+{%  endif %}
+
+<div id="review-request" class="review-ui-box{% if review_ui_box_content %} has-review-ui-box-content{% endif %}{% if prev_file_attachment %} has-prev-attachment{% endif %}{% if next_file_attachment %} has-next-attachment{% endif %}">
+{%  include "reviews/trophy_box.html" %}
+ <div id="review-request-banners"></div>
+
+ <div class="review-request">
+{%   include "reviews/review_request_header.html" %}
+  <div class="content review-ui-box-content">{{review_ui_box_content}}</div>
+ </div>
+</div>
+
+<div class="review-ui-standalone">
+{%  block review_ui_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts-post %}
+{{block.super}}
+{%  block review_ui_scripts %}{% endblock %}
+{% endblock %}

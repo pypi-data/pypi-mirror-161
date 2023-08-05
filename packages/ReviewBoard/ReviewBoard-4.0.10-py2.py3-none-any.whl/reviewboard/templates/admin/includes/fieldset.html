@@ -1,0 +1,34 @@
+{% load i18n rbadmintags %}
+
+<fieldset class="{{fieldset.classes}}">
+{% if fieldset.name %}
+ <legend class="rb-c-form-fieldset__name">
+  {{fieldset.name}}
+{%  if fieldset.collapsed %}
+  <a href="#" class="rb-c-form-fieldset__toggle">({% trans "Show" %})</a>
+{%  endif %}
+ </legend>
+{% endif %}
+ <div class="rb-c-form-fieldset__content">
+{% if fieldset.description %}
+  <div class="rb-c-form-fieldset__description">{{fieldset.description|safe}}</div>
+{% endif %}
+  <div class="rb-c-form-fieldset__fields">
+{% block fields %}
+{%  for form_row in fieldset %}
+{%   if form_row.has_visible_field %}
+   <div class="{{form_row.classes}}" id="{{form_row.row_id}}">
+{%    for field in form_row %}
+{%     include "admin/includes/field.html" %}
+{%    endfor %}
+   </div>
+{%   else %}
+{%    for field in form_row %}
+{{field.render}}
+{%    endfor %}
+{%   endif %}
+{%  endfor %}
+{% endblock fields %}
+  </div>
+ </div>
+</fieldset>

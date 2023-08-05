@@ -1,0 +1,735 @@
+.rb-c-menu__itembutton:focus,
+.rb-c-menu__iteminput[type="button"]:focus,
+.rb-c-menu__iteminput[type="submit"]:focus {
+  background: #DAEBFF;outline: 0;
+}
+.has-menu .menu__itembutton:focus,
+.has-menu .menu__iteminput[type="button"]:focus,
+.has-menu .menu__iteminput[type="submit"]:focus {
+  background: #DAEBFF;outline: 0;
+}
+/**
+ * A button.
+ *
+ * Buttons are clickable and perform an action when clicked. They generally
+ * contain text or other markup (like an embedded icon).
+ *
+ * This component is automatically used for ``<button>``,
+ * ``<input type="submit">``, and ``<input type="button">`` elements. It
+ * can be used explicitly for other elements (such as an ``<a>``), in which
+ * case ``aria-role="button"`` should also be set.
+ *
+ * Buttons may contain a ``<span class="djblets-o-spinner"></span>`` to show
+ * a spinner. This will be themed properly for the state of the button.
+ *
+ * Modifiers:
+ *     -is-danger:
+ *         Indicates that the button performs an operation that might result
+ *         in data loss (such as discarding a form or deleting data).
+ *
+ *     -is-disabled:
+ *         Indicates that the button is disabled. This is only needed when
+ *         applying the ``rb-c-button`` class to something other than a
+ *         ``<button>`` or ``<input>``, which have their own ``disabled``
+ *         DOM attribute.
+ *
+ *     -is-primary:
+ *         Indicates that the button is the primary button on a form. This
+ *         generally implies that the button is the default.
+ *
+ * DOM Attributes:
+ *     aria-role (optional):
+ *         Should be set to "button" if using an element other than
+ *         ``<button>`` or ``<input>``.
+ *
+ *     disabled (optional):
+ *         Disables the button. This is used instead of the ``-is-disabled``
+ *         modifier when the element is a ``<button>`` or ``<input>``.
+ *
+ *     role (optional):
+ *         This should always be set to "button" when on an element other
+ *         than ``<button>`` or ``<input>``. The exception is when using
+ *         the ``-is-segmented`` modifier.
+ *
+ *     type (optional):
+ *         Set to "button" if this is a ``<button>`` inside of a form, and
+ *         you don't want it to submit the form.
+ *
+ * Structure:
+ *     <button class="[modifiers]">...</button>
+ *
+ *     <button class="rb-c-button [modifiers]">...</button>
+ *
+ *     <input type="submit" class="rb-c-button [modifiers]">
+ *
+ *     <input type="submit" class="[modifiers]">
+ *
+ *     <input type="button" class="rb-c-button [modifiers]">
+ *
+ *     <input type="button" class="[modifiers]">
+ *
+ *     <a class="rb-c-button [modifiers]" role="button" href="...">...</a>
+ */
+.rb-c-button,
+button,
+input[type="button"],
+input[type="submit"],
+.btn,
+.btn-segment {
+  border: 1px #C0C0C0 solid;
+  border-radius: 4px;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-weight: normal;
+  font-size: 13px;
+  line-height: normal;
+  padding: 3px 8px;
+  text-decoration: none;
+  transition: 0.1s linear all;
+  background-color: #E9E9E9;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(to bottom, #FFFFFF, #FFFFFF 25%, #E9E9E9);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E9E9E9', GradientType=0);
+}
+.rb-c-button:hover,
+.rb-c-button.js-hover,
+button:hover,
+button.js-hover,
+input[type="button"]:hover,
+input[type="button"].js-hover,
+input[type="submit"]:hover,
+input[type="submit"].js-hover,
+button:hover,
+input[type="submit"]:hover,
+.btn:hover,
+.btn-segment:hover,
+button .hover,
+input[type="submit"] .hover,
+.btn .hover,
+.btn-segment .hover {
+  background-position: 0 -15px;
+  color: #333333;
+  text-decoration: none;
+}
+.rb-c-button:link,
+.rb-c-button:visited,
+button:link,
+button:visited,
+input[type="button"]:link,
+input[type="button"]:visited,
+input[type="submit"]:link,
+input[type="submit"]:visited,
+button:link,
+input[type="submit"]:link,
+.btn:link,
+.btn-segment:link,
+button:visited,
+input[type="submit"]:visited,
+.btn:visited,
+.btn-segment:visited {
+  color: #333333;
+}
+.rb-c-button[disabled],
+.rb-c-button.-is-disabled,
+button[disabled],
+button.-is-disabled,
+input[type="button"][disabled],
+input[type="button"].-is-disabled,
+input[type="submit"][disabled],
+input[type="submit"].-is-disabled,
+button.disabled,
+input[type="submit"].disabled,
+.btn.disabled,
+.btn-segment.disabled {
+  color: #D0D0D0;
+  cursor: default;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+.rb-c-button.-is-danger,
+button.-is-danger,
+input[type="button"].-is-danger,
+input[type="submit"].-is-danger,
+button.danger,
+input[type="submit"].danger,
+.btn.danger,
+.btn-segment.danger {
+  color: #FFFFFF !important;
+  background-color: #CB0000;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(to bottom, #EE5F5B, #CB0000);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#EE5F5B', endColorstr='#CB0000', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #CB0000 #CB0000 #7e0000;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.rb-c-button.-is-primary,
+button.-is-primary,
+input[type="button"].-is-primary,
+input[type="submit"].-is-primary,
+button.default,
+input[type="submit"].default,
+.btn.default,
+.btn-segment.default,
+button.primary,
+input[type="submit"].primary,
+.btn.primary,
+.btn-segment.primary {
+  color: #FFFFFF;
+  background-color: #2378DB;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(to bottom, #4A90E2, #2378DB);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4A90E2', endColorstr='#2378DB', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #2378DB #2378DB #185499;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.rb-c-button.-is-danger .djblets-o-spinner,
+.rb-c-button.-is-primary .djblets-o-spinner,
+button.-is-danger .djblets-o-spinner,
+button.-is-primary .djblets-o-spinner,
+input[type="button"].-is-danger .djblets-o-spinner,
+input[type="button"].-is-primary .djblets-o-spinner,
+input[type="submit"].-is-danger .djblets-o-spinner,
+input[type="submit"].-is-primary .djblets-o-spinner {
+  background-image: url("data:image/svg+xml,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%2016%2016%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20style%3D%22stroke-linecap%3Around%3Bstroke-linejoin%3Around%3Bstroke-miterlimit%3A1.5%3B%22%3E%0A%20%3Cpath%20d%3D%22M11.514%2C14.035c-1.032%2C0.603%20-2.233%2C0.948%20-3.514%2C0.948c-3.854%2C0%20-6.983%2C-3.129%20-6.983%2C-6.983c0%2C-3.854%203.129%2C-6.983%206.983%2C-6.983%22%20style%3D%22fill%3Anone%3Bstroke%3A%23FFF%3Bstroke-width%3A2px%3B%22%2F%3E%0A%20%3CanimateTransform%0A%20%20%20attributeName%3D%22transform%22%0A%20%20%20type%3D%22rotate%22%0A%20%20%20from%3D%220%200%200%22%0A%20%20%20to%3D%22360%200%200%22%0A%20%20%20dur%3D%221.0s%22%0A%20%20%20repeatCount%3D%22indefinite%22%2F%3E%0A%3C%2Fsvg%3E%0A");
+}
+/*
+ * Give all standard buttons the .rb-c-button component by default.
+ */
+/**
+ * A group of buttons arranged compactly in a row.
+ *
+ * Button groups have the appearance of one large button split into
+ * multiple clickable areas. They're useful for things like buttons with
+ * dropdowns and toolbars.
+ *
+ * Children must be ``.rb-c-button`` components or ``<button>`` elements.
+ *
+ * Modifiers:
+ *     -is-vertical:
+ *         Lays out the buttons vertically instead of horizontally.
+ *
+ * DOM Attributes:
+ *     aria-label (required):
+ *         A descriptive label for screen readers (e.g., "Text formatting").
+ *
+ *     role (required):
+ *         This should be set to "group" in most cases. If this button
+ *         group is simulating a toolbar, set this to "toolbar".
+ *
+ * Structure:
+ *     <div class="rb-c-button-group [modifiers]" role="..."
+ *          aria-label="...">
+ *      <button class="rb-c-button">...</button>
+ *      ...
+ *     </div>
+ */
+.rb-c-button-group,
+.btn-segmented,
+.split-btn .split-btn-alternatives {
+  border: 1px #C0C0C0 solid;
+  border-radius: 4px;
+  display: inline-block;
+  /* Make sure there's no space between buttons. */
+  font-size: 0;
+}
+.rb-c-button-group:not(.-is-vertical),
+.btn-segmented,
+.split-btn .split-btn-alternatives {
+  /* Default horizontal layouts. */
+}
+.rb-c-button-group:not(.-is-vertical) > .btn-segment,
+.rb-c-button-group:not(.-is-vertical) > button,
+.rb-c-button-group:not(.-is-vertical) > .rb-c-button,
+.rb-c-button-group:not(.-is-vertical) > button,
+.rb-c-button-group:not(.-is-vertical) > input[type="button"],
+.rb-c-button-group:not(.-is-vertical) > input[type="submit"],
+.btn-segment {
+  /*
+       * Set these based on a defaut horizontal orientation. We'll round out
+       * the corners of the first and last buttons, and add borders in-between
+       * each.
+       */
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: inherit;
+  border-radius: 0;
+}
+.rb-c-button-group:not(.-is-vertical) > .btn-segment:first-child,
+.rb-c-button-group:not(.-is-vertical) > button:first-child,
+.rb-c-button-group:not(.-is-vertical) > .rb-c-button:first-child,
+.rb-c-button-group:not(.-is-vertical) > button:first-child,
+.rb-c-button-group:not(.-is-vertical) > input[type="button"]:first-child,
+.rb-c-button-group:not(.-is-vertical) > input[type="submit"]:first-child,
+.btn-segment:first-child {
+  border-left: 0;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+.rb-c-button-group:not(.-is-vertical) > .btn-segment:last-child,
+.rb-c-button-group:not(.-is-vertical) > button:last-child,
+.rb-c-button-group:not(.-is-vertical) > .rb-c-button:last-child,
+.rb-c-button-group:not(.-is-vertical) > button:last-child,
+.rb-c-button-group:not(.-is-vertical) > input[type="button"]:last-child,
+.rb-c-button-group:not(.-is-vertical) > input[type="submit"]:last-child,
+.btn-segment:last-child {
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.rb-c-button-group.-is-vertical > .btn-segment,
+.rb-c-button-group.-is-vertical > button,
+.rb-c-button-group.-is-vertical > .rb-c-button,
+.rb-c-button-group.-is-vertical > button,
+.rb-c-button-group.-is-vertical > input[type="button"],
+.rb-c-button-group.-is-vertical > input[type="submit"],
+.split-btn .split-btn-alternatives .btn {
+  border-top: inherit;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  display: block;
+  text-align: left;
+  width: 100%;
+}
+.rb-c-button-group.-is-vertical > .btn-segment:first-child,
+.rb-c-button-group.-is-vertical > button:first-child,
+.rb-c-button-group.-is-vertical > .rb-c-button:first-child,
+.rb-c-button-group.-is-vertical > button:first-child,
+.rb-c-button-group.-is-vertical > input[type="button"]:first-child,
+.rb-c-button-group.-is-vertical > input[type="submit"]:first-child,
+.split-btn .split-btn-alternatives .btn:first-child {
+  border-top: 0;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.rb-c-button-group.-is-vertical > .btn-segment:last-child,
+.rb-c-button-group.-is-vertical > button:last-child,
+.rb-c-button-group.-is-vertical > .rb-c-button:last-child,
+.rb-c-button-group.-is-vertical > button:last-child,
+.rb-c-button-group.-is-vertical > input[type="button"]:last-child,
+.rb-c-button-group.-is-vertical > input[type="submit"]:last-child,
+.split-btn .split-btn-alternatives .btn:last-child {
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+/**
+ * A button that displays a drop-down menu.
+ *
+ * Menu buttons consist of either a single button or a button group that,
+ * when clicked, displays a drop-down (or drop-up) menu.
+ *
+ * The menu can optionally be a list of buttons, when mixing in a
+ * ``.rb-c-button-group`` into the ``.rb-c-menu`` element and ``.rb-c-button``
+ * into the ``.rb-c-menu__item`` elements.
+ *
+ * DOM Attributes:
+ *     role (required):
+ *         This should be set to "group".
+ *
+ * Structure:
+ *     <div class="rb-c-menu-button" role="group">
+ *      <button class="rb-c-button rb-c-menu-button__toggle"
+ *              id="<label ID>"
+ *              aria-controls="<menu ID>"
+ *              aria-haspopup="true"
+ *              aria-label="...">
+ *       ...
+ *      </button>
+ *      <div class="rb-c-menu" role="menu" tabindex="-1" id="<menu ID>"
+ *           aria-labelledby="<label ID>">
+ *       ...
+ *      </div>
+ *     </div>
+ *
+ *     <div class="rb-c-menu-button" role="group">
+ *      <div class="rb-c-button-group" role="group">
+ *       <button class="rb-c-button rb-c-menu-button__primary">...</button>
+ *       <button class="rb-c-button rb-c-menu-button__toggle"
+ *               id="<label ID>"
+ *               aria-controls="<menu ID>"
+ *               aria-haspopup="true"
+ *               aria-label="...">
+ *        ...
+ *       </button>
+ *      </div>
+ *      <div class="rb-c-menu" role="menu" tabindex="-1" id="<menu ID>"
+ *           aria-labelledby="<label ID>">
+ *       ...
+ *      </ul>
+ *     </div>
+ */
+.rb-c-menu-button,
+.split-btn {
+  border-radius: 4px 4px 0 0;
+  display: inline-block;
+  position: relative;
+  transition: 0.25s linear border;
+  /**
+   * A primary action button, for split menu buttons.
+   *
+   * Structure:
+   *     <button class="rb-c-menu-button__primary rb-c-button"
+   *             type="button">
+   *      text or icon...
+   *     </button>
+   */
+  /**
+   * The button that toggles the display of a menu.
+   *
+   * Structure:
+   *     <button class="rb-c-menu-button__toggle rb-c-button"
+   *             id="<label id>" aria-haspopup="true" type="button">
+   *      [text...]
+   *      <span class="rb-icon rb-icon-dropdown-arrow"></span>
+   *     </button>
+   */
+}
+.rb-c-menu-button:not(.-opens-up) {
+  /* Default drop-down styling. */
+}
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > .btn-segment,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > .rb-c-button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > input[type="button"],
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu > input[type="submit"] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > .btn-segment,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > .rb-c-button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > button,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > input[type="button"],
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > input[type="submit"] {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > .btn-segment:first-child,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > button:first-child,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > .rb-c-button:first-child,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > button:first-child,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > input[type="button"]:first-child,
+.rb-c-menu-button:not(.-opens-up) > .rb-c-menu.-is-vertical > input[type="submit"]:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button.-opens-up > .rb-c-menu {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.-opens-up > .rb-c-menu > .btn-segment,
+.rb-c-menu-button.-opens-up > .rb-c-menu > button,
+.rb-c-menu-button.-opens-up > .rb-c-menu > .rb-c-button,
+.rb-c-menu-button.-opens-up > .rb-c-menu > button,
+.rb-c-menu-button.-opens-up > .rb-c-menu > input[type="button"],
+.rb-c-menu-button.-opens-up > .rb-c-menu > input[type="submit"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > .btn-segment,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > button,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > .rb-c-button,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > button,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > input[type="button"],
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > input[type="submit"] {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > .btn-segment:last-child,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > button:last-child,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > .rb-c-button:last-child,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > button:last-child,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > input[type="button"]:last-child,
+.rb-c-menu-button.-opens-up > .rb-c-menu.-is-vertical > input[type="submit"]:last-child {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.js-open:not(.-opens-up) {
+  /* Default drop-down styling. */
+}
+.rb-c-menu-button.js-open:not(.-opens-up) > .btn-segment,
+.rb-c-menu-button.js-open:not(.-opens-up) > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button,
+.rb-c-menu-button.js-open:not(.-opens-up) > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > input[type="button"],
+.rb-c-menu-button.js-open:not(.-opens-up) > input[type="submit"] {
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu),
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu),
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > .btn-segment,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > .rb-c-button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > input[type="button"],
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu) > input[type="submit"],
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu) > .btn-segment,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu) > button,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu) > .rb-c-button,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > .btn-segment,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > button,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > .rb-c-button {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .btn-segment,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .rb-c-button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="button"],
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="submit"],
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .btn-segment,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > button,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .rb-c-button,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .btn-segment,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > button,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .rb-c-button {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .btn-segment:last-child,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button:last-child,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .rb-c-button:last-child,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button:last-child,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="button"]:last-child,
+.rb-c-menu-button.js-open:not(.-opens-up) > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="submit"]:last-child,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .btn-segment:last-child,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > button:last-child,
+.split-btn.drop-down-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .rb-c-button:last-child,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .btn-segment:last-child,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > button:last-child,
+.split-btn.drop-down-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .rb-c-button:last-child {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.rb-c-menu-button.js-open.-opens-up > .btn-segment,
+.rb-c-menu-button.js-open.-opens-up > button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button,
+.rb-c-menu-button.js-open.-opens-up > button,
+.rb-c-menu-button.js-open.-opens-up > input[type="button"],
+.rb-c-menu-button.js-open.-opens-up > input[type="submit"] {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu),
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu),
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > .btn-segment,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > .rb-c-button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > input[type="button"],
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu) > input[type="submit"],
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu) > .btn-segment,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu) > button,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu) > .rb-c-button,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > .btn-segment,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > button,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu) > .rb-c-button {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .btn-segment,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .rb-c-button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="button"],
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="submit"],
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .btn-segment,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > button,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .rb-c-button,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .btn-segment,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > button,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .rb-c-button {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .btn-segment:first-child,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button:first-child,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > .rb-c-button:first-child,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > button:first-child,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="button"]:first-child,
+.rb-c-menu-button.js-open.-opens-up > .rb-c-button-group:not(.rb-c-menu).-is-vertical > input[type="submit"]:first-child,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .btn-segment:first-child,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > button:first-child,
+.split-btn.drop-up-shown .btn-segmented:not(.rb-c-menu).-is-vertical > .rb-c-button:first-child,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .btn-segment:first-child,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > button:first-child,
+.split-btn.drop-up-shown .split-btn .split-btn-alternatives:not(.rb-c-menu).-is-vertical > .rb-c-button:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.rb-c-menu-button > .rb-c-button,
+.rb-c-menu-button > .rb-c-button-group .rb-c-button,
+.rb-c-menu-button > button,
+.rb-c-menu-button > .rb-c-button-group button,
+.rb-c-menu-button > input[type="button"],
+.rb-c-menu-button > .rb-c-button-group input[type="button"],
+.rb-c-menu-button > input[type="submit"],
+.rb-c-menu-button > .rb-c-button-group input[type="submit"] {
+  border-bottom: transparent;
+  margin: 0;
+}
+.rb-c-menu-button > .rb-c-menu,
+.split-btn .split-btn-alternatives {
+  position: absolute;
+  white-space: nowrap;
+}
+.rb-c-menu-button > .rb-c-menu.-is-open {
+  visibility: visible;
+}
+/**
+ * Deprecated styling variables for buttons.
+ *
+ * Deprecated:
+ *     4.0:
+ *     These have been replaced by definitions in ``#rb-ns-ui.buttons``.
+ */
+/**
+ * Old style for buttons.
+ *
+ * Deprecated:
+ *     4.0:
+ *     This has been replaced with ``.rb-c-button``, and will be removed
+ *     in a future release.
+ */
+/**
+ * Old style for segmented button groups.
+ *
+ * Deprecated:
+ *     4.0:
+ *     This has been replaced with ``.rb-c-button-group``, and will be
+ *     removed in a future release.
+ */
+.btn-segmented,
+.split-btn .split-btn-alternatives {
+  /* Override .btn styles. */
+  background: none;
+  padding: 0;
+}
+/**
+ * Old style for button segments.
+ *
+ * Deprecated:
+ *     4.0:
+ *     This has been replaced with ``.rb-c-button`` nested inside of a
+ *     ``.rb-c-button-group``, and will be removed in a future release.
+ */
+.split-btn .split-btn-alternatives {
+  background: #FFFFFF;
+  border: 1px #C0C0C0 solid;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.05);
+  display: block;
+  list-style: none;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  transition: opacity 0.2s linear;
+  visibility: hidden;
+  z-index: 110;
+  /**
+   * A menu item.
+   *
+   * This may contain any content needed in the menu item, but will usually
+   * consist of text.
+   *
+   * The element type may be anything, and will depend on the parent
+   * ``.rb-c-menu``. It will most commonly be a ``<li>``, ``<a>``, ``<div>``,
+   * or ``<button>``.
+   *
+   * If displaying a button-based menu, this must have ``.rb-c-button`` mixed
+   * in.
+   *
+   * Consumers are responsible for marking a menu item as focused in response
+   * to keyboard navigation or mouse movements, in order to convey the active
+   * item.
+   *
+   * DOM Attributes:
+   *     role (required):
+   *         This must be set to "menuitem".
+   *
+   *     tabindex (required):
+   *         This must be set to -1, allowing the menu to be focused
+   *         programmatically but not through tabbing. Consumers should provide
+   *         keep
+   *
+   * Structure:
+   *     <li class="rb-c-menu__item" role="menuitem" tabindex="-1">...</li>
+   *
+   *     <a class="rb-c-menu__item" role="menuitem" tabindex="-1">...</a>
+   *
+   *     <button class="rb-c-menu__item rb-c-button" role="menuitem"
+   *             type="button" tabindex="-1">
+   *      ...
+   *     </button>
+   */
+}
+.split-btn .split-btn-alternatives.-is-open {
+  opacity: 1;
+  visibility: visible;
+}
+.split-btn .split-btn-alternatives.js-no-animation {
+  transition: none;
+}
+.split-btn .split-btn-alternatives__item {
+  cursor: pointer;
+  display: block;
+  list-display: none;
+  margin: 0;
+}
+.split-btn .split-btn-alternatives__item.rb-c-button:focus,
+.split-btn .split-btn-alternatives__itembutton:focus,
+.split-btn .split-btn-alternatives__iteminput[type="button"]:focus,
+.split-btn .split-btn-alternatives__iteminput[type="submit"]:focus {
+  background: #DAEBFF;
+  outline: 0;
+}
+.split-btn .split-btn-alternatives__item:not(.rb-c-button) {
+  /*
+       * We want to apply padding to standard list items, but button list
+       * items should retain button padding.
+       */
+  padding: 0.8em 1em;
+}
+.split-btn .split-btn-alternatives__item:not(.rb-c-button):focus {
+  background: #DAEBFF;
+  outline: 0;
+}
+button.large,
+input[type="submit"].large,
+.btn.large,
+.btn-segment.large {
+  font-size: 130%;
+  line-height: normal;
+  padding: 9px 14px 9px;
+  border-radius: 6px;
+}
+button.small,
+input[type="submit"].small,
+.btn.small,
+.btn-segment.small {
+  padding: 7px 9px 7px;
+  font-size: 11px;
+}
+/*# sourceMappingURL=buttons.css.map */

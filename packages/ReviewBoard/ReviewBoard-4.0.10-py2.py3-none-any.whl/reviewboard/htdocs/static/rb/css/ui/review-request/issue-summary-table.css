@@ -1,0 +1,155 @@
+/**
+ * The Issue Summary Table, used to filter and view issues on a review request.
+ *
+ * This is meant to be used along with ``.rb-c-review-request-tabular``, and
+ * builds upon that to provide styling for the different issue states.
+ */
+.rb-c-issue-summary-table {
+  /**
+   * An issue counter on a tab.
+   */
+  /**
+   * A special row indicating that no issues exist matching the filter.
+   */
+  /**
+   * The main table containing the list of issues.
+   */
+}
+.rb-c-issue-summary-table__counter {
+  vertical-align: middle;
+}
+.rb-c-issue-summary-table__no-issues td {
+  background-color: #FFF;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr {
+  /*
+       * Sets the background and hover colors for an issue row of a given type.
+       */
+  /* Add borders separating groups of different types of statuses. */
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr[data-issue-id] {
+  cursor: pointer;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-open + .rb-c-issue-summary-table__issue:not(.-is-open) td,
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-dropped + .rb-c-issue-summary-table__issue:not(.-is-dropped) td,
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-resolved + .rb-c-issue-summary-table__issue:not(.-is-resolved) td {
+  border-top-color: #999999;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-open + .rb-c-issue-summary-table__issue:not(.-is-open) td,
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-dropped + .rb-c-issue-summary-table__issue:not(.-is-dropped) td,
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden).-is-resolved + .rb-c-issue-summary-table__issue:not(.-is-resolved) td {
+    border-top-color: transparent;
+  }
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-open:hover td {
+  background-color: #f2e48a;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-open td {
+  background-color: #FFF4B0;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-dropped:hover td {
+  background-color: #dfdfdf;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-dropped td {
+  background-color: #ECECEC;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-resolved:hover td {
+  background-color: #ededed;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-resolved td {
+  background-color: #FAFAFA;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-verifying-dropped:hover td,
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-verifying-resolved:hover td {
+  background-color: #f5e9a1;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-verifying-dropped td,
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr.-is-verifying-resolved td {
+  background-color: #fff8ca;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr {
+    /*
+         * Add a border betwen all sections, but don't add it to the very top.
+         * This sort of selector will guarantee all visible rows following the
+         * first visible row will have a top border set.
+         */
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr:not(.-is-hidden) ~ .issue:not(.-is-hidden) td:first-child {
+    border-top-color: #999999;
+  }
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td {
+  /*
+         * All text should be vertically centered in relation to the issue
+         * status icon, meaning we need to give them all the line height of
+         * the icon. From there, we'll make further adjustments below.
+         */
+  line-height: 16px;
+  /* Description column */
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td:nth-child(1) {
+  width: 100%;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td a {
+  text-decoration: none;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td p {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td time {
+  white-space: nowrap;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td .avatar {
+  /*
+           * We're aiming to keep all text aligned across the row, and
+           * because of this we can't vertically align the avatar and the
+           * text exactly. We also can't let the avatar take up too much
+           * vertical space on the row.
+           *
+           * So, we're offsetting the vertical margins a bit to reduce the
+           * space required (offsetting into the cell's padding a bit
+           * instead) and attempting to align the resulting avatar with the
+           * top of the text. This creates a mostly-vertically-centered look
+           * while keeping the text aligned.
+           */
+  margin: -4px 4px -4px 0;
+  vertical-align: text-top;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td .rb-icon {
+  float: left;
+  margin-right: 6px;
+}
+.rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td .user {
+  white-space: nowrap;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td {
+    white-space: normal;
+    /* Description column */
+    /* Last Updated column */
+    /* Usernames that aren't preceded by an avatar. */
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td:nth-child(1) {
+    padding-top: 1em;
+    width: auto;
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td:nth-child(1) .rb-icon {
+    margin-left: 4px;
+    margin-right: 8px;
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td:nth-child(3) {
+    padding-bottom: 1em;
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td:nth-child(3) time {
+    /* Align the text. */
+    margin-left: 28px;
+  }
+  .rb-c-issue-summary-table .rb-c-review-request-field-tabular__data tr td .user span:first-child {
+    margin-left: 28px;
+  }
+}
+/*# sourceMappingURL=issue-summary-table.css.map */

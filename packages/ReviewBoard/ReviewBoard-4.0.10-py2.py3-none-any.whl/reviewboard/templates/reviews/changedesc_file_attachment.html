@@ -1,0 +1,20 @@
+{% load djblets_js %}
+
+<div id="change-entry-file-attachment-{{uuid}}"></div>
+
+<script charset="utf-8">
+$(document).ready(function() {
+    RB.PageManager.ready(function(page) {
+        var thumbnail = new RB.FileAttachmentThumbnail({
+            model: new RB.FileAttachment({{model_attrs|json_dumps}}),
+            comments: [],
+            renderThumbnail: true,
+            reviewRequest: page.model.get('reviewRequest'),
+            canEdit: false
+        });
+
+        thumbnail.render().$el
+            .appendTo($('#change-entry-file-attachment-{{uuid}}'));
+    });
+});
+</script>

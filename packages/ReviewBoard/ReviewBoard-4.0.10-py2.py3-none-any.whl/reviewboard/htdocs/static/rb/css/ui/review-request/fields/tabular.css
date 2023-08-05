@@ -1,0 +1,136 @@
+/**
+ * A review request field for tabular data and filtering.
+ */
+/**
+ * A field for tabular data, with optional filter widgets and tabs.
+ *
+ * This wraps a table of data, offering consistent styling for headers and
+ * cells. It also optionally supports filtering tabs through the
+ * ``.rb-c-tabs`` elements, and additional custom filtering controls through
+ * ``.rb-c-review-request-field-tabular__filters``.
+ *
+ * Structure:
+ *     <div class="rb-c-review-request-field-tabular">
+ *      <header class="rb-c-review-request-field-tabular__header">
+ *       <div class="rb-c-review-request-field-tabular__filters">
+ *        <div class="rb-c-review-request-field-tabular__filter">
+ *         ...
+ *        </div>
+ *        ...
+ *       </div>
+ *       <ul class="rb-c-tabs">
+ *        ...
+ *       </ul>
+ *      </header>
+ *      <table class="rb-c-review-request-field-tabular__data">
+ *       <thead>
+ *        <tr>
+ *         <th class="-is-sortable">...</th>
+ *         ...
+ *        </tr>
+ *       </thead>
+ *       <tbody>
+ *        ...
+ *       </tbody>
+ *      </table>
+ *     </div>
+ */
+.rb-c-review-request-field-tabular {
+  margin: 10px 0 0 0;
+  /**
+   * A container for any filters to show above the table.
+   *
+   * By default, filters will be positioned to the top-right of the table,
+   * in the same area as any defined tabs. Consumers may need to offer further
+   * styling to customize this.
+   */
+  /**
+   * The header area, containing the filters and tabs for the table.
+   */
+  /**
+   * The table data.
+   *
+   * This is a standard table, which can contain any data.
+   *
+   * Each table header (a ``<th>`` nested within a ``<thead>``) can have a
+   * ``-is-sortable`` modifier class indicating that the header is clickable.
+   */
+}
+.rb-c-review-request-field-tabular__filters {
+  position: absolute;
+  bottom: 0;
+  list-style: none;
+  right: 1em;
+  margin-bottom: 1em;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-review-request-field-tabular__filters {
+    position: initial;
+    text-align: right;
+  }
+}
+.rb-c-review-request-field-tabular__filter {
+  display: inline-block;
+}
+.rb-c-review-request-field-tabular__header {
+  margin: 1.5em 0 -1px 0;
+  padding-bottom: 0;
+  position: relative;
+}
+.rb-c-review-request-field-tabular__data {
+  border: 1px #999999 solid;
+  border-radius: 6px;
+  border-spacing: 0;
+  overflow: hidden;
+  width: 100%;
+}
+.rb-c-review-request-field-tabular__data tbody tr.-is-hidden {
+  display: none;
+}
+.rb-c-review-request-field-tabular__data tbody tr td {
+  background: #FFFFFF;
+  padding: 8px;
+  vertical-align: top;
+}
+.rb-c-review-request-field-tabular__data thead th {
+  background: #E9E9E9;
+  border-bottom: 1px #999999 solid;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.rb-c-review-request-field-tabular__data thead th.-is-sortable:hover {
+  background: #dcdcdc;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-review-request-field-tabular__data {
+    /* Display the cells vertically. */
+    /* Never show the header. */
+  }
+  .rb-c-review-request-field-tabular__data tbody,
+  .rb-c-review-request-field-tabular__data tbody tr,
+  .rb-c-review-request-field-tabular__data tbody td {
+    display: block;
+  }
+  .rb-c-review-request-field-tabular__data thead {
+    display: none !important;
+  }
+}
+.rb-c-review-request-field-tabular .rb-c-tabs {
+  margin-left: 2.5em;
+}
+.rb-c-review-request-field-tabular .rb-c-tabs .rb-c-tabs__tab {
+  border-bottom: 0;
+  margin-bottom: 1px;
+}
+.rb-c-review-request-field-tabular .rb-c-tabs .rb-c-tabs__tab.-is-active {
+  margin-bottom: 0;
+  padding-bottom: 6px;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-review-request-field-tabular .rb-c-tabs {
+    margin-left: 0.5em;
+  }
+}
+/*# sourceMappingURL=tabular.css.map */

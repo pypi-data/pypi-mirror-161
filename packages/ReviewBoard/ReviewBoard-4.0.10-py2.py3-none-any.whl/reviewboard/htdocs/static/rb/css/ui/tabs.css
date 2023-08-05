@@ -1,0 +1,121 @@
+/**
+ * A CSS component for tabbed navigation.
+ */
+/**
+ * A list of tabs.
+ *
+ * Each tab within supports an ``-is-active`` modifier class indicating if
+ * the tab is currently active.
+ *
+ * Tab labels may also have responsive content by providing a ``<label>``
+ * with multiple ``<span>`` tags within using ``-is-full-label`` and
+ * ``-is-short-label`` modifier classes.
+ *
+ * Structure:
+ *     <ul class="rb-c-tabs">
+ *      <li class="rb-c-tabs__tab -is-active">
+ *       <label class="rb-c-tabs__tab-label">...</label>
+ *      </li>
+ *      <li class="rb-c-tabs__tab">
+ *       <label class="rb-c-tabs__tab-label">
+ *        <span class="rb-c-tabs__tab-label-full">...</span>
+ *        <span class="rb-c-tabs__tab-label-short">...</span>
+ *       </label>
+ *      </li>
+ *      ...
+ *     </ul>
+ */
+.rb-c-tabs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /**
+   * A tab containing a label.
+   *
+   * Modifiers:
+   *     -is-active:
+   *         The tab is the currently active tab. This should only be set on
+   *         one tab at a time.
+   */
+  /**
+   * The label for a tab.
+   *
+   * This can contain text, icons, or other content.
+   *
+   * A shorter, mobile-friendly label can be set by providing two sets of label
+   * content inside ``<span>`` tags, like so::
+   *
+   *     <span class="rb-c-tabs__tab-label-full">...</span>
+   *     <span class="rb-c-tabs__tab-label-short">...</span>
+   *
+   * If providing only a full label, this is not needed.
+   */
+  /**
+   * Short label content for small screens.
+   */
+  /**
+   * Full label content for larger screens.
+   */
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-tabs {
+    /*
+     * Keep the tabs at one row and make it scrollable horizontally. On mobile
+     * devices, there won't be a scrollbar getting in the way.
+     *
+     * Since the overflow will normally cut off part of the tab, we also need
+     * just a bit of padding above the tabs.
+     */
+    overflow-x: auto;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+}
+.rb-c-tabs__tab {
+  border: 1px transparent solid;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 0.5em 0 0;
+  padding: 5px 10px 5px 10px;
+  vertical-align: bottom;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-tabs__tab {
+    margin-right: 0;
+  }
+}
+.rb-c-tabs__tab * {
+  cursor: pointer;
+  vertical-align: middle;
+}
+.rb-c-tabs__tab-label {
+  color: black;
+  display: inline;
+  font-weight: normal;
+  line-height: 16px;
+  vertical-align: middle;
+}
+.rb-c-tabs__tab-label-short {
+  display: none;
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-tabs__tab-label-short {
+    display: inline;
+  }
+}
+@media screen and (max-width: 720px), screen and (max-device-width: 720px) and (orientation: landscape) {
+  .rb-c-tabs__tab-label-full {
+    display: none;
+  }
+}
+/* Make tabs grey by default. */
+.rb-c-tabs__tab:hover {
+  background: #dcdcdc;
+  border-color: #a6a6a6;
+}
+.rb-c-tabs__tab.-is-active {
+  background: #E9E9E9;
+  border-color: #999999;
+}
+/*# sourceMappingURL=tabs.css.map */

@@ -1,0 +1,43 @@
+{% load i18n %}
+
+<p>
+{% blocktrans %}
+ {{PRODUCT_NAME}} supports closing review requests that are referenced in
+ commit messages for any changes pushed to this repository. These references
+ are in the form of:
+{% endblocktrans %}
+</p>
+<pre>Reviewed at {{example_url}}</pre>
+<p>{% trans "Or:" %}</p>
+<pre>Review Request #{{example_id}}</pre>
+<p>
+{% blocktrans %}
+ To configure this, <a href="{{add_webhook_url}}" target="_blank">add a new
+ WebHook</a> to your Bitbucket repository and provide the following:
+{% endblocktrans %}
+</p>
+
+<table class="sample-fields">
+ <tr>
+  <th>{% trans "Title:" %}</th>
+  <td>
+{% blocktrans %}
+   <code>{{PRODUCT_NAME}}</code>
+   <em>(or any other name you want to give this)</em>
+{% endblocktrans %}
+  </td>
+ </tr>
+ <tr>
+  <th>{% trans "URL:" %}</th>
+  <td><code>{{webhook_endpoint_url}}</code></td>
+ </tr>
+ <tr>
+  <th>{% trans "Triggers:" %}</th>
+  <td><code>{% trans "Repository push" %}</code></td>
+ </tr>
+</table>
+<p>
+{% blocktrans %}
+ Then click <strong>Save</strong>. You're done!
+{% endblocktrans %}
+</p>

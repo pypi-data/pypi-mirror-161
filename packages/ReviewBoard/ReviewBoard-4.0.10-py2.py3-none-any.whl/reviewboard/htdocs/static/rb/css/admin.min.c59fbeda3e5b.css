@@ -1,0 +1,1660 @@
+/** Base styles used throughout the Admin UI. */
+.admin #accountnav li:hover {
+  background: #fffbe3;
+  border-color: #989898;
+}
+.admin #accountnav li:hover ul {
+  border-color: #8b8b8b;
+}
+.admin #accountnav li:hover ul li:hover {
+  background: #fffbe3;
+}
+.admin #accountnav li:hover ul li.menu-info-box,
+.admin #accountnav li:hover ul li.menu-info-box:hover {
+  /*
+             * These are currently only used in RBCommons, but may be useful
+             * for future accountnav features.
+             */
+  background: #fff8ca;
+  border-bottom: 1px #fff097 solid;
+  padding: 1em;
+}
+.admin #accountnav li:hover ul li.menu-info-box,
+.admin #accountnav li:hover ul li.menu-info-box:hover,
+.admin #accountnav li:hover ul li.menu-info-box *,
+.admin #accountnav li:hover ul li.menu-info-box:hover * {
+  cursor: default;
+}
+.admin #accountnav li ul {
+  background: #FFF4B0;
+}
+.admin #headerbar {
+  border-bottom-color: #8b8b8b;
+}
+.admin #headerbar #nav_toggle {
+  color: rgba(0, 0, 0, 0.8);
+}
+.admin #headerbar #search input {
+  border-color: #8b8b8b;
+}
+.admin #navbar-container {
+  background: #FFF4B0;
+  border-color: #8b8b8b;
+}
+.admin #navbar {
+  border-bottom-color: #8b8b8b;
+}
+.admin #navbar a {
+  color: #124BBD;
+}
+@media only screen and (max-width: 800px) {
+  .admin #page-sidebar {
+    background-color: #FFF4B0;
+    border-right-color: #8b8b8b;
+  }
+}
+.admin #topbar {
+  background: #FFF4B0;
+  color: #000000;
+}
+.admin #topbar .version {
+  color: #555555;
+}
+.admin .rb-c-drawer__content {
+  background: #FFF4B0;
+  border-color: #8b8b8b;
+  color: #000000;
+}
+.admin #page-container .datagrid-header,
+.admin .datagrid-header-drag.datagrid-header {
+  background: #FFF4B0;
+}
+.admin h1.title {
+  text-transform: uppercase;
+}
+/*# sourceMappingURL=base.css.map */
+/** Styles for the Administration UI change forms. */
+/**
+ * A group of inline objects shown in a change page.
+ *
+ * Each inline is an object related to the main object being modified on
+ * the change page, and can be saved along with that main object.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-form-inline-group">
+ *      <h2 class="rb-c-admin-form-inline-group__title">...</h2>
+ *      <div class="rb-c-admin-form-inline-group__inlines">
+ *       ...
+ *      </div>
+ *      <div class="rb-c-admin-form-inline-group__add-action">...</div>
+ *     </div>
+ */
+.rb-c-admin-form-inline-group {
+  margin: 2em 0 0 0;
+  /**
+   * A list of inline objects.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-form-inline-group__inlines">
+   *      <div class="rb-c-admin-form-inline">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * The title of a group of inlines.
+   *
+   * Structure:
+   *     <h2 class="rb-c-admin-form-inline-group__title">...</h2>
+   */
+}
+.rb-c-admin-form-inline-group__add-action {
+  display: inline-block;
+  padding: 1em;
+}
+.rb-c-admin-form-inline-group__add-action:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #006400;
+  content: "\f067";
+  font-size: 140%;
+  vertical-align: text-top;
+}
+.rb-c-admin-form-inline-group__title {
+  background: #FFF4B0;
+  border-top: 1px #C0C0C0 solid;
+  border-bottom: 1px #C0C0C0 solid;
+  margin: 0;
+  padding: 1em;
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+/**
+ * An inline object shown in a change page.
+ *
+ * An inline object is related to the main object being modified on the
+ * change page, and can be saved along with that main object.
+ *
+ * Modifiers:
+ *     -is-template:
+ *         This inline is a template for new entries. It will be removed from
+ *         the DOM when the JavaScript classes render the inline group, but
+ *         will be hidden until then.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-form-inline">
+ *      <h3 class="rb-c-admin-form-inline__title">...</h3>
+ *      <fieldset>...</fieldset>
+ *      ...
+ *     </div>
+ */
+.rb-c-admin-form-inline {
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  /**
+   * An action that deletes the inline.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__delete-action">...</span>
+   */
+  /**
+   * Actions that can be performed on the inline.
+   *
+   * This houses the Delete action.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-form-inline__actions">
+   *      <div class="rb-c-admin-form-inline__action">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * The title for an inline.
+   *
+   * This will contain a string representation of an inline object and may
+   * also contain zero or more actions.
+   *
+   * Structure:
+   *     <h3 class="rb-c-admin-form-inline__title">
+   *      <span class="rb-c-admin-form-inline__title-prefix">...</span>
+   *      <span class="rb-c-admin-form-inline__title-object">...</span>
+   *      <span class="rb-c-admin-form-inline__title-index">...</span>
+   *      <span class="rb-c-admin-form-inline__actions">...</span>
+   *     </h3>
+   */
+  /**
+   * The index of the inline.
+   *
+   * This will be replaced when inlines are added or removed.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-index">#...</span>
+   */
+  /**
+   * The title of the inline object.
+   *
+   * This is generally a string representation of the object.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-object">...</span>
+   */
+  /**
+   * The prefix for a title of the inline object.
+   *
+   * This is generally a string representation of the type of object, followed
+   * by a colon and space.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-form-inline__title-object">...: </span>
+   */
+}
+.rb-c-admin-form-inline.-is-template {
+  display: none;
+}
+.rb-c-admin-form-inline__delete-action {
+  color: #8B0000;
+  cursor: pointer;
+}
+.rb-c-admin-form-inline__actions {
+  float: right;
+}
+.rb-c-admin-form-inline__title {
+  border-bottom: 1px #C0C0C0 solid;
+  margin: 1em 0;
+  padding: 0.5em;
+  color: #444444;
+  font-size: 110%;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.rb-c-admin-form-inline__title-object {
+  text-transform: none;
+}
+/*
+ * Django widgets.
+ *
+ * These provide styling overrides for some Django widgets, ensuring that
+ * they look correct when shown in the administration UI.
+ */
+.rb-c-form-field__input {
+  /**
+   * Django split date/time input.
+   *
+   * Structure:
+   *     <p class="datetime">
+   *      <input class="vDateField" type="text" ...>
+   *      <input class="vTimeField" type="text" ...>
+   *     </p>
+   */
+  /**
+   * Django clearable file upload widget.
+   *
+   * This is defined in Django's ``admin/widgets/clearable_file_input.html``
+   * template.
+   *
+   * Structure:
+   *     <p class="file-upload">
+   *      text...
+   *      <a href="...">...</a>
+   *      <span class="clearable-file-input">
+   *       <input type="checkbox" name="..." id="...">
+   *       <label for="...">...</label>
+   *      </span>
+   *      <br>
+   *      text...
+   *      <input ...>
+   *     </p>
+   */
+  /**
+   * Django raw ID related lookup input.
+   *
+   * This is defined in Django's ``admin/widgets/foreign_key_raw_id.html``
+   * template.
+   *
+   * Structure:
+   *     <a class="related-lookup" href="..."></a>
+   */
+  /**
+   * Django related object drop-down.
+   *
+   * This is defined in Django's ``admin/widgets/related_widget_wrapper.html``
+   * template.
+   *
+   * Structure:
+   *     <div class="related-widget-wrapper">...</div>
+   */
+  /**
+   * Django side-by-side selector widget.
+   *
+   * Structure:
+   *     <div class="selector">
+   *      <div class="selector-available">
+   *       <h2>
+   *        text...
+   *        <span class="help help-tooltip help-icon" ...></span>
+   *       </h2>
+   *       <p id="..." class="selector-filter">
+   *        <label for="...">
+   *         <span class="help-tooltip search-label-icon"></span>
+   *        </label>
+   *       </p>
+   *       <select class="filtered" ...>
+   *        <option ...>...</option>
+   *        ...
+   *       </select>
+   *       <a class="selector-chooseall active" ...>...</a>
+   *      </div>
+   *      <ul class="selector-chooser">
+   *       <li><a href="#" class="selector-add">...</a></li>
+   *       <li><a href="#" class="selector-remove">...</a></li>
+   *      </ul>
+   *      <div class="selector-chosen">
+   *       <h2>
+   *        text...
+   *        <span class="help help-tooltip help-icon" ...></span>
+   *       </h2>
+   *       <select class="filtered" ...>
+   *        <option ...>...</option>
+   *        ...
+   *       </select>
+   *       <a class="selector-clearall active" ...>...</a>
+   *      </div>
+   *     </div>
+   */
+}
+.rb-c-form-field__input .datetime {
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input .datetime .vDateField,
+.rb-c-form-field__input .datetime .vTimeField {
+  width: 8em;
+}
+.rb-c-form-field__input .datetime .vDateField {
+  margin-bottom: 0.5em;
+}
+.rb-c-form-field__input .file-upload {
+  margin: 0;
+  padding: 0;
+}
+.rb-c-form-field__input .file-upload input[type="file"] {
+  margin-top: 0.5em;
+}
+.rb-c-form-field__input .file-upload .clearable-file-input {
+  margin-left: 1em;
+}
+.rb-c-form-field__input .related-lookup {
+  margin-right: 1em;
+}
+.rb-c-form-field__input .related-lookup:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: black;
+  content: "\f002";
+  font-size: 140%;
+}
+.rb-c-form-field__input .related-widget-wrapper {
+  float: none;
+}
+.rb-c-form-field__input .selector select {
+  /*
+       * Remove the weird padding around the <select>, and add padding instead
+       * to the options within it.
+       */
+  padding: 0;
+}
+.rb-c-form-field__input .selector select option {
+  padding: 5px 10px;
+}
+.rb-c-form-field__input .selector .selector-available h2,
+.rb-c-form-field__input .selector .selector-chosen h2 {
+  /*
+       * Make the font size consistent with the rest of the form, but give the
+       * headers a bit of padding.
+       */
+  font-size: inherit;
+  margin-bottom: 0;
+  padding: 0.4em;
+}
+.rb-c-form-field__input .selector .selector-available h2 .help,
+.rb-c-form-field__input .selector .selector-chosen h2 .help {
+  color: inherit;
+}
+.rb-c-form-field__input .selector .selector-available h2 .help-icon,
+.rb-c-form-field__input .selector .selector-chosen h2 .help-icon {
+  /* Remove their help icon in favor of our own in the main .help rule. */
+  background: none;
+}
+.rb-c-form-field__input .selector .selector-available select {
+  /*
+         * Try to align this with the chosen selector. This is a specific
+         * number, but so is the original in Django. Ours is just better tuned
+         * to our sizes.
+         */
+  height: 200px;
+}
+.rb-c-form-field__input .selector .selector-chosen h2 {
+  background: #D0E6FF;
+  color: black;
+}
+.rb-c-form-field__input .selector .selector-chosen select {
+  /*
+         * Try to align this with the available selector. This is a specific
+         * number, but so is the original in Django. Ours is just better tuned
+         * to our sizes.
+         */
+  height: 238px;
+}
+.rb-c-form-field__input .selector .selector-filter label {
+  /*
+       * Fix alignment of the magnifying glass icon so that it's better
+       * aligned with the (slightly larger than default) filter text box.
+       */
+  margin-top: 3px;
+}
+/*# sourceMappingURL=change-form.css.map */
+/**
+ * Styles and variables for the change list page.
+ */
+.rb-c-admin-change-list__item-action {
+  border: 1px #C0C0C0 solid;border-radius: 4px;color: #333333;cursor: pointer;display: inline-block;font-family: Verdana, Arial, Helvetica, Sans-Serif;font-weight: normal;font-size: 13px;line-height: normal;padding: 3px 8px;text-decoration: none;transition: 0.1s linear all;background-color: #E9E9E9;background-repeat: no-repeat;background-image: linear-gradient(to bottom, #FFFFFF, #FFFFFF 25%, #E9E9E9);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E9E9E9', GradientType=0);
+}
+.rb-c-admin-change-list__item-action:hover,
+.rb-c-admin-change-list__item-action .hover {
+  background-position: 0 -15px;color: #333333;text-decoration: none;
+}
+.rb-c-admin-change-list__item-action:link,
+.rb-c-admin-change-list__item-action:visited {
+  color: #333333;
+}
+.rb-c-admin-change-list__item-action.disabled {
+  color: #D0D0D0;cursor: default;background-image: none;filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+.rb-c-admin-change-list__item-action.danger {
+  color: #FFFFFF !important;background-color: #CB0000;background-repeat: repeat-x;background-image: linear-gradient(to bottom, #EE5F5B, #CB0000);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#EE5F5B', endColorstr='#CB0000', GradientType=0);text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);border-color: #CB0000 #CB0000 #7e0000;border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.rb-c-admin-change-list__item-action.default,
+.rb-c-admin-change-list__item-action.primary {
+  color: #FFFFFF;background-color: #2378DB;background-repeat: repeat-x;background-image: linear-gradient(to bottom, #4A90E2, #2378DB);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4A90E2', endColorstr='#2378DB', GradientType=0);text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);border-color: #2378DB #2378DB #185499;border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+/**
+ * The main component for the Administration UI's Change List page.
+ *
+ * This manages the display and layout of the Change List page, which shows
+ a list of items in a database, along with search functionality, filtering,
+ * and an actions drawer.
+ *
+ * Modifiers:
+ *     -has-filters:
+ *         The change list page has filters available for showing subsets of
+ *         items.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-change-list">
+ *      <form class="rb-c-admin-search" method="GET">...</form>
+ *      <div class="rb-c-admin-filters">...</div>
+ *      <form class="rb-c-admin-change-list__form" method="POST">...</form>
+ *     </div>
+ */
+.rb-c-admin-change-list {
+  /**
+   * A list of results.
+   *
+   * This will be a full datagrid component, and corresponds to the
+   * ``.datagrid-wrapper` class.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-change-list__results datagrid-wrapper">
+   *      ...
+   *     </div>
+   */
+  /**
+   * Action items shown for a row.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-change-list__item-actions">
+   *      <a class="rb-c-admin-change-list__item-action" href="...">...</a>
+   *      ...
+   *     </div>
+   */
+  /**
+   * An action item for a row.
+   *
+   * This will be displayed as a button.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-change-list__item-action" href="...">...</a>
+   */
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-admin-change-list.-has-filters .rb-c-admin-change-list__results,
+  .rb-c-admin-change-list.-has-filters .rb-c-admin-search {
+    margin-right: 240px;
+    padding-right: 2em;
+  }
+}
+.rb-c-admin-change-list__results {
+  height: 100%;
+  position: relative;
+}
+.rb-c-admin-change-list__item-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+.rb-c-admin-change-list__item-action {
+  font-size: inherit;
+  margin-left: 0.5em;
+}
+.rb-c-admin-change-list__item-action.large {
+  font-size: 130%;
+  line-height: normal;
+  padding: 9px 14px 9px;
+  border-radius: 6px;
+}
+.rb-c-admin-change-list__item-action.small {
+  padding: 7px 9px 7px;
+  font-size: 11px;
+}
+.rb-c-admin-change-list__item-action:first-child {
+  margin-left: 0;
+}
+/*# sourceMappingURL=change-list.css.map */
+/****************************************************************************
+ * Authentication pages
+ ****************************************************************************/
+.login #page-container {
+  padding-left: 0;
+}
+.login #page-container #content_container {
+  margin-left: 0 !important;
+}
+.login #page-container #content_container h1.title {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+}
+/*# sourceMappingURL=auth.css.map */
+/***************************************************************************
+ * Administration Dashboard
+ ***************************************************************************/
+.rb-c-tabs__tab:hover {
+  background: #ececec;
+  border-color: #a6a6a6;
+}
+.rb-c-tabs__tab.-is-active {
+  background: #F9F9F9;
+  border-color: #999999;
+}
+#admin-actions {
+  background: #F0F0F2;
+  border-right: 1px #888A85 solid;
+  border-bottom: 1px #888A85 solid;
+  float: left;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 19.5em;
+  box-sizing: border-box;
+  z-index: 130;
+}
+#admin-actions .admin-version {
+  font-weight: bold;
+  margin-top: 1em;
+}
+#all-primary-widgets,
+#all-secondary-widgets {
+  display: none;
+}
+#navbar {
+  margin-left: -1px;
+  padding-left: 19.5em;
+}
+#navbar .rb-c-tabs__tab {
+  padding-top: 8px;
+}
+#navbar .rb-c-tabs__tab.-is-active {
+  border-bottom: 1px transparent solid;
+}
+.clear {
+  clear: both;
+}
+/**************************************************************************
+ * Built-in widget styles
+ **************************************************************************/
+/**
+ * The Review Board News widget.
+ *
+ * This displays the latest headlines from the Review Board news feed.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-news-widget">
+ *      <div clas="rb-c-admin-widget__content">
+ *       <a class="rb-c-admin-news-widget__item">
+ *        ...
+ *       </a>
+ *       ...
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-news-widget {
+  /**
+   * An item from the news feed.
+   *
+   * Each item is styled as its own row in the widget.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-news-widget__item">
+   *      <span class="rb-c-admin-news-widget__item-date">...</span>
+   *      <span class="rb-c-admin-news-widget__item-title">...</span>
+   *     </a>
+   */
+  /**
+   * The date of a news post.
+   *
+   * This is positioned to the left of the news item's title.
+   *
+   * Structure:
+   *      <span class="rb-c-admin-news-widget__item-date">...</span>
+   */
+  /**
+   * The title of a news post.
+   *
+   * This is positioned to the right of the news item's date.
+   *
+   * Structure:
+   *      <span class="rb-c-admin-news-widget__item-title">...</span>
+   */
+}
+.rb-c-admin-news-widget__item {
+  display: table-row;
+}
+.rb-c-admin-news-widget__item-date,
+.rb-c-admin-news-widget__item-title {
+  display: table-cell;
+  padding: 0.5em;
+}
+.rb-c-admin-news-widget__item-date {
+  text-align: right;
+  white-space: nowrap;
+}
+.rb-c-admin-news-widget__item-title {
+  color: black;
+}
+/* Server Cache widget */
+#server-cache-widget td,
+#server-cache-widget th {
+  font-size: 10px;
+  text-align: left;
+}
+/* Review Board Activity widget */
+#activity-graph-widget .legendLabel {
+  font-size: 10px;
+}
+#activity-graph-widget .legend-btn {
+  position: absolute;
+  left: 30px;
+  top: 10px;
+  display: none;
+  cursor: pointer;
+}
+/**
+ * The repositories widget.
+ *
+ * This displays links to the most recently-added repositories, and provides
+ * actions for viewing all repositories or adding a new one.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-repositories-widget">
+ *      <div class="rb-c-admin-widget__content">
+ *       <div class="rb-c-admin-repositories-widget__repos">
+ *        ...
+ *       </div>
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-repositories-widget {
+  /**
+   * Instructions for configuring repositories.
+   */
+  /**
+   * A list of repositories.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-repositories-widget__items">
+   *      <li class="rb-c-admin-repositories-widget__item">...</li>
+   *      ...
+   *     </ul>
+   */
+  /**
+   * A repository item.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-repositories-widget__item">
+   *      <a class="rb-c-admin-repositories-widget__repo" href="...">...</a>
+   *     </li>
+   */
+  /**
+   * A repository in the list.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-repositories-widget__repo" href="...">
+   *      <span class="rb-c-admin-repositories-widget__repo-name">...</span>
+   *      <span class="rb-c-admin-repositories-widget__repo-service">...</span>
+   *     </a>
+   */
+  /**
+   * The name of the repository.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-repositories-widget__repo-name">...</span>
+   */
+  /**
+   * The service backing a repository.
+   *
+   * Structure:
+   *     <span class="rb-c-admin-repositories-widget__repo-service">...</span>
+   */
+}
+.rb-c-admin-repositories-widget__items {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-column-gap: 1em;
+  grid-row-gap: 1em;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-admin-repositories-widget__item {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-admin-repositories-widget__repo:hover {
+  text-decoration: none;
+}
+.rb-c-admin-repositories-widget__repo:hover .rb-c-admin-repositories-widget__repo-name {
+  text-decoration: underline;
+}
+.rb-c-admin-repositories-widget__repo-name {
+  display: block;
+}
+.rb-c-admin-repositories-widget__repo-service {
+  color: #444444;
+}
+/**
+ * The User Activity widget.
+ *
+ * This displays a graph showing the number of active users for different
+ * ranges of times.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget rb-c-admin-user-activity-widget">
+ *      <div class="rb-c-admin-widget__content">
+ *       <div class="rb-c-admin-user-activity-widget__chart">...</div>
+ *       <div class="rb-c-admin-user-activity-widget__user-total">...</div>
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-user-activity-widget {
+  /**
+   * The container for the chart to render into.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-user-activity-widget__chart">
+   *      ...
+   *     </div>
+   */
+  /**
+   * A label listing the total number of users on the server.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-user-activity-widget__user-total">
+   *      ...
+   *     </div>
+   */
+}
+.rb-c-admin-user-activity-widget__chart {
+  width: 100%;
+  height: 160px;
+}
+.rb-c-admin-user-activity-widget__user-total {
+  bottom: 10px;
+  color: #545454;
+  position: absolute;
+  text-align: left;
+  right: 1em;
+}
+/***************************************************************************
+ * Support banner
+ ***************************************************************************/
+#support-banner {
+  border: 1px solid #888A85;
+  border-radius: 6px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  margin: 0 0 1.5em 0;
+  padding: 1em;
+}
+#support-banner.loading {
+  text-align: center;
+}
+#support-banner.error,
+#support-banner.community-support {
+  background-color: #FFE4E1;
+}
+#support-banner.basic-support,
+#support-banner.premium-support {
+  background-color: #fdf2a0;
+  background-image: url("../images/gold_box_top_bg.33df1a7c2e1b.png");
+}
+#support-banner h1,
+#support-banner h2,
+#support-banner h3 {
+  font-size: 110%;
+  margin-top: 0;
+}
+#support-banner p {
+  margin: 0.5em 0;
+}
+#support-banner p:first-child {
+  margin-top: 0;
+}
+#support-banner p:last-child {
+  margin-bottom: 0;
+}
+/*# sourceMappingURL=dashboard.css.map */
+/**
+ * Styles and variables for the database management page.
+ */
+/**
+ * A list of models, organized by app.
+ *
+ * This presents a list of models available in the database management
+ * page, grouped by the owning Django app.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-models-list">
+ *      <div class="rb-c-admin-models-list__app">
+ *      ...
+ *     </div>
+ */
+.rb-c-admin-models-list {
+  line-height: 1.5;
+  /**
+   * An app containing a list of models.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-models-list__app">
+   *      <header class="rb-c-admin-models-list__app-name rb-c-content-header">
+   *       ...
+   *      </header>
+   *      <ul class="rb-c-admin-models-list__models">
+   *       ...
+   *      </ul>
+   *     </div>
+   */
+  /**
+   * The header containing the name of an app.
+   *
+   * This must use the ``rb-c-content-header`` component.
+   *
+   * Structure:
+   *     <header class="rb-c-admin-models-list__app-name rb-c-content-header">
+   *      <h2 class="rb-c-content-header__title">...</h2>
+   *     </header>
+   */
+  /**
+   * A list of models under an app.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-models-list__models">
+   *      <li class="rb-c-admin-models-list__model">...</li>
+   *      ...
+   *     </ul>
+   */
+  /**
+   * An entry for a model.
+   *
+   * This contains an optional icon for quickly adding a new entry, along
+   * with a link for viewing entries for the type of model.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-models-list__model">
+   *      <a class="rb-c-admin-models-list__model-action-add rb-icon
+   *                rb-icon-admin-add" href="..." title="..."></a>
+   *      <a class="rb-c-admin-models-list__model-name" href="...">...</a>
+   *     </li>
+   */
+  /**
+   * An action for adding a new entry for the model.
+   *
+   * This will be a link containing an icon, which takes the user to the
+   * page for adding a new entry.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-models-list__model-action-add rb-icon
+   *               rb-icon-admin-add" href="..." title="..."></a>
+   */
+  /**
+   * The name of the model.
+   *
+   * This is generally going to be a link, unless the model's entry cannot
+   * be viewed by the user.
+   *
+   * Structure:
+   *     <a class="rb-c-admin-models-list__model-name" href="...">...</a>
+   *
+   *     <span class="rb-c-admin-models-list__model-name">...</span>
+   */
+}
+.rb-c-admin-models-list__app {
+  margin-top: 2em;
+}
+.rb-c-admin-models-list__app:first-child {
+  margin-top: 0;
+}
+.rb-c-admin-models-list__app-name {
+  /* Left blank for now. */
+}
+.rb-c-admin-models-list__models {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rb-c-admin-models-list__model {
+  margin: 1em 0 0 0;
+}
+.rb-c-admin-models-list__model-action-add {
+  /* Left blank for now. */
+}
+.rb-c-admin-models-list__model-name {
+  /* Left blank for now. */
+}
+/*# sourceMappingURL=database.css.map */
+/****************************************************************************
+ * FileDiff page
+ ****************************************************************************/
+.field-diff p,
+.field-parent_diff p {
+  display: none;
+}
+.field-diff .highlight,
+.field-parent_diff .highlight {
+  margin-left: 7em;
+  padding-left: 30px;
+}
+.field-diff .highlight pre,
+.field-parent_diff .highlight pre {
+  margin: 0;
+  padding: 0;
+}
+/*# sourceMappingURL=filediffs.css.map */
+/***************************************************************************
+ * Integrations
+ ***************************************************************************/
+#integration_list {
+  border-radius: 0 0 6px 6px;
+}
+.integration-configs a {
+  color: blue;
+}
+.integration-configs a:hover {
+  text-decoration: underline;
+}
+.integrations-list-page #content-main {
+  border-radius: 0 0 6px 6px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  float: left;
+  width: 100%;
+}
+/*# sourceMappingURL=integrations.css.map */
+/***************************************************************************
+* Log viewer
+***************************************************************************/
+#log-entries {
+  margin-right: 160px;
+}
+#log-entries pre {
+  color: black;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+}
+#log-entries .level-debug.row1 th {
+  background-color: #d5d5d5;
+}
+#log-entries .level-debug.row2 th {
+  background-color: #e5e5e5;
+}
+#log-entries .level-info.row1 th {
+  background-color: #eef4ff;
+}
+#log-entries .level-info.row2 th {
+  background-color: #f5f8fc;
+}
+#log-entries .level-warning.row1 th {
+  background-color: #fffaa9;
+}
+#log-entries .level-warning.row2 th {
+  background-color: #fffdbe;
+}
+#log-entries .level-error.row1 th {
+  background-color: #ffe493;
+}
+#log-entries .level-error.row2 th {
+  background-color: #ffeba9;
+}
+#log-entries .level-critical.row1 th {
+  background-color: #f4bcab;
+}
+#log-entries .level-critical.row2 th {
+  background-color: #f6c8ba;
+}
+/*# sourceMappingURL=log-viewer.css.map */
+/***************************************************************************
+ * Repository Configuration
+ ***************************************************************************/
+#repository_form #hosting-auth-form-gitlab .gitlab-url-options {
+  display: inline-block;
+  vertical-align: top;
+}
+#repository_form #hosting-auth-form-gitlab .gitlab-url-options input {
+  vertical-align: baseline;
+}
+#repository_form #hosting-auth-form-gitlab .gitlab-url-options label {
+  display: inline-block;
+  float: none;
+  vertical-align: baseline;
+  width: 10em !important;
+}
+#repository_form .powerpack-advert p,
+#repository_form .gerrit-plugin-advert p {
+  margin-left: 0;
+}
+#repo-edit-hosting-credentials {
+  color: #124BBD;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+/**
+ * A textbox containing an SSH public key.
+ *
+ * Structure:
+ *     <textarea readonly class="rb-o-admin-ssh-public-key">
+ *      text...
+ *     </textarea>
+ */
+.rb-o-admin-ssh-public-key {
+  height: 12em;
+  width: 100%;
+}
+/**
+ * Information on a SSL certificate.
+ *
+ * This provides some nice formatting for fields shown for a SSL certificate.
+ *
+ * When room is available, this will display the data in a tabular form. On
+ * smaller displays, it will be displayed in a more vertical form.
+ *
+ * Structure:
+ *     <dl class="rb-c-admin-cert">
+ *      <div class="rb-c-admin-cert__field">...</div>
+ *      ...
+ *     </dl>
+ */
+.rb-c-admin-cert {
+  margin: 1em 0;
+  display: table;
+  /**
+   * A field in the SSL certificate.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-cert__field">
+   *      <dt class="rb-c-admin-cert__field-name">...</dt>
+   *      <dd class="rb-c-admin-cert__field-value">...</dd>
+   *     </div>
+   */
+  /**
+   * The name of a field.
+   *
+   * Structure:
+   *     <dt class="rb-c-admin-cert__field-name">
+   *      text...
+   *     </dt>
+   */
+  /**
+   * The value of a field.
+   *
+   * Structure:
+   *     <dd class="rb-c-admin-cert__field-value">
+   *      text...
+   *     </dd>
+   */
+}
+.rb-c-admin-cert__field {
+  margin: 0;
+  padding: 0;
+}
+@media only screen and (min-width: 500px) {
+  .rb-c-admin-cert__field {
+    display: table-row;
+  }
+}
+@media only screen and (max-width: 499px) {
+  .rb-c-admin-cert__field {
+    margin-bottom: 2em;
+  }
+}
+.rb-c-admin-cert__field-name {
+  font-weight: bold;
+  margin: 0;
+}
+@media only screen and (min-width: 500px) {
+  .rb-c-admin-cert__field-name {
+    display: table-cell;
+    padding: 0.5em 0.5em 0.5em 0;
+    text-align: right;
+  }
+}
+@media only screen and (max-width: 499px) {
+  .rb-c-admin-cert__field-name {
+    display: block;
+  }
+}
+.rb-c-admin-cert__field-value {
+  margin: 0;
+}
+@media only screen and (min-width: 500px) {
+  .rb-c-admin-cert__field-value {
+    display: table-cell;
+    padding: 0.5em 0 0.5em 0.5em;
+  }
+}
+@media only screen and (max-width: 499px) {
+  .rb-c-admin-cert__field-value {
+    display: block;
+  }
+}
+/*# sourceMappingURL=repositories.css.map */
+/****************************************************************************
+ * Security checklist
+ ****************************************************************************/
+.admin-security-checklist {
+  margin: 0;
+  padding: 0;
+}
+.admin-security-checklist .admin-security-check {
+  list-style: none;
+  margin-bottom: 4em;
+  line-height: 140%;
+}
+.admin-security-checklist .admin-security-check:last-child {
+  margin-bottom: 0;
+}
+.admin-security-checklist .admin-security-check h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.admin-security-checklist .admin-security-check .admin-security-check-status {
+  font-weight: bold;
+}
+.admin-security-checklist .admin-security-check .admin-security-check-status.pass {
+  color: green;
+}
+.admin-security-checklist .admin-security-check .admin-security-check-status.fail {
+  color: red;
+}
+.admin-security-checklist .admin-security-check .admin-security-check-result {
+  margin: 1em 0 0 0em;
+}
+/*# sourceMappingURL=security-center.css.map */
+/***************************************************************************
+ * WebHook page
+ ***************************************************************************/
+#webhooktarget_form {
+  /*
+   * Hide some rows by default. These will be shown if other options are
+   * enabled.
+   */
+}
+#webhooktarget_form .field-repositories,
+#webhooktarget_form .field-custom_content {
+  display: none;
+}
+/*# sourceMappingURL=webhooks.css.map */
+/***************************************************************************
+ * Administration widgets
+ ***************************************************************************/
+/**
+ * Related Object Selector
+ */
+.admin .related-object-selector {
+  display: inline-block;
+  width: 35em;
+}
+/**
+ * Modal boxes
+ */
+.modalbox-contents {
+  padding: 1em;
+  max-width: 70em;
+}
+.modalbox-contents p,
+.modalbox-contents pre {
+  color: black;
+}
+.modalbox-contents p:first-child,
+.modalbox-contents pre:first-child {
+  margin-top: 0;
+}
+.modalbox-contents p a,
+.modalbox-contents pre a {
+  color: blue;
+  font-weight: bold;
+}
+.modalbox-contents p,
+.modalbox-contents pre,
+.modalbox-contents th,
+.modalbox-contents td {
+  font-size: 12px;
+}
+.modalbox-contents pre {
+  margin: 2em 1em;
+  white-space: pre-wrap;
+}
+.modalbox-contents table.sample-fields {
+  margin-left: 1em;
+}
+.modalbox-contents table.sample-fields th {
+  text-align: right;
+}
+/*# sourceMappingURL=widgets.css.map */
+/**
+ * Styles and variables for the administration filters component.
+ */
+/**
+ * Filters used to narrow down content on an administration datagrid.
+ *
+ * These are shown as a list of filters on the side of the page.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-filters">
+ *      <header class="rb-c-admin-filters__title">...</header>
+ *      <div class="rb-c-admin-filter">...</div>
+ *      ...
+ *     </div>
+ */
+.rb-c-admin-filters {
+  position: absolute;
+  top: 4em;
+  /* Align with the datagrid. */
+  right: 0;
+  bottom: 0;
+  width: 240px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /**
+   * The title for the filters pane.
+   *
+   * Structure:
+   *     <header class="rb-c-admin-filters__title">...</header>
+   */
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-admin-filters {
+    display: none;
+  }
+}
+.rb-c-admin-filters__title {
+  font-size: 110%;
+  font-weight: bold;
+  color: #444;
+  padding: 0 0 0 15px;
+  margin: 1em 0;
+  text-transform: uppercase;
+}
+/**
+ * A filter containing a name and available choices.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-filter">
+ *      <h3 class="rb-c-admin-filter__name">...</h3>
+ *      <ul class="rb-c-admin-filter__choices">...</ul>
+ *     </div>
+ */
+.rb-c-admin-filter {
+  margin: 2em 0 3em 0;
+  /**
+   * A list of choices available for the filter.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-filter__choices">
+   *      <li class="rb-c-admin-filter__choice -is-selected">...</li>
+   *      <li class="rb-c-admin-filter__choice">...</li>
+   *      ...
+   *     </ul>
+   */
+  /**
+   * A choice available for the filter.
+   *
+   * Modifiers:
+   *     -is-selected:
+   *         The filter is currently selected and active. Only one choice
+   *         in a filter should have this modifier applied at once.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-filter__choice">
+   *      <a href="...">...</a>
+   *     </li>
+   */
+  /**
+   * The name of the filter.
+   *
+   * Structure:
+   *     <h3 class="rb-c-admin-filter__name">...</h3>
+   */
+}
+.rb-c-admin-filter__choices {
+  line-height: 150%;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 15px;
+}
+.rb-c-admin-filter__choice {
+  margin: 0;
+  padding: 0 0 0 10px;
+  border-left: 5px transparent solid;
+  margin-left: -15px;
+}
+.rb-c-admin-filter__choice.-is-selected {
+  border-left-color: #DDD;
+  padding-left: 10px;
+}
+.rb-c-admin-filter__choice.-is-selected a:link,
+.rb-c-admin-filter__choice.-is-selected a:visited {
+  color: #124BBD;
+}
+.rb-c-admin-filter__choice a:link,
+.rb-c-admin-filter__choice a:visited {
+  display: block;
+  color: #999;
+}
+.rb-c-admin-filter__name {
+  font-size: 110%;
+  font-weight: normal;
+  margin: 0 0 1em 0;
+  padding: 0 0 0 15px;
+}
+/*# sourceMappingURL=filters.css.map */
+/**
+ * Styles and variables for the admin search component.
+ */
+/**
+ * The search field shown on change list pages.
+ *
+ * Structure:
+ *     <form class="rb-c-admin-search" method="GET">
+ *      <div class="rb-c-search-field">...</div>
+ *      <div class="rb-c-sadmin-search__result-summary">...</div>
+ *     </form>
+ */
+.rb-c-admin-search {
+  margin-bottom: 1em;
+  /**
+   * The summary of search results.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-search__result-summary">...</div>
+   */
+}
+.rb-c-admin-search__result-summary {
+  margin: 1em 0;
+}
+/*# sourceMappingURL=search.css.map */
+/** Administration widget component. */
+/**
+ * A container handling the layout and management of widgets.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widgets">
+ *      <div class="rb-c-admin-widgets__sizer-column"></div>
+ *      <div class="rb-c-admin-widgets__sizer-gutter"></div>
+ *      <div class="rb-c-admin-widgets__main">
+ *       ...
+ *      </div>
+ *     </div>
+ */
+.rb-c-admin-widgets {
+  /**
+   * A button for adding new widgets.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__add-button">
+   *      <a>Add Widgets</a>
+   *     </div>
+   */
+  /**
+   * The main section containing the widgets.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__main">
+   *      <div class="rb-c-admin-widget">...</div>
+   *      ...
+   *     </div>
+   */
+  /**
+   * A utility element used by Masonry to compute column sizes.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__sizer-column"></div>
+   */
+  /**
+   * A utility element used by Masonry to compute gutter sizes.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widgets__sizer-gutter"></div>
+   */
+}
+.rb-c-admin-widgets__add-button {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+}
+.rb-c-admin-widgets__add-button a {
+  color: #124BBD;
+  font-weight: bold;
+  font-size: 13px;
+}
+.rb-c-admin-widgets__add-button a:hover {
+  color: black;
+  cursor: pointer;
+}
+.rb-c-admin-widgets__main {
+  position: relative;
+  width: 100%;
+}
+.rb-c-admin-widgets__sizer-column {
+  width: 220px;
+  height: 0;
+}
+.rb-c-admin-widgets__sizer-gutter {
+  width: 20px;
+  height: 0;
+}
+/**
+ * A widget on the admin dashboard.
+ *
+ * Widgets can display information about Review Board, provide convenient
+ * actions, and more.
+ *
+ * Widgets are positioned on the dashboard in a "masonry" layout, organized
+ * as tiles that fit together based on available space. By default, a widget
+ * is 2 "columns" wide, and can easily be positioned to a smaller (1 column)
+ * size, a larger (3 columns) size, or a full-width size. If needed, widgets
+ * can specify a custom size, but it's advised to stick with one of the
+ * standard sizes.
+ *
+ * Each widget must define a size using the ``-is-large`` or ``-is-small``
+ * modifier. This corresponds to which container the widget is part of.
+ *
+ * Modifiers:
+ *     -is-full-width:
+ *         A full-width widget.
+ *
+ *     -is-large:
+ *         A large widget. This is 3 column lengths.
+ *
+ *     -is-small:
+ *         A small widget. This is 1 column length.
+ *
+ * Structure:
+ *     <div class="rb-c-admin-widget -is-{size}">
+ *      <header class="rb-c-admin-widget__header">...</header>
+ *      <div class="rb-c-admin-widget__content">...</div>
+ *      <footer class="rb-c-admin-widget__footer">...</footer>
+ *     </div>
+ */
+.rb-c-admin-widget {
+  background-color: white;
+  border: 1px solid #999999;
+  border-radius: 2px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  margin: 0 0 20px 0;
+  padding: 0;
+  /**
+   * A container for a list of actions appearing in a header or footer.
+   *
+   * Structure:
+   *     <ul class="rb-c-admin-widget__actions">
+   *      <li class="rb-c-admin-wiget__action">...</li>
+   *     </ul>
+   */
+  /**
+   * An action shown in the header or footer.
+   *
+   * This can be a free-standing element, or may contain a child ``<a>``,
+   * ``<div>``, or ``<span>`` element (for links or icons).
+   *
+   * Modifiers:
+   *     -is-right:
+   *         Whether to float the action to the right. This only applies to
+   *         actions in the footer.
+   *
+   * Structure:
+   *     <li class="rb-c-admin-widget__action"><a href="...">...</a></li>
+   *     <li class="rb-c-admin-widget__action">
+   *      <span class="rb-icon rb-icon-foo"></span>
+   *     </li>
+   *     ...
+   */
+  /**
+   * The main content area of a widget.
+   *
+   * Structure:
+   *     <div class="rb-c-admin-widget__content">
+   *      ...
+   *     </div>
+   */
+  /**
+   * The footer of a widget.
+   *
+   * Structure:
+   *     <footer class="rb-c-admin-widget__footer">
+   *      <ul class="rb-c-admin-widget__actions">...</ul>
+   *     </footer>
+   */
+  /**
+   * The header of a widget.
+   *
+   * Structure:
+   *     <header class="rb-c-admin-widget__header">
+   *      <h1>...</h1>
+   *      <ul class="rb-c-admin-widget__actions">...</ul>
+   *     </header>
+   */
+}
+@media only screen and (min-width: 801px) {
+  .rb-c-admin-widget {
+    width: 460px;
+  }
+  .rb-c-admin-widget.-is-full-with {
+    width: 100%;
+  }
+  .rb-c-admin-widget.-is-large {
+    width: 700px;
+  }
+  .rb-c-admin-widget.-is-small {
+    width: 220px;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .rb-c-admin-widget {
+    width: 100%;
+  }
+}
+.rb-c-admin-widget__actions {
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+.rb-c-admin-widget__action {
+  cursor: pointer;
+  display: block;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+  /* These must be defined as two rules, or Firefox will drop them both. */
+}
+.rb-c-admin-widget__action::selection {
+  background: transparent;
+}
+.rb-c-admin-widget__action::-moz-selection {
+  background: transparent;
+}
+.rb-c-admin-widget__action :link {
+  color: #124BBD;
+}
+.rb-c-admin-widget__content {
+  position: relative;
+  margin: 1em;
+  padding: 0;
+}
+.rb-c-admin-widget__footer {
+  margin: 1em 0 0 0;
+  padding: 0;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__actions {
+  /*
+       * Actions have a shortened horizontal padding (@_padding / 2) to add
+       * enough area for taps on mobile. We need to compensate on the
+       * left/right-hand sides of this container so the actions are ultimately
+       * aligned with the content.
+       */
+  margin: 1em 0.5em 0 0.5em;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__action {
+  float: left;
+  padding: 1em 0.5em;
+}
+.rb-c-admin-widget__footer .rb-c-admin-widget__action.btn-right,
+.rb-c-admin-widget__footer .rb-c-admin-widget__action.-is-right {
+  float: right;
+  border-right: none;
+}
+.rb-c-admin-widget__header {
+  color: #777777;
+  font-size: 13px;
+  margin: 1em;
+  padding: 0;
+}
+.rb-c-admin-widget__header h1 {
+  color: inherit;
+  display: inline-block;
+  font-weight: normal;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__actions {
+  float: right;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action {
+  opacity: 0.5;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action:hover {
+  opacity: 1;
+}
+.rb-c-admin-widget__header .rb-c-admin-widget__action.fa {
+  font-size: 110%;
+}
+.rb-c-admin-widget-no-results {
+  border: 2px dashed #CCC;
+  font-weight: bold;
+  text-transform: capitalize;
+  line-height: 1.9em;
+  margin: 0;
+  padding: 1em;
+  text-align: center;
+}
+/*# sourceMappingURL=widgets.css.map */
