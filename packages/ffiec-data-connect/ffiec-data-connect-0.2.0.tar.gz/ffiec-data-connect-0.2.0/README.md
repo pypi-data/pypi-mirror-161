@@ -1,0 +1,42 @@
+# FFIEC Data Connector
+
+The FFIEC Webservice Python Connector (`ffiec_data_connect`) was created to facilitate the use of the SOAP-based FFIEC Webservice.
+
+
+### Disclaimer
+
+-  __This package and documentation is not affiliated with the Federal Financial Institution Examination Council (FFIEC) or any other US Government Agency.__
+-  __Please review the license and disclaimer before using this package.__
+
+### Overview
+
+The FFIEC Webservice Python Connector (`ffiec_data_connect`) was created to facilitate the use of the SOAP-based FFIEC Webservice.
+
+Although limited documentation is provided for the Webservice by the FFIEC, practical use of the Webservice via Python requires a considerable amount of boilerplate code - and knowledge of esoteric terms and concepts inherent to bank regulatory data.
+
+With these challenges in mind, this package provides a Python wrapper for the FFIEC Webservice, simplifying the process of interacting with the Webservice, and allow the rapid development of Python applications that require use of the data hosted on the Webservice.
+
+Data returned from the Webservice may be returned as a native Python data structure (`list`) or Pandas DataFrames or Series.
+
+## Installation
+
+``pip install ffiec-data-connect``
+
+## Quickstart
+
+__To run this Quick Start, you must have an account on the FFIEC Webservice at https://cdr.ffiec.gov/public/PWS/CreateAccount.aspx?PWS=true__
+
+```
+        from ffiec_data_connect import methods, credentials, ffiec_connection
+        
+        creds = credentials.WebserviceCredentials(username="user1234", password="password1234")
+
+        conn = ffiec_connection.FFIECConnection()
+
+        reporting_periods = methods.collect_reporting_periods(
+            session=conn,
+            creds=creds,
+            output_type="list",
+            date_output_format="string_original"
+        )
+```
