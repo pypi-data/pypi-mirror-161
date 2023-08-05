@@ -1,0 +1,154 @@
+Metadata-Version: 2.1
+Name: fmriprep
+Version: 22.0.0
+Summary: fMRIPrep is a robust and easy-to-use pipeline for preprocessing of diverse fMRI data.
+Home-page: https://github.com/nipreps/fmriprep
+Author: The NiPreps Developers
+Author-email: nipreps@gmail.com
+License: Apache License, Version 2.0
+Project-URL: Documentation, https://fmriprep.readthedocs.io/
+Project-URL: Paper, https://doi.org/10.1038/s41592-018-0235-4
+Project-URL: Docker Images, https://hub.docker.com/r/nipreps/fmriprep/tags/
+Project-URL: NiPreps, https://www.nipreps.org/
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Image Recognition
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst; charset=UTF-8
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: nibabel (>=4.0.1)
+Requires-Dist: nipype (>=1.8.3)
+Requires-Dist: nitime
+Requires-Dist: nitransforms (>=21.0.0)
+Requires-Dist: niworkflows (~=1.6.2)
+Requires-Dist: numpy
+Requires-Dist: packaging
+Requires-Dist: pandas
+Requires-Dist: psutil (>=5.4)
+Requires-Dist: pybids (>=0.15.0)
+Requires-Dist: requests
+Requires-Dist: sdcflows (~=2.1.0)
+Requires-Dist: smriprep (~=0.9.2)
+Requires-Dist: tedana (~=0.0.9)
+Requires-Dist: templateflow (>=0.6)
+Requires-Dist: toml
+Provides-Extra: all
+Requires-Dist: datalad ; extra == 'all'
+Requires-Dist: pydot (>=1.2.3) ; extra == 'all'
+Requires-Dist: sphinx (>=1.8) ; extra == 'all'
+Requires-Dist: sphinx-argparse ; extra == 'all'
+Requires-Dist: sphinx-rtd-theme ; extra == 'all'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'all'
+Requires-Dist: duecredit ; extra == 'all'
+Requires-Dist: fuzzywuzzy ; extra == 'all'
+Requires-Dist: python-Levenshtein ; extra == 'all'
+Requires-Dist: sentry-sdk (~=1.3.0) ; extra == 'all'
+Requires-Dist: coverage ; extra == 'all'
+Requires-Dist: codecov ; extra == 'all'
+Requires-Dist: pytest ; extra == 'all'
+Requires-Dist: pytest-cov ; extra == 'all'
+Requires-Dist: pytest-env ; extra == 'all'
+Provides-Extra: datalad
+Requires-Dist: datalad ; extra == 'datalad'
+Provides-Extra: doc
+Requires-Dist: pydot (>=1.2.3) ; extra == 'doc'
+Requires-Dist: sphinx (>=1.8) ; extra == 'doc'
+Requires-Dist: sphinx-argparse ; extra == 'doc'
+Requires-Dist: sphinx-rtd-theme ; extra == 'doc'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'doc'
+Provides-Extra: docs
+Requires-Dist: pydot (>=1.2.3) ; extra == 'docs'
+Requires-Dist: sphinx (>=1.8) ; extra == 'docs'
+Requires-Dist: sphinx-argparse ; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'docs'
+Provides-Extra: duecredit
+Requires-Dist: duecredit ; extra == 'duecredit'
+Provides-Extra: maint
+Requires-Dist: fuzzywuzzy ; extra == 'maint'
+Requires-Dist: python-Levenshtein ; extra == 'maint'
+Provides-Extra: resmon
+Provides-Extra: sentry
+Requires-Dist: sentry-sdk (~=1.3.0) ; extra == 'sentry'
+Provides-Extra: tests
+Requires-Dist: coverage ; extra == 'tests'
+Requires-Dist: codecov ; extra == 'tests'
+Requires-Dist: pytest ; extra == 'tests'
+Requires-Dist: pytest-cov ; extra == 'tests'
+Requires-Dist: pytest-env ; extra == 'tests'
+
+Preprocessing of functional MRI (fMRI) involves numerous steps to clean and standardize
+the data before statistical analysis.
+Generally, researchers create ad hoc preprocessing workflows for each dataset,
+building upon a large inventory of available tools.
+The complexity of these workflows has snowballed with rapid advances in
+acquisition and processing.
+fMRIPrep is an analysis-agnostic tool that addresses the challenge of robust and
+reproducible preprocessing for task-based and resting fMRI data.
+fMRIPrep automatically adapts a best-in-breed workflow to the idiosyncrasies of
+virtually any dataset, ensuring high-quality preprocessing without manual intervention.
+fMRIPrep robustly produces high-quality results on diverse fMRI data.
+Additionally, fMRIPrep introduces less uncontrolled spatial smoothness than observed
+with commonly used preprocessing tools.
+fMRIPrep equips neuroscientists with an easy-to-use and transparent preprocessing
+workflow, which can help ensure the validity of inference and the interpretability
+of results.
+
+The workflow is based on `Nipype <https://nipype.readthedocs.io>`_ and encompases a large
+set of tools from well-known neuroimaging packages, including
+`FSL <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/>`_,
+`ANTs <https://stnava.github.io/ANTs/>`_,
+`FreeSurfer <https://surfer.nmr.mgh.harvard.edu/>`_,
+`AFNI <https://afni.nimh.nih.gov/>`_,
+and `Nilearn <https://nilearn.github.io/>`_.
+This pipeline was designed to provide the best software implementation for each state of
+preprocessing, and will be updated as newer and better neuroimaging software becomes
+available.
+
+fMRIPrep performs basic preprocessing steps (coregistration, normalization, unwarping, noise
+component extraction, segmentation, skullstripping etc.) providing outputs that can be
+easily submitted to a variety of group level analyses, including task-based or resting-state
+fMRI, graph theory measures, surface or volume-based statistics, etc.
+fMRIPrep allows you to easily do the following:
+
+  * Take fMRI data from *unprocessed* (only reconstructed) to ready for analysis.
+  * Implement tools from different software packages.
+  * Achieve optimal data processing quality by using the best tools available.
+  * Generate preprocessing-assessment reports, with which the user can easily identify problems.
+  * Receive verbose output concerning the stage of preprocessing for each subject, including
+    meaningful errors.
+  * Automate and parallelize processing steps, which provides a significant speed-up from
+    typical linear, manual processing.
+
+[Nat Meth doi:`10.1038/s41592-018-0235-4 <https://doi.org/10.1038/s41592-018-0235-4>`_]
+[Documentation `fmriprep.org <https://fmriprep.readthedocs.io>`_]
+[Software doi:`10.5281/zenodo.852659 <https://doi.org/10.5281/zenodo.852659>`_]
+[Support `neurostars.org <https://neurostars.org/tags/fmriprep>`_]
+
+License information
+-------------------
+*fMRIPrep* adheres to the 
+`general licensing guidelines <https://www.nipreps.org/community/licensing/>`__
+of the *NiPreps framework*.
+
+License
+~~~~~~~
+Copyright (c) 2022, the *NiPreps* Developers.
+
+As of the 21.0.x pre-release and release series, *fMRIPrep* is
+licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+`http://www.apache.org/licenses/LICENSE-2.0
+<http://www.apache.org/licenses/LICENSE-2.0>`__.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
