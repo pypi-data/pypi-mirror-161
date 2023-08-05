@@ -1,0 +1,221 @@
+/*
+Entry point for the conductorRender Attribute Editor UI.
+
+This MEL AEtemplate was added when Maya 2022 appeared, because the PyMel functions in uitypes that
+implement callCustom stopped working.
+
+AE templates build interfaces to each attribute in one of 2 ways:
+* Simple: editorTemplate -addControl "preemptible";
+* Custom: editorTemplate -callCustom new_func, replace_func, "preemptible";
+
+For custom UI, new_func builds the UI the first time the template is run. replace_func reconfigures
+the template based on the current node.
+
+We make heavy use of callCustom
+
+In order to stay with Python as much as possible, this file contains stubs for all the new/replace
+functions (create and populate respectively), and they call out to Python equivalents in separate
+modules.
+*/
+
+proc string py_cmd(string $module, string $nodeAttr, int $mode)
+{
+    string $func = $mode ? "populate_ui" : "create_ui" ;
+    string $cmd = ("from ciomaya.lib.ae import "+$module+";");
+    $cmd += ($module +"."+$func+ "(\""+ $nodeAttr+"\")");
+    return $cmd;
+}
+
+global proc AEcio_actions_create( string $nodeAttr ) {python(`py_cmd "AEactions"  $nodeAttr  0`);}
+global proc AEcio_actions_populate( string $nodeAttr ) {python(`py_cmd "AEactions"  $nodeAttr  1`);}
+
+global proc AEcio_project_create( string $nodeAttr ) {python(`py_cmd "AEproject"  $nodeAttr  0`);}
+global proc AEcio_project_populate( string $nodeAttr ) {python(`py_cmd "AEproject"  $nodeAttr  1`);}
+
+global proc AEcio_layers_create( string $nodeAttr ) {python(`py_cmd "AElayers"  $nodeAttr  0`);}
+global proc AEcio_layers_populate( string $nodeAttr ) {python(`py_cmd "AElayers"  $nodeAttr  1`);}
+
+global proc AEcio_instanceType_create( string $nodeAttr ) {python(`py_cmd "AEinstanceType"  $nodeAttr  0`);}
+global proc AEcio_instanceType_populate( string $nodeAttr ) {python(`py_cmd "AEinstanceType"  $nodeAttr  1`);}
+
+global proc AEcio_destination_create( string $nodeAttr ) {python(`py_cmd "AEdestination"  $nodeAttr  0`);}
+global proc AEcio_destination_populate( string $nodeAttr ) {python(`py_cmd "AEdestination"  $nodeAttr  1`);}
+
+global proc AEcio_software_create( string $nodeAttr ) {python(`py_cmd "AEsoftware"  $nodeAttr  0`);}
+global proc AEcio_software_populate( string $nodeAttr ) {python(`py_cmd "AEsoftware"  $nodeAttr  1`);}
+
+global proc AEcio_frames_create( string $nodeAttr ) {python(`py_cmd "AEframes"  $nodeAttr  0`);}
+global proc AEcio_frames_populate( string $nodeAttr ) {python(`py_cmd "AEframes"  $nodeAttr  1`);}
+
+global proc AEcio_scrapers_create( string $nodeAttr ) {python(`py_cmd "AEscrapers"  $nodeAttr  0`);}
+global proc AEcio_scrapers_populate( string $nodeAttr ) {python(`py_cmd "AEscrapers"  $nodeAttr  1`);}
+
+global proc AEcio_extraAssets_create( string $nodeAttr ) {python(`py_cmd "AEextraAssets"  $nodeAttr  0`);}
+global proc AEcio_extraAssets_populate( string $nodeAttr ) {python(`py_cmd "AEextraAssets"  $nodeAttr  1`);}
+
+global proc AEcio_emails_create( string $nodeAttr ) {python(`py_cmd "AEemails"  $nodeAttr  0`);}
+global proc AEcio_emails_populate( string $nodeAttr ) {python(`py_cmd "AEemails"  $nodeAttr  1`);}
+
+global proc AEcio_taskTemplate_create( string $nodeAttr ) {python(`py_cmd "AEtaskTemplate"  $nodeAttr  0`);}
+global proc AEcio_taskTemplate_populate( string $nodeAttr ) {python(`py_cmd "AEtaskTemplate"  $nodeAttr  1`);}
+
+global proc AEcio_metadata_create( string $nodeAttr ) {python(`py_cmd "AEmetadata"  $nodeAttr  0`);}
+global proc AEcio_metadata_populate( string $nodeAttr ) {python(`py_cmd "AEmetadata"  $nodeAttr  1`);}
+
+global proc AEcio_environment_create( string $nodeAttr ) {python(`py_cmd "AEenvironment"  $nodeAttr  0`);}
+global proc AEcio_environment_populate( string $nodeAttr ) {python(`py_cmd "AEenvironment"  $nodeAttr  1`);}
+
+global proc AEcio_output_create( string $nodeAttr ) {python(`py_cmd "AEoutput"  $nodeAttr  0`);}
+global proc AEcio_output_populate( string $nodeAttr ) {python(`py_cmd "AEoutput"  $nodeAttr  1`);}
+
+global proc AEcio_updateAutosaveCleanup( string $nodeName )
+{
+    int $doAutosave = `getAttr ($nodeName+".autosave")`;
+    editorTemplate -dimControl $nodeName "cleanupAutosave" (!$doAutosave);
+    editorTemplate -dimControl $nodeName "autosaveTemplate" (!$doAutosave);
+    if (!$doAutosave){
+        return;
+    }
+
+    int $useDaemon = `getAttr ($nodeName+".useUploadDaemon")`;
+    if ($useDaemon) {
+        editorTemplate -dimControl $nodeName "cleanupAutosave" $useDaemon;
+        return;
+    } 
+
+
+    string $autosaveTemplate = `getAttr ($nodeName+".autosaveTemplate")`;
+    if (`size $autosaveTemplate` < 1){
+        return;
+    }
+
+    $autosaveTemplate = `strip $autosaveTemplate`;
+    $autosaveTemplate = `tolower $autosaveTemplate`;
+
+ 
+    if ($autosaveTemplate == "<scene>")
+    {
+        print("Disabling 'cleanupAutosave'. You cannot use cleanupAutosave when either the autosave template would overwrite your current scene, or when using the upload daemon.");
+        editorTemplate -dimControl $nodeName "cleanupAutosave" 1;
+    }
+    else 
+    {
+        editorTemplate -dimControl $nodeName "cleanupAutosave" 0;
+    }
+}
+
+global proc AEcio_updateUseFixtures( string $nodeName )
+{
+    int $dim = `getAttr ($nodeName+".useFixtures")`;
+    editorTemplate -dimControl $nodeName "fixturesDirectory" $dim;
+}
+
+ global proc AEconductorRenderTemplate(string $nodeName)
+ {
+
+    editorTemplate -beginScrollLayout;
+
+    editorTemplate -callCustom "AEcio_actions_create" "AEcio_actions_populate" "title";
+
+    editorTemplate -cl 0 -beginLayout "General Attributes";
+    editorTemplate -addControl "title";
+    editorTemplate -callCustom "AEcio_project_create" "AEcio_project_populate" "projectName";
+    editorTemplate -callCustom "AEcio_layers_create" "AEcio_layers_populate" "renderLayers";
+    editorTemplate -addSeparator;
+    editorTemplate -callCustom "AEcio_instanceType_create" "AEcio_instanceType_populate" "instanceTypeName";
+    editorTemplate -addControl "preemptible";
+    editorTemplate -addSeparator;
+    editorTemplate -callCustom "AEcio_destination_create" "AEcio_destination_populate" "destinationDirectory";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Software";
+    editorTemplate -callCustom "AEcio_software_create" "AEcio_software_populate" "hostSoftware";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Frame range";
+    editorTemplate -addControl "chunkSize";
+    editorTemplate -callCustom "AEcio_frames_create" "AEcio_frames_populate" "customRange";
+    editorTemplate -callCustom "AEcio_frames_create" "AEcio_frames_populate" "scoutFrames";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Frame Info";
+    editorTemplate -addControl "frameSpec";
+    editorTemplate -addControl "scoutSpec";
+    editorTemplate -addSeparator;
+    editorTemplate -addControl "frameCount";
+    editorTemplate -addControl "taskCount";
+    editorTemplate -addControl "scoutFrameCount";
+    editorTemplate -addControl "scoutTaskCount";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Assets";
+    editorTemplate -addControl "useUploadDaemon" "AEcio_updateAutosaveCleanup";
+    editorTemplate -cl 0 -beginLayout "Asset Scrapers";
+    editorTemplate -callCustom "AEcio_scrapers_create" "AEcio_scrapers_populate" "assetScrapers";
+    editorTemplate -endLayout;
+    editorTemplate -cl 0 -beginLayout "Extra Assets";
+    editorTemplate -callCustom "AEcio_extraAssets_create" "AEcio_extraAssets_populate" "extraAssets";
+    editorTemplate -endLayout;
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Notifications";
+    editorTemplate -callCustom "AEcio_emails_create" "AEcio_emails_populate" "emailAddresses";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Task Command";
+    editorTemplate -callCustom "AEcio_taskTemplate_create" "AEcio_taskTemplate_populate" "taskTemplate";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Metadata";
+    editorTemplate -callCustom "AEcio_metadata_create" "AEcio_metadata_populate" "metadata";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Extra Environment";
+    editorTemplate -callCustom "AEcio_environment_create" "AEcio_environment_populate" "extraEnvironment";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Automatic Retries";
+    editorTemplate -addControl "retriesWhenPreempted";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Submission Preview";
+    editorTemplate -addControl -label "Display Scraped Assets and Env" "doScrape";
+    editorTemplate -addControl -label "Display Tasks" "taskLimit";
+    editorTemplate -callCustom "AEcio_output_create" "AEcio_output_populate" "output";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Autosave";
+    editorTemplate -addControl  "autosave" "AEcio_updateAutosaveCleanup";
+    editorTemplate -addControl  "autosaveTemplate" "AEcio_updateAutosaveCleanup";
+    editorTemplate -addControl  "cleanupAutosave";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Location";
+    editorTemplate -addControl "locationTag";
+    editorTemplate -endLayout;
+
+    editorTemplate -cl 0 -beginLayout "Developer";
+    editorTemplate -addControl "showTracebacks";
+    editorTemplate -addControl "fixturesDirectory";
+    editorTemplate -addControl "useFixtures" "AEcio_updateUseFixtures";
+    editorTemplate -endLayout;
+
+    editorTemplate -suppress "useCustomRange";
+    editorTemplate -suppress "useScoutFrames";
+    editorTemplate -suppress "doScrape";
+    editorTemplate -suppress "output";
+    editorTemplate -suppress "pluginSoftware";
+    editorTemplate -suppress "instanceTypeName";
+    editorTemplate -suppress "title";
+    editorTemplate -suppress "projectName";
+    editorTemplate -suppress "startFrame";
+    editorTemplate -suppress "endFrame";
+    editorTemplate -suppress "byFrame";
+    editorTemplate -suppress "customRange";
+    editorTemplate -suppress "scoutFrames";
+    editorTemplate -suppress "locationTag";
+
+    editorTemplate -addExtraControls;
+
+    editorTemplate -endScrollLayout;
+ }
