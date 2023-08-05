@@ -1,0 +1,62 @@
+[project]
+dynamic = ["version"]
+name = "medical_shape"
+description = "A torchio extension for shape processing"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+keywords = ["deep learning", "machine learning", "pytorch", "medical", "healthcare", "AI"]
+authors = [
+  {email = "justus.schock@posteo.de"},
+  {name = "Justus Schock"}
+]
+maintainers = [
+  {name = "Justus Schock", email = "justus.schock@posteo.de"}
+]
+classifiers = [
+  "Programming Language :: Python :: 3"
+]
+
+dependencies = [
+    "torch >= 1.7.*",
+    "rising >= 0.2.1",
+    "torchio >= 0.18.71"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/justusschock/medical-shape"
+"Repository" = "https://github.com/justusschock/medical-shape"
+"Bug Reports" = "https://github.com/justusschock/medical-shape/issues"
+
+[build-system]
+requires = [
+    "setuptools>=62",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+zip-safe = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+namespaces = true
+
+[tool.setuptools.dynamic]
+version = {attr = "medical_shape.__version__"}
+
+[tool.isort]
+profile = "black"
+line_length = 120
+force_sort_within_sections = "False"
+order_by_type = "False"
+
+[tool.black]
+line-length = 120
+target_version = ["py37", "py38", "py39"]
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[bdist_wheel]
+universal = 1
