@@ -1,0 +1,72 @@
+Metadata-Version: 2.1
+Name: servd
+Version: 1.0.0
+Summary: Python daemonizer for Unix, Linux and OS X.
+Home-page: https://github.com/lw016/servd
+License: http://creativecommons.org/licenses/by-sa/3.0/
+Keywords: daemon,service,unix
+Author: Server Density
+Maintainer: LW016
+Classifier: Environment :: No Input/Output (Daemon)
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Attribution Assurance License
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries
+Project-URL: Repository, https://github.com/lw016/servd
+Description-Content-Type: text/x-rst
+
+Servd
+=====
+*Python daemonizer for Unix, Linux and OS X.*
+
+This library is a fork of `python-daemon <https://github.com/serverdensity/python-daemon>`_ developed originally by `serverdensity <https://github.com/serverdensity>`_.
+
+
+Install
+-------
+.. code-block:: bash
+    
+    pip install servd
+
+
+Usage
+-----
+It has a very simple usage and only requires a pid file to keep track of the daemon. The *run()* method should be overrided.
+
+.. code-block:: python
+    
+    from servd import Daemon
+
+
+    class Service(Daemon):
+        def __init__(self, pidfile) -> None:
+            super().__init__(pidfile)
+
+        def run(self) -> None:
+            """Service code."""
+
+
+    service = Service("service.pid")
+
+    # Start service daemon
+    service.start()
+
+    # Restart service daemon
+    service.restart()
+
+    # Stop service daemon
+    service.stop()
+
