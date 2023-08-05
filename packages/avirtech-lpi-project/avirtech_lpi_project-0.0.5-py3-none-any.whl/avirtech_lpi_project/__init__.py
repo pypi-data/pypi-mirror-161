@@ -1,0 +1,1 @@
+from .avirtech_lpi_project import weed_detection
