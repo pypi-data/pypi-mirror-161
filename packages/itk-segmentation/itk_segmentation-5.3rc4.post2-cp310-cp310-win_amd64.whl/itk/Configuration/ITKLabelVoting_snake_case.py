@@ -1,0 +1,1 @@
+snake_case_functions = ('binary_median_image_filter', 'label_voting_image_filter', 'voting_binary_hole_filling_image_filter', 'voting_binary_image_filter', 'voting_binary_iterative_hole_filling_image_filter', )

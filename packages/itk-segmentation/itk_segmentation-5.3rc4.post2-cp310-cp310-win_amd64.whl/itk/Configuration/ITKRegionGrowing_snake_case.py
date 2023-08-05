@@ -1,0 +1,1 @@
+snake_case_functions = ('confidence_connected_image_filter', 'connected_threshold_image_filter', 'isolated_connected_image_filter', 'neighborhood_connected_image_filter', 'vector_confidence_connected_image_filter', )
