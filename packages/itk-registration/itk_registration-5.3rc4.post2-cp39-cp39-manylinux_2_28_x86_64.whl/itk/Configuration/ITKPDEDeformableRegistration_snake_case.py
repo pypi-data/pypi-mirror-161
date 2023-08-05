@@ -1,0 +1,1 @@
+snake_case_functions = ('demons_registration_filter', 'diffeomorphic_demons_registration_filter', 'level_set_motion_registration_filter', 'multi_resolution_pde_deformable_registration', 'pde_deformable_registration_filter', 'symmetric_forces_demons_registration_filter', )
