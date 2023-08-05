@@ -1,0 +1,1 @@
+snake_case_functions = ('difference_of_gaussians_gradient_image_filter', 'gradient_image_filter', 'gradient_magnitude_image_filter', 'gradient_magnitude_recursive_gaussian_image_filter', 'gradient_recursive_gaussian_image_filter', 'vector_gradient_magnitude_image_filter', )
