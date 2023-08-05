@@ -1,0 +1,94 @@
+{
+    "schemaId": "workflow",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "workflow schema",
+    "type": "object",
+    "allOf": [
+        {
+            "description": "bankable entity schema",
+            "$ref": "system/bankable_entity.json"
+        },
+        {
+            "description": "defaultable entity schema",
+            "$ref": "system/defaultable.json"
+        }
+    ],
+    "properties": {
+        "properties": {
+            "description": "Array of characteristic properties calculated by this workflow (TODO: add enums)",
+            "type": "array",
+            "items": {
+                "description": "property names, eg. `band_gaps`, `band_structure`",
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object"
+                    }
+                ]
+            }
+        },
+        "isUsingDataset": {
+            "description": "Whether to use the dataset tab in the job designer. Mutually exclusive with using the materials tab.",
+            "type": "boolean"
+        },
+        "subworkflows": {
+            "description": "Array of subworkflows. Subworkflow can be an instance of workflow to allow for nesting",
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "workflow/subworkflow.json"
+                    }
+                ]
+            }
+        },
+        "units": {
+            "description": "Contains the Units of the Workflow",
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "workflow/unit.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/io.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/map.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/reduce.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/condition.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/assertion.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/execution.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/assignment.json"
+                    },
+                    {
+                        "$ref": "workflow/unit/processing.json"
+                    }
+                ]
+            }
+        },
+        "workflows": {
+            "description": "Array of workflows with the same schema as the current one.",
+            "type": "array",
+            "items": {
+                "type": "object"
+            }
+        }
+    },
+    "required": [
+        "units",
+        "subworkflows"
+    ]
+}
