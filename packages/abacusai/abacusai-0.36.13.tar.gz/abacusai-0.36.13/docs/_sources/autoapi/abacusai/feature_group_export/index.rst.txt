@@ -1,0 +1,119 @@
+:py:mod:`abacusai.feature_group_export`
+=======================================
+
+.. py:module:: abacusai.feature_group_export
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   abacusai.feature_group_export.FeatureGroupExport
+
+
+
+
+.. py:class:: FeatureGroupExport(client, featureGroupExportId=None, featureGroupVersion=None, connectorType=None, outputLocation=None, fileFormat=None, databaseConnectorId=None, objectName=None, writeMode=None, databaseFeatureMapping=None, idColumn=None, status=None, createdAt=None, exportCompletedAt=None, additionalIdColumns=None)
+
+   Bases: :py:obj:`abacusai.return_class.AbstractApiClass`
+
+   A feature Group Export Job
+
+   :param client: An authenticated API Client instance
+   :type client: ApiClient
+   :param featureGroupExportId: The unique identifier for this export
+   :type featureGroupExportId: str
+   :param featureGroupVersion: The version of the feature group being exported
+   :type featureGroupVersion: str
+   :param connectorType: Either DATABASE_CONNECTOR or FILE_CONNECTOR
+   :type connectorType: str
+   :param outputLocation: The File Connector location the feature group is being written to
+   :type outputLocation: str
+   :param fileFormat: The file format being written to outputLocation
+   :type fileFormat: str
+   :param databaseConnectorId: The database connector ID used
+   :type databaseConnectorId: str
+   :param objectName: The database connector's object to write to
+   :type objectName: str
+   :param writeMode: UPSERT or INSERT for writing to the database connector
+   :type writeMode: str
+   :param databaseFeatureMapping: The column/feature pairs mapping the features to the database columns
+   :type databaseFeatureMapping: dict
+   :param idColumn: The id column to use as the upsert key
+   :type idColumn: str
+   :param status: The current status of the export.
+   :type status: str
+   :param createdAt: The timestamp at which the export was created.
+   :type createdAt: str
+   :param exportCompletedAt: The timestamp at which the export completed
+   :type exportCompletedAt: str
+   :param additionalIdColumns: For database connectors which support it, additional ID columns to use as a complex key for upserting
+   :type additionalIdColumns: list of string
+
+   .. py:method:: __repr__(self)
+
+      Return repr(self).
+
+
+   .. py:method:: to_dict(self)
+
+      Get a dict representation of the parameters in this class
+
+      :returns: The dict value representation of the class parameters
+      :rtype: dict
+
+
+   .. py:method:: get_feature_group_version_export_download_url(self)
+
+      Get a link to download the feature group version.
+
+      :param feature_group_export_id: The Feature Group Export to get signed url for.
+      :type feature_group_export_id: str
+
+      :returns: The FeatureGroupExportDownloadUrl instance, which contains the download URL and expiration time.
+      :rtype: FeatureGroupExportDownloadUrl
+
+
+   .. py:method:: refresh(self)
+
+      Calls describe and refreshes the current object's fields
+
+      :returns: The current object
+      :rtype: FeatureGroupExport
+
+
+   .. py:method:: describe(self)
+
+      A feature group export
+
+      :param feature_group_export_id: The ID of the feature group export.
+      :type feature_group_export_id: str
+
+      :returns: The feature group export
+      :rtype: FeatureGroupExport
+
+
+   .. py:method:: wait_for_results(self, timeout=3600)
+
+      A waiting call until feature group export is created.
+
+      :param timeout: The waiting time given to the call to finish, if it doesn't finish by the allocated time, the call is said to be timed out. Default value given is 3600 milliseconds.
+      :type timeout: int, optional
+
+
+   .. py:method:: get_status(self)
+
+      Gets the status of the feature group export.
+
+      :returns: A string describing the status of a feature group export (pending, complete, etc.).
+      :rtype: str
+
+
+   .. py:method:: get_results(self)
+
+
+

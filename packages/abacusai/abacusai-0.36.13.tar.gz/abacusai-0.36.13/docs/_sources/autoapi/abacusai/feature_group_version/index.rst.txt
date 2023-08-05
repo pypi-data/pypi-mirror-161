@@ -1,0 +1,184 @@
+:py:mod:`abacusai.feature_group_version`
+========================================
+
+.. py:module:: abacusai.feature_group_version
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   abacusai.feature_group_version.FeatureGroupVersion
+
+
+
+
+.. py:class:: FeatureGroupVersion(client, featureGroupVersion=None, featureGroupId=None, sql=None, sourceTables=None, createdAt=None, status=None, error=None, deployable=None, cpuSize=None, memory=None, features={}, pointInTimeGroups={})
+
+   Bases: :py:obj:`abacusai.return_class.AbstractApiClass`
+
+   A materialized version of a feature group
+
+   :param client: An authenticated API Client instance
+   :type client: ApiClient
+   :param featureGroupVersion: The unique identifier for this version of feature group.
+   :type featureGroupVersion: str
+   :param featureGroupId:
+   :type featureGroupId: str
+   :param sql: The sql definition creating this feature group.
+   :type sql: str
+   :param sourceTables: The source tables for this feature group.
+   :type sourceTables: list of string
+   :param createdAt: The timestamp at which the feature group was created.
+   :type createdAt: str
+   :param status: The current status of the feature group version.
+   :type status: str
+   :param error: Relevant error if the status is FAILED.
+   :type error: str
+   :param deployable: whether feature group is deployable or not.
+   :type deployable: bool
+   :param cpuSize: Cpu size specified for the python feature group.
+   :type cpuSize: str
+   :param memory: Memory in GB specified for the python feature group.
+   :type memory: int
+   :param features: List of features.
+   :type features: Feature
+   :param pointInTimeGroups: List of Point In Time Groups
+   :type pointInTimeGroups: PointInTimeGroup
+
+   .. py:method:: __repr__(self)
+
+      Return repr(self).
+
+
+   .. py:method:: to_dict(self)
+
+      Get a dict representation of the parameters in this class
+
+      :returns: The dict value representation of the class parameters
+      :rtype: dict
+
+
+   .. py:method:: create_snapshot_feature_group(self, table_name)
+
+      :param table_name:
+      :type table_name: str
+
+      :returns: None
+      :rtype: FeatureGroup
+
+
+   .. py:method:: export_to_file_connector(self, location, export_file_format, overwrite = False)
+
+      Export Feature group to File Connector.
+
+      :param location: Cloud file location to export to.
+      :type location: str
+      :param export_file_format: File format to export to.
+      :type export_file_format: str
+      :param overwrite: If true and a file exists at this location, this process will overwrite the file.
+      :type overwrite: bool
+
+      :returns: The FeatureGroupExport instance
+      :rtype: FeatureGroupExport
+
+
+   .. py:method:: export_to_database_connector(self, database_connector_id, object_name, write_mode, database_feature_mapping, id_column = None, additional_id_columns = None)
+
+      Export Feature group to Database Connector.
+
+      :param database_connector_id: Database connector to export to.
+      :type database_connector_id: str
+      :param object_name: The database object to write to
+      :type object_name: str
+      :param write_mode: Either INSERT or UPSERT
+      :type write_mode: str
+      :param database_feature_mapping: A key/value pair JSON Object of "database connector column" -> "feature name" pairs.
+      :type database_feature_mapping: dict
+      :param id_column: Required if mode is UPSERT. Indicates which database column should be used as the lookup key for UPSERT
+      :type id_column: str
+      :param additional_id_columns: For database connectors which support it, additional ID columns to use as a complex key for upserting
+      :type additional_id_columns: list
+
+      :returns: The FeatureGroupExport instance
+      :rtype: FeatureGroupExport
+
+
+   .. py:method:: export_to_console(self, export_file_format)
+
+      Export Feature group to console.
+
+      :param export_file_format: File format to export to.
+      :type export_file_format: str
+
+      :returns: The FeatureGroupExport instance
+      :rtype: FeatureGroupExport
+
+
+   .. py:method:: get_materialization_logs(self, stdout = False, stderr = False)
+
+      Returns logs for materialized feature group version.
+
+      :param stdout: Set True to get info logs
+      :type stdout: bool
+      :param stderr: Set True to get error logs
+      :type stderr: bool
+
+      :returns: A function logs.
+      :rtype: FunctionLogs
+
+
+   .. py:method:: refresh(self)
+
+      Calls describe and refreshes the current object's fields
+
+      :returns: The current object
+      :rtype: FeatureGroupVersion
+
+
+   .. py:method:: describe(self)
+
+      Get a specific feature group version.
+
+      :param feature_group_version: The unique ID associated with the feature group version.
+      :type feature_group_version: str
+
+      :returns: A feature group version.
+      :rtype: FeatureGroupVersion
+
+
+   .. py:method:: wait_for_results(self, timeout=3600)
+
+      A waiting call until feature group version is created.
+
+      :param timeout: The waiting time given to the call to finish, if it doesn't finish by the allocated time, the call is said to be timed out. Default value given is 3600 milliseconds.
+      :type timeout: int, optional
+
+
+   .. py:method:: get_status(self)
+
+      Gets the status of the feature group version.
+
+      :returns: A string describing the status of a feature group version (pending, complete, etc.).
+      :rtype: str
+
+
+   .. py:method:: _get_avro_file(self, file_part)
+
+
+   .. py:method:: load_as_pandas(self, max_workers=10)
+
+      Loads the feature group version into a pandas dataframe.
+
+      :param max_workers: The number of threads.
+      :type max_workers: int, optional
+
+      :returns: A pandas dataframe displaying the data in the feature group version.
+      :rtype: DataFrame
+
+
+

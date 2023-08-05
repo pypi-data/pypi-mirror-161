@@ -1,0 +1,103 @@
+:py:mod:`abacusai.dataset_version`
+==================================
+
+.. py:module:: abacusai.dataset_version
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   abacusai.dataset_version.DatasetVersion
+
+
+
+
+.. py:class:: DatasetVersion(client, datasetVersion=None, status=None, datasetId=None, size=None, rowCount=None, createdAt=None, error=None, invalidRecords=None, incrementalQueriedAt=None)
+
+   Bases: :py:obj:`abacusai.return_class.AbstractApiClass`
+
+   A specific version of a dataset
+
+   :param client: An authenticated API Client instance
+   :type client: ApiClient
+   :param datasetVersion: The unique identifier of the dataset version.
+   :type datasetVersion: str
+   :param status: The current status of the dataset version
+   :type status: str
+   :param datasetId: A reference to the Dataset this dataset version belongs to.
+   :type datasetId: str
+   :param size: The size in bytes of the file.
+   :type size: int
+   :param rowCount: Number of rows in the dataset version.
+   :type rowCount: int
+   :param createdAt: The timestamp this dataset version was created.
+   :type createdAt: str
+   :param error: If status is FAILED, this field will be populated with an error.
+   :type error: str
+   :param invalidRecords:
+   :type invalidRecords: str
+   :param incrementalQueriedAt: If the dataset version is from an incremental dataset, this is the last entry of timestamp column when the dataset version was created.
+   :type incrementalQueriedAt: str
+
+   .. py:method:: __repr__(self)
+
+      Return repr(self).
+
+
+   .. py:method:: to_dict(self)
+
+      Get a dict representation of the parameters in this class
+
+      :returns: The dict value representation of the class parameters
+      :rtype: dict
+
+
+   .. py:method:: refresh(self)
+
+      Calls describe and refreshes the current object's fields
+
+      :returns: The current object
+      :rtype: DatasetVersion
+
+
+   .. py:method:: describe(self)
+
+      Retrieves a full description of the specified dataset version, with attributes such as its ID, name, source type, etc.
+
+      :param dataset_version: The unique ID associated with the dataset version.
+      :type dataset_version: str
+
+      :returns: The dataset version.
+      :rtype: DatasetVersion
+
+
+   .. py:method:: wait_for_import(self, timeout=900)
+
+      A waiting call until dataset version is imported.
+
+      :param timeout: The waiting time given to the call to finish, if it doesn't finish by the allocated time, the call is said to be timed out. Default value given is 900 milliseconds.
+      :type timeout: int, optional
+
+
+   .. py:method:: wait_for_inspection(self, timeout=None)
+
+      A waiting call until dataset version is completely inspected.
+
+      :param timeout: The waiting time given to the call to finish, if it doesn't finish by the allocated time, the call is said to be timed out.
+      :type timeout: int, optional
+
+
+   .. py:method:: get_status(self)
+
+      Gets the status of the dataset version.
+
+      :returns: A string describing the status of a dataset version (importing, inspecting, complete, etc.).
+      :rtype: str
+
+
+
