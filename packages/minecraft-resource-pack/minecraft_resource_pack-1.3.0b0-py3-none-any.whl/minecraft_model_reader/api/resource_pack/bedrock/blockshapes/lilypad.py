@@ -1,0 +1,16 @@
+from typing import Tuple
+
+from minecraft_model_reader.api.resource_pack.bedrock.blockshapes.flat import Flat
+
+
+class LilyPad(Flat):
+    @property
+    def blockshape(self) -> str:
+        return "lilypad"
+
+    @property
+    def tint(self) -> Tuple[float, float, float]:
+        return 0, 1, 0
+
+
+BlockShape = LilyPad()
