@@ -1,0 +1,101 @@
+Metadata-Version: 2.1
+Name: xprintlog
+Version: 0.0.2
+Summary: Patch your print function.
+Home-page: https://github.com/dwpeng/xprint
+Author: dwpeng
+Author-email: 1732889554@qq.com
+Maintainer: dwpeng
+Maintainer-email: 1732889554@qq.com
+License: UNKNOWN
+Description: # xprintlog
+        
+        - 无侵入
+        - 帮助你替换将函数内部的print函数替换为logging
+        
+        ## 安装
+        
+        ```bash
+        pip install xprintlog
+        ```
+        
+        ## 使用
+        
+        1. 直接使用装饰器进行装饰
+        ```python
+        # test.py
+        import xprintlog as xprint
+        @xprint.xprint()
+        def test():
+            print(111)
+        
+        test()
+        #[.\test.py:6 - test][DEBUG] - 111
+        ```
+        
+        2. 使用类似于logging的方式，进行等级设置
+        ```python
+        import xprintlog as xprint
+        @xprint.xprint(
+            print_level=xprint.INFO,
+            level=xprint.DEBUG
+        )
+        def test():
+            print(111)
+        
+        
+        test()
+        # [.\test.py:7 - test][INFO] - 111
+        
+        @xprint.xprint(
+            print_level=xprint.DEBUG,
+            level=xprint.INFO
+        )
+        def test1():
+            print(111)
+        
+        
+        test1()
+        # 这里没有输出
+        
+        ```
+        3. 支持函数嵌套，且函数间互不影响
+        ```python
+        import xprintlog as xprint
+        @xprint.xprint(
+            print_level=xprint.INFO,
+            level=xprint.DEBUG
+        )
+        def test():
+            print(111)
+        
+        @xprint.xprint(
+            print_level=xprint.DEBUG,
+            level=xprint.INFO
+        )
+        def test1():
+            print(111)
+            test()
+        
+        
+        test1()
+        # [.\test.py:7 - test][INFO] - 111
+        
+        ```
+        
+Keywords: print,logging,log
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: Implementation
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Software Development :: Libraries
+Description-Content-Type: text/markdown
