@@ -1,0 +1,222 @@
+openapi: 3.0.2
+info:
+  title: Test Service
+  version: '1.0'
+  description: Test Service API Test
+  contact:
+    name: Alert Logic Support
+    email: devsupport@alertlogic.com
+  license:
+    name: MIT
+servers:
+  - url: 'https://api.global-services.global.alertlogic.com'
+    description: production
+    x-alertlogic-session-endpoint: true
+  - url: 'https://api.global-integration.product.dev.alertlogic.com'
+    description: integration
+    x-alertlogic-session-endpoint: true
+paths:
+  '/testapi/v1/{account_id}/test_get_data':
+    get:
+      summary: Test Get Data Operation
+      tags: []
+      operationId: test_get_data
+      description: Test get data with header and query parameters
+      security:
+        - X-AIMS-Auth-Token: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - choice1
+              - choice2
+              - choice3
+            default: choice1
+          in: header
+          name: header_param1
+          required: true
+          description: 'header parameter 1 description: required; string'
+        - schema:
+            type: integer
+          in: header
+          name: header_param2
+          description: header parameter 2 description - integer
+        - schema:
+            type: string
+          in: query
+          name: query_param1
+          description: 'query parameter 1 description: required; string'
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: query_param2
+          description: 'query parameter 2 description: optional; array'
+        - schema:
+            type: object
+          in: query
+          name: query_param3
+          description: 'query parameter 3 description: optional; object; exploded'
+      responses:
+        '200':
+          description: OK
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+        description: AIMS Account ID
+    post:
+      summary: ''
+      operationId: post_payload_in_body
+      responses:
+        '200':
+          description: OK
+      description: Post json object with keys being serialized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            x-alertlogic-schema:
+              name: payload
+              encoding:
+                explode: true
+
+  /testapi/v1/{account_id}/test_multiple_content_types:
+    post:
+      operationId: test_multiple_content_types
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: object
+          application/json:
+            examples:
+            schema:
+              type: object
+      summary: Import protection scope
+      description: |-
+        Endpoint for importing the protection scope of a deployment.
+      parameters:
+        - schema:
+            type: string
+          name: account_id
+          in: path
+          required: true
+          description: AIMS Account ID
+
+      responses:
+        '200':
+          description: OK
+
+  /testapi/v1/{account_id}/test_json_array_serialization:
+    post:
+      operationId: test_json_array_serialization
+      requestBody:
+        required: true
+        content:
+          alertlogic/json:
+            schema:
+              type: array
+            x-alertlogic-schema:
+              name: payload
+              encoding:
+                explode: true
+          alertlogic.com/json:
+            schema:
+              type: array
+            x-alertlogic-schema:
+              name: payload
+              encoding:
+                explode: true
+          application/json:
+            schema:
+              type: array
+            x-alertlogic-schema:
+              name: payload
+              encoding:
+                explode: true
+      summary: Import protection scope
+      description: |-
+        Endpoint for importing the protection scope of a deployment.
+      parameters:
+        - schema:
+            type: string
+          name: account_id
+          in: path
+          required: true
+          description: AIMS Account ID
+        - schema:
+            type: string
+          enum:
+            - application/json
+            - alertlogic/json
+            - alertlogic.com/json
+          in: header
+          name: content-type
+          required: true
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    SimpleDataTypesModel:
+      title: SimpleDataTypesModel Data Type
+      type: object
+      description: This is a simple data types model
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: unique id
+        enum_string_property:
+          type: string
+          default: choice1
+          enum:
+            - choice1
+            - choice2
+            - choice3
+          pattern: '^[A-Za-z0-9-_]+'
+          description: enum_string_property_description
+        number_property:
+          type: number
+          format: double
+        binary_property:
+          type: string
+          format: binary
+      required:
+        - id
+    NestedDataTypeModel:
+      title: NestedDataTypeModel
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: unique identifier
+        data:
+          $ref: '#/components/schemas/SimpleDataTypesModel'
+        embedded_object:
+          type: object
+          description: embedded object
+          properties:
+            test_string:
+              type: string
+      required:
+        - id
+        - embedded_object
+  securitySchemes:
+    X-AIMS-Auth-Token:
+      name: X-AIMS-Auth-Token
+      type: apiKey
+      in: header
+      description: AIMS Authentication Token
+    Basic HTTP Authorization:
+      type: http
+      scheme: basic
+
