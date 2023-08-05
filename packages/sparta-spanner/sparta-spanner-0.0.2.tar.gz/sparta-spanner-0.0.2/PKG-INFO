@@ -1,0 +1,61 @@
+Metadata-Version: 2.1
+Name: sparta-spanner
+Version: 0.0.2
+Summary: Sparta spanner library
+Home-page: https://github.com/Spartan-Approach/sparta-hello
+Author: Spartan Approach
+Author-email: sparta@spartanapproach.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: test
+License-File: LICENSE
+
+# sparta-spanner
+
+Sparta [Google Spanner](https://console.cloud.google.com/spanner/instances) library.
+
+## Usage
+
+```python
+import os
+import sparta.spanner
+from sparta.spanner.utils import zip_results
+
+project_id = os.getenv("PROJECT_ID")
+instance_id = os.getenv("INSTANCE_ID")
+database_id = os.getenv("DATABASE_ID")
+db_service = sparta.spanner.DBService(
+    project_id=project_id,
+    instance_id=instance_id,
+    database_id=database_id,
+    pool_size=5,
+    session_request_timeout=2,
+)
+
+# Blocking
+results = zip_results(db_service.execute_sql("SELECT 1 as my_field"))
+assert results is not None
+assert len(results) == 1
+assert results[0] == {"my_field": 1}
+
+
+# Non-Blocking
+def task(snapshot):
+    result1 = zip_results(snapshot.execute_sql("SELECT 1 as my_field"))
+    result2 = zip_results(snapshot.execute_sql("SELECT 2 as my_field"))
+    return result1 + result2
+
+results = await db_service.run_in_snapshot(task, multi_use=True)
+assert results is not None
+assert len(results) == 2
+assert results[0] == {"my_field": 1}
+assert results[1] == {"my_field": 2}
+```
+
+
