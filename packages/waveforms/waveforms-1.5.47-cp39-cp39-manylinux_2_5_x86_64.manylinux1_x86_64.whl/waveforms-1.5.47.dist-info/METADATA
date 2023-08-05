@@ -1,0 +1,114 @@
+Metadata-Version: 2.1
+Name: waveforms
+Version: 1.5.47
+Summary: generate waveforms used in experiment
+Home-page: https://github.com/feihoo87/waveforms
+Author: feihoo87
+Author-email: feihoo87@gmail.com
+License: MIT
+Project-URL: Bug Reports, https://github.com/feihoo87/waveforms/issues
+Project-URL: Source, https://github.com/feihoo87/waveforms/
+Keywords: signal waveform experiment laboratory
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click (>=7.1.2)
+Requires-Dist: cryptography (>=3.4.7)
+Requires-Dist: GitPython (>=3.1.14)
+Requires-Dist: numpy (>=1.13.3)
+Requires-Dist: ply (>=3.11)
+Requires-Dist: portalocker (>=1.4.0)
+Requires-Dist: scipy (>=1.0.0)
+Provides-Extra: docs
+Requires-Dist: Sphinx ; extra == 'docs'
+Requires-Dist: sphinxcontrib-napoleon ; extra == 'docs'
+Requires-Dist: sphinxcontrib-zopeext ; extra == 'docs'
+Provides-Extra: full
+Requires-Dist: blinker (>=1.4) ; extra == 'full'
+Requires-Dist: h5py (>=2.7.0) ; extra == 'full'
+Requires-Dist: matplotlib (>=3.4.1) ; extra == 'full'
+Requires-Dist: netcdf4 (>=1.5.7) ; extra == 'full'
+Requires-Dist: SQLAlchemy (>=1.4.11) ; extra == 'full'
+Requires-Dist: scikit-learn (>=0.24.1) ; extra == 'full'
+Requires-Dist: scikit-optimize (>=0.8.1) ; extra == 'full'
+Requires-Dist: tensornetwork (>=0.4.5) ; extra == 'full'
+Requires-Dist: xarray (>=0.18.2) ; extra == 'full'
+Provides-Extra: test
+Requires-Dist: pytest (>=4.4.0) ; extra == 'test'
+
+# waveforms
+[![View build status](https://github.com/feihoo87/waveforms/actions/workflows/workflow.yml/badge.svg)](https://github.com/feihoo87/waveforms/)
+[![Coverage Status](https://coveralls.io/repos/github/feihoo87/waveforms/badge.svg?branch=master)](https://coveralls.io/github/feihoo87/waveforms?branch=master)
+[![PyPI version](https://badge.fury.io/py/waveforms.svg)](https://pypi.org/project/waveforms/)
+
+Form waveforms used in experiment.
+
+## Installation
+We encourage installing waveforms via the pip tool (a python package manager):
+```bash
+python -m pip install waveforms
+```
+
+To install from the latest source, you need to clone the GitHub repository on your machine.
+```bash
+git clone https://github.com/feihoo87/waveforms.git
+```
+
+Then dependencies and `waveforms` can be installed in this way:
+```bash
+cd waveforms
+python -m pip install numpy
+python -m pip install -e .
+```
+
+## Usage
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+from waveforms import *
+
+pulse = cosPulse(20e-9)
+
+x_wav = zero()
+y_wav = zero()
+
+I, Q = mixing(0.5*pulse, freq=-20e6, DRAGScaling=0.2)
+x_wav += I
+y_wav += Q
+
+I, Q = mixing(pulse >> 1e-6, freq=-20e6, phase=np.pi/2, DRAGScaling=0.2)
+x_wav += I
+y_wav += Q
+
+I, Q = mixing((0.5 * pulse) >> 2e-6, freq=-20e6, DRAGScaling=0.2)
+x_wav += I
+y_wav += Q
+
+
+t = np.linspace(-1e-6, 9e-6, 10001)
+plt.plot(t, x_wav(t))
+plt.plot(t, y_wav(t))
+plt.show()
+```
+
+## Reporting Issues
+Please report all issues [on github](https://github.com/feihoo87/waveforms/issues).
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+
