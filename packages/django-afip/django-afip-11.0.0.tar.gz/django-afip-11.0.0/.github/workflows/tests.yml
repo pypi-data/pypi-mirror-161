@@ -1,0 +1,102 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - "main"
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.8", "3.9", "3.10"]
+        django: ["32", "40"]
+        include:
+          - python: "3.7"
+            django: "32"
+    name: django-${{ matrix.django }}, python${{ matrix.python }}, postgres
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libpq-dev
+      - run: tox
+        env:
+          TOXENV: django${{ matrix.django }}-postgres
+      - run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+        options: >-
+          --health-cmd "mysql --user=root --password=mysql --execute 'SHOW DATABASES;'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10"]
+        django: ["32", "40"]
+    name: django-${{ matrix.django }}, python${{ matrix.python }}, mysql
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libmysqlclient-dev
+      - run: tox
+        env:
+         TOXENV: django${{ matrix.django }}-mysql
+      - run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  sqlite:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: "3.10"
+            django: "40"
+    name: django-${{ matrix.django }}, python${{ matrix.python }}, sqlite
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install tox codecov
+      - run: tox
+        env:
+          TOXENV: django${{ matrix.django }}-sqlite
+      - run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
