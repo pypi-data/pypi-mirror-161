@@ -1,0 +1,74 @@
+############################
+# DataBeaver configuration #
+############################
+# MANDATORY: Number of processes that will be created for executing sql
+processes = 4
+
+## MANDATORY: Non empty array of paths. Each path a directory of model files
+#DATA_MODELS = ["model1", "model2"]
+
+############################################################################################################
+# Systems are where we store information about the various systems we will use to create our data model in #
+############################################################################################################
+[systems]
+
+  # Indentation (tabs and/or spaces) is allowed but not required
+  [servers.alpha]
+  ip = "10.0.0.1"
+  dc = "eqdc10"
+
+  [servers.beta]
+  ip = "10.0.0.2"
+  dc = "eqdc10"
+
+
+[[ TARGETS ]]
+# OPTIONAL: Name of this target. If not provided {ENVIRONMENT}_{SYSTEM} will be used as the name
+#NAME =
+
+# MANDATORY: Sytem of for the target. Used to know how to connect, insert, etc
+TYPE='POSTGRES'
+
+# MANDATORY: Environment for this target
+ENVIRONMENT='DEVELOPMENT'
+
+# MANDATORY: Location of the target
+HOST= "localhost"
+
+# MANDATORY: Datatabase/Schema to create our model in
+DATABASE= "development__fbb__sports_betting"
+
+# MANDATORY: Username to connect to this host
+USER= "sports_betting"
+
+# MANDATORY: Password for the above username
+# Strings that with ENV: are treated as environment variable substitutions, in the this example
+# the value "ENV:DATABASE_PASSWORD" would be replaced by the environment variable DATABASE_PASSWORD's value instead
+PASSWORD= "ENV:DATABASE_PASSWORD"
+
+
+###############################################################################################
+# Data Model sections are used to represent the data models we want to materialize            #
+# You will create one of these sections per system you will use                               #
+#                                                                                             #
+# MANDATORY FIELDS                                                                            #
+# model_directories - string - Comma separated list of directories to scan for sql files      #
+# system - string - System we will use when realizing this model                              #
+#                                                                                             #
+# OPTIONAL FIELDS                                                                             #
+# delete_type - string - Defaults to none                                                     #
+# processes - integer - Number of concurrent sql statements to run each pass                  #
+###############################################################################################
+# TODO: Replace model_section with real data model name
+[model_section]
+delete_type="schema|table|none"
+
+system="<SystemName>"
+
+schema="statistics_nba"
+
+model_directories="models"
+
+# Optional: Number of sql statements to execute concurrently. If not defined, will check if processes was defined
+# in the [general] section. Will default to 1 if not specified
+processes=3
