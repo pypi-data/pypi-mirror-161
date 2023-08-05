@@ -1,0 +1,75 @@
+Metadata-Version: 2.1
+Name: mplfig
+Version: 1.0.0
+Summary: Save and load matplotlib figures like MATLAB's .fig files!
+Project-URL: Homepage, https://github.com/PaulVirally/mplfig
+Project-URL: Bug Tracker, https://github.com/PaulVirally/mplfig/issues
+Author-email: Paul Virally <pvirally@gmail.com>
+License: MIT License
+        
+        Copyright (c) [2022] [Paul Virally]
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Keywords: MATLAB,figure,matplotlib,savefig
+Classifier: Framework :: Matplotlib
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.4
+Requires-Dist: dill
+Description-Content-Type: text/markdown
+
+mplfig
+======
+
+Matplotlib by default only allows you to export your figures in formats that are used for publishing (e.g., a `.pgf` file, a resterized `.png` file, etc.). MATLAB allows you to save files in a `.fig` format which allows you to change the plot very easily (say, to fix a typo on an axis label, or to change the colorscheme). mplfig strives to bring this functionality to matplotlib. With mplfig, you can save your matplotlib files and load them right back up in another python script.
+
+Example
+=======
+
+First, create a figure and save with it mplfig.
+```python
+import mplfig
+import matplotlib.pyplot as plt
+
+xs = list(range(10))
+ys = list(map(lambda x: x**2, xs))
+
+plt.plot(xs, ys)
+mplfig.save_figure(plt.gcf(), 'myfig.mplpkl')
+
+plt.show()
+```
+![Before](example_before.png)
+
+Next, load it back up and change the figure!
+```python
+import mplfig
+import matplotlib.pyplot as plt
+
+fig = mplfig.load_figure('myfig.mplpkl') # Load the saved figure
+
+axes = fig.get_axes()
+axes[0].set_xlabel('$x$') # Add an x label
+axes[0].set_ylabel('$y = x^2$') # Add a y label
+axes[0].lines[0].set_marker('o') # Add a circle marker
+
+plt.show()
+```
+![After](example_after.png)
