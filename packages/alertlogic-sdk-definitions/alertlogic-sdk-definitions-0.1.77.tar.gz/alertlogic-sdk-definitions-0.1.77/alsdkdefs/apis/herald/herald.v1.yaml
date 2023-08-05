@@ -1,0 +1,1329 @@
+openapi: 3.0.2
+info:
+  title: Herald v2 Service
+  version: 2.0.0
+  description: subscription-based notifications service
+  contact:
+    name: Alert Logic Support
+    email: support@alertlogic.com
+  x-alertlogic-iws-service:
+    type: public
+servers:
+  - url: 'https://api.global-integration.product.dev.alertlogic.com'
+    description: Integration
+    x-alertlogic-session-endpoint: true
+  - url: 'https://api.global-services.global.alertlogic.com'
+    description: Production
+    x-alertlogic-session-endpoint: true
+paths:
+  '/herald/v2/notifications/{notification_id}':
+    get:
+      summary: Get a notification
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get_notification
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Get a notification by ID
+    parameters:
+      - schema:
+          type: string
+        name: notification_id
+        in: path
+        required: true
+        description: Notification id
+  '/herald/v2/{account_id}/notifications/{notification_id}':
+    get:
+      summary: Get a notification by account id and notification id
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+              examples: {}
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get_account_notification
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Get a notification by account id and notification id
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+        description: AIMS Account ID
+      - schema:
+          type: string
+        name: notification_id
+        in: path
+        required: true
+        description: Notification id
+  '/herald/v2/{account_id}/notifications/type/incidents/alerts/{long_incident_id}':
+    get:
+      summary: Get list of sent incident notifications for given incident id
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident-Notification'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get_sent_incident_notifications
+      description: Get list of sent incident notifications for a provided account id and long incident id
+      security:
+        - X-AIMS-Auth-Token: []
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+        description: Account id
+      - schema:
+          type: string
+        name: long_incident_id
+        in: path
+        required: true
+        description: Notification id
+  '/herald/v2/{account_id}/notifications/{type}':
+    get:
+      summary: Get list of notifications by account and notification type
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                 $ref: '#/components/schemas/Basic-Error-Response'
+        '403':
+          description: Forbidden
+      operationId: get_account_notification_by_type
+      security:
+        - X-AIMS-Auth-Token: []
+    parameters:
+    - schema:
+        type: string
+      name: account_id
+      in: path
+      required: true
+      description: AIMS Account ID
+    - schema:
+        type: string
+      name: type
+      in: path
+      required: true
+      description: A notification type
+    - schema:
+        type: string
+        enum: 
+          - '"desc"'
+          - '"asc"'
+        default: desc 
+      name: sort
+      in: query
+      required: false
+      description: Direction to sort created at by
+    - schema:
+        type: string
+      name: continuation_id
+      in: query
+      required: false
+      description: Continuation id - continue from that result
+    - schema:
+        type: integer
+      name: since
+      in: query
+      required: false
+      description: Show items created since
+    - schema:
+        type: integer
+      name: until
+      in: query
+      required: false
+      description: Show items created until
+    - schema:
+        type: integer
+      name: limit
+      in: query
+      required: false
+      description: Controls the maximum number of items per page.
+      
+
+  '/herald/v2/{account_id}/notifications':
+    post:
+      summary: Send a notification
+      operationId: sent_notification
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              examples:
+                Invalid Json Schema Response:
+                  value:
+                    error: invalid_json_schema
+                Account Not Active Response:
+                  value:
+                    error: account_not_active
+        '403':
+          description: Forbidden
+        '413':
+          description: Request Entity Too Large
+      description: Sends a notification
+      security:
+        - X-AIMS-Auth-Token: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                notification_data:
+                  type: object
+                  properties:
+                    class:
+                      type: string
+                    threat_level:
+                      type: string
+                    attackers:
+                      type: array
+                      items:
+                        type: string
+                    targets:
+                      type: array
+                      items:
+                        type: string
+                    status:
+                      type: string
+                    appliance:
+                      type: string
+                    detection_source:
+                      type: string
+                asset_data:
+                  type: object
+                  properties:
+                    deployment_id:
+                      type: string
+                    tags:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties:
+                          type: string
+                    tag_keys:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties:
+                          type: string
+                payload:
+                  type: object
+                  properties:
+                    analyst_notes:
+                      type: string
+                    attack_summary:
+                      type: string
+                    cid:
+                      type: number
+                    class:
+                      type: string
+                    create_date:
+                      type: string
+                    customer_name:
+                      type: string
+                    deployment_name:
+                      type: string
+                    incident_id:
+                      type: string
+                    investigation_report:
+                      type: string
+                    location_ip:
+                      type: string
+                    long_incident_id:
+                      type: string
+                    start_date:
+                      type: string
+                    status:
+                      type: string
+                    threat:
+                      type: string
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      url:
+                        type: string
+              required:
+                - type
+                - notification_data
+                - asset_data
+                - payload
+            examples:
+              Send Notificatiion Request Example:
+                value:
+                  type: incidents/notification
+                  notification_data:
+                    class: web_attack_recon
+                    threat_level: high
+                    attackers:
+                      - 78.0.0.0
+                    targets:
+                      - 192.0.0.0
+                      - 192.0.0.1
+                      - 192.0.0.02
+                    status: open
+                    appliance: Appliance Name or Id
+                    detection_source: network_ids
+                  asset_data:
+                    deployment_id: 1E20CE42-0BED-44A1-943F-EAE900C01741
+                    tags:
+                      - key: value
+                    tag_keys:
+                      - key: value
+                  payload:
+                    analyst_notes: '[]'
+                    attack_summary: |
+                      Web server recon attack from 13.13.13.13
+                    cid: 68450188
+                    class: web_attack_recon
+                    create_date: '31th Dec 1999 23:23:59 GMT'
+                    customer_name: Albert Conglomerate
+                    deployment_name: Manual deployment
+                    incident_id: eyeisid
+                    investigation_report: |-
+                      <p><strong>Attack Detail</strong>:  </p>
+                      <p><strong>Attacker Location:</strong> 13.13.13.13, United Kingdom<br />
+                      <strong>Targeted Website</strong>: www.respectmyconglomerate.com</p>
+                      <p><strong>Attack Type</strong>  </p>
+                      <p>Why does this have markdown, it make this field useless in webhooks.</p>
+                      <p><strong>Attack Methods</strong>  </p>
+                      <p><strong>XPath Injection</strong><br />Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br />
+                      <strong>Reference</strong>: <a href="http://http://jermey.broked.it">Not XPath Injection - WebAppSec Page</a>  </p>
+                    location_ip: 42.42.42.42
+                    long_incident_id: longeyeisid
+                    start_date: '31th Dec 1999 23:23:59 GMT'
+                    status: closed
+                    threat: Medium
+                  attachments:
+                    - name: filename.png
+                      description: This is an optional description for the attachment
+                      url: 'https://example.com/callback/url/info.png'
+      tags:
+        - Notifications
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+        description: AIMS Account ID
+  '/herald/v2/{account_id}/subscriptions/{subscription_id}/subscribers':
+    get:
+      summary: List subscribers
+      tags:
+        - Subscribers
+      operationId: get_account_subscription_subscribers
+      security:
+        - X-AIMS-Auth-Token: []
+      description: List all subscribers subscribed to that subscription
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscribers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscriber'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      summary: Add subscriber to a subscription
+      tags:
+        - Subscribers
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscriber'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Basic-Error-Response'
+                  - $ref: '#/components/schemas/Validation-Error-Response'
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+        '413':
+          description: Request Entity Too Large
+      operationId: add_subscriber
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Add subscriber to a subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscriber-Request-Extra'
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+  '/herald/v2/{account_id}/subscriptions/{subscription_id}/subscribers/{subscriber_type}/{subscriber}':
+    delete: 
+      summary: Remove a subscriber from a subscription
+      tags:
+        - Subscribers
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: remove_subscriber
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Remove a subscriber from a subscription
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscriber_type
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscriber
+        in: path
+        required: true
+  '/herald/v2/{account_id}/subscriptions/{subscription_id}/subscribers/batch/update':
+    post:
+      summary: Update subscribers to a subscription in a batch
+      tags:
+        - Subscribers
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Basic-Error-Response'
+                  - $ref: '#/components/schemas/Validation-Error-Response'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '413':
+          description: Request Entity Too Large
+      operationId: batch_update_subscribers
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Update subscribers to a subscription in a batch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subscribers:
+                  type: array
+                  items:
+                    allOf:
+                      - $ref: '#/components/schemas/Subscriber-Request'
+                      - type: object
+                        properties:
+                          action:
+                            type: string
+                            enum:
+                              - delete
+                              - add
+                    required:
+                      - action
+              required:
+                - subscribers
+            examples:
+              Subscriber List:
+                value:
+                  - subscriber: 664A8FDE-B9EA-4DAC-8E0C-041F845CCF8D
+                    subscriber_type: user
+                    action: delete
+                  - subscriber: 7DF5B263-3A50-40E3-9950-D52277C3AF1B
+                    subscriber_type: connection
+                    action: add
+
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+  /herald/v2/notification_types:
+    get:
+      summary: Get notification types
+      tags:
+        - Notification Types
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_types:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification-Type'
+        '403':
+          description: Forbidden
+      operationId: get_notification_types
+      description: Get available notification types
+      security:
+        - X-AIMS-Auth-Token: []
+  '/herald/v2/{account_id}/subscriptions':
+    get:
+      summary: List subscriptions for an account
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    default: invalid_search_parameters
+              examples:
+                Invalid Search Parameters Response:
+                  value:
+                    error: invalid_search_parameters
+        '403':
+          description: Forbidden
+      operationId: get_account_subscriptions
+      security:
+        - X-AIMS-Auth-Token: []
+      description: List subscriptions for an account
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: class
+          description: Class name
+        - schema:
+            type: string
+          in: query
+          name: external_id
+          description: 'external_id of subscriptions. When present, class=schedule is assumed'
+        - schema:
+            type: string
+          in: query
+          name: notification_type
+          description: Notification type
+        - schema:
+            type: boolean
+            default: 'false'
+          in: query
+          name: include_subscribers
+          description: Includes subscribers per corresponding Subscription ID
+    post:
+      summary: Create new subscription for an account
+      tags:
+        - Subscriptions
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Basic-Error-Response'
+                  - $ref: '#/components/schemas/Validation-Error-Response'
+        '413':
+          description: Request Entity Too Large
+      operationId: create_subscription
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Create new subscription for an account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                class:
+                  type: string
+                notification_type:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Notification-Type'
+                external_id:
+                  type: string
+                subscribers:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Subscriber-Request'
+                active:
+                  type: boolean
+                options:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Options'
+                filters:
+                  type: object
+                  additionalProperties: true
+                template:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Template-Key'
+                system:
+                  type: string
+                  enum:
+                    - responder
+                suppression_interval:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Suppression-Interval'
+              required:
+                - name
+                - class
+                - notification_type
+            examples:
+              Sparse Example:
+                value:
+                  name: Incident Alert Test
+                  class: event
+                  notification_type: incidents/alert
+              Full Example:
+                value:
+                  name: Notification Test
+                  class: schedule
+                  notification_type: report/scheduled
+                  external_id: 8BBC2DE2-A331-1005-8001-0242AC110002
+                  subscribers:
+                    - subscriber: CD1D0C0A-7D83-469C-A752-C23FBD2BDA46
+                      subscriber_type: user
+                  active: true
+                  options:
+                    include_attachments: true
+                  filters:
+                    '=':
+                      - source: notification.schedule_id
+                      - F6103D82-A358-1005-8001-0242AC110020
+                  template: scheduled_report_template
+                  system: responder
+                  suppression_interval: 2400
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+  '/herald/v2/{account_id}/subscriptions/batch/delete':
+    post:
+      summary: Delete multiple subscriptions in a batch
+      tags:
+        - Subscriptions
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Basic-Error-Response'
+                  - $ref: '#/components/schemas/Validation-Error-Response'
+                  - type: object
+                    title: Partial-Deletion-Response
+                    properties:
+                      error:
+                        type: string
+                        enum:
+                          - delete_failed
+                      unprocessed_items: {}
+                    required:
+                      - error
+                      - unprocessed_items
+        '413':
+          description: Request Entity Too Large
+      operationId: batch_delete_subscriptions
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Delete multiple subscriptions in a batch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+              required:
+                - ids
+            examples:
+              Subscriptions List:
+                value:
+                  - 02AF2BD2-E775-4E89-BB26-4A67D73D5681
+                  - 86B8A354-0363-4FC2-82D3-0BB492DFD8B4
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+  '/herald/v2/{account_id}/subscriptions/{subscription_id}':
+    get:
+      summary: List subscriptions for an account by subscription id
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get_account_subscription
+      description: List a subscription for an account by subscription id
+      security:
+        - X-AIMS-Auth-Token: []
+      parameters:
+        - schema:
+            type: boolean
+            default: 'false'
+          in: query
+          name: include_subscribers
+          description: Includes subscribers per corresponding Subscription ID
+    post:
+      summary: Update subscription for an account
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Basic-Error-Response'
+                  - $ref: '#/components/schemas/Validation-Error-Response'
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+        '413':
+          description: Request Entity Too Large
+      operationId: update_subscription
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Update subscription for an account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                notification_type:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Notification-Type'
+                external_id:
+                  type: string
+                active:
+                  type: boolean
+                options:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Options'
+                filters:
+                  type: object
+                  additionalProperties: true
+                template:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Template-Key'
+                suppression_interval:
+                  $ref: '#/components/schemas/Subscription-Request-Field-Suppression-Interval'
+            examples:
+              Set Subscription Inactive:
+                value:
+                  active: false
+              Update Subscription Name and Options:
+                value:
+                  name: New Notification Name
+                  options:
+                    email_subject: false
+    delete:
+      summary: Delete subscription from an account
+      tags:
+        - Subscriptions
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: delete_subscription
+      security:
+        - X-AIMS-Auth-Token: []
+      description: Delete subscription from an account
+    parameters:
+      - schema:
+          type: string
+        name: account_id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: subscription_id
+        in: path
+        required: true
+components:
+  schemas:
+    Notification:
+      title: Notification
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+        account_id:
+          type: string
+        type:
+          type: string
+        notification_data:
+          type: object
+          properties:
+            class:
+              type: string
+            threat_level:
+              type: string
+            attackers:
+              type: array
+              items:
+                type: string
+            targets:
+              type: array
+              items:
+                type: string
+            status:
+              type: string
+            appliance:
+              type: string
+            detection_source:
+              type: string
+        asset_data:
+          type: object
+          properties:
+            deployment_id:
+              type: string
+            tags:
+              type: array
+              items:
+                type: object
+                additionalProperties:
+                  type: string
+            tag_keys:
+              type: array
+              items:
+                type: object
+                additionalProperties:
+                  type: string
+        payload:
+          type: object
+          properties:
+            analyst_notes:
+              type: string
+            attack_summary:
+              type: string
+            cid:
+              type: number
+            class:
+              type: string
+            create_date:
+              type: string
+            customer_name:
+              type: string
+            deployment_name:
+              type: string
+            incident_id:
+              type: string
+            investigation_report:
+              type: string
+            location_ip:
+              type: string
+            long_incident_id:
+              type: string
+            start_date:
+              type: string
+            status:
+              type: string
+            threat:
+              type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              url:
+                type: string
+        status:
+          type: string
+        created:
+          type: object
+          properties:
+            at:
+              type: number
+            by:
+              type: string
+        modified:
+          type: object
+          properties:
+            at:
+              type: number
+            by:
+              type: string
+      x-examples:
+        Notification Example:
+          id: 3B8EAFA0-1E1A-4744-AB53-0EE45EA8B102
+          account_id: '12345678'
+          type: incidents/notification
+          notification_data:
+            class: web_attack_recon
+            threat_level: high
+            attackers:
+              - 78.0.0.0
+            targets:
+              - 192.0.0.0
+              - 192.0.0.1
+              - 192.0.0.02
+            status: open
+            appliance: Appliance Name or Id
+            detection_source: network_ids
+          asset_data:
+            deployment_id: 1E20CE42-0BED-44A1-943F-EAE900C01741
+            tags:
+              - key: value
+            tag_keys:
+              - key: value
+          payload:
+            analyst_notes: '[]'
+            attack_summary: |
+              Web server recon attack from 13.13.13.13
+            cid: 68450188
+            class: web_attack_recon
+            create_date: '31th Dec 1999 23:23:59 GMT'
+            customer_name: Albert Conglomerate
+            deployment_name: Manual deployment
+            incident_id: eyeisid
+            investigation_report: |-
+              <p><strong>Attack Detail</strong>:  </p>
+              <p><strong>Attacker Location:</strong> 13.13.13.13, United Kingdom<br />
+              <strong>Targeted Website</strong>: www.respectmyconglomerate.com</p>
+              <p><strong>Attack Type</strong>  </p>
+              <p>Why does this have markdown, it make this field useless in webhooks.</p>
+              <p><strong>Attack Methods</strong>  </p>
+              <p><strong>XPath Injection</strong><br />Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br />
+              <strong>Reference</strong>: <a href="http://http://jermey.broked.it">Not XPath Injection - WebAppSec Page</a>  </p>
+            location_ip: 42.42.42.42
+            long_incident_id: longeyeisid
+            start_date: '31th Dec 1999 23:23:59 GMT'
+            status: closed
+            threat: Medium
+          attachments:
+            - name: filename.png
+              description: This is an optional description for the attachment
+              url: 'https://example.com/callback/url/info.png'
+          status: created
+          created:
+            at: 1517314312
+            by: 28122406-177B-4C5C-B6E6-4A947EA324EF
+          modified:
+            at: 1517314312
+            by: 28122406-177B-4C5C-B6E6-4A947EA324EF
+    Incident-Notification:
+      title: Incident-Notification
+      type: object
+      x-examples:
+        Incident Notification Example:
+          notifications:
+            - id: 78431C7C-F2AC-4748-B70F-BA2332E54811
+              type: incidents/alerts
+              subkey: incidents/medium
+              subject: 'medium Threat Incident : SSH_LOG brute force attack from 61.184.247.10'
+              statuses:
+                - destination: andres.artunduaga@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+                - destination: cisom@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+                - destination: druiz-ui@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+                - destination: oliver.zuluaga@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+            - id: 53EA67BA-16DF-4E25-A590-A26FC74272DA
+              feature: incidents
+              subkey: escalated/primary
+              subject: 'escalated Threat Incident : SSH_LOG brute force attack from 61.184.247.10'
+              statuses:
+                - destination: druiz-ui@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+                - destination: oliver.zuluaga@alertlogic.com
+                  status: SENT
+                  sent_at: 1536094181
+      properties:
+        notifications:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+              subkey:
+                type: string
+              subject:
+                type: string
+              statuses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    destination:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - '"PENDING"'
+                        - '"SENT"'
+                        - '"DELIVRD"'
+                        - '"READ"'
+                        - '"FAILED"'
+                    sent_at:
+                      type: number
+    Subscriber:
+      title: Subscriber
+      type: object
+      properties:
+        id:
+          type: string
+          description: Available in List subscriptions for an account by subscription id
+        subscriber:
+          type: string
+        subscriber_type:
+          type: string
+        subscription_id:
+          type: string
+          description: Available in List subscriptions for an account by subscription id
+      x-examples:
+        Subscriber Example:
+          subscriber: 973A254F-DC21-4859-94CC-B6A689277858
+          subscriber_type: user
+    Notification-Type:
+      title: Notification-Type
+      type: object
+      properties:
+        notification_type:
+          type: string
+        name:
+          type: string
+        default_template:
+          type: string
+        templates:
+          type: array
+          items:
+            type: string
+        default_email_subject:
+          type: string
+      x-examples:
+        Notification Type Example:
+          notification_type: incidents/alerts
+          name: Incidents
+          default_template: Incidents Template
+          templates:
+            - Incidents Template
+            - Log Review Escalated
+          default_email_subject: Incidents Template Email Subject
+      description: ''
+    Subscription:
+      title: Subscription
+      type: object
+      x-examples:
+        Subscription Example:
+          notification_type: incidents/errors
+          name: Incidents
+          id: 95470F2D-59AA-485F-AE4B-A844D81A53C6
+          created:
+            by: 70A833AD-184F-4A45-A82B-46F5BA329D4B
+            at: 1579788887
+          class: event
+          active: true
+          account_id: '12345678'
+      properties:
+        notification_type:
+          type: string
+        name:
+          type: string
+        id:
+          type: string
+        created:
+          type: object
+          properties:
+            by:
+              type: string
+            at:
+              type: number
+        class:
+          type: string
+        active:
+          type: string
+        account_id:
+          type: string
+        subscribers:
+          type: array
+          description: Available in List subscriptions for an account by subscription id
+          items:
+            $ref: '#/components/schemas/Subscriber'
+        subscriber_count:
+          type: number
+          description: Available in List subscriptions for an account by subscription id
+    Basic-Error-Response:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+      x-examples:
+        Invalid Json:
+          error: invalid_json
+    Validation-Error-Response:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+        path:
+          type: string
+      required:
+        - error
+      x-examples:
+        Details:
+          error: missing_required_property
+          details: notification_type
+        Path:
+          error: wrong_type
+          path: options.include_attachments
+        Both:
+          path: subscribers.
+          error: missing_required_property
+          details: subscriber
+    Subscriber-Type:
+      type: string
+      enum:
+        - user
+        - connection
+        - response.playbook
+      x-examples:
+        User:
+          user
+    Subscriber-Request:
+      type: object
+      properties:
+        subscriber:
+          type: string
+        subscriber_type:
+          $ref: '#/components/schemas/Subscriber-Type'
+      required:
+        - subscriber
+        - subscriber_type
+      x-examples:
+        Subscriber Request:
+          subscriber: e4f32e01-de26-4fe2-83da-dada3f76e2e2
+          subscriber_type: user
+    Subscriber-Request-Extra:
+      allOf:
+        - $ref: '#/components/schemas/Subscriber-Request'
+        - type: object
+          properties:
+            subscription_id:
+              type: string
+            account_id:
+              type: string
+          required:
+            - subscription_id
+            - account_id
+      x-examples:
+        Subscriber Request Extra:
+          subscriber: 82FB03F2-3FEC-411B-82A2-904F68BFCC74
+          subscriber_type: connection
+          account_id: 134047511
+          subscription_id: 2306AD6F-EC8F-40B4-AC86-7C5D4FFC1597
+    Subscription-Request-Field-Notification-Type:
+      type: string
+      pattern: "^[^/]+/[^/]+$"
+    Subscription-Request-Field-Suppression-Interval:
+      type: integer
+      minimum: 0
+      maximum: 10080
+      x-examples:
+        Set Interval:
+          120
+    Subscription-Request-Field-Options:
+      type: object
+      properties:
+        include_attachments:
+          type: boolean
+        email_subject:
+          type: string
+      additionalProperties: true
+      x-examples:
+        Set Options:
+          include_attachments: true
+    Subscription-Request-Field-Template-Key:
+      type: string
+      enum:
+        - log_review_created
+        - fim_report_template
+        - scheduled_report_template
+        - observation_template
+        - incidents_template
+      x-examples:
+        Incidents Template:
+          incidents_template
+  securitySchemes:
+    X-AIMS-Auth-Token:
+      name: ' X-AIMS-Auth-Token'
+      type: apiKey
+      in: header
+tags:
+  - name: Notification Types
+    description: Notification Types
+  - name: Notifications
+    description: Notifications
+  - name: Subscribers
+    description: Subscribers
+  - name: Subscriptions
+    description: Subscriptions
