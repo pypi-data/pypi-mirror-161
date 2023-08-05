@@ -1,0 +1,341 @@
+.. raw:: html
+
+   <h1 align="center">
+
+Letters
+
+.. raw:: html
+
+   </h1>
+
+.. raw:: html
+
+   <p>
+
+.. raw:: html
+
+   </p>
+
+..
+
+   **Letters** is a python library to make very beautiful TUI designs,
+   ASCII arts, fonts and more. Developped by
+   `Zelow <https://github.com/Zeloww>`__
+
+Install
+-------
+
+To install with PIP, do the following command:
+
+.. code:: shell
+
+   # Linux/macOS
+   python3 -m pip install -U letters
+
+   # Windows
+   py -3 -m pip install -U letters
+
+To install the development version, do the following command:
+
+.. code:: shell
+
+   $ git clone https://github.com/zeloww/letters
+   $ cd letters
+
+Fade
+----
+
+   Color your texts easily
+
+.. code:: py
+
+   from letters import fade
+   from letters.colors import Colors
+
+   fade(gradient=Colors.yellow_to_green, text="Give a star ;) !", mode_type:str='horizontal', stop="", time=None, interval=0.05, max_speed=10)
+
+Static
+------
+
+   Customize your text easily with `ANSI escape
+   code <https://en.wikipedia.org/wiki/ANSI_escape_code>`__
+
+.. code:: py
+
+   from letters import static
+   from letters.colors import Colors
+
+   print(static(Colors.blue, "By Zeloww", fond='1',style='1'))
+
+..
+
+   Test all `ANSI escape
+   code <https://en.wikipedia.org/wiki/ANSI_escape_code>`__ with a
+   specific text
+
+.. code:: python
+
+   from letters import all_statics
+
+   print(all_statics("Made with <3"))
+
+Gradient
+--------
+
+   Gradient your text
+
+.. code:: python
+
+   from letters import gradient
+   from letters.colors import Colors
+
+   print(gradient(gradient=Colors.red_to_purple, text="PyPi.com/projects/Letters, mode_type='horizontal', speed=1))
+
+..
+
+   Test all gradients with a specific text, mode and speed
+
+.. code:: python
+
+   from letters import all_gradients
+
+   all_gradients(text='Letters on the top !', mode_type='vertical', speed=1)
+
+Colors list
+-----------
+
+   List of the `ANSI escape
+   code <https://en.wikipedia.org/wiki/ANSI_escape_code>`__
+
+.. code:: python
+
+   from letters.colors import Colors
+
+   Colors.black, Colors.red, Colors.green, Colors.yellow, Colors.blue, Colors.magenta, Colors.cyan, Colors.white
+   Colors.bg_black, Colors.bg_red, Colors.bg_green, Colors.bg_yellow, Colors.bg_blue, Colors.bg_magenta, Colors.bg_cyan, Colors.bg_white
+
+   Colors.bg_bright_black, Colors.bg_bright_red, Colors.bg_bright_green, Colors.bg_bright_yellow, Colors.bg_bright_blue, Colors.bg_bright_magenta, Colors.bg_bright_cyan, bg_bright_white
+       
+   Colors.black_to_white, Colors.black_to_red, Colors.black_to_green, Colors.black_to_blue,
+   Colors.white_to_black, Colors.white_to_red, Colors.white_to_green, Colors.white_to_blue,
+
+   Colors.red_to_black, Colors.red_to_white, Colors.red_to_yellow, Colors.red_to_purple,
+   Colors.green_to_black, Colors.green_to_white, Colors.green_to_yellow, Colors.green_to_cyan,
+   Colors.blue_to_black, Colors.blue_to_white, Colors.blue_to_cyan, Colors.blue_to_purple,
+
+   Colors.yellow_to_red, Colors.yellow_to_green,
+   Colors.purple_to_red, Colors.Colors.purple_to_blue,
+   Colors.cyan_to_green, Colors.cyan_to_blue
+
+Center
+------
+
+   Center your text in many ways
+
+..
+
+   Make a logo with text
+
+.. code:: python
+
+   >>> from letters.center import Center
+   >>> i="""
+   ...
+   ...          wWWWw               wWWWw
+   ...    vVVVv (___) wWWWw         (___)  vVVVv
+   ...    (___)  ~Y~  (___)  vVVVv   ~Y~   (___)
+   ...     ~Y~   \|    ~Y~   (___)    |/    ~Y~
+   ...     \|   \ |/   \| /  \~Y~/   \|    \ |/
+   ...    \\|// \\|// \\|/// \\|//  \\|// \\\|///
+   ... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ... """
+   >>> print(Center.logo("hello\nUse Letters !", i))
+   hello
+   Use Letters ! 
+                                   wWWWw               wWWWw
+                             vVVVv (___) wWWWw         (___)  vVVVv
+                             (___)  ~Y~  (___)  vVVVv   ~Y~   (___)
+                              ~Y~   \|    ~Y~   (___)    |/    ~Y~
+                              \|   \ |/   \| /  \~Y~/   \|    \ |/
+                             \\|// \\|// \\|/// \\|//  \\|// \\\|///
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..
+
+   Center text in a terminal horizontally, vertically or both directly!
+
+.. code:: python
+
+   from letters.center import Center
+
+   """
+    |  border(text: str, lenght: str = '=', width: str = '|', distance: int = 1, center=True)
+    |
+    |  center(text: str, spaces: int = None, lines: int = None, force_vertical: bool = True, force_horizontal: bool = False, force_center: bool = False, end='\n') -> str
+    |
+    |  horizontal(text: str, spaces: int = None, force_horizontal: bool = False, end: str = '') -> str
+    |
+    |  logo(text: str, icon: str, spaces: int = 5) -> str
+    |
+    |  vertical(text: str, lines: int = None, force_vertical: bool = True) -> str
+   """
+
+   Center.horizontal("Use letters!") #center horizontally
+   Center.vertical("Made with <3") #center vertically
+   Center.center("By github.com/Zeloww") #center horizontally and vertically
+
+ASCII
+-----
+
+   list of all ASCII character types
+
+.. code:: python
+
+   from letters.ascii import Ascii
+
+   Ascii.lower_case #['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+   Ascii.digits #['1', '2', '3', '4', '5', '6', '7', '8', '9']
+   Ascii.hexdigits #['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F']
+   Ascii.octdigits #['0', '1', '2', '3', '4', '5', '6', '7']
+   Ascii.punctuation #['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
+   Ascii.whitespace #[' ', '\t', '\v', '\n', '\r', '\f']
+
+   Ascii.upper_case #list(map(str.upper, lower_case))
+   Ascii.letters #lower_case + upper_case
+   Ascii.printable #digits + letters + punctuation + whitespace
+
+   Ascii.yes #['y', 'yes', 'Y', 'Yes', 'YES']
+   Ascii.no #['n', 'no', 'N', 'No', 'NO']
+
+Fonts
+-----
+
+   Customize any texts with fonts!
+
+**All font names are
+available**\ `Here <https://pastebin.com/r1taHnrZ>`__
+
+Fonts list
+~~~~~~~~~~
+
+   List of all fonts
+
+.. code:: python
+
+   from letters.asciiart import all_fonts
+
+   def get_fontslist():
+     return all_fonts
+
+   get_fontslist()
+
+Returns a list of all fonts
+
+input:
+
+.. code:: python
+
+   from letters.asciiart import fonts_list
+   fonts_list(text="Zelow")
+
+Output: Show all fonts with the text ``Zelow``
+
+ASCII Art
+---------
+
+   Returns the chosen image in ASCII art
+
+Gray levels
+~~~~~~~~~~~
+
+.. code:: python
+
+   # gray scale level values from:
+   # http://paulbourke.net/dataformats/asciiart/
+
+   # 70 levels of gray
+   complexGrayScale = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`\'. '
+
+   # 10 levels of gray by default
+   easyGrayScale = '@%#*+=-:. '
+
+Exemple
+~~~~~~~
+
+input:
+
+.. code:: python
+
+   from letters.asciiart import img2ascii
+
+   img2ascii("path/to/dir/image.jpg", scale=0.25, moreLevels=None, reverseLight=False)
+
+output:
+
+Text size
+---------
+
+   Change the size of any of your texts
+
+.. code:: py
+
+   >>> from letters.style import width, length, big
+   >>>
+   >>> box = """
+   ... |--------|
+   ... |        |
+   ... |--------|
+   ... """
+
+   >>> print(width(2, box))
+   """
+   ||----------------||
+   ||                ||
+   ||----------------||
+   """
+
+   >>> print(length(2, box))
+   """
+   |--------|
+   |--------|
+   |        |
+   |        |
+   |--------|
+   |--------|
+   """
+
+   >>> print(big(2, 2, box))
+   """
+   ||----------------||
+   ||----------------||
+   ||                ||
+   ||                ||
+   ||----------------||
+   ||----------------||
+   """
+
+Others
+------
+
+   Other useful functions
+
+.. code:: python
+
+   from letters.system import Title, Clear, Print, Input, Replace #or from letters.system import *
+
+   Title("New program title") #Change the program title
+   Clear() #Delete the text already present in the terminal
+
+   Print("My text", speed=0.5) #Print all characters in `My text`waiting `0.5` seconds between each characters 
+   Input("My text", speed=1) #Input the text by printing all characters in `My text` waiting `1` seconds between each characters 
+   Replace(list_name, base, change) #Replace `base` by `change` for all elements in `list_name`
+
+👤 Authors
+---------
+
+👤 GitHub: [@\*\*Zeloww**](https://github.com/zeloww)
+
+🤝 Contributing
+--------------
+
+Contributions, issues and feature requests are welcome!
