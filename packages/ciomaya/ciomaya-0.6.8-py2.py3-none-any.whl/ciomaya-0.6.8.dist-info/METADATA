@@ -1,0 +1,501 @@
+Metadata-Version: 2.1
+Name: ciomaya
+Version: 0.6.8
+Summary: Maya plugin for Conductor Cloud Rendering Platform.
+Home-page: https://github.com/ConductorTechnologies/ciomaya
+Author: conductor
+Author-email: info@conductortech.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Multimedia :: Graphics :: 3D Rendering
+Description-Content-Type: text/markdown
+Requires-Dist: certifi (==2019.11.28)
+Requires-Dist: ciocore (<6.0.0,>=5.2.0)
+Requires-Dist: ciopath (<1.0.0,>=0.1.7)
+Requires-Dist: cioseq (<1.0.0,>=0.1.14)
+Requires-Dist: ciotemplate (<1.0.0,>=0.1.2)
+
+# Conductor for Maya
+
+Maya plugin node to manage submissions to Conductor's cloud service. Supports Maya versions from 2017 to 2023. Requires PyMEL to be installed.
+
+## Install
+
+**To install the latest version.**
+```bash
+pip install --upgrade ciomaya --target=$HOME/Conductor
+```
+
+**To install a specific version, for example 0.1.0.**
+```bash
+pip install --upgrade --force-reinstall ciomaya==0.1.0 --target=$HOME/Conductor
+```
+
+**Then setup the Maya module.** 
+
+```bash
+python ~/Conductor/ciomaya/post_install.py
+```
+
+> **NOTE** An alternative is to install from the Plugins page in the [Conductor Companion app](https://docs.conductortech.com/getting_started/installation/#companion-app)
+
+## Usage
+
+Open the Plugin Manager and load **Conductor.py**.
+
+Go to **Conductor->About** to check the version and other info.
+
+To set up a render, choose **Conductor->Submitter->Create** from the **Conductor** menu. 
+
+For detailed help, checkout the [tutorial](https://docs.conductortech.com/tutorials/maya_beta) and [reference](https://docs.conductortech.com/reference/maya_beta) documentation.
+
+
+## Contributing
+
+Clone the repo.
+
+```
+git clone git@github.com:ConductorTechnologies/ciomaya.git
+cd ciomaya
+```
+
+Set up a clean virtual envirionment with Python 2.7 for development (optional).
+
+```
+python -m virtualenv venv
+. ./venv/bin/activate
+```
+
+Install development dependencies
+```
+pip install -r requirements_dev.txt
+```
+
+Build and install from this directory into to a convenient location for testing.
+```
+
+pip install --upgrade -r requirements.txt --target=$HOME/ConductorDev
+
+python $HOME/ConductorDev/ciomaya/post_install.py
+```
+
+When you install from the file requirements.txt, the dependency on ciocore is specified as a local sibling of this project, meaning you can develop ciocore and ciomaya in parallel.
+
+The post_install.py script writes the conductor.mod file to your Maya modules directory. Check the output of the command to see where this is.
+
+
+
+## License
+[MIT](https://choosealicense.com/licenses/mit)
+
+## Changelog
+
+### Version:0.6.8 -- 28 Jul 2022
+
+* Minor labeling change. [bf864ba]
+
+### Version:0.6.7 -- 28 Jul 2022
+
+* Fixed a bug that caused a validator to crash. [863394f]
+
+### Version:0.6.6 -- 22 Jul 2022
+
+* Fix display of the PyMEL error dialog when the Python package is missing. [13fc9fc]
+
+### Version:0.6.5 -- 19 Jul 2022
+
+* If Arnold python package is not installed, we exit quietly from the mtoa stand-in scraper. [0b49945]
+
+* The display-assets checkbox causes a full asset scrape and is a dependency of the output, meaning anytime some unrelated attribute changes it will try to do a full scrape. This is expensive for Arnold standins and possibly other systems. Ultimately it should be triggered by a button. As a short term mitigation, we no longer store the attribute in the scene. This means it will be off by default for each new session. [ef2ce3a]
+
+### Version:0.6.4 -- 13 Jul 2022
+
+* Adds Maya 2023 support. [3a25997]
+
+### Version:0.6.3 -- 30 Jun 2022
+
+* Plugin is now compatible with core version 5.x. [3a5ceef]
+
+### Version:0.5.43 -- 30 Jun 2022
+
+* This is a fix to mitigate the effects of Maya's includeAllLights optionVar, which should be a scene setting. We now ensure that the option travels with the scene to Conductor by setting the environment variable MAYA_RENDER_SETUP_INCLUDE_ALL_LIGHTS accordingly. [a6d67fb]
+
+### Version:0.5.42 -- 15 Jun 2022
+
+* Freeze certifi version to be python 2.7 and python3 compatible. [e6c7a8a]
+
+### Version:0.5.41 -- 27 Apr 2022
+
+* Adds right-click Reset for destination path. [74fa1dd]
+* Validate tokens so that it is impossible to submit with illegal tokens. [6b83f89]
+* Adds ImagesPath token, value from filerule. [cffcc7c]
+
+### Version:0.5.37 -- 10 Mar 2022
+
+* Validate that an appropriate instance type is selected for the chosen Vray render engine (GPU or CPU). [019751d]
+
+### Version:0.5.39 -- 21 Mar 2022
+
+* The default scraper now finds svg and audio files. [4a17b25]
+* Jobs can no longer be submitted if the renumber-frames option is turned on in Render Settings. [34294c8]
+* Fixed bug where the window close button would close the window but continue the submission. [e9665f8]
+
+### Version:0.5.36 -- 10 Mar 2022
+
+* Adds a call to logging setup as it has been removed from ciocore. [9e279ed]
+
+### Version:0.5.35 -- 08 Mar 2022
+
+* When PyMEL is not installed, we now show a modal window with a link to the Autodesk instructions to install the package. [f60114f]
+
+### Version:0.5.32 -- 23 Jan 2022
+
+* Made improvements to the release pipeline. These changes don't affect customers. [4719ca1]
+
+### **Version:0.5.2 -- 13 Jan 2022**
+
+* Fix 2 minor syntax bugs. [afbacf5]
+
+### Version:0.5.1 -- 13 Jan 2022
+
+* Fixed a bug in the submission results window where when a submission failed with a non-numeric code, it was not handled and so there was no way to know what the failure actually was. It now handles those cases, and prints the stack trace to the script editor. [560c956]
+* Fixed a bug in asset_cache where scrapers that returned None type were not handled and could cause at least two validations to fail to complete. [527ddae]
+
+
+### Version:0.5.0 -- 14 Dec 2021
+
+* Fixed a bug where Maya/Pymel caused a false positive validation error for renderer mismatch.
+* Fixed a bug where duplicate packaged IDs could end up in the payload. [558da3b]
+* The scrape_maya script now finds assets from assemblyDefinition and assemblyReference nodes. [ca96f48]
+* Ocio scraper first pass - This will most likely need the ability to search for auxiliary files soon. [8b84315]
+* Scrapers can now return None, as opposed to constructing an empty object. [0515a0b]
+* The user is now given instructions on how to install Pymel if it's found to be missing. [2fc0398]
+* Scraper framework now handles path and environment amendments, which means we can for example add theOCIO variable as part of the OCIO scraper.. [c6ae90a]
+
+### Version:0.4.19 -- 22 Nov 2021
+
+* We've extended the ValidateSelectedRenderer validator to warn when one or more redundant renderers are selected in the plugins section of the submitter. Tbhe goal is to avoid incurring extra licensing costs for the customer.  [6d10fd4]
+
+### Version:0.4.18 -- 22 Nov 2021
+
+* Change the validation for the optix denoiser when no GPU is selected. It is now an error which means the job can't be submittted. [8a886a8]
+
+### Version:0.4.17 -- 28 Oct 2021
+
+* Fixes a bug where yield was not being called in the strip_drive function when not on Windows. [fb92e11]
+
+### Version:0.4.16 -- 27 Oct 2021
+
+* Remove pymel from setup as it broke the plugin in Maya 2019. Do not use Version:0.4.15 in Maya 2019. [6a3767f]
+
+### Version:0.4.15 -- 26 Oct 2021
+
+* Adds pymel as a dependency in setup.py, which fixes the case where users forgot to install pymel when they installed Maya. [0c9c8b1]
+
+### Version:0.4.14 -- 26 Oct 2021
+
+* Fix a missing texture bug by making sure path adjustemts happen only in the context of saving a file, and before the filename is reverted. [c725836]
+* Strip drive letters from absolute renderman texture paths on windows. [e7ff22c]
+
+### Version:0.4.12 -- 19 Oct 2021
+
+* Fixes a bug that caused some functions, including autodetect plugin versions, to throw an error. [d4e0104]
+
+### Version:0.4.11 -- 08 Sep 2021
+
+* Catch all validator runs and convert exceptions into warnings. This means that during validation, unexpected errors don't block the submission. One example is testing a GPU attribute that doesn't exist in Maya 2017.  [7544454]
+
+### Version:0.4.9 -- 27 Aug 2021
+
+* Removed the upload-only option from the UI, since it is error prone. [149cac0]
+
+### Version:0.4.7 -- 27 Aug 2021
+
+* Adds the camera shape name(s) in the token `Camera` so it can be used in the job title and other
+  places where job level tokens are valid. [2c3e82f]
+
+### Version:0.4.6 -- 07 Aug 2021
+
+* Use core 3.0.7 and above. [703555c]
+* Cleaned up some print statements. [b26712a]
+
+### Version:0.4.4 -- 30 Jul 2021
+
+* Improved validators with a focus on saving customers money by warning about potentially costly
+  mistakes with regards to scout frames and GPU-enabled instance type selection.  [3b6c2f2]
+
+### Version:0.4.3 -- 19 Jul 2021
+
+* Require core version 3.0.5 due to an issue with the chardet/charset_normalizer replacement which fails in maya 2019. [f00d90a]
+* Adds xgmsplinecache.filename to xgen scraper. [aa19da4]
+
+### Version:0.4.2 -- 27 Jun 2021
+
+* Use refreshable config from core. [d572ea7]
+* Fixed bad string size test. [35b92de]
+* Simplify references list. [dd1f927]
+* Adds Maya 2022 to condoctor.mod file. [0692669]
+
+### Version:0.4.1 -- 10 Jun 2021
+
+* Adds Python3 Maya 2022 support. [0692669]
+* Autosave only dimmed now, not switched on/off, because it caused a feedback loop. [2963dc8]
+
+### Version:0.3.10 -- 10 Jun 2021
+
+* Calculate the destination directory based on the images filerules entry and validate that the two match. [9ecbd9e]
+* Improved logic around autosave and autosave-cleanup. [c7b7fbb]
+* Adds better fallback for situations where the workspace file-rules cannot be resolved. [62b4790]
+* Remove the retry-when-fail option as it could cause customers to incur unwanted costs. [c08d304]
+
+### Version:0.3.8 -- 04 Jun 2021
+
+* The post_install script now writes the conductor.mod file with version-fenced sections because we don't yet support Maya 2022. [c3b93a7]
+
+### Version:0.3.7 -- 27 May 2021
+
+* Validation window now includes errors as well as warnings. Errors block the submission. [c1b5f46]
+* Instance type ands environment widgets are wider, to accommodate longer strings, such as gpu
+  instance type descriptions. [a5e7200]
+* New validator checks that a GPU instance type is selected when redshift is the active renderer. [51362cf]
+
+### Version:0.3.5 -- 20 May 2021
+
+* Fis a bug where the post_install script would fail if the platform was not linux, win32, or darwin. For example, CentOS 7 reports linux2 for the platform string. [5876cb1]
+
+### Version:0.3.4 -- 11 May 2021
+
+* Guard against the use of autosave-cleanup when it would overwrite the scene file. [741b235]
+* Adds workspace.mel to the maya scraper. [1f781d5]
+* Set Retries when failed 0 by default and add a warning if it is greater than 0 when submitting. [177c5e1]
+* Ensure connections from globals nodes exist. Otherwise make them. This is to stop submitters from older scenes
+  from breaking due to a change in the interface. [bb5e811]
+
+### Version:0.3.3 -- 29 Apr 2021
+
+* Use core 1.0.1, which has fixed logging and support for API key as a variable. [2129a16]
+* Account for UDIM flag in redshift proxies when scraping assets. [4e3654e]
+* Change miissing asset wording from missing to `not on disk`, as it sounds less like an error. [fa9f09b]
+* On running a scraper test we now show missing assets as well as the unresolved and resolved lists. [de16ea7]
+* Fix bug where empty asset entry could cause a failure and block the submission. [a279d91]
+
+### Version:0.3.0 -- 13 Apr 2021
+
+* This update uses ciocore 1.0.0 or later, which was a major version change. As such we bump the minor version to 3 for this release to indicate a feature change, although using a different ciocore version is not strictly a feature. [8efaee7]
+
+### Version:0.2.1 -- 24 Mar 2021
+
+* Adds Xgen abc scraping and a validation check to help with abc files when the filename changes. [ee3b6ab]
+
+### Version:0.2.0 -- 23 Mar 2021
+
+* Adds Xgen description scraper and better test scraper output in the script editor. [a4cfe9d]
+
+### Version:0.1.64 -- 22 Mar 2021
+
+* Remove the suggestion during validation to use an upload daemon. [3e441a5]
+
+### Version:0.1.63 -- 17 Mar 2021
+
+* Slight change to the way scrapers take responsibility for attributes to avoid the possibility ofd false positives during missing files validation.  [49c8dcd]
+
+### Version:0.1.62 -- 17 Mar 2021
+
+* The post install script now tries to get the correct value for the user's Documents folder on Windows, as it may be different to ~/Documents. [3c718d8]
+
+### Version:0.1.59 -- 16 Mar 2021
+
+* Adds more info - and adds test notification.. [90e3fda]
+* Tidy up. [1bc12e2]
+* Wrong logo name. [2e22845]
+* Make custom slack notification. [c7177ee]
+* Try the bash_env trick. [255e200]
+* Try the environment key in a step. [8c21289]
+* Test assign circle_ci version. [48e6794]
+* Adds basic slack steps to circle build config. [924bd65]
+
+### Version:0.1.52 -- 11 Mar 2021
+
+* Better dev instructions and setup. [1340f6f]
+* Makes a universal wheel. [ba6b7d5]
+
+### Version:0.1.50 -- 11 Mar 2021
+
+* Add .circleci/config.yml. [d853dad]
+* Adds some rarely used image formats to tx scrape regex. [f6d7c8d]
+* Both branches of daemon validation emit a message. [0784bb3]
+
+### Version:0.1.48 -- 25 Feb 2021
+
+* Revert use of basename modifier as it seems to cause a problem. DO NOT USE VERSION 0.1.47 [9d0be92]
+
+### Version:0.1.47 -- 24 Feb 2021
+
+* Uses expander expressions, e.g. `<basename scenefile>` instead of `<scene> ` (#9). [14d397d]
+* Ensure output_directory contains no backslashes in both the UI and the submission object.
+* Resolve tokens for image paths found in ass files. Example `<udim>` was not resolved properly.
+
+### Version:0.1.46 -- 05 Feb 2021
+
+* Adds TileRef token to vray scraper script. (#7). [25a7269]
+
+### Version:0.1.45 -- 15 Jan 2021
+
+* Hotfix postinstall bug, creates maya mod file from scratch, as opposed to transforming the existing mod file. (#6)
+
+### Version:0.1.44 -- 11 Nov 2020
+
+* Make scraper testing respect the show tracebacks setting.
+* Search for yeti internal files in search paths, including the basename of absolute files. 
+* Adds Validation notice for yeti windows users, to remind them to create a Conductor-legal PG_IMAGE_PATH
+* Don't scrape redshift if redshift plugin not loaded.
+
+### Version:0.1.43 -- 06 Nov 2020
+
+* Better scraper error handling. [aec25ed]
+* Removed WIP yeti scraper code for this release. [eea4f6d]
+* Adds yeti detection. [d2c1cc5]
+* Adds detect-plugins to node creation in menu, as opposed to post_constructor. [217af13]
+* Fix bug in reset scrapers where new scrapers would have py extension. [10b1299]
+* Specify fixtures path in the node as opposed to using an env var. [f6cc49f]
+* Use data from connections and remove post_constructor. This avoids attempts to reconnect or set defaults when merely opening a file. In addition, currentFrame and layer are now connections that affect the output via the attributeAffects mechanism, meaning cleaner compute function. [b8a6d66]
+* Scrapers can now accept node name or pynode. [cae8f04]
+
+### Version:0.1.42 -- 04 Nov 2020
+
+* Adds a validation to warn about the Renumber Frames setting. [772cc91]
+* Fixed a bug in destination path and frames section due to buggy attrControlGrp in pymel. [31fa87d]
+* Adds a visible Add Software button. [2c117ae]
+
+### Version:0.1.41 -- 21 Oct 2020
+
+* Adds ability to expand env vars for redhift nodes. [5f28081]
+
+### Version:0.1.40 -- 14 Oct 2020
+
+* Fix bug in presets to remove the output attribute so it doesn't barf on the json. [4968a82]
+
+### Version:0.1.39 -- 08 Oct 2020
+
+* Generate combined readme and changelog for pypi. [75ccebd]
+
+### Version:0.1.36 -- 07 Oct 2020
+
+* Fixed a bug where a Sequence could emit chunks that weren't progressions, and therefore could not be expressed as `start`, `end`, and `by` in the Render command. [ee65a28]
+* Some new scrapers are more efficient to work with as simple paths rather than objects containing a path. Therefore, handle both options when processing. [71312de]
+
+### Version:0.1.35 -- 18 Sep 2020
+
+* Bifrost cache optimized to frame range. [c913b41]
+* Tidy standin scraper. [ae734ef]
+* Recursive ass scraping. [4727c9d]
+* Image planes evaluate for frame range. [4f11718]
+* Better messages when scrapers invalid. [13e63aa]
+* Resolve sequence from tokens rather than glob. [b0eb38e]
+* Ass file scraping, attr tokens works. [887932e]
+
+### Version:0.1.34 -- 08 Sep 2020
+
+* Add Arnold attr: tokens, also add Bifrost scrape. [b6d8883]
+* Refactor scrapers and addd redshift proxy scrape. [3955e97]
+* Wider dropdowns for gpu descriptions. [3b342df]
+* Simplified readme. [e01166c]
+
+
+### Version:0.1.33 -- 01 Sep 2020
+
+* Fix missing chunk_size attributeAffects relationship. [216893a]
+* Guard against missing arnoldrRenderOptions in validations. [ea32a60]
+* Adds `<f4>` style scrape regex. [24120d9]
+
+### Version:0.1.32 -- 18 Aug 2020
+
+* Several validation and redshift improvements. Fixed a bug around software validation. Adds redshift scraping. Fixed some validation issues. [bec172b]
+
+### Version:0.1.31 -- 11 Aug 2020
+
+Testing PyPi url preferences.
+
+### Version:0.1.30 -- 11 Aug 2020
+
+* Production release.
+
+### Version:0.1.29 -- 10 Aug 2020
+
+* Handle name change for redshift in autodetect. [6c70bb4]
+
+### Version:0.1.28 -- 10 Aug 2020
+
+* Filter out non inage files when resizing icons.. [3cd5a82]
+
+### Version:0.1.27 -- 10 Aug 2020
+
+* Better icon for render node. [f7cb8de]
+* Remove_missing files is now handled in gpath_list. [2a7b10e]
+* Moves validator base class to core. [d774b92]
+
+### Version:0.1.26 -- 08 Aug 2020
+
+* Use v0.2.2 of Core, with Redshift fixes. [f2fc9e2]
+* Cleaner renderer detection, including redshift. [4f9a7fe]
+* Adds redshift to renderer validation table. [37b5530]
+* Adds redshift detection. [bad3899]
+* Detect render globals set to single frame. [76dd1e1]
+* Remove dry run logic. [05450f6]
+* Remove dry run from ui. [a89d625]
+
+### Version:0.1.25 -- 01 Aug 2020
+
+* Use coredata with init. [8e9dbf1]
+* Adds post_install script. [aa5a7b5]
+* Fix trailing comma bug. [e87efe8]
+
+### Version:0.1.24 -- 22 Jul 2020
+
+* Added Wizard instructions in README. [42b971f]
+* Fix bad output when scene has never been saved. [ddba6cf]
+
+### Version:0.1.23 -- 21 Jul 2020
+
+* Change given label in instance types to specified. [6502b12]
+
+### Version:0.1.22 -- 21 Jul 2020
+
+* Replace vars with cio. [f3c31b3]
+* Guard against bad dropdown index. [7899d50]
+
+### Version:0.1.21 -- 10 Jul 2020
+
+* Move data singletons to conductor core. [0851059]
+* Better instructions. [9c83e22]
+* Simplify and strengthen icon graphics. [d67621f]
+* Requirements uses relative ref to core. [1e233d1]
+* Fix bug when location field empty. [23785f4]
+
+### Version:0.1.20 -- 30 Jun 2020
+
+* Use asset cache and add auto threads validation. [a0886a2]
+* Adds hdr to images regex. [ce7f7b3]
+* Temp workaround for AE bug - handle inst-type descriptions that arrive as as lists. [fb7cf69]
+* Make sure tokens representing paths have no drive letter. [db008e4]
+* Adds asset cache and destination directory validation. [38b895a]
+
+### Version:0.1.19 -- 29 Jun 2020
+
+* Adds connection button and icon. [f4b7a47]
+* Made a layer connection so that the output is recomputed when the user changes layer. [1feee6f]
+* Dont attempt autosave if scene was never saved. Show a save-as dialog instead. [9c75be6]
+* Adds arnold tx validation. [cc41f1e]
+* Adds a Reset Scrapers function. [7049db2]
+* Connect function only forces when told to. [1c6d763]
+* Adds explicit connect button. [ff3bb29]
+* Adds connection progress bar and make errors red. [c13daec]
+* Notice window now differentiates between warnings and info with icons. [944a44e]
+* Renderer package validation. Warn if selected renderer not selected as a plugin. [67efa52]
+
+### Version:0.1.18 -- 22 Jun 2020
+
+* Flattened the structure, remove namespaces, and simplified the version file.
+
