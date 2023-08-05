@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+        
+    - name: Unittests
+      run: |
+        pytest -v tests/unittests --cov-report term-missing --cov
+
+    - name: MyPy
+      run: |
+        mypy --config-file=./mypy.ini -p aedttest
