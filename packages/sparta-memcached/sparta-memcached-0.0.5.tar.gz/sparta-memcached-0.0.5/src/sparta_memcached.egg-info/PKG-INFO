@@ -1,0 +1,53 @@
+Metadata-Version: 2.1
+Name: sparta-memcached
+Version: 0.0.5
+Summary: Sparta memcached library
+Home-page: https://github.com/Spartan-Approach/sparta-memcached
+Author: Spartan Approach
+Author-email: sparta@spartanapproach.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: test
+License-File: LICENSE
+
+# sparta-memcached
+
+Sparta memcached library.
+
+## Usage
+
+```python
+import pylibmc
+import sparta.memcached
+
+alice_cache = sparta.memcached.KeyPrefixWrapper(
+    pylibmc.Client(
+        ["127.0.0.1:11211"],
+        binary=True,
+        behaviors={"tcp_nodelay": True, "ketama": True, "no_block": True},
+    ),
+    key_prefix="alice/",
+)
+
+bob_cache = sparta.memcached.KeyPrefixWrapper(
+    pylibmc.Client(
+        ["127.0.0.1:11211"],
+        binary=True,
+        behaviors={"tcp_nodelay": True, "ketama": True, "no_block": True},
+    ),
+    key_prefix="bob/",
+)
+
+your_value = ...
+alice_cache.set("your_key", your_value)
+assert alice_cache.get("your_key") == your_value
+assert alice_cache.get("your_key") != bob_cache.get("your_key")
+```
+
+
