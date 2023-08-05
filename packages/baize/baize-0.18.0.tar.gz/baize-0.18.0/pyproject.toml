@@ -1,0 +1,89 @@
+[project]
+authors = [
+  {name = "abersheeran", email = "me@abersheeran.com"},
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Internet :: WWW/HTTP :: WSGI",
+  "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+]
+dependencies = [
+  "typing-extensions>=4.1.1; python_version < \"3.8\"",
+  "contextvars; python_version < \"3.7\"",
+]
+description = "Powerful and exquisite WSGI/ASGI framework/toolkit."
+license = {text = "Apache-2.0"}
+name = "baize"
+readme = "README.md"
+requires-python = ">=3.6.2"
+version = "0.18.0"
+
+[project.urls]
+Homepage = "https://github.com/abersheeran/baize"
+Repository = "https://github.com/abersheeran/baize"
+Documentation = "https://baize.aber.sh/"
+
+[tool.isort]
+profile = "black"
+
+[tool.coverage.run]
+omit = ["*/.venv/*", "*/tests/*"]
+plugins = ["coverage_conditional_plugin"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "if False:",
+  "assert False",
+  "if typing.TYPE_CHECKING:",
+  "if TYPE_CHECKING:",
+  "@typing.overload",
+  "@overload",
+  "pass",
+  "...",
+]
+show_missing = true
+skip_covered = true
+
+[tool.coverage.coverage_conditional_plugin.rules]
+py-no-win32 = "sys_platform != 'win32'"
+py-win32 = "sys_platform == 'win32'"
+
+[tool.pdm]
+includes = ["baize"]
+build = "speedup.py"
+
+[tool.pdm.dev-dependencies]
+build = [
+  "mypy<1.0,>=0.931",
+  "mypy-extensions<1.0.0,>=0.4.3",
+]
+dev = [
+  "black<22,>=21.9b0",
+  "isort<6.0.0,>=5.7.0",
+  "flake8~=3.9",
+  "mypy<1.0,>=0.931",
+]
+doc = [
+  "Sphinx<4.0.0,>=3.5.3",
+  "recommonmark<1.0.0,>=0.7.1",
+  "sphinx-autodoc-typehints<2.0.0,>=1.11.1",
+]
+test = [
+  "httpx<1.0.0,>=0.19.0",
+  "pytest<7.0.0,>=6.2.5",
+  "pytest-cov~=3.0",
+  "pytest-asyncio<1.0.0,>=0.15.1",
+  "requests<3.0.0,>=2.25.1",
+  "starlette<0.15.0,>=0.14.2",
+  "coverage-conditional-plugin~=0.5",
+  "setuptools>=59.6", # to fix the fuck `No module named 'pkg_resources'`
+]
+
+[build-system]
+build-backend = "pdm.pep517.api"
+requires = ["pdm-pep517"]
