@@ -1,0 +1,78 @@
+#! /usr/bin/env python3
+
+import os
+import hashlib
+import sys
+import yaml
+import subprocess
+
+action = sys.argv[1]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# This function calculates the hash for the given inputs.
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def calculate_hash(body, previous_hash):
+    body = (str(body),
+            "{}\n".format(previous_hash) + str(body))[previous_hash != None]
+    return hashlib.sha1(bytes(body, 'utf-8')).hexdigest()
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Get the list of committed migrations. Then define the file name for the next migration.
+# ----------------------------------------------------------------------------------------------------------------------
+
+cwd = os.getcwd()
+path = "{}/migrations/committed".format(cwd)
+dir_list = os.listdir(path)
+dir_list.sort()
+filename = "{}.yaml".format(str(len(dir_list) + 1).zfill(6))
+
+
+previous_hash = None
+previous_data = None
+# ----------------------------------------------------------------------------------------------------------------------
+# Ensure the integrity of all committed migrations.
+# ----------------------------------------------------------------------------------------------------------------------
+
+for dir_list_item in dir_list:
+    with open('./migrations/committed/{}'.format(dir_list_item)) as file:
+        try:
+            data = yaml.safe_load(file)
+            if previous_data:
+                migrations = {
+                    'migrations': data.get('migrations', None)
+                }
+                if data.get('hash', None) != calculate_hash(
+                        migrations, data.get('previous', None)):
+                    print('Error: hash mismatch for {}'.format(dir_list_item))
+                    exit(1)
+            previous_data = data
+            previous = data['previous']
+            previous_hash = data['hash']
+
+        except yaml.YAMLError as exception:
+            print(exception)
+
+latest_migration = dir_list[-1]
+with open('./migrations/committed/{}'.format(latest_migration)) as file:
+    try:
+        data = yaml.safe_load(file)
+        migrations = data['migrations']
+        for migration in migrations:
+            key = list(migration.keys())[0]
+            description = migration[key]['description']
+            steps = migration[key]['steps']
+            for step in steps:
+                component = step['component']
+                stacks = step['stacks']
+                for stack in stacks:
+                    command = 'atmos terraform {} {} -s {}'.format(
+                        action, component, stack)
+                    print(command)
+                    p = subprocess.run(
+                        ["atmos", "terraform", action, component, "-s", stack])
+
+    except yaml.YAMLError as exception:
+        print(exception)
