@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "esdb"
+version = "0.1.0"
+description = "gRPC client for EventStore DB"
+authors = ["Andrii Kohut <kogut.andriy@gmail.com>"]
+keywords = ["esdb", "eventstore", "gRPC"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/andriykohut/esdb-py"
+repository = "https://github.com/andriykohut/esdb-py"
+
+packages = [
+    { include = "esdb" },
+]
+
+exclude = ["EventStore", "certs", "es_config", "protos"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+grpcio-tools = "^1.47.0"
+mypy = "^0.971"
+mypy-protobuf = "^3.2.0"
+black = "^22.6.0"
+pytest = "^7.1.2"
+isort = "^5.10.1"
+pytest-asyncio = "^0.19.0"
+flake8 = "^4.0.1"
+grpc-stubs = "^1.24.11"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 119
+exclude = "esdb/generated"
+
+[tool.isort]
+profile = "black"
+skip_glob = "esdb/generated/*"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:::.*grpc.aio._channel:287",
+    "ignore:::.*grpc.aio._channel:288",
+]
