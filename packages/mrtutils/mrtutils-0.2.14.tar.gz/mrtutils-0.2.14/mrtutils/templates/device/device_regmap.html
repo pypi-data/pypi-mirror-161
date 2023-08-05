@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${obj.name.upper()} Device</title>
+</head>
+<body>
+<div class="content">
+<h1>${obj.name.upper()} Device</h1>
+<ul>
+  <li> Generated with <a href="https://github.com/uprev-mrt/mrtutils/wiki/mrt-device">MrT Device Utility</a> </li>
+  <li> Bus:  ${obj.bus}</li>
+  %if not obj.datasheet == '':
+  <li>Datasheet: <a href="${obj.datasheet}">${obj.datasheet[:24] + (obj.datasheet[24:] and '...')}</a> </li>
+  %endif
+  %if not obj.digikey_pn == '':
+  <li> DigiKey: <a href="https://www.digikey.com/products/en?KeyWords=${obj.digikey_pn}">${obj.digikey_pn}</a></li>
+  %endif
+  %if "I2C" in obj.bus.upper():
+  <li> I2C Address: ${ obj.formatHex(obj.i2c_addr, 1)}</li>
+  %endif
+</ul>
+<hr/>
+<h2>Description: </h2>
+<p>${obj.desc}</p>
+<!--*user-block-description-start*-->
+
+<!--*user-block-description-end*-->
+
+<br/>
+
+<div class="regmap" align="center">
+<hr class="section">
+<h2 class="right"> Register Map</h2>
+<div align="right" width="100%">
+  Configuration:
+  <select id="cfgSelect" onchange="setConfig(this)"> 
+    <option value="none">None</option>
+  </select>
+</div>
+<hr class="thick">
+
+
+  <table class="fields" id="regMap" width="95%">
+
+  </table>
+</div>
+
+
+</div>
+<script>
+  
+  var device = ${obj.printJSON()};
+
+  var sel =  document.getElementById("cfgSelect");
+
+  for(var k in device.configs){
+    var option = document.createElement("option");
+    option.text = k;
+    option.Value = k;
+    sel.add(option);
+  }
+
+  function checkBit(reg, bit)
+{
+  let resp = {
+    field: {},
+    len: 0,
+    cont : false
+  };
+
+  let next = 1000;
+  bit -=1
+  for(let name in reg.fields)
+  {
+    let field = reg.fields[name];
+    let start = field.offset + (field.size -1);
+    let end = field.offset;
+
+    if(bit == start) //we are at the start of the field 
+    {
+      field.name = name;
+      resp.field = field;
+      field.remaining = field.size;
+      resp.len = field.size;
+      resp.cont = false;
+      return resp;
+    }
+    else if( (bit < start) && (bit >= end)) //we are mid-field
+    {
+      field.name = name;
+      resp.field = field;
+      resp.len = field.remaining;
+      resp.cont = true;
+      return resp;
+    }
+
+    if( (bit > start) && ((bit - start ) < next))
+      next = bit - start;
+  }
+
+  resp.len = next;
+  resp.field = null;
+  return resp;
+}
+
+
+function buildRegMap(tableId, dev)
+{
+
+  let table = document.getElementById(tableId);
+
+  let head = table.insertRow();
+
+  let headcell = document.createElement("th");
+  headcell.textContent = "Register";
+  headcell.setAttribute("width", "10%");
+  head.appendChild(headcell);
+  headcell = document.createElement("th");
+  headcell.textContent ="Addr";
+  headcell.setAttribute("width", "4%");
+  head.appendChild(headcell);
+  headcell = document.createElement("th");
+  headcell.textContent ="RW";
+  headcell.setAttribute("width", "3%");
+  head.appendChild(headcell);
+  let cellWidth = 83 / dev.smallestReg;
+  for(var n = dev.smallestReg; n > 0; n--)
+  {
+    headcell = document.createElement("th");
+    headcell.textContent = (n -1).toString();
+    headcell.setAttribute("width", cellWidth.toString() + "%");
+    head.appendChild(headcell);
+  }
+
+  for(let name in dev.regs)
+  {
+    let reg = dev.regs[name];
+    let rowSpan = reg.size / dev.smallestReg;
+    let row = table.insertRow();
+    let bit = reg.size;
+
+    let head = document.createElement("th");
+    let access = document.createElement("th");
+    let regAddr = document.createElement("th");
+    let headAnch = document.createElement("a");
+    headAnch.textContent = reg.name
+    head.setAttribute("rowspan",rowSpan);
+    regAddr.textContent = "x"+reg.addr.toString(16).padStart(4,"0")
+    regAddr.setAttribute("rowspan", rowSpan);
+    access.textContent =reg.perm;
+    access.setAttribute("rowspan",rowSpan);
+    headAnch.setAttribute("data-tt",'');
+    headAnch.setAttribute("data-tt-lbl", reg.name +"\n\n" +reg.desc );
+
+    head.appendChild(headAnch);
+    row.appendChild(head);
+    row.appendChild(regAddr);
+    row.appendChild(access);
+
+    let count = 0;
+
+    while(bit > 0)
+    {
+      var i = dev.smallestReg;
+      while( i > 0)
+      {
+        let resp = checkBit(reg, bit);
+        if(resp.len > (i))
+          resp.len = i;
+
+        let cell = document.createElement("td");
+
+        if(resp.field != null)
+        {
+          resp.field.remaining = resp.field.remaining - resp.len;
+          cell.classList.add("bit");
+          cell.setAttribute("id", reg.name + "_bit_"+ (bit -1).toString());
+          let fieldName = resp.field.name;
+          if(resp.len == 1)
+          {
+            fieldName = fieldName.substring(0,5) + "..";
+          }
+
+          let fieldDiv = document.createElement("div");
+          fieldDiv.classList.add("field");
+          fieldDiv.setAttribute("style", "margin-right:-" + ((resp.len -1) * 100).toString() +"%;");
+
+          let fieldAnch = document.createElement("a");
+
+          if( !resp.cont) //this is a new field starting
+          {
+            cell.classList.add("first");
+            fieldAnch.textContent = fieldName
+            if(resp.field.size > resp.len)
+              fieldAnch.textContent +="[" + (resp.field.size -1).toString() +":" + (resp.field.size - resp.len).toString() +"]";
+          }
+          else 
+          {
+            fieldAnch.textContent = resp.field.name 
+            if(resp.field.size > resp.len)
+              fieldAnch.textContent += "[" + ( resp.len -1).toString() +":" + (0).toString() +"]";
+          }
+
+          fieldAnch.setAttribute("data-tt",'');
+          fieldAnch.setAttribute("data-tt-lbl", resp.field.name +"\n\n" +resp.field.desc );
+          let valStr ="\n";
+          resp.field.vals.forEach(val => {
+            valStr+= "b"+val.val.toString(2).padStart(resp.field.size,"0") + " : " + val.desc +"\n";
+          });
+          fieldAnch.setAttribute("data-tt-msg", valStr);
+
+          fieldDiv.appendChild(fieldAnch);
+          cell.appendChild(fieldDiv);
+          row.appendChild(cell);
+
+          for(var a =1 ; a < (resp.len); a++)
+          {
+            cell = document.createElement("td");
+            cell.classList.add("bit");
+            cell.setAttribute("id", name + "_bit_"+ (bit -(a+1)).toString());
+            row.appendChild(cell);
+          }
+
+        }
+        else
+        {
+          cell.classList.add("empty");
+          cell.setAttribute("colspan", resp.len);
+          cell.textContent=".";
+          row.appendChild(cell);
+        }
+
+        i -= resp.len;
+        bit-= resp.len;
+      }
+      if(bit > 0 )
+        row = table.insertRow();
+    }
+  }
+}
+  
+function showSettings(){
+    for(var k in device.currentVals){
+      var v = device.currentVals[k];
+      var bit = device.largestReg - 1; //0 based
+      var mask =0;
+      while(bit >= 0)
+      {
+        mask = (v >> bit) & 1;
+        var element = document.getElementById(k + "_bit_" + bit);
+        
+        if(element)
+        {
+          if(mask)
+          {
+            element.classList.add("one");
+            element.classList.remove("zero");
+          }
+          else
+          {
+            element.classList.remove("one");
+            element.classList.add("zero");
+          }
+
+        }
+
+        bit--;
+      }
+
+    }
+  }
+
+
+  function loadConfig(config)
+  {
+    if(config == 'none')
+    {
+      var bits = document.getElementsByClassName("bit");
+      for(var i = 0; i < bits.length; i++)
+      {
+        bits[i].classList.remove("one");
+        bits[i].classList.remove("zero");
+      }
+
+    }
+    else
+    {
+      //first load defaults 
+      for(var k in device.configs['Default'])
+      {
+        device.currentVals[k] = device.configs['Default'][k];
+      }
+
+      for(var k in device.configs[config])
+      {
+        device.currentVals[k] = device.configs[config][k];
+      }
+
+      showSettings();
+    }
+
+  }
+
+  function setConfig(selectObj)
+  {
+    var value = selectObj.value;
+    loadConfig(value);
+  }
+
+
+  buildRegMap("regMap", device);
+
+</script>
+</body>
+<style>
+table.fixed { table-layout:auto; }
+table.fixed td { overflow:visible; }
+
+table.fields{
+  table-layout:fixed;
+}
+
+body {
+  padding:0;
+}
+
+.content{
+  padding-top: 0;
+  padding-left: 1%;
+  padding-right: 1%;
+  background-color: #fff;
+}
+
+@media print {
+  .regmap {
+    page-break-inside: avoid;
+  }
+  .content{
+    width: 100%;
+  }
+  body{
+    background-color: #fff;
+  }
+}
+
+@media screen {
+  .content{
+    width: 65%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    padding-top: 4px;
+    box-shadow: 5px 10px #AAA;
+    padding-bottom: 50px;
+  }
+
+  body{
+    background-color: #ccc;
+    padding: 0;
+  }
+}
+
+html *{
+  font-size: 1em ;
+   color: #000 ;
+  font-family: Arial ;
+}
+
+hr.section {
+  border-style: solid;
+  border-width: 2px;
+  opacity: 1;
+}
+
+
+hr.thick {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #94b2d3;
+  opacity: 1;
+}
+
+hr {
+  opacity: 0.5;
+}
+
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+td {
+  border: 1px solid #000000;
+  text-align: left;
+  padding-top: 6px;
+  vertical-align: top;
+  font-size: 9pt;
+  width: 1px;
+  white-space: nowrap;
+}
+
+.field{
+  text-align: center;
+  padding: 0px;
+  font-weight: bold; 
+}
+
+
+.bit{
+  border-right: 1px dotted #999;
+  border-left: 1px dotted #999;
+  overflow:visible;
+}
+
+.bit.first{
+  border-left: 1px solid black;
+}
+
+td:last-child{
+  border-right: 1px solid black;
+}
+td:first-child{
+  border-left: 1px solid black;
+}
+
+
+td.one{
+  background-color: #acdbac;
+}
+
+td.zero{
+  background-color: #e2af9e;
+}
+
+
+td.empty{
+  background-color: #cccccc;
+  color: #cccccc;
+}
+
+
+
+.desc{
+  font-size: 1.2em;
+}
+
+th {
+  border: 1px solid #000000;
+  text-align: left;
+  padding: 5px;
+  background-color: #94b2d3;
+  font-size: 9pt;
+}
+
+li.val{
+  opacity: 0.6;
+}
+
+h1{
+  font-size: 2.0em;
+}
+
+h2 
+{
+  font-size: 1.3em;
+}
+
+h2.right{
+  text-align: center;
+  font-size: 1.3em;
+}
+
+h3
+{
+  font-size: 1.8em;
+  color: #003366;
+}
+
+h4 
+{
+  font-size: 1.1em;
+  color: #003366;
+}
+
+
+.note{
+  font-style: italic;
+  opacity: 0.6;
+}
+
+a{
+  text-decoration:none;
+}
+
+a:link {
+  color: blue;
+}
+
+/* visited link */
+a:visited {
+  color: blue;
+}
+
+table.fixed tr td:last-child{
+    width:1%;
+    white-space:nowrap;
+}
+
+[data-tt] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tt]:before,
+[data-tt]:after {
+  display: none;
+  position: absolute;
+  top: 0;
+}
+
+[data-tt]:before {
+  border-bottom: .6em solid #09f;
+  border-bottom: .6em solid rgba(0,153,255,0.8);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  content: "";
+  left: 20px;
+  margin-top: 1em;
+}
+
+[data-tt]:after {
+  background-color: #387aa7;
+  background-color: rgb(162, 197, 221);
+  border: 2px solid #000000;
+  border: 2px solid rgba(0, 0, 0, 1);
+  border-radius: 2px;
+  color: #000000;
+  content: attr(data-tt-lbl) "\A" attr(data-tt-msg);
+  left: 0;
+  width: 300px;
+  overflow: auto;
+  text-align: left;
+  margin-top: 1.5em;
+  padding: 5px 15px;
+  white-space: pre-wrap;
+  z-index: 100;
+}
+
+[data-tt]:hover:after,
+[data-tt]:hover:before {
+  display: block;
+  overflow: auto;
+}
+
+</style>
+</html>
