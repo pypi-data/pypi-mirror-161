@@ -1,0 +1,173 @@
+schema: include('schema', required=False)
+Schema: include('schema', required=False)
+
+Stacks: list(include('stack'))
+
+---
+options:
+  ShouldParseAsJinja2Template: bool(required=False)
+  ShouldCFNNag: bool(required=False)
+  ShouldCloudformationRSpec: bool(required=False)
+
+version:
+  Name: str()
+  Tags: list(include('tag'), required=False)
+  Active: include('active', required=False)
+  Status: include('status', required=False)
+  Options: include('options', required=False)
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source', required=False)
+  Stages: include('stage', required=False)
+
+version_with_source:
+  Name: str()
+  Tags: list(include('tag'), required=False)
+  Active: include('active', required=False)
+  Status: include('status', required=False)
+  Options: include('options', required=False)
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source')
+  Stages: include('stage', required=False)
+
+stack: any(include("stack_without_source"), include("stack_with_source"))
+
+stage: any(include('stage_build'),include('stage_package'),include('stage_test'))
+
+build_build_spec_image:
+  BuildSpecImage: str()
+  BuildSpec: str(required=False)
+
+build_build_spec:
+  BuildSpecImage: str(required=False)
+  BuildSpec: str()
+
+build: any(include('build_build_spec_image'),include('build_build_spec'))
+package: any(include('build_build_spec_image'),include('build_build_spec'))
+test: include('test_def')
+
+test_def: any(include('build_build_spec_image'),include('build_build_spec'))
+
+stage_build:
+  Build: include('build')
+  Package: include('package', required=False)
+  Tests: map(include('test'), required=False)
+
+stage_package:
+  Build: include('build', required=False)
+  Package: include('package')
+  Tests: map(include('test'), required=False)
+
+stage_test:
+  Build: include('build', required=False)
+  Package: include('package', required=False)
+  Tests: map(include('test'))
+
+stack_without_source:
+  Name: str()
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source', required=False)
+  Stages: include('stage', required=False)
+  Options: include('options', required=False)
+  Tags: list(include('tag'), required=False)
+  Versions: list(include('version_with_source'), required=False)
+
+stack_with_source:
+  Name: str()
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source')
+  Stages: include('stage', required=False)
+  Options: include('options', required=False)
+  Tags: list(include('tag'), required=False)
+  Versions: list(include('version'), required=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+schema: enum("factory-2019-04-01", "Factory-2019-04-01")
+
+tag:
+  Key: str()
+  Value: str()
+
+configuration_codecommit:
+  RepositoryName: str(required=False)
+  BranchName: str(required=False)
+
+configuration_github:
+  Branch: str(required=False)
+  Owner: str(required=False)
+  Repo: str(required=False)
+
+configuration_codestarsourceconnection:
+  ConnectionArn: str(required=True)
+  BranchName: str(required=True)
+  FullRepositoryId: str(required=True)
+
+configuration_s3:
+  BucketName: str(required=False)
+  S3ObjectKey: str(required=False)
+
+configuration_custom:
+  Branch: str(required=True)
+  GitUrl: str(required=True)
+  GitWebHookIpAddress: str(required=True)
+  CustomActionTypeVersion: str(required=True)
+  CustomActionTypeProvider: str(required=True)
+
+source: any(include("source_codecommit"), include("source_github"), include("source_s3"), include("source_codestarsourceconnection"), include("source_custom"))
+
+source_s3:
+  Provider: enum("S3")
+  Path: str(required=False)
+  Configuration: include('configuration_s3')
+
+source_github:
+  Provider: enum("Github", "GitHub")
+  Path: str(required=False)
+  Configuration: include('configuration_github')
+
+source_codestarsourceconnection:
+  Provider: enum("CodeStarSourceConnection")
+  Path: str(required=False)
+  Configuration: include('configuration_codestarsourceconnection')
+
+source_codecommit:
+  Provider: enum("CodeCommit")
+  Path: str(required=False)
+  Configuration: include('configuration_codecommit')
+
+source_custom:
+  Provider: enum("Custom")
+  Configuration: include('configuration_custom')
+
+code_s3_bucket:
+  Bucket: str()
+  Key: str(required=False)
+
+code_s3_key:
+  Bucket: str(required=False)
+  Key: str()
+
+code_s3: any(include('code_s3_bucket'), include('code_s3_key'))
+
+code:
+  S3: include('code_s3')
+
+active: any(bool(required=False), enum("terminated"))
+status: enum("active", "terminated")

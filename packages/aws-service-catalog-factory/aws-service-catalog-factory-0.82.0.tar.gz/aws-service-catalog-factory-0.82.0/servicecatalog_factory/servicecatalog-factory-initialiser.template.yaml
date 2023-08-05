@@ -1,0 +1,381 @@
+# Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: |
+  Initialiser template used to bring up the install ServiceCatalog-Factory
+  {"version": "0.73.0", "framework": "servicecatalog-factory", "role": "initialiser"}
+
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "General"
+        Parameters:
+          - EnabledRegions
+      - Label:
+          default: "Options"
+        Parameters:
+          - ShouldValidate
+          - ShouldPipelinesInheritTags
+      - Label:
+          default: "Source Code Management - choose which one of the following sources you will use:"
+        Parameters:
+          - SCMSourceProvider
+      - Label:
+          default: "Option 1: CodeCommit"
+        Parameters:
+          - SCMRepositoryName
+          - SCMBranchName
+      - Label:
+          default: "Option 2: CodeStarSourceConnection"
+        Parameters:
+          - SCMConnectionArn
+          - SCMFullRepositoryId
+          - SCMBranchName
+      - Label:
+          default: "Option 3: S3"
+        Parameters:
+          - SCMBucketName
+          - SCMObjectKey
+          - SCMShouldCreateRepo
+      - Label:
+          default: "SCM Option 4: Custom"
+        Parameters:
+          - SCMBranchName
+          - SCMCustomSourceActionGitUrl
+          - SCMCustomSourceActionGitWebHookIPAddress
+          - SCMCustomSourceActionCustomActionTypeVersion
+          - SCMCustomSourceActionCustomActionTypeProvider
+      - Label:
+          default: "Advanced (Do not change unless told to do so)"
+        Parameters:
+          - Version
+
+Parameters:
+  EnabledRegions:
+    Type: String
+    Description: |
+      Space or comma seperated list of AWS Regions for which your Factory should operate in
+  ShouldValidate:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Description: "Setting this to true adds a validate stage to the pipeline where the manifest file validated before the deploy occurs."
+  ShouldPipelinesInheritTags:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Description: "Setting this to true means tags used for this initialiser stack are passed onto pipelines created"
+  SCMSourceProvider:
+    Type: String
+    AllowedValues:
+      - CodeCommit
+      - S3
+      - CodeStarSourceConnection
+    Description: For Github.com, GitHub Enterprise and BitBucket Cloud support use CodeStarSourceConnection
+    Default: CodeCommit
+  SCMRepositoryName:
+    Type: String
+    Default: ServiceCatalogFactory
+  SCMBranchName:
+    Type: String
+    Default: main
+    Description: The branch name to use for the service-catalog-factory-pipeline
+  SCMConnectionArn:
+    Type: String
+    Description: The Arn of the CodeStar Connection already created in the account
+  SCMFullRepositoryId:
+    Type: String
+    Description: The full repository id for the git repo to use.  This varies based on which git provider you use
+  SCMBucketName:
+    Type: String
+  SCMObjectKey:
+    Type: String
+  SCMCustomSourceActionGitUrl:
+    Type: String
+  SCMCustomSourceActionGitWebHookIPAddress:
+    Type: String
+  SCMCustomSourceActionCustomActionTypeVersion:
+    Type: String
+    Default: CustomVersion1
+  SCMCustomSourceActionCustomActionTypeProvider:
+    Type: String
+    Default: CustomProvider1
+  SCMShouldCreateRepo:
+    Type: String
+    Description: "Setting this to True means the tool creates the repo and manages it. Changing from True to False will cause already created repos to be deleted."
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+  Version:
+    Type: String
+    Description: "Do not change this unless told to do so"
+    Default: aws-service-catalog-factory
+
+
+Resources:
+  InitialiserVersionParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: service-catalog-factory-initialiser-version
+      Type: String
+      Value: '0.57.2--zzz' #InitialiserVersion
+      Tags:
+        "ServiceCatalogFactory:Actor": "Framework"
+
+  InitialiserStackNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: service-catalog-factory-initialiser-stack-name
+      Type: String
+      Value: !Ref AWS::StackName
+      Tags:
+        "ServiceCatalogFactory:Actor": "Framework"
+
+  InitialiserRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Initialiser
+      Path: /servicecatalog-factory/
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AdministratorAccess"
+      Tags:
+        - Key: "ServiceCatalogFactory:Actor"
+          Value: "Framework"
+
+  InitialiserProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: servicecatalog-product-factory-initialiser
+      Description: "Initialiser for the factory"
+      ServiceRole: !GetAtt InitialiserRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: linuxContainer
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/python:3.7.1
+        EnvironmentVariables:
+          - Name: ENABLED_REGIONS
+            Type: PLAINTEXT
+            Value: !Join [ ',', !Split [ ', ', !Ref EnabledRegions]]
+          - Name: PARTITION
+            Type: PLAINTEXT
+            Value: !Ref AWS::Partition
+          - Name: SCM_SOURCE_PROVIDER
+            Type: PLAINTEXT
+            Value: !Ref SCMSourceProvider
+          - Name: SCM_REPOSITORY_NAME
+            Type: PLAINTEXT
+            Value: !Ref SCMRepositoryName
+          - Name: SCM_BRANCH_NAME
+            Type: PLAINTEXT
+            Value: !Ref SCMBranchName
+          - Name: SCM_CONNECTION_ARN
+            Type: PLAINTEXT
+            Value: !Ref SCMConnectionArn
+          - Name: SCM_FULL_REPOSITORY_ID
+            Type: PLAINTEXT
+            Value: !Ref SCMFullRepositoryId
+          - Name: SCM_BUCKET_NAME
+            Type: PLAINTEXT
+            Value: !Ref SCMBucketName
+          - Name: SCM_OBJECT_KEY
+            Type: PLAINTEXT
+            Value: !Ref SCMObjectKey
+          - Name: SCM_CUSTOM_SOURCE_ACTION_GIT_URL
+            Type: PLAINTEXT
+            Value: !Ref SCMCustomSourceActionGitUrl
+          - Name: SCM_CUSTOM_SOURCE_ACTION_GIT_WEB_HOOK_IP_ADDRESS
+            Type: PLAINTEXT
+            Value: !Ref SCMCustomSourceActionGitWebHookIPAddress
+          - Name: SCM_CUSTOM_SOURCE_ACTION_CUSTOM_ACTION_TYPE_VERSION
+            Type: PLAINTEXT
+            Value: !Ref SCMCustomSourceActionCustomActionTypeVersion
+          - Name: SCM_CUSTOM_SOURCE_ACTION_CUSTOM_ACTION_TYPE_PROVIDER
+            Type: PLAINTEXT
+            Value: !Ref SCMCustomSourceActionCustomActionTypeProvider
+          - Name: SCM_SHOULD_CREATE_REPO
+            Type: PLAINTEXT
+            Value: !Ref SCMShouldCreateRepo
+          - Name: VERSION
+            Type: PLAINTEXT
+            Value: !Ref Version
+          - Name: SCT_SHOULD_VALIDATE
+            Type: PLAINTEXT
+            Value: !Ref ShouldValidate
+          - Name: SHOULD_PIPELINES_INHERIT_TAGS
+            Type: PLAINTEXT
+            Value: !Ref ShouldPipelinesInheritTags
+
+      Source:
+        Type: NO_SOURCE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              commands:
+                - pip install ${VERSION}
+                - servicecatalog-factory --info set-regions ${ENABLED_REGIONS}
+                - servicecatalog-factory set-config-value should_pipelines_inherit_tags ${SHOULD_PIPELINES_INHERIT_TAGS}
+            build:
+              commands:
+                - servicecatalog-factory --info bootstrap
+
+      TimeoutInMinutes: 60
+      Tags:
+        - Key: "ServiceCatalogFactory:Actor"
+          Value: "Framework"
+
+  StartInstallRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: StartFactoryInstallRole
+      Path: /servicecatalog-factory/
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSCodeBuildDeveloperAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Tags:
+        - Key: "ServiceCatalogFactory:Actor"
+          Value: "Framework"
+
+  StartInstallLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt StartInstallRole.Arn
+      Handler: "index.handler"
+      Description: Lambda for starting Factory CodeBuild Job
+      Runtime: python3.7
+      Timeout: 900
+      Tags:
+        - Key: "ServiceCatalogFactory:Actor"
+          Value: "Framework"
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import logging
+          import time
+          from urllib.request import Request, urlopen
+
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+
+          def handler(event, context):
+              request_type = event['RequestType']
+              codebuild_projectname = event.get('ResourceProperties').get('ProjectName')
+
+              try:
+                  logger.info(request_type)
+                  if request_type in ['Create', 'Update']:
+                      codebuild_client = boto3.client('codebuild')
+                      logger.info("Starting CodeBuild Job: {}".format(codebuild_projectname))
+                      codebuild_response = codebuild_client.start_build(
+                          projectName = codebuild_projectname
+                      )
+                      build_id = codebuild_response.get('build').get('id')
+                      build_status = 'IN_PROGRESS'
+                      while build_status == 'IN_PROGRESS':
+                          time.sleep(5)
+                          build = codebuild_client.batch_get_builds(ids=[build_id]).get('builds')[0]
+                          build_status = build.get('buildStatus')
+                      if build_status != 'SUCCEEDED':
+                          raise Exception(f"Build did not SUCCEED. Status: {build_status}")
+                      send_response(event, context, "SUCCESS",
+                                    {"Message": "Updated"})
+
+                  elif request_type == 'Delete':
+                      send_response(event, context, "SUCCESS",
+                                    {"Message": "Deleted"})
+
+                  else:
+                      send_response(event, context, "FAILED",
+                                    {"Message": "Unexpected"})
+
+              except Exception as ex:
+                  logger.error(ex)
+                  send_response(event, context,"FAILED",
+                                    {"Message": "Exception"})
+
+          def send_response(e, c, rs, rd):
+              r = json.dumps({
+                  "Status": rs,
+                  "Reason": "CloudWatch Log Stream: " + c.log_stream_name,
+                  "PhysicalResourceId": c.log_stream_name,
+                  "StackId": e['StackId'],
+                  "RequestId": e['RequestId'],
+                  "LogicalResourceId": e['LogicalResourceId'],
+                  "Data": rd
+              })
+              d = str.encode(r)
+              h = {
+                  'content-type': '',
+                  'content-length': str(len(d))
+              }
+              req = Request(e['ResponseURL'], data=d, method='PUT', headers=h)
+              r = urlopen(req)
+              logger.info("Status message: {} {}".format(r.msg, r.getcode()))
+
+  StartInstall:
+    Type: Custom::CustomResource
+    DependsOn:
+      - InitialiserProject
+      - InitialiserStackNameParam
+    Properties:
+      ServiceToken: !GetAtt StartInstallLambda.Arn
+      ProjectName: !Ref InitialiserProject
+      UpdateNonce: !Join
+        - ","
+        - - !Ref EnabledRegions
+          - !Ref SCMSourceProvider
+          - !Ref SCMRepositoryName
+          - !Ref SCMBranchName
+          - !Ref SCMShouldCreateRepo
+          - !Ref SCMConnectionArn
+          - !Ref SCMFullRepositoryId
+          - !Ref SCMBucketName
+          - !Ref SCMObjectKey
+          - !GetAtt InitialiserVersionParam.Value
+          - !Ref Version
+          - !Ref SCMCustomSourceActionGitUrl
+          - !Ref SCMCustomSourceActionGitWebHookIPAddress
+          - !Ref SCMCustomSourceActionCustomActionTypeVersion
+          - !Ref SCMCustomSourceActionCustomActionTypeProvider
+          - !Ref ShouldValidate
+          - !Ref ShouldPipelinesInheritTags
+
+
+Outputs:
+  ServiceCatalogFactoryRepoConsoleURL:
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/codesuite/codecommit/repositories/ServiceCatalogFactory/browse"
+  ServiceCatalogFactoryRepoCloneURLSSH:
+    Value: !Sub "ssh://git-codecommit.${AWS::Region}.amazonaws.com/v1/repos/ServiceCatalogFactory"
+  ServiceCatalogFactoryRepoCloneURLHTTPS:
+    Value: !Sub "https://git-codecommit.${AWS::Region}.amazonaws.com/v1/repos/ServiceCatalogFactory"
+  InitialiserVersion:
+    Value: !GetAtt InitialiserVersionParam.Value
