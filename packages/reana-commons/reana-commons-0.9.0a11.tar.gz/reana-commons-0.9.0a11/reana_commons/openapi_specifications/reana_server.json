@@ -1,0 +1,3023 @@
+{
+  "definitions": {},
+  "info": {
+    "description": "Submit workflows to be run on REANA Cloud",
+    "title": "REANA Server",
+    "version": "0.9.0a5"
+  },
+  "parameters": {},
+  "paths": {
+    "/account/settings/linkedaccounts/": {},
+    "/account/settings/linkedaccounts/static/{filename}": {},
+    "/account/settings/login": {},
+    "/account/settings/security/": {},
+    "/account/settings/sessions/revoke/": {},
+    "/account/settings/static/{filename}": {},
+    "/api/config": {
+      "get": {
+        "description": "This resource provides configuration needed by Reana-UI.",
+        "operationId": "get_config",
+        "parameters": [
+          {
+            "description": "API access_token of user.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration information to consume by Reana-UI.",
+            "examples": {
+              "application/json": {
+                "admin_email": "admin@example.org",
+                "announcement": "This is a QA instance",
+                "chat_url": "https://mattermost.web.cern.ch/it-dep/channels/reana",
+                "client_pyvenv": "/afs/cern.ch/user/r/reana/public/reana/bin/activate",
+                "docs_url": "http://docs.reana.io/",
+                "forum_url": "https://forum.reana.io/",
+                "hide_signup": false,
+                "local_users": true,
+                "polling_secs": 15,
+                "sso": true
+              }
+            },
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Gets information about Reana-UI configuration user."
+      }
+    },
+    "/api/gitlab": {
+      "get": {
+        "description": "Authorize REANA on GitLab.",
+        "operationId": "gitlab_oauth",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ping succeeded.",
+            "examples": {
+              "application/json": {
+                "message": "OK",
+                "status": 200
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "201": {
+            "description": "Authorization succeeded. GitLab secret created.",
+            "examples": {
+              "application/json": {
+                "message": "GitLab secret created",
+                "status": 201
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get access token from GitLab"
+      }
+    },
+    "/api/gitlab/connect": {
+      "get": {
+        "description": "Initiate connection to GitLab to authorize accessing the authenticated user's API.",
+        "operationId": "gitlab_connect",
+        "responses": {
+          "302": {
+            "description": "Redirection to GitLab site."
+          }
+        },
+        "summary": "Initiate connection to GitLab."
+      }
+    },
+    "/api/gitlab/projects": {
+      "get": {
+        "description": "Retrieve projects from GitLab.",
+        "operationId": "gitlab_projects",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "This resource return all projects owned by the user on GitLab in JSON format."
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get user project from GitLab"
+      }
+    },
+    "/api/gitlab/webhook": {
+      "delete": {
+        "description": "Remove an existing REANA webhook from a project on GitLab",
+        "operationId": "delete_gitlab_webhook",
+        "parameters": [
+          {
+            "description": "Data required to delete an existing webhook from GitLab.",
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "properties": {
+                "hook_id": {
+                  "description": "The GitLab webhook id of the project.",
+                  "type": "integer"
+                },
+                "project_id": {
+                  "description": "The GitLab project id.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "project_id",
+                "hook_id"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "The webhook was properly deleted."
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "404": {
+            "description": "No webhook found with provided id."
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Delete an existing webhook from GitLab"
+      },
+      "post": {
+        "description": "Setup a webhook for a GitLab project on GitLab.",
+        "operationId": "create_gitlab_webhook",
+        "parameters": [
+          {
+            "description": "Data required to set a new webhook from GitLab.",
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "properties": {
+                "project_id": {
+                  "description": "The GitLab project id.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "project_id"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "The webhook was created."
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Set a webhook on a user project from GitLab"
+      }
+    },
+    "/api/info": {
+      "get": {
+        "description": "This resource reports information about cluster capabilities.",
+        "operationId": "info",
+        "parameters": [
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. The response contains general info about the cluster.",
+            "examples": {
+              "application/json": {
+                "compute_backends": {
+                  "title": "List of supported compute backends",
+                  "value": [
+                    "kubernetes",
+                    "htcondorcern",
+                    "slurmcern"
+                  ]
+                },
+                "default_workspace": {
+                  "title": "Default workspace",
+                  "value": "/usr/share"
+                },
+                "workspaces_available": {
+                  "title": "List of available workspaces",
+                  "value": [
+                    "/usr/share",
+                    "/eos/home",
+                    "/var/reana"
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "properties": {
+                "compute_backends": {
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                },
+                "default_workspace": {
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "workspaces_available": {
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get information about the cluster capabilities."
+      }
+    },
+    "/api/launch": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource expects a remote reference to a REANA specification file needed to launch a workflow via URL.",
+        "operationId": "launch",
+        "parameters": [
+          {
+            "description": "The remote origin data required to launch a workflow.",
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "properties": {
+                "name": {
+                  "description": "Workflow name.",
+                  "type": "string"
+                },
+                "parameters": {
+                  "description": "Workflow parameters.",
+                  "type": "string"
+                },
+                "specification": {
+                  "description": "Path to the workflow specification file to be used.",
+                  "type": "string"
+                },
+                "url": {
+                  "description": "Remote origin URL where the REANA specification file is hosted.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Information of the workflow launched.",
+            "examples": {
+              "application/json": {
+                "message": "The workflow has been successfully submitted.",
+                "workflow_id": "cdcf48b1-c2f3-4693-8230-b066e088c6ac",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Launch workflow from a remote REANA specification file."
+      }
+    },
+    "/api/ping": {
+      "get": {
+        "description": "Ping the server.",
+        "operationId": "ping",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ping succeeded. Service is running and accessible.",
+            "examples": {
+              "application/json": {
+                "message": "OK",
+                "status": 200
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Ping the server (healthcheck)"
+      }
+    },
+    "/api/secrets": {
+      "get": {
+        "description": "Get user secrets.",
+        "operationId": "get_secrets",
+        "parameters": [
+          {
+            "description": "Secrets owner access token.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of user secrets.",
+            "examples": {
+              "application/json": [
+                {
+                  "name": ".keytab",
+                  "value": "SGVsbG8gUkVBTkEh"
+                },
+                {
+                  "name": "username",
+                  "value": "reanauser"
+                }
+              ]
+            },
+            "schema": {
+              "items": {
+                "properties": {
+                  "name": {
+                    "description": "Secret name",
+                    "type": "string"
+                  },
+                  "type": {
+                    "description": "How will be the secret assigned to the jobs, either exported as an environment variable or mounted as a file.",
+                    "enum": [
+                      "env",
+                      "file"
+                    ],
+                    "type": "string"
+                  }
+                }
+              },
+              "type": "array"
+            }
+          },
+          "403": {
+            "description": "Request failed. Token is not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Error while querying."
+              }
+            }
+          }
+        },
+        "summary": "Get user secrets. Requires an user access token."
+      }
+    },
+    "/api/secrets/": {
+      "delete": {
+        "description": "This resource deletes the requested secrets.",
+        "operationId": "delete_secrets",
+        "parameters": [
+          {
+            "description": "API key of the admin.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Optional. List of secrets to be deleted.",
+            "in": "body",
+            "name": "secrets",
+            "required": true,
+            "schema": {
+              "description": "List of secret names to be deleted.",
+              "items": {
+                "description": "Secret name to be deleted.",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Secrets successfully deleted.",
+            "examples": {
+              "application/json": [
+                ".keytab",
+                "username"
+              ]
+            },
+            "schema": {
+              "description": "List of secret names that have been deleted.",
+              "items": {
+                "description": "Name of the secret that have been deleted.",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "403": {
+            "description": "Request failed. Token is not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Secrets do not exist.",
+            "examples": {
+              "application/json": [
+                "certificate.pem",
+                "PASSWORD"
+              ]
+            },
+            "schema": {
+              "description": "List of secret names that could not be deleted.",
+              "items": {
+                "description": "Name of the secret which does not exist.",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Deletes the specified secret(s)."
+      },
+      "post": {
+        "description": "This resource adds secrets for the authenticated user.",
+        "operationId": "add_secrets",
+        "parameters": [
+          {
+            "description": "Secrets owner access token.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Whether existing secret keys should be overwritten.",
+            "in": "query",
+            "name": "overwrite",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "description": "Optional. List of secrets to be added.",
+            "in": "body",
+            "name": "secrets",
+            "required": true,
+            "schema": {
+              "additionalProperties": {
+                "description": "Secret definition.",
+                "properties": {
+                  "name": {
+                    "description": "Secret name",
+                    "type": "string"
+                  },
+                  "type": {
+                    "description": "How will be the secret assigned to the jobs, either exported as an environment variable or mounted as a file.",
+                    "enum": [
+                      "env",
+                      "file"
+                    ],
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "Secret value",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Secrets successfully added.",
+            "examples": {
+              "application/json": {
+                "message": "Secret(s) successfully added."
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Request failed. Token is not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid"
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed. Secrets could not be added due to a conflict.",
+            "examples": {
+              "application/json": {
+                "message": "The submitted secrets api_key, password, username already exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Add user secrets to REANA."
+      }
+    },
+    "/api/status": {
+      "get": {
+        "description": "Retrieve cluster health status.",
+        "operationId": "status",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Cluster health status information.",
+            "examples": {
+              "application/json": {
+                "job": {
+                  "available": 3,
+                  "health": "warning",
+                  "pending": 3,
+                  "percentage": 38,
+                  "running": 2,
+                  "sort": 1,
+                  "total": 8
+                },
+                "node": {
+                  "available": 8,
+                  "health": "healthy",
+                  "percentage": 80,
+                  "sort": 0,
+                  "total": 10,
+                  "unschedulable": 2
+                },
+                "session": {
+                  "active": 3,
+                  "sort": 3
+                },
+                "workflow": {
+                  "available": 24,
+                  "health": "healthy",
+                  "pending": 2,
+                  "percentage": 80,
+                  "queued": 2,
+                  "running": 4,
+                  "sort": 2,
+                  "total": 30
+                }
+              }
+            },
+            "schema": {
+              "properties": {
+                "job": {
+                  "properties": {
+                    "available": {
+                      "type": "number"
+                    },
+                    "health": {
+                      "type": "string"
+                    },
+                    "pending": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    },
+                    "running": {
+                      "type": "number"
+                    },
+                    "sort": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "node": {
+                  "properties": {
+                    "available": {
+                      "type": "number"
+                    },
+                    "health": {
+                      "type": "string"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    },
+                    "sort": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "unschedulable": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "session": {
+                  "properties": {
+                    "active": {
+                      "type": "number"
+                    },
+                    "sort": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "workflow": {
+                  "properties": {
+                    "available": {
+                      "type": "number"
+                    },
+                    "health": {
+                      "type": "string"
+                    },
+                    "pending": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    },
+                    "queued": {
+                      "type": "number"
+                    },
+                    "running": {
+                      "type": "number"
+                    },
+                    "sort": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Retrieve cluster health status"
+      }
+    },
+    "/api/token": {
+      "put": {
+        "description": "This resource allows the user to create an empty REANA access token and mark it as requested.",
+        "operationId": "request_token",
+        "parameters": [
+          {
+            "description": "API access_token of user.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User information correspoding to the session cookie sent in the request.",
+            "examples": {
+              "application/json": {
+                "reana_token": {
+                  "requested_at": "Mon, 25 May 2020 10:45:15 GMT",
+                  "status": "requested"
+                }
+              }
+            },
+            "schema": {
+              "properties": {
+                "reana_token": {
+                  "properties": {
+                    "requested_at": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Error message indicating that the uses is not authenticated.",
+            "examples": {
+              "application/json": {
+                "error": "User not logged in"
+              }
+            },
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Requests a new access token for the authenticated user."
+      }
+    },
+    "/api/workflows": {
+      "get": {
+        "description": "This resource return all current workflows in JSON format.",
+        "operationId": "get_workflows",
+        "parameters": [
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Required. Type of workflows.",
+            "in": "query",
+            "name": "type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Optional flag to show more information.",
+            "in": "query",
+            "name": "verbose",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "description": "Filter workflows by name.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Sort workflows by creation date (asc, desc).",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Filter workflows by list of statuses.",
+            "in": "query",
+            "items": {
+              "type": "string"
+            },
+            "name": "status",
+            "required": false,
+            "type": "array"
+          },
+          {
+            "description": "Results page number (pagination).",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Number of results per page (pagination).",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Include progress information of the workflows.",
+            "in": "query",
+            "name": "include_progress",
+            "type": "boolean"
+          },
+          {
+            "description": "Include size information of the workspace.",
+            "in": "query",
+            "name": "include_workspace_size",
+            "type": "boolean"
+          },
+          {
+            "description": "Include workspace retention rules of the workflows.",
+            "in": "query",
+            "name": "include_retention_rules",
+            "type": "boolean"
+          },
+          {
+            "description": "Optional analysis UUID or name to filter.",
+            "in": "query",
+            "name": "workflow_id_or_name",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. The response contains the list of all workflows.",
+            "examples": {
+              "application/json": [
+                {
+                  "created": "2018-06-13T09:47:35.66097",
+                  "id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                  "name": "mytest.1",
+                  "size": {
+                    "human_readable": "10 MB",
+                    "raw": 10490000
+                  },
+                  "status": "running",
+                  "user": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "created": "2018-06-13T09:47:35.66097",
+                  "id": "3c9b117c-d40a-49e3-a6de-5f89fcada5a3",
+                  "name": "mytest.2",
+                  "size": {
+                    "human_readable": "12 MB",
+                    "raw": 12580000
+                  },
+                  "status": "finished",
+                  "user": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "created": "2018-06-13T09:47:35.66097",
+                  "id": "72e3ee4f-9cd3-4dc7-906c-24511d9f5ee3",
+                  "name": "mytest.3",
+                  "size": {
+                    "human_readable": "180 KB",
+                    "raw": 184320
+                  },
+                  "status": "created",
+                  "user": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "created": "2018-06-13T09:47:35.66097",
+                  "id": "c4c0a1a6-beef-46c7-be04-bf4b3beca5a1",
+                  "name": "mytest.4",
+                  "size": {
+                    "human_readable": "1 GB",
+                    "raw": 1074000000
+                  },
+                  "status": "created",
+                  "user": "00000000-0000-0000-0000-000000000000"
+                }
+              ]
+            },
+            "schema": {
+              "properties": {
+                "items": {
+                  "items": {
+                    "properties": {
+                      "created": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "launcher_url": {
+                        "type": "string",
+                        "x-nullable": true
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "progress": {
+                        "properties": {
+                          "current_command": {
+                            "type": "string",
+                            "x-nullable": true
+                          },
+                          "current_step_name": {
+                            "type": "string",
+                            "x-nullable": true
+                          },
+                          "failed": {
+                            "properties": {
+                              "job_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "total": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "finished": {
+                            "properties": {
+                              "job_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "total": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "run_finished_at": {
+                            "type": "string",
+                            "x-nullable": true
+                          },
+                          "run_started_at": {
+                            "type": "string",
+                            "x-nullable": true
+                          },
+                          "running": {
+                            "properties": {
+                              "job_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "total": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "total": {
+                            "properties": {
+                              "job_ids": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "total": {
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "session_status": {
+                        "type": "string"
+                      },
+                      "session_type": {
+                        "type": "string"
+                      },
+                      "session_uri": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "properties": {
+                          "human_readable": {
+                            "type": "string"
+                          },
+                          "raw": {
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "user": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "total": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed."
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error.",
+            "examples": {
+              "application/json": {
+                "message": "Something went wrong."
+              }
+            }
+          }
+        },
+        "summary": "Returns list of all current workflows in REANA."
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource is expecting a REANA specification in JSON format with all the necessary information to instantiate a workflow.",
+        "operationId": "create_workflow",
+        "parameters": [
+          {
+            "description": "Name of the workflow to be created. If not provided name will be generated.",
+            "in": "query",
+            "name": "workflow_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Remote repository which contains a valid REANA specification.",
+            "in": "query",
+            "name": "spec",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "REANA specification with necessary data to instantiate a workflow.",
+            "in": "body",
+            "name": "reana_specification",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Request succeeded. The workflow has been created.",
+            "examples": {
+              "application/json": {
+                "message": "The workflow has been successfully created.",
+                "workflow_id": "cdcf48b1-c2f3-4693-8230-b066e088c6ac",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed"
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          },
+          "501": {
+            "description": "Request failed. Not implemented."
+          }
+        },
+        "summary": "Creates a new workflow based on a REANA specification file."
+      }
+    },
+    "/api/workflows/move_files/{workflow_id_or_name}": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource moves files within the workspace. Resource is expecting a workflow UUID.",
+        "operationId": "move_files",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. Source file(s).",
+            "in": "query",
+            "name": "source",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. Target file(s).",
+            "in": "query",
+            "name": "target",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Message about successfully moved files is returned.",
+            "examples": {
+              "application/json": {
+                "message": "Files were successfully moved",
+                "workflow_id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either User or Workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Move files within workspace."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name_a}/diff/{workflow_id_or_name_b}": {
+      "get": {
+        "description": "This resource shows the differences between the assets of two workflows. Resource is expecting two workflow UUIDs or names.",
+        "operationId": "get_workflow_diff",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name of the first workflow.",
+            "in": "path",
+            "name": "workflow_id_or_name_a",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. Analysis UUID or name of the second workflow.",
+            "in": "path",
+            "name": "workflow_id_or_name_b",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "default": false,
+            "description": "Optional flag. If set, file contents are examined.",
+            "in": "query",
+            "name": "brief",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": "5",
+            "description": "Optional parameter. Sets number of context lines for workspace diff output.",
+            "in": "query",
+            "name": "context_lines",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about a workflow, including the status is returned.",
+            "examples": {
+              "application/json": {
+                "reana_specification": [
+                  "- nevents: 100000\n+ nevents: 200000"
+                ],
+                "workspace_listing": {
+                  "Only in workspace a: code": null
+                }
+              }
+            },
+            "schema": {
+              "properties": {
+                "reana_specification": {
+                  "type": "string"
+                },
+                "workspace_listing": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either user or workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get diff between two workflows."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/close/": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource is expecting a workflow to close an interactive session within its workspace.",
+        "operationId": "close_interactive_session",
+        "parameters": [
+          {
+            "description": "Required. Workflow UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. The interactive session has been closed.",
+            "examples": {
+              "application/json": {
+                "message": "The interactive session has been closed"
+              }
+            },
+            "schema": {
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either user or workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Either user or workflow does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Close an interactive workflow session."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/disk_usage": {
+      "get": {
+        "description": "This resource reports the disk usage of a workflow. Resource is expecting a workflow UUID and some parameters .",
+        "operationId": "get_workflow_disk_usage",
+        "parameters": [
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Optional. Additional input parameters and operational options.",
+            "in": "body",
+            "name": "parameters",
+            "required": false,
+            "schema": {
+              "properties": {
+                "search": {
+                  "type": "string"
+                },
+                "summarize": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about the disk usage is returned.",
+            "examples": {
+              "application/json": {
+                "disk_usage_info": [
+                  {
+                    "name": "file1.txt",
+                    "size": {
+                      "human_readable": "12 MB",
+                      "raw": 12580000
+                    }
+                  },
+                  {
+                    "name": "plot.png",
+                    "size": {
+                      "human_readable": "100 KB",
+                      "raw": 184320
+                    }
+                  }
+                ],
+                "workflow_id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "disk_usage_info": {
+                  "items": {
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "properties": {
+                          "human_readable": {
+                            "type": "string"
+                          },
+                          "raw": {
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming data specification seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get disk usage of a workflow."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/logs": {
+      "get": {
+        "description": "This resource reports the status of a workflow. Resource is expecting a workflow UUID.",
+        "operationId": "get_workflow_logs",
+        "parameters": [
+          {
+            "description": "API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Steps of a workflow.",
+            "in": "body",
+            "name": "steps",
+            "required": false,
+            "schema": {
+              "description": "List of step names to get logs for.",
+              "items": {
+                "description": "step name.",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "description": "Results page number (pagination).",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Number of results per page (pagination).",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about a workflow, including the status is returned.",
+            "examples": {
+              "application/json": {
+                "logs": "<Workflow engine log output>",
+                "user": "00000000-0000-0000-0000-000000000000",
+                "workflow_id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "logs": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming data specification seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get workflow logs of a workflow."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/open/{interactive_session_type}": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource is expecting a workflow to start an interactive session within its workspace.",
+        "operationId": "open_interactive_session",
+        "parameters": [
+          {
+            "description": "Required. Workflow UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Type of interactive session to use.",
+            "in": "path",
+            "name": "interactive_session_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Interactive session configuration.",
+            "in": "body",
+            "name": "interactive_session_configuration",
+            "required": false,
+            "schema": {
+              "properties": {
+                "image": {
+                  "description": "Replaces the default Docker image of an interactive session.",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. The interactive session has been opened.",
+            "examples": {
+              "application/json": {
+                "path": "/dd4e93cf-e6d0-4714-a601-301ed97eec60"
+              }
+            },
+            "schema": {
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either user or workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Interactive session type jupiter not found, try with one of: [jupyter]."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Start an interactive session inside the workflow workspace."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/parameters": {
+      "get": {
+        "description": "This resource reports the input parameters of a workflow. Resource is expecting a workflow UUID.",
+        "operationId": "get_workflow_parameters",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Workflow input parameters, including the status are returned.",
+            "examples": {
+              "application/json": {
+                "id": "dd4e93cf-e6d0-4714-a601-301ed97eec60",
+                "name": "workflow.24",
+                "parameters": {
+                  "helloworld": "code/helloworld.py",
+                  "inputfile": "data/names.txt",
+                  "outputfile": "results/greetings.txt",
+                  "sleeptime": 2
+                },
+                "type": "serial"
+              }
+            },
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "object"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either User or Analysis does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Analysis 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get parameters of a workflow."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/specification": {
+      "get": {
+        "description": "This resource returns the REANA workflow specification used to start the workflow run. Resource is expecting a workflow UUID.",
+        "operationId": "get_workflow_specification",
+        "parameters": [
+          {
+            "description": "API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Workflow specification is returned.",
+            "examples": {
+              "application/json": {
+                "inputs": {
+                  "parameters": {
+                    "helloworld": "code/helloworld.py",
+                    "inputfile": "data/names.txt",
+                    "outputfile": "results/greetings.txt",
+                    "sleeptime": 0
+                  }
+                },
+                "workflow": {
+                  "specification": {
+                    "steps": [
+                      {
+                        "commands": [
+                          "echo 'Hello World!'"
+                        ],
+                        "environment": "busybox"
+                      }
+                    ]
+                  },
+                  "type": "serial"
+                }
+              }
+            },
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get the specification used for this workflow run."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/start": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource starts the workflow execution process. Resource is expecting a workflow UUID.",
+        "operationId": "start_workflow",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Optional. Additional input parameters and operational options.",
+            "in": "body",
+            "name": "parameters",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about a workflow, including the execution status is returned.",
+            "examples": {
+              "application/json": {
+                "id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "message": "Workflow submitted",
+                "status": "queued",
+                "user": "00000000-0000-0000-0000-000000000000",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either User or Workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist"
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed. The workflow could not be started due to a conflict.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 could not be started because it is already running."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          },
+          "501": {
+            "description": "Request failed. The specified status change is not implemented.",
+            "examples": {
+              "application/json": {
+                "message": "Status resume is not supported yet."
+              }
+            }
+          }
+        },
+        "summary": "Start workflow."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/status": {
+      "get": {
+        "description": "This resource reports the status of a workflow. Resource is expecting a workflow UUID.",
+        "operationId": "get_workflow_status",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about a workflow, including the status is returned.",
+            "examples": {
+              "application/json": {
+                "created": "2018-10-29T12:50:12",
+                "id": "4e576cf9-a946-4346-9cde-7712f8dcbb3f",
+                "logs": "",
+                "name": "mytest.1",
+                "progress": {
+                  "current_command": "None",
+                  "current_step_name": "None",
+                  "failed": {
+                    "job_ids": [],
+                    "total": 0
+                  },
+                  "finished": {
+                    "job_ids": [],
+                    "total": 0
+                  },
+                  "run_started_at": "2018-10-29T12:51:04",
+                  "running": {
+                    "job_ids": [],
+                    "total": 0
+                  },
+                  "total": {
+                    "job_ids": [],
+                    "total": 1
+                  }
+                },
+                "status": "running",
+                "user": "00000000-0000-0000-0000-000000000000"
+              }
+            },
+            "schema": {
+              "properties": {
+                "created": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "logs": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "progress": {
+                  "type": "object"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either User or Analysis does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Analysis 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          }
+        },
+        "summary": "Get status of a workflow."
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This resource reports the status of a workflow. Resource is expecting a workflow UUID.",
+        "operationId": "set_workflow_status",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. New workflow status.",
+            "in": "query",
+            "name": "status",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Optional. Additional input parameters and operational options.",
+            "in": "body",
+            "name": "parameters",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Info about a workflow, including the status is returned.",
+            "examples": {
+              "application/json": {
+                "id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "message": "Workflow successfully launched",
+                "status": "created",
+                "user": "00000000-0000-0000-0000-000000000000",
+                "workflow_name": "mytest.1"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "workflow_id": {
+                  "type": "string"
+                },
+                "workflow_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "Malformed request."
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Either User or Workflow does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist"
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed. The workflow could not be started due to a conflict.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1 could not be started because it is already running."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal controller error."
+          },
+          "501": {
+            "description": "Request failed. The specified status change is not implemented.",
+            "examples": {
+              "application/json": {
+                "message": "Status resume is not supported yet."
+              }
+            }
+          }
+        },
+        "summary": "Set status of a workflow."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/workspace": {
+      "get": {
+        "description": "This resource retrieves the file list of a workspace, given its workflow UUID.",
+        "operationId": "get_files",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "File name(s) (glob) to list.",
+            "in": "query",
+            "name": "file_name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Results page number (pagination).",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Number of results per page (pagination).",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Filter workflow workspace files.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Requests succeeded. The list of files has been retrieved.",
+            "schema": {
+              "properties": {
+                "items": {
+                  "items": {
+                    "properties": {
+                      "last-modified": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "properties": {
+                          "human_readable": {
+                            "type": "string"
+                          },
+                          "raw": {
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "total": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed."
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. Analysis does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Analysis 256b25f4-4cfb-4684-b7a8-73872ef455a1 does not exist."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Returns the workspace file list."
+      },
+      "post": {
+        "consumes": [
+          "application/octet-stream"
+        ],
+        "description": "This resource is expecting a file to place in the workspace.",
+        "operationId": "upload_file",
+        "parameters": [
+          {
+            "description": "Required. Analysis UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. File to add to the workspace.",
+            "in": "body",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required. File name.",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Optional flag to return a previewable response of the file (corresponding mime-type).",
+            "in": "query",
+            "name": "preview",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. File successfully transferred.",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed"
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. User does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Adds a file to the workspace."
+      }
+    },
+    "/api/workflows/{workflow_id_or_name}/workspace/{file_name}": {
+      "delete": {
+        "description": "This resource is expecting a workflow UUID and a filename existing inside the workspace to be deleted.",
+        "operationId": "delete_file",
+        "parameters": [
+          {
+            "description": "Required. Workflow UUID or name",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. Name (or path) of the file to be deleted.",
+            "in": "path",
+            "name": "file_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Requests succeeded. The file has been downloaded.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. `file_name` does not exist.",
+            "examples": {
+              "application/json": {
+                "message": "input.csv does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Delete the specified file."
+      },
+      "get": {
+        "description": "This resource is expecting a workflow UUID and a file name existing inside the workspace to return its content.",
+        "operationId": "download_file",
+        "parameters": [
+          {
+            "description": "Required. workflow UUID or name.",
+            "in": "path",
+            "name": "workflow_id_or_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Required. Name (or path) of the file to be downloaded.",
+            "in": "path",
+            "name": "file_name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The API access_token of workflow owner.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/octet-stream",
+          "application/json",
+          "application/zip",
+          "image/*",
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "Requests succeeded. The file has been downloaded.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming payload seems malformed."
+          },
+          "403": {
+            "description": "Request failed. User is not allowed to access workflow.",
+            "examples": {
+              "application/json": {
+                "message": "User 00000000-0000-0000-0000-000000000000 is not allowed to access workflow 256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed. `file_name` does not exist .",
+            "examples": {
+              "application/json": {
+                "message": "input.csv does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Returns the requested file."
+      }
+    },
+    "/api/you": {
+      "get": {
+        "description": "This resource provides basic information about an authenticated user based on the session cookie presence.",
+        "operationId": "get_you",
+        "parameters": [
+          {
+            "description": "API access_token of user.",
+            "in": "query",
+            "name": "access_token",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User information correspoding to the session cookie sent in the request.",
+            "examples": {
+              "application/json": {
+                "email": "user@reana.info",
+                "full_name": "John Doe",
+                "quota": {
+                  "cpu": {
+                    "health": "healthy",
+                    "limit": {
+                      "human_readable": "3m 20s",
+                      "raw": 200000
+                    },
+                    "usage": {
+                      "human_readable": "1m 10s",
+                      "raw": 70536
+                    }
+                  },
+                  "disk": {
+                    "health": "healthy",
+                    "limit": {
+                      "human_readable": "50 MB",
+                      "raw": 52430000
+                    },
+                    "usage": {
+                      "human_readable": "766 KB",
+                      "raw": 784384
+                    }
+                  }
+                },
+                "reana_server_version": "0.8.1",
+                "reana_token": {
+                  "requested_at": "Mon, 25 May 2020 10:39:57 GMT",
+                  "status": "active",
+                  "value": "Drmhze6EPcv0fN_81Bj-nA"
+                },
+                "username": "jdoe"
+              }
+            },
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "quota": {
+                  "properties": {
+                    "cpu": {
+                      "properties": {
+                        "health": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "properties": {
+                            "human_readable": {
+                              "type": "string"
+                            },
+                            "raw": {
+                              "type": "number"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "usage": {
+                          "properties": {
+                            "human_readable": {
+                              "type": "string"
+                            },
+                            "raw": {
+                              "type": "number"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "disk": {
+                      "properties": {
+                        "health": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "properties": {
+                            "human_readable": {
+                              "type": "string"
+                            },
+                            "raw": {
+                              "type": "number"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "usage": {
+                          "properties": {
+                            "human_readable": {
+                              "type": "string"
+                            },
+                            "raw": {
+                              "type": "number"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                },
+                "reana_server_version": {
+                  "type": "string"
+                },
+                "reana_token": {
+                  "properties": {
+                    "requested_at": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Error message indicating that the uses is not authenticated.",
+            "examples": {
+              "application/json": {
+                "error": "User not logged in"
+              }
+            },
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Request failed. User token not valid.",
+            "examples": {
+              "application/json": {
+                "message": "Token is not valid."
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            }
+          }
+        },
+        "summary": "Gets information about authenticated user."
+      }
+    },
+    "/confirm": {},
+    "/confirm/{token}": {},
+    "/logout/": {},
+    "/oauth/authorized/{remote_app}/": {},
+    "/oauth/disconnect/{remote_app}/": {},
+    "/oauth/login": {},
+    "/oauth/login/{remote_app}/": {},
+    "/oauth/signup/{remote_app}/": {},
+    "/oauth/static/{filename}": {},
+    "/signin": {},
+    "/signup/": {}
+  },
+  "swagger": "2.0",
+  "tags": []
+}
