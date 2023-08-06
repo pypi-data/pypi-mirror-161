@@ -1,0 +1,128 @@
+[tool.poetry]
+name = "qctrl"
+version = "19.0.0"
+description = "Q-CTRL Python"
+license = "https://q-ctrl.com/terms"
+authors = ["Q-CTRL <support@q-ctrl.com>"]
+maintainers = ["Q-CTRL <support@q-ctrl.com>"]
+readme = "README.md"
+homepage = "https://q-ctrl.com"
+repository = ""
+documentation = "https://docs.q-ctrl.com/boulder-opal/references/qctrl/"
+keywords = [
+    "q-ctrl",
+    "qctrl",
+    "quantum control"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: System :: Distributed Computing"
+]
+packages = [
+    { include = "qctrl" },
+]
+
+[tool.poetry.dependencies]  # https://poetry.eustace.io/docs/versions
+python = ">=3.7.2, <3.11"
+numpy = "^1.21.5"
+tqdm = ">=4.63.0"
+toml = "^0.10.0"
+python-forge = "^18.6.0"
+click = "^8.0"
+gql = {extras = ["requests"], version = "3.2.0"}
+requests = "~2.27.1"
+urllib3 = "~1.26.8"
+tenacity = "^6.0.0"
+attrs = "^19.3.0"
+cached-property = "^1.5.1"
+commonmark = "~0.9.1"
+pytz = "^2020.1"
+python-dateutil = "^2.8.1"
+packaging = "^20.9"
+typing-utils = "^0.1.0"
+inflection = "^0.5.1"
+qctrl-commons = "^17.0.1"
+qctrl-toolkit = "1.5.0"
+rich = "^11.2.0"
+requests-oauthlib = "^1.3.0"
+pyjwt = "^2.4.0"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+pytest-cov = "^2.10.1"
+pytest-mock = "^1.4.0"
+pytest-xdist = "^1.32.0"
+pylint = "^2.14.4"
+pylint_runner = "^0.6.0"
+black = "^22.3.0"
+isort = "^5.7.0"
+pre-commit = "^2.9.3"
+sphinx = "~3.2.1"
+sphinx-reredirects = "^0.0.1"
+sphinx-rtd-theme = "~0.4.3"
+# Sphinx is currently incompatible with docutils>=0.18.0, so we have to request
+# docutils<0.18.0 instead. This can be removed when the following is solved:
+# https://github.com/sphinx-doc/sphinx/issues/10121
+docutils = "^0.17.1"
+# see https://github.com/sphinx-doc/sphinx/issues/10291
+jinja2 = "<3.1"
+
+[tool.poetry.scripts]
+qctrl = "qctrl.scripts:main"
+
+[[tool.poetry.source]]
+name = 'Q-CTRL PyPI'
+url = 'https://pypi.q-ctrl.com/simple'
+
+[tool.poetry.urls]
+LinkedIn = "https://www.linkedin.com/company/q-ctrl/"
+Facebook = "https://www.facebook.com/qctrl"
+Twitter = "https://twitter.com/qctrlHQ"
+YouTube = "https://www.youtube.com/c/qctrl"
+GitHub = "https://github.com/qctrl"
+
+[tool.black]
+exclude = '''
+(
+    /(
+        docs
+    )/
+)
+'''
+
+[tool.isort]
+profile = "black"
+force_grid_wrap = "2"
+
+[tool.pytest.ini_options]
+addopts = "--cov=qctrl --cov=tests --cov-fail-under=85 --cov-report=term-missing:skip-covered"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.8"]
+build-backend = "poetry.core.masonry.api"
+
+#  _______________________________________
+# / If you update this file, please run   \
+# \ poetry update                         /
+#  ---------------------------------------
+#        \   ^__^
+#         \  (oo)\_______
+#            (__)\       )\/\
+#                ||----w |
+#                ||     ||
