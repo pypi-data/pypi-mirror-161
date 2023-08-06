@@ -1,0 +1,137 @@
+Metadata-Version: 2.1
+Name: prefect-dbt
+Version: 0.1.0
+Summary: Prefect integration for working with dbt
+Home-page: https://github.com/PrefectHQ/prefect-dbt
+Author: Prefect Technologies, Inc.
+Author-email: help@prefect.io
+License: Apache License 2.0
+Keywords: prefect
+Classifier: Natural Language :: English
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: prefect (>=2.0.0)
+Requires-Dist: prefect-shell (>=0.1.0)
+Provides-Extra: all_extras
+Requires-Dist: dbt-core (>=1.1.1) ; extra == 'all_extras'
+Requires-Dist: prefect-gcp (>=0.1.2) ; extra == 'all_extras'
+Requires-Dist: prefect-snowflake (>=0.1.1) ; extra == 'all_extras'
+Requires-Dist: prefect-sqlalchemy (>=0.1.1) ; extra == 'all_extras'
+Provides-Extra: bigquery
+Requires-Dist: prefect-gcp (>=0.1.2) ; extra == 'bigquery'
+Provides-Extra: cli
+Requires-Dist: dbt-core (>=1.1.1) ; extra == 'cli'
+Provides-Extra: dev
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: mypy ; extra == 'dev'
+Requires-Dist: mkdocs ; extra == 'dev'
+Requires-Dist: mkdocs-material ; extra == 'dev'
+Requires-Dist: mkdocstrings[python] ; extra == 'dev'
+Requires-Dist: isort ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: pytest-asyncio ; extra == 'dev'
+Requires-Dist: mkdocs-gen-files ; extra == 'dev'
+Requires-Dist: interrogate ; extra == 'dev'
+Requires-Dist: coverage ; extra == 'dev'
+Requires-Dist: respx ; extra == 'dev'
+Requires-Dist: dbt-core (>=1.1.1) ; extra == 'dev'
+Requires-Dist: prefect-gcp (>=0.1.2) ; extra == 'dev'
+Requires-Dist: prefect-snowflake (>=0.1.1) ; extra == 'dev'
+Requires-Dist: prefect-sqlalchemy (>=0.1.1) ; extra == 'dev'
+Requires-Dist: mock ; (python_version < "3.8") and extra == 'dev'
+Provides-Extra: postgres
+Requires-Dist: prefect-sqlalchemy (>=0.1.1) ; extra == 'postgres'
+Provides-Extra: snowflake
+Requires-Dist: prefect-snowflake (>=0.1.1) ; extra == 'snowflake'
+
+# prefect-dbt
+
+## Welcome!
+
+`prefect-dbt` is a collection of Prefect integrations for working with dbt with your Prefect flows.
+
+## Getting Started
+
+### Python setup
+
+Requires an installation of Python 3.7+.
+
+We recommend using a Python virtual environment manager such as pipenv, conda or virtualenv.
+
+These tasks are designed to work with Prefect 2.0. For more information about how to use Prefect, please refer to the [Prefect documentation](https://orion-docs.prefect.io/).
+
+### Installation
+
+Install `prefect-dbt` with `pip`:
+
+```bash
+pip install prefect-dbt
+```
+
+### Trigger a dbt Cloud job and wait for completion
+```python
+from prefect import flow
+
+from prefect_dbt.cloud import DbtCloudCredentials
+from prefect_dbt.cloud.jobs import trigger_dbt_cloud_job_run_and_wait_for_completion
+
+@flow
+def my_flow():
+    run_result = trigger_dbt_cloud_job_run_and_wait_for_completion(
+        dbt_cloud_credentials=DbtCloudCredentials(
+            api_key="my_api_key",
+            account_id=123456789
+        ),
+        job_id=1
+    )
+
+my_flow()
+```
+
+### Execute a dbt CLI command
+```python
+from prefect import flow
+from prefect_dbt.cli.commands import trigger_dbt_cli_command
+
+@flow
+def trigger_dbt_cli_command_flow():
+    result = trigger_dbt_cli_command("dbt debug")
+    return result
+
+trigger_dbt_cli_command_flow()
+```
+
+## Resources
+
+If you encounter any bugs while using `prefect-dbt`, feel free to open an issue in the [prefect-dbt](https://github.com/PrefectHQ/prefect-dbt) repository.
+
+If you have any questions or issues while using `prefect-dbt`, you can find help in either the [Prefect Discourse forum](https://discourse.prefect.io/) or the [Prefect Slack community](https://prefect.io/slack).
+
+If you need help getting started with or using dbt, please consult the [dbt documentation](https://docs.getdbt.com/docs/building-a-dbt-project/documentation).
+
+## Development
+
+If you'd like to install a version of `prefect-dbt` for development, clone the repository and perform an editable install with `pip`:
+
+```bash
+git clone https://github.com/PrefectHQ/prefect-dbt.git
+
+cd prefect-dbt/
+
+pip install -e ".[dev]"
+
+# Install linting pre-commit hooks
+pre-commit install
+```
