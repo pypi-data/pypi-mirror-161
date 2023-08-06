@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "ampel-core"
+version = "0.8.3-alpha.19"
+description = "Alice in Modular Provenance-Enabled Land"
+authors = ["Valery Brinnel"]
+maintainers = ["Jakob van Santen <jakob.van.santen@desy.de>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+homepage = "https://ampelproject.github.io"
+repository = "https://github.com/AmpelProject/Ampel-core"
+documentation = "https://ampelproject.github.io/Ampel-core"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
+]
+packages = [{include = "ampel"}]
+include = [
+    'conf/*/*.json',
+    'conf/*/*/*.json',
+    'conf/*/*.yaml',
+    'conf/*/*/*.yaml',
+    'conf/*/*.yml',
+    'conf/*/*/*.yml',
+]
+
+[tool.poetry.scripts]
+ampel-controller = 'ampel.core.AmpelController:AmpelController.main'
+ampel-config = 'ampel.config.cli:main'
+ampel-db = 'ampel.db.AmpelDB:main'
+ampel = 'ampel.cli.main:main'
+
+[tool.poetry.plugins.cli]
+'job_Run_provided_job_file' = 'ampel.cli.JobCommand'
+'run_Run_selected_process(es)_from_config' = 'ampel.cli.RunCommand'
+'log_Select,_format_and_either_view_or_save_logs._Tail_mode_availabe' = 'ampel.cli.LogCommand'
+'view_Select,_load_and_save_fresh_"ampel_views"' = 'ampel.cli.ViewCommand'
+'db_Initialize,_dump,_delete_specific_databases_or_collections' = 'ampel.cli.DBCommand'
+'config_Build_or_update_config._Fetch_or_append_config_elements' = 'ampel.cli.ConfigCommand'
+'start_Run_ampel_continuously._Processes_are_scheduled_according_to_config' = 'ampel.cli.StartCommand'
+'t2_Match_and_either_reset_or_view_raw_t2_documents' = 'ampel.cli.T2Command'
+'buffer_Match_and_view_or_save_ampel_buffers' = 'ampel.cli.BufferCommand'
+
+[tool.poetry.dependencies]
+ampel-interface = {version = "^0.8.3-alpha.15"}
+python = ">=3.10,<3.11"
+pymongo = "^4.0"
+pydantic = "1.9.0"
+sjcl = "^0.2.1"
+schedule = "^1.0.0"
+yq = "^2.12.0"
+prometheus-client = ">=0.10,<0.12"
+psutil = "^5.8.0"
+slackclient = "^2.7"
+appdirs = "^1.4.4"
+fastapi = {version = ">=0.63,<0.69", optional = true}
+uvicorn = {version = ">=0.13.3,<0.16.0", optional = true, extras = ["standard"]}
+Sphinx = {version = ">=3.5.1,<5.0.0", optional = true}
+sphinx-press-theme = {version = ">=0.5.1,<0.9.0", optional = true}
+sphinx-autodoc-typehints = {version = "^1.11.1", optional = true}
+tomlkit = {version = "^0.7.0", optional = true}
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+pytest-cov = "^3.0.0"
+mypy = "^0.942"
+pytest-asyncio = "^0.18.3"
+pytest-mock = "^3.7.0"
+mongomock = "^4.0.0"
+httpx = "^0.23.0"
+types-setuptools = "^57.4.14"
+types-PyYAML = "^6.0.7"
+
+[tool.poetry.extras]
+server = ["fastapi", "uvicorn"]
+docs = ["Sphinx", "sphinx-press-theme", "sphinx-autodoc-typehints", "tomlkit"]
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools>=40.8.0"]
+build-backend = "poetry.core.masonry.api"
