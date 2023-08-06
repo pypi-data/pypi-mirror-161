@@ -1,0 +1,51 @@
+Metadata-Version: 2.1
+Name: snake-gym-grid
+Version: 0.1.0
+Summary: An implementation on Snake game with grid display
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: gym (==0.25.0)
+Requires-Dist: pygame (==2.1.2)
+Requires-Dist: numpy (>=1.12.0)
+Requires-Dist: opencv-contrib-python (==4.5.5.64)
+Requires-Dist: opencv-python (==4.5.5.64)
+
+# snake-gym
+
+This package is my own implementation on Snake game with Gym integration.
+
+## Usage
+
+```python
+import gym
+import snake_gym_grid.snake_gym_grid
+
+env = gym.make("snake-gym-10x20-v0")
+env.reset()
+
+done = False # whether the snake dies
+
+"""
+action ranges from 0 to 3.
+0 - LEFT
+1 - RIGHT
+2 - UP
+3 - DOWN
+"""
+action = ...
+
+observation = env.reset()
+
+while not done:
+    env.render()
+    observation, reward, done, info = env.step(action)
+env.close()
+```
+
+## Output at each time step
+
+- observation: Pixel image of the game
+- reward: 1.0 when a food is eaten 0.0 otherwise
+- done: whether the snake dies
+- truncate: whether the game is running for more than 100000 time steps
+- info: an empty dictionary for now
