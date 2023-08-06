@@ -1,0 +1,181 @@
+---
+
+#=================================================================
+#= Define the build stages
+#=================================================================
+stages:
+  - ci-image
+  - ci-image-publish
+  - test
+  - deploy
+
+#=================================================================
+#= TAGS (for selecting runner)
+#=================================================================
+.tags: &tags
+  tags:
+    # this should only be built on a gitlab-runner using a docker-based executor
+    - docker
+    # this should only be built on principled technologies gitlab-runner
+    - pt-owned
+
+#=================================================================
+#= Global vairables
+#=================================================================
+variables:
+  CONTAINER_CI_IMAGE_DIR:      containers/ci/.
+  CONTAINER_CURRENT_CI_IMAGE:  $CI_REGISTRY_IMAGE/ci:$CI_COMMIT_REF_SLUG
+  CONTAINER_LATEST_CI_IMAGE:   $CI_REGISTRY_IMAGE/ci:latest
+  CONTAINER_STABLE_CI_IMAGE:   $CI_REGISTRY_IMAGE/ci:stable
+
+#=================================================================
+#= Build Job: build the Docker image
+#=================================================================
+build-ci-image:
+  <<: *tags
+  stage: ci-image
+  image: docker:git
+
+  services:
+    - name: docker:stable-dind
+      alias: thedockerhost
+
+  variables:
+    DOCKER_HOST:        tcp://thedockerhost:2375/
+    DOCKER_DRIVER:      overlay2
+    DOCKER_TLS_CERTDIR: ""
+
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker info
+  script:
+    - docker build --pull -t $CONTAINER_CURRENT_CI_IMAGE $CONTAINER_CI_IMAGE_DIR
+    - docker push $CONTAINER_CURRENT_CI_IMAGE
+    - docker tag $CONTAINER_CURRENT_CI_IMAGE $CONTAINER_LATEST_CI_IMAGE
+    - docker push $CONTAINER_LATEST_CI_IMAGE
+  after_script:
+    - docker logout $CI_REGISTRY
+
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "main")
+      changes:
+        - containers/ci/Dockerfile
+
+#=================================================================
+#= Build Job: deploy release (ci) image
+#=================================================================
+release-ci-image:
+  <<: *tags
+  stage: ci-image-publish
+  services:
+    - name: docker:stable-dind
+      alias: thedockerhost
+  variables:
+    DOCKER_HOST:        tcp://thedockerhost:2375/
+    DOCKER_DRIVER:      overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker info
+  script:
+    - docker pull $CONTAINER_LATEST_CI_IMAGE
+    - docker tag $CONTAINER_LATEST_CI_IMAGE $CONTAINER_STABLE_CI_IMAGE
+    - docker push $CONTAINER_STABLE_CI_IMAGE
+  after_script:
+    - docker logout $CI_REGISTRY
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "main")
+      changes:
+        - containers/ci/Dockerfile
+
+# #=================================================================
+# #= Build Job: quick testing
+# #=================================================================
+# quick-test:
+#   <<: *tags
+#   stage: test
+#   image: ${CONTAINER_LATEST_CI_IMAGE}
+#   variables:
+#     PY_COLORS: 1
+#   script:
+#     - python3 setup.py sdist
+#     - python3 setup.py bdist
+#     - python3 setup.py bdist_wheel
+#     - tox -vv -e py36,py37,py38,py39,py310,py311
+#   cache:
+#     paths:
+#       - build/
+#       - dist/
+#       - AUTHORS
+#       - ChangeLog
+#       - .tox/
+#       - doc/build
+#   rules:
+#     # disable for release pushes
+#     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
+#       changes:
+#         - src/pt/ptutils/version.py
+#       when: never
+#     # enable for all other pushes
+#     - if: '$CI_PIPELINE_SOURCE == "push"'
+
+#=================================================================
+#= Build Job: release testing
+#=================================================================
+release-test:
+  <<: *tags
+  stage: test
+  image: ${CONTAINER_LATEST_CI_IMAGE}
+  variables:
+    PY_COLORS: 1
+  script:
+    - python3 setup.py sdist
+    - python3 setup.py bdist
+    - python3 setup.py bdist_wheel
+    - tox --recreate -vv 
+  cache:
+    paths:
+      - build/
+      - dist/
+      - AUTHORS
+      - ChangeLog
+      - .tox/
+      - doc/build
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_TAG =~ /^v.*/)
+
+#=================================================================
+#= Build Job: PyPi publish
+#=================================================================
+publish-pypi:
+  <<: *tags
+  stage: deploy
+  image: ${CONTAINER_LATEST_CI_IMAGE}
+  script:
+    - rm -rf ./dist
+    - pip install -r requirements-dev.txt
+    - python3 -m build
+    - python3 -m twine upload --non-interactive --verbose --disable-progress-bar --skip-existing -u "__token__" -p "$PYPI_PUBLISH_TOKEN" ./dist/*
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_TAG =~ /^v.*/)
+
+#=================================================================
+#= Build Job: GitLab Pages deployment
+#=================================================================
+pages:
+  <<: *tags
+  stage: deploy
+  image: ${CONTAINER_LATEST_CI_IMAGE}
+  script:
+    - mkdir .public
+    - cp -rf doc/build/html/* .public/.
+    - mv .public public
+  cache:
+    paths:
+      - doc/build
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_TAG =~ /^v.*/)
+
