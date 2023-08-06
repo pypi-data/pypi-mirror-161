@@ -1,0 +1,105 @@
+
+# ********************************
+# |docname| - Poetry configuration
+# ********************************
+#
+# See https://python-poetry.org/docs/dependency-specification/ to get an understanding of
+# how poetry specifies dependencies.
+#
+# Project metadata
+# ================
+[tool.poetry]
+name = "bookserver"
+version = "1.1.20"
+description = "A new Runestone Server Framework"
+authors = ["Brad Miller <bonelake@mac.com>", "Bryan A. Jones <bjones AT ece DOT msstate DOT edu"]
+license = "MIT"
+readme = "README.rst"
+documentation = "https://bookserver.readthedocs.io/en/latest/"
+include = ["deployment/*"]
+
+# Dependencies
+# ============
+[tool.poetry.dependencies]
+aioredis = "^2.0.0"
+async-timeout = "^3.0.0"
+celery = {extras = ["redis"], version = "^5.0.0"}
+python = "^3.8.0"
+fastapi = "^0.68.0"
+# Per the `uvicorn docs <https://www.uvicorn.org/#quickstart>`_, install the standard (as opposed to minimal) uvicorn dependencies.
+uvicorn = {extras = ["standard"], version = "^0.17.0"}
+# See the `poetry docs <https://python-poetry.org/docs/dependency-specification/#using-environment-markers>`_.
+gunicorn = {version = "^20.0.0", markers = "sys.platform != 'win32'"}
+Jinja2 = "<3.1.0"
+aiofiles = "^0.8.0"
+alembic = "^1.0.0"
+python-dateutil = "^2.0.0"
+fastapi-login = "^1.7.0"
+pydal = ">=20210215.1"
+python-multipart = "^0.0.5"
+# asyncpg v. 0.25 has a `bug <https://github.com/MagicStack/asyncpg/issues/884>`_. Stay at v. 0.24 until it's fixed.
+asyncpg = "^0.24.0"
+SQLAlchemy = "^1.0.0"
+aiosqlite = "^0.17.0"
+redis = "^4.0.0"
+runestone = "^6.0.0"
+pyhumps = "^3.0.0"
+bleach = "^4.0.0"
+multi-await = "^1.0.0"
+
+# Development dependencies
+# ========================
+[tool.poetry.dev-dependencies]
+black = "~= 22.0"
+console-ctrl = "^0.1.0"
+pytest = "^7.0.0"
+flake8 = "^4.0.0"
+sphinx-rtd-theme = "^1.0.0"
+# Needed for the ``--install-types --non-interactive`` flags -- see the `mypy release notes <https://mypy-lang.blogspot.com/2021/06/mypy-0910-released.html>`_.
+mypy = "> 0.910"
+coverage = "^6.0.0"
+tox = "^3.0.0"
+selenium = "^3.0.0"
+PyVirtualDisplay = "^3.0"
+polling2 = "^0.5.0"
+pytest-asyncio = "^0.17.0"
+# See https://python-poetry.org/docs/dependency-specification/#path-dependencies. After some testing, Poetry v.1.1.6 allows both ``runestone`` to be specified in the dependencies as a PyPI package and here in the dev dependencies as a local install, and will prefer the local install here. The local install is necessary, since the tests aren't in the PyPI Runestone Components package.
+runestone = { path = "../RunestoneComponents", develop = true }
+pytest-env = "^0.6.0"
+# This is a Runestone Components dependency that's needed when testing PostgreSQL.
+psycopg2-binary = "^2.0.0"
+# This is used by VSCode for Python refactoring
+rope = "^0.21.0"
+
+# Scripts
+# =======
+# See `scripts <https://python-poetry.org/docs/pyproject/#scripts>`_.
+[tool.poetry.scripts]
+bookserver = 'bookserver.__main__:run'
+
+# Poetry backend
+# ==============
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# .. _pytest configuration:
+#
+# pytest configuration
+# ====================
+[tool.pytest.ini_options]
+minversion = "6.0"
+# Ignore source code produced by Sphinx. This happens because the source text for literate programming pages is a source file. Use `short tracebacks <https://docs.pytest.org/en/6.2.x/usage.html#modifying-python-traceback-printing>`_ since the default longer tracebacks produce too much noise.
+addopts = "--ignore=_build --tb=short"
+# The `pytest-env <https://github.com/MobileDynasty/pytest-env>`_ plugin sets these environment variables. Set them here, before imports, since bookserver imports read from the environment variables.
+env = [
+    "BOOK_SERVER_CONFIG=test",
+]
+# The _`default logging level` of INFO produces a LOT of output. Use a higher level of ``WARNING`` to reduce the noise.
+log_cli_level = 30
+# All async tests use the `pytest-asyncio framework <https://github.com/pytest-dev/pytest-asyncio#modes>`_.
+asyncio_mode = "auto"
+
+
+[tool.mypy]
+ignore_missing_imports = true
