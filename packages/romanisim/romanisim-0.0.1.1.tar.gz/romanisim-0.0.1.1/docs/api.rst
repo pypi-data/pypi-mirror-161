@@ -1,0 +1,4 @@
+ROMANISIM API
+==========
+
+.. automodapi:: romanisim
