@@ -1,0 +1,182 @@
+---
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: laboro.config.workflow.schema
+title: Laboro workflow
+description: Laboro workflow
+type: object
+properties:
+  name:
+    type: string
+  log_level:
+    type: string
+    enum:
+      - DEBUG
+      - INFO
+      - WARNING
+      - ERROR
+      - CRITICAL
+  packages:
+    type: array
+    uniqueItems: True
+    items:
+      type: string
+  workspace:
+    type: object
+    properties:
+      delete_on_exit:
+        type: boolean
+    required:
+      - delete_on_exit
+    additionalProperties: False
+  instances:
+    type: array
+    uniqueItems: True
+    items:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: laboro.config.workflow.instance.schema
+      title: Laboro workflow instance
+      type: object
+      properties:
+        name:
+          type: string
+        module:
+          type: string
+        class:
+          type: string
+        args:
+          type:
+            - object
+      required:
+        - name
+        - module
+        - class
+      additionalProperties: False
+  steps:
+    type: array
+    uniqueItems: True
+    items:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: laboro.config.workflow.step.schema
+      title: Laboro workflow step
+      description: Laboro workflow step
+      type: object
+      properties:
+        name:
+          type: string
+        when:
+          type: string
+        loop:
+          type:
+            - string
+            - array
+            - object
+        instances:
+          type: array
+          uniqueItems: True
+          items:
+            $schema: https://json-schema.org/draft/2020-12/schema
+            $id: laboro.config.workflow.instance.schema
+            title: Laboro workflow instance
+            type: object
+            properties:
+              name:
+                type: string
+              module:
+                type: string
+              class:
+                type: string
+              args:
+                type:
+                  - object
+            required:
+              - name
+              - module
+              - class
+            additionalProperties: False
+        actions:
+          type: array
+          uniqueItems: True
+          items:
+            $schema: https://json-schema.org/draft/2020-12/schema
+            $id: laboro.config.workflow.step.action.schema
+            title: Laboro workflow step action
+            description: Laboro workflow step action
+            type: object
+            properties:
+              name:
+                type: string
+              when:
+                type: string
+              loop:
+                type:
+                  - string
+                  - array
+                  - object
+              instances:
+                type: array
+                uniqueItems: True
+                items:
+                  $schema: https://json-schema.org/draft/2020-12/schema
+                  $id: laboro.config.workflow.instance.schema
+                  title: Laboro workflow instance
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    module:
+                      type: string
+                    class:
+                      type: string
+                    args:
+                      type:
+                        - object
+                  required:
+                    - name
+                    - module
+                    - class
+                  additionalProperties: False
+              methods:
+                type: array
+                uniqueItems: True
+                items:
+                  $schema: https://json-schema.org/draft/2020-12/schema
+                  $id: laboro.config.workflow.step.action.object.method.schema
+                  title: Laboro workflow step action object method
+                  description: Laboro workflow step action object method
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    when:
+                      type: string
+                    loop:
+                      type:
+                        - string
+                        - array
+                        - object
+                    instance:
+                      type: string
+                    args:
+                      type:
+                        - object
+                    output:
+                      type:
+                        - string
+                  required:
+                    - name
+                    - instance
+                  additionalProperties: False
+            required:
+              - name
+              - methods
+            additionalProperties: False
+      required:
+        - name
+        - actions
+      additionalProperties: False
+required:
+  - name
+  - packages
+  - workspace
+  - steps
+additionalProperties: False
