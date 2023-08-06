@@ -1,0 +1,64 @@
+"""
+distance.py
+
+language: python
+version: 3.x
+author: C. Lockhart <chris@lockhartlab.org>
+"""
+
+from molecular.analysis._analysis_utils import _distances
+
+import numpy as np
+
+
+def contacts(a, b, cutoff=4.5):
+    return distances(a, b) < cutoff
+
+
+# Compute the distance between two Trajectories
+def distances(a, b):
+    """
+    Compute the distance between two Trajectory instances.
+
+    Parameters
+    ----------
+    a, b : Trajectory
+        Two trajectories. Must have same dimensions.
+
+    Returns
+    -------
+    numpy.ndarray
+        Distance between every frame in the trajectory.
+    """
+
+    a_xyz = a.xyz.to_numpy().reshape(*a.shape)
+    b_xyz = b.xyz.to_numpy().reshape(*b.shape)
+
+    return _distances(a_xyz, b_xyz)
+
+
+# Compute the distance between two Trajectories
+def distance(a, b):
+    """
+    Compute the distance between two Trajectory instances.
+
+    Parameters
+    ----------
+    a, b : Trajectory
+        Two trajectories. Must have same dimensions.
+
+    Returns
+    -------
+    numpy.ndarray
+        Distance between every frame in the trajectory.
+    """
+
+    # TODO there must be a better way
+    a_xyz = a.xyz.to_numpy().reshape(*a.shape)
+    b_xyz = b.xyz.to_numpy().reshape(*b.shape)
+
+    return np.sqrt(np.sum(np.square(a_xyz - b_xyz), axis=(1, 2)))
+
+# Compute pairwise distance between two Trajectories (or within a Trajectory?)
+def pairwise_distance(a, b):
+    pass
