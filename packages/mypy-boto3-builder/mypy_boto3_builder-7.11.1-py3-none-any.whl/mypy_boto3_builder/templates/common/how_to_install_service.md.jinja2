@@ -1,0 +1,60 @@
+## How to install
+
+{% if package.data.IS_VSCODE_SUPPORTED %}
+### VSCode extension
+
+Add [AWS Boto3](https://marketplace.visualstudio.com/items?itemName=Boto3typed.boto3-ide)
+extension to your VSCode and run `AWS boto3: Quick Start` command.
+
+Click `Modify` and select `boto3 common` and `{{ service_name.class_name }}`.
+{% endif %}
+
+### From PyPI with pip
+
+Install `{{ package.data.PYPI_NAME }}` for `{{ service_name.class_name }}` service.
+
+```bash
+# install with {{ package.library_name }} type annotations
+python -m pip install '{{ package.data.PYPI_NAME }}[{{ package.service_name.extras_name }}]'
+
+{% if package.data.PYPI_LITE_NAME %}
+# Lite version does not provide session.client/resource overloads
+# it is more RAM-friendly, but requires explicit type annotations
+python -m pip install '{{ package.data.PYPI_LITE_NAME }}[{{ package.service_name.extras_name }}]'
+{% endif %}
+
+# standalone installation
+python -m pip install {{ package.pypi_name }}
+```
+
+{% if package.data.IS_CONDA_FORGE_SUPPORTED and package.service_name.is_conda_forge_available() -%}
+### From conda-forge
+
+Installing `{{ package.pypi_name }}` from the `conda-forge` channel
+can be achieved by adding `conda-forge` to your channels with:
+
+```bash
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+Once the `conda-forge` channel has been enabled, `{{ package.pypi_name }}`
+can be installed with:
+
+```bash
+conda install {{ package.pypi_name }}
+```
+
+It is possible to list all of the versions of `{{ package.pypi_name }}`
+available on your platform with:
+
+```bash
+conda search {{ package.pypi_name }} --channel conda-forge
+```
+{%- endif %}
+
+## How to uninstall
+
+```bash
+python -m pip uninstall -y {{ package.pypi_name }}
+```
