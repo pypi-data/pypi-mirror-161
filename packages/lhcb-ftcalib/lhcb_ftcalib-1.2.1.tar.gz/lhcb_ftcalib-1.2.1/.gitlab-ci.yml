@@ -1,0 +1,74 @@
+image: centos/python-38-centos7
+
+stages:
+  - unittest
+  - Run_EPM
+  - EPM_compare
+
+before_script:
+    - export PYTHONPATH="${PYTHONPATH}:./"
+    - pip install numpy pandas uproot4 iminuit pytest scipy matplotlib flake8 sweights
+    - pip install -e .
+
+
+API_test:
+    stage: unittest
+    script:
+        - python -m pytest -xv tests/test_api.py
+
+calibration_test:
+    stage: unittest
+    script:
+        - python -m pytest -xv tests/test_calibration.py
+
+cli_test:
+    stage: unittest
+    script:
+        - python -m pytest -xv tests/test_cli.py
+
+run_EPM:
+  stage: Run_EPM
+  needs: [API_test, calibration_test, cli_test]
+  tags:
+    - cvmfs
+  artifacts:
+    paths:
+      - tests/epm_reference_data/
+    expire_in: 1 day
+  script:
+    - python ./tests/generate_epm_testdata.py 30000
+
+    # Install EspressoPerformanceMonitor
+    - HERE=$PWD
+    - ESPRESSO_COMMIT=987e2ed0c348aa1c191dbb56833a4631aec6ce18
+    - EPM_COMMIT=904c7bdd608ee9ea96cf1fb4994032a9e32c92cf
+
+    - wget https://gitlab.cern.ch/lhcb-ft/EspressoPerformanceMonitor/-/archive/${EPM_COMMIT}/EspressoPerformanceMonitor-${EPM_COMMIT}.zip
+    - unzip EspressoPerformanceMonitor-${EPM_COMMIT}.zip && rm EspressoPerformanceMonitor-${EPM_COMMIT}.zip
+    - mv EspressoPerformanceMonitor-${EPM_COMMIT} EspressoPerformanceMonitor && cd EspressoPerformanceMonitor && rm -r Espresso
+
+    - wget https://gitlab.cern.ch/lhcb-ft/Espresso/-/archive/${ESPRESSO_COMMIT}/Espresso-${ESPRESSO_COMMIT}.zip
+    - unzip Espresso-${ESPRESSO_COMMIT}.zip && rm Espresso-${ESPRESSO_COMMIT}.zip
+    - mv Espresso-${ESPRESSO_COMMIT} Espresso
+
+    - mkdir build && cd build
+    - source /cvmfs/sft.cern.ch/lcg/views/LCG_97/x86_64-centos7-gcc8-opt/setup.sh
+    - cmake ..
+    - make
+    - EPMBIN=$PWD/bin/SimpleEvaluator
+    - cd $HERE
+
+    # Run EPM
+    - cd ./tests/epm_reference_data
+    - bash run_epm.sh $EPMBIN
+
+
+EPM_compare:
+  stage: EPM_compare
+  needs: [run_EPM]
+  dependencies:
+    - run_EPM
+  cache:
+    key: epmfiles-cache
+  script:
+    - python -m pytest -s tests/test_epm.py
