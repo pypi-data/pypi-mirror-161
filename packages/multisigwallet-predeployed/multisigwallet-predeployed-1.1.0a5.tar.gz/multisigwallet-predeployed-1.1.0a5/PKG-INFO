@@ -1,0 +1,45 @@
+Metadata-Version: 2.1
+Name: multisigwallet-predeployed
+Version: 1.1.0a5
+Summary: A tool for generating predeployed MultiSigWallet smart contract
+Home-page: https://github.com/skalenetwork/multisigwallet-predeployed
+Author: Vadim Yavorsky
+Author-email: vadim@skalelabs.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU Affero General Public License v3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+
+# multisigwallet-predeployed
+
+## Description
+
+A tool for generating predeployed MultiSigWallet smart contract
+
+## Installation
+
+```console
+pip install multisigwallet-predeployed
+```
+
+## Usage example
+
+```python
+from multisigwallet_predeployed import  MultiSigWalletGenerator, MULTISIGWALLET_ADDRESS
+
+ORIGINATOR_ADDRESS = '0xd200000000000000000000000000000000000000'
+
+multisigwallet_generator = MultiSigWalletGenerator()
+
+genesis = {
+    # genesis block parameters
+    'alloc': {
+        **multisigwallet_generator.generate_allocation(
+            contract_address=MULTISIGWALLET_ADDRESS,
+            originator_addresses=[ORIGINATOR_ADDRESS]
+        )
+    }
+}
+
+```
