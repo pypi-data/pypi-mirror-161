@@ -1,0 +1,2 @@
+class PythieServingException(Exception):
+    pass
