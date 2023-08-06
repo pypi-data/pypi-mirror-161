@@ -1,0 +1,103 @@
+{% load bootstrap %}
+{% load i18n %}
+
+<li class="{% if is_child_board %}child-{% endif %}board-sortable ui-state-default ui-sortable" data-board-id="{{ board.board_obj.pk }}" data-position="{{ board.board_obj.order }}">
+    <div class="aa-forum-admin-board-name clearfix">
+        {{ board.board_obj.name }}
+
+        <div class="pull-right">
+            <button class="btn btn-warning btn-xs" title="{% translate 'Edit Board' %}" data-toggle="collapse" data-target="#collapseEditBoard-{{ board.board_obj.pk }}" aria-expanded="false" aria-controls="collapseEditBoard-{{ board.board_obj.pk }}">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+
+            <button class="btn btn-danger btn-xs" title="{% translate 'Delete Board' %}" data-toggle="modal" data-target="#delete-board-{{ board.board_obj.pk }}">
+                <i class="far fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse" id="collapseEditBoard-{{ board.board_obj.pk }}" style="margin-top: 1rem;">
+        <div class="well">
+            <p>
+                {% translate "Changing the name of this board does not change its URL part. This will remain the same to not break any possible links into this board." %}
+            </p>
+
+            <form id="aa-forum-form-edit-board-{{ board.board_obj.pk }}" autocomplete="off" action="{% url 'aa_forum:admin_board_edit' category.category_obj.pk board.board_obj.pk %}" method="post">
+                <fieldset>
+                    {% csrf_token %}
+
+                    {{ board.board_forms.board_edit_form.name|bootstrap }}
+                    {{ board.board_forms.board_edit_form.description|bootstrap }}
+                    {{ board.board_forms.board_edit_form.discord_webhook|bootstrap }}
+                    {{ board.board_forms.board_edit_form.use_webhook_for_replies|bootstrap }}
+
+                    {% if not is_child_board %}
+                        {{ board.board_forms.board_edit_form.groups|bootstrap }}
+                        {{ board.board_forms.board_edit_form.is_announcement_board|bootstrap }}
+                        {{ board.board_forms.board_edit_form.announcement_groups|bootstrap }}
+                    {% endif %}
+
+                    {% include "aa_forum/partials/form/required-field-hint.html" %}
+
+                    <div class="form-group aa-forum-form-group aa-forum-form-change-board text-right clearfix">
+                        <button class="btn btn-primary btn-sm" type="submit">
+                            {% translate "Change Board" %}
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+    {% if not is_child_board %}
+        <div class="child-boards" style="margin-left: 2rem; margin-top: 2rem;">
+            <p>
+                <button class="btn btn-default btn-sm" type="button" data-toggle="collapse" data-target="#collapseNewChildBoardForm-{{ board.board_obj.pk }}" aria-expanded="false" aria-controls="collapseNewBoardForm-{{ category.category_obj.pk }}">
+                    {% translate "New Child Board" %}
+                </button>
+            </p>
+
+            <div class="collapse" id="collapseNewChildBoardForm-{{ board.board_obj.pk }}">
+                <div class="well">
+                    <p>
+                        {% translate "New boards will be added at the bottom of the board list for this category. You can move them via drag and drop to a position of your liking." %}
+                    </p>
+
+                    <form id="aa-forum-form-admin-add-child-board-{{ board.board_obj.pk }}" autocomplete="off" action="{% url 'aa_forum:admin_board_create_child' category.category_obj.pk board.board_obj.pk %}" method="post">
+                        <fieldset>
+                            {% csrf_token %}
+
+                            {{ board.board_forms.new_child_board_form.name|bootstrap }}
+                            {{ board.board_forms.new_child_board_form.description|bootstrap }}
+                            {{ board.board_forms.new_child_board_form.discord_webhook|bootstrap }}
+                            {{ board.board_forms.new_child_board_form.use_webhook_for_replies|bootstrap }}
+
+                            {% include "aa_forum/partials/form/required-field-hint.html" %}
+
+                            <div class="form-group aa-forum-form-group aa-forum-form-new-board text-right clearfix">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                    {% translate "Create Board" %}
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+
+            {% if board.child_boards %}
+                <ul id="child-boards-sortable-parent-board-{{ board.board_obj.pk }}" class="boards-sortable child-boards-sortable">
+                    {% for child_board in board.child_boards %}
+                        {% include "aa_forum/partials/administration/board-loop.html" with board=child_board is_child_board='yes' %}
+                    {% endfor %}
+                </ul>
+
+                <script>
+                    boardsWithChildren.push('#child-boards-sortable-parent-board-{{ board.board_obj.pk }}')
+                </script>
+            {% endif %}
+        </div>
+    {% endif %}
+
+
+    {% include "aa_forum/modals/administration/delete-board.html" with board=board.board_obj %}
+</li>
