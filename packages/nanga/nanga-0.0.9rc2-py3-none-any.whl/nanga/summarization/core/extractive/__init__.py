@@ -1,0 +1,1 @@
+from .extractive_summarizer import BertSummarizer
