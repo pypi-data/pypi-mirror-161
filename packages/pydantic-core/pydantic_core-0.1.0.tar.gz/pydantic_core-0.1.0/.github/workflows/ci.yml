@@ -1,0 +1,385 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '**'
+  pull_request: {}
+
+jobs:
+  test:
+    name: test ${{ matrix.python-version }} rust ${{ matrix.rust-toolchain }}
+    strategy:
+      fail-fast: false
+      matrix:
+        rust-toolchain:
+          - nightly
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+          - '3.11.0-beta.5'
+          - 'pypy3.7'
+          - 'pypy3.8'
+          - 'pypy3.9'
+        include:
+          - rust-toolchain: stable
+            python-version: '3.10'
+
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install rust nightly
+      if: matrix.rust-toolchain == 'nightly'
+      uses: actions-rs/toolchain@v1
+      with:
+        # use the default version from rust-toolchain in case rust in pinned there
+        profile: minimal
+
+    - name: install rust stable
+      if: matrix.rust-toolchain != 'nightly'
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: ${{ matrix.rust-toolchain }}
+        override: true
+
+    - id: cache-rust
+      name: cache rust
+      uses: Swatinem/rust-cache@v1
+
+    - run: cargo install rustfilt cargo-binutils
+      if: steps.cache-rust.outputs.cache-hit != 'true'
+
+    - run: rustup component add llvm-tools-preview
+
+    - name: set up python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - id: cache-py
+      name: cache python
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: >
+          py
+          ${{ runner.os }}
+          ${{ env.pythonLocation }}
+          ${{ hashFiles('tests/requirements.txt') }}
+          ${{ hashFiles('pyproject.toml') }}
+
+    - run: pip install -r tests/requirements.txt
+      if: steps.cache-py.outputs.cache-hit != 'true'
+
+    - run: pip install -e .
+      env:
+        RUST_BACKTRACE: 1
+        RUSTFLAGS: '-C instrument-coverage'
+
+    - run: pip freeze
+
+    - run: make test
+      env:
+        BENCHMARK_VS_PYDANTIC: 1
+
+    - run: coverage xml
+
+    - run: ./tests/rust_coverage_export.sh
+
+    - uses: codecov/codecov-action@v2
+      if: matrix.rust-toolchain == 'nightly'
+      with:
+        env_vars: PYTHON
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        override: true
+        components: rustfmt, clippy
+
+    - name: cache rust
+      uses: Swatinem/rust-cache@v1
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # used to lint js code
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - uses: actions/cache@v2
+      id: cache-py
+      name: cache python
+      with:
+        path: ${{ env.pythonLocation }}
+        key: >
+          py
+          ${{ env.pythonLocation }}
+          ${{ hashFiles('tests/requirements-linting.txt') }}
+          ${{ hashFiles('pyproject.toml') }}
+
+    - run: pip install -r tests/requirements-linting.txt
+      if: steps.cache-py.outputs.cache-hit != 'true'
+
+    - run: pip install .
+      if: steps.cache-py.outputs.cache-hit != 'true'
+
+    - run: pip freeze
+
+    - run: make lint
+    - run: make pyright
+
+    - run: npm install
+    - run: npm run lint
+
+  bench:
+    # run the rust benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+
+    - name: cache rust
+      uses: Swatinem/rust-cache@v1
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - run: pip install 'black>=22.3.0,<23' typing_extensions
+    - run: make rust-benchmark
+
+  build-wasm-emscripten:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          components: rust-src
+          target: wasm32-unknown-emscripten
+
+      - name: cache rust
+        uses: Swatinem/rust-cache@v1
+
+      - uses: mymindstorm/setup-emsdk@v11
+        with:
+          # NOTE!: as per https://github.com/samuelcolvin/pydantic-core/pull/149 this version needs to match the version
+          # in node_modules/pyodide/repodata.json, to get the version, run:
+          # `cat node_modules/pyodide/repodata.json | python -m json.tool | rg platform`
+          version: '3.1.14'
+          actions-cache-folder: emsdk-cache
+
+      - name: set package version
+        run: python .github/set_version.py
+        if: "startsWith(github.ref, 'refs/tags/')"
+
+      - name: Sync Cargo.lock
+        run: cargo update -p pydantic-core
+        if: "startsWith(github.ref, 'refs/tags/')"
+
+      - run: pip install 'maturin>=0.13,<0.14' 'black>=22.3.0,<23' typing_extensions
+
+      - name: build wheels
+        run: make build-wasm
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - run: npm install
+
+      - run: npm run test
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wasm_wheels
+          path: dist
+
+  build:
+    name: build on ${{ matrix.platform || matrix.os }} (${{ matrix.target }} - ${{ matrix.manylinux || 'auto' }})
+    # only run on push to main and on release
+    if: "success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')"
+    needs: [test, lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        target: [x86_64, aarch64]
+        manylinux: [auto]
+        include:
+          - os: ubuntu
+            platform: linux
+          - os: windows
+            ls: dir
+            interpreter: 3.7 3.8 3.9 3.10
+          - os: windows
+            ls: dir
+            target: i686
+            python-architecture: x86
+            interpreter: 3.7 3.8 3.9 3.10
+          - os: macos
+            target: aarch64
+            interpreter: 3.7 3.8 3.9 3.10
+          - os: ubuntu
+            platform: linux
+            target: i686
+          # GCC 4.8.5 in manylinux2014 container doesn't support c11 atomic
+          # we use manylinux_2_24 container for aarch64 and armv7 targets instead,
+          - os: ubuntu
+            platform: linux
+            target: aarch64
+            container: messense/manylinux_2_24-cross:aarch64
+          - os: ubuntu
+            platform: linux
+            target: armv7
+            container: messense/manylinux_2_24-cross:armv7
+            interpreter: 3.7 3.8 3.9 3.10
+          # musllinux
+          - os: ubuntu
+            platform: linux
+            target: x86_64
+            manylinux: musllinux_1_1
+          - os: ubuntu
+            platform: linux
+            target: aarch64
+            manylinux: musllinux_1_1
+        exclude:
+          # Windows on arm64 only supports Python 3.11+
+          - os: windows
+            target: aarch64
+
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: ${{ matrix.python-architecture || 'x64' }}
+
+      - name: set package version
+        run: python .github/set_version.py
+        if: "startsWith(github.ref, 'refs/tags/')"
+
+      - name: Sync Cargo.lock
+        run: cargo update -p pydantic-core
+        if: "startsWith(github.ref, 'refs/tags/')"
+
+      - run: pip install -U twine 'black>=22.3.0,<23' typing_extensions
+      # generate self-schema now, so we don't have to do so inside docker in maturin build
+      - run: python generate_self_schema.py
+
+      - name: build sdist
+        if: ${{ matrix.os == 'ubuntu' && matrix.target == 'x86_64' && matrix.manylinux == 'auto' }}
+        uses: messense/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+
+      - name: build wheels
+        uses: messense/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          manylinux: ${{ matrix.manylinux || 'auto' }}
+          container: ${{ matrix.container }}
+          args: --release --out dist --interpreter ${{ matrix.interpreter || '3.7 3.8 3.9 3.10 pypy3.7 pypy3.8 pypy3.9' }}
+
+      - run: ${{ matrix.ls || 'ls -lh' }} dist/
+
+      - run: twine check dist/*
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pypi_files
+          path: dist
+
+  list-pypi-files:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: get dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: pypi_files
+          path: dist
+
+      - run: ls -lh dist/
+      - run: echo "`ls dist | wc -l` files"
+
+  release:
+    needs: [build, build-wasm-emscripten]
+    if: "success() && startsWith(github.ref, 'refs/tags/')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - run: pip install -U twine
+
+      - name: get dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: pypi_files
+          path: dist
+
+      - run: twine check dist/*
+
+      - name: upload to pypi
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_token }}
+
+      - name: get wasm dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: wasm_wheels
+          path: wasm
+
+      - name: upload to github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            wasm/*.whl
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}

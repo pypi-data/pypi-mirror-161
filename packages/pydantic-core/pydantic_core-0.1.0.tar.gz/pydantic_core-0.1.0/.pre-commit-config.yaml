@@ -1,0 +1,29 @@
+fail_fast: true
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: check-yaml
+  - id: check-toml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+  - id: check-added-large-files
+
+- repo: local
+  hooks:
+  - id: debug-check
+    name: Check for debug statements
+    entry: tests/check-debug.sh
+    language: script
+    types: [python]
+  - id: lint-python
+    name: Lint Python
+    entry: make lint-python
+    types: [python]
+    language: system
+  - id: lint-rust
+    name: Lint Rust
+    entry: make lint-rust
+    types: [rust]
+    language: system
