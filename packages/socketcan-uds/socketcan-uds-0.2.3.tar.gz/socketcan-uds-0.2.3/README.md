@@ -1,0 +1,45 @@
+# socketcan-uds
+
+![coverage](https://gitlab.com/Menschel/socketcan-uds/badges/master/coverage.svg)
+![pipeline](https://gitlab.com/Menschel/socketcan-uds/badges/master/pipeline.svg)
+
+[Documentation](https://menschel.gitlab.io/socketcan-uds/)
+
+A python 3 interface to Unified Diagnostic Services (UDS) Protocol
+
+# Description
+
+Goal of this project is to make UDS available in python in a "pythonic" way.
+
+Keep implementation as simple as possible.
+Use python3 built-in functions and bytearrays as well as standard modules like struct and enum wherever possible.
+
+# Usage
+
+Usage is intended to be simple. UDS is basically a serial port, so use it as one.
+You just need to define a CanIsoTpSocket from the corresponding socketcan module and
+pass it to the uds constructor.
+
+# Why yet another implementation of UDS
+
+The other implementations that I've seen do complicate things for no reason.
+Most wrote their own ISOTP layer instead of using platform ones like socketcan.
+
+
+# Some History about car diagnostic protocols
+
+Originally RS232, a full-duplex serial connection was used as physical layer, e.g. +/-12V.
+
+How development moved on was manufacturer specific, Bosch for example.
+
+BOSCH changed Physical Layer to 0-12V.
+Physical layers are K-Line and L-Line around 1990 where K-Line is half-duplex data line and L-Line is something like RTS/CTS.
+Protocol is ISO14230 (KWP2000) 
+
+Baudrates have been obscured deliberately to be incompatible with of-the-shelf equipment.
+
+At some point CAN was invented as a low cost alternative which conflicted with serial point to point connections and someone had to came up with a transport protocol for that, thus ISOTP was defined to be used for diagnostics.
+
+There have been more advanced diagnostic protocols in the 90's, for example you can find a joint-venture called JECS, which is no longer around. 
+The ECCS ECU is one of their well known products and it works in almost every Nissan / Datsun car of the 90's. It features a full-duplex diagnostic protocol called Diagnostic-Datal-Link (DDL).
+
