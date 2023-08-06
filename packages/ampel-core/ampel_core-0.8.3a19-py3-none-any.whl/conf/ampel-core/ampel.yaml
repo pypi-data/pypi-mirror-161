@@ -1,0 +1,113 @@
+mongo:
+  ingest:
+    stock: MongoStockIngester
+    t0: MongoT0Ingester
+    t1: MongoT1Ingester
+    t2: MongoT2Ingester
+    t3: MongoT3Ingester
+
+unit:
+
+# Controller units
+- ampel.core.DefaultProcessController
+
+# Context units
+- ampel.ops.AmpelExceptionPublisher
+- ampel.ops.OpsProcessor
+- ampel.t2.T2Worker
+- ampel.t3.T3Processor
+- ampel.t3.T3PlainUnitExecutor
+- ampel.t3.T3ReviewUnitExecutor
+- ampel.t3.include.session.T3SessionLastRunTime
+- ampel.t3.include.session.T3SessionAlertsNumber
+- ampel.t3.supply.T3DefaultBufferSupplier
+- ampel.t3.supply.SimpleT2BasedSupplier
+- ampel.t3.supply.select.T3StockSelector
+- ampel.t3.supply.select.T3FilteringStockSelector
+- ampel.t3.supply.load.T3SimpleDataLoader
+- ampel.t3.supply.load.T3LatestStateDataLoader
+- ampel.t3.supply.complement.T3RandIntAppender
+- ampel.t3.supply.complement.T3ExtJournalAppender
+- ampel.t3.supply.complement.T3LogsAppender
+- ampel.t3.stage.T3SimpleStager
+- ampel.t3.stage.T3ProjectingStager
+- ampel.t3.stage.T3ChannelStager
+- ampel.t3.stage.T3AdaptativeStager
+- ampel.t3.stage.T3AggregatingStager
+- ampel.t3.stage.T3SequentialStager
+- ampel.t3.stage.T3DistributiveStager
+- ampel.cli.T3BufferTextExporter
+- ampel.cli.T3BufferBinaryExporter
+- ampel.demo.DemoProcessor
+- ampel.ingest.ChainedT0Muxer
+
+# Logical units
+- ampel.t1.T1SimpleCombiner
+- ampel.t1.T1SimpleRetroCombiner
+- ampel.demo.DemoPointT2Unit
+- ampel.demo.DemoFirstPointT2Unit
+- ampel.demo.DemoReviewT3Unit
+- ampel.demo.DemoPlainT3Unit
+- ampel.demo.T3ShowAggregatedStocks
+- ampel.dev.NoShaper
+
+# Aux units
+- ampel.aux.SimpleTagFilter
+- ampel.aux.filter.SimpleDictArrayFilter
+- ampel.aux.filter.FlatDictArrayFilter
+- ampel.t3.stage.project.T3ChannelProjector
+- ampel.t3.stage.filter.T3AmpelBufferFilter
+- ampel.mongo.update.MongoStockIngester
+- ampel.mongo.update.MongoT0Ingester
+- ampel.mongo.update.MongoT1Ingester
+- ampel.mongo.update.MongoT2Ingester
+- ampel.mongo.update.MongoT3Ingester
+
+alias:
+  t3:
+    '%TRANSIENT':
+      col: stock
+    '%STOCK':
+      col: stock
+    '%DATAPOINT':
+      col: t0
+    '%T0':
+      col: t0
+    '%COMPOUND':
+      col: t1
+    '%T1':
+      col: t1
+    '%T2DOC':
+      col: t2
+    '%T2DOC_WITH_CONF':
+      col: t2
+      resolve_config: true
+    '%T2':
+      col: t2
+    '%T2RECORD':
+      col: t2
+
+resource:
+
+  '%mongo': mongodb://localhost:27017
+  '%extcats': mongodb://localhost:27017
+
+process:
+
+  - name: DefaultT2Process
+    tier: 2
+    schedule: every(5).minutes
+    processor:
+      unit: T2Worker
+
+  - name: ExceptionPublisher
+    tier: null
+    schedule: every(10).minutes
+    processor:
+      unit: OpsProcessor
+      config:
+        execute:
+          unit: AmpelExceptionPublisher
+
+template:
+  compact_t3: ampel.template.TPLCompactT3
