@@ -1,0 +1,49 @@
+{{ article.load_static_string }}
+
+<div class="myuw-article row">
+    <div class="col-md-8">
+        <h2 class="myuw-heading-page">{{ article.title }}</h2>
+        <figure class="myuw-article-heroimage">
+            {%  with img=article.image_srcset_paths%}
+                <img class="myuw-card-image-full"
+                     srcset="{{ img.480|safe }} 480w,
+                         {{ img.650|safe }} 650w,
+                         {{ img.780|safe }} 780w,
+                         {{ img.1000|safe }} 1000w"
+                     sizes="(max-width: 767px) 100vw,
+                        650px"
+                     src="{{ img.650|safe }}"
+                     alt="{{ article.image_alt_text }}">
+            {% endwith %}
+            {% if article.image_credit %}
+                <p class="myuw-image-credit">Photo: {{ article.image_credit }}</p>
+            {% endif %}
+        </figure>
+        <div class="myuw-article-body">
+        {{ article.long_body | safe}}
+        </div>
+        {%  if article.related_links.all %}
+            <h3 class="myuw-heading-page">Resources</h3>
+            <ul>
+                {% for link in article.related_links.all %}
+                    <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {%  if article.related_articles.all %}
+            <h3 class="myuw-heading-page">Related Articles</h3>
+            <ul>
+                {% for article in article.related_articles.all %}
+                    <li><a href="/husky_experience_message?article={{ article.slug }}">{{ article.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="myuw-article-footer">
+            <h3 class="myuw-article-footer-title">About the Husky Experience Toolkit</h3>
+            <p>The <a href="/husky_experience">Husky Experience Toolkit</a> is designed to help you make the most of your time at UW, wherever you are in your university career. The articles address four interconnected dimensions of the Husky Experience: Know Yourself, Know the World, Make Your Way, and Weave it Together.
+            </p>
+        </div>
+    </div>
+</div>

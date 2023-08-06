@@ -1,0 +1,25 @@
+{{ article.load_static_string }}
+
+<h3 class="myuw-card-title">Husky Experience Toolkit</h3>
+
+
+<a href="/husky_experience_message?article={{ article.slug }}">
+    <div class="myuw-article-teaser-wrapper">
+        {%  with img=article.image_srcset_paths%}
+            <img class="myuw-card-image-full"
+                 srcset="{{ img.480|safe }} 480w,
+                     {{ img.650|safe }} 650w,
+                     {{ img.780|safe }} 780w,
+                     {{ img.1000|safe }} 1000w"
+                 sizes="(max-width: 767px) 480vw,
+                    650px"
+                 src="{{ img.650|safe }}"
+                 alt="{{ article.image_alt_text }}">
+        {% endwith %}
+    
+        <div class="myuw-article-teaser">
+            <h4 class="myuw-article-teaser-title"><span class="myuw-highlight">{{ article.title }}</span></h4>
+            <p><span class="myuw-highlight">{{ article.short_body | safe }}</span></p>
+        </div>
+    </div>
+</a>
