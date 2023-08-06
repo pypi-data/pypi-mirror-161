@@ -1,0 +1,60 @@
+{% load i18n %}
+{% load humanize %}
+    <div class=col-md-1>
+        <div class="panel panel-default ">
+            <div class="panel-body">
+        {% if eve_type_icon_url is not None %} <img src={{ eve_type_icon_url }} alt={{ eve_type.name }} class="img-responsive center-block">  {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class=col-md-5>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p>
+                    {%if eve_type.eve_market_group.parent_market_group.parent_market_group.parent_market_group.parent_market_group is not null %} {{ eve_type.eve_market_group.parent_market_group.parent_market_group.parent_market_group.parent_market_group }} / {% endif %}
+                    {%if eve_type.eve_market_group.parent_market_group.parent_market_group.parent_market_group is not null %} {{ eve_type.eve_market_group.parent_market_group.parent_market_group.parent_market_group }} / {% endif %}
+                    {%if eve_type.eve_market_group.parent_market_group.parent_market_group is not null %} {{ eve_type.eve_market_group.parent_market_group.parent_market_group }} / {% endif %}
+                    {%if eve_type.eve_market_group.parent_market_group is not null %} {{ eve_type.eve_market_group.parent_market_group }} / {% endif %}
+                    {{ eve_type.eve_market_group }}
+                </p>
+                <h1>{{ eve_type.name }}</h1>
+                <small>{{ eve_type.volume }}m3</small>
+            </div>
+        </div>
+    </div>
+    <div class=col-md-6>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table class=table>
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td><small>5%</small></td>
+                            <td><small>Weighted Average</small></td>
+                            <td><small>Median</small></td>
+                            <td><small>Volume</small></td>
+                        </tr>
+                        <tr>
+                            <td><small>Selling</small></td>
+                            <td>{{ type_statistics.sell_fifth_percentile|intcomma }}</td>
+                            <td>{{ type_statistics.sell_weighted_average|intcomma }}</td>
+                            <td>{{ type_statistics.sell_median|intcomma }}</td>
+                            <td>{{ type_statistics.sell_volume|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td><small>Buying</small></td>
+                            <td>{{ type_statistics.buy_fifth_percentile|intcomma }}</td>
+                            <td>{{ type_statistics.buy_weighted_average|intcomma }}</td>
+                            <td>{{ type_statistics.buy_median|intcomma }}</td>
+                            <td>{{ type_statistics.buy_volume|intcomma }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% if type_statistics.explain is not null %}
+            <div class="panel-footer">
+                {{ type_statistics.explain }}
+            </div>
+            {% endif %}
+        </div>
+    </div>

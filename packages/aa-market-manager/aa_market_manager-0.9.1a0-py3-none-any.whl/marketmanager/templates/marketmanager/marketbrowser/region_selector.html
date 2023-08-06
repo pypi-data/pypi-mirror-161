@@ -1,0 +1,15 @@
+<li class="dropdown">
+    <form action="{% url 'marketmanager:marketbrowser' %}" method="get" id="region_selector" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true">
+        {% if eve_type != None %} <input type="hidden" name="type_id" value={{ eve_type.id }}>{% endif %}
+            <select onchange="this.form.submit()" class="form-control" id="region_selector" name="region_id">
+                    <option value="None" {% if eve_region is None %} selected {% endif %}>
+                    New Eden (All)
+                    </option>
+                {% for each_region in all_regions %}
+                    <option value={{ each_region.id }} {% if eve_region.id == each_region.id %} selected {% endif %}>
+                    {{ each_region.name }}
+                    </option>
+                {% endfor %}
+            </select>
+    </form>
+</li>
