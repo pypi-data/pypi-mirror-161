@@ -1,0 +1,47 @@
+module_repository {
+  hostname: "localhost"
+  listen_port: 50051
+
+  cache_dir: "/tmp/exafunction/module_repository/cache"
+  max_cache_size_in_gb: 100
+  local_data_backend {}
+  local_metadata_backend {
+    base_dir: "/tmp/exafunction/module_repository/metadata"
+  }
+}
+
+scheduler {
+  hostname: "localhost"
+  listen_port: 50050
+
+  session_heartbeat_timeout_seconds: 5
+  log_invocation_time: true
+  max_runners: 1
+  min_runners: 1
+  crash_on_runner_failure: true
+  crash_on_runner_creation_failure: true
+  destroy_existing_runners_on_startup: true
+
+  local_launch_backend {
+    lock_file: "/tmp/exafunction/scheduler.lock"
+    wait_for_lock: true
+    run_module_repository: true
+  }
+}
+
+runner {
+  cpu_only: %{cpu_only}
+  runner_prefix: "exafunction"
+
+  local_launch_backend {
+    initial_port: 50100
+    port_increment: 50
+    runner_lock_dir: "/tmp/exafunction/runner_locks"
+    module_cache_dir: "/tmp/exafunction/module_cache"
+    cycle_cuda_visible_devices: true
+  }
+}
+
+metrics_export_port: 2112
+
+local_secret {}
