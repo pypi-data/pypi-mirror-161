@@ -1,0 +1,126 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: kvstore/gcs
+allOf:
+- $ref: KvStore
+- type: object
+  properties:
+    driver:
+      const: gcs
+    bucket:
+      type: string
+      title: Google Cloud Storage bucket to use.
+      description: |
+        The Google Cloud account that is used must have appropriate permissions
+        on the bucket.  If the bucket has `Requestor Pays
+        <https://cloud.google.com/kvstore/docs/requester-pays>`_ enabled, either
+        additional permissions are required or a separate billing project must
+        be specified using `Context.gcs_user_project`.
+    gcs_request_concurrency:
+      $ref: ContextResource
+      description: >-
+        Specifies or references a previously defined
+        `Context.gcs_request_concurrency`.
+    gcs_user_project:
+      $ref: ContextResource
+      description: >-
+        Specifies or references a previously defined
+        `Context.gcs_user_project`.
+    gcs_request_retries:
+      $ref: ContextResource
+      description: >-
+        Specifies or references a previously defined
+        `Context.gcs_request_retries`.
+  required:
+  - bucket
+definitions:
+  gcs_request_concurrency:
+    $id: Context.gcs_request_concurrency
+    description: >-
+      Specifies a limit on the number of concurrent requests to Google Cloud
+      Storage.
+    type: object
+    properties:
+      limit:
+        oneOf:
+        - type: integer
+          minimum: 1
+        - const: "shared"
+        description: >-
+          The maximum number of concurrent requests.  If the special value of
+          :json:`"shared"` is specified, a shared global limit specified by
+          environment variable :envvar:`TENSORSTORE_GCS_REQUEST_CONCURRENCY`,
+          which defaults to 32.
+        default: "shared"
+  gcs_user_project:
+    $id: Context.gcs_user_project
+    description: |
+      Specifies a Google Cloud project to bill for Google Cloud Storage
+      requests.  If a `project_id` is not specified, requests are
+      billed to the project that owns the bucket by default.  For `Requestor
+      Pays <https://cloud.google.com/kvstore/docs/requester-pays>`_ buckets,
+      however, requests without a `.project_id` specified will fail
+      unless the Google Cloud account has additional permissions.
+    type: object
+    properties:
+      project_id:
+        type: string
+        title: |
+          Google Cloud project id, e.g. :json:`"my-project"`.  The Google Cloud
+          account that is used must have appropriate permissions to bill to the
+          specified project.
+  gcs_request_retries:
+    $id: Context.gcs_request_retries
+    description: |
+      Specifies retry parameters for handling transient network errors.
+      An exponential delay is added between consecutive retry attempts. The
+      default values are appropriate for GCS.
+    type: object
+    properties:
+      max_retries:
+        type: integer
+        minimum: 1
+        description: >-
+          Maximum number of attempts in the case of transient errors.
+        default: 32
+      initial_delay:
+        type: string
+        description: >-
+          Initial backoff delay for transient errors.
+        default: "1s"
+      max_delay:
+        type: string
+        description: >-
+          Maximum backoff delay for transient errors.
+        default: "32s"
+  url:
+    $id: KvStoreUrl/gs
+    allOf:
+    - $ref: KvStoreUrl
+    - type: string
+    title: |
+      ``gs://`` KvStore URL scheme
+    description: |
+      Google Cloud Storage-based key-value stores may be specified using the
+      :file:`gs://{bucket}/{path}` URL syntax, as supported by `gsutil
+      <https://cloud.google.com/storage/docs/gsutil>`__.
+
+      .. admonition:: Examples
+         :class: example
+
+         .. list-table::
+            :header-rows: 1
+            :widths: auto
+
+            * - URL representation
+              - JSON representation
+            * - :json:`"gs://my-bucket"`
+              - .. code-block:: json
+
+                   {"driver": "gcs",
+                    "bucket": "my-bucket"}
+            * - :json:`"gs://bucket/path/to/dataset"`
+              - .. code-block:: json
+
+                   {"driver": "gcs",
+                    "bucket": "my-bucket",
+                    "path": "path/to/dataset"}

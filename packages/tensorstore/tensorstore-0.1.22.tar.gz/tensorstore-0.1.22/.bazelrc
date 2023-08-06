@@ -1,0 +1,61 @@
+# Enable using platform specific build settings
+build --enable_platform_specific_config
+
+# Workaround for building with Redhat devtoolset-9
+# https://github.com/google/tensorstore/issues/2
+build --incompatible_linkopts_to_linklibs
+
+# Ensure the cache is not invalidated by changes to $PATH
+build --incompatible_strict_action_env=true
+
+# Use platforms to select toolchains (https://github.com/bazelbuild/bazel/issues/7260)
+build --incompatible_enable_cc_toolchain_resolution
+
+# Specify platform mapping to ensure "platforms" and --cpu flags are
+# in sync.
+build --platform_mappings=tools/bazel_platforms/platform_mappings
+
+# Use absl with googletest
+build --define=absl=1
+
+# Configure C++17 mode
+build:linux --copt=-fdiagnostics-color=always --cxxopt=-std=c++17 --cxxopt=-fsized-deallocation
+build:macos --copt=-fdiagnostics-color=always --cxxopt=-std=c++17 --cxxopt=-fsized-deallocation
+build:freebsd --copt=-fdiagnostics-color=always --cxxopt=-std=c++17 --cxxopt=-fsized-deallocation
+build:windows --cxxopt=/std:c++17
+
+# disable deprecated-declarations warnings
+build:linux --copt='-Wno-deprecated-declarations'
+build:macos --copt='-Wno-deprecated-declarations'
+build:freebsd --copt='-Wno-deprecated-declarations'
+
+# disable mixed sign comparison warnings
+build:linux --copt='-Wno-sign-compare'
+build:macos --copt='-Wno-sign-compare'
+build:freebsd --copt='-Wno-sign-compare'
+
+# disable spurious warnings from gcc
+build:linux --copt='-Wno-unused-but-set-parameter'
+build:linux --copt='-Wno-maybe-uninitialized'
+
+# disable warnings from clang about unknown warnings
+build:linux --copt='-Wno-unknown-warning-option'
+
+# Windows 10 RS1 required for rename/delete with POSIX semantics
+build:windows --copt=-D_WIN32_WINNT=0x0A000002
+
+# Workaround for https://github.com/abseil/abseil-cpp/issues/848
+# Root cause: https://github.com/bazelbuild/bazel/issues/4341
+build:macos --features=-supports_dynamic_linker
+
+# Significantly speeds up Python test execution.  Requires Windows
+# developer mode enabled in order for non-admin users to create
+# symlinks.
+startup --windows_enable_symlinks
+build:windows --enable_runfiles=true --build_python_zip=false
+
+# Disable warning regarding `msvc::no_unique_address`
+build:windows --copt=/wd4848
+
+# Make MSVC conform to the C++ standard regarding hidden friends
+build:windows --copt=/Zc:hiddenFriend
