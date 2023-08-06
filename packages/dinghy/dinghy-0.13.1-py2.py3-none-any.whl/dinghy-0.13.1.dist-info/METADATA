@@ -1,0 +1,526 @@
+Metadata-Version: 2.1
+Name: dinghy
+Version: 0.13.1
+Summary: Dinghy daily digest tool
+Home-page: https://github.com/nedbat/dinghy
+Author: Ned Batchelder
+Author-email: ned@nedbatchelder.com
+License: Apache
+Project-URL: Twitter, https://twitter.com/nedbat
+Project-URL: Funding, https://github.com/sponsors/nedbat
+Project-URL: Issues, https://github.com/nedbat/dinghy/issues
+Project-URL: Source, https://github.com/nedbat/dinghy
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE.txt
+Requires-Dist: aiofiles (>=0.8)
+Requires-Dist: aiohttp (>3)
+Requires-Dist: click (>8)
+Requires-Dist: click-log (>0.3)
+Requires-Dist: emoji
+Requires-Dist: glom
+Requires-Dist: jinja2 (>3)
+Requires-Dist: pyyaml (>=6)
+
+######
+Dinghy
+######
+
+Dinghy, a GitHub activity digest tool.
+
+|pypi-badge| |pyversions-badge| |license-badge|
+|sponsor-badge| |twitter-nedbat|
+
+Dinghy uses the GitHub GraphQL API to find recent activity on issues and pull
+requests, and writes a compact HTML digest `like this <sample_>`_.
+
+Getting Started
+===============
+
+1. Install dinghy:
+
+   .. code-block:: bash
+
+    $ python -m pip install dinghy
+
+2. To run dinghy you will need a GitHub `personal access token`_ with the
+   correct scopes, probably "repo".  Create one and define the GITHUB_TOKEN
+   environment variable with the value:
+
+   .. code-block:: bash
+
+    $ export GITHUB_TOKEN=ghp_Y2oxDn9gHJ3W2NcQeyJsrMOez
+
+.. _personal access token: https://github.com/settings/tokens
+
+3. Then run dinghy with a GitHub URL:
+
+   .. code-block:: bash
+
+    $ python -m dinghy https://github.com/Me/MyProject
+    Wrote digest: digest.html
+
+   You will have a digest of the repo's last week of activity in digest.html.
+   It will look `something like this <sample_>`_.
+
+   You can also write a YAML configuration file to digest multiple sources, or
+   with different time periods.
+
+.. _sample: https://nedbat.github.io/dinghy/black_digest.html
+
+
+Configuration
+=============
+
+Dinghy configuration is read from a YAML file (``dinghy.yaml`` by default).
+Here's an example:
+
+.. code-block:: yaml
+
+    digests:
+      - digest: lastweek.html
+        title: My projects last week
+        since: 1 week
+        items:
+          - https://github.com/orgs/myorg/projects/17
+          - https://github.com/orgs/anotherorg/projects/8
+          - https://github.com/myorg/myrepo/pulls
+
+      - digest: hotnews.html
+        title: Today's news
+        since: 1 day
+        items:
+          - url: https://github.com/orgs/anotherorg/projects/8
+            home_repo: anotherorg/wg
+          - https://github.com/myorg/churnchurn/issues
+
+      - digest: all_prs.html
+        since: 1 day
+        items:
+          - search: org:myorg is:pr
+            title: MyOrg pull requests
+
+    defaults:
+      ignore_users:
+        - app-user
+        - fake-bot
+
+The ``digests`` clause is a list of digests to produce.  The ``defaults``
+clause sets defaults for the digest options in the rest of the file.  Each
+``digests`` clause specifies what to digest:
+
+- The ``digest`` setting is the HTML digest file to write.
+
+- The ``since`` setting indicates how far back to look for activity. It can use
+  units of weeks, days, hours, minutes and seconds, and can also be
+  abbreviated, like ``1d6h``.
+
+- The ``items`` setting is a list of things to report on, specified in a few
+  different ways:
+
+  - The ``url`` setting is a GitHub URL, in a number of forms:
+
+    - An organization project URL will report on the issues and pull requests
+      in the project. Your GitHub token will need the "read:project" scope.
+
+    - A URL to a repo will report on the issues and pull requests in the repo.
+
+    - A URL to a repo's issues will report on the issues in the repo.
+
+    - A URL to a repo's pull requests will report on the pull requests in the
+      repo.
+
+    - Any of these URLs can point to a GitHub Enterprise installation instead
+      of https://github.com.
+
+  - The ``search`` setting can specify a GitHub search query to find issues or
+    pull requests. The query will have an ``updated:`` term added to it to
+    account for the ``since:`` setting.
+
+  - If an item only needs to specify a GitHub URL, then it can simply be the
+    URL string.
+
+- The optional ``title`` setting will be used to construct the title
+  and main header of the HTML page.
+
+- For GitHub Enterprise, you can specify ``api_root``, which is the URL to
+  build on for GraphQL API requests. It defaults to
+  "https://api.github.com/graphql".
+
+Items can have additional options:
+
+- No activity is reported for bot users.  Some applications act as real users,
+  but should be ignored anyway.  You can list those user names that should be
+  ignored in the ``ignore_users`` setting.
+
+- Items can have an explicit title set with the ``title:`` setting.
+
+- Options for organization projects include:
+
+  - ``home_repo`` is the owner/repo of the repo in which most issues will be
+    created.  Issues in other repos will have the repo indicated in the
+    digest.
+
+
+
+.. |pypi-badge| image:: https://img.shields.io/pypi/v/dinghy.svg
+    :target: https://pypi.python.org/pypi/dinghy/
+    :alt: PyPI
+
+.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/dinghy.svg
+    :target: https://pypi.python.org/pypi/dinghy/
+    :alt: Supported Python versions
+
+.. |license-badge| image:: https://img.shields.io/github/license/nedbat/dinghy.svg
+    :target: https://github.com/nedbat/dinghy/blob/master/LICENSE.txt
+    :alt: License
+
+.. |twitter-nedbat| image:: https://img.shields.io/twitter/follow/nedbat.svg?label=nedbat&style=flat&logo=twitter&logoColor=4FADFF
+    :target: https://twitter.com/nedbat
+    :alt: nedbat on Twitter
+
+.. |sponsor-badge| image:: https://img.shields.io/badge/%E2%9D%A4-Sponsor%20me-brightgreen?style=flat&logo=GitHub
+    :target: https://github.com/sponsors/nedbat
+    :alt: Sponsor me on GitHub
+
+
+.. this will be appended to README.rst
+
+Changelog
+=========
+
+..
+   All enhancements and patches to dinghy will be documented
+   in this file.  It adheres to the structure of http://keepachangelog.com/ ,
+   but in reStructuredText instead of Markdown (for ease of incorporation into
+   Sphinx documentation and the PyPI description).
+
+   This project adheres to Semantic Versioning (http://semver.org/).
+
+Unreleased
+----------
+
+See the fragment files in the `scriv.d directory`_.
+
+.. _scriv.d directory: https://github.com/nedbat/dinghy/tree/master/scriv.d
+
+
+.. scriv-insert-here
+
+.. _changelog-0.13.1:
+
+0.13.1 — 2022-08-03
+-------------------
+
+Fixed
+.....
+
+- On Windows, an alarming but harmless error would appear when finishing.
+  This is now fixed, closing `issue 9`.  Thanks, Carlton Gibson.
+
+.. _issue 9: https://github.com/nedbat/dinghy/issues/9
+
+.. _changelog-0.13.0:
+
+0.13.0 — 2022-07-29
+-------------------
+
+Removed
+.......
+
+- Removed the deprecated "pull_requests" setting.
+
+Added
+.....
+
+- The `api_root` setting lets GitHub Enterprise users control the GraphQL
+  endpoint to use.
+
+Changed
+.......
+
+- Adapt to the `2022-06-23 GitHub issues update`__, using the ProjectsV2 API
+  instead of the ProjectsNext API.
+
+__ https://github.blog/changelog/2022-06-23-the-new-github-issues-june-23rd-update/
+
+.. _changelog-0.12.0:
+
+0.12.0 — 2022-06-12
+-------------------
+
+Added
+.....
+
+- The `title` option can be used on individual digests to add text to the
+  title of the report. Thanks, Doug Hellmann.
+
+.. _changelog-0.11.5:
+
+0.11.5 — 2022-06-07
+-------------------
+
+Fixed
+.....
+
+- Closed issues now distinguish between "completed" and "not planned".
+
+.. _changelog-0.11.4:
+
+0.11.4 — 2022-05-10
+-------------------
+
+Added
+.....
+
+- HTML escaping is applied to the text pulled from GitHub (oops!)
+
+- Emojis are displayed as emojis rather than as text.
+
+.. _changelog-0.11.3:
+
+0.11.3 — 2022-05-06
+-------------------
+
+Fixed
+.....
+
+- GitHub sometimes responds with "502 Bad Gateway".  Pause and retry if that
+  happens.
+
+.. _changelog-0.11.2:
+
+0.11.2 — 2022-04-12
+-------------------
+
+Added
+.....
+
+- Added a ``--version`` option.
+
+Fixed
+.....
+
+- Pull requests with many reviews would skip some reviews.  Now all pull
+  request data is fully retrieved.
+
+- On large digests, GitHub sometimes returns 403 as a rate limit.  Retry when
+  this happens to finish the queries.
+
+.. _changelog-0.11.1:
+
+0.11.1 — 2022-03-29
+-------------------
+
+Fixed
+.....
+
+- Corrected a packaging mistake (missing Changelog entry).
+
+
+.. _changelog-0.11.0:
+
+0.11.0 — 2022-03-29
+-------------------
+
+Added
+.....
+
+- Resolved comments are now indicated with a checkbox icon, and hover text of
+  "resolved comment".
+
+Fixed
+.....
+
+- Fixed a crash trying to get the repository for an issue in a project.
+
+.. _changelog-0.10.0:
+
+0.10.0 — 2022-03-28
+-------------------
+
+Changed
+.......
+
+- Pull request data was not properly displayed: comments weren't included in
+  the digest that should have been.
+
+- Pull request comments older than the cutoff date will be included if they are
+  needed to show the discussion threads of newer comments.  The old comments
+  are shown in gray to help stay focused on recent activity.
+
+- Parsing of time durations was made stricter, so that "1 month" isn't
+  mistaken for "1 minute".  Fixes `issue 7`_
+
+.. _issue 7: https://github.com/nedbat/dinghy/issues/7
+
+Removed
+.......
+
+- Oops, it turns out there's no such thing as a repo project for "Projects
+  (beta)".  That thing that wouldn't have worked has been removed.
+
+
+0.9.0 — 2022-03-17
+------------------
+
+Added
+.....
+
+- GitHub enterprise support: you can use URLs pointing to your own GitHub
+  Enterprise installation.  Only a single host can be used.  Thanks, Henry
+  Gessau.
+
+- A "search:" entry in the configuration file will find issues or pull requests
+  matching the query.
+
+- Items in the configuration file can have ``title:`` to set an explicit title.
+
+Deprecated
+..........
+
+- The ``pull_requests:`` configuration setting is deprecated in favor of
+  ``search:``.   ``pull_requests: org:my_org`` becomes ``search: org:my_org
+  is:pr``.
+
+0.8.0 — 2022-03-16
+------------------
+
+Added
+.....
+
+- Repo projects are supported.
+
+Fixed
+.....
+
+- Error handling failed on certain errors.  This is now fixed, closing
+  `issue 4`_.
+
+.. _issue 4: https://github.com/nedbat/dinghy/issues/4
+
+0.7.1 — 2022-03-13
+------------------
+
+Fixed
+.....
+
+- Better handling of authorization problems, with error message presented so
+  that the user can fix them.
+
+0.7.0 — 2022-03-12
+------------------
+
+Added
+.....
+
+- The command line now accepts a GitHub URL to quickly get a week's digest of
+  activity from a repo (or issues, pull requests, etc).
+
+- The logging level can now be specified with the ``-v``/``--verbosity``
+  command-line option.
+
+Fixed
+.....
+
+- Dependencies now have minimum pins, fixing `issue 1`_.
+
+.. _issue 1: https://github.com/nedbat/dinghy/issues/1
+
+0.6.0 — 2022-03-10
+------------------
+
+Added
+.....
+
+- GitHub's @ghost user shows up in GraphQL results as an "author" of None.
+  Properly handle that case.
+
+Fixed
+.....
+
+- Fixes to the color of labels.
+
+- Correct handling of HTML in bodies.
+
+0.5.2 — 2022-03-08
+------------------
+
+Changed
+.......
+
+- More HTML tweaks to indentation and information.
+
+0.5.1 — 2022-03-07
+------------------
+
+Changed
+.......
+
+- Indentation tweaks to make thread structure clearer.
+
+0.5.0 — 2022-03-03
+------------------
+
+Changed
+.......
+
+- Pull request reviews are displayed more compactly.
+
+0.4.0 — 2022-02-28
+------------------
+
+Added
+.....
+
+- A repo URL will report on both pull requests and issues in the repo.
+
+0.3.0 — 2022-02-27
+------------------
+
+Added
+.....
+
+- The configuration file can be specified as the argument on the command line.
+
+- GitHub icons decorate pull requests, issues, and comments to distinguish them
+  and indicate their status.
+
+Changed
+.......
+
+- The configuration file syntax changed.  Now there is a top-level ``digests``
+  clause and an optional ``defaults`` clause.
+
+- The ``bots`` setting is now called ``ignore_users``.
+
+- Pull request review threads are presented hierarchically.
+
+0.2.0 — 2022-02-21
+------------------
+
+Added
+.....
+
+- Items can have options.  Organization projects have a ``home_repo`` option so
+  that issues from other repos will get an indication of the other repo.
+
+- Organizatons can be searched for pull requests.
+
+- If dinghy hits a GraphQL API rate limit, it will sleep until the limit is
+  reset.
+
+- Don't report on activity by bot users.  The ``bot`` setting can be used to
+  list user accounts that should be considered bots.
+
+0.1.0 — 2022-02-19
+------------------
+
+* First release.
