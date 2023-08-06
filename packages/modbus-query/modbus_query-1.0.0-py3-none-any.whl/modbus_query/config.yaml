@@ -1,0 +1,100 @@
+# Stores register values to a CSV file
+csv_file: True
+# Prints values to the terminal
+print_terminal: True
+# Prints values to a log file
+print_log: True
+# Adds a timestamp before all printed values
+print_timestamp: True
+
+# Serial port, serial baudrate, Modbus slave address, Modbus register address, register query period (ms), register query timeout (ms) *must be less than period*
+registers:  [{
+              serial_port: "COM3",
+              serial_baud: 9600,
+              slave_address: 0x1F,
+              reg_address: 0x0021,
+              query_period: 200,
+              query_timeout: 30
+            },
+            {
+              serial_port: "COM3",
+              serial_baud: 9600,
+              slave_address: 0x1F,
+              reg_address: 0x0026, 
+              query_period: 200,
+              query_timeout: 30
+            },
+            {
+              serial_port: "COM4",
+              serial_baud: 9600,
+              slave_address: 0x1F,
+              reg_address: 0x07CF, 
+              query_period: 200,
+              query_timeout: 30
+            },
+            {
+              serial_port: "COM4",
+              serial_baud: 9600,
+              slave_address: 0x1F,
+              reg_address: 0x07D8, 
+              query_period: 200,
+              query_timeout: 30
+            },
+            {
+              serial_port: "COM4",
+              serial_baud: 9600,
+              slave_address: 0x1F,
+              reg_address: 0x07D9, 
+              query_period: 200,
+              query_timeout: 30
+            }]
+
+# Prefix, register address, register bit mask, min/max/average, min/max reset threshold, decimal places
+register_masks:   [{
+                    prefix: "Motor Overload (oL1)",
+                    address: 0x0021,
+                    mask: 0x0200,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 0
+                  },
+                  {
+                    prefix: "Drive Overload (oL2)",
+                    address: 0x0021,
+                    mask: 0x0004,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 0
+                  },
+                  {
+                    prefix: "Output Current",
+                    address: 0x0026,
+                    mask: 0xFFFF,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 2
+                  },
+                  {
+                    prefix: "Peak Hold Current",
+                    address: 0x07CF,
+                    mask: 0xFFFF,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 2
+                  },
+                  {
+                    prefix: "Motor Overload Estimate (oL1%)",
+                    address: 0x07D8,
+                    mask: 0xFFFF,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 0
+                  },
+                  {
+                    prefix: "Motor Overload Estimate (oL2%)",
+                    address: 0x07D9,
+                    mask: 0xFFFF,
+                    function: null,
+                    reset_thld: 0,
+                    decimals: 0
+                  }]
