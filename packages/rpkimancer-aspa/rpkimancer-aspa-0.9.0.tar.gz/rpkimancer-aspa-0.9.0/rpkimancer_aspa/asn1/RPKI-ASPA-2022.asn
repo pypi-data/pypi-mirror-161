@@ -1,0 +1,38 @@
+RPKI-ASPA-2022
+  { iso(1) identified-organization(3) dod(6) internet(1)
+    private(4) enterprise(1) workonline(35743)
+    rpki(3) work-in-progress(1) module(0) aspa(1) draft-09(9) }
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+  CONTENT-TYPE
+  FROM CryptographicMessageSyntax-2010  -- RFC 6268
+    { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+       pkcs-9(9) smime(16) modules(0) id-mod-cms-2009(58) } ;
+
+id-ct-ASPA OBJECT IDENTIFIER ::=
+  { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+    pkcs-9(9) id-smime(16) id-ct(1) 49 }
+
+ct-ASPA CONTENT-TYPE ::=
+  { TYPE ASProviderAttestation IDENTIFIED BY id-ct-ASPA }
+
+ASProviderAttestation ::= SEQUENCE {
+  version [0]   ASPAVersion DEFAULT v0,
+  customerASID  ASID,
+  providers     ProviderASSet }
+
+ASPAVersion ::= INTEGER  { v0(0) }
+
+ProviderASSet ::= SEQUENCE (SIZE(1..MAX)) OF ProviderAS
+
+ProviderAS ::= SEQUENCE {
+  providerASID  ASID,
+  afiLimit      AddressFamilyIdentifier OPTIONAL }
+
+ASID ::= INTEGER
+
+AddressFamilyIdentifier ::= OCTET STRING (SIZE (2))
+END
