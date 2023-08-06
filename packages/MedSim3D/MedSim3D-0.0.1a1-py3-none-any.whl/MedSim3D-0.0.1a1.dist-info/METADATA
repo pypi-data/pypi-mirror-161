@@ -1,0 +1,97 @@
+Metadata-Version: 2.1
+Name: MedSim3D
+Version: 0.0.1a1
+Summary: Medical Simulation Framework in the 3D Environment
+Home-page: https://github.com/dhchenx/MedSim3D
+Author: Donghua Chen
+Author-email: douglaschan@126.com
+License: MIT
+Project-URL: Bug Reports, https://github.com/dhchenx/MedSim3D/issues
+Project-URL: Source, https://github.com/dhchenx/MedSim3D
+Keywords: medical education,simulation,agent-based modeling,3D
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Python: >=3.6, <4
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: tqdm
+Requires-Dist: requests
+Provides-Extra: dev
+Requires-Dist: check-manifest ; extra == 'dev'
+Provides-Extra: test
+Requires-Dist: coverage ; extra == 'test'
+
+## MedSim3D: Medical Simulation Framework in the 3D environment
+
+The `MedSim3D` framework aims to provide a general programmable platform for 3D modeling and simulation in medical education.
+
+### Installation
+
+```
+    pip install MedSim3D
+```
+
+### Examples
+
+Example 1: Download datasets from [the Visible Human Project](https://www.nlm.nih.gov/databases/download/vhp.html). 
+
+```python
+from medsim3d.vhp.downloader import VHPDownloader
+vhp_downloader=VHPDownloader()
+vhp_downloader.download_datasets(
+    gender="Male", # Male or Female
+    body_part="head", 
+    # Options: abdomen, head, legs, pelvis, thighs, thorax
+    save_folder="datasets/male/head")
+```
+
+Example 2: Build human body part 3D models from colored slices
+
+```python
+from medsim3d.vhp.pipeline_bodypart import  *
+# A pipeline to build body parts in a simple way
+pipeline_pelvis=PipelineBodyPart(
+    gender="Female",
+    body_part="pelvis", 
+    # Options: abdomen, head, legs, pelvis, thighs, thorax
+    root_folder='../datasets/Female'
+)
+pipeline_pelvis.run(force_download=True)
+```
+
+Example 3: Build human full body 3D models from CT images
+
+```python
+from medsim3d.vhp.pipeline_human import *
+pipeline_human=PipelineHuman(
+    gender='Male',
+    ct_type='frozenCT', # normalCT
+    root_path='../datasets/Male'
+)
+pipeline_human.run(force_download=True)
+```
+
+![Reconstructed human body 3D model](https://dhchenx.github.io/projects/MedSim3D/human-body.png)
+Fig.1. Reconstructed human body 3D model
+
+### Credits
+
+- [The NLM Visible Human Project](https://www.nlm.nih.gov/research/visible/visible_human.html)
+- [Open3D](http://www.open3d.org/)
+
+
+### License
+
+The `MedSim3D` toolkit is provided by [Donghua Chen](https://github.com/dhchenx) with MIT License.
+
+
+
