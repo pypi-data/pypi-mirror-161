@@ -1,0 +1,133 @@
+Metadata-Version: 2.1
+Name: jobbergate-cli
+Version: 3.2.3
+Summary: Jobbergate CLI Client
+Home-page: https://github.com/omnivector-solutions/jobbergate
+License: MIT
+Author: Omnivector Solutions
+Author-email: info@omnivector.solutions
+Requires-Python: >=3.6.2,<4.0.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: PyYAML (>=5.4.1,<6.0.0)
+Requires-Dist: boto3 (>=1.18.64,<2.0.0)
+Requires-Dist: click (>=8.0.1,<9.0.0)
+Requires-Dist: httpx (>=0.22.0,<0.23.0)
+Requires-Dist: importlib-metadata (>=4.2,<5.0)
+Requires-Dist: inquirer (>=2.7.0,<3.0.0)
+Requires-Dist: loguru (>=0.6.0,<0.7.0)
+Requires-Dist: pendulum (>=2.1.2,<3.0.0)
+Requires-Dist: pep562 (>=1.1,<2.0)
+Requires-Dist: py-buzz (>=3.1.0,<4.0.0)
+Requires-Dist: pydantic (>=1.8.2,<2.0.0)
+Requires-Dist: pyperclip (>=1.8.2,<2.0.0)
+Requires-Dist: python-dotenv (>=0.19.0,<0.20.0)
+Requires-Dist: python-jose (>=3.3.0,<4.0.0)
+Requires-Dist: rich (>=11.2.0,<12.0.0)
+Requires-Dist: sentry-sdk (>=1.4.3,<2.0.0)
+Requires-Dist: typer (>=0.4.0,<0.5.0)
+Requires-Dist: yarl (>=1.7.2,<2.0.0)
+Project-URL: Repository, https://github.com/omnivector-solutions/jobbergate
+Description-Content-Type: text/x-rst
+
+================
+ Jobbergate CLI
+================
+
+Jobbergate CLI client
+
+
+
+Usage
+-----
+
+.. code-block:: console
+
+    jobbergate --help
+
+.. note::
+
+   It is possible to use raw sbatch parameters in create-job-script
+
+   Use the `--sbatch-params` multiple times to use as many parameters as needed in the
+   following format ``--sbatch-params='-N 10'`` or
+   ``--sbatch-params='--comment=some_comment'``
+
+
+Release Process & Criteria
+--------------------------
+
+Run automated tests
+...................
+
+Run:
+
+.. code-block:: console
+
+   make qa
+
+This will run unit tests and linter.
+
+
+Integration testing
+...................
+
+You should verify that each of the functions of the CLI work as expected.
+
+First, prepare your environment:
+
+.. code-block:: console
+
+   JOBBERGATE_API_ENDPOINT=https://jobbergate-api-staging.omnivector.solutions
+
+Then, run the following tests:
+- ``jobbergate --version`` (confirm new version number)
+- ``create-application``
+- ``create-job-script``
+- ``create-job-submission``
+- ``update-application``
+- ``update-job-script``
+- ``update-job-submission``
+- ``list-job-submissions``
+
+(FIXME: most of the above should be covered by automated system tests.)
+
+
+Create a release
+................
+
+First, decided on the scope of the release:
+* major - Significant new features added and/or there are breaking changes to the app
+* minor - New features have been added or major flaws repaired
+* patch - Minor flaws were repaired or trivial features were added
+
+Next, make the release with the selected scope:
+
+.. code-block:: console
+
+   make release-<scope>
+
+So, for example, to create a minor release, you would run:
+
+.. code-block:: console
+
+   make relase-minor
+
+You must have permission to push commits to the main branch to create a release.
+
+If the release script fails, contact a maintainer to debug and fix the release.
+
+
+License
+-------
+* `MIT <LICENSE>`_
+
+
+Copyright
+---------
+* Copyright (c) 2020-2021 OmniVector Solutions <info@omnivector.solutions>
+
