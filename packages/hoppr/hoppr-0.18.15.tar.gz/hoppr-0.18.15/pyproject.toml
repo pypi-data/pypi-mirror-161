@@ -1,0 +1,69 @@
+[tool.poetry]
+name = "hoppr"
+version = "0.18.15"
+description = "A tool for defining, verifying, and transferring software dependencies between environments."
+authors = ["LMCO Open Source <open.source@lmco.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://hoppr.dev/"
+repository = "https://gitlab.com/lmco/hoppr/hoppr"
+
+keywords = [
+    "packaging",
+    "reports",
+    "build dependencies",
+    "software bill of materials"
+]
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Information Technology",
+    "Topic :: Communications :: File Sharing",
+    "Topic :: Software Development :: Version Control",
+    "Topic :: System :: Software Distribution"
+]
+
+packages = [
+    { include = "hoppr" },
+]
+
+
+[tool.poetry.scripts]
+hopctl = "hoppr.main:app"
+
+
+[tool.mypy]
+exclude = "hoppr/types/cyclonedx_(1_3|1_4)"
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+typer = "^0.4.0"
+cyclonedx-python-lib = "^2.0.0"
+requests = "^2.27.1"
+PyYAML = "^6.0"
+jsonschema = "^4.4.0"
+urllib3 = "^1.26.9"
+click = "8.1.3"
+types-PyYAML = "^6.0.5"
+packageurl-python = "^0.10.0"
+pydantic = {extras = ["email"], version = "^1.9.0"}
+
+[tool.poetry.dev-dependencies]
+mkdocs = "^1.2.3"
+mkdocs-material = "^8.2.1"
+pytest = "^7.0.1"
+black = "^22.1.0"
+pylint = "^2.12.2"
+coverage = "^6.3.2"
+mypy = "^0.961"
+pre-commit = "^2.17.0"
+types-requests = "^2.27.15"
+isort = "^5.10.1"
+mkdocs-mermaid2-plugin = "^0.6.0"
+mkdocs-git-revision-date-plugin = "^0.3.2"
+mkdocs-markdownextradata-plugin = "^0.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
