@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "aok"
+version = "0.3.4"
+description = "Complex dictionary comparisons to simplify testing."
+authors = ["Scott Ernst <swernst@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://gitlab.com/rocket-boosters/a-ok"
+repository = "https://gitlab.com/rocket-boosters/a-ok"
+documentation = "https://gitlab.com/rocket-boosters/a-ok"
+keywords = ["testing", "comparisons"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Software Development :: Testing :: Unit",
+  "Topic :: Utilities",
+  "Typing :: Typed"
+]
+exclude = ["aok/tests"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+PyYAML = ">=5.3.1"
+toml = ">=0.10.2"
+
+[tool.poetry.dev-dependencies]
+pytest = ">=6.1.2"
+coverage = ">=5.3"
+black = { version = "*", allow-prereleases = true }
+pytest-cov = ">=2.10.1"
+flake8 = ">=3.8.4"
+flake8-black = ">=0.2.1"
+mypy = ">=0.900"
+taskipy = ">=1.4.0"
+pydocstyle = ">=6.1.1"
+radon = ">=5.1.0"
+yamllint = ">=1.26.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+# https://github.com/illBeRoy/taskipy
+black = "black ."
+black_lint = "black . --check"
+mypy = "mypy . --install-types --non-interactive --ignore-missing-imports"
+flake8 = "flake8 ."
+pydocstyle = "pydocstyle ."
+yamllint = "yamllint ."
+radon = "radon cc . && radon mi ."
+test = "pytest . --cov-report=term-missing --cov=."
+format = "task black"
+lint = "task black_lint && task flake8 && task mypy && task pydocstyle && task radon && task yamllint"
+check = "task format && task lint && task test"
