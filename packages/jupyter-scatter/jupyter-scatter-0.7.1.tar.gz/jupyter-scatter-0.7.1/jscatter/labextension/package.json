@@ -1,0 +1,79 @@
+{
+  "name": "jupyter-scatter",
+  "version": "0.7.1",
+  "description": "A scatter plot extension for Jupyter Notebook and Lab",
+  "author": "Fritz Lekschas",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flekschas/jupyter-scatter.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "scatter",
+    "scatter plot",
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "files": [
+    "embed.js",
+    "extension.js",
+    "index.js",
+    "labplugin.js",
+    "src/**/*.js",
+    "dist/*.js"
+  ],
+  "scripts": {
+    "clean": "rimraf dist/ && rimraf ../jscatter/labextension/ && rimraf ../jscatter/nbextension",
+    "prepare": "npm run clean && npm run lint && npm run build:prod",
+    "build": "webpack --mode=development && npm run build:labextension:dev",
+    "build:prod": "webpack --mode=production && npm run build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "lint": "eslint src embed.js extension.js get-version-info.js index.js labplugin.js",
+    "watch": "webpack --watch --mode=development",
+    "test": "npm run lint"
+  },
+  "dependencies": {
+    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3 || ^4",
+    "camera-2d-simple": "~2.2.1",
+    "d3-axis": "~3.0.0",
+    "d3-scale": "~4.0.2",
+    "d3-selection": "~3.0.0",
+    "dom-2d-camera": "~2.2.3",
+    "gl-matrix": "~3.3.0",
+    "lodash": "~4.17.21",
+    "pub-sub-es": "~2.0.1",
+    "regl": "~2.1.0",
+    "regl-scatterplot": "~1.3.0"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^3.0.8",
+    "css-loader": "^3.5.3",
+    "eslint": "^7.4.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "lint-staged": "^10.2.7",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
+    "rimraf": "^3.0.2",
+    "style-loader": "^1.2.1",
+    "webpack": "^5.18.0",
+    "webpack-cli": "^4.4.0"
+  },
+  "jupyterlab": {
+    "extension": "labplugin",
+    "outputDir": "../jscatter/labextension",
+    "sharedPackages": {
+      "@jupyter-widgets/base": {
+        "bundled": false,
+        "singleton": true
+      }
+    },
+    "_build": {
+      "load": "static/remoteEntry.3fc5288c4e7a4ce745cc.js",
+      "extension": "./extension"
+    }
+  }
+}
