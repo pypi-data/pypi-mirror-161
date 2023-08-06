@@ -1,0 +1,86 @@
+Metadata-Version: 2.1
+Name: django-admin-notification
+Version: 0.2
+Summary: django-admin-notification is a Django app to display notification in Django admin panel
+Home-page: https://github.com/amirhamiri/django-admin-notification
+Author: Amirhossein Amiri
+Author-email: amirhamiri74@gmail.com
+License: MIT
+Download-URL: https://github.com/amirhamiri/django-admin-notification/archive/0.2.tar.gz
+Project-URL: Documentation, https://github.com/amirhamiri/django-admin-notification#readme
+Project-URL: Issues, https://github.com/amirhamiri/django-admin-notification/issues
+Keywords: django,admin,notification
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 1.7
+Classifier: Framework :: Django :: 1.8
+Classifier: Framework :: Django :: 1.9
+Classifier: Framework :: Django :: 1.10
+Classifier: Framework :: Django :: 1.11
+Classifier: Framework :: Django :: 2.0
+Classifier: Framework :: Django :: 2.1
+Classifier: Framework :: Django :: 2.2
+Classifier: Framework :: Django :: 3.0
+Classifier: Framework :: Django :: 3.1
+Classifier: Framework :: Django :: 3.2
+Classifier: Framework :: Django :: 4.0
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Build Tools
+Requires: django(>=1.7)
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# django-admin-notification
+django-admin-notification is a Django app to display notification in Django admin panel.
+## Installation
+- Run `pip install django-admin-notification`
+- Add `admin_notification` to `settings.INSTALLED_APPS` **before** `django.contrib.admin`
+```python
+INSTALLED_APPS = (
+    #...
+    "admin_notification",
+    #...
+    "django.contrib.admin",
+    #...
+)
+
+```
+- In settings.py:
+```python
+NOTIFICATION_MODEL = 'myapp.MyModel' # Select the model you want to control, for example: "accounts.Message"
+```
+- If you have changed the base url of the admin site. in settings.py: 
+```python
+ADMIN_SITE_BASE_URL = 'admin_site_base_url/' # default is "admin/
+```
+- In urls.py:
+```python
+...
+from admin_notification.views import check_notification_view
+urlpatterns = [
+    path('check/notification', check_notification_view, name="check_notifications"),
+    ...
+]
+
+```
+- Run `python manage.py migrate`
+- Restart your application server
+- Visit http://127.0.0.1:8000/admin/
+- Create an instance of the model(NOTIFICATION_MODEL) and enjoy :)
+
+
