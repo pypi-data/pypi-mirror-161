@@ -1,0 +1,82 @@
+"""
+    Copyright 2020 Inmanta
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: code@inmanta.com
+"""
+import ip
+import ip::services
+
+entity Key:
+    """
+        A public ssh-key used to access virtual machine
+
+        :attr public_key: The actual public key that needs to be deployed
+        :attr name: An identifier for the public key
+        :attr command: The command that can be executed with this public key
+        :attr options: SSH options associated with this public key
+    """
+    string public_key
+    string name
+    string command=""
+    string options=""
+end
+
+implement Key using std::none
+
+entity Server extends ip::services::Server:
+    """
+        A ssh server
+    """
+end
+
+implementation sshServer for Server:
+    self.services = ip::Service(proto="tcp", dst_range=ip::Port(low=22))
+
+    pkg = std::Package(host=host, name="openssh-server", state="installed")
+    svc = std::Service(host=host, name="sshd", state="running", onboot=true, requires=[pkg, cfg])
+    cfg = std::ConfigFile(host=host, path="/etc/ssh/sshd_config", content=std::template("ssh/sshd_config.tmpl"))
+end
+
+implement Server using sshServer
+
+entity SSHUser:
+    """
+        An ssh users allows authorized keys to be installed
+    """
+    string home_dir
+    string user
+    string group
+end
+
+SSHUser.ssh_keys [0:] -- Key.ssh_users [0:]
+SSHUser.host [1] -- std::Host
+
+index SSHUser(host, home_dir)
+
+implementation sshUser for SSHUser:
+    dir = std::Directory(host=self.host, path="{{ home_dir }}/.ssh", mode=700, owner=user, group=group)
+    file = std::File(
+        host=host,
+        mode=600,
+        owner=user,
+        requires=dir,
+        group=group,
+        content=std::template("ssh/authorized_keys"),
+        path="{{ home_dir }}/.ssh/authorized_keys"
+    )
+end
+
+implement SSHUser using sshUser
+
