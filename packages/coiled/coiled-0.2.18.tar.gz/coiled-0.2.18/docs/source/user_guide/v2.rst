@@ -1,0 +1,89 @@
+Migrating to v2
+===============
+
+As of version ``0.2.0``, the Coiled client package (i.e. ``coiled``, see the :ref:`python-api`) uses our rewritten backend, v2.
+It was written with the following objectives:
+
+-   **Reliability**: clusters come up with greater certainty, especially at larger scale.
+-   **Cost**: we provide a richer and more responsive access to sets of instance types and spot instances.
+-   **Visibility**: when situations occur, issues are more plainly visible and easier to debug.
+
+v2 offers feature parity with v1, plus a number of improvements.
+v2 provides both a richer and more robust interaction with the underlying cloud,
+and delivers this information to you so that you can understand what is going
+on.
+
+.. figure:: images/widget-gif.gif
+   :alt: Terminal dashboard displaying the Coiled cluster status overview, configuration, and Dask worker states.
+
+   Widget is available in interactive sessions. Click the link at the top to see the cluster details page for a more in-depth view of the cluster state and to download scheduler and worker logs.
+
+How to Stay on v1
+-----------------
+
+.. attention::
+    Effective **July 15th**, v1 will be deprecated. You can update
+    existing environments with
+    ``pip install --upgrade coiled`` or ``conda update coiled``,
+    then follow the instructions below on `How to Upgrade to v2`_.
+    Please :doc:`reach out to us <support>`
+    if you would like help any help with this transition.
+
+We will continue to support the original Coiled system until **July 15th** to allow you to adapt your workflows and make any required changes. We want to ensure a smooth experience and don't expect many breaking changes.
+
+If you want to stay with the original system, pin
+your ``coiled`` library to ``<0.2`` in your Python environment:
+
+.. code-block:: python
+
+    coiled < 0.2
+
+This will keep you on a 0.0.x client version, which will not switch to v2. We are not planning any new 0.0.x client
+releases except for critical bug fixes.
+
+How to Upgrade to v2
+--------------------
+
+Step 1: Update IAM Permissions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The IAM permissions we need in v2 are slightly different. If you are using AWS,
+after upgrading ``coiled`` you can run the following command from your terminal
+to automatically update your AWS policy documents::
+
+   coiled setup aws --iam-user <your-iam-user> --update-policies
+
+Alternatively, you can update these policy documents from your AWS or Google Cloud account
+(see the updated policy documents for :ref:`GCP <gcp-iam-role>`  and  :ref:`AWS <aws-iam-policy>`).
+
+Step 2: Code Changes
+~~~~~~~~~~~~~~~~~~~~
+
+Most users shouldn't need any code changes, but if you're using options like ``worker_memory``, ``worker_cpu``,
+``scheduler_memory``, or ``scheduler_cpu`` then there's a chance you may need small changes to accommodate v2's stricter (more correct) logic for selecting instance types.
+
+You might have this in v1:
+
+.. code-block:: python
+
+    from coiled import Cluster
+
+    cluster = Cluster(worker_memory="32GiB", worker_cpu=1)
+
+In v2, this gives an error because we couldn't find an instance type with that much memory and only one core.
+Instead, you can leave out the ``worker_cpu`` argument, or give us a range of acceptable core counts
+(see :doc:`tutorials/select_instance_types`):
+
+.. code-block:: python
+
+    from coiled.v2 import Cluster
+
+    cluster = Cluster(worker_memory="32GiB", worker_cpu=[1, 8])
+
+
+Deprecations
+------------
+
+Cluster configurations have been deprecated so the ``configuration`` argument is no longer allowed. Instead, configuration is now directly passed to the ``Cluster`` class at creation time (see :func:`coiled.Cluster`). Additionally, the ``protocol`` parameter (which was used for proxying through Coiled to the scheduler) is not planned for v2.
+
+
