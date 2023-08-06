@@ -1,0 +1,65 @@
+[project]
+name = "phidata"
+version = "0.2.0"
+description = "DIY data platform as code"
+requires-python = ">3.7"
+readme = "README.md"
+authors = [
+  {name = "Ashpreet Bedi", email = "ashpreet@phidata.com"}
+]
+
+dependencies = [
+  "awswrangler",
+  "boto3",
+  "phiterm>=0.2.0",
+  "pydantic",
+  "pyyaml",
+  "rich",
+  "types-PyYAML",
+  "typing-extensions",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+]
+
+[project.urls]
+homepage = "https://www.phidata.com"
+documentation = "https://www.docs.phidata.com"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+check_untyped_defs = true
+no_implicit_optional = true
+warn_unused_configs = true
+exclude = [
+  "phidata/asset/dev", # exclude dev assets from mypy
+  "phidata/workflow/dev", # exclude dev workflows from mypy
+  "phidata/product/dev", # exclude dev products from mypy
+  "phidata/task/dev", # exclude dev tasks from mypy
+  "phidata/app/traefik/router", # exclude traefik router
+]
+
+[[tool.mypy.overrides]]
+module = [
+  "git",
+  "setuptools",
+  "boto3",
+  "boto3.*",
+  "botocore",
+  "botocore.*",
+  "typer",
+  "tiingo",
+  "docker.*",
+  "airflow.*",
+  "pandas.*",
+  "kubernetes.*",
+  "sqlalchemy.*",
+  "matplotlib.*",
+]
+ignore_missing_imports = true
