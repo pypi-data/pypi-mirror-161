@@ -1,0 +1,5 @@
+# TVM 手册
+
+[![GitHub issues](https://img.shields.io/github/issues/xinetzone/tvm-book)](https://github.com/xinetzone/tvm-book/issues) [![GitHub forks](https://img.shields.io/github/forks/xinetzone/tvm-book)](https://github.com/xinetzone/tvm-book/network) [![GitHub stars](https://img.shields.io/github/stars/xinetzone/tvm-book)](https://github.com/xinetzone/tvm-book/stargazers) [![GitHub license](https://img.shields.io/github/license/xinetzone/tvm-book)](https://github.com/xinetzone/tvm-book/blob/main/LICENSE) ![repo size](https://img.shields.io/github/repo-size/xinetzone/tvm-book.svg) [![contributors](https://img.shields.io/github/contributors/xinetzone/tvm-book.svg)](https://github.com/xinetzone/tvm-book/graphs/contributors) [![watcher](https://img.shields.io/github/watchers/xinetzone/tvm-book.svg)](https://github.com/xinetzone/tvm-book/watchers) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/xinetzone/tvm-book/main) [![Documentation Status](https://readthedocs.org/projects/tvm-book/badge/?version=latest)](https://tvm-book.readthedocs.io/zh/latest/?badge=latest)
+
+打造优质的 TVM 中文社区。
