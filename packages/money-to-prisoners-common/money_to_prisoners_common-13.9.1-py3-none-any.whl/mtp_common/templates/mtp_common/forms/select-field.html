@@ -1,0 +1,30 @@
+{% load i18n %}
+
+{% comment %}
+  USAGE:
+  {% include 'mtp_common/forms/select-field.html' with field=<field variable> only %}
+  optional parameters:
+    input_classes - classes to add to the input element
+    label_classes - classes to add to the label element
+    value - input element value override instead of default filtered field value (ignored if None)
+    attrs - dict of additional attributes
+
+  TODO: the widget is not currently configurable
+{% endcomment %}
+
+<div id="{{ field.id_for_label }}-wrapper" class="govuk-form-group {% if field.errors %}govuk-form-group--error{% endif %}">
+  {% include 'mtp_common/forms/field-label.html' with field=field label_classes=label_classes only %}
+  {% include 'mtp_common/forms/field-errors.html' with field=field only %}
+
+  {% with selected=value|default:field.value|default:field.field.initial %}
+    <select id="{{ field.id_for_label }}" class="govuk-select {% if field.errors %}govuk-select--error{% endif %} {{ input_classes }}" name="{{ field.html_name }}" {% if field.field.widget.allow_multiple_selected %}multiple="multiple"{% endif %} {% for attr, attr_val in attrs.items %}{{ attr }}="{{ attr_val }}"{% endfor %}>
+      {% for key, title in field.field.choices %}
+        {% if field.field.widget.allow_multiple_selected %}
+          <option value="{{ key }}" {% if key in selected %}selected{% endif %}>{{ title }}</option>
+        {% else %}
+          <option value="{{ key }}" {% if key == selected %}selected{% endif %}>{{ title }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  {% endwith %}
+</div>

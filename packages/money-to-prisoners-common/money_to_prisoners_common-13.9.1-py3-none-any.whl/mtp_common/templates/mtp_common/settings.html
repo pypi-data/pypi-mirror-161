@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load mtp_common %}
+
+{% block page_title %}{{ view.title }} – {{ block.super }}{% endblock %}
+
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% include 'mtp_common/components/notification-banners.html' %}
+
+      <header>
+        <h1 class="govuk-heading-xl">
+          <span class="govuk-caption-xl">{{ request.user.get_full_name|default:request.user.username }}</span>
+          {{ view.title }}
+        </h1>
+      </header>
+
+      {% block settings %}
+
+        <h2 class="govuk-heading-l">
+          {% trans 'Change your password' %}
+        </h2>
+        <a class="govuk-button" data-module="govuk-button" href="{% url 'password_change' %}">{% trans 'Change password' %}</a>
+
+        {% include 'govuk-frontend/components/section-break.html' with visible=True size='l' %}
+
+        <h2 class="govuk-heading-l">
+          {% trans 'Your email' %}
+        </h2>
+        <p>{{ request.user.email }}</p>
+        <a class="govuk-button" data-module="govuk-button" href="{% url 'email_change' %}">{% trans 'Change email' %}</a>
+
+        {% if perms.auth.change_user %}
+          {% include 'govuk-frontend/components/section-break.html' with visible=True size='l' %}
+
+          <h2 class="govuk-heading-l">
+            {% trans 'Manage users' %}
+          </h2>
+          <p>
+            {% trans 'Add, view, edit or disable user accounts.' %}
+          </p>
+          <a class="govuk-button" data-module="govuk-button" href="{% url 'list-users' %}">{% trans 'Manage users' %}</a>
+        {% endif %}
+
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
