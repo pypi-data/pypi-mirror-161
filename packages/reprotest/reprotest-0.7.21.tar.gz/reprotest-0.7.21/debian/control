@@ -1,0 +1,67 @@
+Source: reprotest
+Maintainer: Reproducible builds folks <reproducible-builds@lists.alioth.debian.org>
+Uploaders:
+ Ceridwen <ceridwenv@gmail.com>,
+ Holger Levsen <holger@debian.org>,
+ Vagrant Cascadian <vagrant@reproducible-builds.org>,
+Section: devel
+Priority: optional
+Standards-Version: 4.6.1
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-python3,
+ diffoscope <!nocheck>,
+ faketime <!nocheck>,
+ help2man <!nodoc>,
+# tests.py uses dpkg-buildpackage which uses lintian
+ lintian <!nocheck>,
+ locales-all <!nocheck>,
+ python3-all,
+ python3-coverage <!nocheck>,
+ python3-docutils <!nodoc>,
+ python3-pytest <!nocheck>,
+ python3-rstr <!nocheck>,
+ python3-setuptools,
+ tox <!nocheck>,
+# these below helps diffoscope produce nicer output in tests
+ python3-tlsh <!nocheck>,
+ unzip <!nocheck>,
+ xxd <!nocheck>,
+Vcs-Git: https://salsa.debian.org/reproducible-builds/reprotest.git
+Vcs-Browser: https://salsa.debian.org/reproducible-builds/reprotest
+
+Package: reprotest
+Architecture: all
+Depends:
+ apt-utils,
+ libdpkg-perl,
+ procps,
+ python3-debian,
+ python3-distro,
+ python3-pkg-resources,
+ python3-rstr,
+ ${misc:Depends},
+ ${python3:Depends},
+Recommends:
+ disorderfs,
+ faketime,
+ locales-all,
+ sudo,
+ ${python3:Recommends},
+Suggests:
+ autodep8,
+ qemu-system,
+ qemu-utils,
+ schroot,
+Description: Build software and check it for reproducibility
+ reprotest builds the same source code twice in different environments, and
+ then checks the binaries produced by each build for differences. If any are
+ found, then diffoscope (or if unavailable then diff) is used to display them
+ in detail for later analysis.
+ .
+ It supports different types of environment such as a "null" environment (i.e.
+ doing the builds directly in /tmp) or various other virtual servers, for
+ example schroot, ssh, qemu, and several others.
+ .
+ reprotest is developed as part of the “reproducible builds” Debian project.
