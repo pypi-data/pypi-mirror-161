@@ -1,0 +1,25 @@
+{% extends 'public/middle_box.html' %}
+
+{% load static %}
+{% load bootstrap %}
+{% load i18n %}
+
+{% block title %}Register{% endblock %}
+
+{% block middle_box_content %}
+    <p style="text-align: center">
+        <img class="login-image" src="https://images.evetech.net/alliances/99000102/logo?size=256">
+    </p>
+
+    <p style="text-align: center; font-size: 150%;">
+        Authentication System
+    </p>
+
+    <p>{% translate "Please provide your email address for registration confirmation." %}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">{% translate "Register" %}</button>
+    </form>
+{% endblock %}
