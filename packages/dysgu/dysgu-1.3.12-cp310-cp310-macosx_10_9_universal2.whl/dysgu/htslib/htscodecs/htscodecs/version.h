@@ -1,0 +1,1 @@
+#define HTSCODECS_VERSION_TEXT "1.2.2-35-g9cd552e"
