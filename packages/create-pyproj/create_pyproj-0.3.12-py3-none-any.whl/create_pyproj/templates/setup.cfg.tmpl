@@ -1,0 +1,42 @@
+[metadata]
+name = ${projectname}
+version = 0.0.0
+description = ${description}
+long_description_content_type = text/markdown
+long_description = file: README.md
+author = ${author}
+author_email = ${author_email}
+license = MIT
+license_file = LICENSE
+
+[options]
+packages = find:
+package_dir =
+    = src
+include_package_data = True
+python_requires = >=3.6
+install_requires =
+    pipenv
+
+[options.packages.find]
+where = src
+
+% if cli:
+[options.entry_points]
+console_scripts =
+    ${projectname}=src:main
+% endif
+
+[sdist]
+formats = zip, gztar
+
+[coverage:run]
+branch = True
+
+[coverage:report]
+show_missing = True
+skip_covered = True
+
+[tool:pytest]
+addopts = --cov src --cov-report xml
+asyncio_mode = auto
