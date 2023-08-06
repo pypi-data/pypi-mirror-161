@@ -1,0 +1,95 @@
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - local: '/cicd/.docker.yml'
+  - local: '/cicd/.terraform.yml'
+
+stages:
+  - pre-build
+  - test
+  - build
+  - plan
+  - deploy-development
+  - deploy-staging
+  - deploy-production
+
+
+pre-build:
+  stage: pre-build
+  extends: .docker_login_template
+  artifacts:
+    reports:
+      dotenv: build.env
+  script:
+    - DEPS_VERSION=$(md5sum Pipfile.lock | awk '{ print $1 }')
+    - echo DEPS_VERSION="$DEPS_VERSION" >> $CI_PROJECT_DIR/build.env
+    - echo "checking $CI_REGISTRY_IMAGE:BUILDER-$DEPS_VERSION"
+    - >
+      if [[ "$(DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $CI_REGISTRY_IMAGE:BUILDER-$DEPS_VERSION 2> /dev/null)" == "" ]]; then
+          echo "building..."
+          docker build -t $CI_REGISTRY_IMAGE:BUILDER-$DEPS_VERSION -f $CI_PROJECT_DIR/docker/builder.Dockerfile .
+          docker push $CI_REGISTRY_IMAGE:BUILDER-$DEPS_VERSION
+      fi
+
+docker-build:
+  stage: build
+  extends: .docker_login_template
+  needs: ["pre-build"]
+  artifacts:
+    reports:
+      dotenv: build.env
+  script:
+    - VERSION=$(cat VERSION)
+    - NAME=production
+    - echo VERSION="$VERSION" >> $CI_PROJECT_DIR/build.env
+    - echo NAME="$NAME" >> $CI_PROJECT_DIR/build.env
+
+    - echo "checking $CI_REGISTRY_IMAGE:$NAME-$VERSION"
+    - >
+      if [[ "$(DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $CI_REGISTRY_IMAGE:$NAME-$VERSION 2> /dev/null)" == "" ]]; then
+        echo "building..."
+        docker build -t $CI_REGISTRY_IMAGE:$NAME-$VERSION --build-arg DEPS_VERSION=$DEPS_VERSION --build-arg REPO=$CI_REGISTRY_IMAGE -f $CI_PROJECT_DIR/docker/Dockerfile .
+        docker push $CI_REGISTRY_IMAGE:$NAME-$VERSION
+      fi
+
+plan-development:
+  extends: .terraform_plan_template
+  environment:
+    name: development
+
+stop-development:
+  extends: .terraform_destroy_template
+  stage: deploy-development
+  environment:
+    name: development
+    action: stop
+  needs: ["deploy-development"]
+
+deploy-development:
+  extends: .terrafrom_deploy_template
+  stage: deploy-development
+  when: on_success
+  environment:
+    name: development
+    on_stop: stop-development
+  needs: ["plan-development"]
+
+plan-staging:
+  extends: .terraform_plan_template
+  environment:
+    name: staging
+
+stop-staging:
+  extends: .terraform_destroy_template
+  stage: deploy-staging
+  environment:
+    name: staging
+    action: stop
+  needs: ["deploy-staging"]
+
+deploy-staging:
+  extends: .terrafrom_deploy_template
+  stage: deploy-staging
+  environment:
+    name: staging
+    on_stop: stop-staging
+  needs: ["plan-staging", "deploy-development"]
