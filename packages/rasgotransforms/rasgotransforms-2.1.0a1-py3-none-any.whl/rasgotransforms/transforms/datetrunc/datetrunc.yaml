@@ -1,0 +1,47 @@
+name: datetrunc
+tags:
+  - column
+  - date_time
+description: |
+  Truncates a date to the datepart you specify. For example, if you truncate the date '10-31-2022' to the 'month', you would get '10-1-2022'.
+
+  For a list of valid dateparts, refer to [Supported Date and Time Parts](https://docs.snowflake.com/en/sql-reference/functions-date-time.html#label-supported-date-time-parts)
+arguments:
+  dates:
+    type: datepart_dict
+    description: dict where the keys are names of column(s) you want to datetrunc and the values are the desired date grain
+example_code: |
+  ds2 = ds.datetrunc(
+    dates = {
+      'DATE':'month',
+      'Timestamp':'hour'
+    }
+  )
+  
+  ds2.preview()
+preview-data: |
+  |    | DATE       |   FIPS |   COVID_NEW_CONFIRMED |
+  |---:|:-----------|-------:|----------------------:|
+  |  0 | 2020-10-17 |  47183 |                    12 |
+  |  1 | 2020-10-18 |  47183 |                    13 |
+  |  2 | 2020-10-19 |  47183 |                     5 |
+  |  3 | 2020-10-20 |  47183 |                    10 |
+  |  4 | 2020-10-21 |  47183 |                     9 |
+  |  5 | 2020-10-22 |  47183 |                    14 |
+  |  6 | 2020-10-23 |  47183 |                    44 |
+  |  7 | 2020-10-24 |  47183 |                    12 |
+  |  8 | 2020-10-25 |  47183 |                    38 |
+  |  9 | 2020-10-26 |  47183 |                    12 |
+post-transform-data: |
+  |    | DATE       |   FIPS |   COVID_NEW_CONFIRMED | DATE_MONTH   |
+  |---:|:-----------|-------:|----------------------:|:-------------|
+  |  0 | 2020-10-17 |  47183 |                    12 | 2020-10-01   |
+  |  1 | 2020-10-18 |  47183 |                    13 | 2020-10-01   |
+  |  2 | 2020-10-19 |  47183 |                     5 | 2020-10-01   |
+  |  3 | 2020-10-20 |  47183 |                    10 | 2020-10-01   |
+  |  4 | 2020-10-21 |  47183 |                     9 | 2020-10-01   |
+  |  5 | 2020-10-22 |  47183 |                    14 | 2020-10-01   |
+  |  6 | 2020-10-23 |  47183 |                    44 | 2020-10-01   |
+  |  7 | 2020-10-24 |  47183 |                    12 | 2020-10-01   |
+  |  8 | 2020-10-25 |  47183 |                    38 | 2020-10-01   |
+  |  9 | 2020-10-26 |  47183 |                    12 | 2020-10-01   |
