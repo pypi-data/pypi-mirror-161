@@ -1,0 +1,123 @@
+# The VMs' SSH username, e.g. centos
+ssh_user: ''
+
+# The user's password for SSH connection. This cannot be used with ssh_key_path
+ssh_password: ''
+
+# Your private SSH key local path used to connect to all VMs
+ssh_key_path: ''
+
+# Local path to a valid Cloudify license
+cloudify_license_path: ''
+
+# When enabled, the external REST communication will be performed over HTTPS
+ssl_enabled: true
+
+# Manager RPM to install on the cluster instances. This can be a download link or a local path.
+manager_rpm_path: 'https://repository.cloudifysource.org/cloudify/5.2.1/ga-release/cloudify-manager-install-5.2.1-ga.el7.x86_64.rpm'
+
+# This section is only relevant if using LDAP
+ldap:
+  # This should include the protocol and port,
+  # e.g. ldap://192.0.2.1:389 or ldaps://192.0.2.45:636
+  server: ''
+
+  # The domain, e.g. example.local
+  domain: ''
+
+  # True if Active Directory will be used as the LDAP authenticator
+  is_active_directory: true
+
+  # This must be provided if the server is using ldaps://
+  ca_cert: ''
+
+  # Username and password should only be entered if absolutely required
+  # by the ldap service.
+  username: ''
+  password: ''
+
+  # Any extra LDAP information (separated by the `;` sign. e.g. a=1;b=2)
+  dn_extra: ''
+
+
+# If specified, all the VMs' certificates will need to be specified as well
+ca_cert_path: ''
+ca_key_path: ''
+
+# If using a load-balancer, please provide its IP.
+# This IP will be written to the manager config.yaml files under
+# networks[load_balancer].
+# Remark: The load balancer is not installed during the cluster installation.
+load_balancer_ip: ''
+
+
+existing_vms:
+    node-1:
+      private_ip: ''
+      public_ip: ''  # If not specified, will default to the private-ip
+      hostname: ''   # Optional. As specified in the certificate (if specified)
+      cert_path: ''  # Need to be supplied if ca_cert_path was supplied
+      key_path: ''  # Need to be supplied if ca_cert_path was supplied
+      # Optional. In case you wish to use your own config.yaml files.
+      config_path:
+        manager_config_path: ''
+        postgresql_config_path: ''
+        rabbitmq_config_path: ''
+      # Extra config entries to put on this node
+      extra_config: {}
+
+    node-2:
+      private_ip: ''
+      public_ip: ''  # If not specified, will default to the private-ip
+      hostname: ''   # Optional. As specified in the certificate (if specified)
+      cert_path: ''  # Need to be supplied if ca_cert_path was supplied
+      key_path: ''  # Need to be supplied if ca_cert_path was supplied
+      # Optional. In case you wish to use your own config.yaml files.
+      config_path:
+        manager_config_path: ''
+        postgresql_config_path: ''
+        rabbitmq_config_path: ''
+      # Extra config entries to put on this node
+      extra_config: {}
+
+    node-3:
+      private_ip: ''
+      public_ip: ''  # If not specified, will default to the private-ip
+      hostname: ''   # Optional. As specified in the certificate (if specified)
+      cert_path: ''  # Need to be supplied if ca_cert_path was supplied
+      key_path: ''  # Need to be supplied if ca_cert_path was supplied
+      # Optional. In case you wish to use your own config.yaml files.
+      config_path:
+        manager_config_path: ''
+        postgresql_config_path: ''
+        rabbitmq_config_path: ''
+      # Extra config entries to put on this node
+      extra_config: {}
+
+
+# If the credentials are not specified, random self-generated ones will be used and written to {{ credentials_file_path }}
+credentials:
+  manager:
+    admin_username: 'admin'
+    admin_password: ''
+
+  postgresql:
+    postgres_password: ''
+    cluster:
+      etcd:
+        cluster_token: ''
+        root_password: ''
+        patroni_password: ''
+      patroni:
+        rest_password: ''
+      postgres:
+        replicator_password: ''
+
+  rabbitmq:
+    username: ''
+    password: ''
+    erlang_cookie: ''
+
+  prometheus:
+    username: ''
+    password: ''

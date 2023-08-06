@@ -1,0 +1,48 @@
+manager:
+  private_ip: {{ node.private_ip }}
+  public_ip: {{ node.public_ip }}
+  {% if node.hostname-%}
+  hostname: {{ node.hostname }}
+  {%-endif %}
+
+rabbitmq:
+  username: {{ creds.rabbitmq.username }}
+  password: {{ creds.rabbitmq.password }}
+
+  cluster_members: {{ rabbitmq_cluster }}
+
+  cert_path: {{ node.cert_path }}
+  key_path: {{ node.key_path }}
+  ca_path: {{ ca_path }}
+  ca_key_path: {{ ca_key_path }}
+
+  nodename: {{ node.name }}
+
+  {% if join_cluster-%}
+  join_cluster: {{ join_cluster }}
+  {%-endif %}
+
+  erlang_cookie: {{ creds.rabbitmq.erlang_cookie }}
+
+{% if load_balancer_ip-%}
+networks:
+  default: {{ node.private_ip }}
+  load_balancer: {{ load_balancer_ip }}
+{%-endif %}
+
+prometheus:
+  credentials:
+    username: {{ creds.prometheus.username }}
+    password: {{ creds.prometheus.password }}
+
+  cert_path: {{ node.cert_path }}
+  key_path: {{ node.key_path }}
+  ca_path: {{ ca_path }}
+  ca_key_path: {{ ca_key_path }}
+
+validations:
+  minimum_required_total_physical_memory_in_mb: 1024
+
+services_to_install:
+  - queue_service
+  - monitoring_service
