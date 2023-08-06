@@ -1,0 +1,69 @@
+# fear_data
+
+Python package used to analyze files generated from Med-Associates VideoFreeze software.
+An example notebook is provided in `docs/`.
+
+## Installation
+
+The easiest way to install fear_data is with `pip`. First, clone the
+repository.
+
+``` {.bash}
+git clone https://github.com/kpuhger/fear_data.git
+```
+
+Next, navigate to the cloned repo and type the following into your terminal:
+
+``` {.bash}
+pip install .
+```
+
+**Note:** The installation method currently is not likely to work.
+For the time being it is recommended to add a .pth file to your `site-packages` folder to add the repo to your system's path.
+
+1. Use the terminal to navigate to your `site-packages` folder (e.g., `cd opt/miniconda3/lib/python3.10/site-packages`)
+2. Add `.pth` file pointing to your repo path
+
+    ```{.bash}
+    > touch `fear_data.pth` # create pth file
+    > open `fear_data.pth` # add path to repo in this file
+    ```
+
+## Features
+
+### Experiment configuration files
+
+The recomended way to set up an experiment is to use a `expt_config.yaml` file ([see here](https://www.redhat.com/en/topics/automation/what-is-yaml) for an overview of YAML).
+This allows you to use a template notebook to analyze data from different experiments by simply providing the path to the `expt_config.yaml` file. An example configuration file can be found in `docs/expt_config.yaml`.
+
+The function `fd.create_expt_config(...)` can be used to automatically generate an `expt_config.yaml` file from template.
+
+The function `fd.update_expt_config(update_dict, ...)` allows you to update an expt_config with information provided in update_dict.
+
+**NOTE:** The keys in update_dict should be identical to expt_config.
+
+### Loading data
+
+To load Video Freeze data:
+
+1. Define `config_path` variable.
+2. Load data using `fd.load_tfc_data(...)`
+3. Group labels can be added via `fd.add_group_labels(...)`
+
+### Visualizing data
+
+* Plot aesthetics are applied via @style_plot decorator.
+  * Can pass arguments to modify axes info (e.g., labels, labelsize, title, fig_size, ranges (xlim/ylim) -- check docs for more info.
+  * Set `save_fig=True` to apply @savefig decorator and save figure, can set `fig_path` if desired (default set to Desktop).
+* `plot_fc_bins` : pointplot across time for every 'Component'
+  * `session` sets plot aes (label tone bins for train/tone, label shock for train)
+
+* `plot_fc_phase` : use `kind` for two ways to plot data by phase (baseline, tone, trace, iti)
+    1. `kind='point'` : pointplot by phase.
+    2. `kind='bar'` : barplot by phase.
+        * adds swarmplot of subject data by default set `pts=False` to remove.
+
+### Analyzing data
+
+Use the [pingouin python package](https://pingouin-stats.org/) for statistcal analysis.
+An example analysis can be found in `docs/stats-eample_analysis.ipynb`.
