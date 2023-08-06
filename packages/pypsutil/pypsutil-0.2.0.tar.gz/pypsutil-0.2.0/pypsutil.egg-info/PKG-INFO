@@ -1,0 +1,69 @@
+Metadata-Version: 2.1
+Name: pypsutil
+Version: 0.2.0
+Summary: A partial reimplementation of psutil in pure Python using ctypes.
+Home-page: https://github.com/cptpcrd/pypsutil
+License: MIT
+Project-URL: Documentation, https://pypsutil.readthedocs.io/en/latest
+Keywords: psutil
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: POSIX :: BSD :: OpenBSD
+Classifier: Operating System :: POSIX :: BSD :: NetBSD
+Classifier: Operating System :: POSIX :: BSD :: FreeBSD
+Classifier: Operating System :: MacOS :: MacOS X
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# pypsutil
+
+[![PyPI](https://img.shields.io/pypi/v/pypsutil)](https://pypi.org/project/pypsutil)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pypsutil)](https://pypi.org/project/pypsutil)
+[![Documentation Status](https://readthedocs.org/projects/pypsutil/badge/?version=latest)](https://pypsutil.readthedocs.io/en/latest/?badge=latest)
+[![GitHub Actions](https://github.com/cptpcrd/pypsutil/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/cptpcrd/pypsutil/actions?query=workflow%3ACI+branch%3Amaster+event%3Apush)
+[![Cirrus CI](https://api.cirrus-ci.com/github/cptpcrd/pypsutil.svg?branch=master)](https://cirrus-ci.com/github/cptpcrd/pypsutil)
+[![codecov](https://codecov.io/gh/cptpcrd/pypsutil/branch/master/graph/badge.svg)](https://codecov.io/gh/cptpcrd/pypsutil)
+
+A partial reimplementation of psutil in pure Python using ctypes. Currently, only Linux, macOS, and the BSDs are supported, but Windows support is planned.
+
+[Documentation](https://pypsutil.readthedocs.io/en/latest/)
+
+## Example usage
+
+`pypsutil`'s API is very similar to `psutil`'s:
+
+```
+>>> import pypsutil
+>>> p = pypsutil.Process()
+>>> p.pid
+477967
+>>> p
+Process(pid=477967, name='python3', status='running', started='12:00:40')
+>>> p.name()
+'python3'
+>>> p.exe()
+'/usr/bin/python3.9'
+>>> p.cwd()
+'/tmp'
+>>> p.cmdline()
+['python3']
+>>> p.terminal()
+'/dev/pts/6'
+>>> p.status()
+<ProcessStatus.RUNNING: 'running'>
+>>> p.ppid()
+477771
+>>> p.parent()
+Process(pid=477771, name='bash', status='sleeping', started='12:00:33')
+```
+
+More information is available in the [documentation](https://pypsutil.readthedocs.io/en/latest/).
+
+
