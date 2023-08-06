@@ -1,0 +1,248 @@
+配置
+====
+
+1.新建一个支付宝配置文件
+alipay_conf.py（文件名随意，这里演示用alipay_conf.py）
+
+::
+
+   # 应用ID
+   APP_ID = '2021000121629706'
+
+   # 私钥
+   PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----
+   -----END RSA PRIVATE KEY-----"""
+
+   # 公钥
+   PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
+   ...
+   -----END PUBLIC KEY-----"""
+
+   # 支付成功同步回调地址
+   PAY_RETURN_URL = 'http://abc.com/xxx'
+
+   # 支付成功异步回调地址
+   PAY_NOTIFY_URL = 'http://abc.com/xxx'
+
+2.新建一个微信支付配置文件
+weipay_conf.py（文件名随意，这里演示用weipay_conf.py）
+
+::
+
+   # 商户ID
+   MCHID = '1629062252'  
+
+   APP_ID = 'wwcc835d7cd72561ec'
+
+   # 证书序列号
+   SERIAL_NO = '301BF3CBBEA4F89D35E1643F840261DA2ADBB27C'  
+
+   # API私钥
+   PRIVATE_KEY = """-----BEGIN PRIVATE KEY-----
+   ...
+   -----END PRIVATE KEY-----"""
+
+   # v3 key
+   V3_KEY = "ypSMEiqKQ1HfqISN0S1UOs3esJXqumrJ"
+
+   # 支付成功异步回调地址
+   PAY_NOTIFY_URL = 'http://abc.com/xxx'
+
+   # 退款异步回调地址
+   REFUND_NOTIFY_URL = 'http://abc.com/xxx'
+
+3.配置settings.py
+将支付宝和微信支付的配置文件的位置配置到django的settings.py中
+
+::
+
+   ALIPAY_CONF = 'public.pay_conf.alipay_conf'
+   WEIPAY_CONF = 'public.pay_conf.weipay_conf'
+
+支付宝
+======
+
+演示支付宝下单和订单查询
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+先引入参数类和支付宝业务类
+
+::
+
+   # 引入参数模块
+   from public.payment import params
+   # 引入支付宝模块
+   from public.payment import alipay
+   # 引入异常模块
+   from public.payment import exceptions
+
+支付宝下单（PC网站）
+
+::
+
+   # 实例化一个参数类
+   trade_params = params.TradeParams(
+       pay_web='alipay',
+       subject='iphone 14',
+       out_trade_no='202207051515025',
+       total_amount='100')
+
+   # 实例trade_params的params属性就是业务参数字典
+   print(trade_params.params)
+
+   # 下单并获取支付url
+   try:
+       pay_url = alipay.AliPayTradePage(trade_params.params).pay_url()
+   except exceptions.TradeError as err:
+       print(f'下单错误:{err}')
+   else:
+       print(pay_url)
+
+支付宝订单查询
+
+::
+
+   # 实例化查询参数类
+   query_params = params.TradeQueryParams(
+       pay_web='alipay',
+       out_trade_no='202207051515025')
+
+   # 订单查询
+   try:
+       results = alipay.AliPayTradeQuery(query_params.params).trade_query()
+   except exceptions.TradeQueryError as err:
+       print(f'订单查询错误:{err}')
+   else:
+       print(results)
+
+微信支付
+========
+
+演示微信支付下单和订单查询
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+先引入参数模块和微信支付模块以及异常模块
+
+::
+
+   # 引入参数模块
+   from public.payment import params
+   # 引入微信支付模块
+   from public.payment import weipay
+   # 引入异常模块
+   from public.payment import exceptions
+
+Native下单并获取付款地址（二维码地址）
+
+::
+
+   # 实例化一个参数类
+   trade_params = params.TradeParams(
+       pay_web='weipay',
+       subject='iphone 14',
+       out_trade_no='202208051515025',
+       total_amount='0.1')
+
+   # 实例trade_params的params属性就是业务参数字典
+   print(trade_params.params)
+
+   # 下单并获取支付url
+   try:
+       pay_url = weipay.WeiPayNative(trade_params.params).pay_url()
+   except exceptions.TradeError as err:
+       print(f'下单失败:{err}')
+   else:
+       print(pay_url)
+
+订单查询
+
+::
+
+   # 实例化一个参数类
+   query = params.TradeQueryParams(
+       pay_web='weipay',
+       out_trade_no='202208051515025')
+
+   # 实例query的params属性就是业务参数字典
+   print(query.params)
+
+   # 下单并获取支付url
+   try:
+       results = weipay.WeiPayTradeQuery(query.params).trade_query()
+   except exceptions.TradeQueryError as err:
+       print(f'查询订单错误:{err}')
+   else:
+       print(results)
+
+业务扩展
+========
+
+   payment模块只提供了支付宝和微信支付的部分功能，当不能满足业务需求时，我们可以对其进行功能上的扩展
+
+演示一：给微信支付添加一个根据商户订单号查询订单的功能
+
+::
+
+   # 首先需要继承WeiPay ,WeiPay的__init__接受一个业务参数字典
+   class WeiPayTradeQuery(WeiPay):
+       
+       # 定义请求的URL和Method ,注意一定下划线开头，否则会被认为是业务固定参数，
+       _url = 'https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/{out_trade_no}'
+       _method = 'GET'
+       
+       # 固定参数声明,与支付宝的公共参数不同，微信支付没有作用于所有API的公共参数，但是每个业务API都可能存在某些固定参数。
+       # 不带下划线的参数是固定参数，固定参数就是那些不随业务变化而变化的参数
+       mchid = 'xxxxxxx'  # 直连商户号
+       
+       # 定义一个接口函数，名称建议有直白含义
+       def trade_query(self):
+           try:
+               return self.api_response()
+           except StatusCodeError as err:
+               raise TradeQueryError(err)
+   # 使用 
+   buisness_params = {...} # 业务参数字典，建议定义一个业务参数类
+   WeiPayTradeQuery(buisness_params:Dict).trade_query()
+
+演示二，给支付宝添加WAP H5下单功能 > 注意：
+AliPay中的两个重要的方法：self.build_url()和self.api_response()。
+self.build_url()生成请求URL，self.api_response()访问请求URL并返回响应，有时候只需要self.build_url()，例如下单获取pay_url，直接返回self.build_url()的结果即可
+
+::
+
+   # 首先需要继承AliPay ,WeiPay的__init__接受一个业务参数字典
+   class AliPayTradeWap(AliPay):
+      
+       # 定义固定参数
+       method = 'alipay.trade.page.pay'
+       return_url = 'http://abc.com/xxx'
+       notify_url = 'http://abc.com/xxx'
+       
+       # 定义一个接口函数，名称建议有直白含义
+       def pay_url(self):
+           # 直接返回生成的URL
+           return self.build_url()
+           # 有些查询类方法可能需要使用self.api_response()
+           # self.api_response() # 生成请求URL后访问返回响应
+
+演示三，定义一个业务参数类
+
+::
+
+   from public.payment import params
+
+   # 定义一个订单查询的业务参数类
+   class TradeQueryParams(params.ParamsABC):  # 继承PayParams抽象类
+       
+       # 必须指定pay_web，会根据pay_web来决定生成微信支付还是支付宝格式
+       def __init__(self, pay_web: str, out_trade_no: str):
+           self.pay_web = pay_web
+           self.out_trade_no = out_trade_no
+
+       # 必须实现的抽象方法ali_params
+       def ali_params(self) -> dict:
+           return {'out_trade_no': self.out_trade_no}
+
+       # 必须实现的抽象方法wei_params
+       def wei_params(self) -> dict:
+           return self.ali_params()
