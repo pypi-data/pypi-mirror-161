@@ -1,0 +1,333 @@
+Django GraphBox is a package for easy building GraphQL APIs with Django. See the full documentation at https://90horasporsemana.com/graphbox/
+
+Installation
+-----------------------------------------------
+    .. code-block:: bash
+
+        $ pip install django-graphbox
+
+Quickstart
+------------------------------------------------
+
+Use this guide to get started with the GraphBox.
+
+1. Create a new Django project.
+
+    .. code-block:: bash
+
+        $ django-admin startproject my_project
+        $ cd my_project
+        $ python manage.py startapp my_app
+
+2. Define your Django models in the `my_app` app.
+
+    .. code-block:: python3
+
+        from django.db import models
+
+        class MyModel(models.Model):
+            ...
+    .. code-block:: bash
+
+        $ python manage.py makemigrations my_app
+        $ python manage.py migrate
+
+3. Configure and Build your GraphQL schema with django_graphbox.builder.SchemaBuilder on a new file called `schema.py` on the `my_app` app.
+    
+        .. code-block:: python3
+    
+            from django_graphbox.builder import SchemaBuilder
+            from my_app.models import MyModel
+
+            builder = SchemaBuilder()
+            builder.add_model(MyModel)
+            query_class = builder.build_schema_query()
+            mutation_class = builder.build_schema_mutation()
+
+4. Create a main schema in a new file called `schema.py` on `my_project` folder. This file can be used to merge all queries and mutations from all apps builded with django_graphbox or just add your own queries and mutations.
+
+    .. code-block:: python3
+            
+            import graphene
+            from my_app.schema import query_class, mutation_class
+
+            class Query(query_class, graphene.ObjectType):
+                pass
+
+            class Mutation(mutation_class, graphene.ObjectType):
+                pass
+
+            schema = graphene.Schema(query=Query, mutation=Mutation)
+
+5. Add the schema on urls.py file.
+    
+        .. code-block:: python3
+                
+                from django.urls import path
+                from graphene_file_upload.django import FileUploadGraphQLView
+                from django.views.decorators.csrf import csrf_exempt
+                from .schema import schema
+
+                urlpatterns = [
+                    path('graphql/', csrf_exempt(FileUploadGraphQLView.as_view(graphiql=True, schema=schema))),
+                ]
+
+6. Run your project.
+    
+        .. code-block:: bash
+    
+            $ python manage.py runserver
+
+Basic Authentication
+--------------------------------------------------------------------------------
+
+Django GraphBox implements a SessionManager that can be used to manage access to the GraphQL API.
+This Manager is based on JWT authentication, so you have to send on Bearer format the token in the Authorization header.
+
+Follow the steps below to create a new user and Manage the access to the GraphQL API.
+
+1. Create your User model.
+
+    .. code-block:: python3
+
+        from django.models import Model
+
+        class User(Model):
+            custom_uname = models.CharField(max_length=100)
+            custom_pwd = models.CharField(max_length=100)
+            custom_active = models.BooleanField(default=True)
+            role = models.CharField(max_length=100)
+
+    Note that you can define your fields as you want, and you will be able to configure this fields in the SessionManager.
+
+2. Configure groups and modify_permissions in `settings.py` file.
+
+    .. code-block:: python3
+
+        ACCESS_GROUPS = {
+            "GROUP_LEVEL_1": ["RULE_LEVEL1"],
+            "GROUP_LEVEL_2": ["RULE_LEVEL1", "RULE_LEVEL_2",],
+            "GROUP_LEVEL_3": ["RULE_LEVEL1" ,"RULE_LEVEL_2", "RULE_LEVEL_3",],
+        }
+    
+    This groups can be interpreted as: If an operation like `create_field` is configured for allow to GROUP_LEVEL_2
+    then the user will be able to create a field only if he has the role RULE_LEVEL_1 or RULE_LEVEL_2.
+
+    .. code-block:: python3
+
+        MODIFY_PERMISSIONS = {
+            "ROLE_LEVEL_1": ["ROLE_LEVEL_3", "ROLE_LEVEL_2", "ROLE_LEVEL_1"],
+            "ROLE_LEVEL_2": ["ROLE_LEVEL_3", "ROLE_LEVEL_2",],
+            "ROLE_LEVEL_3": ["ROLE_LEVEL_1",],
+        }
+
+
+    This permissions are related with the operations of the user model used on SessionManager. A user with the permission ROLE_LEVEL_2 only can create, update and delete user instances with the permission ROLE_LEVEL_2 and ROLE_LEVEL_3.
+    
+3. Create a new instance of the SessionManager on your `schema.py` file on the `my_app` app and configure the user model.
+
+    .. code-block:: python3
+
+        from django_graphbox.session import Manager as SessionManager
+        from my_app.models import User
+        from django.conf import settings
+
+        session_manager = SessionManager(User, rol_field_name='role', login_id_field_name='custom_uname', password_field_name='custom_pwd', active_field_name='custom_active', groups=settings.ACCESS_GROUPS, modify_permissions=settings.MODIFY_PERMISSIONS)
+
+4. Configure and Build your GraphQL schema with django_graphbox.builder.SchemaBuilder on the file called `schema.py` on the `my_app` app.
+    
+        .. code-block:: python3
+    
+            from django_graphbox.builder import SchemaBuilder
+            from my_app.models import MyModel
+
+            # Add the SessionManager to the SchemaBuilder
+            builder = SchemaBuilder(session_manager=session_manager)
+            # Build your operations
+            builder.add_model(MyModel, access_group="GROUP_LEVEL_2") # This operation will be available only for users with the permission ROLE_LEVEL_1 or ROLE_LEVEL_2
+            builder.add_model(
+                User, 
+                exclude_fields=('custom_pwd',), # Exclude this field on the builded ModelType
+                save_as_password=['custom_pwd',], # On create and update this field will be saved as a password
+                access_group="GROUP_LEVEL_2", 
+                access_by_operation={'delete_field': 'GROUP_LEVEL_1'}
+                ) # This operation will be available only for users with the permission ROLE_LEVEL_1 or ROLE_LEVEL_2 except delete_field operation only for users with the permission ROLE_LEVEL_1.
+            query_class = builder.build_schema_query()
+            mutation_class = builder.build_schema_mutation()
+            # Build your session operations
+            session_query, session_mutation = builder.build_session_schema()
+
+5. Create a main schema in a new file called `schema.py` on `my_project` folder. This file can be used to merge all queries and mutations from all apps builded with django_graphbox or just add your own queries and mutations.
+
+    .. code-block:: python3
+            
+            import graphene
+            from my_app.schema import query_class, mutation_class, session_query, session_mutation
+
+            class Query(query_class, session_query, graphene.ObjectType):
+                pass
+
+            class Mutation(mutation_class, session_mutation, graphene.ObjectType):
+                pass
+
+            schema = graphene.Schema(query=Query, mutation=Mutation)
+
+6. Add the schema on urls.py file.
+    
+        .. code-block:: python3
+                
+                from django.urls import path
+                from graphene_file_upload.django import FileUploadGraphQLView
+                from django.views.decorators.csrf import csrf_exempt
+                from .schema import schema
+
+                urlpatterns = [
+                    path('graphql/', csrf_exempt(FileUploadGraphQLView.as_view(graphiql=True, schema=schema))),
+                ]
+
+7. Run the server and try to access the GraphQL API. Session operations will be available called actualUser query and login mutation. Additionally you can see the operations will require a valid access token and will validate the user role and permissions as you configured.
+
+Custom filters, validators and internal resolvers
+--------------------------------------------------------------------------------
+
+Django GraphBox Builder allows you to add custom filters and validators to the GraphQL schema.
+This example assumes that you have two models called `User` and `Favorite` with the following fields:
+
+    .. code-block:: python3
+
+        class User(Model):
+            custom_uname = models.CharField(max_length=100)
+            custom_pwd = models.CharField(max_length=100)
+            custom_active = models.BooleanField(default=True)
+            role = models.CharField(max_length=100)
+
+        class Favorite(Model):
+            book_name = models.CharField(max_length=100)
+            book_author = models.CharField(max_length=100)
+            book_year = models.IntegerField()
+            user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+1. You can add external filters for the Favorite query. External filters are parameters that will be provided by the client and will be used to filter the query. The filters are added to the `external_filters` dictionary on the add_model method like this:
+
+    .. code-block:: python3
+
+        builder.add_model(
+            Favorite,
+            external_filters={
+                {
+                    "field_name": "book_name", # The field name on the Favorite model
+                    "param_name": "book_name", # The parameter name on the query
+                    "param_type": graphene.String(required=True), # The parameter graphene type
+                }
+            }
+        )
+
+2. You can add internal filters for the Favorite query. Internal filters are callables that will be resolved on the query execution with the parameters of the query resolver. The filters are added to the `internal_filters` dictionary on the add_model method like this:
+    
+        .. code-block:: python3
+    
+            builder.add_model(
+                Favorite,
+                internal_filters={
+                    "field_name": "user__id", # The field name on the Favorite model
+                    "resolver_filter": session_manager.actual_user_attr_getter(field_name='id'), # This function of session_manager will return a function that return the id of the actual user
+                    "on_return_none": "skip", # If the function returns None, the filter will be skipped. If you want apply the filter like user__id__is_null=True, you can set this parameter to "set__isnull".
+                }
+            )
+
+        This will build the query allFavorite filtered by the actual user.
+
+3. Build operations with custom validators by operation for a customizable workflow. The validators callables need receive `info`, `model_instance`, `**kwargs` and must return a boolean.
+
+    .. code-block:: python3
+            
+            builder.add_model(
+                Favorite,
+                validators_by_operation={
+                    'create_field': {
+                        'validators':(
+                            session_manager.actual_user_comparer(actual_user_field='id', operator='=', model_field='user__id'), # This function of session_manager will return a function that compare the id of the actual user with the id of the user field of the Favorite model
+                            session_manager.actual_user_comparer(actual_user_field='role', operator='=', default_value='ROLE_LEVEL_1'), # This function of session_manager will return a function that compare the role of the actual user with the default value
+                        ),
+                        'connector': 'OR', # The connector between the validators. If you want to use AND, you can set this parameter to 'AND'.
+                    },
+                }
+            )
+        
+        The validators are evaluated recursively, this allows you to create complex validators replacing the callable function with other dict with the same structure.
+
+4. Build operations with internal resolvers for some fields of the model. For example to set the actual user as the owner of the Favorite. The resolver callables need receive `info`, `model_instance`, `**kwargs` and must return a value as the model field type.
+    
+    .. code-block:: python3
+                
+                builder.add_model(
+                    Favorite,
+                    internal_field_resolvers={
+                        'create_field': {
+                            'user': session_manager.actual_user_attr_getter(field_name='id'), # This function of session_manager will return a function that return the id of the actual user
+                        },
+                        'update_field': {
+                            'user': session_manager.actual_user_attr_getter(field_name='id'), # This function of session_manager will return a function that return the id of the actual user
+                        },
+                    }
+                )
+
+    Note that the ForeignKey fields need return the id of the related model.
+
+5. Build operations based on modify_permissions. For this example we will configure the User operations for allow create, update and delete to the actual user only if this has permission.
+
+    .. code-block:: python3
+                
+                builder.add_model(
+                    User,
+                    validators_by_operation={
+                        'create_field': {
+                            'validators':(
+                                session_manager.build_access_level_validator(model_field='role'), # This function of session_manager will return a function that compare the role of the actual user with the role of the User instance on the create operation
+                            ),
+                            'connector': 'OR', # The connector between the validators. If you want to use AND, you can set this parameter to 'AND'.
+                        },
+                        'update_field': {
+                            'validators':(
+                                session_manager.build_access_level_validator(model_field='role'), # This function of session_manager will return a function that compare the role of the actual user with the role of the User instance on the update operation
+                            ),
+                            'connector': 'OR', # The connector between the validators. If you want to use AND, you can set this parameter to 'AND'.
+                        },
+                        'delete_field': {
+                            'validators':(
+                                session_manager.build_access_level_validator(model_field='role'), # This function of session_manager will return a function that compare the role of the actual user with the role of the User instance on the delete operation
+                            ),
+                            'connector': 'OR', # The connector between the validators. If you want to use AND, you can set this parameter to 'AND'.
+                        },
+                    }
+                )
+            
+            SessionManager.build_access_level_validator(model_field='role') will return a function that will validate if the user_instance.role exists on the list of MODIFY_PERMISSIONS[actual_user.role].
+
+Release Notes
+----------------------------
+
+    * Version 1.0.0: Initial release
+    * Version 1.0.1: Bug fixes
+    * Version 1.0.2: Bug fixes
+    * Version 1.0.3: Bug fixes
+    * Version 1.0.4: Bug fixes
+    * Version 1.0.5: Add support for exclude_fields_by_operation
+    * Version 1.0.6: Add support for Paginated Queries
+    * Version 1.0.7: Bug fixes
+    * Version 1.0.8: Fix required files on update operation
+    * Version 1.0.9: Bug fixes
+    * Version 1.0.10: Bug fixes
+    * Version 1.0.11: Bug fixes
+    * Version 1.0.12:
+        * Support for skip when None returning on internal_field_resolvers
+    * Version 1.0.13:
+        * Support for social login
+    * Version 1.0.14 - Version 1.0.17:
+        * Bug fixes on social login
+    * Version 1.0.18:
+        * Update documentation
+    * Version 1.0.19:
+        * Show internal error info on social login
+    * Version 1.0.20, Version 1.0.21:
+        * Bug fixes on social login
