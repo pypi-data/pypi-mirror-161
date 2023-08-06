@@ -1,0 +1,40 @@
+{% load i18n %}
+{% load tapeforms %}
+
+
+<div
+	class="cruditor-formset formset-{{ formset.prefix }}"
+	{% for key, value in formset.get_js_formset_options.items %}
+		data-formset-{{ key }}="{{ value }}"
+	{% endfor %}
+>
+	{{ formset.management_form }}
+
+	{% for form in formset %}
+		<div class="formset-form card mb-3{{ form.errors|yesno:' border-danger,' }}{{ form.instance.pk|yesno:' existing,' }}">
+			<div class="card-header">
+				<span class="formset-form-title">
+					{% if form.instance.pk %}
+						{{ form.instance }}
+					{% else %}
+						{{ formset.template_context.form_headline_new_instance }}
+					{% endif %}
+				</span>
+
+				{% block delete_button %}
+					{% if formset.can_delete %}
+						<div class="formset-delete-container float-right">
+							{{ form.DELETE }}
+						</div>
+					{% endif %}
+				{% endblock %}
+			</div>
+			<div class="card-body">
+				{% block form %}
+					{% form form %}
+				{% endblock %}
+			</div>
+		</div>
+	{% endfor %}
+	<div class="formset-add-container"></div>
+</div>
