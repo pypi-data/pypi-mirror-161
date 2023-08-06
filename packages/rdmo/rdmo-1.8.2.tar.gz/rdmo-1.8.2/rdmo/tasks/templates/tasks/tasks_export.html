@@ -1,0 +1,67 @@
+{% extends 'core/export.html' %}
+{% load i18n %}
+
+{% block body %}
+
+    <h1>{% trans 'Tasks' %}</h1>
+
+    <ul>
+
+    {% for task in tasks %}
+
+    <li>
+
+    <p>
+        <strong>{% trans 'URI' %}:</strong> {{ task.uri }}
+    </p>
+
+    {% if task.comment %}
+
+    <p>
+        <strong>{% trans 'Comment' %}:</strong> {{ task.comment }}
+    </p>
+
+    {% endif %}
+
+    <p>
+        <strong>{% trans 'Title' %}:</strong> {{ task.title }}
+    </p>
+
+    <p>
+        <strong>{% trans 'Text' %}:</strong> {{ task.text }}
+    </p>
+
+    <p>
+        <strong>{% trans 'Time frame' %}:</strong>
+    </p>
+
+    <ul>
+        <li>{% trans 'Start date attribute' %}: {{ task.start_attribute.path }}</li>
+        <li>{% trans 'End date attribute' %}: {{ task.end_attribute.path }}</li>
+        <li>{% trans 'Days before' %}: {{ task.days_before }}</li>
+        <li>{% trans 'Days after' %}: {{ task.days_after }}</li>
+    </ul>
+
+    {% if task.conditions.all %}
+
+    <p>
+        <strong>{% trans 'Conditions' %}:</strong>
+    </p>
+
+    <ul>
+        {% for condition in task.conditions.all %}
+        <li>
+            {{ condition.source.path }} {{ condition.relation_label }} {{ condition.target_label }}
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% endif %}
+
+    </li>
+
+    {% endfor %}
+
+    </ul>
+
+{% endblock %}

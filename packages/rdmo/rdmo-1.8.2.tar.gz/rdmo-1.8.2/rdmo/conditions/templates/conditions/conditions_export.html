@@ -1,0 +1,46 @@
+{% extends 'core/export.html' %}
+{% load i18n %}
+
+{% block body %}
+
+    <h1>{% trans 'Conditions' %}</h1>
+
+    <ul>
+
+    {% for condition in conditions %}
+
+    <li>
+
+    <p>
+        <strong>{% trans 'URI' %}:</strong> {{ condition.uri }}
+    </p>
+
+    {% if condition.comment %}
+
+    <p>
+        <strong>{% trans 'Comment' %}:</strong> {{ condition.comment }}
+    </p>
+
+    {% endif %}
+
+    <p>
+        <strong>{% trans 'Source' %}:</strong> {{ condition.source_label }}
+    </p>
+
+    <p>
+        <strong>{% trans 'Relation' %}:</strong> {{ condition.relation_label }}
+    </p>
+
+    {% if condition.target_label %}
+    <p>
+        <strong>{% trans 'Target' %}:</strong> {{ condition.target_label }}
+    </p>
+    {% endif %}
+
+    </li>
+
+    {% endfor %}
+
+    </ul>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% load i18n %}
+
+{% if settings.SHIBBOLETH %}
+
+    <a class="btn btn-success extend" href="{{ settings.LOGIN_URL }}">
+        {% trans 'Login with Shibboleth' %}
+    </a>
+
+{% else %}
+
+<form method="post" action="{% url 'account_login' %}">
+    {% csrf_token %}
+
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+
+    {% include 'core/bootstrap_form_fields.html' %}
+
+    <input type="submit" class="btn btn-primary" value="{% trans 'Login' %}" />
+</form>
+
+{% endif %}
+
+{% if settings.ACCOUNT %}
+{% include 'account/login_form_account.html' %}
+{% endif %}
+
+{% if settings.SOCIALACCOUNT %}
+{% include 'account/login_form_socialaccount.html' %}
+{% endif %}

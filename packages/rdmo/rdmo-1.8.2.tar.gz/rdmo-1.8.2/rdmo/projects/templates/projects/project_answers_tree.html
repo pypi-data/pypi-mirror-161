@@ -1,0 +1,23 @@
+{% load view_tags %}
+
+{% for section in project.catalog.sections.all %}
+
+    <h2>{{ section.title }}</h2>
+
+    {% for questionset in section.questionsets.all %}
+
+        {% if not questionset.questionset %}
+
+            <h3>{{ questionset.title }}</h3>
+
+            {% for element in questionset.elements %}
+
+                {% include 'projects/project_answers_element.html' %}
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endfor %}
+
+{% endfor %}

@@ -1,0 +1,25 @@
+{% load i18n %}
+
+{% include 'projects/project_questions_navigation_help.html' %}
+
+<ul class="list-unstyled project-questions-overview">
+    <li ng-repeat="section in service.project.catalog.sections">
+        <a href="" ng-click="service.jump(section)">
+            {$ section.title $}
+        </a>
+
+        <ul class="list-unstyled"
+            ng-show="section.id == service.questionset.section.id">
+            <li ng-repeat="questionset in section.questionsets"
+                ng-class="{'active': questionset.id == service.questionset.id}">
+
+                <a href="" ng-click="service.jump(section, questionset)">
+                    <span>{$ questionset.title $}<span>
+                    <span ng-show="questionset.has_conditions" class="small">
+                        <i class="fa fa-question-circle-o small" aria-hidden="true"></i>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
