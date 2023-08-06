@@ -1,0 +1,109 @@
+{
+  "actions": {
+    "CreateProbeTasks": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: CreateProbeTasks\n<公共请求参数>\n\n{\n    \"BatchTasks\": [\n        {\n            \"Name\": \"probe\",\n            \"TargetAddress\": \"http://www.baidu.com\"\n        }\n    ],\n    \"Parameters\": \"{}\",\n    \"Interval\": 30,\n    \"TaskCategory\": 1,\n    \"TaskType\": 1,\n    \"Nodes\": [\n        \"10001\"\n    ],\n    \"Cron\": \"* 0-6 * * *\",\n    \"Tag\": [\n        {\n            \"TagKey\": \"abc\",\n            \"TagValue\": \"a1\"\n        }\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"TaskIDs\": [\n            \"xx\"\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "批量创建拨测任务"
+      },
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: CreateProbeTasks\n<公共请求参数>\n\n{\n    \"BatchTasks\":[\n        {\n            \"TargetAddress\":\"http://www.baidu.com\",\n            \"Name\":\"CDN验证21\"\n        }\n    ],\n    \"Parameters\":\"{\"ipType\":0,\"grabBag\":0,\"netIcmpOn\":1,\"netIcmpActivex\":0,\"netIcmpTimeout\":20,\"netIcmpInterval\":0.5,\"netIcmpNum\":20,\"netIcmpSize\":32,\"netIcmpDataCut\":1,\"netDnsOn\":1,\"netDnsTimeout\":5,\"netDnsQuerymethod\":1,\"netDnsNs\":\"\",\"netDigOn\":1,\"netDnsServer\":2,\"netTracertOn\":1,\"netTracertTimeout\":60,\"netTracertNum\":30,\"whiteList\":\"\",\"blackList\":\"\",\"netIcmpActivexStr\":\"\"}\",\n    \"TaskCategory\":\"1\",\n    \"Interval\":\"5\",\n    \"TaskType\":\"5\",\n    \"Nodes\":[\n        \"12136\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"RequestId\": \"0c4977a0-5b9f-469b-84d4-5d6a609e93a3\",\n        \"TaskIDs\": [\n            \"task-h4bcnook\"\n        ]\n    }\n}",
+        "title": "示例1"
+      }
+    ],
+    "DeleteProbeTask": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DeleteProbeTask\n<公共请求参数>\n\n{\n    \"TaskIds\": [\n        \"xx\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"SuccessCount\": 0,\n        \"Total\": 0,\n        \"Results\": [\n            {\n                \"ErrorMessage\": \"xx\",\n                \"Success\": true,\n                \"TaskId\": \"task-xx\"\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "删除拨测任务"
+      }
+    ],
+    "DescribeDetailedSingleProbeData": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeDetailedSingleProbeData\n<公共请求参数>\n\n{\n    \"BeginTime\": 1627345083000,\n    \"EndTime\": 1627363083000,\n    \"TaskType\": \"xxx\",\n    \"SortField\": \"xxx\",\n    \"Ascending\": true,\n    \"Offset\": 0,\n    \"Limit\": 10,\n    \"SelectedFields\": [\n        \"xxx\"\n    ],\n    \"TaskID\": [\n        \"task_xxx\"\n    ],\n    \"Operators\": [\n        \"xxx\"\n    ],\n    \"Districts\": [\n        \"xxx\"\n    ],\n    \"ErrorTypes\": [\n        \"xxx\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"TotalNumber\": 10,\n        \"DataSet\": [\n            {\n                \"ProbeTime\": 1,\n                \"Labels\": [\n                    {\n                        \"ID\": 0,\n                        \"Name\": \"xxx\",\n                        \"Value\": \"xxx\"\n                    }\n                ],\n                \"Fields\": [\n                    {\n                        \"ID\": 0,\n                        \"Name\": \"xxx\",\n                        \"Value\": 1\n                    }\n                ]\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "列出单次拨测详情数据"
+      }
+    ],
+    "DescribeNodes": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeNodes\n<公共请求参数>\n\n{\n    \"NodeType\": 1\n}",
+        "output": "{\n    \"Response\": {\n        \"NodeSet\": [\n            {\n                \"City\": \"xx\",\n                \"Code\": \"xx\",\n                \"Name\": \"xx\",\n                \"District\": \"xx\",\n                \"NetService\": \"xx\",\n                \"Location\": 0,\n                \"Type\": 1,\n                \"IPType\": 0,\n                \"TaskTypes\": [\n                    1,\n                    2\n                ]\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "获取拨测节点"
+      }
+    ],
+    "DescribeProbeMetricData": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeMetricData\n<公共请求参数>\n\n{\n    \"AnalyzeTaskType\": \"AnalyzeTaskType_Browse\",\n    \"MetricType\": \"gauge\",\n    \"Field\": \"avg(\\\"count\\\")\",\n    \"GroupBy\": \"time(30d), \\\"operator\\\"\",\n    \"Filters\": [\n        \"\\\"host\\\" = 'default-host'\",\n        \"time >= now()-3h\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"MetricSet\": \"xx\",\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "请求浏览数据"
+      }
+    ],
+    "DescribeProbeNodes": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeNodes\n<公共请求参数>\n\n{\n    \"NodeType\": 1\n}",
+        "output": "{\n    \"Response\": {\n        \"NodeSet\": [\n            {\n                \"City\": \"xx\",\n                \"Code\": \"xx\",\n                \"Name\": \"xx\",\n                \"District\": \"xx\",\n                \"NetService\": \"xx\",\n                \"Location\": 0,\n                \"Type\": 1,\n                \"IPType\": 0\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "查询拨测节点"
+      }
+    ],
+    "DescribeProbeTasks": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeTasks\n<公共请求参数>\n\n{\n    \"TaskIDs\": [\n        \"task-xx\"\n    ],\n    \"TagFilters\": [\n        {\n            \"Key\": \"name\",\n            \"Value\": \"zhangsan\"\n        }\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"Total\": 3,\n        \"RequestId\": \"xx\",\n        \"TaskSet\": [\n            {\n                \"Status\": 1,\n                \"Name\": \"xx\",\n                \"Parameters\": \"{}\",\n                \"Interval\": 30,\n                \"TaskId\": \"task-xx\",\n                \"TaskType\": 1,\n                \"Nodes\": [\n                    \"10001\"\n                ],\n                \"TagInfoList\": [\n                    {\n                        \"Key\": \"tag_key1\",\n                        \"Value\": \"tag_value1\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
+        "title": "查询拨测任务列表"
+      },
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeTasks\n<公共请求参数>\n\n{\n    \"Limit\": \"10\",\n    \"Offset\": \"0\"\n}",
+        "output": "{\n    \"Response\": {\n        \"RequestId\": \"81a92494-0fb9-4b10-8ce4-bfa4565cf4eb\",\n        \"TaskSet\": null,\n        \"Total\": 0\n    }\n}",
+        "title": "示例2"
+      },
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeTasks\n<公共请求参数>\n\n{\n    \"Limit\": \"10\",\n    \"Offset\": \"0\"\n}",
+        "output": "{\n    \"Response\": {\n        \"RequestId\": \"11483de9-9be5-4537-a846-339a57f0e90e\",\n        \"TaskSet\": null,\n        \"Total\": 0\n    }\n}",
+        "title": "示例3"
+      },
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: DescribeProbeTasks\n<公共请求参数>\n\n{}",
+        "output": "{\n    \"Response\": {\n        \"RequestId\": \"d7628289-fd3c-4acf-a140-a33dd02b3ff6\",\n        \"TaskSet\": null,\n        \"Total\": 0\n    }\n}",
+        "title": "示例5"
+      }
+    ],
+    "ResumeProbeTask": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: ResumeProbeTask\n<公共请求参数>\n\n{\n    \"TaskIds\": [\n        \"task-xx\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"SuccessCount\": 0,\n        \"Total\": 0,\n        \"Results\": [\n            {\n                \"ErrorMessage\": \"xx\",\n                \"Success\": true,\n                \"TaskId\": \"xx\"\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "恢复拨测任务"
+      }
+    ],
+    "SuspendProbeTask": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: SuspendProbeTask\n<公共请求参数>\n\n{\n    \"TaskIds\": [\n        \"task-xxx\"\n    ]\n}",
+        "output": "{\n    \"Response\": {\n        \"SuccessCount\": 1,\n        \"Total\": 1,\n        \"Results\": [\n            {\n                \"ErrorMessage\": \"xx\",\n                \"Success\": true,\n                \"TaskId\": \"task-xx\"\n            }\n        ],\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "暂停拨测任务"
+      }
+    ],
+    "UpdateProbeTaskConfigurationList": [
+      {
+        "document": "",
+        "input": "POST / HTTP/1.1\nHost: cat.tencentcloudapi.com\nContent-Type: application/json\nX-TC-Action: UpdateProbeTaskConfigurationList\n<公共请求参数>\n\n{\n    \"TaskIds\": [\n        \"task-xx\"\n    ],\n    \"Interval\": 30,\n    \"Nodes\": [\n        \"10001\"\n    ],\n    \"Parameters\": \"{}\",\n    \"Cron\": \"* 0-6 * * *\"\n}",
+        "output": "{\n    \"Response\": {\n        \"RequestId\": \"xx\"\n    }\n}",
+        "title": "更新拨测任务配置"
+      }
+    ]
+  },
+  "version": "1.0"
+}
