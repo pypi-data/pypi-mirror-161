@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+"""
+Module Description.
+
+
+"""
+% if cli:
+import argparse
+import textwrap
+% endif
+import logging
+
+from _config import configureLogging, getVersion
+
+configureLogging()
+logger = logging.getLogger(__name__)
+
+
+% if cli:
+def handle_main(args: argparse.Namespace):
+    pass
+
+
+description = textwrap.dedent(f'''\
+    Do something awesome.
+    --------------------------------
+    Do it with version {getVersion()}
+
+    usage:
+    ${projectname} <example>
+
+        ''')
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='version-update',
+        description=description,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument('example', help='The example.')
+    args = parser.parse_args()
+    handle_main(args)
+% else:
+def main():
+    """
+    Do something awesome.
+    """
+    logger.info(f'version: {getVersion()}')
+% endif
+
+
+if __name__ == "__main__":
+    main()
