@@ -1,0 +1,51 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "lndb_setup"
+authors = [{name = "Lamin Labs", email = "laminlabs@gmail.com"}]
+readme = "README.md"
+dynamic = ["version", "description"]
+dependencies = [
+    "lamindb_schema>=0.3.1",
+    "lndb_schema_core>=0.3.0",
+    "lndb_schema_wetlab>=0.1.1",
+    "lamin_logger",
+    "boto3",
+    "cloudpathlib",
+    "sqlmodel",
+    "appdirs",
+    "supabase",
+    "python-dotenv",
+    "biogram",
+]
+
+[project.urls]
+Home = "https://github.com/laminlabs/lndb-setup"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "nox",
+]
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+]
+
+[project.scripts]
+lndb = "lndb_setup.__main__:main"
+
+[tool.black]
+preview = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+omit = [
+    "lndb_setup/*",
+]
