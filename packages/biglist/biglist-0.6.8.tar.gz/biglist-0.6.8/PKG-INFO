@@ -1,0 +1,42 @@
+Metadata-Version: 2.1
+Name: biglist
+Version: 0.6.8
+Summary: Biglist
+Author-email: Zepu Zhang <zepu.zhang@gmail.com>
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: upathlib>=0.6.5
+Requires-Dist: bandit ; extra == "test"
+Requires-Dist: boltons ; extra == "test"
+Requires-Dist: coverage[toml] ; extra == "test"
+Requires-Dist: flake8 ; extra == "test"
+Requires-Dist: mypy ; extra == "test"
+Requires-Dist: pylint ; extra == "test"
+Requires-Dist: pytest ; extra == "test"
+Requires-Dist: pytest-asyncio ; extra == "test"
+Project-URL: Source, https://github.com/zpz/biglist
+Provides-Extra: test
+
+# biglist
+
+`biglist` provides a class `Biglist`, which implements a persisted, out-of-memory Python data structure operations by the familiar *list* interface. The main use case is processing large amounts of data that can not fit in memory.
+
+Persistence can be on local disk or in a cloud blob store.
+
+Mutation is append-only. Updating existing elements of the list is not supported.
+
+Random element access by index and slice is supported, but not optimized. The recommended way of consumption is by iteration, which is optimized for speed.
+
+Distributed reading and writing are supported. This means appending to or reading from a `Biglist` by multiple workers concurrently. In the case of reading, the data of the `Biglist` is split between the workers. When the storage is local, the workers are multiple threads or processes. When the storage is remote (i.e. in a cloud blob store), the workers are multiple threads or processes on one or more machines.
+
+Of course, reading the entire list concurrently by a number of independent workers is also possible. That, however, is not called "distributed" reading.
+
+A very early version of this work is described in [a blog post](https://zpz.github.io/blog/biglist/).
+
+## Status
+
+Production ready.
+
