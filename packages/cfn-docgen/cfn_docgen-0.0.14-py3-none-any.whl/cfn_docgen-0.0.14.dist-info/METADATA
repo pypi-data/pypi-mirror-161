@@ -1,0 +1,198 @@
+Metadata-Version: 2.1
+Name: cfn-docgen
+Version: 0.0.14
+Summary: Document generator from cfn template files.
+Home-page: https://github.com/horietakehiro/cfn-docgen
+Author: Takehiro Horie
+Author-email: horie.takehiro@outlook.jp
+License: MIT License
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: attrs (==21.4.0)
+Requires-Dist: beautifulsoup4 (==4.11.1)
+Requires-Dist: bleach (==5.0.1)
+Requires-Dist: boto3 (==1.24.20)
+Requires-Dist: botocore (==1.27.20)
+Requires-Dist: bs4 (==0.0.1)
+Requires-Dist: certifi (==2022.6.15)
+Requires-Dist: cffi (==1.15.1)
+Requires-Dist: cfn-flip (==1.3.0)
+Requires-Dist: charset-normalizer (==2.1.0)
+Requires-Dist: click (==8.1.3)
+Requires-Dist: colour (==0.1.5)
+Requires-Dist: commonmark (==0.9.1)
+Requires-Dist: coverage (==6.4.1)
+Requires-Dist: cryptography (==37.0.2)
+Requires-Dist: docutils (==0.18.1)
+Requires-Dist: et-xmlfile (==1.1.0)
+Requires-Dist: idna (==3.3)
+Requires-Dist: importlib-metadata (==4.12.0)
+Requires-Dist: importlib-resources (==5.8.0)
+Requires-Dist: iniconfig (==1.1.1)
+Requires-Dist: jeepney (==0.8.0)
+Requires-Dist: jmespath (==1.0.1)
+Requires-Dist: jsonschema (==4.6.1)
+Requires-Dist: keyring (==23.6.0)
+Requires-Dist: numpy (==1.23.0)
+Requires-Dist: openpyxl (==3.0.10)
+Requires-Dist: packaging (==21.3)
+Requires-Dist: pandas (==1.4.3)
+Requires-Dist: parameterized (==0.8.1)
+Requires-Dist: pip (==20.2.3)
+Requires-Dist: pkginfo (==1.8.3)
+Requires-Dist: pluggy (==1.0.0)
+Requires-Dist: py (==1.11.0)
+Requires-Dist: pycparser (==2.21)
+Requires-Dist: Pygments (==2.12.0)
+Requires-Dist: pyparsing (==3.0.9)
+Requires-Dist: pyrsistent (==0.18.1)
+Requires-Dist: pytest (==7.1.2)
+Requires-Dist: pytest-cov (==3.0.0)
+Requires-Dist: python-dateutil (==2.8.2)
+Requires-Dist: pytz (==2022.1)
+Requires-Dist: PyYAML (==6.0)
+Requires-Dist: readme-renderer (==35.0)
+Requires-Dist: requests (==2.28.1)
+Requires-Dist: requests-toolbelt (==0.9.1)
+Requires-Dist: rfc3986 (==2.0.0)
+Requires-Dist: rich (==12.4.4)
+Requires-Dist: s3transfer (==0.6.0)
+Requires-Dist: SecretStorage (==3.3.2)
+Requires-Dist: setuptools (==49.2.1)
+Requires-Dist: six (==1.16.0)
+Requires-Dist: soupsieve (==2.3.2.post1)
+Requires-Dist: styleframe (==4.1)
+Requires-Dist: tabulate (==0.8.10)
+Requires-Dist: tomli (==2.0.1)
+Requires-Dist: tqdm (==4.64.0)
+Requires-Dist: twine (==4.0.1)
+Requires-Dist: typing-extensions (==4.2.0)
+Requires-Dist: urllib3 (==1.26.9)
+Requires-Dist: webencodings (==0.5.1)
+Requires-Dist: wheel (==0.37.1)
+Requires-Dist: XlsxWriter (==3.0.3)
+Requires-Dist: zipp (==3.8.0)
+
+# cfn-docgen
+
+![buildbadge](https://codebuild.ap-northeast-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidERrRjdNRERUMWRqWGc5TW1VTGREYXJkQ1BKc2JremZsRS8vK21jdThTeWlTeEpaVTRJSHU0aVBVTHE2aDJudStCUXF6c2tFWlZQSnFiLzhta216dk1nPSIsIml2UGFyYW1ldGVyU3BlYyI6Ik95ZGR1VHBOZ0pqZUJXZWkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=release)
+
+---
+
+cfn-docgen is a command line tool that generates the table formatted CloudFormation(cfn) definition file from the original, yaml or json formatted template file. 
+
+---
+
+## Example
+If you have a yaml cfn template file like below, 
+```Yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: sample vpc template
+Parameters:
+  EnvType:
+    Description: env type
+    Type: String
+    Default: dev
+Resources: 
+  VPC:
+    Type: AWS::EC2::VPC
+    Metadata:
+      UserNotes:
+        ResourceNote: This is a note for VPC resource
+        PropNotes:
+          CidrBlock: This is a note for CidrBlock prop
+          Tags[1].Value: This is a note for Value prop of 2nd Tags list prop
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      Tags:
+        - Key: ENV
+          Value: !Ref EnvType
+        - Key: Name
+          Value: SampleVpc
+```
+you can generate a content like below.
+
+| ResourceId   | ResourceType   | ResourceNote                    | Property           | Value              | UserNote                                            | Required    | Type        | UpdateType      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                      | IsOmittable   | Filename   |
+|:-------------|:---------------|:--------------------------------|:-------------------|:-------------------|:----------------------------------------------------|:------------|:------------|:----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------|:-----------|
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | CidrBlock          | 10.0.0.0/16        | This is a note for CidrBlock prop                   | Conditional | String      | Replacement     | The IPv4 network range for the VPC, in CIDR notation. For example, 10.0.0.0/16. We modify the specified CIDR block to its canonical form; for example, if you specify 100.68.0.18/18, we modify it to 100.68.0.0/18.                                                                                                                                                                                                                             | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | EnableDnsHostnames |                    |                                                     | No          | Boolean     | No interruption | Indicates whether the instances launched in the VPC get DNS hostnames. If enabled, instances in the VPC get DNS hostnames; otherwise, they do not. Disabled by default for nondefault VPCs. For more information, see DNS attributes in your VPC.                                                                                                                                                                                                | True          | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | EnableDnsSupport   | True               |                                                     | No          | Boolean     | No interruption | Indicates whether the DNS resolution is supported for the VPC. If enabled, queries to the Amazon provided DNS server at the 169.254.169.253 IP address, or the reserved IP address at the base of the VPC network range "plus two" succeed. If disabled, the Amazon provided DNS service in the VPC that resolves public DNS hostnames to IP addresses is not enabled. Enabled by default. For more information, see DNS attributes in your VPC. | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | InstanceTenancy    |                    |                                                     | No          | String      | No interruption | The allowed tenancy of instances launched into the VPC.                                                                                                                                                                                                                                                                                                                                                                                          | True          | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Ipv4IpamPoolId     |                    |                                                     | Conditional | String      | Replacement     | The ID of an IPv4 IPAM pool you want to use for allocating this VPC's CIDR. For more information, see What is IPAM? in the Amazon VPC IPAM User Guide.                                                                                                                                                                                                                                                                                           | True          | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Ipv4NetmaskLength  |                    |                                                     | No          | Integer     | Replacement     | The netmask length of the IPv4 CIDR you want to allocate to this VPC from an Amazon VPC IP Address Manager (IPAM) pool. For more information about IPAM, see What is IPAM? in the Amazon VPC IPAM User Guide.                                                                                                                                                                                                                                    | True          | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Tags               |                    |                                                     | No          | List of Tag | No interruption | The tags for the VPC.                                                                                                                                                                                                                                                                                                                                                                                                                            | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Tags[0].Key        | ENV                |                                                     | Yes         | String      |                 | The key name of the tag. You can specify a value that's 1 to 128 Unicode characters in length and can't be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.                                                                                                                                                                                                | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Tags[0].Value      | {'Ref': 'EnvType'} |                                                     | Yes         | String      |                 | The value for the tag. You can specify a value that's 1 to 256 characters in length.                                                                                                                                                                                                                                                                                                                                                             | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Tags[1].Key        | Name               |                                                     | Yes         | String      |                 | The key name of the tag. You can specify a value that's 1 to 128 Unicode characters in length and can't be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.                                                                                                                                                                                                | False         | vpc.yaml   |
+| VPC          | AWS::EC2::VPC  | This is a note for VPC resource | Tags[1].Value      | SampleVpc          | This is a note for Value prop of 2nd Tags list prop | Yes         | String      |                 | The value for the tag. You can specify a value that's 1 to 256 characters in length.                                                                                                                                                                                                                                                                                                                                                             | False         | vpc.yaml   |
+
+
+
+The key features of this tool are,
+
+- All of the properties of each resource, including ones you omit to define, are listed in generated file.
+  - In the example above, properties `EnableDnsHostnames`, `InstanceTenancy`, `Ipv4IpamPoolId`, and `Ipv4NetmaskLength` are omitted in original cfn template file, but listed in generated file.
+- References for each resource and property listed at [official User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) are merged in generated file as columns `Required`, `Type`, `UpdateType`, and `Description`.
+- You can add custom notes for each resource and property at `Metadata` section in each resource.
+  - You can add custom note for a resource at `Metadata.UserNotes.ResourceNote`
+  - You can add custom notes for properties at `Metadata.UserNotes.PropNotes.{PropertyName}`
+    - For nested or list properties, you can specify `PropertyName` like `Tags[1].Value` .
+- Not only `Resources` section in cfn template, this tool can also generate definitions of other sections, including `Parameters`, `Mappings`, and `Outputs` and resource policies like `CreationPolicy`, `UpdatePolicy`, `UpdateReplacePlocy`, `DeletionPolicy`, and `DependsOn`.
+- You can generate files as excel, md, csv, or html format.
+  - In excel format, all of definitions are separated by sheets. 
+  - In other format, all of definitions are separated by files.
+
+Full example is in [sample](./sample) directory.
+
+---
+
+## Requirements
+- python3.8
+- Linux OS
+- AWS CLI
+
+---
+
+## Installation
+```Bash
+$ pip install cfn-docgen
+```
+
+
+---
+
+## Command usage
+```Bash
+$ cfn-docgen --help
+Usage: cfn-docgen [OPTIONS]
+
+  Document generator from cfn template files
+
+Options:
+  --in TEXT                 Input cfn template file path (yaml/json)
+                            [required]
+  --fmt [xlsx|md|csv|html]  Output file format.  [default: xlsx]
+  --omit                    If set, optional properties whose actual values
+                            are not set in input template file will not be
+                            written in output file.
+  --refresh                 If set, fristly remove all existing cache files
+                            and download them again.
+  --region TEXT             AWS region name for referencing resource specs. If
+                            not set, the value set as environment variable
+                            `CFN_DOCGEN_AWS_REGION` is used. If the
+                            environment variable is not set, use the value of
+                            AWS CLI default profile
+  --verbose                 If set, stdout DEBUG level logs
+  --help                    Show this message and exit.
+
+
+# example command usage
+$ cfn-docgen --in sample/sample-template.json --fmt html
+```
+
+
+
