@@ -1,0 +1,1 @@
+The TruffleHog integration configured here is documented [in Notion](https://www.notion.so/montecarlodata/TruffleHog-Secrets-Scanning-331cd044d67b41009e0a9504e2a1cab8).
