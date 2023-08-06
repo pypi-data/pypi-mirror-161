@@ -1,0 +1,81 @@
+---
+- name: my postgresql instances
+  hosts: localhost
+  tasks:
+    - name: production instance
+      dalibo.pglift.instance:
+        name: prod
+        state: started
+        port: 5433
+        ssl: true
+        configuration:
+          max_connections: 100
+          shared_buffers: 1GB
+          unix_socket_directories: /tmp
+        surole_password: "{{ postgresql_surole_password }}"
+        extensions:
+          - pg_stat_statements
+          - unaccent
+        prometheus_password: "{{ prometheus_role_password }}"
+        prometheus_port: 9186
+        temboard_password: "{{ temboard_role_password }}"
+        temboard_port: 2344
+        roles:
+          - name: bob
+            login: true
+            password: "{{ prod_bob_password }}"
+            pgpass: false
+            connection_limit: 10
+            validity: '2025-01-01T00:00'
+            in_roles:
+              - pg_read_all_stats
+              - pg_signal_backend
+        databases:
+          - name: db
+            owner: bob
+            settings:
+              work_mem: 3MB
+            extensions:
+              - unaccent
+
+    - name: pre-production instance
+      dalibo.pglift.instance:
+        name: preprod
+        port: 5434
+        state: started
+        configuration:
+          unix_socket_directories: /tmp
+        surole_password: "{{ postgresql_surole_password }}"
+        pgbackrest_password: "{{ backup_role_password }}"
+        prometheus_password: "{{ prometheus_role_password }}"
+        prometheus_port: 9188
+        temboard_password: "{{ temboard_role_password }}"
+        temboard_port: 2346
+
+    - name: register preprod conninfo
+      dalibo.pglift.dsn_info:
+        name: preprod
+      register: preprod
+
+    - name: |
+        create database test on pre-production instance using
+        community.postgresql module
+      community.postgresql.postgresql_db:
+        name: test
+        login_host: "{{ preprod.PGHOST }}"
+        login_port: "{{ preprod.PGPORT }}"
+      environment: "{{ preprod }}"
+
+    - name: dev instance, not running at the moment
+      dalibo.pglift.instance:
+        name: dev
+        port: 5444
+        state: stopped
+        configuration:
+          unix_socket_directories: /tmp
+        surole_password: "{{ postgresql_surole_password }}"
+        pgbackrest_password: "{{ backup_role_password }}"
+        prometheus_password: "{{ prometheus_role_password }}"
+        prometheus_port: 9189
+        temboard_password: "{{ temboard_role_password }}"
+        temboard_port: 2347

@@ -1,0 +1,220 @@
+{
+  "auth_host": {
+    "choices": [
+      "trust",
+      "reject",
+      "md5",
+      "password",
+      "scram-sha-256",
+      "gss",
+      "sspi",
+      "ident",
+      "pam",
+      "ldap",
+      "radius",
+      "cert"
+    ],
+    "description": [
+      "Authentication method for local TCP/IP connections"
+    ]
+  },
+  "auth_local": {
+    "choices": [
+      "trust",
+      "reject",
+      "md5",
+      "password",
+      "scram-sha-256",
+      "gss",
+      "sspi",
+      "ident",
+      "peer",
+      "pam",
+      "ldap",
+      "radius",
+      "cert"
+    ],
+    "description": [
+      "Authentication method for local-socket connections"
+    ]
+  },
+  "configuration": {
+    "description": [
+      "Settings for the PostgreSQL instance"
+    ],
+    "type": "dict"
+  },
+  "data_checksums": {
+    "description": [
+      "Enable or disable data checksums",
+      "If unspecified, fall back to site settings choice"
+    ],
+    "type": "bool"
+  },
+  "databases": {
+    "description": [
+      "Databases"
+    ],
+    "type": "list"
+  },
+  "encoding": {
+    "description": [
+      "Character encoding of the PostgreSQL instance"
+    ],
+    "type": "str"
+  },
+  "extensions": {
+    "description": [
+      "List of extensions to install in the instance"
+    ],
+    "type": "list"
+  },
+  "locale": {
+    "description": [
+      "Default locale"
+    ],
+    "type": "str"
+  },
+  "name": {
+    "description": [
+      "Instance name"
+    ],
+    "required": true,
+    "type": "str"
+  },
+  "pgbackrest_password": {
+    "description": [
+      "Password of PostgreSQL role for pgBackRest"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "port": {
+    "description": [
+      "TCP port the postgresql instance will be listening to",
+      "If unspecified, default to 5432 unless a 'port' setting is found in 'configuration'"
+    ],
+    "type": "int"
+  },
+  "powa_password": {
+    "description": [
+      "Password of PostgreSQL role for PoWA"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "prometheus_password": {
+    "description": [
+      "Password of PostgreSQL role for Prometheus postgres_exporter"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "prometheus_port": {
+    "description": [
+      "TCP port for the web interface and telemetry of Prometheus"
+    ],
+    "type": "int"
+  },
+  "replrole_password": {
+    "description": [
+      "Replication role password"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "restart_on_changes": {
+    "default": false,
+    "description": [
+      "Whether or not to automatically restart the instance to account for configuration changes"
+    ],
+    "type": "bool"
+  },
+  "roles": {
+    "description": [
+      "Roles"
+    ],
+    "type": "list"
+  },
+  "ssl": {
+    "default": false,
+    "description": [
+      "Enable SSL",
+      "If True, enable SSL and generated a self-signed certificate"
+    ],
+    "required": false,
+    "type": "bool"
+  },
+  "standby_for": {
+    "description": [
+      "DSN of primary for streaming replication"
+    ],
+    "type": "str"
+  },
+  "standby_password": {
+    "description": [
+      "Password for the replication user"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "standby_slot": {
+    "description": [
+      "Replication slot name"
+    ],
+    "type": "str"
+  },
+  "standby_status": {
+    "choices": [
+      "demoted",
+      "promoted"
+    ],
+    "description": [
+      "Instance standby state"
+    ]
+  },
+  "state": {
+    "choices": [
+      "stopped",
+      "started",
+      "absent",
+      "restarted"
+    ],
+    "default": "started",
+    "description": [
+      "Runtime state"
+    ]
+  },
+  "surole_password": {
+    "description": [
+      "Super-user role password"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "temboard_password": {
+    "description": [
+      "Password of PostgreSQL role for temboard agent"
+    ],
+    "no_log": true,
+    "type": "str"
+  },
+  "temboard_port": {
+    "description": [
+      "TCP port for the temboard-agent API"
+    ],
+    "type": "int"
+  },
+  "version": {
+    "choices": [
+      "14",
+      "13",
+      "12",
+      "11",
+      "10"
+    ],
+    "description": [
+      "PostgreSQL version"
+    ]
+  }
+}

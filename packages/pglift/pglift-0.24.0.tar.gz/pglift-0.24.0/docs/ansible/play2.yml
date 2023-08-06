@@ -1,0 +1,56 @@
+---
+- name: my postgresql instances
+  hosts: localhost
+  tasks:
+    - name: production instance
+      dalibo.pglift.instance:
+        name: prod
+        port: 5433
+        state: started
+        ssl: true
+        configuration:
+          max_connections: 100
+          shared_buffers: 1GB
+          unix_socket_directories: /tmp
+        surole_password: "{{ postgresql_surole_password }}"
+        extensions:
+          - unaccent
+        pgbackrest_password: "{{ backup_role_password }}"
+        prometheus_password: "{{ prometheus_role_password }}"
+        prometheus_port: 9186
+        temboard_password: "{{ temboard_role_password }}"
+        temboard_port: 2344
+      register: prod
+
+    - name: db, dropped
+      dalibo.pglift.database:
+        name: db
+        state: absent
+        instance: prod
+
+    - name: role bob, dropped
+      dalibo.pglift.role:
+        name: bob
+        state: absent
+        instance: prod
+
+    - name: pre-production instance, now dropped
+      dalibo.pglift.instance:
+        name: preprod
+        state: absent
+
+    - name: dev instance, started, with SSL
+      dalibo.pglift.instance:
+        name: dev
+        port: 5455
+        state: started
+        ssl: true
+        configuration:
+          max_connections: 42
+          unix_socket_directories: /tmp
+        surole_password: "{{ postgresql_surole_password }}"
+        pgbackrest_password: "{{ backup_role_password }}"
+        prometheus_password: "{{ prometheus_role_password }}"
+        prometheus_port: 9189
+        temboard_password: "{{ temboard_role_password }}"
+        temboard_port: 2347
