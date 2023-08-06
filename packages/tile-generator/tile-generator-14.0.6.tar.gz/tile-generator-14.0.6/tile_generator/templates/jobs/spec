@@ -1,0 +1,119 @@
+---
+name: {{ job_type }}
+templates:
+{% if errand %}
+  {{ job_type }}.sh.erb: bin/run
+  opsmgr.env.erb: bin/opsmgr.env
+{% else %}
+  {{ job_type }}.sh.erb: bin/{{ job_type }}_ctl
+  opsmgr.env.erb: bin/opsmgr.env
+{% endif %}
+packages:
+{% if not package %}
+{% for package in context.packages if not package.is_bosh_release %}
+- {{ package.name }}
+{% endfor %}
+{% for package in packages %}
+- {{ package.name }}
+{% endfor %}
+{% else %}
+{% if not package.is_docker_app %}
+- {{ package.name }}
+{% endif %}
+{% if not errand %}
+- common
+{% endif %}
+{% endif %}
+properties:
+  domain:
+    description: 'CloudFoundry system domain'
+  app_domains:
+    description: 'CloudFoundry application domains'
+  org:
+    description: 'Org for the Application'
+    default: ''
+  space:
+    description: 'Space for the Application'
+    default: ''
+  ssl.skip_cert_verify:
+    description: 'Whether to verify SSL certs when making web requests'
+  cf.admin_user:
+    description: 'Username of the CF admin user'
+  cf.admin_password:
+    description: 'Password of the CF admin user'
+  uaa.admin_client:
+    description: 'Name of the UAA Admin Client'
+  uaa.admin_client_secret:
+    description: 'Password of the UAA Admin Client'
+  apply_open_security_group:
+    description: 'Open security group for the app to access outside'
+    default: false
+  allow_paid_service_plans:
+    description: 'Allow use of paid service plans'
+    default: false
+  security.user:
+    description: 'Basic auth user'
+  security.password:
+    description: 'Basic auth password'
+  tls_cacert:
+    description: "Ops Manager's CA certificate"
+  opsman_ca:
+    description: "Ops Manager's CA certificate"
+  pks_username:
+    description: 'Username for the PKS API'
+  pks_password:
+    description: 'Password for the PKS API'
+{% for property in context.all_properties %}
+  {{ property.name }}:
+    description: "{{ property.description or property.name }}"
+{% endfor %}
+{% for service_plan_form in context.service_plan_forms %}
+  {{ service_plan_form.name }}:
+    description: '{{ service_plan_form.name }}'
+{% endfor %}
+{% for package in context.packages %}
+  {{ package.name }}.name:
+    description: 'Name of package'
+{% if package.is_external_broker %}
+  {{ package.name }}.url:
+    description: 'URL to access service'
+  {{ package.name }}.user:
+     description: 'Basic auth username to access service'
+  {{ package.name }}.password:
+     description: 'Basic auth password to access service'
+{% elif package.is_broker %}
+  {{ package.name }}.user:
+     description: 'Basic auth username'
+  {{ package.name }}.password:
+     description: 'Basic auth password'
+{% endif %}
+{% if package.is_app %}
+  {{ package.name }}.app_manifest:
+     description: 'Application manifest'
+  {{ package.name }}.auto_services:
+     description: 'Services to bind'
+     default: []
+{% endif %}
+{% if package.is_broker %}
+  {{ package.name }}.enable_global_access_to_plans:
+    description: 'Access to all service plans'
+    default: false
+{% endif %}
+{% if package.is_buildpack %}
+  {{ package.name }}.buildpack_order:
+    description: 'Order of the Buildpack'
+{% endif %}
+{% endfor %}
+
+{% if job_type == 'deploy-all' or job_type == 'delete-all' %}
+consumes:
+{% for release in context.releases.values() if release.consumes %}
+{% for link_name, link in release.consumes.items() %}
+  - name: {{ link_name }}
+    type: {{ link.type or link_name }}
+{% if link.optional is defined and link.optional %}
+    optional: true
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
