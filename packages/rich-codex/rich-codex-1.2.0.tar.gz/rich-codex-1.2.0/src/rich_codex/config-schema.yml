@@ -1,0 +1,164 @@
+---
+"$schema": "http://json-schema.org/draft-04/schema#"
+"$id": https://github.com/ewels/rich-codex/raw/main/src/rich_codex/config-schema.yml
+title: rich-codex configs
+type: object
+additionalProperties: false
+properties:
+  # top-level config options
+
+  # Shared config options
+  snippet_syntax: { "$ref": "#/$defs/snippet_syntax" }
+  timeout: { "$ref": "#/$defs/timeout" }
+  before_command: { "$ref": "#/$defs/before_command" }
+  after_command: { "$ref": "#/$defs/after_command" }
+  hide_command: { "$ref": "#/$defs/hide_command" }
+  title_command: { "$ref": "#/$defs/title_command" }
+  head: { "$ref": "#/$defs/head" }
+  tail: { "$ref": "#/$defs/tail" }
+  trim_after: { "$ref": "#/$defs/trim_after" }
+  truncated_text: { "$ref": "#/$defs/truncated_text" }
+  min_pct_diff: { "$ref": "#/$defs/min_pct_diff" }
+  skip_change_regex: { "$ref": "#/$defs/skip_change_regex" }
+  terminal_width: { "$ref": "#/$defs/terminal_width" }
+  terminal_min_width: { "$ref": "#/$defs/terminal_min_width" }
+  notrim: { "$ref": "#/$defs/notrim" }
+  terminal_theme: { "$ref": "#/$defs/terminal_theme" }
+  snippet_theme: { "$ref": "#/$defs/snippet_theme" }
+  use_pty: { "$ref": "#/$defs/use_pty" }
+
+  # Top-level only config options
+  skip:
+    title: Skip the next rich-codex image in the markdown source
+    type: boolean
+
+  # List of specific screenshots to generate
+  outputs:
+    title: Array of outputs to generate
+    type: array
+    items:
+      title: A single output to generate
+      type: object
+      additionalProperties: false
+      required:
+        - img_paths
+      # Need either a command or a snippet
+      anyOf:
+        - required:
+            - command
+        - required:
+            - snippet
+
+      # Additional properties needed to create an output, beyond config
+      properties:
+        command:
+          title: Shell command to run
+          type: string
+          message:
+            required: Either command or snippet is required
+        working_dir:
+          title: Working directory to run command in
+        snippet:
+          title: Code snippet to use
+          type: string
+          message:
+            required: Either command or snippet is required
+        title:
+          title: Title to use for the terminal window
+          type: string
+        fake_command:
+          title: Pretend command to show in the screenshot prompt
+          type: string
+        extra_env:
+          title: Additional environment variables to set for this command
+          type: object
+        img_paths:
+          title: Array of image filenames to generate
+          type: array
+          minItems: 1
+          items:
+            type: string
+            title: An image path
+            pattern: "(?i)\\.(svg|png|pdf)$"
+        source:
+          title: Filename / meta about where the image came from
+        source_type:
+          title: Type of input that the image came from
+          type: string
+
+        # Shared config options
+        snippet_syntax: { "$ref": "#/$defs/snippet_syntax" }
+        timeout: { "$ref": "#/$defs/timeout" }
+        before_command: { "$ref": "#/$defs/before_command" }
+        after_command: { "$ref": "#/$defs/after_command" }
+        hide_command: { "$ref": "#/$defs/hide_command" }
+        title_command: { "$ref": "#/$defs/title_command" }
+        head: { "$ref": "#/$defs/head" }
+        tail: { "$ref": "#/$defs/tail" }
+        trim_after: { "$ref": "#/$defs/trim_after" }
+        truncated_text: { "$ref": "#/$defs/truncated_text" }
+        min_pct_diff: { "$ref": "#/$defs/min_pct_diff" }
+        skip_change_regex: { "$ref": "#/$defs/skip_change_regex" }
+        terminal_width: { "$ref": "#/$defs/terminal_width" }
+        terminal_min_width: { "$ref": "#/$defs/terminal_min_width" }
+        notrim: { "$ref": "#/$defs/notrim" }
+        terminal_theme: { "$ref": "#/$defs/terminal_theme" }
+        snippet_theme: { "$ref": "#/$defs/snippet_theme" }
+        use_pty: { "$ref": "#/$defs/use_pty" }
+
+# Single location to hold schema for config options, as used twice
+"$defs":
+  snippet_syntax:
+    title: Language to use for snippet sytax highlighting
+    type: string
+  timeout:
+    title: Maximum run time for command (seconds)
+    type: integer
+  before_command:
+    title: Setup commands to run before running main output command
+    type: string
+  after_command:
+    title: Setup commands to run after running main output command
+    type: string
+  hide_command:
+    title: Hide the terminal prompt with the command at the top of the output
+    type: boolean
+  title_command:
+    title: Use the command as the terminal title if not set explicitly
+    type: boolean
+  head:
+    title: Show only the first N lines of output
+    type: integer
+  tail:
+    title: Show only the last N lines of output
+    type: integer
+  trim_after:
+    title: Don't print any more lines after this string is found
+    type: string
+  truncated_text:
+    title: Text to show when --head or --tail truncate content
+    type: string
+  min_pct_diff:
+    title: Minimum file percentage change required to update image
+    type: number
+  skip_change_regex:
+    title: Skip image update if file changes match regex
+    type: boolean
+  terminal_width:
+    title: Width of the terminal
+    type: integer
+  terminal_min_width:
+    title: Minimum width of the terminal (use trimming)
+    type: integer
+  notrim:
+    title: Disable automatic trimming of terminal width
+    type: boolean
+  terminal_theme:
+    title: Colour theme
+    type: string
+  snippet_theme:
+    title: Snippet Pygments theme
+    type: string
+  use_pty:
+    title: Use a pseudo-terminal for commands (may capture coloured output)
+    type: boolean
