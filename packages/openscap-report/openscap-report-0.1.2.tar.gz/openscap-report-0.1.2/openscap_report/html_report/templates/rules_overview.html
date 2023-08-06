@@ -1,0 +1,102 @@
+{# Copyright 2022, Red Hat, Inc. #}
+{# SPDX-License-Identifier: LGPL-2.1-or-later #}
+<table class="pf-c-table pf-m-expandable pf-m-grid-lg" role="grid" id="rule-table">
+    <thead>
+        <tr role="row">
+            <th></th>
+            <th class="pf-c-table__sort" role="columnheader">
+                <span class="pf-c-table__text">Rule</span>
+            </th>
+            <th class="pf-c-table__sort" role="columnheader">
+                <span class="pf-c-table__text">Severity</span>
+            </th>
+            <th class="pf-c-table__sort" role="columnheader">
+                <span class="pf-c-table__text">Result</span>
+            </th>
+        </tr>
+    </thead>
+    {% for rule_id, rule in report.rules|get_selected_rules %}
+    {%- if rule.result != "notselected" -%}
+        {% if loop.index > 50 %}
+            <tbody class="pf-m-expanded hidden" role="rowgroup" title="{{ rule.title }}" rule-id="{{ rule.rule_id }}" result="{{ rule.result }}" severity="{{ rule.severity }}">
+        {% else %}
+            <tbody class="pf-m-expanded" role="rowgroup" title="{{ rule.title }}" rule-id="{{ rule.rule_id }}" result="{{ rule.result }}" severity="{{ rule.severity }}">
+        {% endif %}
+        <tr role="row">
+            <td class="pf-c-table__toggle" role="cell">
+                <button
+                    id="show_hide_rule_detail_button"
+                    class="pf-c-button pf-m-plain" onclick="show_rule_detail(this);"
+                    aria-label="Show details of rule (rule_id:{{ rule.rule_id }})"
+                    title="Show details of rule (rule_id:{{ rule.rule_id }})"
+                >
+                    <div class="pf-c-table__toggle-icon">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </div>
+                </button>
+            </td>
+
+            <td role="cell" id="{{ rule.title }}" class="rule-title" data-label="Rule">
+                <span class="pf-c-table__text">{{ rule.title }}</span>
+            </td>
+            <td role="cell" class="rule-severity" data-label="Severity">
+                {% if rule.result not in ("pass", "fixed") and rule.severity == "low" %}
+                <span class="pf-c-label pf-m-blue">
+                    <span class="pf-c-label__content">{{ rule.severity }}</span>
+                </span>
+                {% elif rule.result not in ("pass", "fixed") and rule.severity == "medium" %}
+                <span class="pf-c-label pf-m-orange">
+                    <span class="pf-c-label__content">{{ rule.severity }}</span>
+                </span>
+                {% elif rule.result not in ("pass", "fixed") and rule.severity == "high" %}
+                <span class="pf-c-label pf-m-red">
+                    <span class="pf-c-label__content">{{ rule.severity }}</span>
+                </span>
+                {% else %}
+                <span class="pf-c-label">
+                    <span class="pf-c-label__content">{{ rule.severity }}</span>
+                </span>
+                {% endif %}
+            </td>
+            <td role="cell" class="rule-result" data-label="Result">
+                {% if rule.result in ("pass", "fixed") %}
+                <span class="pf-c-label pf-m-green">
+                    <span class="pf-c-label__content">
+                        <span class="pf-c-label__icon">
+                            <i class="fas fa-fw fa-check" aria-hidden="true"></i>
+                        </span>
+                        {{- rule.result -}}
+                    </span>
+                </span>
+                {% elif rule.result in ("fail", "error", "fix unsuccessful", "fix failed") %}
+                <span class="pf-c-label pf-m-red">
+                    <span class="pf-c-label__content">
+                        <span class="pf-c-label__icon">
+                            <i class="fas fa-fw fa-times" aria-hidden="true"></i>
+                        </span>
+                        {{- rule.result -}}
+                    </span>
+                </span>
+                {% else %}
+                <span class="pf-c-label">
+                    <span class="pf-c-label__content">
+                        <span class="pf-c-label__icon">
+                            <i class="fas fa-fw fa-question-circle" aria-hidden="true"></i>
+                        </span>
+                    {{- rule.result -}}
+                    </span>
+                </span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="pf-c-table__expandable-row" role="row">
+            <td role="cell" colspan="4">
+                <div class="pf-c-table__expandable-row-content">
+                    {% include 'rule_detail.html' %}
+                </div>
+            </td>
+        </tr>
+    </tbody>
+    {% endif %}
+    {% endfor %}
+</table>
