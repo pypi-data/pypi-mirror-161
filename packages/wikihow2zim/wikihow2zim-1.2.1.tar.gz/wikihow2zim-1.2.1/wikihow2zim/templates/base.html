@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="client-nojs" dir="{{ dir }}" lang="{{ lang }}">
+ <head>
+    <meta charset="utf-8"/>
+    <title>{{ title }}</title>
+    <meta content="{{ description }}" name="description"/>
+    <meta content="width=device-width" name="viewport"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="#eaecf0" name="theme-color"/>
+    <link href="{{ to_root }}assets/vendor/videojs/video-js.min.css" rel="stylesheet">
+    <script src="{{ to_root }}assets/vendor/videojs/video.min.js"></script>
+    <script src="{{ to_root }}assets/vendor/ogvjs/ogv-support.js"></script>
+    <script src="{{ to_root }}assets/vendor/ogvjs/ogv.js"></script>
+    <script src="{{ to_root }}assets/vendor/videojs-ogvjs.js"></script>
+    <link href="{{ to_root }}apple-touch-icon.png" rel="apple-touch-icon"/>
+    <link href="{{ to_root }}favicon.ico" rel="shortcut icon"/>
+{% if page_linked_styles %}
+    {% for url in page_linked_styles %}<link href="{{ to_root }}assets/{{ url|digest }}.css" rel="stylesheet" type="text/css"/><!-- page -->
+    {% endfor %}
+{% else %}
+    {% for url in linked_styles %}<link href="{{ to_root }}assets/{{ url|digest }}.css" rel="stylesheet" type="text/css"/><!-- linked -->
+    {% endfor %}
+{% endif %}
+    <link href="{{ to_root }}assets/{{ inline_digest }}.css" rel="stylesheet" type="text/css"/><!-- inline -->
+    {% if page_inline_styles %}<link href="{{ to_root }}assets/{{ page_inline_styles }}.css" rel="stylesheet" type="text/css"/><!-- inline page -->{% endif %}
+    <link href="{{ to_root }}assets/wikihow2zim.css" rel="stylesheet" type="text/css"/>
+</head>
+<body class="{% if body_classes %}{{ body_classes }}{% else %}mediawiki {{ dir }} sitedir-{{ dir }} mw-hide-empty-elt ns-0 ns-subject page-Main_Page rootpage-Main_Page stable skin-minervawh action-view{% endif %}">
+    <div class="header_container" data-responsive="1" id="header_container">
+        <div class="header" id="header" role="navigation">
+            <a href="{{ to_root }}{{ homepage_name }}" id="header_logo"></a>
+            <div id="hs"></div>
+        </div>
+    </div>
+
+    <div id="mw-mf-viewport" class="{% if viewport_classes %}{{ viewport_classes }}{% endif %}">
+        <div id="mw-mf-page-left"></div>
+        <div id="mw-mf-page-center">
+            <div id="siteNotice"></div>
+
+            <div id="content_wrapper" role="main">
+                {% block content %}{% endblock %}
+            </div>
+
+            <br class="clearall"/>
+            <div id="fb-root"></div>
+            <div id="footer" role="navigation">
+                <div id="footer_inner">
+                    <a href="{{ to_root }}{{ homepage_name }}" id="footer_logo">
+                        <img src="{{ to_root }}assets/logo" alt="wikiHow" width="162" height="42">
+                    </a>
+
+                    <div id="footer_crumbs">
+                        {% if breadcrumbs %}
+                            <ul class="breadcrumbs">
+                                {% for crumb in breadcrumbs %}
+                                    <li><a href="{{ to_root }}{{ crumb.0 }}" title="{{ crumb.2 }}">{{ crumb.1 }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div id="footer_top_divider" class="footer_divider"></div>
+                    <!-- <div id="footer_vertical_divider"></div> -->
+
+                    <div id="search_footer" class="wh_search " role="search">
+                        <div class="cse_x" role="button"></div>
+                    </div>
+
+                    <div id="footer_links">
+                        <ul>
+                            {% for link in footer_links %}
+                                <li><a {% if link.path %}href="{{to_root}}{{ link.path }}"{% endif %} title="{{ link.title }}">{{ link.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div id="sf"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ to_root }}assets/wikihow2zim.js" /></script>
+</body>
+</html>
