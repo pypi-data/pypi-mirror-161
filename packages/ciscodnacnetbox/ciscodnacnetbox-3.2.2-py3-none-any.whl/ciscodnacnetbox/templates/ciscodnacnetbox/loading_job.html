@@ -1,0 +1,80 @@
+{% extends 'base/layout.html' %}
+{% load static %}
+
+{% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+
+    function job(){
+        var value= $.ajax({ 
+            url: "{% url 'plugins:ciscodnacnetbox:job_status' data.id %}", 
+            async: false
+        }).responseText;
+        value = JSON.parse(value);
+        return value;
+    };
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+    async function check_status() {
+        done = false;
+        while (done != true) {
+            task = job()
+            if (task.status == "finished") {
+                done = true;
+                window.location.replace("/plugins/ciscodnacnetbox/sync/full/"+task.id+"/");
+                break
+            }
+            if (task.status == "failed") {
+                done = true;
+                window.location.replace("/plugins/ciscodnacnetbox/sync/full/"+task.id+"/failed/");
+                break
+            }
+            await sleep(4000);
+        }
+    }
+    check_status();
+</script>
+
+<div class="pull-right noprint">
+<a href="/plugins/ciscodnacnetbox/status/" class="btn btn-primary">
+<span class="mdi mdi-view-dashboard" aria-hidden="true"></span> Status
+</a>
+</div>
+
+<h1>Cisco DNA Center</h1>
+<h2>Background Task</h2>
+
+<div class="row justify-content-md-center">
+<div class="col-md-12">
+
+<div class="table-responsive">
+    <table class="table table-hover table-headings">
+    <thead>
+    <tr>
+        <th>Job ID</th>
+        <th>Task</th>
+        <th>Running</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="even">
+    <td>{{ data.id }}</td>
+    <td>{{ data.task }}</td>
+    <td>Running...</td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+
+
+
+
+</div>
+</div>
+
+{% endblock %}
