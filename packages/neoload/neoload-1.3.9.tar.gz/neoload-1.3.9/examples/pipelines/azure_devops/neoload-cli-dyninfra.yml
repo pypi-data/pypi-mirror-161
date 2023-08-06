@@ -1,0 +1,71 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+parameters:
+- name: neoloadApiUrl
+  type: string
+  default: 'https://neoload-api.saas.neotys.com/'
+- name: neoloadToken
+  type: string
+  default: 'specify_token_or_get_it_from_credentials'
+- name: zoneId
+  type: string
+  default: 'defaultzone'
+
+jobs:
+- job: RunLoadTest
+  displayName: Run NeoLoad Test from Azure Devops
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8'
+
+  - task: Bash@3
+    displayName: Install NeoLoad
+    continueOnError: false
+    inputs:
+      targetType: 'inline'
+      script: |
+        pip install neoload
+        neoload --version
+
+  - task: Bash@3
+    displayName: Configure the NeoLoad test
+    continueOnError: true
+    inputs:
+      targetType: 'inline'
+      script: |
+        neoload login --url ${{parameters.neoloadApiUrl}} ${{parameters.neoloadToken}} \
+                test-settings --zone ${{parameters.zoneId}} --scenario sanityScenario patch "My Azure Test With CLI" \
+                project --path tests/neoload_projects/example_1/ upload "My Azure Test With CLI"
+
+  - task: Bash@3
+    displayName: Run the NeoLoad test
+    continueOnError: true
+    inputs:
+      targetType: 'inline'
+      script: |
+        neoload run \
+                       --web-vu 5 \
+                       --as-code default.yaml,slas/uat.yaml \
+                       --name "Azure pipeline performance regression task $(Build.BuildNumber)" \
+                       --external-url "$(Build.BuildUri)" \
+                       --external-url-label "Azure CI build $(Build.BuildNumber)" \
+                       --description "Azure result description" \
+                       "My Azure Test With CLI"
+
+  - task: Bash@3
+    displayName: Get the junit SLA report
+    continueOnError: true
+    inputs:
+      targetType: 'inline'
+      script: |
+       neoload test-results --junit-file $(Common.TestResultsDirectory)/neoload-slas.xml junitsla
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: $(Common.TestResultsDirectory)/neoload-slas.xml
+      failTaskOnFailedTests: true
