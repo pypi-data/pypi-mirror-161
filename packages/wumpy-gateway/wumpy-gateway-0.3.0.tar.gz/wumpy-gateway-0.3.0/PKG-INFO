@@ -1,0 +1,72 @@
+Metadata-Version: 2.1
+Name: wumpy-gateway
+Version: 0.3.0
+Summary: Lowlevel but easy-to-use wrapper over the Discord gateway
+Keywords: wumpy,wumpus,wrapper,discord,discord-api,discord-bot,discord-api-wrapper,python-3
+Author-email: Bluenix <bluenixdev@gmail.com>
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Framework :: AnyIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Dist: discord-gateway >=0.4.0, <1
+Requires-Dist: anyio >= 3.3.4, <4
+Project-URL: Documentation, https://wumpy.rtfd.io
+Project-URL: Homepage, https://github.com/wumpyproject/wumpy
+Project-URL: Repository, https://github.com/wumpyproject/wumpy/tree/main/library/wumpy-gateway
+
+# Wumpy-gateway
+
+Gateway implementation for the Wumpy project.
+
+## Installation
+
+Wumpy-gateway is available as a package on PyPI. Just use your favourite
+package manager such as pip or Poetry:
+
+```bash
+# Installing from PyPI using pip:
+pip install wumpy-gateway
+```
+
+```bash
+# Alternatively, using Poetry:
+poetry add wumpy-gateway
+```
+
+## Quickstart
+
+The API of wumpy-gateway is very simple:
+
+```python
+from wumpy.gateway import Shard
+
+
+INTENTS = 65535
+TOKEN = 'ABC123.XYZ789'
+
+
+async def main():
+    # Connect to the URI wss://gateway.discord.gg/ with the token
+    # ABC123.XYZ8789 and all intents.
+    async with Shard('wss://gateway.discord.gg/', TOKEN, INTENTS) as ws:
+        async for event in ws:
+            print(event)  # The deserialized JSON event payload
+```
+
