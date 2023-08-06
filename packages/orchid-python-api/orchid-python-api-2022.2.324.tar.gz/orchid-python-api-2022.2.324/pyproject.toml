@@ -1,0 +1,112 @@
+[build-system]
+requires = [ "poetry>=0.12",]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "orchid-python-api"
+version = "2022.2.324"
+description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
+authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
+maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
+license = "Apache-2.0"
+readme = "README.md"
+homepage="https://github.com/Reveal-Energy-Services/orchid-python-api"
+repository="https://github.com/Reveal-Energy-Services/orchid-python-api"
+documentation="https://github.com/Reveal-Energy-Services/orchid-python-api/wiki"
+keywords=["Orchid Integration",
+          "Fracture Diagnostics"]
+classifiers=[
+    # Trove classifiers
+    # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # How mature is this project? Common values are
+    #   3 - Alpha
+    #   4 - Beta
+    #   5 - Production/Stable
+    # "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
+    # Indicate who your project is intended for
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Other Audience",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+include=[
+    "LICENSE",
+    "ReleaseNotes.md",
+    "orchid/*.py",
+    "orchid/VERSION",
+    "orchid_python_api/examples/*.ipynb",
+    "orchid_python_api/examples/*.py",
+    "orchid_python_api/examples/low_level/*.ipynb",
+    "orchid_python_api/examples/low_level/*.py",
+    "orchid_python_api/tutorials/*.ipynb",
+    "orchid_python_api/tutorials/*.py",
+    "copy_orchid_examples.py",
+    "copy_orchid_low_level_examples.py",
+    "copy_orchid_tutorials.py",
+]
+exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
+
+[tool.poetry.dependencies]
+python = ">=3.8.3,<3.11"
+pythonnet = "^2.5.1"
+numpy = "^1.19.3"
+# Allow consumers to create `datetime` instances using `dateutil`, for example, by calling `dateutil.parse()`, and
+# accept those instances when supplying a time point as a function/method argument.
+python-dateutil = "^2.8.1"
+jupyter = "^1.0.0"
+matplotlib = "^3.3.0"
+pandas = "^1.0.5"
+pendulum = "^2.1.2"
+option = "^1.0.3"
+deal = "^4.19.1"
+ipython = "^8.0.1"
+jupyterlab = "^3.2.9"
+packaging = "^21.3"
+Pint = "^0.18"
+PyYAML = "^6.0"
+seaborn = "^0.11.2"
+toolz = "^0.11.2"
+typing-extensions = "^4.1.1"
+
+[tool.poetry.dev-dependencies]
+pyhamcrest = "^2.0.2"
+behave = "^1.2.6"
+invoke = "^1.4.1"
+toml = "^0.10.1"
+grip = "^4.5.2"
+parsy = "^1.4.0"
+icecream = "^2.1.1"
+m2r2 = "^0.3.1"
+codetiming = "^1.3.0"
+Sphinx = "^4.4.0"
+scipy = "^1.8.0"
+jupyterlab-vim = "^0.14.5"
+pytest = "^7.1.2"
+pytest-benchmark = "^3.4.1"
+
+[tool.poetry.scripts]
+copy_orchid_examples = "copy_orchid_examples:main"
+copy_orchid_tutorials = "copy_orchid_tutorials:main"
+copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
+
+[tool.poetry.urls]
+Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+]
+markers = ["slow"]
+testpaths = [
+    "tests",
+    "benchmark_tests",
+]
