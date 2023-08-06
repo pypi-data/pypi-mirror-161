@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport"
+              content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+        <title>Codex</title>
+        {% include 'icon-headers.html' %}
+        <script>
+          var rootPath = "{{ script_prefix }}";
+          var lastRoute = {{ last_route | safe }};
+          var missingCover = "{% static 'img/missing-cover.webp' %}"
+        </script>
+        {% include 'pwa/headers.html' %}
+        {% if not DEBUG %}
+            <link rel="stylesheet" href="{% static 'css/chunk-vendors.css' %}" />
+            <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+        {% endif %}
+        <script defer src="{% static 'js/chunk-vendors.js' %}"></script>
+        <script defer src="{% static 'js/app.js' %}"></script>
+    </head>
+    <body>
+        <noscript>
+            <strong>
+                Sorry but Codex doesn't work properly without JavaScript enabled.
+                Please enable it to continue.
+            </strong>
+        </noscript>
+        <div id="App" />
+    </body>
+</html>
