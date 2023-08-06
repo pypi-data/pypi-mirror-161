@@ -1,0 +1,85 @@
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+        Uploade Device Update
+        <button
+            (click)="nextClicked()"
+            *ngIf="formEnabled()"
+            class="btn btn-sm btn-default pull-right"
+        >
+            Next
+        </button>
+    </div>
+    <div class="panel-body">
+        <p></p>
+
+        <div
+            (fileOver)="fileOverBase($event)"
+            *ngIf="uploadEnabled()"
+            [class.panel-success]="hasBaseDropZoneOver"
+            [uploader]="uploader"
+            class="panel panel-warning my-drop-zone"
+            ng2FileDrop
+        >
+            <div class="panel-heading">
+                <h3>
+                    <span class="glyphicon glyphicon-flash"></span>
+                    <small [hidden]="progressPercentage">
+                        Drop Device Update Here
+                    </small>
+                    <small [hidden]="!progressPercentage">
+                        Uploading, {{ progressPercentage }} done.
+                    </small>
+                </h3>
+            </div>
+        </div>
+        <div *ngIf="formEnabled()">
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label for="deviceType">Device Type</label>
+                    <select
+                        [(ngModel)]="newUpdate.deviceType"
+                        class="form-control"
+                        id="deviceType"
+                    >
+                        <option value="mobile-ios">Mobile - iOS</option>
+                        <option value="mobile-android">Mobile - Android</option>
+                        <option value="desktop-macos">Desktop - macOS</option>
+                        <option value="desktop-windows">
+                            Desktop - Windows
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group col-md-9">
+                    <label for="description">Description</label>
+                    <input
+                        [(ngModel)]="newUpdate.description"
+                        class="form-control"
+                        id="description"
+                        type="text"
+                    />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="appVersion">App Version</label>
+                    <input
+                        [(ngModel)]="newUpdate.appVersion"
+                        class="form-control"
+                        id="appVersion"
+                        type="text"
+                    />
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="updateVersion">Update Version</label>
+                    <input
+                        [(ngModel)]="newUpdate.updateVersion"
+                        class="form-control"
+                        id="updateVersion"
+                        type="text"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <th>For Device</th>
+                <th>Description</th>
+                <th>Build Date</th>
+                <th>App Version</th>
+                <th>Update Version</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr *ngFor="let item of items">
+                <td>
+                    {{ item.deviceType }}
+                </td>
+                <td>
+                    {{ item.description }}
+                </td>
+                <td>
+                    {{ item.buildDate | date: "HH:mm dd-MMM-yyyy" }}
+                </td>
+                <td>
+                    {{ item.appVersion }}
+                </td>
+                <td>
+                    {{ item.updateVersion }}
+                </td>
+                <td>
+                    <button
+                        (click)="toggleUpdateEnabledClicked(item)"
+                        [class.btn-success]="item.isEnabled"
+                        [class.btn-warning]="!item.isEnabled"
+                        class="btn"
+                    >
+                        {{ item.isEnabled ? "Enabled" : "Disabled" }}
+                    </button>
+                </td>
+                <td>
+                    <div
+                        (click)="deleteUpdateClicked(item)"
+                        class="btn btn-default"
+                    >
+                        <span
+                            aria-hidden="true"
+                            class="glyphicon glyphicon-minus"
+                        ></span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

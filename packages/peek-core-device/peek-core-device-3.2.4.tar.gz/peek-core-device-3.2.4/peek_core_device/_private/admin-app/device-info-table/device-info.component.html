@@ -1,0 +1,111 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <nz-table #basicTable [nzData]="items$ | async">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>
+                        Description
+                        <nz-filter-trigger
+                            [(nzVisible)]="searchVisible"
+                            [nzActive]="searchValue.length > 0"
+                            [nzDropdownMenu]="menu"
+                        >
+                            <i nz-icon nzType="search"></i>
+                        </nz-filter-trigger>
+                    </th>
+                    <th>Last Online</th>
+                    <th>Enrollment</th>
+                    <th>Offline Cache</th>
+                    <th>Current Location</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of basicTable.data">
+                    <td>
+                        {{ item.deviceType }}
+                    </td>
+                    <td>
+                        {{ item.description }}
+                    </td>
+                    <td>
+                        <p>{{ deviceStatus(item) }}</p>
+                    </td>
+                    <td>
+                        <nz-switch
+                            [ngModel]="item.isEnrolled"
+                            (ngModelChange)="toggleEnrollClicked(item)"
+                        ></nz-switch>
+                    </td>
+                    <td>
+                        <nz-switch
+                            [ngModel]="item.isOfflineCacheEnabled"
+                            (ngModelChange)="
+                                toggleOfflineCacheEnabledClicked(item)
+                            "
+                        ></nz-switch>
+                        <i
+                            nz-icon
+                            nzType="question-circle"
+                            nzTheme="outline"
+                            nz-tooltip
+                            nzTooltipTitle="Show Cache Status"
+                            nz-button
+                            (click)="handleShowOfflineCacheStatus(item)"
+                        ></i>
+                    </td>
+                    <td>
+                        <div *ngIf="item.lastCacheCheck != null">
+                            {{ item.lastCacheCheck | date: "medium" }}
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="item.hasCurrentLocation()">
+                            {{ item.currentLocation.latitude }},
+                            {{ item.currentLocation.longitude }}
+                            <br />
+                            <a target="_blank" href="{{ item.googleMapLink }}"
+                                >View on Google Maps
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div
+                            (click)="deleteDeviceClicked(item)"
+                            class="btn btn-default"
+                        >
+                            <span
+                                aria-hidden="true"
+                                class="glyphicon glyphicon-minus"
+                            ></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</div>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <div class="ant-table-filter-dropdown">
+        <div class="search-box">
+            <input
+                type="text"
+                nz-input
+                placeholder="Search name"
+                [(ngModel)]="searchValue"
+            />
+        </div>
+    </div>
+</nz-dropdown-menu>
+
+<nz-modal
+    [(nzVisible)]="isOfflineCacheModalShown"
+    [nzFooter]="null"
+    (nzOnCancel)="isOfflineCacheModalShown = false"
+    nzTitle="Offline Cache Status"
+>
+    <core-device-device-cache-status [deviceToken$]="deviceToken$">
+    </core-device-device-cache-status>
+</nz-modal>
