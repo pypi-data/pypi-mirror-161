@@ -1,0 +1,88 @@
+[tool.poetry]
+name = "finsy"
+version = "0.2.0"
+description = "Async P4Runtime/gNMI Framework"
+license = "Apache-2.0"
+authors = ["Bill Fisher <william.w.fisher@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/byllyfish/finsy"
+classifiers = [
+  "Development Status :: 3 - Alpha", 
+  "Programming Language :: Python :: 3.10",
+  "Framework :: AsyncIO",
+]
+
+[tool.poetry.urls]
+"Release Notes" = "https://github.com/byllyfish/finsy/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/byllyfish/finsy/issues"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+grpcio = "^1.47.0"
+macaddress = "^1.2.0"
+parsy = "^1.4.0"
+pyee = "^9.0.4"
+pylev = "^1.4.0"
+protobuf = "^4.21.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
+black = "^22.3.0"
+pytest-asyncio = "^0.19.0"
+mypy = "^0.971"
+pdoc = "^12.0.2"
+pyright = "^1.1.262"
+pytest-cov = "^3.0.0"
+pylint = "^2.14.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = '--log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" --log-cli-level=DEBUG --log-file-format="%(created).03f %(levelname)s %(name)s %(message)s"'
+
+[tool.pyright]
+ignore = ["finsy/proto/**/*_pb2.py", "finsy/proto/**/*_pb2_grpc.py", "finsy/proto/**/*_pb2_grpc.pyi"]
+strict = ["examples/**/*.py", "finsy/p4values.py", "finsy/pbuf.py", "finsy/util.py", "finsy/log.py", "finsy/grpcutil.py", "finsy/p4entity.py", "finsy/p4schema.py", "finsy/p4client.py", "finsy/gnmipath.py", "finsy/gnmiclient.py", "finsy/ports.py", "finsy/switch.py"]
+useLibraryCodeForTypes = true
+
+#, "tests/test_*.py"]
+#reportMissingParameterType = true
+#reportMissingTypeArgument = true
+
+[tool.black]
+target-version = ['py310']
+required-version = "22.6.0"
+extend-exclude = "_pb2(_grpc)?\\.pyi?$"
+
+[tool.coverage.run]
+omit = ["*_pb2.py", "*_pb2_grpc.py"]
+
+
+[tool.pylint.main]
+ignore-patterns = [".*_pb2\\.py", ".*_pb2_grpc\\.py"]
+ignore-paths = ["finsy/proto"]
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "ex", "Run", "_", "m", "s", "ee", "up", "id", "vt"]
+good-names-rgxs = ["gNMI[A-Za-z]*"]
+
+[tool.pylint.design]
+max-attributes = 15
+max-public-methods = 25
+
+[tool.pylint.format]
+max-module-lines = 2000
+
+[tool.pylint."messages control"]
+# 1. `no-value-for-parameter` false positive from dataclass, KW_ONLY parameter '_'.
+# (see https://github.com/PyCQA/pylint/issues/5225)
+# 2. `missing-function-docstring` is *temporarily* disabled.
+disable = ["wrong-import-position", "cyclic-import", "no-value-for-parameter", "protected-access", "missing-function-docstring", "too-few-public-methods" ]
+
+[tool.mypy]
+
+disallow_untyped_defs = true
+exclude = [ ".+_pb2.py", ".+_pb2_grpc.py" ]
