@@ -1,0 +1,65 @@
+[build-system]
+requires = ["wheel", "setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoreduce_rest_api"
+version = "22.0.0.dev23"
+description = "ISIS Autoreduction Runs REST API"
+readme = "README.md"
+license = { text = "GNU General Public License" }
+classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+dependencies = [
+    "autoreduce_scripts==22.0.0.dev44",
+    "Django==4.0.6",
+    "djangorestframework==3.13.1",
+    "django-hurricane",
+]
+
+[project.optional-dependencies]
+dev = [
+    "autoreduce_qp>=22.0.0.dev38",
+    "mysqlclient==2.1.0",
+    "parameterized==0.8.1",
+]
+
+[project.urls]
+"Repository" = "https://github.com/autoreduction/rest-api"
+"Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
+
+[project.scripts]
+autoreduce-rest-api-manage = "autoreduce_rest_api.manage:main"
+
+[tool.setuptools]
+packages = ["autoreduce_rest_api"]
+
+[tool.yapf]
+column_limit = 120
+based_on_style = "pep8"
+
+[tool.yapfignore]
+ignore_patterns = ["setup.py", "**/migrations", "venv/", "venv3/"]
+
+[tool.pylint.MAIN]
+load-plugins = ["pylint_django"]
+django-settings-module = "autoreduce_django.settings"
+extension-pkg-whitelist = ["pydantic"]
+disable = [
+    "R0904", # too-many-public-methods
+    "R0902", # too-many-instance-attributes
+    "R0903", # too-few-public-methods
+    "R1705", # no-else-return
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "R0801", # duplicate-code
+]
+ignore = [".git", "migrations"]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.pylint.DESIGN]
+max-args = 8
+
+[tool.pylint.SIMILARITIES]
+min-similarity-lines = 10
