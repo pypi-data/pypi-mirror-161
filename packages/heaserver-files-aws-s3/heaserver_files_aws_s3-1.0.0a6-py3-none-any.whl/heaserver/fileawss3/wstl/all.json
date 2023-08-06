@@ -1,0 +1,226 @@
+{
+    "wstl": {
+        "title": "AWS S3 Bucket Files",
+        "actions": [
+            {
+                "name": "heaserver-awss3files-file-get-open-choices",
+                "description": "Open this file",
+                "type": "safe",
+                "action": "read",
+                "target": "item read cj",
+                "prompt": "Open"
+            },
+            {
+                "name": "heaserver-awss3files-file-open-default",
+                "description": "Open this file",
+                "type": "safe",
+                "action": "read",
+                "target": "item read cj",
+                "prompt": "Open"
+            },
+            {
+                "name": "heaserver-awss3files-file-get-properties",
+                "description": "View and edit this file's properties",
+                "type": "unsafe",
+                "target": "item cj-template",
+                "action": "update",
+                "prompt": "Properties",
+                "inputs": [
+                    {
+                        "name": "id",
+                        "prompt": "Id",
+                        "readOnly": true
+                    },
+                    {
+                        "name": "display_name",
+                        "prompt": "Name",
+                        "required": true
+                    },
+                    {
+                        "name": "description",
+                        "prompt": "Description",
+                        "type": "textarea"
+                    },
+                    {
+                        "name": "size",
+                        "prompt": "Size in bytes",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "human_readable_size",
+                        "prompt": "Size",
+                        "readOnly": true
+                    },
+                    {
+                        "name": "storage_class",
+                        "prompt": "Storage class",
+                        "readOnly": true
+                    },
+                    {
+                        "name": "mime_type",
+                        "prompt": "MIME Type",
+                        "readOnly": true
+                    },
+                    {
+                        "name": "owner",
+                        "prompt": "Owner",
+                        "required": true,
+                        "type": "select",
+                        "hea": {
+                            "optionsFromUrl": {
+                                "path": "/people/",
+                                "value": "id",
+                                "text": "display_name"
+                            }
+                        }
+                    },
+                    {
+                        "name": "created",
+                        "prompt": "Created",
+                        "readOnly": true,
+                        "hea": {
+                            "type": "datetime"
+                        }
+                    },
+                    {
+                        "name": "modified",
+                        "prompt": "Modified",
+                        "readOnly": true,
+                        "hea": {
+                            "type": "datetime"
+                        }
+                    },
+                    {
+                        "name": "source",
+                        "prompt": "Source"
+                    },
+                    {
+                        "hea": {
+                            "section": "shares",
+                            "sectionPrompt": "Shares",
+                            "optionsFromUrl": {
+                                "path": "/people/",
+                                "value": "id",
+                                "text": "display_name"
+                            }
+                        },
+                        "name": "user",
+                        "prompt": "User",
+                        "required": true,
+                        "type": "select"
+                    },
+                    {
+                        "hea": {
+                            "section": "shares",
+                            "cardinality": "multiple"
+                        },
+                        "name": "permissions",
+                        "prompt": "Permissions",
+                        "type": "select",
+                        "suggest": [
+                            {"value":  "COOWNER", "text":  "Co-owner"},
+                            {"value":  "CREATOR", "text":  "Creator"},
+                            {"value":  "DELETER", "text":  "Deleter"},
+                            {"value":  "EDITOR", "text":  "Editor"},
+                            {"value":  "SHARER", "text":  "Sharer"},
+                            {"value":  "VIEWER", "text":  "Viewer"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "heaserver-awss3files-file-duplicate",
+                "description": "Duplicate this file",
+                "type": "unsafe",
+                "action": "append",
+                "target": "item read cj",
+                "prompt": "Duplicate"
+            },
+            {
+                "name": "heaserver-awss3files-file-duplicate-form",
+                "description": "Duplicate this file",
+                "type": "unsafe",
+                "action": "update",
+                "target": "item cj-template",
+                "prompt": "Duplicate",
+                "inputs": [
+                    {
+                        "name": "display_name",
+                        "prompt": "Name",
+                        "required": true
+                    },
+                    {
+                        "name": "description",
+                       "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "human_readable_size",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "storage_class",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "mime_type",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "owner",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "created",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "modified",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "name": "source",
+                        "hea": {
+                            "display": false
+                        }
+                    },
+                    {
+                        "hea": {
+                            "section": "shares",
+                            "display": false
+                        },
+                        "name": "user"
+                    },
+                    {
+                        "hea": {
+                            "section": "shares",
+                            "display": false
+                        },
+                        "name": "permissions"
+                    }
+                ]
+            }
+        ]
+    }
+}
