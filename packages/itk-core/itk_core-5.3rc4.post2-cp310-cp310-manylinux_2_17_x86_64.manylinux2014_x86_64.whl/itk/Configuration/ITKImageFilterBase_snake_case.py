@@ -1,0 +1,1 @@
+snake_case_functions = ('binary_generator_image_filter', 'box_image_filter', 'cast_image_filter', 'in_place_image_filter', 'neighborhood_operator_image_filter', 'noise_image_filter', 'ternary_generator_image_filter', 'unary_generator_image_filter', )
