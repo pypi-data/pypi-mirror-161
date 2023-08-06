@@ -1,0 +1,215 @@
+Metadata-Version: 2.1
+Name: compress-pptx
+Version: 0.7.0
+Summary: Compress images in PPTX files
+Home-page: https://github.com/slhck/compress-pptx
+Author: Werner Robitza
+Author-email: werner.robitza@gmail.com
+License: MIT
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.5
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+
+# compress-pptx
+
+[![PyPI version](https://img.shields.io/pypi/v/compress-pptx.svg)](https://pypi.org/project/compress-pptx)
+
+Compress a PPTX or POTX file, converting all PNG/TIFF images to lossy JPEGs.
+
+## What it does
+
+When copy-pasting images to PowerPoint presentations, these sometimes get inserted as lossless versions, blowing up the size of the presentation.
+
+This script takes all PNG or TIFF images part of the presentation which are larger than a given threshold (1 MiB by default), converts them to a lossy JPEG variant, and creates a new PPTX file.
+
+:warning: This is not the same as compressing images with PowerPoint's own functionality. You may still need to do this to reduce the size of your presentation!
+
+PNGs containing transparency can be skipped to prevent graphics issues. Normally their transparent parts are replaced with white (although you can choose another color).
+## Requirements
+
+- Python 3.7 or higher
+- ImageMagick's `convert` and `identify`
+
+Under Ubuntu, get ImageMagick via:
+
+```
+apt install imagemagick
+```
+
+Under macOS, install it with [Homebrew](https://brew.sh):
+
+```
+brew install imagemagick
+```
+
+## Installation
+
+Via pip:
+
+```
+pip3 install --user compress-pptx
+```
+
+## Usage
+
+Call `compress-pptx` and point it to a PPTX or POTX file. It'll compress the images and output another compressed file next to it.
+
+For more options, see the `-h` output:
+
+```
+usage: compress-pptx [-h] [-o OUTPUT] [-s SIZE] [-q QUALITY] [-t TRANSPARENCY]
+                     [-k] [-v] [-f]
+                     input
+
+positional arguments:
+  input
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Output file (default: None)
+  -s SIZE, --size SIZE  Minimum size threshold in bytes. Also accepts the
+                        suffixes k/M/G or KiB/MiB/GiB (default: 1MiB)
+  -q QUALITY, --quality QUALITY
+                        JPEG output quality (0-100) (default: 85)
+  -t TRANSPARENCY, --transparency TRANSPARENCY
+                        Replace transparency with color (default: white)
+  -k, --skip-transparent-images
+                        Skip converting transparent images at all (default:
+                        False)
+  -v, --verbose         Show additional info (default: False)
+  -f, --force           Force overwriting output file (default: False)
+
+```
+
+## Bash Version
+
+There's an unmaintained Bash version under `bash/compress-pptx.sh`.
+
+## License
+
+MIT License
+
+Copyright (c) 2021-2022 Werner Robitza
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+# Changelog
+
+
+## v0.7.0 (2022-08-02)
+
+* Update python requirements.
+
+
+## v0.6.0 (2021-10-28)
+
+* Add feature to skip transparent images completely, add EMF.
+
+
+## v0.5.0 (2021-08-06)
+
+* Allow POTX files, fixes #4.
+
+* Fallback to 'convert' and 'identify', fixes #3.
+
+
+## v0.4.0 (2021-05-25)
+
+* Add handling of transparency and TIFFs.
+
+
+## v0.3.0 (2021-05-14)
+
+* Auto-formatting.
+
+* Add -f/--force parameter.
+
+* Update gitignore.
+
+
+## v0.2.1 (2021-03-29)
+
+* Add defaults to CLI options.
+
+* Update badge link.
+
+
+## v0.2.0 (2021-03-10)
+
+* Change executable name for harmonization purposes.
+
+
+## v0.1.3 (2021-03-10)
+
+* Improve setup.py.
+
+* Remove release script.
+
+
+## v0.1.2 (2021-03-06)
+
+* Format setup.py and switch to markdown.
+
+* Add warning.
+
+* Update badge URL.
+
+
+## v0.1.1 (2021-02-08)
+
+* Better error handling; check for magick command.
+
+* Add badge to readme.
+
+
+## v0.1.0 (2021-02-07)
+
+* Fix README.
+
+* Add changelog.
+
+* Switch to python package.
+
+* Various updates, v0.2.
+
+* Add TODO notice.
+
+* Handle input errors.
+
+* Update instructions, add script.
+
+* Add script and README.
+
+* Initial commit.
+
+
+
+
