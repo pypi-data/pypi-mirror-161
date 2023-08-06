@@ -1,0 +1,45 @@
+name: Core Testing
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - src/bioservices/services.py
+      - src/bioservices/xmltools.py
+  pull_request:
+    branches-ignore: []
+    paths:
+      - src/bioservices/services.py
+      - src/bioservices/xmltools.py
+
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-18.04
+    strategy:
+      max-parallel: 5
+      matrix:
+        python: [3.7, 3.8, 3.9]
+      fail-fast: false
+
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.X
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install the package itself
+      run: |
+          pip install -r requirements.txt
+          pip install .
+
+    - name: Test with pytest
+      run: |
+        pip install -r requirements_dev.txt
+        pytest -n 1 --cov-report term --cov=bioservices.services --cov bioservices.xmltools test/test_*py
+
