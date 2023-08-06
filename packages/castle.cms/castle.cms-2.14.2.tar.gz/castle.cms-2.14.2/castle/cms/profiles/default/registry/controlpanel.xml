@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<registry xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+          i18n:domain="plone">
+
+  <records interface="castle.cms.interfaces.ICastleSettings"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.IAnnouncementData"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.ISocialMediaSchema"
+           prefix="plone" />
+  <records interface="castle.cms.interfaces.ISiteSchema"
+           prefix="plone" />
+  <records interface="castle.cms.interfaces.ISecuritySchema"
+           prefix="plone" />
+  <records interface="castle.cms.interfaces.IBusinessData"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.ICrawlerConfiguration"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.ISlideshowSettings" 
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.IElasticSearchSettings"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.ISearchSettings"
+           prefix="castle" />
+  <records interface="castle.cms.interfaces.IAdjustableFontSizeSettings" 
+           prefix="castle" />
+
+  <records interface="castle.cms.browser.survey.ICastleSurvey" />
+
+  <record name="plone.pwexpiry_whitelisted_users">
+        <field type="plone.registry.field.List">
+            <title>Whitelisted users</title>
+            <description>Users that won't have passwords expire.</description>
+            <value_type type="plone.registry.field.TextLine"/>
+        </field>
+  </record>
+
+  <record name="plone.app.discussion.interfaces.IDiscussionSettings.globally_enabled"
+          interface="plone.app.discussion.interfaces.IDiscussionSettings"
+          field="globally_enabled">
+    <value>True</value>
+  </record>
+
+  <record name="plone.custom_plugins"
+          interface="Products.CMFPlone.interfaces.controlpanel.ITinyMCESchema" field="custom_plugins">
+    <value purge="False">
+      <element>mce-table-buttons|++plone++castle/tinymce-table.js</element>
+    </value>
+  </record>
+
+  <record name="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.allowed_feed_types"
+          interface="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings"
+          field="allowed_feed_types">
+    <value>
+      <element>RSS|RSS 1.0</element>
+      <element>rss.xml|RSS 2.0</element>
+      <element>atom.xml|Atom</element>
+      <element>itunes.xml|iTunes</element>
+      <element>feed.kml|KML</element>
+      <element>feed.json|JSON</element>
+    </value>
+  </record>
+
+  <record name="plone.content_css"
+          interface="Products.CMFPlone.interfaces.controlpanel.ITinyMCESchema"
+          field="content_css">
+    <value>
+      <element> </element>
+    </value>
+  </record>
+
+  <record
+    interface="castle.cms.interfaces.ICastleSettings"
+    field="file_upload_fields"
+    prefix="castle">
+    <field type="plone.registry.field.List">
+      <title>Upload fields</title>
+      <value_type type="plone.registry.field.Dict">
+        <title>Field</title>
+        <key_type type="plone.registry.field.TextLine" />
+        <value_type type="plone.registry.field.TextLine" />
+      </value_type>
+    </field>
+    <value>
+      <element>
+        <element key="name">title</element>
+        <element key="label">Title</element>
+        <element key="widget">text</element>
+        <element key="required">true</element>
+        <element key="for-file-types">*</element>
+      </element>
+      <element>
+        <element key="name">description</element>
+        <element key="label">Summary</element>
+        <element key="widget">textarea</element>
+        <element key="required">false</element>
+        <element key="for-file-types">*</element>
+      </element>
+      <element>
+        <element key="name">tags</element>
+        <element key="label">Tags</element>
+        <element key="widget">tags</element>
+        <element key="required">false</element>
+        <element key="for-file-types">*</element>
+      </element>
+      <element>
+        <element key="name">upload_to_youtube</element>
+        <element key="label">Upload to YouTube</element>
+        <element key="widget">checkbox</element>
+        <element key="required">False</element>
+        <element key="for-file-types">video</element>
+      </element>
+      <element>
+        <element key="name">youtube_url</element>
+        <element key="label">Youtube URL</element>
+        <element key="widget">text</element>
+        <element key="required">false</element>
+        <element key="for-file-types">video</element>
+      </element>
+    </value>
+  </record>
+
+  <record name="castle.es_index"
+          interface="castle.cms.interfaces.IElasticSearchSettings"
+          field="es_index">
+    <field type="plone.registry.field.TextLine" />
+  </record>
+
+  <record name="castle.es_index_enabled"
+          interface="castle.cms.interfaces.IElasticSearchSettings"
+          field="es_index_enabled">
+    <field type="plone.registry.field.Bool" />
+  </record>
+
+</registry>

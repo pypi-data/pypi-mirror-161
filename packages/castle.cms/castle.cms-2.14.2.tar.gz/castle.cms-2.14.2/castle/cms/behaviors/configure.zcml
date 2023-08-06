@@ -1,0 +1,81 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="castle.cms">
+
+  <plone:behavior
+    title="Location"
+    description="Location extension."
+    provides=".location.ILocation"
+    factory="plone.behavior.AnnotationStorage"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".location.ILocation"
+    />
+  <plone:behavior
+    title="Search"
+    description="Fields to help customize search for content"
+    provides=".search.ISearch"
+    factory="plone.behavior.AnnotationStorage"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".search.ISearch"
+    />
+  <plone:behavior
+    title="Overview"
+    description="Provide overview field about content"
+    provides=".overview.IOverview"
+    factory=".overview.Overview"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".overview.IOverview"
+    />
+  <plone:behavior
+    title="Navigation Label"
+    description="Provide additional field to control label of item when in navigation"
+    provides=".navigation.INavigationLabel"
+    factory=".navigation.NavigationLabel"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".navigation.INavigationLabel"
+    />
+  <plone:behavior
+    title="Folder order"
+    description="Be able to specify the order of a folder"
+    provides=".order.IFolderOrder"
+    factory=".order.FolderOrder"
+    for="plone.dexterity.interfaces.IDexterityContainer"
+    />
+  <plone:behavior
+    title="Required Lead Image"
+    description="Adds required image and image caption fields"
+    provides=".leadimage.IRequiredLeadImage"
+    factory=".leadimage.RequiredLeadImage"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".leadimage.IRequiredLeadImage"
+    />
+  <plone:behavior
+    title="Custom Markup"
+    description="Add a field for custom markup to be used in various places"
+    provides=".custommarkup.ICustomMarkup"
+    factory=".custommarkup.CustomMarkup"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".custommarkup.ICustomMarkup"
+    />
+  <plone:behavior
+    title="Adjustable Font Size For Query Listing Tile"
+    description="allow user to customize font size for Query Listing tiles on a per object basis"
+    provides=".adjustablefont.IAdjustableFontSizeQueryListing"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    />
+  <plone:behavior
+    name="castle.versioning"
+    title="Versioning Required"
+    description="Versioning support with CMFEditions (Change Notes Required) "
+    provides=".versionable.IVersionable"
+    factory="plone.app.versioningbehavior.behaviors.Versionable"
+    marker=".versionable.IVersioningSupport"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    />
+
+</configure>

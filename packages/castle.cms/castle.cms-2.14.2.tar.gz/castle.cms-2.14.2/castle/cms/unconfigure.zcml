@@ -1,0 +1,26 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain="castle.cms">
+
+  <include package="z3c.unconfigure" file="meta.zcml" />
+  <unconfigure>
+    <!-- override linkintegrity modified event handlers -->
+    <subscriber
+      for="plone.app.relationfield.interfaces.IDexterityHasRelations
+           zope.lifecycleevent.interfaces.IObjectCopiedEvent"
+      handler="plone.app.linkintegrity.handlers.modifiedDexterity" />
+    <subscriber
+      for="plone.app.relationfield.interfaces.IDexterityHasRelations
+           zope.lifecycleevent.interfaces.IObjectAddedEvent"
+      handler="plone.app.linkintegrity.handlers.modifiedDexterity" />
+    <subscriber
+      for="plone.app.relationfield.interfaces.IDexterityHasRelations
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+      handler="plone.app.linkintegrity.handlers.modifiedDexterity" />
+  </unconfigure>
+</configure>

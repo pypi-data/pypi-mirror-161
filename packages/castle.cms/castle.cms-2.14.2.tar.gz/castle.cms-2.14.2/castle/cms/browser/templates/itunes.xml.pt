@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:itunesu="http://www.itunesu.com/feed"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     version="2.0"
+     xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+     xmlns:tal="http://xml.zope.org/namespaces/tal"
+     tal:define="feed view/feed;
+                 utils context/@@castle-utils|nothing;
+                 author_override python: utils.get_registry_value('castle.feed_author_override') or None;
+                 email_override python: utils.get_registry_value('castle.feed_email_override') or None;
+                 settings nocall:feed/settings|nothing;
+                 categories settings/categories;
+                 podcast_image settings/podcast_image">
+    <channel>
+        <atom:link href="${request/ACTUAL_URL|nothing}" rel="self" type="application/rss+xml" />
+        <tal:cat tal:repeat="category categories" tal:condition="categories">
+          <itunes:category text="${category}"/>
+        </tal:cat>
+
+        <title tal:content="feed/title" />
+        <link tal:content="feed/link" />
+        <language tal:content="feed/language" />
+        <copyright tal:content="feed/rights" />
+        <itunes:subtitle tal:content="feed/description" />
+        <tal:block tal:condition="not:author_override">
+          <itunes:author tal:condition="feed/show_about" tal:content="feed/author_name" />
+          <itunes:owner tal:condition="feed/show_about">
+              <itunes:name tal:content="feed/author_name" />
+              <itunes:email tal:content="feed/author_email" />
+          </itunes:owner>
+        </tal:block>
+        <tal:block tal:condition="author_override">
+          <itunes:author  tal:content="author_override" />
+          <itunes:owner>
+              <itunes:name tal:content="author_override" />
+              <itunes:email tal:condition="email_override" tal:content="email_override" />
+          </itunes:owner>
+        </tal:block>
+        <itunes:summary tal:content="feed/description" />
+        <description tal:content="feed/description" />
+        <tal:block tal:condition="settings/podcast_image">
+          <image>
+            <url>${python: utils.get_object(podcast_image).absolute_url()}</url>
+            <title>${feed/title} Logo</title>
+            <link>${context/portal_url}</link>
+          </image>
+          <itunes:image href="${python: utils.get_object(podcast_image).absolute_url()}" />
+        </tal:block>
+        <tal:block tal:condition="not: settings/podcast_image|nothing">
+          <image>
+            <url>${feed/logo}</url>
+            <title>${feed/title} Logo</title>
+            <link>${context/portal_url}</link>
+            <itunes:image href="${feed/logo}" />
+          </image>
+        </tal:block>
+        <itunes:explicit>no</itunes:explicit>
+        <item tal:repeat="item feed/items">
+            <title tal:content="item/title" />
+            <tal:block tal:condition="not:author_override">
+              <itunes:author tal:condition="feed/show_about"
+                             tal:content="item/author_name|nothing"></itunes:author>
+            </tal:block>
+            <tal:block tal:condition="author_override">
+              <itunes:author  tal:content="author_override" />
+            </tal:block>
+            <itunes:summary tal:content="item/description" />
+            <tal:con tal:condition="item/has_enclosure">
+                <enclosure tal:attributes="url item/file_url;
+                                           length item/file_length;
+                                           type item/file_type;" />
+            </tal:con>
+            <guid tal:content="item/guid" />
+            <pubDate tal:content="item/published/rfc822|item/modified/rfc822|nothing" />
+            <itunes:keywords tal:content="python: ', '.join(item.categories)" />
+        </item>
+    </channel>
+</rss>
