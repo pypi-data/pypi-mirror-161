@@ -1,0 +1,43 @@
+Metadata-Version: 2.1
+Name: nubium-schemas
+Version: 2.0.0
+Summary: Python dictionary representations of Avro Schema for the nubium project
+Home-page: https://gitlab.corp.redhat.com/mkt-ops-de/nubium-schemas.git
+Author: Edward Brennan
+Author-email: ebrennan@redhat.com
+Maintainer: Pramod Toraskar
+Maintainer-email: ptoraska@redhat.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+Requires-Dist: dataclasses-avroschema (>=0.20.2)
+Requires-Dist: pydantic
+Provides-Extra: dev
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: pip-tools ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: setuptools-scm ; extra == 'dev'
+
+A python package containing dictionary representations of Avro Schemas,
+for use with the nubium project.
+
+## Usage Examples
+The first step is to include the latest version of the schema library in
+the requirements for the app.
+For code examples, go to https://gitlab.corp.redhat.com/ebrennan/python-avro-classes.git
+
+When a git tag is created, the `.gitlab-ci.yml` pipeline will automatically 
+trigger `upload_package.sh`, creating a new pypi version.
+
+### Faust
+1) Import one of the schema dictionaries from the package
+1) Dump the dictionary to a string using `json.dumps`
+1) Define a serializer using the `FaustSerializer` class
+
+### Confluent Kafka
+1) Import the schema dictionary
+1) Dump the schema to a string using `json.dumps`
+1) Create a schema object using `confluent_kafka.avro.loads`
+1) Use the schema when instantiating Avro producer and consumer clients
