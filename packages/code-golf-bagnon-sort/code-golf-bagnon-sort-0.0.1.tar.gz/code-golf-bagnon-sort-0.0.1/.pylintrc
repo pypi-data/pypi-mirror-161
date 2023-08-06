@@ -1,0 +1,36 @@
+# See https://github.com/PyCQA/pylint/blob/master/pylintrc for possible options
+
+[MASTER]
+max-line-length=88
+disable=
+    missing-docstring, # Sometime it is self explanatory
+    wrong-import-order, # Handled by isort
+    ungrouped-imports, # Handled by isort
+    too-few-public-methods, # Lot of classes can validly have only one method
+    too-many-branches, # We have flake8 C901 that is better
+    redefined-outer-name, # Heavily used by pytest fixtures
+
+enable=
+    useless-suppression,
+    use-symbolic-message-instead,
+
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,e,f,id,_,x,y,z
+
+# Regular expression matching correct method names
+# Pylint do not complain for setUp and other if it
+# detects that we inherit from unittest.TestCase
+# But that's not always possible to detect.
+method-rgx=[a-z_][a-z0-9_]{2,30}$|setUp(Class)?|tearDown(Class)?
+
+[LOGGING]
+logging-format-style=old
+
+[SIMILARITIES]
+# Minimum lines number of a similarity.
+min-similarity-lines=4
+
+# Ignore imports when computing similarities.
+ignore-imports=yes
