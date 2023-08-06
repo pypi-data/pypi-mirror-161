@@ -1,0 +1,149 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "CDIST-TYPE__HAPROXY_DUALSTACK" "7" "Jul 31, 2022" "7.0.0" "cdist"
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH NAME
+.sp
+cdist\-type__haproxy_dualstack \- Proxy services from a dual\-stack server
+.SH DESCRIPTION
+.sp
+This (singleton) type installs and configures haproxy to act as a dual\-stack
+proxy for single\-stack services.
+.sp
+This can be useful to add IPv4 support to IPv6\-only services while only using
+one IPv4 for many such services.
+.sp
+By default this type uses the plain TCP proxy mode, which means that there is no
+need for TLS termination on this host when SNI is supported.
+This also means that proxied services will not receive the client\(aqs IP address,
+but will see the proxy\(aqs IP address instead (that of \fI$__target_host\fP).
+.sp
+This can be solved by using the PROXY protocol, but do take into account that,
+e.g. nginx cannot serve both regular HTTP(S) and PROXY protocols on the same
+port, so you will need to use other ports for that.
+.sp
+As a recommendation in this type: use TCP ports 8080 and 591 respectively to
+serve HTTP and HTTPS using the PROXY protocol.
+.sp
+See the EXAMPLES for more details.
+.SH OPTIONAL PARAMETERS
+.INDENT 0.0
+.TP
+.B v4proxy
+Proxy incoming IPv4 connections to the equivalent IPv6 endpoint.
+In its simplest use, it must be a NAME with an \fIAAAA\fP DNS entry, which is
+the IP address actually providing the proxied services.
+The full format of this argument is:
+\fI[proxy:]NAME[[:PROTOCOL_1=PORT_1]...[:PROTOCOL_N=PORT_N]]\fP
+Where starting with \fIproxy:\fP determines that the PROXY protocol must be
+used and each \fI:PROTOCOL=PORT\fP (e.g. \fI:http=8080\fP or \fI:https=591\fP) is a PORT
+override for the given PROTOCOL (see \fI\-\-protocol\fP), if not present the
+PROTOCOL\(aqs default port will be used.
+.TP
+.B v6proxy
+Proxy incoming IPv6 connections to the equivalent IPv4 endpoint.
+In its simplest use, it must be a NAME with an \fIA\fP DNS entry, which is
+the IP address actually providing the proxied services.
+See \fI\-\-v4proxy\fP for more options and details.
+.TP
+.B protocol
+Can be passed multiple times or as a space\-separated list of protocols.
+Currently supported protocols are: \fIhttp\fP, \fIhttps\fP, \fIimaps\fP, \fIsmtps\fP\&.
+This defaults to: \fIhttp https imaps smtps\fP\&.
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Proxy the IPv6\-only services so IPv4\-only clients can access them
+# This uses HAProxy\(aqs TCP mode for http, https, imaps and smtps
+__haproxy_dualstack \e
+    \-\-v4proxy ipv6.chat \e
+    \-\-v4proxy matrix.ungleich.ch
+
+# Proxy the IPv6\-only HTTP(S) services so IPv4\-only clients can access them
+# Note this means that the backend IPv6\-only server will only see
+# the IPv6 address of the haproxy host managed by cdist, which can be
+# troublesome if this information is relevant for analytics/security/...
+# See the PROXY example below
+__haproxy_dualstack \e
+    \-\-protocol http \-\-protocol https \e
+    \-\-v4proxy ipv6.chat \e
+    \-\-v4proxy matrix.ungleich.ch
+
+# Use the PROXY protocol to proxy the IPv6\-only HTTP(S) services enabling
+# IPv4\-only clients to access them while maintaining the client\(aqs IP address
+__haproxy_dualstack \e
+    \-\-protocol http \-\-protocol https \e
+    \-\-v4proxy proxy:ipv6.chat:http=8080:https=591 \e
+    \-\-v4proxy proxy:matrix.ungleich.ch:http=8080:https=591
+# Note however that the PROXY protocol is not compatible with regular
+# HTTP(S) protocols, so your nginx will have to listen on different ports
+# with the PROXY settings.
+# Note that you will need to restrict access to the 8080 port to prevent
+# Client IP spoofing.
+# This can be something like:
+# server {
+#     # listen for regular HTTP connections
+#     listen [::]:80 default_server;
+#     listen 80 default_server;
+#     # listen for PROXY HTTP connections
+#     listen [::]:8080 proxy_protocol;
+#     # Accept the Client\(aqs IP from the PROXY protocol
+#     real_ip_header proxy_protocol;
+# }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.INDENT 0.0
+.IP \(bu 2
+\fI\%https://www.haproxy.com/blog/enhanced\-ssl\-load\-balancing\-with\-server\-name\-indication\-sni\-tls\-extension/\fP
+.IP \(bu 2
+\fI\%https://www.haproxy.com/blog/haproxy/proxy\-protocol/\fP
+.IP \(bu 2
+\fI\%https://docs.nginx.com/nginx/admin\-guide/load\-balancer/using\-proxy\-protocol/\fP
+.UNINDENT
+.SH AUTHORS
+.sp
+ungleich <\fI\%foss\-\-@\-\-ungleich.ch\fP>
+Evilham <\fI\%cvs\-\-@\-\-evilham.com\fP>
+.SH COPYING
+.sp
+Copyright (C) 2021 ungleich glarus ag. You can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+.SH COPYRIGHT
+ungleich GmbH 2021
+.\" Generated by docutils manpage writer.
+.

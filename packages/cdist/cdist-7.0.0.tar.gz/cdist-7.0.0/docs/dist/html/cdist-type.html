@@ -1,0 +1,722 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>15. cdist type &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="16. cdist types" href="cdist-types.html" />
+    <link rel="prev" title="14. Manifest" href="cdist-manifest.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">15. cdist type</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description">15.1. Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">15.2. Synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-use-a-type">15.3. How to use a type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#singleton-types">15.4. Singleton types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-types">15.5. Config types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-types">15.6. Install types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nonparallel-types">15.7. Nonparallel types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deprecated-types">15.8. Deprecated types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-write-a-new-type">15.9. How to write a new type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-parameters">15.10. Defining parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-parameters">15.11. Using parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deprecated-parameters">15.12. Deprecated parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-from-stdin">15.13. Input from stdin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#stdin-inside-a-loop">15.13.1. Stdin inside a loop</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-manifest">15.14. Writing the manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#singleton-one-instance-only">15.15. Singleton - one instance only</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-type-with-install-command">15.16. Install - type with install command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nonparallel-only-one-instance-can-be-run-at-a-time">15.17. Nonparallel - only one instance can be run at a time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-type-explorers">15.18. The type explorers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-gencode-script">15.19. Writing the gencode script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variable-access-from-the-generated-scripts">15.20. Variable access from the generated scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variable-usage-idiom">15.21. Environment variable usage idiom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#log-level-in-types">15.22. Log level in types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detecting-dry-run">15.23. Detecting dry run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hints-for-typewriters">15.24. Hints for typewriters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-include-a-type-into-upstream-cdist">15.25. How to include a type into upstream cdist</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">15. </span>cdist type</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-type.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cdist-type">
+<h1><span class="section-number">15. </span>cdist type<a class="headerlink" href="#cdist-type" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2><span class="section-number">15.1. </span>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Types are the main component of cdist and define functionality. If you
+use cdist, you'll write a type for every functionality you would like
+to use.</p>
+</div>
+<div class="section" id="synopsis">
+<h2><span class="section-number">15.2. </span>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__TYPE ID --parameter value <span class="o">[</span>--parameter value ...<span class="o">]</span>
+__TYPE --parameter value <span class="o">[</span>--parameter value ...<span class="o">]</span> <span class="o">(</span><span class="k">for</span> singletons<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-use-a-type">
+<h2><span class="section-number">15.3. </span>How to use a type<a class="headerlink" href="#how-to-use-a-type" title="Permalink to this headline">¶</a></h2>
+<p>You can use types from the initial manifest or the type manifest like a
+normal shell command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creates empty file /etc/cdist-configured</span>
+__file /etc/cdist-configured --type file
+
+<span class="c1"># Ensure tree is installed</span>
+__package tree --state installed
+</pre></div>
+</div>
+<p>A list of supported types can be found in the <a class="reference external" href="cdist-reference.html">cdist reference</a> manpage.</p>
+</div>
+<div class="section" id="singleton-types">
+<h2><span class="section-number">15.4. </span>Singleton types<a class="headerlink" href="#singleton-types" title="Permalink to this headline">¶</a></h2>
+<p>If a type is flagged as a singleton, it may be used only
+once per host. This is useful for types which can be used only once on a
+system. Singleton types do not take an object name as argument.</p>
+<p>Example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># __issue type manages /etc/issue</span>
+__issue
+
+<span class="c1"># Probably your own type - singletons may use parameters</span>
+__myfancysingleton --colour green
+</pre></div>
+</div>
+</div>
+<div class="section" id="config-types">
+<h2><span class="section-number">15.5. </span>Config types<a class="headerlink" href="#config-types" title="Permalink to this headline">¶</a></h2>
+<p>By default types are used with config command. These are types that are not
+flagged by any known command flag. If a type is marked then it will be skipped
+with config command.</p>
+</div>
+<div class="section" id="install-types">
+<h2><span class="section-number">15.6. </span>Install types<a class="headerlink" href="#install-types" title="Permalink to this headline">¶</a></h2>
+<p>If a type is flagged with 'install' flag then it is used only with install command.
+With other commands, i.e. config, these types are skipped if used.</p>
+</div>
+<div class="section" id="nonparallel-types">
+<h2><span class="section-number">15.7. </span>Nonparallel types<a class="headerlink" href="#nonparallel-types" title="Permalink to this headline">¶</a></h2>
+<p>If a type is flagged with 'nonparallel' flag then its objects cannot be run in parallel
+when using -j option. Example of such a type is __package_dpkg type where dpkg itself
+prevents to be run in more than one instance.</p>
+</div>
+<div class="section" id="deprecated-types">
+<h2><span class="section-number">15.8. </span>Deprecated types<a class="headerlink" href="#deprecated-types" title="Permalink to this headline">¶</a></h2>
+<p>If a type is flagged with 'deprecated' marker then it is considered deprecated.
+When it is used cdist writes warning line. If 'deprecated' marker has content
+then this content is printed as a deprecation messages, e.g.:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ ls -l deprecated
+-rw-r--r--  <span class="m">1</span> darko  darko  <span class="m">71</span> May <span class="m">20</span> <span class="m">18</span>:30 deprecated
+$ cat deprecated
+This <span class="nb">type</span> is deprecated. It will be removed <span class="k">in</span> the next minor release.
+$ <span class="nb">echo</span> <span class="s1">&#39;__foo foo&#39;</span> <span class="p">|</span> ./bin/cdist config -i - <span class="m">185</span>.203.112.26
+WARNING: <span class="m">185</span>.203.112.26: Type __foo is deprecated: This <span class="nb">type</span> is deprecated. It will be removed <span class="k">in</span> the next minor release.
+</pre></div>
+</div>
+<p>If 'deprecated' marker has no content then general message is printed, e.g.:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ ls -l deprecated
+-rw-r--r--  <span class="m">1</span> darko  darko  <span class="m">0</span> May <span class="m">20</span> <span class="m">18</span>:36 deprecated
+$ <span class="nb">echo</span> <span class="s1">&#39;__bar foo&#39;</span> <span class="p">|</span> ./bin/cdist config -i - <span class="m">185</span>.203.112.26
+WARNING: <span class="m">185</span>.203.112.26: Type __bar is deprecated.
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-write-a-new-type">
+<h2><span class="section-number">15.9. </span>How to write a new type<a class="headerlink" href="#how-to-write-a-new-type" title="Permalink to this headline">¶</a></h2>
+<p>A type consists of</p>
+<ul class="simple">
+<li><p>parameter    (optional)</p></li>
+<li><p>manifest     (optional)</p></li>
+<li><p>singleton    (optional)</p></li>
+<li><p>explorer     (optional)</p></li>
+<li><p>gencode      (optional)</p></li>
+<li><p>nonparallel  (optional)</p></li>
+</ul>
+<p>Types are stored below cdist/conf/type/. Their name should always be prefixed with
+two underscores (__) to prevent collisions with other executables in $PATH.</p>
+<p>To implement a new type, create the directory <strong>cdist/conf/type/__NAME</strong>.</p>
+<p>Type manifest and gencode can be written in any language. They just need to be
+executable and have a proper shebang. If they are not executable then cdist assumes
+they are written in shell so they are executed using '/bin/sh -e' or 'CDIST_LOCAL_SHELL'.</p>
+<p>For executable shell code it is suggested that shebang is '#!/bin/sh -e'.</p>
+<p>For creating type skeleton you can use helper script
+<a class="reference external" href="man1/cdist-new-type.html">cdist-new-type</a>.</p>
+</div>
+<div class="section" id="defining-parameters">
+<h2><span class="section-number">15.10. </span>Defining parameters<a class="headerlink" href="#defining-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Every type consists of required, optional and boolean parameters, which must
+each be declared in a newline separated file in <strong>parameter/required</strong>,
+<strong>parameter/required_multiple</strong>, <strong>parameter/optional</strong>,
+<strong>parameter/optional_multiple</strong> and <strong>parameter/boolean</strong>.
+Parameters which are allowed multiple times should be listed in
+required_multiple or optional_multiple respectively. All other parameters
+follow the standard unix behaviour &quot;the last given wins&quot;.
+If either is missing, the type will have no required, no optional, no boolean
+or no parameters at all.</p>
+<p>Default values for optional parameters can be predefined in
+<strong>parameter/default/&lt;name&gt;</strong>.</p>
+<p>Example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span> servername &gt;&gt; cdist/conf/type/__nginx_vhost/parameter/required
+<span class="nb">echo</span> logdirectory &gt;&gt; cdist/conf/type/__nginx_vhost/parameter/optional
+<span class="nb">echo</span> loglevel &gt;&gt; cdist/conf/type/__nginx_vhost/parameter/optional
+mkdir cdist/conf/type/__nginx_vhost/parameter/default
+<span class="nb">echo</span> warning &gt; cdist/conf/type/__nginx_vhost/parameter/default/loglevel
+<span class="nb">echo</span> server_alias &gt;&gt; cdist/conf/type/__nginx_vhost/parameter/optional_multiple
+<span class="nb">echo</span> use_ssl &gt;&gt; cdist/conf/type/__nginx_vhost/parameter/boolean
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-parameters">
+<h2><span class="section-number">15.11. </span>Using parameters<a class="headerlink" href="#using-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The parameters given to a type can be accessed and used in all type scripts
+(e.g manifest, gencode, explorer). Note that boolean parameters are
+represented by file existence. File exists -&gt; True,
+file does not exist -&gt; False</p>
+<p>Example: (e.g. in cdist/conf/type/__nginx_vhost/manifest)</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># required parameter</span>
+<span class="nv">servername</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/servername&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># optional parameter</span>
+<span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/logdirectory&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="nv">logdirectory</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/logdirectory&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># optional parameter with predefined default</span>
+<span class="nv">loglevel</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/loglevel&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># boolean parameter</span>
+<span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/use_ssl&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="c1"># file exists -&gt; True</span>
+   <span class="c1"># do some fancy ssl stuff</span>
+<span class="k">fi</span>
+
+<span class="c1"># parameter with multiple values</span>
+<span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/server_alias&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="k">for</span> <span class="nb">alias</span> <span class="k">in</span> <span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/server_alias&quot;</span><span class="k">)</span><span class="p">;</span> <span class="k">do</span>
+      <span class="nb">echo</span> <span class="nv">$alias</span> &gt; /some/where/useful
+   <span class="k">done</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deprecated-parameters">
+<h2><span class="section-number">15.12. </span>Deprecated parameters<a class="headerlink" href="#deprecated-parameters" title="Permalink to this headline">¶</a></h2>
+<p>To deprecate type parameters one can declare a file for each deprecated
+parameter under <strong>parameter/deprecated</strong> directory.</p>
+<p>When such parameter is used cdist writes warning line with deprecation message.
+If such file has content then this content is printed as deprecation message.
+If there is no content then generic parameter deprecation message is printed.</p>
+<p>Example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ ls parameter/deprecated/
+eggs    spam
+$ cat parameter/deprecated/eggs
+eggs parameter is deprecated, please use multiple egg parameter.
+$ cat parameter/deprecated/spam
+$ <span class="nb">echo</span> <span class="s1">&#39;__foo foo --foo foo --eggs eggs&#39;</span> <span class="p">|</span> ./bin/cdist config -i - <span class="m">185</span>.203.112.26
+WARNING: <span class="m">185</span>.203.112.26: eggs parameter of <span class="nb">type</span> __foo is deprecated: eggs parameter is deprecated, please use multiple egg parameter.
+$ <span class="nb">echo</span> <span class="s1">&#39;__foo foo --foo foo --eggs eggs --spam spam&#39;</span> <span class="p">|</span> ./bin/cdist config -i - <span class="m">185</span>.203.112.26
+WARNING: <span class="m">185</span>.203.112.26: spam parameter of <span class="nb">type</span> __foo is deprecated.
+WARNING: <span class="m">185</span>.203.112.26: eggs parameter of <span class="nb">type</span> __foo is deprecated: eggs parameter is deprecated, please use multiple egg parameter.
+</pre></div>
+</div>
+</div>
+<div class="section" id="input-from-stdin">
+<h2><span class="section-number">15.13. </span>Input from stdin<a class="headerlink" href="#input-from-stdin" title="Permalink to this headline">¶</a></h2>
+<p>Every type can access what has been written on stdin when it has been called.
+The result is saved into the <strong>stdin</strong> file in the object directory.</p>
+<p>Example use of a type: (e.g. in cdist/conf/type/__archlinux_hostname)</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__file /etc/rc.conf --source - <span class="s">&lt;&lt; eof</span>
+<span class="s">...</span>
+<span class="s">HOSTNAME=&quot;$__target_host&quot;</span>
+<span class="s">...</span>
+<span class="s">eof</span>
+</pre></div>
+</div>
+<p>If you have not seen this syntax (&lt;&lt; eof) before, it may help you to read
+about &quot;here documents&quot;.</p>
+<p>In the __file type, stdin is used as source for the file, if - is used for source:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/source&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/source&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$source</span><span class="s2">&quot;</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/stdin&quot;</span>
+    <span class="k">fi</span>
+....
+</pre></div>
+</div>
+<div class="section" id="stdin-inside-a-loop">
+<h3><span class="section-number">15.13.1. </span>Stdin inside a loop<a class="headerlink" href="#stdin-inside-a-loop" title="Permalink to this headline">¶</a></h3>
+<p>Since cdist saves type's stdin content in the object as <strong>$__object/stdin</strong>,
+so it can be accessed in manifest and gencode-* scripts, this can lead to
+unexpected behavior. For example, suppose you have some type with the following
+in its manifest:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/foo&quot;</span> <span class="o">]</span>
+<span class="k">then</span>
+    <span class="k">while</span> <span class="nb">read</span> -r l
+    <span class="k">do</span>
+        __file <span class="s2">&quot;</span><span class="nv">$l</span><span class="s2">&quot;</span>
+        <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$l</span><span class="s2">&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
+    <span class="k">done</span> &lt; <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/foo&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p>and init manifest:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__foo foo --foo a --foo b --foo c
+</pre></div>
+</div>
+<p>You expect that manifest stderr content is:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>a
+b
+c
+</pre></div>
+</div>
+<p>and that files <em>a</em>, <em>b</em> and <em>c</em> are created. But all you get in manifest stderr
+is:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>a
+</pre></div>
+</div>
+<p>and only <em>a</em> file is created.</p>
+<p>When redirecting parameter <em>foo</em> file content to while's stdin that means that all
+commands in while body have this same stdin. So when <em>__file</em> type gets executed,
+cdist saves its stdin which means it gets the remaining content of parameter <em>foo</em>
+file, i.e.:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>b
+c
+</pre></div>
+</div>
+<p>The solution is to make sure that your types inside such loops get their stdin
+from somewhere else, e.g. for the above problem <em>__file</em> type can get empty
+stdin from <em>/dev/null</em>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/foo&quot;</span> <span class="o">]</span>
+<span class="k">then</span>
+    <span class="k">while</span> <span class="nb">read</span> -r l
+    <span class="k">do</span>
+        __file <span class="s2">&quot;</span><span class="nv">$l</span><span class="s2">&quot;</span> &lt; /dev/null
+        <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$l</span><span class="s2">&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
+    <span class="k">done</span> &lt; <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/foo&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="writing-the-manifest">
+<h2><span class="section-number">15.14. </span>Writing the manifest<a class="headerlink" href="#writing-the-manifest" title="Permalink to this headline">¶</a></h2>
+<p>In the manifest of a type you can use other types, so your type extends
+their functionality. A good example is the __package type, which in
+a shortened version looks like this:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">os</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__global</span><span class="s2">/explorer/os&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$os</span><span class="s2">&quot;</span> <span class="k">in</span>
+      archlinux<span class="o">)</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&quot;pacman&quot;</span> <span class="p">;;</span>
+      debian<span class="p">|</span>ubuntu<span class="o">)</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&quot;apt&quot;</span> <span class="p">;;</span>
+      gentoo<span class="o">)</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&quot;emerge&quot;</span> <span class="p">;;</span>
+      *<span class="o">)</span>
+         <span class="nb">echo</span> <span class="s2">&quot;Don&#39;t know how to manage packages on: </span><span class="nv">$os</span><span class="s2">&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
+         <span class="nb">exit</span> <span class="m">1</span>
+      <span class="p">;;</span>
+<span class="k">esac</span>
+
+__package_<span class="nv">$type</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>As you can see, the type can reference different environment variables,
+which are documented in <a class="reference external" href="cdist-reference.html">cdist reference</a>.</p>
+<p>Always ensure the manifest is executable, otherwise cdist will not be able
+to execute it. For more information about manifests see <a class="reference external" href="cdist-manifest.html">cdist manifest</a>.</p>
+</div>
+<div class="section" id="singleton-one-instance-only">
+<h2><span class="section-number">15.15. </span>Singleton - one instance only<a class="headerlink" href="#singleton-one-instance-only" title="Permalink to this headline">¶</a></h2>
+<p>If you want to ensure that a type can only be used once per target, you can
+mark it as a singleton: Just create the (empty) file &quot;singleton&quot; in your type
+directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>touch cdist/conf/type/__NAME/singleton
+</pre></div>
+</div>
+<p>This will also change the way your type must be called:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__YOURTYPE --parameter value
+</pre></div>
+</div>
+<p>As you can see, the object ID is omitted, because it does not make any sense,
+if your type can be used only once.</p>
+</div>
+<div class="section" id="install-type-with-install-command">
+<h2><span class="section-number">15.16. </span>Install - type with install command<a class="headerlink" href="#install-type-with-install-command" title="Permalink to this headline">¶</a></h2>
+<p>If you want a type to be used with install command, you must mark it as
+install: create the (empty) file &quot;install&quot; in your type directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>touch cdist/conf/type/__install_NAME/install
+</pre></div>
+</div>
+<p>With other commands, i.e. config, it will be skipped if used.</p>
+</div>
+<div class="section" id="nonparallel-only-one-instance-can-be-run-at-a-time">
+<h2><span class="section-number">15.17. </span>Nonparallel - only one instance can be run at a time<a class="headerlink" href="#nonparallel-only-one-instance-can-be-run-at-a-time" title="Permalink to this headline">¶</a></h2>
+<p>If objects of a type must not or cannot be run in parallel when using -j
+option, you must mark it as nonparallel: create the (empty) file &quot;nonparallel&quot;
+in your type directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>touch cdist/conf/type/__NAME/nonparallel
+</pre></div>
+</div>
+<p>For example, package types are nonparallel types.</p>
+</div>
+<div class="section" id="the-type-explorers">
+<h2><span class="section-number">15.18. </span>The type explorers<a class="headerlink" href="#the-type-explorers" title="Permalink to this headline">¶</a></h2>
+<p>If a type needs to explore specific details, it can provide type specific
+explorers, which will be executed on the target for every created object.</p>
+<p>The explorers are stored under the &quot;explorer&quot; directory below the type.
+It could for instance contain code to check the md5sum of a file on the
+client, like this (shortened version from the type __file):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/destination&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="nv">destination</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/destination&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+   <span class="nv">destination</span><span class="o">=</span><span class="s2">&quot;/</span><span class="nv">$__object_id</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="k">if</span> <span class="o">[</span> -e <span class="s2">&quot;</span><span class="nv">$destination</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   md5sum &lt; <span class="s2">&quot;</span><span class="nv">$destination</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-the-gencode-script">
+<h2><span class="section-number">15.19. </span>Writing the gencode script<a class="headerlink" href="#writing-the-gencode-script" title="Permalink to this headline">¶</a></h2>
+<p>There are two gencode scripts: <strong>gencode-local</strong> and <strong>gencode-remote</strong>.
+The output of gencode-local is executed locally, whereas
+the output of gencode-remote is executed on the target.
+The gencode scripts can make use of the parameters, the global explorers
+and the type specific explorers.</p>
+<p>If the gencode scripts encounters an error, it should print diagnostic
+messages to stderr and exit non-zero. If you need to debug the gencode
+script, you can write to stderr:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debug output to stderr</span>
+<span class="nb">echo</span> <span class="s2">&quot;My fancy debug line&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
+
+<span class="c1"># Output to be saved by cdist for execution on the target</span>
+<span class="nb">echo</span> <span class="s2">&quot;touch /etc/cdist-configured&quot;</span>
+</pre></div>
+</div>
+<p>Notice: if you use __remote_copy or __remote_exec directly in your scripts
+then for IPv6 address with __remote_copy execution you should enclose IPv6
+address in square brackets. The same applies to __remote_exec if it behaves
+the same as ssh for some options where colon is a delimiter, as for -L ssh
+option (see <strong>ssh</strong>(1) and <strong>scp</strong>(1)).</p>
+</div>
+<div class="section" id="variable-access-from-the-generated-scripts">
+<h2><span class="section-number">15.20. </span>Variable access from the generated scripts<a class="headerlink" href="#variable-access-from-the-generated-scripts" title="Permalink to this headline">¶</a></h2>
+<p>In the generated scripts, you have access to the following cdist variables</p>
+<ul class="simple">
+<li><p>__object</p></li>
+<li><p>__object_id</p></li>
+</ul>
+<p>but only for read operations, means there is no back copy of this
+files after the script execution.</p>
+<p>So when you generate a script with the following content, it will work:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/name&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat <span class="s2">&quot;</span><span class="nv">$__object</span><span class="s2">/parameter/name&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+   <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$__object_id</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="environment-variable-usage-idiom">
+<h2><span class="section-number">15.21. </span>Environment variable usage idiom<a class="headerlink" href="#environment-variable-usage-idiom" title="Permalink to this headline">¶</a></h2>
+<p>In type scripts you can support environment variables with default values if
+environment variable is unset or null by using <strong>${parameter:-[word]}</strong>
+parameter expansion.</p>
+<p>Example using mktemp in a portable way that supports TMPDIR environment variable.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">tempfile</span><span class="o">=</span><span class="k">$(</span>mktemp <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMPDIR</span><span class="k">:-</span><span class="p">/tmp</span><span class="si">}</span><span class="s2">/cdist.XXXXXXXXXX&quot;</span><span class="k">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="log-level-in-types">
+<h2><span class="section-number">15.22. </span>Log level in types<a class="headerlink" href="#log-level-in-types" title="Permalink to this headline">¶</a></h2>
+<p>cdist log level can be accessed from __cdist_log_level variable.One of:</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Log level</p></th>
+<th class="head"><p>Log level value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>OFF</p></td>
+<td><p>60</p></td>
+</tr>
+<tr class="row-odd"><td><p>ERROR</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>WARNING</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-odd"><td><p>INFO</p></td>
+<td><p>20</p></td>
+</tr>
+<tr class="row-even"><td><p>VERBOSE</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEBUG</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-even"><td><p>TRACE</p></td>
+<td><p>5</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>It is available for initial manifest, explorer, type manifest,
+type explorer, type gencode.</p>
+</div>
+<div class="section" id="detecting-dry-run">
+<h2><span class="section-number">15.23. </span>Detecting dry run<a class="headerlink" href="#detecting-dry-run" title="Permalink to this headline">¶</a></h2>
+<p>If <code class="docutils literal notranslate"><span class="pre">$__cdist_dry_run</span></code> environment variable is set, then it's dry run.</p>
+<p>It is available for initial manifest, explorer, type manifest,
+type explorer, type gencode.</p>
+</div>
+<div class="section" id="hints-for-typewriters">
+<h2><span class="section-number">15.24. </span>Hints for typewriters<a class="headerlink" href="#hints-for-typewriters" title="Permalink to this headline">¶</a></h2>
+<p>It must be assumed that the target is pretty dumb and thus does not have high
+level tools like ruby installed. If a type requires specific tools to be present
+on the target, there must be another type that provides this tool and the first
+type should create an object of the specific type.</p>
+<p>If your type wants to save temporary data, that may be used by other types
+later on (for instance __file), you can save them in the subdirectory
+&quot;files&quot; below $__object (but you must create it yourself).
+cdist will not touch this directory.</p>
+<p>If your type contains static files, it's also recommended to place them in
+a folder named &quot;files&quot; within the type (again, because cdist guarantees to
+never ever touch this folder).</p>
+</div>
+<div class="section" id="how-to-include-a-type-into-upstream-cdist">
+<h2><span class="section-number">15.25. </span>How to include a type into upstream cdist<a class="headerlink" href="#how-to-include-a-type-into-upstream-cdist" title="Permalink to this headline">¶</a></h2>
+<p>If you think your type may be useful for others, ensure it works with the
+current master branch of cdist and have a look at <a class="reference external" href="cdist-hacker.html">cdist hacking</a> on
+how to submit it.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-types.html" class="btn btn-neutral float-right" title="16. cdist types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-manifest.html" class="btn btn-neutral float-left" title="14. Manifest" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

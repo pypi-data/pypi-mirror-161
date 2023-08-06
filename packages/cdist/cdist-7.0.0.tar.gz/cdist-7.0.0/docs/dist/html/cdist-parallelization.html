@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>19. Parallelization &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="20. Inventory" href="cdist-inventory.html" />
+    <link rel="prev" title="18. Messaging" href="cdist-messaging.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">19. Parallelization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description">19.1. Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">19.2. Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#caveats">19.3. Caveats</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">19. </span>Parallelization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-parallelization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="parallelization">
+<h1><span class="section-number">19. </span>Parallelization<a class="headerlink" href="#parallelization" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2><span class="section-number">19.1. </span>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>cdist has two modes of parallel operation.</p>
+<p>One of them is to operate on each host in separate process. This is enabled
+with <strong>-p/--parallel</strong> option.</p>
+<p>The other way is to operate in parallel within one host where you specify
+the number of jobs. This is enabled with <strong>-j/--jobs</strong> option where you
+can specify the number of parallel jobs. By default,
+<strong>multiprocessing.cpu_count()</strong> is used. For this mode global explorers,
+object preparation and object run are supported.</p>
+<p>You can, of course, use those two options together. This means that each host
+will be processed by its own process. Within each process cdist will operate
+using specified number of parallel jobs.</p>
+<p>For more info on those options see <strong>cdist</strong>(1).</p>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">19.2. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure hosts read from file hosts.file in parallel</span>
+$ cdist config -p -f hosts.file
+
+<span class="c1"># Configure hosts read from file hosts.file sequentially but using default</span>
+<span class="c1"># number of parallel jobs</span>
+$ cdist config -j -f hosts.file
+
+<span class="c1"># Configure hosts read from file hosts.file in parallel using 16</span>
+<span class="c1"># parallel jobs</span>
+$ cdist config -j <span class="m">16</span> -p -f hosts.file
+</pre></div>
+</div>
+</div>
+<div class="section" id="caveats">
+<h2><span class="section-number">19.3. </span>Caveats<a class="headerlink" href="#caveats" title="Permalink to this headline">¶</a></h2>
+<p>When operating in parallel, either by operating in parallel for each host
+(-p/--parallel) or by parallel jobs within a host (-j/--jobs), and depending
+on target SSH server and its configuration you may encounter connection drops.
+This is controlled with sshd :strong:MaxStartups configuration options.
+You may also encounter session open refusal. This happens with ssh multiplexing
+when you reach maximum number of open sessions permitted per network
+connection. In this case ssh will disable multiplexing.
+This limit is controlled with sshd :strong:MaxSessions configuration
+options. For more details refer to <strong>sshd_config</strong>(5).</p>
+<p>For example, if you reach <strong>MaxSessions</strong> sessions you may get the
+following output:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ cdist config -b -j <span class="m">11</span> -v <span class="m">78</span>.47.116.244
+INFO: cdist: version <span class="m">4</span>.2.2-55-g640b7f9
+INFO: <span class="m">78</span>.47.116.244: Running global explorers
+INFO: <span class="m">78</span>.47.116.244: Remote transfer <span class="k">in</span> <span class="m">11</span> parallel <span class="nb">jobs</span>
+channel <span class="m">22</span>: open failed: administratively prohibited: open failed
+mux_client_request_session: session request failed: Session open refused by peer
+ControlSocket /tmp/tmpuah6fw_t/d886d4b7e4425a102a54bfaff4d2288b/ssh-control-path already exists, disabling multiplexing
+INFO: <span class="m">78</span>.47.116.244: Running global explorers <span class="k">in</span> <span class="m">11</span> parallel <span class="nb">jobs</span>
+channel <span class="m">22</span>: open failed: administratively prohibited: open failed
+mux_client_request_session: session request failed: Session open refused by peer
+ControlSocket /tmp/tmpuah6fw_t/d886d4b7e4425a102a54bfaff4d2288b/ssh-control-path already exists, disabling multiplexing
+INFO: <span class="m">78</span>.47.116.244: Running initial manifest /tmp/tmpuah6fw_t/d886d4b7e4425a102a54bfaff4d2288b/data/conf/manifest/init
+INFO: <span class="m">78</span>.47.116.244: Running manifest and explorers <span class="k">for</span> __file/root/host.file
+INFO: <span class="m">78</span>.47.116.244: Generating code <span class="k">for</span> __file/root/host.file
+INFO: <span class="m">78</span>.47.116.244: Finished successful run <span class="k">in</span> <span class="m">18</span>.655028820037842 seconds
+INFO: cdist: Total processing <span class="nb">time</span> <span class="k">for</span> <span class="m">1</span> host<span class="o">(</span>s<span class="o">)</span>: <span class="m">19</span>.159148693084717
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-inventory.html" class="btn btn-neutral float-right" title="20. Inventory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-messaging.html" class="btn btn-neutral float-left" title="18. Messaging" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

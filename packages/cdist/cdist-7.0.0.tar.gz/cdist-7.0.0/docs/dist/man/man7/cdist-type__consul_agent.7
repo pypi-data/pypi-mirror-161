@@ -1,0 +1,208 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "CDIST-TYPE__CONSUL_AGENT" "7" "Jul 31, 2022" "7.0.0" "cdist"
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH NAME
+.sp
+cdist\-type__consul_agent \- Manage the consul agent
+.SH DESCRIPTION
+.sp
+Configure and manage the consul agent.
+.SH REQUIRED PARAMETERS
+.sp
+None.
+.SH OPTIONAL PARAMETERS
+.INDENT 0.0
+.TP
+.B acl\-datacenter
+only used by servers. This designates the datacenter which is authoritative
+for ACL information.
+.TP
+.B acl\-default\-policy
+either "allow" or "deny"; defaults to "allow". The default policy controls the
+behavior of a token when there is no matching rule.
+.TP
+.B acl\-down\-policy
+either "allow", "deny" or "extend\-cache"; "extend\-cache" is the default.
+.TP
+.B acl\-master\-token
+only used for servers in the acl_datacenter. This token will be created with
+management\-level permissions if it does not exist. It allows operators to
+bootstrap the ACL system with a token ID that is well\-known.
+.TP
+.B acl\-token
+when provided, the agent will use this token when making requests to the
+Consul servers.
+.TP
+.B acl\-ttl
+used to control Time\-To\-Live caching of ACLs.
+.TP
+.B bind\-addr
+sets the bind address for cluster communication
+.TP
+.B bootstrap\-expect
+sets server to expect bootstrap mode
+.TP
+.B ca\-file\-source
+path to a PEM encoded certificate authority file which will be uploaded and
+configure using the ca_file config option.
+.TP
+.B cert\-file\-source
+path to a PEM encoded certificate file which will be uploaded and
+configure using the cert_file config option.
+.TP
+.B client\-addr
+sets the address to bind for client access
+.TP
+.B datacenter
+datacenter of the agent
+.TP
+.B encrypt
+provides the gossip encryption key
+.TP
+.B group
+the primary group for the agent
+.TP
+.B json\-config
+path to a partial json config file without leading { and trailing }.
+If json\-config is \(aq\-\(aq (dash), take what was written to stdin as the file content.
+.TP
+.B key\-file\-source
+path to a PEM encoded private key file which will be uploaded and
+configure using the key_file config option.
+.TP
+.B node\-name
+name of this node. Must be unique in the cluster
+.TP
+.B retry\-join
+address to attempt joining every retry_interval until at least one join works.
+Can be specified multiple times.
+.TP
+.B user
+the user to run the agent as
+.TP
+.B state
+if the agent is \(aqpresent\(aq or \(aqabsent\(aq. Defaults to \(aqpresent\(aq.
+Currently state=absent is not working due to some dependency issues.
+.UNINDENT
+.SH BOOLEAN PARAMETERS
+.INDENT 0.0
+.TP
+.B disable\-remote\-exec
+disables support for remote execution. When set to true, the agent will ignore any incoming remote exec requests.
+.TP
+.B disable\-update\-check
+disables automatic checking for security bulletins and new version releases
+.TP
+.B leave\-on\-terminate
+gracefully leave cluster on SIGTERM
+.TP
+.B rejoin\-after\-leave
+rejoin the cluster using the previous state after leaving
+.TP
+.B server
+used to control if an agent is in server or client mode
+.TP
+.B enable\-syslog
+enables logging to syslog
+.TP
+.B verify\-incoming
+enforce the use of TLS and verify a client\(aqs authenticity on incoming connections
+.TP
+.B verify\-outgoing
+enforce the use of TLS and verify the peers authenticity on outgoing connections
+.TP
+.B use\-distribution\-package
+uses distribution package instead of upstream binary
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# configure as server, bootstrap and rejoin
+hostname="$(cat "$__global/explorer/hostname")"
+__consul_agent \e
+   \-\-datacenter dc1 \e
+   \-\-node\-name "${hostname%%.*}" \e
+   \-\-disable\-update\-check \e
+   \-\-server \e
+   \-\-rejoin\-after\-leave \e
+   \-\-bootstrap\-expect 3 \e
+   \-\-retry\-join consul\-01 \e
+   \-\-retry\-join consul\-02 \e
+   \-\-retry\-join consul\-03
+
+# configure as server, bootstrap and rejoin with ssl support
+hostname="$(cat "$__global/explorer/hostname")"
+__consul_agent \e
+   \-\-datacenter dc1 \e
+   \-\-node\-name "${hostname%%.*}" \e
+   \-\-disable\-update\-check \e
+   \-\-server \e
+   \-\-rejoin\-after\-leave \e
+   \-\-bootstrap\-expect 3 \e
+   \-\-retry\-join consul\-01 \e
+   \-\-retry\-join consul\-02 \e
+   \-\-retry\-join consul\-03 \e
+   \-\-ca\-file\-source /path/to/ca.pem \e
+   \-\-cert\-file\-source /path/to/cert.pem \e
+   \-\-key\-file\-source /path/to/key.pem \e
+   \-\-verify\-incoming \e
+   \-\-verify\-outgoing
+
+# configure as client and try joining existing cluster
+__consul_agent \e
+   \-\-datacenter dc1 \e
+   \-\-node\-name "${hostname%%.*}" \e
+   \-\-disable\-update\-check \e
+   \-\-retry\-join consul\-01 \e
+   \-\-retry\-join consul\-02 \e
+   \-\-retry\-join consul\-03
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.sp
+consul documentation at: <\fI\%http://www.consul.io/docs/agent/options.html\fP>.
+.SH AUTHORS
+.sp
+Steven Armstrong <\fI\%steven\-cdist\-\-@\-\-armstrong.cc\fP>
+.SH COPYING
+.sp
+Copyright (C) 2015 Steven Armstrong. You can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+.SH COPYRIGHT
+ungleich GmbH 2021
+.\" Generated by docutils manpage writer.
+.

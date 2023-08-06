@@ -1,0 +1,618 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>29. Remote exec and copy commands &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="30. Hacking" href="cdist-hacker.html" />
+    <link rel="prev" title="28. Saving output streams" href="cdist-saving-output-streams.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">29. Remote exec and copy commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#examples">29.1. Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ssh">29.1.1. ssh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local">29.1.2. local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chroot">29.1.3. chroot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rsync">29.1.4. rsync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schroot">29.1.5. schroot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schroot-uri">29.1.6. schroot-uri</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sudo">29.1.7. sudo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">29. </span>Remote exec and copy commands</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-remote-exec-copy.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="remote-exec-and-copy-commands">
+<h1><span class="section-number">29. </span>Remote exec and copy commands<a class="headerlink" href="#remote-exec-and-copy-commands" title="Permalink to this headline">¶</a></h1>
+<p>Cdist interacts with the target host in two ways:</p>
+<ul class="simple">
+<li><p>it executes code (__remote_exec)</p></li>
+<li><p>and it copies files (__remote_copy)</p></li>
+</ul>
+<p>By default this is accomplished with ssh and scp respectively.
+The default implementations used by cdist are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__remote_exec</span><span class="p">:</span> <span class="n">ssh</span> <span class="o">-</span><span class="n">o</span> <span class="n">User</span><span class="o">=</span><span class="n">root</span>
+<span class="n">__remote_copy</span><span class="p">:</span> <span class="n">scp</span> <span class="o">-</span><span class="n">o</span> <span class="n">User</span><span class="o">=</span><span class="n">root</span> <span class="o">-</span><span class="n">q</span>
+</pre></div>
+</div>
+<p>The user can override these defaults by providing custom implementations and
+passing them to cdist with the --remote-exec and/or --remote-copy arguments.</p>
+<p>For __remote_exec, the custom implementation must behave as if it where ssh.
+For __remote_copy, it must behave like scp.
+Please notice, custom implementations should work like ssh/scp so __remote_copy
+must support IPv6 addresses enclosed in square brackets. For __remote_exec you
+must take into account that for some options (like -L) IPv6 addresses can be
+specified by enclosed in square brackets (see <strong>ssh</strong>(1) and
+<strong>scp</strong>(1)).</p>
+<p>With this simple interface the user can take total control of how cdist
+interacts with the target when required, while the default implementation
+remains as simple as possible.</p>
+<div class="section" id="examples">
+<h2><span class="section-number">29.1. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Here are examples of using alternative __remote_copy and __remote_exec scripts.</p>
+<p>All scripts from below are present in cdist sources in <cite>other/examples/remote</cite>
+directory.</p>
+<div class="section" id="ssh">
+<h3><span class="section-number">29.1.1. </span>ssh<a class="headerlink" href="#ssh" title="Permalink to this headline">¶</a></h3>
+<p>Same as cdist default.</p>
+<p><strong>copy</strong></p>
+<p>Usage: cdist config --remote-copy &quot;/path/to/this/script&quot; target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-ssh-copy&quot;</span>
+scp -o <span class="nv">User</span><span class="o">=</span>root -q <span class="nv">$@</span>
+</pre></div>
+</div>
+<p><strong>exec</strong></p>
+<p>Usage: cdist config --remote-exec &quot;/path/to/this/script&quot; target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-ssh-exec&quot;</span>
+ssh -o <span class="nv">User</span><span class="o">=</span>root <span class="nv">$@</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="local">
+<h3><span class="section-number">29.1.2. </span>local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
+<p>This effectively turns remote calling into local calling. Probably most useful
+for the unit testing.</p>
+<p><strong>copy</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">code</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="p">|</span> sed <span class="s2">&quot;s|\([[:space:]]\)</span><span class="nv">$__target_host</span><span class="s2">:|\1|g&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+cp -L <span class="nv">$code</span>
+</pre></div>
+</div>
+<p><strong>exec</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">target_host</span><span class="o">=</span><span class="nv">$1</span><span class="p">;</span> <span class="nb">shift</span>
+<span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="p">|</span> /bin/sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="chroot">
+<h3><span class="section-number">29.1.3. </span>chroot<a class="headerlink" href="#chroot" title="Permalink to this headline">¶</a></h3>
+<p><strong>copy</strong></p>
+<p>Usage: cdist config --remote-copy &quot;/path/to/this/script /path/to/your/chroot&quot; target-id</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>log<span class="o">()</span> <span class="o">{</span>
+   <span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-chroot-copy&quot;</span>
+   :
+<span class="o">}</span>
+
+<span class="nv">chroot</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+<span class="nv">target_host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$__target_host</span><span class="s2">&quot;</span>
+
+<span class="c1"># replace target_host with chroot location</span>
+<span class="nv">code</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="p">|</span> sed <span class="s2">&quot;s|</span><span class="nv">$target_host</span><span class="s2">:|</span><span class="nv">$chroot</span><span class="s2">|g&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+
+log <span class="s2">&quot;target_host: </span><span class="nv">$target_host</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;chroot: </span><span class="nv">$chroot</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;</span><span class="nv">$code</span><span class="s2">&quot;</span>
+
+<span class="c1"># copy files into chroot</span>
+cp <span class="nv">$code</span>
+
+log <span class="s2">&quot;-----&quot;</span>
+</pre></div>
+</div>
+<p><strong>exec</strong></p>
+<p>Usage: cdist config --remote-exec &quot;/path/to/this/script /path/to/your/chroot&quot; target-id</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>log<span class="o">()</span> <span class="o">{</span>
+   <span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-chroot-exec&quot;</span>
+   :
+<span class="o">}</span>
+
+<span class="nv">chroot</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+<span class="nv">target_host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+
+<span class="nv">script</span><span class="o">=</span><span class="k">$(</span>mktemp <span class="s2">&quot;</span><span class="si">${</span><span class="nv">chroot</span><span class="si">}</span><span class="s2">/tmp/chroot-</span><span class="si">${</span><span class="nv">0</span><span class="p">##*/</span><span class="si">}</span><span class="s2">.XXXXXXXXXX&quot;</span><span class="k">)</span>
+<span class="nb">trap</span> cleanup INT TERM EXIT
+cleanup<span class="o">()</span> <span class="o">{</span>
+   <span class="o">[</span> <span class="nv">$__cdist_debug</span> <span class="o">]</span> <span class="o">||</span> rm <span class="s2">&quot;</span><span class="nv">$script</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+
+log <span class="s2">&quot;target_host: </span><span class="nv">$target_host</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;script: </span><span class="nv">$script</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;@: </span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="nb">echo</span> <span class="s2">&quot;#!/bin/sh -l&quot;</span> &gt; <span class="s2">&quot;</span><span class="nv">$script</span><span class="s2">&quot;</span>
+<span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> &gt;&gt; <span class="s2">&quot;</span><span class="nv">$script</span><span class="s2">&quot;</span>
+chmod +x <span class="s2">&quot;</span><span class="nv">$script</span><span class="s2">&quot;</span>
+
+<span class="nv">relative_script</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">script</span><span class="p">#</span><span class="nv">$chroot</span><span class="si">}</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;relative_script: </span><span class="nv">$relative_script</span><span class="s2">&quot;</span>
+
+<span class="c1"># run in chroot</span>
+chroot <span class="s2">&quot;</span><span class="nv">$chroot</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="nv">$relative_script</span><span class="s2">&quot;</span>
+
+log <span class="s2">&quot;-----&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rsync">
+<h3><span class="section-number">29.1.4. </span>rsync<a class="headerlink" href="#rsync" title="Permalink to this headline">¶</a></h3>
+<p><strong>copy</strong></p>
+<p>Usage: cdist config --remote-copy /path/to/this/script target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># For rsync to do the right thing, the source has to end with &quot;/&quot; if it is</span>
+<span class="c1"># a directory. The below preprocessor loop takes care of that.</span>
+
+<span class="c1"># second last argument is the source</span>
+<span class="nv">source_index</span><span class="o">=</span><span class="k">$((</span><span class="nv">$#</span><span class="o">-</span><span class="m">1</span><span class="k">))</span>
+<span class="nv">index</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span> arg <span class="k">in</span> <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+   <span class="k">if</span> <span class="o">[</span> <span class="nv">$index</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+      <span class="c1"># reset $@</span>
+      <span class="nb">set</span> --
+   <span class="k">fi</span>
+   <span class="nv">index</span><span class="o">=</span><span class="k">$((</span><span class="nv">index</span><span class="o">+=</span><span class="m">1</span><span class="k">))</span>
+   <span class="k">if</span> <span class="o">[</span> <span class="nv">$index</span> -eq <span class="nv">$source_index</span> -a -d <span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+      <span class="nv">arg</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">arg</span><span class="p">%/</span><span class="si">}</span><span class="s2">/&quot;</span>
+   <span class="k">fi</span>
+   <span class="nb">set</span> -- <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+rsync --backup --suffix<span class="o">=</span>~cdist -e <span class="s1">&#39;ssh -o User=root&#39;</span> <span class="nv">$@</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="schroot">
+<h3><span class="section-number">29.1.5. </span>schroot<a class="headerlink" href="#schroot" title="Permalink to this headline">¶</a></h3>
+<p>__remote_copy and __remote_exec scripts to run cdist against a chroot on the
+target host over ssh.</p>
+<p><strong>copy</strong></p>
+<p>Usage: cdist config --remote-copy &quot;/path/to/this/script schroot-chroot-name&quot; target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>log<span class="o">()</span> <span class="o">{</span>
+   <span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-schroot-copy&quot;</span>
+   :
+<span class="o">}</span>
+
+<span class="nv">chroot_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+<span class="nv">target_host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$__target_host</span><span class="s2">&quot;</span>
+
+<span class="c1"># get directory for given chroot_name</span>
+<span class="nv">chroot</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>ssh -o <span class="nv">User</span><span class="o">=</span>root -q <span class="nv">$target_host</span> schroot -c <span class="nv">$chroot_name</span> --config <span class="p">|</span> awk -F <span class="o">=</span> <span class="s1">&#39;/directory=/ {print $2}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># prefix destination with chroot</span>
+<span class="nv">code</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="p">|</span> sed <span class="s2">&quot;s|</span><span class="nv">$target_host</span><span class="s2">:|</span><span class="nv">$target_host</span><span class="s2">:</span><span class="nv">$chroot</span><span class="s2">|g&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+
+log <span class="s2">&quot;target_host: </span><span class="nv">$target_host</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;chroot_name: </span><span class="nv">$chroot_name</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;chroot: </span><span class="nv">$chroot</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;@: </span><span class="nv">$@</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;code: </span><span class="nv">$code</span><span class="s2">&quot;</span>
+
+<span class="c1"># copy files into remote chroot</span>
+scp -o <span class="nv">User</span><span class="o">=</span>root -q <span class="nv">$code</span>
+
+log <span class="s2">&quot;-----&quot;</span>
+</pre></div>
+</div>
+<p><strong>exec</strong></p>
+<p>Usage: cdist config --remote-exec &quot;/path/to/this/script schroot-chroot-name&quot; target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>log<span class="o">()</span> <span class="o">{</span>
+   <span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-schroot-exec&quot;</span>
+   :
+<span class="o">}</span>
+
+<span class="nv">chroot_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+<span class="nv">target_host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+
+<span class="nv">code</span><span class="o">=</span><span class="s2">&quot;ssh -o User=root -q </span><span class="nv">$target_host</span><span class="s2"> schroot -c </span><span class="nv">$chroot_name</span><span class="s2"> -- </span><span class="nv">$@</span><span class="s2">&quot;</span>
+
+log <span class="s2">&quot;target_host: </span><span class="nv">$target_host</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;chroot_name: </span><span class="nv">$chroot_name</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;@: </span><span class="nv">$@</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;code: </span><span class="nv">$code</span><span class="s2">&quot;</span>
+
+<span class="c1"># run in remote chroot</span>
+<span class="nv">$code</span>
+
+log <span class="s2">&quot;-----&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="schroot-uri">
+<h3><span class="section-number">29.1.6. </span>schroot-uri<a class="headerlink" href="#schroot-uri" title="Permalink to this headline">¶</a></h3>
+<p>__remote_exec/__remote_copy script to run cdist against a schroot target URI.</p>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cdist</span> <span class="n">config</span> \
+    <span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">exec</span> <span class="s2">&quot;/path/to/this/script exec&quot;</span> \
+    <span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">copy</span> <span class="s2">&quot;/path/to/this/script copy&quot;</span> \
+    <span class="n">target_uri</span>
+
+<span class="c1"># target_uri examples:</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">///</span><span class="n">chroot</span><span class="o">-</span><span class="n">name</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">//</span><span class="n">foo</span><span class="o">.</span><span class="n">ethz</span><span class="o">.</span><span class="n">ch</span><span class="o">/</span><span class="n">chroot</span><span class="o">-</span><span class="n">name</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="o">-</span><span class="n">name</span><span class="nd">@foo</span><span class="o">.</span><span class="n">ethz</span><span class="o">.</span><span class="n">ch</span><span class="o">/</span><span class="n">chroot</span><span class="o">-</span><span class="n">name</span>
+
+<span class="c1"># and how to match them in .../manifest/init</span>
+<span class="k">case</span> <span class="s2">&quot;$target_host&quot;</span> <span class="ow">in</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">//*</span><span class="p">)</span>
+    <span class="c1"># any schroot</span>
+<span class="p">;;</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">//</span><span class="n">foo</span><span class="o">.</span><span class="n">ethz</span><span class="o">.</span><span class="n">ch</span><span class="o">/*</span><span class="p">)</span>
+    <span class="c1"># any schroot on specific host</span>
+<span class="p">;;</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">//</span><span class="n">foo</span><span class="o">.</span><span class="n">ethz</span><span class="o">.</span><span class="n">ch</span><span class="o">/</span><span class="n">chroot</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+    <span class="c1"># specific schroot on specific host</span>
+<span class="p">;;</span>
+<span class="n">schroot</span><span class="p">:</span><span class="o">///</span><span class="n">chroot</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+    <span class="c1"># specific schroot on localhost</span>
+<span class="p">;;</span>
+<span class="n">esac</span>
+</pre></div>
+</div>
+<p><strong>copy/exec</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">my_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">0</span><span class="p">##*/</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">mode</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+
+log<span class="o">()</span> <span class="o">{</span>
+   <span class="c1"># uncomment me for debugging</span>
+   <span class="c1">#echo &quot;$@&quot; | logger -t &quot;cdist-$my_name-$mode&quot;</span>
+   :
+<span class="o">}</span>
+
+die<span class="o">()</span> <span class="o">{</span>
+   <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
+   <span class="nb">exit</span> <span class="m">1</span>
+<span class="o">}</span>
+
+
+<span class="nv">uri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$__target_host</span><span class="s2">&quot;</span>
+
+<span class="nv">scheme</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">uri</span><span class="p">%%:*</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nv">rest</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">uri</span><span class="p">#</span><span class="nv">$scheme</span><span class="p">:</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nv">rest</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">rest</span><span class="p">#//</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">authority</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">rest</span><span class="p">%%/*</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nv">rest</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">rest</span><span class="p">#</span><span class="nv">$authority</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">path</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">rest</span><span class="p">%</span><span class="se">\?</span><span class="p">*</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nv">rest</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">rest</span><span class="p">#</span><span class="nv">$path</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">schroot_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">path</span><span class="p">#/</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$scheme</span><span class="s2">&quot;</span> <span class="o">=</span> <span class="s2">&quot;schroot&quot;</span> <span class="o">]</span> <span class="o">||</span> die <span class="s2">&quot;Failed to parse scheme from __target_host (</span><span class="nv">$__target_host</span><span class="s2">). Expected &#39;schroot&#39;, got &#39;</span><span class="nv">$scheme</span><span class="s2">&#39;&quot;</span>
+<span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$schroot_name</span><span class="s2">&quot;</span> <span class="o">]</span> <span class="o">||</span> die <span class="s2">&quot;Failed to parse schroot name from __target_host: </span><span class="nv">$__target_host</span><span class="s2">&quot;</span>
+
+<span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$authority</span><span class="s2">&quot;</span> <span class="k">in</span>
+   <span class="s1">&#39;&#39;</span><span class="o">)</span>
+      <span class="c1"># authority is empty, neither user nor host given</span>
+      <span class="nv">user</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+      <span class="nv">host</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+   <span class="p">;;</span>
+   *@*<span class="o">)</span>
+      <span class="c1"># authority contains @, take user from authority</span>
+      <span class="nv">user</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">authority</span><span class="p">%@*</span><span class="si">}</span><span class="s2">&quot;</span>
+      <span class="nv">host</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">authority</span><span class="p">#*@</span><span class="si">}</span><span class="s2">&quot;</span>
+   <span class="p">;;</span>
+   *<span class="o">)</span>
+      <span class="c1"># no user in authority, default to root</span>
+      <span class="nv">user</span><span class="o">=</span><span class="s2">&quot;root&quot;</span>
+      <span class="nv">host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$authority</span><span class="s2">&quot;</span>
+   <span class="p">;;</span>
+<span class="k">esac</span>
+
+log <span class="s2">&quot;mode: </span><span class="nv">$mode</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;@: </span><span class="nv">$@</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;uri: </span><span class="nv">$uri</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;scheme: </span><span class="nv">$scheme</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;authority: </span><span class="nv">$authority</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;user: </span><span class="nv">$user</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;host: </span><span class="nv">$host</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;path: </span><span class="nv">$path</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;schroot_name: </span><span class="nv">$schroot_name</span><span class="s2">&quot;</span>
+
+<span class="nv">exec_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">copy_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$host</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+   <span class="c1"># we are working on a remote host</span>
+   <span class="nv">exec_prefix</span><span class="o">=</span><span class="s2">&quot;ssh -o User=</span><span class="nv">$user</span><span class="s2"> -q </span><span class="nv">$host</span><span class="s2">&quot;</span>
+   <span class="nv">copy_prefix</span><span class="o">=</span><span class="s2">&quot;scp -o User=</span><span class="nv">$user</span><span class="s2"> -q&quot;</span>
+   <span class="nv">copy_destination_prefix</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$host</span><span class="s2">:&quot;</span>
+<span class="k">else</span>
+   <span class="c1"># working on local machine</span>
+   <span class="nv">copy_prefix</span><span class="o">=</span><span class="s2">&quot;cp&quot;</span>
+   <span class="nv">copy_destination_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="k">fi</span>
+log <span class="s2">&quot;exec_prefix: </span><span class="nv">$exec_prefix</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;copy_prefix: </span><span class="nv">$copy_prefix</span><span class="s2">&quot;</span>
+log <span class="s2">&quot;copy_destination_prefix: </span><span class="nv">$copy_destination_prefix</span><span class="s2">&quot;</span>
+
+<span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$mode</span><span class="s2">&quot;</span> <span class="k">in</span>
+   <span class="nb">exec</span><span class="o">)</span>
+      <span class="c1"># In exec mode the first argument is the __target_host which we already got from env. Get rid of it.</span>
+      <span class="nb">shift</span>
+      <span class="nv">code</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$exec_prefix</span><span class="s2"> schroot -c </span><span class="nv">$schroot_name</span><span class="s2"> -- sh -c &#39;</span><span class="nv">$@</span><span class="s2">&#39;&quot;</span>
+   <span class="p">;;</span>
+   copy<span class="o">)</span>
+      <span class="c1"># get directory for given chroot_name</span>
+      <span class="nv">schroot_directory</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nv">$exec_prefix</span> schroot -c <span class="nv">$schroot_name</span> --config <span class="p">|</span> awk -F <span class="o">=</span> <span class="s1">&#39;/directory=/ {print $2}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+      <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$schroot_directory</span><span class="s2">&quot;</span> <span class="o">]</span> <span class="o">||</span> die <span class="s2">&quot;Failed to retreive schroot directory for schroot: </span><span class="nv">$schroot_name</span><span class="s2">&quot;</span>
+      log <span class="s2">&quot;schroot_directory: </span><span class="nv">$schroot_directory</span><span class="s2">&quot;</span>
+      <span class="c1"># prefix destination with chroot</span>
+      <span class="nv">code</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$copy_prefix</span><span class="s2"> </span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="p">|</span> sed <span class="s2">&quot;s|</span><span class="nv">$uri</span><span class="s2">:|</span><span class="si">${</span><span class="nv">copy_destination_prefix</span><span class="si">}${</span><span class="nv">schroot_directory</span><span class="si">}</span><span class="s2">|g&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+   <span class="p">;;</span>
+   *<span class="o">)</span> die <span class="s2">&quot;Unknown mode: </span><span class="nv">$mode</span><span class="s2">&quot;</span><span class="p">;;</span>
+<span class="k">esac</span>
+
+log <span class="s2">&quot;code: </span><span class="nv">$code</span><span class="s2">&quot;</span>
+
+<span class="c1"># Run the code</span>
+<span class="nv">$code</span>
+
+log <span class="s2">&quot;-----&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sudo">
+<h3><span class="section-number">29.1.7. </span>sudo<a class="headerlink" href="#sudo" title="Permalink to this headline">¶</a></h3>
+<p><strong>copy</strong></p>
+<p>Use rsync over ssh to copy files. Uses the &quot;--rsync-path&quot; option
+to run the remote rsync instance with sudo.</p>
+<p>This command assumes your ssh configuration is already set up in ~/.ssh/config.</p>
+<p>Usage: cdist config --remote-copy /path/to/this/script target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># For rsync to do the right thing, the source has to end with &quot;/&quot; if it is</span>
+<span class="c1"># a directory. The below preprocessor loop takes care of that.</span>
+
+<span class="c1"># second last argument is the source</span>
+<span class="nv">source_index</span><span class="o">=</span><span class="k">$((</span><span class="nv">$#</span><span class="o">-</span><span class="m">1</span><span class="k">))</span>
+<span class="nv">index</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span> arg <span class="k">in</span> <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+   <span class="k">if</span> <span class="o">[</span> <span class="nv">$index</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+      <span class="c1"># reset $@</span>
+      <span class="nb">set</span> --
+   <span class="k">fi</span>
+   <span class="nv">index</span><span class="o">=</span><span class="k">$((</span><span class="nv">index</span><span class="o">+=</span><span class="m">1</span><span class="k">))</span>
+   <span class="k">if</span> <span class="o">[</span> <span class="nv">$index</span> -eq <span class="nv">$source_index</span> -a -d <span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+      <span class="nv">arg</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">arg</span><span class="p">%/</span><span class="si">}</span><span class="s2">/&quot;</span>
+   <span class="k">fi</span>
+   <span class="nb">set</span> -- <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+rsync --copy-links --rsync-path<span class="o">=</span><span class="s2">&quot;sudo rsync&quot;</span> -e <span class="s1">&#39;ssh&#39;</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p><strong>exec</strong></p>
+<p>Prefixes all remote commands with sudo.</p>
+<p>This command assumes your ssh configuration is already set up in ~/.ssh/config.</p>
+<p>Usage: cdist config --remote-exec &quot;/path/to/this/script&quot; target_host</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">host</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">shift</span>
+ssh -q <span class="s2">&quot;</span><span class="nv">$host</span><span class="s2">&quot;</span> sudo sh -c <span class="se">\&quot;</span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="se">\&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-hacker.html" class="btn btn-neutral float-right" title="30. Hacking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-saving-output-streams.html" class="btn btn-neutral float-left" title="28. Saving output streams" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

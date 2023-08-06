@@ -1,0 +1,201 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "CDIST-TYPE__LETSENCRYPT_CERT" "7" "Jul 31, 2022" "7.0.0" "cdist"
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH NAME
+.sp
+cdist\-type__letsencrypt_cert \- Get an SSL certificate from Let\(aqs Encrypt
+.SH DESCRIPTION
+.sp
+Automatically obtain a Let\(aqs Encrypt SSL certificate using Certbot.
+.sp
+This type attempts to setup automatic renewals always. In many Linux
+distributions, that is the case out of the box, see:
+\fI\%https://certbot.eff.org/docs/using.html#automated\-renewals\fP
+.sp
+For Alpine Linux and Arch Linux, we setup a system\-wide cronjob that
+attempts to renew certificates daily.
+.sp
+If you are using FreeBSD, we configure periodic(8) as recommended by
+the port mantainer, so there will be a weekly attempt at renewal.
+.sp
+If your OS is not mentioned here or on Certbot\(aqs docs as having
+support for automated renewals, please make sure you check your OS
+and possibly patch this type so the system\-wide cronjob is installed.
+.SH REQUIRED PARAMETERS
+.INDENT 0.0
+.TP
+.B object id
+A cert name. If domain parameter is not specified then it is used
+as a domain to be included in the certificate.
+.TP
+.B admin\-email
+Where to send Let\(aqs Encrypt emails like "certificate needs renewal".
+.UNINDENT
+.SH OPTIONAL PARAMETERS
+.INDENT 0.0
+.TP
+.B state
+\(aqpresent\(aq or \(aqabsent\(aq, defaults to \(aqpresent\(aq where:
+.INDENT 7.0
+.TP
+.B present
+if the certificate does not exist, it will be obtained
+.TP
+.B absent
+the certificate will be removed
+.UNINDENT
+.TP
+.B webroot
+The path to your webroot, as set up in your webserver config. If this
+parameter is not present, Certbot will be run in standalone mode.
+.UNINDENT
+.SH OPTIONAL MULTIPLE PARAMETERS
+.INDENT 0.0
+.TP
+.B domain
+Domains to be included in the certificate. When specified then object id
+is not used as a domain.
+.TP
+.B deploy\-hook
+Command to be executed only when the certificate associated with this
+\fB$__object_id\fP is issued or renewed.
+You can specify it multiple times, but any failure will prevent further
+commands from being executed.
+.sp
+For this command, the
+shell variable \fB$RENEWED_LINEAGE\fP will point to the
+config live subdirectory (for example,
+\fB/etc/letsencrypt/live/${__object_id}\fP) containing the
+new certificates and keys; the shell variable
+\fB$RENEWED_DOMAINS\fP will contain a space\-delimited list
+of renewed certificate domains (for example,
+\fBexample.com www.example.com\fP)
+.TP
+.B pre\-hook
+Command to be run in a shell before obtaining any
+certificates.
+You can specify it multiple times, but any failure will prevent further
+commands from being executed.
+.sp
+Note these run regardless of which certificate is attempted, you may want to
+manage these system\-wide hooks with \fB__file\fP in
+\fB/etc/letsencrypt/renewal\-hooks/pre/\fP\&.
+.sp
+Intended primarily for renewal, where it
+can be used to temporarily shut down a webserver that
+might conflict with the standalone plugin. This will
+only be called if a certificate is actually to be
+obtained/renewed.
+.TP
+.B post\-hook
+Command to be run in a shell after attempting to
+obtain/renew certificates.
+You can specify it multiple times, but any failure will prevent further
+commands from being executed.
+.sp
+Note these run regardless of which certificate was attempted, you may want to
+manage these system\-wide hooks with \fB__file\fP in
+\fB/etc/letsencrypt/renewal\-hooks/post/\fP\&.
+.sp
+Can be used to deploy
+renewed certificates, or to restart any servers that
+were stopped by \-\-pre\-hook. This is only run if an
+attempt was made to obtain/renew a certificate.
+.UNINDENT
+.SH BOOLEAN PARAMETERS
+.INDENT 0.0
+.TP
+.B staging
+Obtain a test certificate from a staging server.
+.UNINDENT
+.SH MESSAGES
+.INDENT 0.0
+.TP
+.B change
+Certificate was changed.
+.TP
+.B create
+Certificate was created.
+.TP
+.B remove
+Certificate was removed.
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# use object id as domain
+__letsencrypt_cert example.com \e
+    \-\-admin\-email root@example.com \e
+    \-\-deploy\-hook "service nginx reload" \e
+    \-\-webroot /data/letsencrypt/root
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# domain parameter is specified so object id is not used as domain
+# and example.com needs to be included again with domain parameter
+__letsencrypt_cert example.com \e
+    \-\-admin\-email root@example.com \e
+    \-\-domain example.com \e
+    \-\-domain foo.example.com \e
+    \-\-domain bar.example.com \e
+    \-\-deploy\-hook "service nginx reload" \e
+    \-\-webroot /data/letsencrypt/root
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH AUTHORS
+.nf
+Nico Schottelius <\fI\%nico\-cdist\-\-@\-\-schottelius.org\fP>
+Kamila Součková <\fI\%kamila\-\-@\-\-ksp.sk\fP>
+Darko Poljak <\fI\%darko.poljak\-\-@\-\-gmail.com\fP>
+Ľubomír Kučera <lubomir.kucera.jr at gmail.com>
+Evilham <\fI\%contact@evilham.com\fP>
+.fi
+.sp
+.SH COPYING
+.sp
+Copyright (C) 2017\-2021 Nico Schottelius, Kamila Součková, Darko Poljak and
+Ľubomír Kučera. You can redistribute it and/or modify it under the terms of
+the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+.SH COPYRIGHT
+ungleich GmbH 2021
+.\" Generated by docutils manpage writer.
+.

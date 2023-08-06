@@ -1,0 +1,478 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>16.37. cdist-type__daemontools(7) &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="16.38. cdist-type__daemontools_service(7)" href="cdist-type__daemontools_service.html" />
+    <link rel="prev" title="16.36. cdist-type__cron(7)" href="cdist-type__cron.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="../_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../cdist-types.html">16. cdist types</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__acl.html">16.1. __acl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_backports.html">16.2. __apt_backports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_default_release.html">16.3. __apt_default_release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_key.html">16.4. __apt_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_key_uri.html">16.5. __apt_key_uri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_mark.html">16.6. __apt_mark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_norecommends.html">16.7. __apt_norecommends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_pin.html">16.8. __apt_pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_ppa.html">16.9. __apt_ppa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_source.html">16.10. __apt_source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_unattended_upgrades.html">16.11. __apt_unattended_upgrades</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__apt_update_index.html">16.12. __apt_update_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__block.html">16.13. __block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ccollect_source.html">16.14. __ccollect_source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__cdist.html">16.15. __cdist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__cdistmarker.html">16.16. __cdistmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__check_messages.html">16.17. __check_messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__chroot_mount.html">16.18. __chroot_mount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__chroot_umount.html">16.19. __chroot_umount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__clean_path.html">16.20. __clean_path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__config_file.html">16.21. __config_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul.html">16.22. __consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_agent.html">16.23. __consul_agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_check.html">16.24. __consul_check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_reload.html">16.25. __consul_reload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_service.html">16.26. __consul_service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_template.html">16.27. __consul_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_template_template.html">16.28. __consul_template_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_checks.html">16.29. __consul_watch_checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_event.html">16.30. __consul_watch_event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_key.html">16.31. __consul_watch_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_keyprefix.html">16.32. __consul_watch_keyprefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_nodes.html">16.33. __consul_watch_nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_service.html">16.34. __consul_watch_service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__consul_watch_services.html">16.35. __consul_watch_services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__cron.html">16.36. __cron</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16.37. __daemontools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#name">16.37.1. NAME</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description">16.37.2. DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#required-parameters">16.37.3. REQUIRED PARAMETERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-parameters">16.37.4. OPTIONAL PARAMETERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolean-parameters">16.37.5. BOOLEAN PARAMETERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">16.37.6. EXAMPLES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">16.37.7. SEE ALSO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authors">16.37.8. AUTHORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#copying">16.37.9. COPYING</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__daemontools_service.html">16.38. __daemontools_service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__debconf_set_selections.html">16.39. __debconf_set_selections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__directory.html">16.40. __directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker.html">16.41. __docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker_compose.html">16.42. __docker_compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker_config.html">16.43. __docker_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker_secret.html">16.44. __docker_secret</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker_stack.html">16.45. __docker_stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__docker_swarm.html">16.46. __docker_swarm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__dog_vdi.html">16.47. __dog_vdi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__dot_file.html">16.48. __dot_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__download.html">16.49. __download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__dpkg_architecture.html">16.50. __dpkg_architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__file.html">16.51. __file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__filesystem.html">16.52. __filesystem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__firewalld_rule.html">16.53. __firewalld_rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__firewalld_start.html">16.54. __firewalld_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__git.html">16.55. __git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__go_get.html">16.56. __go_get</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__golang_from_vendor.html">16.57. __golang_from_vendor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__grafana_dashboard.html">16.58. __grafana_dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__group.html">16.59. __group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__haproxy_dualstack.html">16.60. __haproxy_dualstack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__hostname.html">16.61. __hostname</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__hosts.html">16.62. __hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__hwclock.html">16.63. __hwclock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_bootloader_grub.html">16.64. __install_bootloader_grub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_chroot_mount.html">16.65. __install_chroot_mount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_chroot_umount.html">16.66. __install_chroot_umount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_config.html">16.67. __install_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_coreos.html">16.68. __install_coreos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_directory.html">16.69. __install_directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_file.html">16.70. __install_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_fstab.html">16.71. __install_fstab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_generate_fstab.html">16.72. __install_generate_fstab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_mkfs.html">16.73. __install_mkfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_mount.html">16.74. __install_mount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_partition_msdos.html">16.75. __install_partition_msdos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_partition_msdos_apply.html">16.76. __install_partition_msdos_apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_reboot.html">16.77. __install_reboot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_reset_disk.html">16.78. __install_reset_disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_stage.html">16.79. __install_stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__install_umount.html">16.80. __install_umount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__iptables_apply.html">16.81. __iptables_apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__iptables_rule.html">16.82. __iptables_rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__issue.html">16.83. __issue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__jail.html">16.84. __jail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__jail_freebsd10.html">16.85. __jail_freebsd10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__jail_freebsd9.html">16.86. __jail_freebsd9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__key_value.html">16.87. __key_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__keyboard.html">16.88. __keyboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__letsencrypt_cert.html">16.89. __letsencrypt_cert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__line.html">16.90. __line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__link.html">16.91. __link</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__locale.html">16.92. __locale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__locale_system.html">16.93. __locale_system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__localedef.html">16.94. __localedef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__motd.html">16.95. __motd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__mount.html">16.96. __mount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__mysql_database.html">16.97. __mysql_database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__mysql_privileges.html">16.98. __mysql_privileges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__mysql_user.html">16.99. __mysql_user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__openldap_server.html">16.100. __openldap_server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package.html">16.101. __package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_apk.html">16.102. __package_apk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_apt.html">16.103. __package_apt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_dpkg.html">16.104. __package_dpkg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_emerge.html">16.105. __package_emerge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_emerge_dependencies.html">16.106. __package_emerge_dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_luarocks.html">16.107. __package_luarocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_opkg.html">16.108. __package_opkg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_pacman.html">16.109. __package_pacman</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_pip.html">16.110. __package_pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_pkg_freebsd.html">16.111. __package_pkg_freebsd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_pkg_openbsd.html">16.112. __package_pkg_openbsd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_pkgng_freebsd.html">16.113. __package_pkgng_freebsd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_rubygem.html">16.114. __package_rubygem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_update_index.html">16.115. __package_update_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_upgrade_all.html">16.116. __package_upgrade_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_yum.html">16.117. __package_yum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__package_zypper.html">16.118. __package_zypper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__pacman_conf.html">16.119. __pacman_conf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__pacman_conf_integrate.html">16.120. __pacman_conf_integrate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__pf_apply_anchor.html">16.121. __pf_apply_anchor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__pf_ruleset.html">16.122. __pf_ruleset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ping.html">16.123. __ping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postfix.html">16.124. __postfix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postfix_master.html">16.125. __postfix_master</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postfix_postconf.html">16.126. __postfix_postconf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postfix_postmap.html">16.127. __postfix_postmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postfix_reload.html">16.128. __postfix_reload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postgres_conf.html">16.129. __postgres_conf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postgres_database.html">16.130. __postgres_database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postgres_extension.html">16.131. __postgres_extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__postgres_role.html">16.132. __postgres_role</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__process.html">16.133. __process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__prometheus_alertmanager.html">16.134. __prometheus_alertmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__prometheus_exporter.html">16.135. __prometheus_exporter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__prometheus_server.html">16.136. __prometheus_server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__pyvenv.html">16.137. __pyvenv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__qemu_img.html">16.138. __qemu_img</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rbenv.html">16.139. __rbenv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rsync.html">16.140. __rsync</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rvm.html">16.141. __rvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rvm_gem.html">16.142. __rvm_gem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rvm_gemset.html">16.143. __rvm_gemset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__rvm_ruby.html">16.144. __rvm_ruby</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__sed.html">16.145. __sed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__sensible_editor.html">16.146. __sensible_editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__service.html">16.147. __service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__snakeoil_cert.html">16.148. __snakeoil_cert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ssh_authorized_key.html">16.149. __ssh_authorized_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ssh_authorized_keys.html">16.150. __ssh_authorized_keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ssh_dot_ssh.html">16.151. __ssh_dot_ssh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__sshd_config.html">16.152. __sshd_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__staged_file.html">16.153. __staged_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__start_on_boot.html">16.154. __start_on_boot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__sysctl.html">16.155. __sysctl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__systemd_service.html">16.156. __systemd_service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__systemd_unit.html">16.157. __systemd_unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__timezone.html">16.158. __timezone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__uci.html">16.159. __uci</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__uci_section.html">16.160. __uci_section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ufw.html">16.161. __ufw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__ufw_rule.html">16.162. __ufw_rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__unpack.html">16.163. __unpack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__update_alternatives.html">16.164. __update_alternatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__user.html">16.165. __user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__user_groups.html">16.166. __user_groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__xymon_apache.html">16.167. __xymon_apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__xymon_client.html">16.168. __xymon_client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__xymon_config.html">16.169. __xymon_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__xymon_server.html">16.170. __xymon_server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__yum_repo.html">16.171. __yum_repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__zypper_repo.html">16.172. __zypper_repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cdist-type__zypper_service.html">16.173. __zypper_service</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../cdist-types.html"><span class="section-number">16. </span>cdist types</a> &raquo;</li>
+        
+      <li><span class="section-number">16.37. </span>cdist-type__daemontools(7)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/man7/cdist-type__daemontools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cdist-type-daemontools-7">
+<h1><span class="section-number">16.37. </span>cdist-type__daemontools(7)<a class="headerlink" href="#cdist-type-daemontools-7" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2><span class="section-number">16.37.1. </span>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>cdist-type__daemontools - Install daemontools</p>
+</div>
+<div class="section" id="description">
+<h2><span class="section-number">16.37.2. </span>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Install djb daemontools and (optionally) an init script.</p>
+</div>
+<div class="section" id="required-parameters">
+<h2><span class="section-number">16.37.3. </span>REQUIRED PARAMETERS<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h2>
+<p>None.</p>
+</div>
+<div class="section" id="optional-parameters">
+<h2><span class="section-number">16.37.4. </span>OPTIONAL PARAMETERS<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>from-package</dt><dd><p>Package to install. Must be compatible with the original daemontools. Example: daemontools-encore. Default: daemontools.</p>
+</dd>
+<dt>servicedir</dt><dd><p>Directory to scan for services. Default: <cite>/service</cite></p>
+</dd>
+</dl>
+</div>
+<div class="section" id="boolean-parameters">
+<h2><span class="section-number">16.37.5. </span>BOOLEAN PARAMETERS<a class="headerlink" href="#boolean-parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>install-init-script</dt><dd><p>Add an init script and set it to start on boot.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">16.37.6. </span>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__daemontools --from-package daemontools-encore  <span class="c1"># if you prefer</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2><span class="section-number">16.37.7. </span>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p><strong>cdist-type__daemontools_service</strong>(7)</p>
+</div>
+<div class="section" id="authors">
+<h2><span class="section-number">16.37.8. </span>AUTHORS<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<p>Kamila Součková &lt;<a class="reference external" href="mailto:kamila--&#37;&#52;&#48;--ksp&#46;sk">kamila--<span>&#64;</span>--ksp<span>&#46;</span>sk</a>&gt;</p>
+</div>
+<div class="section" id="copying">
+<h2><span class="section-number">16.37.9. </span>COPYING<a class="headerlink" href="#copying" title="Permalink to this headline">¶</a></h2>
+<p>Copyright (C) 2017 Kamila Součková. You can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-type__daemontools_service.html" class="btn btn-neutral float-right" title="16.38. cdist-type__daemontools_service(7)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-type__cron.html" class="btn btn-neutral float-left" title="16.36. cdist-type__cron(7)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

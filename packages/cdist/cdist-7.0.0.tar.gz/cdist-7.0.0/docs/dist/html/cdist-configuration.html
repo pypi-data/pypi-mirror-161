@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>13. Configuration &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="14. Manifest" href="cdist-manifest.html" />
+    <link rel="prev" title="12. Bootstrap" href="cdist-bootstrap.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">13. Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description">13.1. Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-file-format">13.2. Config file format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">13. </span>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<h1><span class="section-number">13. </span>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2><span class="section-number">13.1. </span>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>cdist obtains configuration data from the following sources in the following
+order:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>command-line options</p></li>
+<li><p>configuration file specified at command-line using -g command line option</p></li>
+<li><p>configuration file specified in CDIST_CONFIG_FILE environment variable</p></li>
+<li><p>environment variables</p></li>
+<li><p>user's configuration file (first one found of ~/.cdist.cfg, $XDG_CONFIG_HOME/cdist/cdist.cfg, in specified order)</p></li>
+<li><p>in-distribution configuration file (cdist/conf/cdist.cfg)</p></li>
+<li><p>system-wide configuration file (/etc/cdist.cfg)</p></li>
+</ol>
+</div></blockquote>
+<p>if one exists.</p>
+<p>Configuration source with lower ordering number from above has a higher
+precedence. Configuration option value read from source with higher
+precedence will overwrite option value, if exists, read from source with
+lower precedence. That means that command-line option wins them all.</p>
+<p>Users can decide on the local configuration file location. It can be either
+~/.cdist.cfg or $XDG_CONFIG_HOME/cdist/cdist.cfg. Note that, if both exist,
+then ~/.cdist.cfg is used.</p>
+<p>For a per-project configuration, particular environment variables or better,
+CDIST_CONFIG_FILE environment variable or -g CONFIG_FILE command line option,
+can be used.</p>
+</div>
+<div class="section" id="config-file-format">
+<h2><span class="section-number">13.2. </span>Config file format<a class="headerlink" href="#config-file-format" title="Permalink to this headline">¶</a></h2>
+<p>cdist configuration file is in the INI file format. Currently it supports
+only [GLOBAL] section.</p>
+<p>Here you can find configuration file skeleton:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[GLOBAL]</span><span class="w"></span>
+<span class="c1"># archiving</span><span class="w"></span>
+<span class="c1">#     Use specified archiving. Valid values include:</span><span class="w"></span>
+<span class="c1">#     none, tar, tgz, tbz2 and txz.</span><span class="w"></span>
+<span class="c1"># archiving = tar</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># beta</span><span class="w"></span>
+<span class="c1">#     Enable beta functionality. It recognizes boolean values from</span><span class="w"></span>
+<span class="c1">#     yes/no, on/off, true/false and 1/0</span><span class="w"></span>
+<span class="c1"># beta = no</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># cache_path_pattern</span><span class="w"></span>
+<span class="c1">#     Specify cache path pattern.</span><span class="w"></span>
+<span class="c1"># cache_path_pattern = %h</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># colored_output</span><span class="w"></span>
+<span class="c1">#     Colorize cdist&#39;s output. If enabled, cdist will use different colors for</span><span class="w"></span>
+<span class="c1">#     different log levels.</span><span class="w"></span>
+<span class="c1">#     Recognized values are &#39;always&#39;, &#39;never&#39;, and &#39;auto&#39;.</span><span class="w"></span>
+<span class="c1">#     If the value is &#39;auto&#39;, colors are enabled if stdout is a TTY unless</span><span class="w"></span>
+<span class="c1">#     the NO_COLOR (https://no-color.org/) environment variable is defined.</span><span class="w"></span>
+<span class="c1"># colored_output = auto</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># conf_dir</span><span class="w"></span>
+<span class="c1">#     List of configuration directories separated with the character conventionally</span><span class="w"></span>
+<span class="c1">#     used by the operating system to separate search path components (as in PATH),</span><span class="w"></span>
+<span class="c1">#     such as &#39;:&#39; for POSIX or &#39;;&#39; for Windows.</span><span class="w"></span>
+<span class="c1">#     If also specified at command line then values from command line are</span><span class="w"></span>
+<span class="c1">#     appended to this value.</span><span class="w"></span>
+<span class="c1">#     Notice that this works in a &quot;last one wins&quot; fashion, so if a type is redefined</span><span class="w"></span>
+<span class="c1">#     in multiple conf_dirs, the last one in which it is defined will be used.</span><span class="w"></span>
+<span class="c1">#     Consider using a unique prefix for your own roles if this can be an issue.</span><span class="w"></span>
+<span class="c1"># conf_dir = &lt;dir1&gt;:&lt;dir2&gt;</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># init_manifest</span><span class="w"></span>
+<span class="c1">#     Specify default initial manifest.</span><span class="w"></span>
+<span class="c1"># init_manifest = &lt;path-to-init-manifest&gt;</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># inventory_dir</span><span class="w"></span>
+<span class="c1">#     Specify inventory directory.</span><span class="w"></span>
+<span class="c1"># inventory_dir = &lt;path-to-inventory-dir&gt;</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># jobs</span><span class="w"></span>
+<span class="c1">#     Specify number of jobs for parallel processing. If -1 then the default,</span><span class="w"></span>
+<span class="c1">#     number of CPU&#39;s in the system is used. If 0 then parallel processing in</span><span class="w"></span>
+<span class="c1">#     jobs is disabled. If set to positive number then specified maximum</span><span class="w"></span>
+<span class="c1">#     number of processes will be used.</span><span class="w"></span>
+<span class="c1"># jobs = 0</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># local_shell</span><span class="w"></span>
+<span class="c1">#     Shell command used for local execution.</span><span class="w"></span>
+<span class="c1"># local_shell = /bin/sh</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># out_path</span><span class="w"></span>
+<span class="c1">#     Directory to save cdist output in.</span><span class="w"></span>
+<span class="c1"># out_path =</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># parallel</span><span class="w"></span>
+<span class="c1">#     Process hosts in parallel. If -1 then the default, number of CPU&#39;s in</span><span class="w"></span>
+<span class="c1">#     the system is used. If 0 then parallel processing of hosts is disabled.</span><span class="w"></span>
+<span class="c1">#     If set to positive number then specified maximum number of processes</span><span class="w"></span>
+<span class="c1">#     will be used.</span><span class="w"></span>
+<span class="c1"># parallel = 0</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># remote_copy</span><span class="w"></span>
+<span class="c1">#     Command to use for remote copy (should behave like scp).</span><span class="w"></span>
+<span class="c1"># remote_copy =</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># remote_exec</span><span class="w"></span>
+<span class="c1">#     Command to use for remote execution (should behave like ssh).</span><span class="w"></span>
+<span class="c1"># remote_exec =</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># remote_out_path</span><span class="w"></span>
+<span class="c1">#     Directory to save cdist output in on the target host.</span><span class="w"></span>
+<span class="c1"># remote_out_path = /var/lib/cdist</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># remote_shell</span><span class="w"></span>
+<span class="c1">#     Shell command at remote host used for remote execution.</span><span class="w"></span>
+<span class="c1"># remote_shell = /bin/sh</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># verbosity</span><span class="w"></span>
+<span class="c1">#     Set verbosity level. Valid values are:</span><span class="w"></span>
+<span class="c1">#     ERROR, WARNING, INFO, VERBOSE, DEBUG, TRACE and OFF.</span><span class="w"></span>
+<span class="c1"># verbosity = INFO</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-manifest.html" class="btn btn-neutral float-right" title="14. Manifest" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-bootstrap.html" class="btn btn-neutral float-left" title="12. Bootstrap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

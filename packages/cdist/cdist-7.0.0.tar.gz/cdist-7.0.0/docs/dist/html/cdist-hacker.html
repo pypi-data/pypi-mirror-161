@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>30. Hacking &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="31. Troubleshooting" href="cdist-troubleshooting.html" />
+    <link rel="prev" title="29. Remote exec and copy commands" href="cdist-remote-exec-copy.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">30. Hacking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#welcome">30.1. Welcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-bugs">30.2. Reporting bugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-conventions-everywhere">30.3. Coding conventions (everywhere)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-submit-stuff-for-inclusion-into-upstream-cdist">30.4. How to submit stuff for inclusion into upstream cdist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-submit-a-new-type">30.5. How to submit a new type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-git-workflow">30.6. Example git workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">30. </span>Hacking</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-hacker.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hacking">
+<h1><span class="section-number">30. </span>Hacking<a class="headerlink" href="#hacking" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="welcome">
+<h2><span class="section-number">30.1. </span>Welcome<a class="headerlink" href="#welcome" title="Permalink to this headline">¶</a></h2>
+<p>Welcome dear hacker! I invite you to a tour of pointers to
+get into the usable configuration management system, cdist.</p>
+<p>The first thing to know is probably that cdist is brought to
+you by people who care about how code looks like and who think
+twice before merging or implementing a feature: Less features
+with good usability are far better than the opposite.</p>
+</div>
+<div class="section" id="reporting-bugs">
+<h2><span class="section-number">30.2. </span>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h2>
+<p>If you believe you've found a bug and verified that it is
+in the latest version, drop a mail to the cdist mailing list,
+subject prefixed with &quot;[BUG] &quot; or create an issue on code.ungleich.ch.</p>
+</div>
+<div class="section" id="coding-conventions-everywhere">
+<h2><span class="section-number">30.3. </span>Coding conventions (everywhere)<a class="headerlink" href="#coding-conventions-everywhere" title="Permalink to this headline">¶</a></h2>
+<p>If something should be improved or needs to be fixed, add the word FIXME
+nearby, so grepping for FIXME gives all positions that need to be fixed.</p>
+<p>Indentation is 4 spaces (welcome to the python world).</p>
+</div>
+<div class="section" id="how-to-submit-stuff-for-inclusion-into-upstream-cdist">
+<h2><span class="section-number">30.4. </span>How to submit stuff for inclusion into upstream cdist<a class="headerlink" href="#how-to-submit-stuff-for-inclusion-into-upstream-cdist" title="Permalink to this headline">¶</a></h2>
+<p>If you did some cool changes to cdist, which you think might be of benefit to other
+cdist users, you're welcome to propose inclusion into upstream.</p>
+<p>There are some requirements to ensure your changes don't break other peoples
+work nor kill the authors brain:</p>
+<ul>
+<li><p>All files should contain the usual header (Author, Copying, etc.)</p></li>
+<li><p>Code submission must be done via git</p></li>
+<li><p>Do not add cdist/conf/manifest/init - This file should only be touched in your
+private branch!</p></li>
+<li><p>Code to be included should be branched of the upstream &quot;master&quot; branch</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exception: Bugfixes to a version branch</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>On a merge request, always name the branch I should pull from</p></li>
+<li><p>Always ensure <strong>all</strong> manpages build. Use <strong>./build man</strong> to test.</p></li>
+<li><p>If you developed more than <strong>one</strong> feature, consider submitting them in
+separate branches. This way one feature can already be included, even if
+the other needs to be improved.</p></li>
+</ul>
+<p>As soon as your work meets these requirements, write a mail
+for inclusion to the mailinglist <strong>cdist-configuration-management at googlegroups.com</strong>
+or open a merge request at <a class="reference external" href="https://code.ungleich.ch/ungleich-public/cdist">https://code.ungleich.ch/ungleich-public/cdist</a>.</p>
+</div>
+<div class="section" id="how-to-submit-a-new-type">
+<h2><span class="section-number">30.5. </span>How to submit a new type<a class="headerlink" href="#how-to-submit-a-new-type" title="Permalink to this headline">¶</a></h2>
+<p>For detailed information about types, see <a class="reference external" href="cdist-type.html">cdist type</a>.</p>
+<p>Submitting a type works as described above, with the additional requirement
+that a corresponding manpage named man.rst in ReSTructured text format with
+the manpage-name &quot;cdist-type__NAME&quot; is included in the type directory
+AND the manpage builds (<cite>make man</cite>).</p>
+<p>Warning: Submitting &quot;exec&quot; or &quot;run&quot; types that simply echo their parameter in
+<strong>gencode</strong> will not be accepted, because they are of no use. Every type can output
+code and thus such a type introduces redundant functionality that is given by
+core cdist already.</p>
+</div>
+<div class="section" id="example-git-workflow">
+<h2><span class="section-number">30.6. </span>Example git workflow<a class="headerlink" href="#example-git-workflow" title="Permalink to this headline">¶</a></h2>
+<p>The following workflow works fine for most developers</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># get latest upstream master branch</span>
+git clone https://code.ungleich.ch/ungleich-public/cdist.git
+
+<span class="c1"># update if already existing</span>
+<span class="nb">cd</span> cdist<span class="p">;</span> git fetch -v<span class="p">;</span> git merge origin/master
+
+<span class="c1"># create a new branch for your feature/bugfix</span>
+<span class="nb">cd</span> cdist <span class="c1"># if you haven&#39;t done before</span>
+git checkout -b documentation_cleanup
+
+<span class="c1"># *hack*</span>
+*hack*
+
+<span class="c1"># clone the cdist repository on code.ungleich.ch if you haven&#39;t done so</span>
+
+<span class="c1"># configure your repo to know about your clone (only once)</span>
+git remote add ungleich git@code.ungleich.ch:YOURUSERNAME/cdist.git
+
+<span class="c1"># push the new branch to ungleich gitlab</span>
+git push ungleich documentation_cleanup
+
+<span class="c1"># (or everything)</span>
+git push --mirror ungleich
+
+<span class="c1"># create a merge request at ungleich gitlab (use a browser)</span>
+<span class="c1"># *fixthingsbecausequalityassurancefoundissuesinourpatch*</span>
+*hack*
+
+<span class="c1"># push code to ungleich gitlab again</span>
+git push ... <span class="c1"># like above</span>
+
+<span class="c1"># add comment that everything should be green now (use a browser)</span>
+
+<span class="c1"># go back to master branch</span>
+git checkout master
+
+<span class="c1"># update master branch that includes your changes now</span>
+git fetch -v origin
+git diff master..origin/master
+git merge origin/master
+</pre></div>
+</div>
+<p>If at any point you want to go back to the original master branch, you can
+use <strong>git stash</strong> to stash your changes away:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">code</span><span class="o">-</span><span class="n">block</span><span class="p">::</span> <span class="n">sh</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p># assume you are on documentation_cleanup
+git stash</p>
+<p># change to master and update to most recent upstream version
+git checkout master
+git fetch -v origin
+git merge origin/master</p>
+</div></blockquote>
+<p>Similarly when you want to develop another new feature, you go back
+to the master branch and create another branch based on it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">code</span><span class="o">-</span><span class="n">block</span><span class="p">::</span> <span class="n">sh</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p># change to master and update to most recent upstream version
+git checkout master
+git fetch -v origin
+git merge origin/master</p>
+<p>git checkout -b another_feature</p>
+</div></blockquote>
+<p>(you can repeat the code above for as many features as you want to develop
+in parallel)</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-troubleshooting.html" class="btn btn-neutral float-right" title="31. Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-remote-exec-copy.html" class="btn btn-neutral float-left" title="29. Remote exec and copy commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

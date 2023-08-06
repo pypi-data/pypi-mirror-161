@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>10. cdist-dump(1) &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="11. cdist-new-type(1)" href="cdist-new-type.html" />
+    <link rel="prev" title="9. cdist(1)" href="cdist.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="../_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. cdist-dump(1)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#name">10.1. NAME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">10.2. SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">10.3. DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">10.4. OPTIONS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">10.5. EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">10.6. SEE ALSO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authors">10.7. AUTHORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copying">10.8. COPYING</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">10. </span>cdist-dump(1)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/man1/cdist-dump.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cdist-dump-1">
+<h1><span class="section-number">10. </span>cdist-dump(1)<a class="headerlink" href="#cdist-dump-1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2><span class="section-number">10.1. </span>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>cdist-dump - Dump data from local cdist cache</p>
+</div>
+<div class="section" id="synopsis">
+<h2><span class="section-number">10.2. </span>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cdist</span><span class="o">-</span><span class="n">dump</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="p">[</span><span class="n">host</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2><span class="section-number">10.3. </span>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>cdist-dump is a helper script that dumps data from local cdist cache for
+specified hosts. If host is not specified then all data from cache directory
+is dumped. Default cache directory is '~/.cdist/cache'.</p>
+<p>cdist-dump can be used for debugging existing types, host configuration and
+new types.</p>
+</div>
+<div class="section" id="options">
+<h2><span class="section-number">10.4. </span>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><strong>-a</strong></dt><dd><p>dump all</p>
+</dd>
+<dt><strong>-C CACHE-DIR</strong></dt><dd><p>use specified CACHE-DIR (default: ~/.cdist/cache)</p>
+</dd>
+<dt><strong>-c</strong></dt><dd><p>dump code-*</p>
+</dd>
+<dt><strong>-d DELIMITER</strong></dt><dd><p>delimiter used for filename and line number prefix (default: ':')</p>
+</dd>
+<dt><strong>-E</strong></dt><dd><p>dump global explorers</p>
+</dd>
+<dt><strong>-e</strong></dt><dd><p>dump type explorers</p>
+</dd>
+<dt><strong>-F</strong></dt><dd><p>disable filename prefix (enabled by default)</p>
+</dd>
+<dt><strong>-f</strong></dt><dd><p>enable filename prefix (default)</p>
+</dd>
+<dt><strong>-g</strong></dt><dd><p>dump gencode-*</p>
+</dd>
+<dt><strong>-h</strong></dt><dd><p>show this help screen and exit</p>
+</dd>
+<dt><strong>-L</strong></dt><dd><p>disable line number prefix (default)</p>
+</dd>
+<dt><strong>-l</strong></dt><dd><p>enable line number prefix (disabled by default)</p>
+</dd>
+<dt><strong>-m</strong></dt><dd><p>dump messages</p>
+</dd>
+<dt><strong>-o</strong></dt><dd><p>dump executions' stdout</p>
+</dd>
+<dt><strong>-p</strong></dt><dd><p>dump parameters</p>
+</dd>
+<dt><strong>-r</strong></dt><dd><p>dump executions' stderr</p>
+</dd>
+<dt><strong>-V</strong></dt><dd><p>show version and exit</p>
+</dd>
+<dt><strong>-v</strong></dt><dd><p>increase verbosity</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">10.5. </span>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Dump all</span>
+% cdist-dump -a
+
+<span class="c1"># Dump only code-* output</span>
+% cdist-dump -c
+</pre></div>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2><span class="section-number">10.6. </span>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p><strong>cdist</strong>(1)</p>
+</div>
+<div class="section" id="authors">
+<h2><span class="section-number">10.7. </span>AUTHORS<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<p>Darko Poljak &lt;<a class="reference external" href="mailto:darko&#46;poljak--&#37;&#52;&#48;--ungleich&#46;ch">darko<span>&#46;</span>poljak--<span>&#64;</span>--ungleich<span>&#46;</span>ch</a>&gt;</p>
+</div>
+<div class="section" id="copying">
+<h2><span class="section-number">10.8. </span>COPYING<a class="headerlink" href="#copying" title="Permalink to this headline">¶</a></h2>
+<p>Copyright (C) 2019 Darko Poljak. Free use of this software is
+granted under the terms of the GNU General Public License v3 or later (GPLv3+).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-new-type.html" class="btn btn-neutral float-right" title="11. cdist-new-type(1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist.html" class="btn btn-neutral float-left" title="9. cdist(1)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

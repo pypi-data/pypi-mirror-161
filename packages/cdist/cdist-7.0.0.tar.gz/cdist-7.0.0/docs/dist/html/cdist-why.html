@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. Why should I use cdist? &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Features" href="cdist-features.html" />
+    <link rel="prev" title="cdist - usable configuration management" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Why should I use cdist?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#known-language">1.1. Known language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#powerful-language">1.2. Powerful language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-than-shell-scripting">1.3. More than shell scripting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#zero-dependency-configuration-management">1.4. Zero dependency configuration management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#push-based-distribution">1.5. Push based distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#highly-scalable">1.6. Highly scalable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">1. </span>Why should I use cdist?</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-why.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="why-should-i-use-cdist">
+<h1><span class="section-number">1. </span>Why should I use cdist?<a class="headerlink" href="#why-should-i-use-cdist" title="Permalink to this headline">¶</a></h1>
+<p>There are several motivations to use cdist, these
+are probably the most popular ones.</p>
+<div class="section" id="known-language">
+<h2><span class="section-number">1.1. </span>Known language<a class="headerlink" href="#known-language" title="Permalink to this headline">¶</a></h2>
+<p>Cdist is being configured in
+<a class="reference external" href="https://en.wikipedia.org/wiki/Shell_script">shell script</a>.
+Shell script is used by UNIX system engineers for decades.
+So when cdist is introduced, your staff does not need to learn a new
+<a class="reference external" href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL</a>
+or programming language.</p>
+</div>
+<div class="section" id="powerful-language">
+<h2><span class="section-number">1.2. </span>Powerful language<a class="headerlink" href="#powerful-language" title="Permalink to this headline">¶</a></h2>
+<p>Not only is shell scripting widely known by system engineers,
+but it is also a very powerful language. Here are some features
+which make daily work easy:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Configuration can react dynamically on explored values</p></li>
+<li><p>High level string manipulation (using sed, awk, grep)</p></li>
+<li><p>Conditional support (<strong>if, case</strong>)</p></li>
+<li><p>Loop support (<strong>for, while</strong>)</p></li>
+<li><p>Support for dependencies between cdist types</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="more-than-shell-scripting">
+<h2><span class="section-number">1.3. </span>More than shell scripting<a class="headerlink" href="#more-than-shell-scripting" title="Permalink to this headline">¶</a></h2>
+<p>If you compare regular shell scripting with cdist, there is one major
+difference: When using cdist types,
+the results are
+<a class="reference external" href="https://en.wikipedia.org/wiki/Idempotence">idempotent</a>.
+In practise that means it does not matter in which order you
+call cdist types, the result is always the same.</p>
+</div>
+<div class="section" id="zero-dependency-configuration-management">
+<h2><span class="section-number">1.4. </span>Zero dependency configuration management<a class="headerlink" href="#zero-dependency-configuration-management" title="Permalink to this headline">¶</a></h2>
+<p>Cdist requires very little on a target system. Even better,
+in almost all cases all dependencies are usually fulfilled.
+Cdist does not require an agent or high level programming
+languages on the target host: it will run on any host that
+has a <strong>ssh server running</strong> and a POSIX compatible shell
+(<strong>/bin/sh</strong>). Compared to other configuration management systems,
+it does not require to open up an additional port.</p>
+</div>
+<div class="section" id="push-based-distribution">
+<h2><span class="section-number">1.5. </span>Push based distribution<a class="headerlink" href="#push-based-distribution" title="Permalink to this headline">¶</a></h2>
+<p>Cdist uses the push based model for configuration. In this
+scenario, one (or more) computers connect to the target hosts
+and apply the configuration. That way the source host has
+very little requirements: Cdist can even run on a sysadmin
+notebook that is loosely connected to the network and has
+limited amount of resources.</p>
+<p>Furthermore, from a security point of view, only one machine
+needs access to the target hosts. No target hosts will ever
+need to connect back to the source host, which contains the
+full configuration.</p>
+</div>
+<div class="section" id="highly-scalable">
+<h2><span class="section-number">1.6. </span>Highly scalable<a class="headerlink" href="#highly-scalable" title="Permalink to this headline">¶</a></h2>
+<p>If at some point you manage more hosts than can be handled from
+a single source host, you can simply add more resources: Either
+add more cores to one host or add hosts.
+Cdist will utilise the given resources in parallel.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-features.html" class="btn btn-neutral float-right" title="2. Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="cdist - usable configuration management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

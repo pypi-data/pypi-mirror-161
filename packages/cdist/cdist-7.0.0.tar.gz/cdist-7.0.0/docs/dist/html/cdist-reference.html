@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>24. Reference &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="25. Best practice" href="cdist-best-practice.html" />
+    <link rel="prev" title="23. cdist integration / using cdist as library" href="cdist-integration.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">24. Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#explorers">24.1. Explorers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#paths">24.2. Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#types">24.3. Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#objects">24.4. Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables-for-reading">24.5. Environment variables (for reading)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables-for-writing">24.6. Environment variables (for writing)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">24. </span>Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-reference.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="reference">
+<h1><span class="section-number">24. </span>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<p>Variable, path and type reference for cdist</p>
+<div class="section" id="explorers">
+<h2><span class="section-number">24.1. </span>Explorers<a class="headerlink" href="#explorers" title="Permalink to this headline">¶</a></h2>
+<p>The following global explorers are available:</p>
+<ul class="simple">
+<li><p>cpu_cores</p></li>
+<li><p>cpu_sockets</p></li>
+<li><p>disks</p></li>
+<li><p>hostname</p></li>
+<li><p>init</p></li>
+<li><p>interfaces</p></li>
+<li><p>is-freebsd-jail</p></li>
+<li><p>kernel_name</p></li>
+<li><p>lsb_codename</p></li>
+<li><p>lsb_description</p></li>
+<li><p>lsb_id</p></li>
+<li><p>lsb_release</p></li>
+<li><p>machine</p></li>
+<li><p>machine_type</p></li>
+<li><p>memory</p></li>
+<li><p>os</p></li>
+<li><p>os_release</p></li>
+<li><p>os_version</p></li>
+<li><p>runlevel</p></li>
+</ul>
+</div>
+<div class="section" id="paths">
+<h2><span class="section-number">24.2. </span>Paths<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>$HOME/.cdist</dt><dd><p>The standard cdist configuration directory relative to your home directory.
+This is usually the place you want to store your site specific configuration.</p>
+</dd>
+<dt>cdist/conf/</dt><dd><p>The distribution configuration directory.
+This contains types and explorers to be used.</p>
+</dd>
+<dt>cdist/inventory/</dt><dd><p>The distribution inventory directory.
+This path is relative to cdist installation directory.</p>
+</dd>
+<dt>cdist/preos/</dt><dd><p>The distribution PreOS plugins directory.</p>
+</dd>
+<dt>confdir</dt><dd><p>Cdist will use all available configuration directories and create
+a temporary confdir containing links to the real configuration directories.
+This way it is possible to merge configuration directories.
+By default it consists of everything in $HOME/.cdist and cdist/conf/.
+For more details see cdist(1).</p>
+</dd>
+<dt>confdir/files/</dt><dd><p>Cdist does not care about this directory besides providing access to it.
+It is thought to be a general file storage area.</p>
+</dd>
+<dt>confdir/manifest/init</dt><dd><p>This is the central entry point.
+It is an executable (+x bit set) shell script that can use
+values from the explorers to decide which configuration to create
+for the specified target host.
+Its intent is to used to define mapping from configurations to hosts.</p>
+</dd>
+<dt>confdir/manifest/*</dt><dd><p>All other files in this directory are not directly used by cdist, but you
+can separate configuration mappings, if you have a lot of code in the
+conf/manifest/init file. This may also be helpful to have different admins
+maintain different groups of hosts.</p>
+</dd>
+<dt>confdir/explorer/&lt;name&gt;</dt><dd><p>Contains explorers to be run on the target hosts, see <a class="reference external" href="cdist-explorer.html">cdist explorer</a>.</p>
+</dd>
+<dt>confdir/type/</dt><dd><p>Contains all available types, which are used to provide
+some kind of functionality. See <a class="reference external" href="cdist-type.html">cdist type</a>.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/</dt><dd><p>Home of the type &lt;name&gt;.
+This directory is referenced by the variable __type (see below).</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/man.rst</dt><dd><p>Manpage in reStructuredText format (required for inclusion into upstream).</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/manifest</dt><dd><p>Used to generate additional objects from a type.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/gencode-local</dt><dd><p>Used to generate code to be executed on the source host.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/gencode-remote</dt><dd><p>Used to generate code to be executed on the target host.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/parameter/required</dt><dd><p>Parameters required by type, n separated list.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/parameter/optional</dt><dd><p>Parameters optionally accepted by type, n separated list.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/parameter/default/*</dt><dd><p>Default values for optional parameters.
+Assuming an optional parameter name of 'foo', it's default value would
+be read from the file confdir/type/&lt;name&gt;/parameter/default/foo.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/parameter/boolean</dt><dd><p>Boolean parameters accepted by type, n separated list.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/explorer</dt><dd><p>Location of the type specific explorers.
+This directory is referenced by the variable __type_explorer (see below).
+See <a class="reference external" href="cdist-explorer.html">cdist explorer</a>.</p>
+</dd>
+<dt>confdir/type/&lt;name&gt;/files</dt><dd><p>This directory is reserved for user data and will not be used
+by cdist at any time. It can be used for storing supplementary
+files (like scripts to act as a template or configuration files).</p>
+</dd>
+<dt>out/</dt><dd><p>This directory contains output of cdist and is usually located
+in a temporary directory and thus will be removed after the run.
+This directory is referenced by the variable __global (see below).</p>
+</dd>
+<dt>out/explorer</dt><dd><p>Output of general explorers.</p>
+</dd>
+<dt>out/object</dt><dd><p>Objects created for the host.</p>
+</dd>
+<dt>out/object/&lt;object&gt;</dt><dd><p>Contains all object specific information.
+This directory is referenced by the variable __object (see below).</p>
+</dd>
+<dt>out/object/&lt;object&gt;/explorers</dt><dd><p>Output of type specific explorers, per object.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="types">
+<h2><span class="section-number">24.3. </span>Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h2>
+<p>The following types are available:</p>
+<ul class="simple">
+<li><p>__acl (<a class="reference external" href="man7/cdist-type__acl.html">cdist-type__acl(7)</a>)</p></li>
+<li><p>__apt_backports (<a class="reference external" href="man7/cdist-type__apt_backports.html">cdist-type__apt_backports(7)</a>)</p></li>
+<li><p>__apt_default_release (<a class="reference external" href="man7/cdist-type__apt_default_release.html">cdist-type__apt_default_release(7)</a>)</p></li>
+<li><p>__apt_key (<a class="reference external" href="man7/cdist-type__apt_key.html">cdist-type__apt_key(7)</a>)</p></li>
+<li><p>__apt_key_uri (<a class="reference external" href="man7/cdist-type__apt_key_uri.html">cdist-type__apt_key_uri(7)</a>)</p></li>
+<li><p>__apt_mark (<a class="reference external" href="man7/cdist-type__apt_mark.html">cdist-type__apt_mark(7)</a>)</p></li>
+<li><p>__apt_norecommends (<a class="reference external" href="man7/cdist-type__apt_norecommends.html">cdist-type__apt_norecommends(7)</a>)</p></li>
+<li><p>__apt_pin (<a class="reference external" href="man7/cdist-type__apt_pin.html">cdist-type__apt_pin(7)</a>)</p></li>
+<li><p>__apt_ppa (<a class="reference external" href="man7/cdist-type__apt_ppa.html">cdist-type__apt_ppa(7)</a>)</p></li>
+<li><p>__apt_source (<a class="reference external" href="man7/cdist-type__apt_source.html">cdist-type__apt_source(7)</a>)</p></li>
+<li><p>__apt_unattended_upgrades (<a class="reference external" href="man7/cdist-type__apt_unattended_upgrades.html">cdist-type__apt_unattended_upgrades(7)</a>)</p></li>
+<li><p>__apt_update_index (<a class="reference external" href="man7/cdist-type__apt_update_index.html">cdist-type__apt_update_index(7)</a>)</p></li>
+<li><p>__block (<a class="reference external" href="man7/cdist-type__block.html">cdist-type__block(7)</a>)</p></li>
+<li><p>__ccollect_source (<a class="reference external" href="man7/cdist-type__ccollect_source.html">cdist-type__ccollect_source(7)</a>)</p></li>
+<li><p>__cdist (<a class="reference external" href="man7/cdist-type__cdist.html">cdist-type__cdist(7)</a>)</p></li>
+<li><p>__cdistmarker (<a class="reference external" href="man7/cdist-type__cdistmarker.html">cdist-type__cdistmarker(7)</a>)</p></li>
+<li><p>__check_messages (<a class="reference external" href="man7/cdist-type__check_messages.html">cdist-type__check_messages(7)</a>)</p></li>
+<li><p>__chroot_mount (<a class="reference external" href="man7/cdist-type__chroot_mount.html">cdist-type__chroot_mount(7)</a>)</p></li>
+<li><p>__chroot_umount (<a class="reference external" href="man7/cdist-type__chroot_umount.html">cdist-type__chroot_umount(7)</a>)</p></li>
+<li><p>__clean_path (<a class="reference external" href="man7/cdist-type__clean_path.html">cdist-type__clean_path(7)</a>)</p></li>
+<li><p>__config_file (<a class="reference external" href="man7/cdist-type__config_file.html">cdist-type__config_file(7)</a>)</p></li>
+<li><p>__consul (<a class="reference external" href="man7/cdist-type__consul.html">cdist-type__consul(7)</a>)</p></li>
+<li><p>__consul_agent (<a class="reference external" href="man7/cdist-type__consul_agent.html">cdist-type__consul_agent(7)</a>)</p></li>
+<li><p>__consul_check (<a class="reference external" href="man7/cdist-type__consul_check.html">cdist-type__consul_check(7)</a>)</p></li>
+<li><p>__consul_reload (<a class="reference external" href="man7/cdist-type__consul_reload.html">cdist-type__consul_reload(7)</a>)</p></li>
+<li><p>__consul_service (<a class="reference external" href="man7/cdist-type__consul_service.html">cdist-type__consul_service(7)</a>)</p></li>
+<li><p>__consul_template (<a class="reference external" href="man7/cdist-type__consul_template.html">cdist-type__consul_template(7)</a>)</p></li>
+<li><p>__consul_template_template (<a class="reference external" href="man7/cdist-type__consul_template_template.html">cdist-type__consul_template_template(7)</a>)</p></li>
+<li><p>__consul_watch_checks (<a class="reference external" href="man7/cdist-type__consul_watch_checks.html">cdist-type__consul_watch_checks(7)</a>)</p></li>
+<li><p>__consul_watch_event (<a class="reference external" href="man7/cdist-type__consul_watch_event.html">cdist-type__consul_watch_event(7)</a>)</p></li>
+<li><p>__consul_watch_key (<a class="reference external" href="man7/cdist-type__consul_watch_key.html">cdist-type__consul_watch_key(7)</a>)</p></li>
+<li><p>__consul_watch_keyprefix (<a class="reference external" href="man7/cdist-type__consul_watch_keyprefix.html">cdist-type__consul_watch_keyprefix(7)</a>)</p></li>
+<li><p>__consul_watch_nodes (<a class="reference external" href="man7/cdist-type__consul_watch_nodes.html">cdist-type__consul_watch_nodes(7)</a>)</p></li>
+<li><p>__consul_watch_service (<a class="reference external" href="man7/cdist-type__consul_watch_service.html">cdist-type__consul_watch_service(7)</a>)</p></li>
+<li><p>__consul_watch_services (<a class="reference external" href="man7/cdist-type__consul_watch_services.html">cdist-type__consul_watch_services(7)</a>)</p></li>
+<li><p>__cron (<a class="reference external" href="man7/cdist-type__cron.html">cdist-type__cron(7)</a>)</p></li>
+<li><p>__daemontools (<a class="reference external" href="man7/cdist-type__daemontools.html">cdist-type__daemontools(7)</a>)</p></li>
+<li><p>__daemontools_service (<a class="reference external" href="man7/cdist-type__daemontools_service.html">cdist-type__daemontools_service(7)</a>)</p></li>
+<li><p>__debconf_set_selections (<a class="reference external" href="man7/cdist-type__debconf_set_selections.html">cdist-type__debconf_set_selections(7)</a>)</p></li>
+<li><p>__directory (<a class="reference external" href="man7/cdist-type__directory.html">cdist-type__directory(7)</a>)</p></li>
+<li><p>__docker (<a class="reference external" href="man7/cdist-type__docker.html">cdist-type__docker(7)</a>)</p></li>
+<li><p>__docker_compose (<a class="reference external" href="man7/cdist-type__docker_compose.html">cdist-type__docker_compose(7)</a>)</p></li>
+<li><p>__docker_config (<a class="reference external" href="man7/cdist-type__docker_config.html">cdist-type__docker_config(7)</a>)</p></li>
+<li><p>__docker_secret (<a class="reference external" href="man7/cdist-type__docker_secret.html">cdist-type__docker_secret(7)</a>)</p></li>
+<li><p>__docker_stack (<a class="reference external" href="man7/cdist-type__docker_stack.html">cdist-type__docker_stack(7)</a>)</p></li>
+<li><p>__docker_swarm (<a class="reference external" href="man7/cdist-type__docker_swarm.html">cdist-type__docker_swarm(7)</a>)</p></li>
+<li><p>__dog_vdi (<a class="reference external" href="man7/cdist-type__dog_vdi.html">cdist-type__dog_vdi(7)</a>)</p></li>
+<li><p>__dot_file (<a class="reference external" href="man7/cdist-type__dot_file.html">cdist-type__dot_file(7)</a>)</p></li>
+<li><p>__download (<a class="reference external" href="man7/cdist-type__download.html">cdist-type__download(7)</a>)</p></li>
+<li><p>__dpkg_architecture (<a class="reference external" href="man7/cdist-type__dpkg_architecture.html">cdist-type__dpkg_architecture(7)</a>)</p></li>
+<li><p>__file (<a class="reference external" href="man7/cdist-type__file.html">cdist-type__file(7)</a>)</p></li>
+<li><p>__filesystem (<a class="reference external" href="man7/cdist-type__filesystem.html">cdist-type__filesystem(7)</a>)</p></li>
+<li><p>__firewalld_rule (<a class="reference external" href="man7/cdist-type__firewalld_rule.html">cdist-type__firewalld_rule(7)</a>)</p></li>
+<li><p>__firewalld_start (<a class="reference external" href="man7/cdist-type__firewalld_start.html">cdist-type__firewalld_start(7)</a>)</p></li>
+<li><p>__git (<a class="reference external" href="man7/cdist-type__git.html">cdist-type__git(7)</a>)</p></li>
+<li><p>__go_get (<a class="reference external" href="man7/cdist-type__go_get.html">cdist-type__go_get(7)</a>)</p></li>
+<li><p>__golang_from_vendor (<a class="reference external" href="man7/cdist-type__golang_from_vendor.html">cdist-type__golang_from_vendor(7)</a>)</p></li>
+<li><p>__grafana_dashboard (<a class="reference external" href="man7/cdist-type__grafana_dashboard.html">cdist-type__grafana_dashboard(7)</a>)</p></li>
+<li><p>__group (<a class="reference external" href="man7/cdist-type__group.html">cdist-type__group(7)</a>)</p></li>
+<li><p>__haproxy_dualstack (<a class="reference external" href="man7/cdist-type__haproxy_dualstack.html">cdist-type__haproxy_dualstack(7)</a>)</p></li>
+<li><p>__hostname (<a class="reference external" href="man7/cdist-type__hostname.html">cdist-type__hostname(7)</a>)</p></li>
+<li><p>__hosts (<a class="reference external" href="man7/cdist-type__hosts.html">cdist-type__hosts(7)</a>)</p></li>
+<li><p>__hwclock (<a class="reference external" href="man7/cdist-type__hwclock.html">cdist-type__hwclock(7)</a>)</p></li>
+<li><p>__install_bootloader_grub (<a class="reference external" href="man7/cdist-type__install_bootloader_grub.html">cdist-type__install_bootloader_grub(7)</a>)</p></li>
+<li><p>__install_chroot_mount (<a class="reference external" href="man7/cdist-type__install_chroot_mount.html">cdist-type__install_chroot_mount(7)</a>)</p></li>
+<li><p>__install_chroot_umount (<a class="reference external" href="man7/cdist-type__install_chroot_umount.html">cdist-type__install_chroot_umount(7)</a>)</p></li>
+<li><p>__install_config (<a class="reference external" href="man7/cdist-type__install_config.html">cdist-type__install_config(7)</a>)</p></li>
+<li><p>__install_coreos (<a class="reference external" href="man7/cdist-type__install_coreos.html">cdist-type__install_coreos(7)</a>)</p></li>
+<li><p>__install_directory (<a class="reference external" href="man7/cdist-type__install_directory.html">cdist-type__install_directory(7)</a>)</p></li>
+<li><p>__install_file (<a class="reference external" href="man7/cdist-type__install_file.html">cdist-type__install_file(7)</a>)</p></li>
+<li><p>__install_fstab (<a class="reference external" href="man7/cdist-type__install_fstab.html">cdist-type__install_fstab(7)</a>)</p></li>
+<li><p>__install_generate_fstab (<a class="reference external" href="man7/cdist-type__install_generate_fstab.html">cdist-type__install_generate_fstab(7)</a>)</p></li>
+<li><p>__install_mkfs (<a class="reference external" href="man7/cdist-type__install_mkfs.html">cdist-type__install_mkfs(7)</a>)</p></li>
+<li><p>__install_mount (<a class="reference external" href="man7/cdist-type__install_mount.html">cdist-type__install_mount(7)</a>)</p></li>
+<li><p>__install_partition_msdos (<a class="reference external" href="man7/cdist-type__install_partition_msdos.html">cdist-type__install_partition_msdos(7)</a>)</p></li>
+<li><p>__install_partition_msdos_apply (<a class="reference external" href="man7/cdist-type__install_partition_msdos_apply.html">cdist-type__install_partition_msdos_apply(7)</a>)</p></li>
+<li><p>__install_reboot (<a class="reference external" href="man7/cdist-type__install_reboot.html">cdist-type__install_reboot(7)</a>)</p></li>
+<li><p>__install_reset_disk (<a class="reference external" href="man7/cdist-type__install_reset_disk.html">cdist-type__install_reset_disk(7)</a>)</p></li>
+<li><p>__install_stage (<a class="reference external" href="man7/cdist-type__install_stage.html">cdist-type__install_stage(7)</a>)</p></li>
+<li><p>__install_umount (<a class="reference external" href="man7/cdist-type__install_umount.html">cdist-type__install_umount(7)</a>)</p></li>
+<li><p>__iptables_apply (<a class="reference external" href="man7/cdist-type__iptables_apply.html">cdist-type__iptables_apply(7)</a>)</p></li>
+<li><p>__iptables_rule (<a class="reference external" href="man7/cdist-type__iptables_rule.html">cdist-type__iptables_rule(7)</a>)</p></li>
+<li><p>__issue (<a class="reference external" href="man7/cdist-type__issue.html">cdist-type__issue(7)</a>)</p></li>
+<li><p>__jail (<a class="reference external" href="man7/cdist-type__jail.html">cdist-type__jail(7)</a>)</p></li>
+<li><p>__jail_freebsd10 (<a class="reference external" href="man7/cdist-type__jail_freebsd10.html">cdist-type__jail_freebsd10(7)</a>)</p></li>
+<li><p>__jail_freebsd9 (<a class="reference external" href="man7/cdist-type__jail_freebsd9.html">cdist-type__jail_freebsd9(7)</a>)</p></li>
+<li><p>__key_value (<a class="reference external" href="man7/cdist-type__key_value.html">cdist-type__key_value(7)</a>)</p></li>
+<li><p>__keyboard (<a class="reference external" href="man7/cdist-type__keyboard.html">cdist-type__keyboard(7)</a>)</p></li>
+<li><p>__letsencrypt_cert (<a class="reference external" href="man7/cdist-type__letsencrypt_cert.html">cdist-type__letsencrypt_cert(7)</a>)</p></li>
+<li><p>__line (<a class="reference external" href="man7/cdist-type__line.html">cdist-type__line(7)</a>)</p></li>
+<li><p>__link (<a class="reference external" href="man7/cdist-type__link.html">cdist-type__link(7)</a>)</p></li>
+<li><p>__locale (<a class="reference external" href="man7/cdist-type__locale.html">cdist-type__locale(7)</a>)</p></li>
+<li><p>__locale_system (<a class="reference external" href="man7/cdist-type__locale_system.html">cdist-type__locale_system(7)</a>)</p></li>
+<li><p>__localedef (<a class="reference external" href="man7/cdist-type__localedef.html">cdist-type__localedef(7)</a>)</p></li>
+<li><p>__motd (<a class="reference external" href="man7/cdist-type__motd.html">cdist-type__motd(7)</a>)</p></li>
+<li><p>__mount (<a class="reference external" href="man7/cdist-type__mount.html">cdist-type__mount(7)</a>)</p></li>
+<li><p>__mysql_database (<a class="reference external" href="man7/cdist-type__mysql_database.html">cdist-type__mysql_database(7)</a>)</p></li>
+<li><p>__mysql_privileges (<a class="reference external" href="man7/cdist-type__mysql_privileges.html">cdist-type__mysql_privileges(7)</a>)</p></li>
+<li><p>__mysql_user (<a class="reference external" href="man7/cdist-type__mysql_user.html">cdist-type__mysql_user(7)</a>)</p></li>
+<li><p>__openldap_server (<a class="reference external" href="man7/cdist-type__openldap_server.html">cdist-type__openldap_server(7)</a>)</p></li>
+<li><p>__package (<a class="reference external" href="man7/cdist-type__package.html">cdist-type__package(7)</a>)</p></li>
+<li><p>__package_apk (<a class="reference external" href="man7/cdist-type__package_apk.html">cdist-type__package_apk(7)</a>)</p></li>
+<li><p>__package_apt (<a class="reference external" href="man7/cdist-type__package_apt.html">cdist-type__package_apt(7)</a>)</p></li>
+<li><p>__package_dpkg (<a class="reference external" href="man7/cdist-type__package_dpkg.html">cdist-type__package_dpkg(7)</a>)</p></li>
+<li><p>__package_emerge (<a class="reference external" href="man7/cdist-type__package_emerge.html">cdist-type__package_emerge(7)</a>)</p></li>
+<li><p>__package_emerge_dependencies (<a class="reference external" href="man7/cdist-type__package_emerge_dependencies.html">cdist-type__package_emerge_dependencies(7)</a>)</p></li>
+<li><p>__package_luarocks (<a class="reference external" href="man7/cdist-type__package_luarocks.html">cdist-type__package_luarocks(7)</a>)</p></li>
+<li><p>__package_opkg (<a class="reference external" href="man7/cdist-type__package_opkg.html">cdist-type__package_opkg(7)</a>)</p></li>
+<li><p>__package_pacman (<a class="reference external" href="man7/cdist-type__package_pacman.html">cdist-type__package_pacman(7)</a>)</p></li>
+<li><p>__package_pip (<a class="reference external" href="man7/cdist-type__package_pip.html">cdist-type__package_pip(7)</a>)</p></li>
+<li><p>__package_pkg_freebsd (<a class="reference external" href="man7/cdist-type__package_pkg_freebsd.html">cdist-type__package_pkg_freebsd(7)</a>)</p></li>
+<li><p>__package_pkg_openbsd (<a class="reference external" href="man7/cdist-type__package_pkg_openbsd.html">cdist-type__package_pkg_openbsd(7)</a>)</p></li>
+<li><p>__package_pkgng_freebsd (<a class="reference external" href="man7/cdist-type__package_pkgng_freebsd.html">cdist-type__package_pkgng_freebsd(7)</a>)</p></li>
+<li><p>__package_rubygem (<a class="reference external" href="man7/cdist-type__package_rubygem.html">cdist-type__package_rubygem(7)</a>)</p></li>
+<li><p>__package_update_index (<a class="reference external" href="man7/cdist-type__package_update_index.html">cdist-type__package_update_index(7)</a>)</p></li>
+<li><p>__package_upgrade_all (<a class="reference external" href="man7/cdist-type__package_upgrade_all.html">cdist-type__package_upgrade_all(7)</a>)</p></li>
+<li><p>__package_yum (<a class="reference external" href="man7/cdist-type__package_yum.html">cdist-type__package_yum(7)</a>)</p></li>
+<li><p>__package_zypper (<a class="reference external" href="man7/cdist-type__package_zypper.html">cdist-type__package_zypper(7)</a>)</p></li>
+<li><p>__pacman_conf (<a class="reference external" href="man7/cdist-type__pacman_conf.html">cdist-type__pacman_conf(7)</a>)</p></li>
+<li><p>__pacman_conf_integrate (<a class="reference external" href="man7/cdist-type__pacman_conf_integrate.html">cdist-type__pacman_conf_integrate(7)</a>)</p></li>
+<li><p>__pf_apply_anchor (<a class="reference external" href="man7/cdist-type__pf_apply_anchor.html">cdist-type__pf_apply_anchor(7)</a>)</p></li>
+<li><p>__pf_ruleset (<a class="reference external" href="man7/cdist-type__pf_ruleset.html">cdist-type__pf_ruleset(7)</a>)</p></li>
+<li><p>__ping (<a class="reference external" href="man7/cdist-type__ping.html">cdist-type__ping(7)</a>)</p></li>
+<li><p>__postfix (<a class="reference external" href="man7/cdist-type__postfix.html">cdist-type__postfix(7)</a>)</p></li>
+<li><p>__postfix_master (<a class="reference external" href="man7/cdist-type__postfix_master.html">cdist-type__postfix_master(7)</a>)</p></li>
+<li><p>__postfix_postconf (<a class="reference external" href="man7/cdist-type__postfix_postconf.html">cdist-type__postfix_postconf(7)</a>)</p></li>
+<li><p>__postfix_postmap (<a class="reference external" href="man7/cdist-type__postfix_postmap.html">cdist-type__postfix_postmap(7)</a>)</p></li>
+<li><p>__postfix_reload (<a class="reference external" href="man7/cdist-type__postfix_reload.html">cdist-type__postfix_reload(7)</a>)</p></li>
+<li><p>__postgres_conf (<a class="reference external" href="man7/cdist-type__postgres_conf.html">cdist-type__postgres_conf(7)</a>)</p></li>
+<li><p>__postgres_database (<a class="reference external" href="man7/cdist-type__postgres_database.html">cdist-type__postgres_database(7)</a>)</p></li>
+<li><p>__postgres_extension (<a class="reference external" href="man7/cdist-type__postgres_extension.html">cdist-type__postgres_extension(7)</a>)</p></li>
+<li><p>__postgres_role (<a class="reference external" href="man7/cdist-type__postgres_role.html">cdist-type__postgres_role(7)</a>)</p></li>
+<li><p>__process (<a class="reference external" href="man7/cdist-type__process.html">cdist-type__process(7)</a>)</p></li>
+<li><p>__prometheus_alertmanager (<a class="reference external" href="man7/cdist-type__prometheus_alertmanager.html">cdist-type__prometheus_alertmanager(7)</a>)</p></li>
+<li><p>__prometheus_exporter (<a class="reference external" href="man7/cdist-type__prometheus_exporter.html">cdist-type__prometheus_exporter(7)</a>)</p></li>
+<li><p>__prometheus_server (<a class="reference external" href="man7/cdist-type__prometheus_server.html">cdist-type__prometheus_server(7)</a>)</p></li>
+<li><p>__pyvenv (<a class="reference external" href="man7/cdist-type__pyvenv.html">cdist-type__pyvenv(7)</a>)</p></li>
+<li><p>__qemu_img (<a class="reference external" href="man7/cdist-type__qemu_img.html">cdist-type__qemu_img(7)</a>)</p></li>
+<li><p>__rbenv (<a class="reference external" href="man7/cdist-type__rbenv.html">cdist-type__rbenv(7)</a>)</p></li>
+<li><p>__rsync (<a class="reference external" href="man7/cdist-type__rsync.html">cdist-type__rsync(7)</a>)</p></li>
+<li><p>__rvm (<a class="reference external" href="man7/cdist-type__rvm.html">cdist-type__rvm(7)</a>)</p></li>
+<li><p>__rvm_gem (<a class="reference external" href="man7/cdist-type__rvm_gem.html">cdist-type__rvm_gem(7)</a>)</p></li>
+<li><p>__rvm_gemset (<a class="reference external" href="man7/cdist-type__rvm_gemset.html">cdist-type__rvm_gemset(7)</a>)</p></li>
+<li><p>__rvm_ruby (<a class="reference external" href="man7/cdist-type__rvm_ruby.html">cdist-type__rvm_ruby(7)</a>)</p></li>
+<li><p>__sed (<a class="reference external" href="man7/cdist-type__sed.html">cdist-type__sed(7)</a>)</p></li>
+<li><p>__sensible_editor (<a class="reference external" href="man7/cdist-type__sensible_editor.html">cdist-type__sensible_editor(7)</a>)</p></li>
+<li><p>__service (<a class="reference external" href="man7/cdist-type__service.html">cdist-type__service(7)</a>)</p></li>
+<li><p>__snakeoil_cert (<a class="reference external" href="man7/cdist-type__snakeoil_cert.html">cdist-type__snakeoil_cert(7)</a>)</p></li>
+<li><p>__ssh_authorized_key (<a class="reference external" href="man7/cdist-type__ssh_authorized_key.html">cdist-type__ssh_authorized_key(7)</a>)</p></li>
+<li><p>__ssh_authorized_keys (<a class="reference external" href="man7/cdist-type__ssh_authorized_keys.html">cdist-type__ssh_authorized_keys(7)</a>)</p></li>
+<li><p>__ssh_dot_ssh (<a class="reference external" href="man7/cdist-type__ssh_dot_ssh.html">cdist-type__ssh_dot_ssh(7)</a>)</p></li>
+<li><p>__sshd_config (<a class="reference external" href="man7/cdist-type__sshd_config.html">cdist-type__sshd_config(7)</a>)</p></li>
+<li><p>__staged_file (<a class="reference external" href="man7/cdist-type__staged_file.html">cdist-type__staged_file(7)</a>)</p></li>
+<li><p>__start_on_boot (<a class="reference external" href="man7/cdist-type__start_on_boot.html">cdist-type__start_on_boot(7)</a>)</p></li>
+<li><p>__sysctl (<a class="reference external" href="man7/cdist-type__sysctl.html">cdist-type__sysctl(7)</a>)</p></li>
+<li><p>__systemd_service (<a class="reference external" href="man7/cdist-type__systemd_service.html">cdist-type__systemd_service(7)</a>)</p></li>
+<li><p>__systemd_unit (<a class="reference external" href="man7/cdist-type__systemd_unit.html">cdist-type__systemd_unit(7)</a>)</p></li>
+<li><p>__timezone (<a class="reference external" href="man7/cdist-type__timezone.html">cdist-type__timezone(7)</a>)</p></li>
+<li><p>__uci (<a class="reference external" href="man7/cdist-type__uci.html">cdist-type__uci(7)</a>)</p></li>
+<li><p>__uci_section (<a class="reference external" href="man7/cdist-type__uci_section.html">cdist-type__uci_section(7)</a>)</p></li>
+<li><p>__ufw (<a class="reference external" href="man7/cdist-type__ufw.html">cdist-type__ufw(7)</a>)</p></li>
+<li><p>__ufw_rule (<a class="reference external" href="man7/cdist-type__ufw_rule.html">cdist-type__ufw_rule(7)</a>)</p></li>
+<li><p>__unpack (<a class="reference external" href="man7/cdist-type__unpack.html">cdist-type__unpack(7)</a>)</p></li>
+<li><p>__update_alternatives (<a class="reference external" href="man7/cdist-type__update_alternatives.html">cdist-type__update_alternatives(7)</a>)</p></li>
+<li><p>__user (<a class="reference external" href="man7/cdist-type__user.html">cdist-type__user(7)</a>)</p></li>
+<li><p>__user_groups (<a class="reference external" href="man7/cdist-type__user_groups.html">cdist-type__user_groups(7)</a>)</p></li>
+<li><p>__xymon_apache (<a class="reference external" href="man7/cdist-type__xymon_apache.html">cdist-type__xymon_apache(7)</a>)</p></li>
+<li><p>__xymon_client (<a class="reference external" href="man7/cdist-type__xymon_client.html">cdist-type__xymon_client(7)</a>)</p></li>
+<li><p>__xymon_config (<a class="reference external" href="man7/cdist-type__xymon_config.html">cdist-type__xymon_config(7)</a>)</p></li>
+<li><p>__xymon_server (<a class="reference external" href="man7/cdist-type__xymon_server.html">cdist-type__xymon_server(7)</a>)</p></li>
+<li><p>__yum_repo (<a class="reference external" href="man7/cdist-type__yum_repo.html">cdist-type__yum_repo(7)</a>)</p></li>
+<li><p>__zypper_repo (<a class="reference external" href="man7/cdist-type__zypper_repo.html">cdist-type__zypper_repo(7)</a>)</p></li>
+<li><p>__zypper_service (<a class="reference external" href="man7/cdist-type__zypper_service.html">cdist-type__zypper_service(7)</a>)</p></li>
+</ul>
+</div>
+<div class="section" id="objects">
+<h2><span class="section-number">24.4. </span>Objects<a class="headerlink" href="#objects" title="Permalink to this headline">¶</a></h2>
+<p>For object to object communication and tests, the following paths are
+usable within a object directory:</p>
+<dl class="simple">
+<dt>files</dt><dd><p>This directory is reserved for user data and will not be used
+by cdist at any time. It can be used freely by the type
+(for instance to store template results).</p>
+</dd>
+<dt>changed</dt><dd><p>This empty file exists in an object directory, if the object has
+code to be executed (either remote or local).</p>
+</dd>
+<dt>stdin</dt><dd><p>This file exists and contains data, if data was provided on stdin
+when the type was called.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="environment-variables-for-reading">
+<h2><span class="section-number">24.5. </span>Environment variables (for reading)<a class="headerlink" href="#environment-variables-for-reading" title="Permalink to this headline">¶</a></h2>
+<p>The following environment variables are exported by cdist:</p>
+<dl>
+<dt>__cdist_log_level, __cdist_log_level_name</dt><dd><p>cdist log level value and cdist log level name. One of:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Log level name</p></th>
+<th class="head"><p>Log level value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>OFF</p></td>
+<td><p>60</p></td>
+</tr>
+<tr class="row-odd"><td><p>ERROR</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>WARNING</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-odd"><td><p>INFO</p></td>
+<td><p>20</p></td>
+</tr>
+<tr class="row-even"><td><p>VERBOSE</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEBUG</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-even"><td><p>TRACE</p></td>
+<td><p>5</p></td>
+</tr>
+</tbody>
+</table>
+<p>Available for: initial manifest, explorer, type manifest, type explorer,
+type gencode.</p>
+</dd>
+<dt>__cdist_colored_log</dt><dd><p>whether or not cdist's log has colors enabled.
+Is set to the string true if cdist's output is using colors,
+otherwise the variable contains the string false.</p>
+<p>Available for: initial manifest, explorer, type manifest, type explorer,
+type gencode.</p>
+</dd>
+<dt>__cdist_dry_run</dt><dd><p>Is set only when doing dry run (-n flag).</p>
+<p>Available for: initial manifest, explorer, type manifest, type explorer,
+type gencode.</p>
+</dd>
+<dt>__explorer</dt><dd><p>Directory that contains all global explorers.</p>
+<p>Available for: initial manifest, explorer, type explorer, shell.</p>
+</dd>
+<dt>__files</dt><dd><p>Directory that contains content from the &quot;files&quot; subdirectories
+from the configuration directories.</p>
+<p>Available for: initial manifest, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__manifest</dt><dd><p>Directory that contains the initial manifest.</p>
+<p>Available for: initial manifest, type manifest, shell.</p>
+</dd>
+<dt>__global</dt><dd><p>Directory that contains generic output like explorer.</p>
+<p>Available for: initial manifest, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__messages_in</dt><dd><p>File to read messages from.</p>
+<p>Available for: initial manifest, type manifest, type gencode.</p>
+</dd>
+<dt>__messages_out</dt><dd><p>File to write messages.</p>
+<p>Available for: initial manifest, type manifest, type gencode.</p>
+</dd>
+<dt>__object</dt><dd><p>Directory that contains the current object.</p>
+<p>Available for: type manifest, type explorer, type gencode and code scripts.</p>
+</dd>
+<dt>__object_id</dt><dd><p>The type unique object id.</p>
+<p>Available for: type manifest, type explorer, type gencode and code scripts.</p>
+<div class="line-block">
+<div class="line">Note: The leading and the trailing &quot;/&quot; will always be stripped (caused by
+the filesystem database and ensured by the core).</div>
+<div class="line">Note: Double slashes (&quot;//&quot;) will not be fixed and result in an error.</div>
+</div>
+</dd>
+<dt>__object_name</dt><dd><p>The full qualified name of the current object.</p>
+<p>Available for: type manifest, type explorer, type gencode.</p>
+</dd>
+<dt>__target_host</dt><dd><p>The host we are deploying to. This is primary variable. It's content is
+literally the one user passed in.</p>
+<p>Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__target_hostname</dt><dd><p>The hostname of host we are deploying to. This variable is derived from
+<strong>__target_host</strong> (using <strong>socket.getaddrinfo(__target_host)</strong> and then
+<strong>socket.gethostbyaddr()</strong>).</p>
+<p>Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__target_fqdn</dt><dd><p>The fully qualified domain name of the host we are deploying to.
+This variable is derived from <strong>__target_host</strong>
+(using <strong>socket.getfqdn()</strong>).</p>
+<p>Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__target_host_tags</dt><dd><p>Comma separated list of target host tags.</p>
+<p>Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.</p>
+</dd>
+<dt>__type</dt><dd><p>Path to the current type.</p>
+<p>Available for: type manifest, type gencode.</p>
+</dd>
+<dt>__type_explorer</dt><dd><p>Directory that contains the type explorers.</p>
+<p>Available for: type explorer.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="environment-variables-for-writing">
+<h2><span class="section-number">24.6. </span>Environment variables (for writing)<a class="headerlink" href="#environment-variables-for-writing" title="Permalink to this headline">¶</a></h2>
+<p>The following environment variables influence the behaviour of cdist:</p>
+<dl>
+<dt>require</dt><dd><p>Setup dependencies between objects (see <a class="reference external" href="cdist-manifest.html">cdist manifest</a>).</p>
+</dd>
+<dt>__cdist_log_level</dt><dd><p>cdist log level value. One of:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Log level</p></th>
+<th class="head"><p>Log level value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>OFF</p></td>
+<td><p>60</p></td>
+</tr>
+<tr class="row-odd"><td><p>ERROR</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>WARNING</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-odd"><td><p>INFO</p></td>
+<td><p>20</p></td>
+</tr>
+<tr class="row-even"><td><p>VERBOSE</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEBUG</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-even"><td><p>TRACE</p></td>
+<td><p>5</p></td>
+</tr>
+</tbody>
+</table>
+<p>If set cdist will set this log level in
+accordance with configuration rules. If cdist invokation is used
+in types then nested cdist will honor this specified log level if
+not specified otherwise while invoking it.</p>
+</dd>
+<dt>CDIST_PATH</dt><dd><p>Colon delimited list of config directories.</p>
+</dd>
+<dt>CDIST_LOCAL_SHELL</dt><dd><p>Use this shell locally instead of /bin/sh to execute scripts.</p>
+</dd>
+<dt>CDIST_REMOTE_SHELL</dt><dd><p>Use this shell remotely instead of /bin/sh to execute scripts.</p>
+</dd>
+<dt>CDIST_OVERRIDE</dt><dd><p>Allow overwriting type parameters (see  <a class="reference external" href="cdist-manifest.html">cdist manifest</a>).</p>
+</dd>
+<dt>CDIST_ORDER_DEPENDENCY</dt><dd><p>Create dependencies based on the execution order (see  <a class="reference external" href="cdist-manifest.html">cdist manifest</a>).
+Note that in version 6.2.0 semantic of this processing mode is finally fixed and well defined.</p>
+</dd>
+<dt>CDIST_REMOTE_EXEC</dt><dd><p>Use this command for remote execution (should behave like ssh).</p>
+</dd>
+<dt>CDIST_REMOTE_COPY</dt><dd><p>Use this command for remote copy (should behave like scp).</p>
+</dd>
+<dt>CDIST_INVENTORY_DIR</dt><dd><p>Use this directory as inventory directory.</p>
+</dd>
+<dt>CDIST_BETA</dt><dd><p>Enable beta functionalities.</p>
+</dd>
+<dt>CDIST_COLORED_OUTPUT</dt><dd><p>Colorize cdist's output. If enabled, cdist will use different colors for
+different log levels.
+Recognized values are 'always', 'never', and 'auto' (the default).</p>
+</dd>
+<dt>CDIST_CACHE_PATH_PATTERN</dt><dd><p>Custom cache path pattern.</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-best-practice.html" class="btn btn-neutral float-right" title="25. Best practice" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-integration.html" class="btn btn-neutral float-left" title="23. cdist integration / using cdist as library" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1120 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>9. cdist(1) &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="10. cdist-dump(1)" href="cdist-dump.html" />
+    <link rel="prev" title="8. Dive into real world cdist" href="../cdist-real-world.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="../_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. cdist(1)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#name">9.1. NAME</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">9.2. SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">9.3. DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general">9.4. GENERAL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#banner">9.5. BANNER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-install">9.6. CONFIG/INSTALL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hostfile-format">9.6.1. HOSTFILE FORMAT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cache-path-pattern-format">9.6.2. CACHE PATH PATTERN FORMAT</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory">9.7. INVENTORY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-add-host">9.8. INVENTORY ADD-HOST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-add-tag">9.9. INVENTORY ADD-TAG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-del-host">9.10. INVENTORY DEL-HOST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-del-tag">9.11. INVENTORY DEL-TAG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-list">9.12. INVENTORY LIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preos">9.13. PREOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preos-debian-devuan">9.14. PREOS DEBIAN/DEVUAN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preos-ubuntu">9.15. PREOS UBUNTU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shell">9.16. SHELL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#info">9.17. INFO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scan">9.18. SCAN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">9.19. CONFIGURATION</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-file-format">9.19.1. CONFIGURATION FILE FORMAT</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#files">9.20. FILES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">9.21. NOTES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">9.22. EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment">9.23. ENVIRONMENT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exit-status">9.24. EXIT STATUS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authors">9.25. AUTHORS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#caveats">9.26. CAVEATS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copying">9.27. COPYING</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">9. </span>cdist(1)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/man1/cdist.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cdist-1">
+<h1><span class="section-number">9. </span>cdist(1)<a class="headerlink" href="#cdist-1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2><span class="section-number">9.1. </span>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>cdist - Usable Configuration Management</p>
+</div>
+<div class="section" id="synopsis">
+<h2><span class="section-number">9.2. </span>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cdist</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">V</span><span class="p">]</span> <span class="p">{</span><span class="n">banner</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">install</span><span class="p">,</span><span class="n">inventory</span><span class="p">,</span><span class="n">preos</span><span class="p">,</span><span class="n">shell</span><span class="p">,</span><span class="n">info</span><span class="p">}</span> <span class="o">...</span>
+
+<span class="n">cdist</span> <span class="n">banner</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+
+<span class="n">cdist</span> <span class="n">config</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">C</span> <span class="n">CACHE_PATH_PATTERN</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CONF_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">MANIFEST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">j</span> <span class="p">[</span><span class="n">JOBS</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">server</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">P</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">R</span> <span class="p">[{</span><span class="n">tar</span><span class="p">,</span><span class="n">tgz</span><span class="p">,</span><span class="n">tbz2</span><span class="p">,</span><span class="n">txz</span><span class="p">}]]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">REMOTE_OUT_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">copy</span> <span class="n">REMOTE_COPY</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">exec</span> <span class="n">REMOTE_EXEC</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">S</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">A</span><span class="p">]</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="p">[</span><span class="n">HOST_MAX</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
+             <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">install</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">C</span> <span class="n">CACHE_PATH_PATTERN</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CONF_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">MANIFEST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">j</span> <span class="p">[</span><span class="n">JOBS</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">server</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">P</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">R</span> <span class="p">[{</span><span class="n">tar</span><span class="p">,</span><span class="n">tgz</span><span class="p">,</span><span class="n">tbz2</span><span class="p">,</span><span class="n">txz</span><span class="p">}]]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">REMOTE_OUT_PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">copy</span> <span class="n">REMOTE_COPY</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">remote</span><span class="o">-</span><span class="n">exec</span> <span class="n">REMOTE_EXEC</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">S</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">A</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="p">[</span><span class="n">HOST_MAX</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
+              <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">add</span><span class="o">-</span><span class="n">host</span><span class="p">,</span><span class="n">add</span><span class="o">-</span><span class="n">tag</span><span class="p">,</span><span class="k">del</span><span class="o">-</span><span class="n">host</span><span class="p">,</span><span class="k">del</span><span class="o">-</span><span class="n">tag</span><span class="p">,</span><span class="nb">list</span><span class="p">}</span> <span class="o">...</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="n">add</span><span class="o">-</span><span class="n">host</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span>
+                         <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="n">add</span><span class="o">-</span><span class="n">tag</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">T</span> <span class="n">TAGFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">TAGLIST</span><span class="p">]</span>
+                        <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="k">del</span><span class="o">-</span><span class="n">host</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span>
+                         <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="k">del</span><span class="o">-</span><span class="n">tag</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">T</span> <span class="n">TAGFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">TAGLIST</span><span class="p">]</span>
+                        <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">inventory</span> <span class="nb">list</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span>
+                     <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">I</span> <span class="n">INVENTORY_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">HOSTFILE</span><span class="p">]</span>
+                     <span class="p">[</span><span class="o">-</span><span class="n">H</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
+                     <span class="p">[</span><span class="n">host</span> <span class="p">[</span><span class="n">host</span> <span class="o">...</span><span class="p">]]</span>
+
+<span class="n">cdist</span> <span class="n">preos</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CONF_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">L</span><span class="p">]</span>
+            <span class="p">[</span><span class="n">preos</span><span class="p">]</span> <span class="o">...</span>
+
+<span class="n">cdist</span> <span class="n">preos</span> <span class="p">[</span><span class="n">preos</span><span class="o">-</span><span class="n">options</span><span class="p">]</span> <span class="n">debian</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ARCH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">B</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">C</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CDIST_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">D</span> <span class="n">DRIVE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">REMOTE_EXEC</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">MANIFEST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">k</span> <span class="n">KEYFILE</span> <span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span> <span class="n">MIRROR</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">P</span> <span class="n">ROOT_PASSWORD</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">PXE_BOOT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">S</span> <span class="n">SCRIPT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">y</span> <span class="n">REMOTE_COPY</span><span class="p">]</span>
+                                   <span class="n">target_dir</span>
+
+<span class="n">cdist</span> <span class="n">preos</span> <span class="p">[</span><span class="n">preos</span><span class="o">-</span><span class="n">options</span><span class="p">]</span> <span class="n">devuan</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ARCH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">B</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">C</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CDIST_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">D</span> <span class="n">DRIVE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">REMOTE_EXEC</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">MANIFEST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">k</span> <span class="n">KEYFILE</span> <span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span> <span class="n">MIRROR</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">P</span> <span class="n">ROOT_PASSWORD</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">PXE_BOOT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">S</span> <span class="n">SCRIPT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">y</span> <span class="n">REMOTE_COPY</span><span class="p">]</span>
+                                   <span class="n">target_dir</span>
+
+<span class="n">cdist</span> <span class="n">preos</span> <span class="p">[</span><span class="n">preos</span><span class="o">-</span><span class="n">options</span><span class="p">]</span> <span class="n">ubuntu</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">b</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ARCH</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">B</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">C</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CDIST_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">D</span> <span class="n">DRIVE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">REMOTE_EXEC</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="n">MANIFEST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">k</span> <span class="n">KEYFILE</span> <span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span> <span class="n">MIRROR</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">P</span> <span class="n">ROOT_PASSWORD</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">PXE_BOOT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span>
+                                   <span class="p">[</span><span class="o">-</span><span class="n">S</span> <span class="n">SCRIPT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SUITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">y</span> <span class="n">REMOTE_COPY</span><span class="p">]</span>
+                                   <span class="n">target_dir</span>
+
+<span class="n">cdist</span> <span class="n">shell</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGLEVEL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">colors</span> <span class="n">WHEN</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SHELL</span><span class="p">]</span>
+
+<span class="n">cdist</span> <span class="n">info</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">CONF_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">F</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
+           <span class="p">[</span><span class="n">pattern</span><span class="p">]</span>
+
+<span class="n">cdist</span> <span class="n">scan</span> <span class="o">-</span><span class="n">I</span> <span class="n">INTERFACE</span> <span class="p">[</span><span class="o">--</span><span class="n">m</span> <span class="n">MODE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span><span class="o">-</span><span class="n">mapper</span> <span class="n">PATH_TO_SCRIPT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">list</span><span class="p">]</span>
+           <span class="p">[</span><span class="o">-</span><span class="n">d</span> <span class="n">CONFIG_DELAY</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">TRIGGER_DELAY</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2><span class="section-number">9.3. </span>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>cdist is the frontend executable to the cdist configuration management.
+It supports different subcommands as explained below.</p>
+<p>It is written in Python so it requires <strong>python</strong>(1) to be installed.
+It requires a minimal Python version 3.5.</p>
+</div>
+<div class="section" id="general">
+<h2><span class="section-number">9.4. </span>GENERAL<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<p>All commands accept the following options:</p>
+<dl>
+<dt><strong>-h, --help</strong></dt><dd><p>Show the help screen.</p>
+</dd>
+<dt><strong>--colors WHEN</strong></dt><dd><p>Colorize cdist's output. If enabled, cdist will use different colors for
+different log levels.
+WHEN recognizes the values 'always', 'never', and 'auto' (the default).</p>
+<p>If the value is 'auto', colored output is enabled if stdout is a TTY
+unless the NO_COLOR (<a class="reference external" href="https://no-color.org/">https://no-color.org/</a>) environment variable is defined.</p>
+</dd>
+<dt><strong>-l LOGLEVEL, --log-level LOGLEVEL</strong></dt><dd><p>Set the specified verbosity level. The levels, in
+order from the lowest to the highest, are: ERROR (-1),
+WARNING (0), INFO (1), VERBOSE (2), DEBUG (3), TRACE (4
+or higher). If used along with -v then -v increases
+last set value and -l overwrites last set value.</p>
+</dd>
+<dt><strong>-q, --quiet</strong></dt><dd><p>Quiet mode: disables logging, including WARNING and ERROR.</p>
+</dd>
+<dt><strong>-v, --verbose</strong></dt><dd><p>Increase the verbosity level. Every instance of -v
+increments the verbosity level by one. Its default
+value is 0 which includes ERROR and WARNING levels.
+The levels, in order from the lowest to the highest,
+are: ERROR (-1), WARNING (0), INFO (1), VERBOSE (2),
+DEBUG (3), TRACE (4 or higher). If used along with -l
+then -l overwrites last set value and -v increases
+last set value.</p>
+</dd>
+<dt><strong>-V, --version</strong></dt><dd><p>Show version and exit.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="banner">
+<h2><span class="section-number">9.5. </span>BANNER<a class="headerlink" href="#banner" title="Permalink to this headline">¶</a></h2>
+<p>Displays the cdist banner. Useful for printing
+cdist posters - a must have for every office.</p>
+</div>
+<div class="section" id="config-install">
+<h2><span class="section-number">9.6. </span>CONFIG/INSTALL<a class="headerlink" href="#config-install" title="Permalink to this headline">¶</a></h2>
+<p>Configure/install one or more hosts.
+Install command is currently in beta.</p>
+<dl class="simple">
+<dt><strong>-4, --force-ipv4</strong></dt><dd><p>Force to use IPv4 addresses only. No influence for
+custom remote commands.</p>
+</dd>
+<dt><strong>-6, --force-ipv6</strong></dt><dd><p>Force to use IPv6 addresses only. No influence for
+custom remote commands.</p>
+</dd>
+<dt><strong>-A, --all-tagged</strong></dt><dd><p>Use all hosts present in tags db. Currently in beta.</p>
+</dd>
+<dt><strong>-a, --all</strong></dt><dd><p>List hosts that have all specified tags, if -t/--tag
+is specified.</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-C CACHE_PATH_PATTERN, --cache-path-pattern CACHE_PATH_PATTERN</strong></dt><dd><p>Specify custom cache path pattern. If it is not set then
+default hostdir is used. For more info on format see
+<strong>CACHE PATH PATTERN FORMAT</strong> below.</p>
+</dd>
+<dt><strong>-c CONF_DIR, --conf-dir CONF_DIR</strong></dt><dd><p>Add a configuration directory. Can be specified multiple times.
+If configuration directories contain conflicting types, explorers or
+manifests, then the last one found is used.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read specified file for a list of additional hosts to operate on
+or if '-' is given, read stdin (one host per line). For the file
+format see <strong>HOSTFILE FORMAT</strong> below.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+<dt><strong>-i MANIFEST, --initial-manifest MANIFEST</strong></dt><dd><p>Path to a cdist manifest or - to read from stdin.</p>
+</dd>
+<dt><strong>-j [JOBS], --jobs [JOBS]</strong></dt><dd><p>Operate in parallel in specified maximum number of
+jobs. Global explorers, object prepare and object run
+are supported. Without argument CPU count is used by
+default.</p>
+</dd>
+<dt><strong>--log-server</strong></dt><dd><p>Start a log server for sub processes to use. This is
+mainly useful when running cdist nested from a code-
+local script. Log server is always implicitly started
+for 'install' command.</p>
+</dd>
+<dt><strong>-n, --dry-run</strong></dt><dd><p>Do not execute code.</p>
+</dd>
+<dt><strong>-o OUT_PATH, --out-dir OUT_PATH</strong></dt><dd><p>Directory to save cdist output in.</p>
+</dd>
+<dt><strong>-P, --timestamp</strong></dt><dd><p>Timestamp log messages with the current local date and time
+in the format: YYYYMMDDHHMMSS.us.</p>
+</dd>
+<dt><strong>-p [HOST_MAX], --parallel [HOST_MAX]</strong></dt><dd><p>Operate on multiple hosts in parallel for specified
+maximum hosts at a time. Without argument CPU count is
+used by default.</p>
+</dd>
+<dt><strong>-R [{tar,tgz,tbz2,txz}], --use-archiving [{tar,tgz,tbz2,txz}]</strong></dt><dd><p>Operate by using archiving with compression where
+appropriate. Supported values are: tar - tar archive,
+tgz - gzip tar archive (the default), tbz2 - bzip2 tar
+archive and txz - lzma tar archive. Currently in beta.</p>
+</dd>
+<dt><strong>-r REMOTE_OUT_PATH, --remote-out-dir REMOTE_OUT_PATH</strong></dt><dd><p>Directory to save cdist output in on the target host.</p>
+</dd>
+<dt><strong>-S, --disable-saving-output-streams</strong></dt><dd><p>Disable saving output streams.</p>
+</dd>
+<dt><strong>-s, --sequential</strong></dt><dd><p>Operate on multiple hosts sequentially (default).</p>
+</dd>
+<dt><strong>--remote-copy REMOTE_COPY</strong></dt><dd><p>Command to use for remote copy (should behave like scp).</p>
+</dd>
+<dt><strong>--remote-exec REMOTE_EXEC</strong></dt><dd><p>Command to use for remote execution (should behave like ssh).</p>
+</dd>
+<dt><strong>-t, --tag</strong></dt><dd><p>Host is specified by tag, not hostname/address; list
+all hosts that contain any of specified tags.
+Currently in beta.</p>
+</dd>
+</dl>
+<div class="section" id="hostfile-format">
+<h3><span class="section-number">9.6.1. </span>HOSTFILE FORMAT<a class="headerlink" href="#hostfile-format" title="Permalink to this headline">¶</a></h3>
+<p>The HOSTFILE contains one host per line.
+A comment is started with '#' and continues to the end of the line.
+Any leading and trailing whitespace on a line is ignored.
+Empty lines are ignored/skipped.</p>
+<p>The Hostfile lines are processed as follows. First, all comments are
+removed. Then all leading and trailing whitespace characters are stripped.
+If such a line results in empty line it is ignored/skipped. Otherwise,
+host string is used.</p>
+</div>
+<div class="section" id="cache-path-pattern-format">
+<h3><span class="section-number">9.6.2. </span>CACHE PATH PATTERN FORMAT<a class="headerlink" href="#cache-path-pattern-format" title="Permalink to this headline">¶</a></h3>
+<p>Cache path pattern specifies path for a cache directory subdirectory.
+In the path, '%N' will be substituted by the target host, '%h' will
+be substituted by the calculated host directory, '%P' will be substituted
+by the current process id. All format codes that
+<strong>python</strong> <strong>datetime.strftime()</strong> function supports, except
+'%h', are supported. These date/time directives format cdist config/install
+start time.</p>
+<p>If empty pattern is specified then default calculated host directory
+is used.</p>
+<p>Calculated host directory is a hash of a host cdist operates on.</p>
+<p>Resulting path is used to specify cache path subdirectory under which
+current host cache data are saved.</p>
+</div>
+</div>
+<div class="section" id="inventory">
+<h2><span class="section-number">9.7. </span>INVENTORY<a class="headerlink" href="#inventory" title="Permalink to this headline">¶</a></h2>
+<p>Manage inventory database.
+Currently in beta with all sub-commands.</p>
+</div>
+<div class="section" id="inventory-add-host">
+<h2><span class="section-number">9.8. </span>INVENTORY ADD-HOST<a class="headerlink" href="#inventory-add-host" title="Permalink to this headline">¶</a></h2>
+<p>Add host(s) to inventory database.</p>
+<dl class="simple">
+<dt><strong>host</strong></dt><dd><p>Host(s) to add.</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read additional hosts to add from specified file or
+from stdin if '-' (each host on separate line).
+Hostfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="inventory-add-tag">
+<h2><span class="section-number">9.9. </span>INVENTORY ADD-TAG<a class="headerlink" href="#inventory-add-tag" title="Permalink to this headline">¶</a></h2>
+<p>Add tag(s) to inventory database.</p>
+<dl class="simple">
+<dt><strong>host</strong></dt><dd><p>List of host(s) for which tags are added.</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read additional hosts to add tags from specified file
+or from stdin if '-' (each host on separate line).
+Hostfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+<dt><strong>-T TAGFILE, --tag-file TAGFILE</strong></dt><dd><p>Read additional tags to add from specified file or
+from stdin if '-' (each tag on separate line).
+Tagfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-t TAGLIST, --taglist TAGLIST</strong></dt><dd><p>Tag list to be added for specified host(s), comma
+separated values.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="inventory-del-host">
+<h2><span class="section-number">9.10. </span>INVENTORY DEL-HOST<a class="headerlink" href="#inventory-del-host" title="Permalink to this headline">¶</a></h2>
+<p>Delete host(s) from inventory database.</p>
+<dl class="simple">
+<dt><strong>host</strong></dt><dd><p>Host(s) to delete.</p>
+</dd>
+<dt><strong>-a, --all</strong></dt><dd><p>Delete all hosts.</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read additional hosts to delete from specified file or
+from stdin if '-' (each host on separate line).
+Hostfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="inventory-del-tag">
+<h2><span class="section-number">9.11. </span>INVENTORY DEL-TAG<a class="headerlink" href="#inventory-del-tag" title="Permalink to this headline">¶</a></h2>
+<p>Delete tag(s) from inventory database.</p>
+<dl class="simple">
+<dt><strong>host</strong></dt><dd><p>List of host(s) for which tags are deleted.</p>
+</dd>
+<dt><strong>-a, --all</strong></dt><dd><p>Delete all tags for specified host(s).</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read additional hosts to delete tags for from
+specified file or from stdin if '-' (each host on
+separate line). Hostfile format is the same as
+config hostfile format.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+<dt><strong>-T TAGFILE, --tag-file TAGFILE</strong></dt><dd><p>Read additional tags from specified file or from stdin
+if '-' (each tag on separate line).
+Tagfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-t TAGLIST, --taglist TAGLIST</strong></dt><dd><p>Tag list to be deleted for specified host(s), comma
+separated values.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="inventory-list">
+<h2><span class="section-number">9.12. </span>INVENTORY LIST<a class="headerlink" href="#inventory-list" title="Permalink to this headline">¶</a></h2>
+<p>List inventory database.</p>
+<dl class="simple">
+<dt><strong>host</strong></dt><dd><p>Host(s) to list.</p>
+</dd>
+<dt><strong>-a, --all</strong></dt><dd><p>List hosts that have all specified tags, if -t/--tag
+is specified.</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-f HOSTFILE, --file HOSTFILE</strong></dt><dd><p>Read additional hosts to list from specified file or
+from stdin if '-' (each host on separate line). If no
+host or host file is specified then, by default, list
+all. Hostfile format is the same as config hostfile format.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-H, --host-only</strong></dt><dd><p>Suppress tags listing.</p>
+</dd>
+<dt><strong>-I INVENTORY_DIR, --inventory INVENTORY_DIR</strong></dt><dd><p>Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.</p>
+</dd>
+<dt><strong>-t, --tag</strong></dt><dd><p>Host is specified by tag, not hostname/address; list
+all hosts that contain any of specified tags.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="preos">
+<h2><span class="section-number">9.13. </span>PREOS<a class="headerlink" href="#preos" title="Permalink to this headline">¶</a></h2>
+<p>Create PreOS.</p>
+<dl class="simple">
+<dt><strong>-c CONF_DIR, --conf-dir CONF_DIR</strong></dt><dd><p>Add configuration directory (one that contains &quot;preos&quot; subdirectory).</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-L, --list-preoses</strong></dt><dd><p>List available PreOS-es.</p>
+</dd>
+</dl>
+<p>Currently, the following PreOS-es are supported:</p>
+<ul class="simple">
+<li><p>debian</p></li>
+<li><p>ubuntu</p></li>
+<li><p>devuan</p></li>
+</ul>
+</div>
+<div class="section" id="preos-debian-devuan">
+<h2><span class="section-number">9.14. </span>PREOS DEBIAN/DEVUAN<a class="headerlink" href="#preos-debian-devuan" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><strong>target_dir</strong></dt><dd><p>target directory where PreOS will be bootstrapped</p>
+</dd>
+<dt><strong>-a ARCH, --arch ARCH</strong></dt><dd><p>target debootstrap architecture, by default 'amd64'</p>
+</dd>
+<dt><strong>-B, --bootstrap</strong></dt><dd><p>do bootstrap step</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-C, --configure</strong></dt><dd><p>do configure step</p>
+</dd>
+<dt><strong>-c CDIST_PARAMS, --cdist-params CDIST_PARAMS</strong></dt><dd><p>parameters that will be passed to cdist config, by
+default '-v' is used</p>
+</dd>
+<dt><strong>-D DRIVE, --drive-boot DRIVE</strong></dt><dd><p>create bootable PreOS on specified drive</p>
+</dd>
+<dt><strong>-e REMOTE_EXEC, --remote-exec REMOTE_EXEC</strong></dt><dd><p>remote exec that cdist config will use, by default
+internal script is used</p>
+</dd>
+<dt><strong>-i MANIFEST, --init-manifest MANIFEST</strong></dt><dd><p>init manifest that cdist config will use, by default
+internal init manifest is used</p>
+</dd>
+<dt><strong>-k KEYFILE, --keyfile KEYFILE</strong></dt><dd><p>ssh key files that will be added to cdist config;
+'<code class="docutils literal notranslate"><span class="pre">__ssh_authorized_keys</span> <span class="pre">root</span> <span class="pre">...</span></code>' type is appended to initial manifest</p>
+</dd>
+<dt><strong>-m MIRROR, --mirror MIRROR</strong></dt><dd><p>use specified mirror for debootstrap</p>
+</dd>
+<dt><strong>-P ROOT_PASSWORD, --root-password ROOT_PASSWORD</strong></dt><dd><p>Set specified password for root, generated by default</p>
+</dd>
+<dt><strong>-p PXE_BOOT_DIR, --pxe-boot-dir PXE_BOOT_DIR</strong></dt><dd><p>PXE boot directory</p>
+</dd>
+<dt><strong>-r, --rm-bootstrap-dir</strong></dt><dd><p>remove target directory after finishing</p>
+</dd>
+<dt><strong>-S SCRIPT, --script SCRIPT</strong></dt><dd><p>use specified script for debootstrap</p>
+</dd>
+<dt><strong>-s SUITE, --suite SUITE</strong></dt><dd><p>suite used for debootstrap, by default 'stable'</p>
+</dd>
+<dt><strong>-y REMOTE_COPY, --remote-copy REMOTE_COPY</strong></dt><dd><p>remote copy that cdist config will use, by default
+internal script is used</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="preos-ubuntu">
+<h2><span class="section-number">9.15. </span>PREOS UBUNTU<a class="headerlink" href="#preos-ubuntu" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><strong>target_dir</strong></dt><dd><p>target directory where PreOS will be bootstrapped</p>
+</dd>
+<dt><strong>-a ARCH, --arch ARCH</strong></dt><dd><p>target debootstrap architecture, by default 'amd64'</p>
+</dd>
+<dt><strong>-B, --bootstrap</strong></dt><dd><p>do bootstrap step</p>
+</dd>
+<dt><strong>-b, --beta</strong></dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt><strong>-C, --configure</strong></dt><dd><p>do configure step</p>
+</dd>
+<dt><strong>-c CDIST_PARAMS, --cdist-params CDIST_PARAMS</strong></dt><dd><p>parameters that will be passed to cdist config, by
+default '-v' is used</p>
+</dd>
+<dt><strong>-D DRIVE, --drive-boot DRIVE</strong></dt><dd><p>create bootable PreOS on specified drive</p>
+</dd>
+<dt><strong>-e REMOTE_EXEC, --remote-exec REMOTE_EXEC</strong></dt><dd><p>remote exec that cdist config will use, by default
+internal script is used</p>
+</dd>
+<dt><strong>-i MANIFEST, --init-manifest MANIFEST</strong></dt><dd><p>init manifest that cdist config will use, by default
+internal init manifest is used</p>
+</dd>
+<dt><strong>-k KEYFILE, --keyfile KEYFILE</strong></dt><dd><p>ssh key files that will be added to cdist config;
+'<code class="docutils literal notranslate"><span class="pre">__ssh_authorized_keys</span> <span class="pre">root</span> <span class="pre">...</span></code>' type is appended to initial manifest</p>
+</dd>
+<dt><strong>-m MIRROR, --mirror MIRROR</strong></dt><dd><p>use specified mirror for debootstrap</p>
+</dd>
+<dt><strong>-P ROOT_PASSWORD, --root-password ROOT_PASSWORD</strong></dt><dd><p>Set specified password for root, generated by default</p>
+</dd>
+<dt><strong>-p PXE_BOOT_DIR, --pxe-boot-dir PXE_BOOT_DIR</strong></dt><dd><p>PXE boot directory</p>
+</dd>
+<dt><strong>-r, --rm-bootstrap-dir</strong></dt><dd><p>remove target directory after finishing</p>
+</dd>
+<dt><strong>-S SCRIPT, --script SCRIPT</strong></dt><dd><p>use specified script for debootstrap</p>
+</dd>
+<dt><strong>-s SUITE, --suite SUITE</strong></dt><dd><p>suite used for debootstrap, by default 'xenial'</p>
+</dd>
+<dt><strong>-y REMOTE_COPY, --remote-copy REMOTE_COPY</strong></dt><dd><p>remote copy that cdist config will use, by default
+internal script is used</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="shell">
+<h2><span class="section-number">9.16. </span>SHELL<a class="headerlink" href="#shell" title="Permalink to this headline">¶</a></h2>
+<p>This command allows you to spawn a shell that enables access
+to the types as commands. It can be thought as an
+&quot;interactive manifest&quot; environment. See below for example
+usage. Its primary use is for debugging type parameters.</p>
+<dl class="simple">
+<dt><strong>-s SHELL, --shell SHELL</strong></dt><dd><p>Select shell to use, defaults to current shell. Used shell should
+be POSIX compatible shell.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="info">
+<h2><span class="section-number">9.17. </span>INFO<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h2>
+<p>Display information for cdist (global explorers, types).</p>
+<dl class="simple">
+<dt><strong>pattern</strong></dt><dd><p>Glob pattern. If it contains special characters('?', '*', '[') then it is
+used as specified, otherwise it is translated to <cite>*pattern*</cite>.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Show help message and exit.</p>
+</dd>
+<dt><strong>-a, --all</strong></dt><dd><p>Display all info. This is the default.</p>
+</dd>
+<dt><strong>-c CONF_DIR, --conf-dir CONF_DIR</strong></dt><dd><p>Add configuration directory (can be repeated).</p>
+</dd>
+<dt><strong>-e, --global-explorers</strong></dt><dd><p>Display info for global explorers.</p>
+</dd>
+<dt><strong>-F, --fixed-string</strong></dt><dd><p>Interpret pattern as a fixed string.</p>
+</dd>
+<dt><strong>-f, --full</strong></dt><dd><p>Display full details.</p>
+</dd>
+<dt><strong>-g CONFIG_FILE, --config-file CONFIG_FILE</strong></dt><dd><p>Use specified custom configuration file.</p>
+</dd>
+<dt><strong>-t, --types</strong></dt><dd><p>Display info for types.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="scan">
+<h2><span class="section-number">9.18. </span>SCAN<a class="headerlink" href="#scan" title="Permalink to this headline">¶</a></h2>
+<p>Runs cdist as a daemon that discover/watch on hosts and reconfigure them
+periodically.</p>
+<dl class="simple">
+<dt><strong>-I INTERFACE, --interfaces INTERFACE</strong></dt><dd><p>Interface to listen on. Can be specified multiple times.</p>
+</dd>
+<dt><strong>-m MODE, --mode MODE</strong></dt><dd><p>Scanner components to enable. Can be specified multiple time to enable more
+than one component. Supported modes are: scan, trigger and config. Defaults
+to tiggger and scan.</p>
+</dd>
+<dt><strong>--name-mapper PATH_TO_SCRIPT</strong></dt><dd><p>Path to script used to resolve a remote host name from an IPv6 address.</p>
+</dd>
+<dt><strong>--list</strong></dt><dd><p>List known hosts and exit.</p>
+</dd>
+<dt><strong>-d CONFIG_DELAY, --config-delay CONFIG_DELAY</strong></dt><dd><p>How long (seconds) to wait before reconfiguring after last try (config mode only).</p>
+</dd>
+<dt><strong>-t TRIGGER_DELAY, --tigger-delay TRIGGER_DELAY</strong></dt><dd><p>How long (seconds) to wait between ICMPv6 echo requests (trigger mode only).</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="configuration">
+<h2><span class="section-number">9.19. </span>CONFIGURATION<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>cdist obtains configuration data from the following sources in the following
+order (from higher to lower precedence):</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>command-line options</p></li>
+<li><p>configuration file specified at command-line</p></li>
+<li><p>configuration file specified in CDIST_CONFIG_FILE environment variable</p></li>
+<li><p>environment variables</p></li>
+<li><p>user's configuration file (first one found of ~/.cdist.cfg, $XDG_CONFIG_HOME/cdist/cdist.cfg, in specified order)</p></li>
+<li><p>system-wide configuration file (/etc/cdist.cfg).</p></li>
+</ol>
+</div></blockquote>
+<div class="section" id="configuration-file-format">
+<h3><span class="section-number">9.19.1. </span>CONFIGURATION FILE FORMAT<a class="headerlink" href="#configuration-file-format" title="Permalink to this headline">¶</a></h3>
+<p>cdist configuration file is in the INI file format. Currently it supports
+only [GLOBAL] section.
+The possible keywords and their meanings are as follows:</p>
+<dl class="simple">
+<dt><strong>archiving</strong></dt><dd><p>Use specified archiving. Valid values include:
+'none', 'tar', 'tgz', 'tbz2' and 'txz'.</p>
+</dd>
+<dt><strong>beta</strong></dt><dd><p>Enable beta functionality. It recognizes boolean values from
+'yes'/'no', 'on'/'off', 'true'/'false' and '1'/'0'.</p>
+</dd>
+<dt><strong>cache_path_pattern</strong></dt><dd><p>Specify cache path pattern.</p>
+</dd>
+<dt><strong>colored_output</strong></dt><dd><p>Colorize cdist's output. cf. the <code class="code docutils literal notranslate"><span class="pre">--colors</span></code> option.</p>
+</dd>
+<dt><strong>conf_dir</strong></dt><dd><p>List of configuration directories separated with the character conventionally
+used by the operating system to separate search path components (as in PATH),
+such as ':' for POSIX or ';' for Windows.
+If also specified at command line then values from command line are
+appended to this value.</p>
+</dd>
+<dt><strong>init_manifest</strong></dt><dd><p>Specify default initial manifest.</p>
+</dd>
+<dt><strong>inventory_dir</strong></dt><dd><p>Specify inventory directory.</p>
+</dd>
+<dt><strong>jobs</strong></dt><dd><p>Specify number of jobs for parallel processing. If -1 then the default,
+number of CPU's in the system is used. If 0 then parallel processing in
+jobs is disabled. If set to positive number then specified maximum
+number of processes will be used.</p>
+</dd>
+<dt><strong>local_shell</strong></dt><dd><p>Shell command used for local execution.</p>
+</dd>
+<dt><strong>out_path</strong></dt><dd><p>Directory to save cdist output in.</p>
+</dd>
+<dt><strong>parallel</strong></dt><dd><p>Process hosts in parallel. If -1 then the default, number of CPU's in
+the system is used. If 0 then parallel processing of hosts is disabled.
+If set to positive number then specified maximum number of processes
+will be used.</p>
+</dd>
+<dt><strong>remote_copy</strong></dt><dd><p>Command to use for remote copy (should behave like scp).</p>
+</dd>
+<dt><strong>remote_exec</strong></dt><dd><p>Command to use for remote execution (should behave like ssh).</p>
+</dd>
+<dt><strong>remote_out_path</strong></dt><dd><p>Directory to save cdist output in on the target host.</p>
+</dd>
+<dt><strong>remote_shell</strong></dt><dd><p>Shell command at remote host used for remote execution.</p>
+</dd>
+<dt><strong>save_output_streams</strong></dt><dd><p>Enable/disable saving output streams (enabled by default).
+It recognizes boolean values from 'yes'/'no', 'on'/'off', 'true'/'false'
+and '1'/'0'.</p>
+</dd>
+<dt><strong>timestamp</strong></dt><dd><p>Timestamp log messages with the current local date and time
+in the format: YYYYMMDDHHMMSS.us.</p>
+</dd>
+<dt><strong>verbosity</strong></dt><dd><p>Set verbosity level. Valid values are:
+'ERROR', 'WARNING', 'INFO', 'VERBOSE', 'DEBUG', 'TRACE' and 'OFF'.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="files">
+<h2><span class="section-number">9.20. </span>FILES<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>~/.cdist</dt><dd><p>Your personal cdist config directory. If exists it will be
+automatically used.</p>
+</dd>
+<dt>~/.cdist/cache</dt><dd><p>Local cache directory.</p>
+</dd>
+<dt>~/.cdist/inventory</dt><dd><p>The home inventory directory. If ~/.cdist exists it will be used as
+default inventory directory.</p>
+</dd>
+<dt>~/.cdist/preos</dt><dd><p>PreOS plugins directory, if existing.</p>
+</dd>
+<dt>cdist/conf</dt><dd><p>The distribution configuration directory. It contains official types and
+explorers. This path is relative to cdist installation directory.</p>
+</dd>
+<dt>cdist/inventory</dt><dd><p>The distribution inventory directory.
+This path is relative to cdist installation directory.</p>
+</dd>
+<dt>cdist/preos</dt><dd><p>The distribution PreOS plugins directory.</p>
+</dd>
+<dt>/etc/cdist.cfg</dt><dd><p>Global cdist configuration file, if exists.</p>
+</dd>
+<dt>~/.cdist.cfg or $XDG_CONFIG_HOME/cdist/cdist.cfg</dt><dd><p>Local cdist configuration file, if exists.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="notes">
+<h2><span class="section-number">9.21. </span>NOTES<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<p>cdist detects if host is specified by IPv6 address. If so then remote_copy
+command is executed with host address enclosed in square brackets
+(see <strong>scp</strong>(1)).</p>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">9.22. </span>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure ikq05.ethz.ch with debug enabled</span>
+% cdist config -vvv ikq05.ethz.ch
+
+<span class="c1"># Configure hosts in parallel and use a different configuration directory</span>
+% cdist config -c ~/p/cdist-nutzung <span class="se">\</span>
+    -p ikq02.ethz.ch ikq03.ethz.ch ikq04.ethz.ch
+
+<span class="c1"># Use custom remote exec / copy commands</span>
+% cdist config --remote-exec /path/to/my/remote/exec <span class="se">\</span>
+    --remote-copy /path/to/my/remote/copy <span class="se">\</span>
+    -p ikq02.ethz.ch ikq03.ethz.ch ikq04.ethz.ch
+
+<span class="c1"># Configure hosts read from file loadbalancers</span>
+% cdist config -f loadbalancers
+
+<span class="c1"># Configure hosts read from file web.hosts using 16 parallel jobs</span>
+% cdist config -j <span class="m">16</span> -f web.hosts
+
+<span class="c1"># Display banner</span>
+cdist banner
+
+<span class="c1"># Show help</span>
+% cdist --help
+
+<span class="c1"># Show Version</span>
+% cdist --version
+
+<span class="c1"># Enter a shell that has access to emulated types</span>
+% cdist shell
+% __git
+usage: __git --source SOURCE <span class="o">[</span>--state STATE<span class="o">]</span> <span class="o">[</span>--branch BRANCH<span class="o">]</span>
+             <span class="o">[</span>--group GROUP<span class="o">]</span> <span class="o">[</span>--owner OWNER<span class="o">]</span> <span class="o">[</span>--mode MODE<span class="o">]</span> object_id
+
+<span class="c1"># Install ikq05.ethz.ch with debug enabled</span>
+% cdist install -vvv ikq05.ethz.ch
+
+<span class="c1"># List inventory content</span>
+% cdist inventory list -b
+
+<span class="c1"># List inventory for specified host localhost</span>
+% cdist inventory list -b localhost
+
+<span class="c1"># List inventory for specified tag loadbalancer</span>
+% cdist inventory list -b -t loadbalancer
+
+<span class="c1"># Add hosts to inventory</span>
+% cdist inventory add-host -b web1 web2 web3
+
+<span class="c1"># Delete hosts from file old-hosts from inventory</span>
+% cdist inventory del-host -b -f old-hosts
+
+<span class="c1"># Add tags to specified hosts</span>
+% cdist inventory add-tag -b -t europe,croatia,web,static web1 web2
+
+<span class="c1"># Add tag to all hosts in inventory</span>
+% cdist inventory add-tag -b -t vm
+
+<span class="c1"># Delete all tags from specified host</span>
+% cdist inventory del-tag -b -a localhost
+
+<span class="c1"># Delete tags read from stdin from hosts specified by file hosts</span>
+% cdist inventory del-tag -b -T - -f hosts
+
+<span class="c1"># Configure hosts from inventory with any of specified tags</span>
+% cdist config -b -t web dynamic
+
+<span class="c1"># Configure hosts from inventory with all specified tags</span>
+% cdist config -b -t -a web dynamic
+
+<span class="c1"># Configure all hosts from inventory db</span>
+$ cdist config -b -A
+
+<span class="c1"># Create default debian PreOS in debug mode</span>
+$ cdist preos debian /preos/preos-debian -vvvv -C <span class="se">\</span>
+    -k ~/.ssh/id_rsa.pub -p /preos/pxe-debian
+
+<span class="c1"># Create ubuntu PreOS</span>
+$ cdist preos ubuntu /preos/preos-ubuntu -C <span class="se">\</span>
+    -k ~/.ssh/id_rsa.pub -p /preos/pxe-ubuntu
+
+<span class="c1"># Create ubuntu PreOS on drive /dev/sdb</span>
+<span class="c1"># and set root password to &#39;password&#39;.</span>
+$ cdist preos ubuntu /mnt -B -C <span class="se">\</span>
+    -k ~/.ssh/id_rsa.pub -D /dev/sdb <span class="se">\</span>
+    -P password
+</pre></div>
+</div>
+</div>
+<div class="section" id="environment">
+<h2><span class="section-number">9.23. </span>ENVIRONMENT<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>TMPDIR, TEMP, TMP</dt><dd><p>Setup the base directory for the temporary directory.
+See <a class="reference external" href="http://docs.python.org/py3k/library/tempfile.html">http://docs.python.org/py3k/library/tempfile.html</a> for
+more information. This is rather useful, if the standard
+directory used does not allow executables.</p>
+</dd>
+<dt>CDIST_PATH</dt><dd><p>Colon delimited list of config directories.</p>
+</dd>
+<dt>CDIST_LOCAL_SHELL</dt><dd><p>Selects shell for local script execution, defaults to /bin/sh.</p>
+</dd>
+<dt>CDIST_REMOTE_SHELL</dt><dd><p>Selects shell for remote script execution, defaults to /bin/sh.</p>
+</dd>
+<dt>CDIST_OVERRIDE</dt><dd><p>Allow overwriting type parameters.</p>
+</dd>
+<dt>CDIST_ORDER_DEPENDENCY</dt><dd><p>Create dependencies based on the execution order.
+Note that in version 6.2.0 semantic of this processing mode is
+finally fixed and well defined.</p>
+</dd>
+<dt>CDIST_REMOTE_EXEC</dt><dd><p>Use this command for remote execution (should behave like ssh).</p>
+</dd>
+<dt>CDIST_REMOTE_COPY</dt><dd><p>Use this command for remote copy (should behave like scp).</p>
+</dd>
+<dt>CDIST_INVENTORY_DIR</dt><dd><p>Use this directory as inventory directory.</p>
+</dd>
+<dt>CDIST_BETA</dt><dd><p>Enable beta functionality.</p>
+</dd>
+<dt>CDIST_CACHE_PATH_PATTERN</dt><dd><p>Custom cache path pattern.</p>
+</dd>
+<dt>CDIST_COLORED_OUTPUT</dt><dd><p>Colorize cdist's output. cf. the <code class="code docutils literal notranslate"><span class="pre">--colors</span></code> option.</p>
+</dd>
+<dt>CDIST_CONFIG_FILE</dt><dd><p>Custom configuration file.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="exit-status">
+<h2><span class="section-number">9.24. </span>EXIT STATUS<a class="headerlink" href="#exit-status" title="Permalink to this headline">¶</a></h2>
+<p>The following exit values shall be returned:</p>
+<p>0   Successful completion.</p>
+<p>1   One or more host configurations failed.</p>
+</div>
+<div class="section" id="authors">
+<h2><span class="section-number">9.25. </span>AUTHORS<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<p>Originally written by Nico Schottelius &lt;<a class="reference external" href="mailto:nico-cdist--&#37;&#52;&#48;--schottelius&#46;org">nico-cdist--<span>&#64;</span>--schottelius<span>&#46;</span>org</a>&gt;
+and Steven Armstrong &lt;<a class="reference external" href="mailto:steven-cdist--&#37;&#52;&#48;--armstrong&#46;cc">steven-cdist--<span>&#64;</span>--armstrong<span>&#46;</span>cc</a>&gt;.</p>
+</div>
+<div class="section" id="caveats">
+<h2><span class="section-number">9.26. </span>CAVEATS<a class="headerlink" href="#caveats" title="Permalink to this headline">¶</a></h2>
+<p>When operating in parallel, either by operating in parallel for each host
+(-p/--parallel) or by parallel jobs within a host (-j/--jobs), and depending
+on target SSH server and its configuration you may encounter connection drops.
+This is controlled with sshd <strong>MaxStartups</strong> configuration options.
+You may also encounter session open refusal. This happens with ssh multiplexing
+when you reach maximum number of open sessions permitted per network
+connection. In this case ssh will disable multiplexing.
+This limit is controlled with sshd <strong>MaxSessions</strong> configuration
+options. For more details refer to <strong>sshd_config</strong>(5).</p>
+<p>When requirements for the same object are defined in different manifests (see
+example below), for example, in init manifest and in some other type manifest
+and those requirements differ then dependency resolver cannot detect
+dependencies correctly. This happens because cdist cannot prepare all objects first
+and run all objects afterwards. Some object can depend on the result of type
+explorer(s) and explorers are executed during object run. cdist will detect
+such case and display a warning message. An example of such a case:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>init manifest:
+    __a a
+    <span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__e/e&quot;</span> __b b
+    <span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__f/f&quot;</span> __c c
+    __e e
+    __f f
+    <span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__c/c&quot;</span> __d d
+    __g g
+    __h h
+
+<span class="nb">type</span> __g manifest:
+    <span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__c/c __d/d&quot;</span> __a a
+
+Warning message:
+    WARNING: cdisttesthost: Object __a/a already exists with requirements:
+    /usr/home/darko/ungleich/cdist/cdist/test/config/fixtures/manifest/init-deps-resolver /tmp/tmp.cdist.test.ozagkg54/local/759547ff4356de6e3d9e08522b0d0807/data/conf/type/__g/manifest: set<span class="o">()</span>
+    /tmp/tmp.cdist.test.ozagkg54/local/759547ff4356de6e3d9e08522b0d0807/data/conf/type/__g/manifest: <span class="o">{</span><span class="s1">&#39;__c/c&#39;</span>, <span class="s1">&#39;__d/d&#39;</span><span class="o">}</span>
+    Dependency resolver could not handle dependencies as expected.
+</pre></div>
+</div>
+</div>
+<div class="section" id="copying">
+<h2><span class="section-number">9.27. </span>COPYING<a class="headerlink" href="#copying" title="Permalink to this headline">¶</a></h2>
+<p>Copyright (C) 2011-2020 Nico Schottelius. Free use of this software is
+granted under the terms of the GNU General Public License v3 or later (GPLv3+).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-dump.html" class="btn btn-neutral float-right" title="10. cdist-dump(1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../cdist-real-world.html" class="btn btn-neutral float-left" title="8. Dive into real world cdist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

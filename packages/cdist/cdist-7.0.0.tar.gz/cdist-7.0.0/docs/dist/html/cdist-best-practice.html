@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>25. Best practice &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="26. Execution stages" href="cdist-stages.html" />
+    <link rel="prev" title="24. Reference" href="cdist-reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">25. Best practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#passwordless-connections">25.1. Passwordless connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#speeding-up-ssh-connections">25.2. Speeding up ssh connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#speeding-up-shell-execution">25.3. Speeding up shell execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-master-or-environment-setups">25.4. Multi master or environment setups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#separating-work-by-groups">25.5. Separating work by groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#maintaining-multiple-configurations">25.6. Maintaining multiple configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-developers-with-different-trust">25.7. Multiple developers with different trust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#templating">25.8. Templating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-a-new-type">25.9. Testing a new type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-content-in-cdist-repository">25.10. Other content in cdist repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes-on-cdist-order-dependency">25.11. Notes on CDIST_ORDER_DEPENDENCY</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cdist-order-dependency-kills-parallelization">25.11.1. CDIST_ORDER_DEPENDENCY kills parallelization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">25. </span>Best practice</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-best-practice.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="best-practice">
+<h1><span class="section-number">25. </span>Best practice<a class="headerlink" href="#best-practice" title="Permalink to this headline">¶</a></h1>
+<p>Practices used in real environments</p>
+<div class="section" id="passwordless-connections">
+<h2><span class="section-number">25.1. </span>Passwordless connections<a class="headerlink" href="#passwordless-connections" title="Permalink to this headline">¶</a></h2>
+<p>It is recommended to run cdist with public key authentication.
+This requires a private/public key pair and the entry
+&quot;PermitRootLogin without-password&quot; in the sshd server.
+See sshd_config(5) and ssh-keygen(1).</p>
+</div>
+<div class="section" id="speeding-up-ssh-connections">
+<h2><span class="section-number">25.2. </span>Speeding up ssh connections<a class="headerlink" href="#speeding-up-ssh-connections" title="Permalink to this headline">¶</a></h2>
+<p>When connecting to a new host, the initial delay with ssh connections
+is pretty big. As cdist makes many connections to each host successive
+connections can be sped up by &quot;sharing of multiple sessions over a single
+network connection&quot; (quote from ssh_config(5)). This is also called &quot;connection
+multiplexing&quot;.</p>
+<p>Cdist implements this since v4.0.0 by executing ssh with the appropriate
+options (<cite>-o ControlMaster=auto  -o ControlPath=/tmp/&lt;tmpdir&gt;/s  -o
+ControlPersist=2h</cite>).</p>
+<p>Note that the sshd_config on the server can configure the maximum number of
+parallel multiplexed connections this with <cite>MaxSessions N</cite> (N defaults to 10
+for OpenSSH v7.4).</p>
+</div>
+<div class="section" id="speeding-up-shell-execution">
+<h2><span class="section-number">25.3. </span>Speeding up shell execution<a class="headerlink" href="#speeding-up-shell-execution" title="Permalink to this headline">¶</a></h2>
+<p>On the source host, ensure that /bin/sh is <em>not</em> bash: bash is quite slow for
+script execution. Instead, you could use dash after installing it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ln</span> <span class="o">-</span><span class="n">sf</span> <span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">dash</span> <span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">sh</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multi-master-or-environment-setups">
+<h2><span class="section-number">25.4. </span>Multi master or environment setups<a class="headerlink" href="#multi-master-or-environment-setups" title="Permalink to this headline">¶</a></h2>
+<p>If you plan to distribute cdist among servers or use different
+environments, you can do so easily with the included version
+control git. For instance if you plan to use the typical three
+environments production, integration and development, you can
+realise this with git branches:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to cdist checkout</span>
+<span class="n">cd</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">cdist</span>
+
+<span class="c1"># Create branches</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="n">development</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="n">integration</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="n">production</span>
+
+<span class="c1"># Make use of a branch, for instance production</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">production</span>
+</pre></div>
+</div>
+<p>Similar if you want to have cdist checked out at multiple machines,
+you can clone it multiple times:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">machine</span><span class="o">-</span><span class="n">a</span> <span class="o">%</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">-</span><span class="n">git</span><span class="o">-</span><span class="n">server</span><span class="o">/</span><span class="n">cdist</span>
+<span class="n">machine</span><span class="o">-</span><span class="n">b</span> <span class="o">%</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">-</span><span class="n">git</span><span class="o">-</span><span class="n">server</span><span class="o">/</span><span class="n">cdist</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="separating-work-by-groups">
+<h2><span class="section-number">25.5. </span>Separating work by groups<a class="headerlink" href="#separating-work-by-groups" title="Permalink to this headline">¶</a></h2>
+<p>If you are working with different groups on one cdist-configuration,
+you can delegate to other manifests and have the groups edit only
+their manifests. You can use the following snippet in
+<strong>conf/manifests/init</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Include other groups</span>
+<span class="n">sh</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;$__manifest/systems&quot;</span>
+
+<span class="n">sh</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;$__manifest/cbrg&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="maintaining-multiple-configurations">
+<h2><span class="section-number">25.6. </span>Maintaining multiple configurations<a class="headerlink" href="#maintaining-multiple-configurations" title="Permalink to this headline">¶</a></h2>
+<p>When you need to manage multiple sites with cdist, like company_a, company_b
+and private for instance, you can easily use git for this purpose.
+Including a possible common base that is reused across the different sites:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># create branches</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="n">company_a</span> <span class="n">company_b</span> <span class="n">common</span> <span class="n">private</span>
+
+<span class="c1"># make stuff for company a</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">company_a</span>
+<span class="c1"># work, commit, etc.</span>
+
+<span class="c1"># make stuff for company b</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">company_b</span>
+<span class="c1"># work, commit, etc.</span>
+
+<span class="c1"># make stuff relevant for all sites</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">common</span>
+<span class="c1"># work, commit, etc.</span>
+
+<span class="c1"># change to private and include latest common stuff</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">private</span>
+<span class="n">git</span> <span class="n">merge</span> <span class="n">common</span>
+</pre></div>
+</div>
+<p>The following <strong>.git/config</strong> is taken from a real world scenario:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Track upstream, merge from time to time</span>
+<span class="p">[</span><span class="n">remote</span> <span class="s2">&quot;upstream&quot;</span><span class="p">]</span>
+   <span class="n">url</span> <span class="o">=</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">git</span><span class="o">.</span><span class="n">schottelius</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">cdist</span>
+   <span class="n">fetch</span> <span class="o">=</span> <span class="o">+</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/*</span><span class="p">:</span><span class="n">refs</span><span class="o">/</span><span class="n">remotes</span><span class="o">/</span><span class="n">upstream</span><span class="o">/*</span>
+
+<span class="c1"># Same as upstream, but works when being offline</span>
+<span class="p">[</span><span class="n">remote</span> <span class="s2">&quot;local&quot;</span><span class="p">]</span>
+   <span class="n">fetch</span> <span class="o">=</span> <span class="o">+</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/*</span><span class="p">:</span><span class="n">refs</span><span class="o">/</span><span class="n">remotes</span><span class="o">/</span><span class="n">local</span><span class="o">/*</span>
+   <span class="n">url</span> <span class="o">=</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="n">nico</span><span class="o">/</span><span class="n">p</span><span class="o">/</span><span class="n">cdist</span>
+
+<span class="c1"># Remote containing various ETH internal branches</span>
+<span class="p">[</span><span class="n">remote</span> <span class="s2">&quot;eth&quot;</span><span class="p">]</span>
+   <span class="n">url</span> <span class="o">=</span> <span class="n">sans</span><span class="o">.</span><span class="n">ethz</span><span class="o">.</span><span class="n">ch</span><span class="p">:</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">sans</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">eth</span>
+   <span class="n">fetch</span> <span class="o">=</span> <span class="o">+</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/*</span><span class="p">:</span><span class="n">refs</span><span class="o">/</span><span class="n">remotes</span><span class="o">/</span><span class="n">eth</span><span class="o">/*</span>
+
+<span class="c1"># Public remote that contains my private changes to cdist upstream</span>
+<span class="p">[</span><span class="n">remote</span> <span class="s2">&quot;nico&quot;</span><span class="p">]</span>
+   <span class="n">url</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">schottelius</span><span class="o">.</span><span class="n">org</span><span class="p">:</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">nico</span>
+   <span class="n">fetch</span> <span class="o">=</span> <span class="o">+</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/*</span><span class="p">:</span><span class="n">refs</span><span class="o">/</span><span class="n">remotes</span><span class="o">/</span><span class="n">nico</span><span class="o">/*</span>
+
+<span class="c1"># The &quot;nico&quot; branch will be synced with the remote nico, branch master</span>
+<span class="p">[</span><span class="n">branch</span> <span class="s2">&quot;nico&quot;</span><span class="p">]</span>
+   <span class="n">remote</span> <span class="o">=</span> <span class="n">nico</span>
+   <span class="n">merge</span> <span class="o">=</span> <span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">master</span>
+
+<span class="c1"># ETH stable contains rock solid configurations used in various places</span>
+<span class="p">[</span><span class="n">branch</span> <span class="s2">&quot;eth-stable&quot;</span><span class="p">]</span>
+   <span class="n">remote</span> <span class="o">=</span> <span class="n">eth</span>
+   <span class="n">merge</span> <span class="o">=</span> <span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">stable</span>
+</pre></div>
+</div>
+<p>Have a look at git-remote(1) to adjust the remote configuration, which allows</p>
+</div>
+<div class="section" id="multiple-developers-with-different-trust">
+<h2><span class="section-number">25.7. </span>Multiple developers with different trust<a class="headerlink" href="#multiple-developers-with-different-trust" title="Permalink to this headline">¶</a></h2>
+<p>If you are working in an environment that requires different people to
+work on the same configuration, but having different privileges, you can
+implement this scenario with a gateway host and sudo:</p>
+<ul>
+<li><p>Create a dedicated user (for instance <strong>cdist</strong>)</p></li>
+<li><p>Setup the ssh-pubkey for this user that has the right to configure all hosts</p></li>
+<li><p>Create a wrapper to update the cdist configuration in ~cdist/cdist</p></li>
+<li><p>Allow every developer to execute this script via sudo as the user cdist</p></li>
+<li><p>Allow run of cdist as user cdist on specific hosts on a per user/group basis.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>f.i. nico ALL=(ALL) NOPASSWD: /home/cdist/bin/cdist config hostabc</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For more details consult sudoers(5)</p>
+</div>
+<div class="section" id="templating">
+<h2><span class="section-number">25.8. </span>Templating<a class="headerlink" href="#templating" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>create directory files/ in your type (convention)</p></li>
+<li><p>create the template as an executable file like files/basic.conf.sh, it will output text using shell variables for the values</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+<span class="c1"># in the template, use cat &lt;&lt; eof (here document) to output the text</span>
+<span class="c1"># and use standard shell variables in the template</span>
+<span class="c1"># output everything in the template script to stdout</span>
+cat <span class="s">&lt;&lt; EOF</span>
+<span class="s">server {</span>
+<span class="s">  listen                          80;</span>
+<span class="s">  server_name                     $SERVERNAME;</span>
+<span class="s">  root                            $ROOT;</span>
+
+<span class="s">  access_log /var/log/nginx/$SERVERNAME_access.log</span>
+<span class="s">  error_log /var/log/nginx/$SERVERNAME_error.log</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>in the manifest, export the relevant variables and add the following lines to your manifest:</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span><span class="nb">export</span> variables needed <span class="k">for</span> the template
+<span class="go">  export SERVERNAME=&#39;test&quot;</span>
+<span class="go">  export ROOT=&#39;/var/www/test&#39;</span>
+<span class="gp"># </span>render the template
+<span class="go">  mkdir -p &quot;$__object/files&quot;</span>
+<span class="go">  &quot;$__type/files/basic.conf.sh&quot; &gt; &quot;$__object/files/basic.conf&quot;</span>
+<span class="gp"># </span>send the rendered template
+<span class="go">  __file /etc/nginx/sites-available/test.conf  \</span>
+<span class="go">    --state present</span>
+<span class="go">    --source &quot;$__object/files/basic.conf&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing-a-new-type">
+<h2><span class="section-number">25.9. </span>Testing a new type<a class="headerlink" href="#testing-a-new-type" title="Permalink to this headline">¶</a></h2>
+<p>If you want to test a new type on a node, you can tell cdist to only use an
+object of this type: Use the '--initial-manifest' parameter
+with - (stdin) as argument and feed object into stdin
+of cdist:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Singleton type without parameter</span>
+<span class="nb">echo</span> __ungleich_munin_server <span class="p">|</span> cdist config --initial-manifest - munin.panter.ch
+
+<span class="c1"># Singleton type with parameter</span>
+<span class="nb">echo</span> __ungleich_munin_node --allow <span class="m">1</span>.2.3.4 <span class="p">|</span> <span class="se">\</span>
+    cdist config --initial-manifest - rails-19.panter.ch
+
+<span class="c1"># Normal type</span>
+<span class="nb">echo</span> __file /tmp/stdintest --mode <span class="m">0644</span> <span class="p">|</span> <span class="se">\</span>
+    cdist config --initial-manifest - cdist-dev-01.ungleich.ch
+</pre></div>
+</div>
+</div>
+<div class="section" id="other-content-in-cdist-repository">
+<h2><span class="section-number">25.10. </span>Other content in cdist repository<a class="headerlink" href="#other-content-in-cdist-repository" title="Permalink to this headline">¶</a></h2>
+<p>Usually the cdist repository contains all configuration
+items. Sometimes you may have additional resources that
+you would like to store in your central configuration
+repository (like password files from KeepassX,
+Libreoffice diagrams, etc.).</p>
+<p>It is recommended to use a subfolder named &quot;non-cdist&quot;
+in the repository for such content: It allows you to
+easily distinguish what is used by cdist and what is not
+and also to store all important files in one
+repository.</p>
+</div>
+<div class="section" id="notes-on-cdist-order-dependency">
+<h2><span class="section-number">25.11. </span>Notes on CDIST_ORDER_DEPENDENCY<a class="headerlink" href="#notes-on-cdist-order-dependency" title="Permalink to this headline">¶</a></h2>
+<p>With CDIST_ORDER_DEPENDENCY all types are executed in the order in which they
+are created in the manifest. The current created object automatically depends
+on the previously created object.</p>
+<p>It essentially helps you to build up blocks of code that build upon each other
+(like first creating the directory xyz than the file below the directory).</p>
+<p>This can be helpful, but one must be aware of its side effects.</p>
+<div class="section" id="cdist-order-dependency-kills-parallelization">
+<h3><span class="section-number">25.11.1. </span>CDIST_ORDER_DEPENDENCY kills parallelization<a class="headerlink" href="#cdist-order-dependency-kills-parallelization" title="Permalink to this headline">¶</a></h3>
+<p>Suppose you have defined CDIST_ORDER_DEPENDENCY and then, among other things,
+you specify creation of three, by nature independent, files.</p>
+<p><strong>init</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span> CDIST_ORDER_DEPENDENCY
+
+...
+__file /tmp/file1
+__file /tmp/file2
+__file /tmp/file3
+...
+</pre></div>
+</div>
+<p>Due to defined CDIST_ORDER_DEPENDENCY cdist will execute them in specified order.
+It is better to use CDIST_ORDER_DEPENDENCY in well defined blocks:</p>
+<p><strong>init</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span> CDIST_ORDER_DEPENDENCY
+...
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+
+__file /tmp/file1
+__file /tmp/file2
+__file /tmp/file3
+
+<span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span> CDIST_ORDER_DEPENDENCY
+...
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-stages.html" class="btn btn-neutral float-right" title="26. Execution stages" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-reference.html" class="btn btn-neutral float-left" title="24. Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

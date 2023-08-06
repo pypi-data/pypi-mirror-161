@@ -1,0 +1,571 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>14. Manifest &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="15. cdist type" href="cdist-type.html" />
+    <link rel="prev" title="13. Configuration" href="cdist-configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">14. Manifest</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description">14.1. Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initial-and-type-manifests">14.2. Initial and type manifests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#define-state-in-the-initial-manifest">14.3. Define state in the initial manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#splitting-up-the-initial-manifest">14.4. Splitting up the initial manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">14.5. Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-dependencies-from-execution-order">14.6. Create dependencies from execution order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overrides">14.7. Overrides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">14.8. Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">14. </span>Manifest</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-manifest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="manifest">
+<h1><span class="section-number">14. </span>Manifest<a class="headerlink" href="#manifest" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2><span class="section-number">14.1. </span>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Manifests are used to define which objects to create.
+Objects are instances of <strong>types</strong>, like in object oriented programming languages.
+An object is represented by the combination of
+<strong>type + slash + object name</strong>: <strong>__file/etc/cdist-configured</strong> is an
+object of the type <strong>__file</strong> with the name <strong>etc/cdist-configured</strong>.</p>
+<p>All available types can be found in the <strong>cdist/conf/type/</strong> directory,
+use <strong>ls cdist/conf/type</strong> to get the list of available types. If you have
+setup the MANPATH correctly, you can use <strong>man cdist-reference</strong> to access
+the reference with pointers to the manpages.</p>
+<p>Types in manifests are used like normal command line tools. Let's have a look
+at an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create object of type __package with the parameter state = absent</span>
+<span class="n">__package</span> <span class="n">apache2</span> <span class="o">--</span><span class="n">state</span> <span class="n">absent</span>
+
+<span class="c1"># Same with the __directory type</span>
+<span class="n">__directory</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">cdist</span> <span class="o">--</span><span class="n">state</span> <span class="n">present</span>
+</pre></div>
+</div>
+<p>These two lines create objects, which will later be used to realise the
+configuration on the target host.</p>
+<p>Manifests are executed locally as a shell script using <strong>/bin/sh -e</strong>.
+The resulting objects are stored in an internal database.</p>
+<p>The same object can be redefined in multiple different manifests as long as
+the parameters are exactly the same.</p>
+<p>In general, manifests are used to define which types are used depending
+on given conditions.</p>
+</div>
+<div class="section" id="initial-and-type-manifests">
+<h2><span class="section-number">14.2. </span>Initial and type manifests<a class="headerlink" href="#initial-and-type-manifests" title="Permalink to this headline">¶</a></h2>
+<p>Cdist knows about two types of manifests: The initial manifest and type
+manifests. The initial manifest is used to define, which configurations
+to apply to which hosts. The type manifests are used to create objects
+from types. More about manifests in types can be found in <a class="reference external" href="cdist-type.html">cdist type</a>.</p>
+</div>
+<div class="section" id="define-state-in-the-initial-manifest">
+<h2><span class="section-number">14.3. </span>Define state in the initial manifest<a class="headerlink" href="#define-state-in-the-initial-manifest" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>initial manifest</strong> is the entry point for cdist to find out, which
+<strong>objects</strong> to configure on the selected host.
+Cdist expects the initial manifest at <strong>cdist/conf/manifest/init</strong>.</p>
+<p>Within this initial manifest you define which objects should be
+created on which host. To distinguish between hosts, you can use the
+environment variable <strong>__target_host</strong> and/or <strong>__target_hostname</strong> and/or
+<strong>__target_fqdn</strong>. Let's have a look at a simple example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__cdistmarker</span>
+
+<span class="k">case</span> <span class="s2">&quot;$__target_host&quot;</span> <span class="ow">in</span>
+   <span class="n">localhost</span><span class="p">)</span>
+        <span class="n">__directory</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">kvm</span><span class="o">-</span><span class="n">vm</span> <span class="o">--</span><span class="n">parents</span> <span class="n">yes</span>
+   <span class="p">;;</span>
+<span class="n">esac</span>
+</pre></div>
+</div>
+<p>This manifest says: Independent of the host, always use the type
+<strong>__cdistmarker</strong>, which creates the file <strong>/etc/cdist-configured</strong>,
+with the timestamp as content.
+The directory <strong>/home/services/kvm-vm</strong>, including all parent directories,
+is only created on the host <strong>localhost</strong>.</p>
+<p>As you can see, there is no magic involved, the manifest is simple shell code that
+utilises cdist types. Every available type can be executed like a normal
+command.</p>
+</div>
+<div class="section" id="splitting-up-the-initial-manifest">
+<h2><span class="section-number">14.4. </span>Splitting up the initial manifest<a class="headerlink" href="#splitting-up-the-initial-manifest" title="Permalink to this headline">¶</a></h2>
+<p>If you want to split up your initial manifest, you can create other shell
+scripts in <strong>cdist/conf/manifest/</strong> and include them in <strong>cdist/conf/manifest/init</strong>.
+Cdist provides the environment variable <strong>__manifest</strong> to reference
+the directory containing the initial manifest (see <a class="reference external" href="cdist-reference.html">cdist reference</a>).</p>
+<p>The following example would include every file with a <strong>.sh</strong> suffix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Include *.sh
+for manifest in $__manifest/*.sh; do
+    # And source scripts into our shell environment
+    . &quot;$manifest&quot;
+done
+</pre></div>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2><span class="section-number">14.5. </span>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>If you want to describe that something requires something else, just
+setup the variable &quot;require&quot; to contain the requirements. Multiple
+requirements can be added separated with (optionally consecutive)
+delimiters including space, tab and newline.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="mi">1</span> <span class="c1"># No dependency</span>
+ <span class="mi">2</span> <span class="n">__file</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">configured</span>
+ <span class="mi">3</span>
+ <span class="mi">4</span> <span class="c1"># Require above object</span>
+ <span class="mi">5</span> <span class="n">require</span><span class="o">=</span><span class="s2">&quot;__file/etc/cdist-configured&quot;</span> <span class="n">__link</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">testfile</span> \
+ <span class="mi">6</span>    <span class="o">--</span><span class="n">source</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">configured</span>  <span class="o">--</span><span class="nb">type</span> <span class="n">symbolic</span>
+ <span class="mi">7</span>
+ <span class="mi">8</span> <span class="c1"># Require two objects</span>
+ <span class="mi">9</span> <span class="n">require</span><span class="o">=</span><span class="s2">&quot;__file/etc/cdist-configured __link/tmp/cdist-testfile&quot;</span> \
+<span class="mi">10</span>    <span class="n">__file</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">cdist</span><span class="o">-</span><span class="n">another</span><span class="o">-</span><span class="n">testfile</span>
+</pre></div>
+</div>
+<p>Above the &quot;require&quot; variable is only set for the command that is
+immediately following it. Dependencies should always be declared that way.</p>
+<p>On line 4 you can see that the instantiation of a type &quot;__link&quot; object needs
+the object &quot;__file/etc/cdist-configured&quot; to be present, before it can proceed.</p>
+<p>This also means that the &quot;__link&quot; command must make sure, that either
+&quot;__file/etc/cdist-configured&quot; already is present, or, if it's not, it needs
+to be created. The task of cdist is to make sure, that the dependency will be
+resolved appropriately and thus &quot;__file/etc/cdist-configured&quot; be created
+if necessary before &quot;__link&quot; proceeds (or to abort execution with an error).</p>
+<p>If you really need to make all types depend on a common dependency, you can
+export the &quot;require&quot; variable as well. But then, if you need to add extra
+dependencies to a specific type, you have to make sure that you append these
+to the globally already defined one.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># First of all, update the package index</span>
+<span class="n">__package_update_index</span>
+<span class="c1"># Upgrade all the installed packages afterwards</span>
+<span class="n">require</span><span class="o">=</span><span class="s2">&quot;__package_update_index&quot;</span> <span class="n">__package_upgrade_all</span>
+<span class="c1"># Create a common dependency for all the next types so that they get to</span>
+<span class="c1"># be executed only after the package upgrade has finished</span>
+<span class="n">export</span> <span class="n">require</span><span class="o">=</span><span class="s2">&quot;__package_upgrade_all&quot;</span>
+
+<span class="c1"># Ensure that lighttpd is installed after we have upgraded all the packages</span>
+<span class="n">__package</span> <span class="n">lighttpd</span> <span class="o">--</span><span class="n">state</span> <span class="n">present</span>
+<span class="c1"># Ensure that munin is installed after lighttpd is present and after all</span>
+<span class="c1"># the packages are upgraded</span>
+<span class="n">require</span><span class="o">=</span><span class="s2">&quot;$require __package/lighttpd&quot;</span> <span class="n">__package</span> <span class="n">munin</span> <span class="o">--</span><span class="n">state</span> <span class="n">present</span>
+</pre></div>
+</div>
+<p>All objects that are created in a type manifest are automatically required
+from the type that is calling them. This is called &quot;autorequirement&quot; in
+cdist jargon.</p>
+<p>You can find a more in depth description of the flow execution of manifests
+in <a class="reference external" href="cdist-stages.html">cdist execution stages</a> and of how types work in <a class="reference external" href="cdist-type.html">cdist type</a>.</p>
+</div>
+<div class="section" id="create-dependencies-from-execution-order">
+<h2><span class="section-number">14.6. </span>Create dependencies from execution order<a class="headerlink" href="#create-dependencies-from-execution-order" title="Permalink to this headline">¶</a></h2>
+<p>You can tell cdist to execute all types in the order in which they are created
+in the manifest by setting up the variable CDIST_ORDER_DEPENDENCY.
+When cdist sees that this variable is setup, the current created object
+automatically depends on the previously created object.</p>
+<p>It essentially helps you to build up blocks of code that build upon each other
+(like first creating the directory xyz than the file below the directory).</p>
+<p>Read also about <a class="reference external" href="cdist-best-practice.html#notes-on-cdist-order-dependency">notes on CDIST_ORDER_DEPENDENCY</a>.</p>
+<p>In version 6.2.0 semantic CDIST_ORDER_DEPENDENCY is finally fixed and well defined.</p>
+<p>CDIST_ORDER_DEPENDENCY defines type order dependency context. Order dependency context
+starts when CDIST_ORDER_DEPENDENCY is set, and ends when it is unset. After each
+manifest execution finishes, any existing order dependency context is automatically
+unset. This ensures that CDIST_ORDER_DEPENDENCY is valid within the manifest where it
+is used. When order dependency context is defined then cdist executes types in the
+order in which they are created in the manifest inside order dependency context.</p>
+<p>Sometimes the best way to see how something works is to see examples.</p>
+<p>Suppose you have defined <strong>initial manifest</strong>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__cycle1 cycle1
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__cycle2 cycle2
+__cycle3 cycle3
+</pre></div>
+</div>
+<p>with types <strong>__cycle1</strong>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__file /tmp/cycle11
+__file /tmp/cycle12
+__file /tmp/cycle13
+</pre></div>
+</div>
+<p><strong>__cycle2</strong>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__file /tmp/cycle21
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__file /tmp/cycle22
+__file /tmp/cycle23
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+__file /tmp/cycle24
+</pre></div>
+</div>
+<p><strong>__cycle3</strong>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__file /tmp/cycle31
+__file /tmp/cycle32
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__file /tmp/cycle33
+__file /tmp/cycle34
+</pre></div>
+</div>
+<p>For the above config, cdist results in the following expected <em>dependency graph</em>
+(type <em>__cycleX</em> is shown as <em>cX</em>, <em>__file/tmp/cycleXY</em> is shown as <em>fcXY</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">c1</span><span class="o">----&gt;</span><span class="n">fc11</span>
+<span class="o">|</span>      <span class="o">/</span>\
+<span class="o">|</span>       <span class="o">|</span>
+<span class="o">+-----&gt;</span><span class="n">fc12</span>
+<span class="o">|</span>      <span class="o">/</span>\
+<span class="o">|</span>       <span class="o">|</span>
+<span class="o">+-----&gt;</span><span class="n">fc13</span>
+
+<span class="n">c2</span><span class="o">--+---&gt;</span><span class="n">fc21</span>
+<span class="o">/</span>\  <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----&gt;</span><span class="n">fc22</span>
+<span class="o">|</span>   <span class="o">|</span>      <span class="o">/</span>\
+<span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----&gt;</span><span class="n">fc23</span>
+<span class="o">|</span>   <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----&gt;</span><span class="n">fc24</span>
+<span class="o">|</span>
+<span class="o">|</span>
+<span class="n">c3</span><span class="o">----&gt;</span><span class="n">fc31</span>
+<span class="o">|</span>
+<span class="o">|</span>
+<span class="o">+-----&gt;</span><span class="n">fc32</span>
+<span class="o">|</span>
+<span class="o">|</span>
+<span class="o">+-----&gt;</span><span class="n">fc33</span>
+<span class="o">|</span>      <span class="o">/</span>\
+<span class="o">|</span>       <span class="o">|</span>
+<span class="o">+-----&gt;</span><span class="n">fc34</span>
+</pre></div>
+</div>
+<p>Before version 6.2.0 the above configuration would result in cycle:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ERROR: 185.203.112.26: Cycle detected in object dependencies:
+__file/tmp/cycle11 -&gt; __cycle3/cycle3 -&gt; __cycle2/cycle2 -&gt; __cycle1/cycle1 -&gt; __file/tmp/cycle11!
+</pre></div>
+</div>
+<p>The following manifest shows an example for order dependency contexts:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__file /tmp/fileA
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__file /tmp/fileB
+__file /tmp/fileC
+__file /tmp/fileD
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+__file /tmp/fileE
+__file /tmp/fileF
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span><span class="m">1</span>
+__file /tmp/fileG
+__file /tmp/fileH
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+__file /tmp/fileI
+</pre></div>
+</div>
+<p>This means:</p>
+<ul class="simple">
+<li><p>C depends on B</p></li>
+<li><p>D depends on C</p></li>
+<li><p>H depends on G</p></li>
+</ul>
+<p>and there are no other dependencies from this manifest.</p>
+</div>
+<div class="section" id="overrides">
+<h2><span class="section-number">14.7. </span>Overrides<a class="headerlink" href="#overrides" title="Permalink to this headline">¶</a></h2>
+<p>In some special cases, you would like to create an already defined object
+with different parameters. In normal situations this leads to an error in cdist.
+If you wish, you can setup the environment variable CDIST_OVERRIDE
+(any value or even empty is ok) to tell cdist, that this object override is
+wanted and should be accepted.
+ATTENTION: Only use this feature if you are 100% sure in which order
+cdist encounters the affected objects, otherwise this results
+in an undefined situation.</p>
+<p>If CDIST_OVERRIDE and CDIST_ORDER_DEPENDENCY are set for an object,
+CDIST_ORDER_DEPENDENCY will be ignored, because adding a dependency in case of
+overrides would result in circular dependencies, which is an error.</p>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">14.8. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The initial manifest may for instance contain the following code:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Always create this file, so other sysadmins know cdist is used.</span>
+__file /etc/cdist-configured
+
+<span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$__target_host</span><span class="s2">&quot;</span> <span class="k">in</span>
+   my.server.name<span class="o">)</span>
+      __directory /root/bin/
+      __file /etc/issue.net --source <span class="s2">&quot;</span><span class="nv">$__manifest</span><span class="s2">/issue.net</span>
+<span class="s2">   ;;</span>
+<span class="s2">esac</span>
+</pre></div>
+</div>
+<p>The manifest of the type &quot;nologin&quot; may look like this:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>__file /etc/nologin --source <span class="s2">&quot;</span><span class="nv">$__type</span><span class="s2">/files/default.nologin&quot;</span>
+</pre></div>
+</div>
+<p>This example makes use of dependencies:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure that lighttpd is installed</span>
+__package lighttpd --state present
+<span class="c1"># Ensure that munin makes use of lighttpd instead of the default webserver</span>
+<span class="c1"># package as decided by the package manager</span>
+<span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__package/lighttpd&quot;</span> __package munin --state present
+</pre></div>
+</div>
+<p>How to override objects:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># for example in the initial manifest</span>
+
+<span class="c1"># create user account foobar with some hash for password</span>
+__user foobar --password <span class="s1">&#39;some_fancy_hash&#39;</span> --home /home/foobarexample
+
+<span class="c1"># ... many statements and includes in the manifest later ...</span>
+<span class="c1"># somewhere in a conditionally sourced manifest</span>
+<span class="c1"># (e.g. for example only sourced if a special application is on the target host)</span>
+
+<span class="c1"># this leads to an error ...</span>
+__user foobar --password <span class="s1">&#39;some_other_hash&#39;</span>
+
+<span class="c1"># this tells cdist, that you know that this is an override and should be accepted</span>
+<span class="nv">CDIST_OVERRIDE</span><span class="o">=</span>yes __user foobar --password <span class="s1">&#39;some_other_hash&#39;</span>
+<span class="c1"># it&#39;s only an override, means the parameter --home is not touched</span>
+<span class="c1"># and stays at the original value of /home/foobarexample</span>
+</pre></div>
+</div>
+<p>Dependencies defined by execution order work as following:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tells cdist to execute all types in the order in which they are created ...</span>
+<span class="nb">export</span> <span class="nv">CDIST_ORDER_DEPENDENCY</span><span class="o">=</span>on
+__sample_type <span class="m">1</span>
+<span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__some_type_somewhere/id&quot;</span> __sample_type <span class="m">2</span>
+__example_type <span class="m">23</span>
+<span class="c1"># Now this types are executed in the creation order until the variable is unset</span>
+<span class="nb">unset</span> CDIST_ORDER_DEPENDENCY
+<span class="c1"># all now following types cdist makes the order ..</span>
+__not_in_order_type <span class="m">42</span>
+
+<span class="c1"># how it works :</span>
+<span class="c1"># this lines above are translated to:</span>
+__sample_type <span class="m">1</span>
+<span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__some_type_somewhere/id __sample_type/1&quot;</span> __sample_type <span class="m">2</span>
+<span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__sample_type/2&quot;</span> __example_type <span class="m">23</span>
+__not_in_order_type <span class="m">42</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-type.html" class="btn btn-neutral float-right" title="15. cdist type" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-configuration.html" class="btn btn-neutral float-left" title="13. Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

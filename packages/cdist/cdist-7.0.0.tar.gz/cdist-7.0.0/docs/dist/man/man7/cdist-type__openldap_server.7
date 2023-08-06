@@ -1,0 +1,241 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "CDIST-TYPE__OPENLDAP_SERVER" "7" "Jul 31, 2022" "7.0.0" "cdist"
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH NAME
+.sp
+cdist\-type__openldap_server \- Setup an openldap(4) server instance
+.SH DESCRIPTION
+.sp
+This type can be used to bootstrap an LDAP environment using openldap as slapd.
+.sp
+It bootstraps the LDAP server with sane defaults and creates and manages the
+base DN defined by \fIsuffix\fP\&.
+.SH REQUIRED PARAMETERS
+.INDENT 0.0
+.TP
+.B manager\-dn
+The rootdn to set up in the directory.
+E.g. \fIcn=manager,dc=ungleich,dc=ch\fP\&. See \fIslapd.conf(5)\fP\&.
+.TP
+.B manager\-password
+The password for \fImanager\-dn\fP in the directory.
+This will be used to connect to the LDAP server on the first \fIslapd\-url\fP
+with the given \fImanager\-dn\fP\&.
+.TP
+.B manager\-password\-hash
+The password for \fImanager\-dn\fP in the directory.
+This should be valid for \fIslapd.conf\fP like \fI{SSHA}qV+mCs3u8Q2sCmUXT4Ybw7MebHTASMyr\fP\&.
+Generate e.g. with: \fIslappasswd \-s weneedgoodsecurity\fP\&.
+See \fIslappasswd(8C)\fP, \fIslapd.conf(5)\fP\&.
+TODO: implement this: \fI\%http://blog.adamsbros.org/2015/06/09/openldap\-ssha\-salted\-hashes\-by\-hand/\fP
+to derive from the manager\-password parameter and ensure idempotency (care with salts).
+At that point, manager\-password\-hash should be deprecated and ignored.
+.TP
+.B serverid
+The server for the directory.
+E.g. \fIdc=ungleich,dc=ch\fP\&. See \fIslapd.conf(5)\fP\&.
+.TP
+.B suffix
+The suffix for the directory.
+E.g. \fIdc=ungleich,dc=ch\fP\&. See \fIslapd.conf(5)\fP\&.
+.UNINDENT
+.SH REQUIRED MULTIPLE PARAMETERS
+.INDENT 0.0
+.TP
+.B slapd\-url
+A URL for slapd to listen on.
+Pass once for each URL you want to support,
+e.g.: \fI\-\-slapd\-url ldaps://my.fqdn/ \-\-slapd\-url ldap://my.fqdn/\fP\&.
+The first instance that is passed will be used as the main URL to
+connect to this LDAP server
+See the \fI\-h\fP flag in \fIslapd(8C)\fP\&.
+.UNINDENT
+.SH OPTIONAL PARAMETERS
+.INDENT 0.0
+.TP
+.B syncrepl\-credentials
+Only has an effect if \fIreplicate\fP is set; required in that case.
+This secret is shared amongst the hosts that will replicate the directory.
+Note that each replication server needs this secret and it is saved in
+plain text in the directory.
+.TP
+.B syncrepl\-searchbase
+Only has an effect if \fIreplicate\fP is set; required in that case.
+The searchbase to use for replication.
+E.g. \fIdc=ungleich,dc=ch\fP\&. See \fIslapd.conf(5)\fP\&.
+.TP
+.B admin\-email
+Passed to \fIcdist\-type__letsencrypt_cert\fP; has otherwise no use.
+Required if using \fI__letsencrypt_cert\fP\&.
+Where to send Let\(aqs Encrypt emails like "certificate needs renewal".
+.TP
+.B tls\-cipher\-suite
+Setting for TLSCipherSuite.
+Defaults to \fINORMAL\fP in a Debian\-like OS and \fIHIGH:MEDIUM:+SSLv2\fP on FreeBSD.
+See \fIslapd.conf(5)\fP\&.
+.TP
+.B tls\-cert
+If defined, \fI__letsencrypt_cert\fP is not used and this must be the path in
+the remote hosts to the PEM\-encoded TLS certificate.
+Requires: \fItls\-privkey\fP and \fItls\-ca\fP\&.
+Permissions, existence and renewal of these files are left up to the
+type\(aqs user.
+.TP
+.B tls\-privkey
+Required if \fItls\-cert\fP is defined.
+Path in the remote hosts to the PEM\-encoded private key file.
+.TP
+.B tls\-ca
+Required if \fItls\-cert\fP is defined.
+Path in the remote hosts to the PEM\-encoded CA certificate file.
+.TP
+.B extra\-config
+Custom settings to be added in \fIslapd.conf(5)\fP\&.
+.UNINDENT
+.SH OPTIONAL MULTIPLE PARAMETERS
+.INDENT 0.0
+.TP
+.B syncrepl\-host
+Only has an effect if \fIreplicate\fP is set; required in that case.
+Set once per host that will replicate the directory.
+.TP
+.B module
+LDAP module to load. See \fIslapd.conf(5)\fP\&. Some dependencies might have to
+be installed beforehand. Default value is OS\-dependent, see manifest.
+.TP
+.B schema
+Name of LDAP schema to load. Must be the name without extension of a
+\fI\&.schema\fP file in slapd\(aqs schema directory (usually \fI/etc/slapd/schema\fP or
+\fI/usr/local/etc/openldap/schema\fP).
+Example value: \fIinetorgperson\fP
+The type user must ensure that the schema file is deployed.
+This defaults to a sensible subset, for details see the type definition.
+.TP
+.B description
+The description of the base DN passed in the \fIsuffix\fP parameter.
+Defaults to \fIManaged by cdist, do not edit manually.\fP
+.UNINDENT
+.SH BOOLEAN PARAMETERS
+.INDENT 0.0
+.TP
+.B staging
+Passed to \fIcdist\-type__letsencrypt_cert\fP; has otherwise no use.
+Obtain a test certificate from a staging server.
+.TP
+.B replicate
+Whether to setup replication or not.
+If present \fIsyncrepl\-credentials\fP and \fIsyncrepl\-host\fP are also required.
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Example of a simple server with manual certificate management.
+pki_prefix="/usr/local/etc/pki/realms/ldap.camilion.cloud"
+__openldap_server \e
+    \-\-manager\-dn \(aqcn=manager,dc=camilion,dc=cloud\(aq \e
+    \-\-manager\-password "foo" \e
+    \-\-manager\-password\-hash \(aq{SSHA}foo\(aq \e
+    \-\-serverid 0 \e
+    \-\-suffix \(aqdc=camilion,dc=cloud\(aq \e
+    \-\-slapd\-url \(aqldaps://ldap.camilion.cloud\(aq \e
+    \-\-tls\-cert "${pki_prefix}/default.crt" \e
+    \-\-tls\-privkey "${pki_prefix}/default.key" \e
+    \-\-tls\-ca "${pki_prefix}/CA.crt"
+
+# The created basedn looks as follows:
+#
+# dn: dc=camilion,dc=cloud
+# objectClass: top
+# objectClass: dcObject
+# objectClass: organization
+# o: Managed by cdist, do not edit manually.
+# dc: camilion
+#
+# Do not change it manually, the type will overwrite your changes.
+
+
+#
+# Changing to a replicated setup is a simple change to something like:
+#
+# Example for multiple servers with replication and automatic
+# Let\(aqs Encrypt certificate management through certbot.
+id=1
+for host in ldap\-test1.ungleich.ch ldap\-test2.ungleich.ch; do
+    echo "__ungleich_ldap \e
+        \-\-manager\-dn \(aqcn=manager,dc=ungleich,dc=ch\(aq \e
+        \-\-manager\-psasword \(aqfoo\(aq \e
+        \-\-manager\-password\-hash \(aq{SSHA}fooo\(aq \e
+        \-\-serverid \(aq${id}\(aq \e
+        \-\-suffix \(aqdc=ungleich,dc=ch\(aq \e
+        \-\-slapd\-url ldap://${host} \e
+        \-\-searchbase \(aqdc=ungleich,dc=ch\(aq \e
+        \-\-syncrepl\-credentials \(aqfooo\(aq \e
+        \-\-syncrepl\-host \(aqldap\-test1.ungleich.ch\(aq \e
+        \-\-syncrepl\-host \(aqldap\-test2.ungleich.ch\(aq \e
+        \-\-description \(aqUngleich LDAP server\(aq" \e
+        \-\-staging \e
+        | cdist config \-i \- \-v ${host}
+    id=$((id + 1))
+done
+
+# The created basedn looks as follows:
+#
+# dn: dc=ungleich,dc=ch
+# objectClass: top
+# objectClass: dcObject
+# objectClass: organization
+# o: Ungleich LDAP server
+# dc: ungleich
+#
+# Do not change it manually, the type will overwrite your changes.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.sp
+\fBcdist\-type__letsencrypt_cert\fP(7)
+.SH AUTHORS
+.sp
+ungleich <\fI\%foss\-\-@\-\-ungleich.ch\fP>
+Evilham <\fI\%contact\-\-@\-\-evilham.com\fP>
+.SH COPYING
+.sp
+Copyright (C) 2020 ungleich glarus ag. You can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+.SH COPYRIGHT
+ungleich GmbH 2021
+.\" Generated by docutils manpage writer.
+.

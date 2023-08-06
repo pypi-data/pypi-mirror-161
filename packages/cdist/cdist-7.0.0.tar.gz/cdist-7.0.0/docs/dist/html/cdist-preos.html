@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>21. PreOS &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="22. Scan" href="cdist-scan.html" />
+    <link rel="prev" title="20. Inventory" href="cdist-inventory.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">21. PreOS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description">21.1. Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preos-creation">21.2. PreOS creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementing-a-new-preos-sub-command">21.3. Implementing a new PreOS sub-command</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-of-writing-new-dummy-preos-sub-command">21.3.1. Example of writing new dummy preos sub-command</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-based-preos">21.3.1.1. Module-based preos:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-based-preos">21.3.1.2. Class based preos:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">21. </span>PreOS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-preos.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="preos">
+<h1><span class="section-number">21. </span>PreOS<a class="headerlink" href="#preos" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2><span class="section-number">21.1. </span>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>With cdist you can install and configure new machines. You can use cdist to
+create PreOS, minimal OS whose purpose is to boot a new machine.
+After PreOS is booted, the machine is ready for installing the desired OS and
+afterwards it is ready for configuration.</p>
+</div>
+<div class="section" id="preos-creation">
+<h2><span class="section-number">21.2. </span>PreOS creation<a class="headerlink" href="#preos-creation" title="Permalink to this headline">¶</a></h2>
+<p>With cdist you can create PreOS.
+Currently supported PreOS-es include:</p>
+<ul class="simple">
+<li><p>debian</p></li>
+<li><p>ubuntu</p></li>
+<li><p>devuan</p></li>
+</ul>
+<p>PreOS is created using the <code class="docutils literal notranslate"><span class="pre">cdist</span> <span class="pre">preos</span></code> command.
+This command has subcommands that determine the desired PreOS.</p>
+<p>For example, to create an ubuntu PreOS:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ cdist preos ubuntu /preos/preos-ubuntu -B -C <span class="se">\</span>
+    -k ~/.ssh/id_rsa.pub -p /preos/pxe-ubuntu
+</pre></div>
+</div>
+<p>For more info about the available options see the cdist manual page.</p>
+<p>This will bootstrap (<code class="docutils literal notranslate"><span class="pre">-B</span></code>) ubuntu PreOS in the <code class="docutils literal notranslate"><span class="pre">/preos/preos-ubuntu</span></code>
+directory, it will be configured (<code class="docutils literal notranslate"><span class="pre">-C</span></code>) using default the built-in initial
+manifest and with specified ssh authorized key (<code class="docutils literal notranslate"><span class="pre">-k</span></code>).
+After bootstrapping and configuration, the PXE boot directory will be
+created (<code class="docutils literal notranslate"><span class="pre">-p</span></code>) in <code class="docutils literal notranslate"><span class="pre">/preos/pxe-ubuntu</span></code>.</p>
+<p>After PreOS is created, new machines can be booted using the created PXE
+(after proper dhcp and tftp settings).</p>
+<p>Since PreOS is configured with ssh authorized key it can be accessed through
+ssh, i.e. it can be further installed and configured with cdist.</p>
+</div>
+<div class="section" id="implementing-a-new-preos-sub-command">
+<h2><span class="section-number">21.3. </span>Implementing a new PreOS sub-command<a class="headerlink" href="#implementing-a-new-preos-sub-command" title="Permalink to this headline">¶</a></h2>
+<p>preos command is implemented as a plugin system. This plugin system scans for
+preos subcommands in the <code class="docutils literal notranslate"><span class="pre">cdist/preos/</span></code> distribution directory and also in
+<code class="docutils literal notranslate"><span class="pre">~/.cdist/preos/</span></code> directory if it exists.</p>
+<p>preos subcommand is a module or a class that satisfies the following:</p>
+<ul class="simple">
+<li><p>it has the attribute <code class="docutils literal notranslate"><span class="pre">_cdist_preos</span></code> set to <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p>it defines a function/method <code class="docutils literal notranslate"><span class="pre">commandline</span></code>.</p></li>
+</ul>
+<p>For a module-based preos subcommand, the <code class="docutils literal notranslate"><span class="pre">commandline</span></code> function accepts a
+module object as its first argument and the list of command line
+arguments (<code class="docutils literal notranslate"><span class="pre">sys.argv[2:]</span></code>).</p>
+<p>For a class-based preos subcommand <code class="docutils literal notranslate"><span class="pre">commandline</span></code> method should be
+static-method and must accept a class as its first argument and the
+list of command line arguments (<code class="docutils literal notranslate"><span class="pre">sys.argv[2:]</span></code>).</p>
+<p>If preos scanning finds a module/class that has <code class="docutils literal notranslate"><span class="pre">_cdist_preos</span></code> set
+to <code class="docutils literal notranslate"><span class="pre">True</span></code> and a function/method <code class="docutils literal notranslate"><span class="pre">commandline</span></code> then this module/class is
+registered to preos subcommands. The name of the command is set to <code class="docutils literal notranslate"><span class="pre">_preos_name</span></code>
+attribute if defined in the module/class, defaulting to the module/class name in lowercase.
+When a registered preos subcommand is specified, <code class="docutils literal notranslate"><span class="pre">commandline</span></code>
+will be called with the first argument set to module/class and the second
+argument set to <code class="docutils literal notranslate"><span class="pre">sys.argv[2:]</span></code>.</p>
+<div class="section" id="example-of-writing-new-dummy-preos-sub-command">
+<h3><span class="section-number">21.3.1. </span>Example of writing new dummy preos sub-command<a class="headerlink" href="#example-of-writing-new-dummy-preos-sub-command" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-based-preos">
+<h4><span class="section-number">21.3.1.1. </span>Module-based preos:<a class="headerlink" href="#module-based-preos" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic simple">
+<li><p>Create directory <code class="docutils literal notranslate"><span class="pre">~/.cdist/preos/</span></code> if it does not exist</p></li>
+<li><p>Create <code class="docutils literal notranslate"><span class="pre">~/.cdist/preos/netbsd.py</span></code> with the following contents:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_preos_name</span> <span class="o">=</span> <span class="s1">&#39;netbsd&#39;</span>
+<span class="n">_cdist_preos</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">commandline</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NetBSD PreOS: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>When you try to run this new preos you will get:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ cdist preos -L
+Available PreOS-es:
+    - debian
+    - devuan
+    - netbsd
+    - ubuntu
+$ cdist preos netbsd
+NetBSD PreOS: <span class="o">[]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="class-based-preos">
+<h4><span class="section-number">21.3.1.2. </span>Class based preos:<a class="headerlink" href="#class-based-preos" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic simple">
+<li><p>Create directory <code class="docutils literal notranslate"><span class="pre">~/.cdist/preos/</span></code> if it does not exist</p></li>
+<li><p>Create <code class="docutils literal notranslate"><span class="pre">~/.cdist/preos/freebsd.py</span></code> with the following contents:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FreeBSD</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">_cdist_preos</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">commandline</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FreeBSD dummy preos: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>When you try to run this new preos you will get:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ cdist preos -h
+Available PreOS-es:
+    - debian
+    - devuan
+    - freebsd
+    - ubuntu
+$ cdist preos freebsd
+FreeBSD dummy preos: <span class="o">[]</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">commandline</span></code> function/method you have all the freedom to actually create
+a PreOS.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-scan.html" class="btn btn-neutral float-right" title="22. Scan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-inventory.html" class="btn btn-neutral float-left" title="20. Inventory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

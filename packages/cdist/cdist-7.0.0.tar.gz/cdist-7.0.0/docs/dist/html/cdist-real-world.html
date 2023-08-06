@@ -1,0 +1,812 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>8. Dive into real world cdist &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="9. cdist(1)" href="man1/cdist.html" />
+    <link rel="prev" title="7. Quickstart" href="cdist-quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">8. Dive into real world cdist</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">8.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-type-layout">8.2. Creating type layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-sample-bottle-hosting-type-parameters">8.3. Creating __sample_bottle_hosting type parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-sample-bottle-hosting-type-manifest">8.4. Creating __sample_bottle_hosting type manifest</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-user-and-user-directories">8.4.1. Creating user and user directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-packages">8.4.2. Installing packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-postgresql-database">8.4.3. Creating PostgreSQL database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-uwsgi">8.4.4. Configuring uWSGI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-nginx-for-let-s-encrypt-and-https-redirection">8.4.5. Configuring nginx for Let's Encrypt and HTTPS redirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-certificate-creation">8.4.6. Configuring certificate creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-nginx-https-server-with-uwsgi-upstream">8.4.7. Configuring nginx HTTPS server with uWSGI upstream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-sample-bottle-hosting-type-manifest-listing">8.4.8. Complete __sample_bottle_hosting type manifest listing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-sample-bottle-hosting-type-gencode-remote">8.5. Creating __sample_bottle_hosting type gencode-remote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-sample-nginx-http-letsencrypt-and-ssl-redirect-type">8.6. Creating __sample_nginx_http_letsencrypt_and_ssl_redirect type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-init-manifest">8.7. Creating init manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-host">8.8. Configuring host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-python-bottle-application">8.9. Creating python bottle application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-database">8.9.1. Preparing database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-application">8.9.2. Creating application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#opening-application">8.9.3. Opening application</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-next">8.10. What's next?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">8. </span>Dive into real world cdist</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-real-world.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dive-into-real-world-cdist">
+<h1><span class="section-number">8. </span>Dive into real world cdist<a class="headerlink" href="#dive-into-real-world-cdist" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2><span class="section-number">8.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This walkthrough shows real world cdist configuration example.</p>
+<p>Sample target host is named <strong>test.ungleich.ch</strong>.
+Just replace <strong>test.ungleich.ch</strong> with your target hostname.</p>
+<p>Our goal is to configure python application hosting. For writing sample
+application we will use <a class="reference external" href="http://bottlepy.org">Bottle</a> WSGI micro web-framework.
+It will use PostgreSQL database and it will list items from <strong>items</strong> table.
+It will be served by uWSGI server. We will also use the Nginx web server
+as a reverse proxy and we want HTTPS.
+For HTTPS we will use Let's Encrypt certificate.</p>
+<p>For setting up hosting we want to use cdist so we will write a new type
+for that. This type will:</p>
+<ul class="simple">
+<li><p>install required packages</p></li>
+<li><p>create OS user, user home directory and application home directory</p></li>
+<li><p>create PostgreSQL database</p></li>
+<li><p>configure uWSGI</p></li>
+<li><p>configure Let's Encrypt certificate</p></li>
+<li><p>configure nginx.</p></li>
+</ul>
+<p>Our type will not create the actual python application. Its intention is only
+to configure hosting for specified user and project. It is up to the user to
+create his/her applications.</p>
+<p>So let's start.</p>
+</div>
+<div class="section" id="creating-type-layout">
+<h2><span class="section-number">8.2. </span>Creating type layout<a class="headerlink" href="#creating-type-layout" title="Permalink to this headline">¶</a></h2>
+<p>We will create a new custom type. Let's call it <strong>__sample_bottle_hosting</strong>.</p>
+<p>Go to <strong>~/.cdist/type</strong> directory (create it if it does not exist) and create
+new type layout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/.</span><span class="n">cdist</span><span class="o">/</span><span class="nb">type</span>
+<span class="n">mkdir</span> <span class="n">__sample_bottle_hosting</span>
+<span class="n">cd</span> <span class="n">__sample_bottle_hosting</span>
+<span class="n">touch</span> <span class="n">manifest</span> <span class="n">gencode</span><span class="o">-</span><span class="n">remote</span>
+<span class="n">mkdir</span> <span class="n">parameter</span>
+<span class="n">touch</span> <span class="n">parameter</span><span class="o">/</span><span class="n">required</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-sample-bottle-hosting-type-parameters">
+<h2><span class="section-number">8.3. </span>Creating __sample_bottle_hosting type parameters<a class="headerlink" href="#creating-sample-bottle-hosting-type-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Our type will be configurable through the means of parameters. Let's define
+the following parameters:</p>
+<dl class="simple">
+<dt>projectname</dt><dd><p>name for the project, needed for uWSGI ini file</p>
+</dd>
+<dt>user</dt><dd><p>user name</p>
+</dd>
+<dt>domain</dt><dd><p>target host domain, needed for Let's Encrypt certificate.</p>
+</dd>
+</dl>
+<p>We define parameters to make our type reusable for different projects, user and domain.</p>
+<p>Define required parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">printf</span> <span class="s2">&quot;projectname</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">&gt;&gt;</span> <span class="n">parameter</span><span class="o">/</span><span class="n">required</span>
+<span class="n">printf</span> <span class="s2">&quot;user</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">&gt;&gt;</span> <span class="n">parameter</span><span class="o">/</span><span class="n">required</span>
+<span class="n">printf</span> <span class="s2">&quot;domain</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">&gt;&gt;</span> <span class="n">parameter</span><span class="o">/</span><span class="n">required</span>
+</pre></div>
+</div>
+<p>For details on type parameters see <a class="reference external" href="cdist-type.html#defining-parameters">Defining parameters</a>.</p>
+</div>
+<div class="section" id="creating-sample-bottle-hosting-type-manifest">
+<h2><span class="section-number">8.4. </span>Creating __sample_bottle_hosting type manifest<a class="headerlink" href="#creating-sample-bottle-hosting-type-manifest" title="Permalink to this headline">¶</a></h2>
+<p>Next step is to define manifest (~/.cdist/type/__sample_bottle_hosting/manifest).
+We also want our type to currently support only Devuan. So we will start by
+checking target host OS.  We will use <a class="reference external" href="cdist-reference.html#explorers">os</a>
+global explorer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>os=$(cat &quot;$__global/explorer/os&quot;)
+
+case &quot;$os&quot; in
+    devuan)
+        :
+    ;;
+    *)
+        echo &quot;OS $os currently not supported&quot; &gt;&amp;2
+        exit 1
+    ;;
+esac
+</pre></div>
+</div>
+<p>If target host OS is not Devuan then we print error message to stderr
+and exit. For other OS-es support we should check and change package names
+we should install, because packages differ in different OS-es and in different
+OS distributions like GNU/Linux distributions. There can also be a different
+configuration locations (e.g. nginx config directory could be in /usr/local tree).
+If we detected unsupported OS we should error out. cdist will stop configuration
+process and output error message.</p>
+<div class="section" id="creating-user-and-user-directories">
+<h3><span class="section-number">8.4.1. </span>Creating user and user directories<a class="headerlink" href="#creating-user-and-user-directories" title="Permalink to this headline">¶</a></h3>
+<p>Then we create user and his/her home directory and application home directory.
+We will use existing cdist types <a class="reference external" href="man7/cdist-type__user.html">__user</a> and <a class="reference external" href="man7/cdist-type__directory.html">__directory</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>user=&quot;$(cat &quot;$__object/parameter/user&quot;)&quot;
+home=&quot;/home/$user&quot;
+apphome=&quot;$home/app&quot;
+
+# create user
+__user &quot;$user&quot; --home &quot;$home&quot; --shell /bin/bash
+# create user home dir
+require=&quot;__user/$user&quot; __directory &quot;$home&quot; \
+    --owner &quot;$user&quot; --group &quot;$user&quot; --mode 0755
+# create app home dir
+require=&quot;__user/$user __directory/$home&quot; __directory &quot;$apphome&quot; \
+    --state present --owner &quot;$user&quot; --group &quot;$user&quot; --mode 0755
+</pre></div>
+</div>
+<p>First we define <em>user</em>, <em>home</em> and <em>apphome</em> variables. User is defined by type's
+<strong>user</strong> parameter. Here we use <strong>require</strong> which is cdist's way to define dependencies.
+User home directory should be created <strong>after</strong> user is created. And application
+home directory is created <strong>after</strong> both user and user home directory are created.
+For details on <strong>require</strong> see <a class="reference external" href="cdist-manifest.html#dependencies">Dependencies</a>.</p>
+</div>
+<div class="section" id="installing-packages">
+<h3><span class="section-number">8.4.2. </span>Installing packages<a class="headerlink" href="#installing-packages" title="Permalink to this headline">¶</a></h3>
+<p>Install required packages using existing <a class="reference external" href="man7/cdist-type__package.html">__package</a> type.
+Before installing package we want to update apt package index using
+<a class="reference external" href="man7/cdist-type__apt_update_index.html">__apt_update_index</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># define packages that need to be installed
+packages_to_install=&quot;nginx uwsgi-plugin-python3 python3-dev python3-pip postgresql postgresql-contrib libpq-dev python3-venv uwsgi python3-psycopg2&quot;
+
+# update package index
+__apt_update_index
+# install packages
+for package in $packages_to_install
+    do require=&quot;__apt_update_index&quot; __package $package --state=present
+done
+</pre></div>
+</div>
+<p>Here we use shell for loop. It executes <strong>require=&quot;__apt_update_index&quot; __package</strong>
+for each member in a list we define in <strong>packages_to_install</strong> variable.
+This is much nicer then having as many <strong>require=&quot;__apt_update_index&quot; __package</strong>
+lines as there are packages we want to install.</p>
+<p>For python packages we use <a class="reference external" href="man7/cdist-type__package_pip.html">__package_pip</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># install pip3 packages
+for package in bottle bottle-pgsql; do
+    __package_pip --pip pip3 $package
+done
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-postgresql-database">
+<h3><span class="section-number">8.4.3. </span>Creating PostgreSQL database<a class="headerlink" href="#creating-postgresql-database" title="Permalink to this headline">¶</a></h3>
+<p>Create PostgreSQL database using <a class="reference external" href="man7/cdist-type__postgres_database.html">__postgres_database</a>
+and <a class="reference external" href="man7/cdist-type__postgres_role.html">__postgres_role</a> for creating database user:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#PostgreSQL db &amp; user
+postgres_server=postgresql
+
+# create PostgreSQL db user
+require=&quot;__package/postgresql&quot; __postgres_role $user --login --createdb
+# create PostgreSQL db
+require=&quot;__postgres_role/$user __package/postgresql&quot; __postgres_database $user \
+    --owner $user
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-uwsgi">
+<h3><span class="section-number">8.4.4. </span>Configuring uWSGI<a class="headerlink" href="#configuring-uwsgi" title="Permalink to this headline">¶</a></h3>
+<p>Configure uWSGI using <a class="reference external" href="man7/cdist-type__file.html">__file</a> type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># configure uWSGI
+projectname=&quot;$(cat &quot;$__object/parameter/projectname&quot;)&quot;
+require=&quot;__package/uwsgi&quot; __file /etc/uwsgi/apps-enabled/$user.ini \
+            --owner root --group root --mode 0644 \
+            --state present \
+            --source - &lt;&lt; EOF
+[uwsgi]
+socket = $apphome/uwsgi.sock
+chdir = $apphome
+wsgi-file = $projectname/wsgi.py
+touch-reload = $projectname/wsgi.py
+processes = 4
+threads = 2
+chmod-socket = 666
+daemonize=true
+vacuum = true
+uid = $user
+gid = $user
+EOF
+</pre></div>
+</div>
+<p>We require package uWSGI present in order to create <strong>/etc/uwsgi/apps-enabled/$user.ini</strong> file.
+Installation of uWSGI also creates configuration layout: <strong>/etc/uwsgi/apps-enabled</strong>.
+If this directory does not exist then <strong>__file</strong> type would error.
+We also use stdin as file content source. For details see <a class="reference external" href="cdist-type.html#input-from-stdin">Input from stdin</a>.
+For feeding stdin we use here-document (<strong>&lt;&lt;</strong> operator). It allows redirection of subsequent
+lines read by the shell to the input of a command until a line containing only the delimiter
+and a newline, with no blank characters in between (EOF in our case).</p>
+</div>
+<div class="section" id="configuring-nginx-for-let-s-encrypt-and-https-redirection">
+<h3><span class="section-number">8.4.5. </span>Configuring nginx for Let's Encrypt and HTTPS redirection<a class="headerlink" href="#configuring-nginx-for-let-s-encrypt-and-https-redirection" title="Permalink to this headline">¶</a></h3>
+<p>Next configure nginx for Let's Encrypt and for HTTP -&gt; HTTPS redirection. For this
+purpose we will create new type <strong>__sample_nginx_http_letsencrypt_and_ssl_redirect</strong>
+and use it here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>domain=&quot;$(cat &quot;$__object/parameter/domain&quot;)&quot;
+webroot=&quot;/var/www/html&quot;
+__sample_nginx_http_letsencrypt_and_ssl_redirect &quot;$domain&quot; --webroot &quot;$webroot&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-certificate-creation">
+<h3><span class="section-number">8.4.6. </span>Configuring certificate creation<a class="headerlink" href="#configuring-certificate-creation" title="Permalink to this headline">¶</a></h3>
+<p>After HTTP nginx configuration we will create Let's Encrypt certificate using
+<a class="reference external" href="man7/cdist-type__letsencrypt_cert.html">__letsencrypt_cert</a> type.
+For Let's Encrypt cert configuration ensure that there is a DNS entry for your
+domain. We assure that cert creation is applied after nginx HTTP is configured
+for Let's Encrypt to work:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># create SSL cert</span>
+<span class="n">require</span><span class="o">=</span><span class="s2">&quot;__package/nginx __sample_nginx_http_letsencrypt_and_ssl_redirect/$domain&quot;</span> \
+    <span class="n">__letsencrypt_cert</span> <span class="o">--</span><span class="n">admin</span><span class="o">-</span><span class="n">email</span> <span class="n">admin</span><span class="nd">@test</span><span class="o">.</span><span class="n">ungleich</span><span class="o">.</span><span class="n">ch</span> \
+        <span class="o">--</span><span class="n">webroot</span> <span class="s2">&quot;$webroot&quot;</span> \
+        <span class="o">--</span><span class="n">automatic</span><span class="o">-</span><span class="n">renewal</span> \
+        <span class="o">--</span><span class="n">renew</span><span class="o">-</span><span class="n">hook</span> <span class="s2">&quot;service nginx reload&quot;</span> \
+        <span class="o">--</span><span class="n">domain</span> <span class="s2">&quot;$domain&quot;</span> \
+        <span class="s2">&quot;$domain&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-nginx-https-server-with-uwsgi-upstream">
+<h3><span class="section-number">8.4.7. </span>Configuring nginx HTTPS server with uWSGI upstream<a class="headerlink" href="#configuring-nginx-https-server-with-uwsgi-upstream" title="Permalink to this headline">¶</a></h3>
+<p>Then we can configure nginx HTTPS server that will use created Let's Encrypt certificate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># configure nginx
+require=&quot;__package/nginx __letsencrypt_cert/$domain&quot; \
+    __file &quot;/etc/nginx/sites-enabled/https-$domain&quot; \
+    --source - --mode 0644 &lt;&lt; EOF
+upstream _bottle {
+    server unix:$apphome/uwsgi.sock;
+}
+
+server {
+    listen 443;
+    listen [::]:443;
+
+    server_name $domain;
+
+    access_log  /var/log/nginx/access.log;
+
+    ssl on;
+    ssl_certificate      /etc/letsencrypt/live/$domain/fullchain.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/$domain/privkey.pem;
+
+    client_max_body_size 256m;
+
+    location / {
+        try_files \$uri @uwsgi;
+    }
+
+    location @uwsgi {
+        include uwsgi_params;
+        uwsgi_pass _bottle;
+    }
+}
+EOF
+</pre></div>
+</div>
+<p>Now our manifest is finished.</p>
+</div>
+<div class="section" id="complete-sample-bottle-hosting-type-manifest-listing">
+<h3><span class="section-number">8.4.8. </span>Complete __sample_bottle_hosting type manifest listing<a class="headerlink" href="#complete-sample-bottle-hosting-type-manifest-listing" title="Permalink to this headline">¶</a></h3>
+<p>Here is complete __sample_bottle_hosting type manifest listing,
+located in ~/.cdist/type/__sample_bottle_hosting/manifest:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/sh
+
+os=$(cat &quot;$__global/explorer/os&quot;)
+
+case &quot;$os&quot; in
+    devuan)
+        :
+    ;;
+    *)
+        echo &quot;OS $os currently not supported&quot; &gt;&amp;2
+        exit 1
+    ;;
+esac
+
+projectname=&quot;$(cat &quot;$__object/parameter/projectname&quot;)&quot;
+user=&quot;$(cat &quot;$__object/parameter/user&quot;)&quot;
+home=&quot;/home/$user&quot;
+apphome=&quot;$home/app&quot;
+domain=&quot;$(cat &quot;$__object/parameter/domain&quot;)&quot;
+
+# create user
+__user &quot;$user&quot; --home &quot;$home&quot; --shell /bin/bash
+# create user home dir
+require=&quot;__user/$user&quot; __directory &quot;$home&quot; \
+    --owner &quot;$user&quot; --group &quot;$user&quot; --mode 0755
+# create app home dir
+require=&quot;__user/$user __directory/$home&quot; __directory &quot;$apphome&quot; \
+    --state present --owner &quot;$user&quot; --group &quot;$user&quot; --mode 0755
+
+# define packages that need to be installed
+packages_to_install=&quot;nginx uwsgi-plugin-python3 python3-dev python3-pip postgresql postgresql-contrib libpq-dev python3-venv uwsgi python3-psycopg2&quot;
+
+# update package index
+__apt_update_index
+# install packages
+for package in $packages_to_install
+    do require=&quot;__apt_update_index&quot; __package $package --state=present
+done
+# install pip3 packages
+for package in bottle bottle-pgsql; do
+    __package_pip --pip pip3 $package
+done
+
+#PostgreSQL db &amp; user
+postgres_server=postgresql
+
+# create PostgreSQL db user
+require=&quot;__package/postgresql&quot; __postgres_role $user --login --createdb
+# create PostgreSQL db
+require=&quot;__postgres_role/$user __package/postgresql&quot; __postgres_database $user \
+    --owner $user
+# configure uWSGI
+require=&quot;__package/uwsgi&quot; __file /etc/uwsgi/apps-enabled/$user.ini \
+            --owner root --group root --mode 0644 \
+            --state present \
+            --source - &lt;&lt; EOF
+[uwsgi]
+socket = $apphome/uwsgi.sock
+chdir = $apphome
+wsgi-file = $projectname/wsgi.py
+touch-reload = $projectname/wsgi.py
+processes = 4
+threads = 2
+chmod-socket = 666
+daemonize=true
+vacuum = true
+uid = $user
+gid = $user
+EOF
+
+# setup nginx HTTP for Let&#39;s Encrypt and SSL redirect
+domain=&quot;$(cat &quot;$__object/parameter/domain&quot;)&quot;
+webroot=&quot;/var/www/html&quot;
+__sample_nginx_http_letsencrypt_and_ssl_redirect &quot;$domain&quot; --webroot &quot;$webroot&quot;
+
+# create SSL cert
+require=&quot;__package/nginx __sample_nginx_http_letsencrypt_and_ssl_redirect/$domain&quot; \
+    __letsencrypt_cert --admin-email admin@test.ungleich.ch \
+        --webroot &quot;$webroot&quot; \
+        --automatic-renewal \
+        --renew-hook &quot;service nginx reload&quot; \
+        --domain &quot;$domain&quot; \
+        &quot;$domain&quot;
+
+# configure nginx
+require=&quot;__package/nginx __letsencrypt_cert/$domain&quot; \
+    __file &quot;/etc/nginx/sites-enabled/https-$domain&quot; \
+    --source - --mode 0644 &lt;&lt; EOF
+upstream _bottle {
+    server unix:$apphome/uwsgi.sock;
+}
+
+server {
+    listen 443;
+    listen [::]:443;
+
+    server_name $domain;
+
+    access_log  /var/log/nginx/access.log;
+
+    ssl on;
+    ssl_certificate      /etc/letsencrypt/live/$domain/fullchain.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/$domain/privkey.pem;
+
+    client_max_body_size 256m;
+
+    location / {
+        try_files \$uri @uwsgi;
+    }
+
+    location @uwsgi {
+        include uwsgi_params;
+        uwsgi_pass _bottle;
+    }
+}
+EOF
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="creating-sample-bottle-hosting-type-gencode-remote">
+<h2><span class="section-number">8.5. </span>Creating __sample_bottle_hosting type gencode-remote<a class="headerlink" href="#creating-sample-bottle-hosting-type-gencode-remote" title="Permalink to this headline">¶</a></h2>
+<p>Now define <strong>gencode-remote</strong> script: ~/.cdist/type/__sample_bottle_hosting/gencode-remote.
+After manifest is applied it should restart uWSGI and nginx services so that our
+configuration is active. Our gencode-remote looks like the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s2">&quot;service uwsgi restart&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;service nginx restart&quot;</span>
+</pre></div>
+</div>
+<p>Our <strong>__sample_bottle_hosting</strong> type is now finished.</p>
+</div>
+<div class="section" id="creating-sample-nginx-http-letsencrypt-and-ssl-redirect-type">
+<h2><span class="section-number">8.6. </span>Creating __sample_nginx_http_letsencrypt_and_ssl_redirect type<a class="headerlink" href="#creating-sample-nginx-http-letsencrypt-and-ssl-redirect-type" title="Permalink to this headline">¶</a></h2>
+<p>Let's now create <strong>__sample_nginx_http_letsencrypt_and_ssl_redirect</strong> type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/.</span><span class="n">cdist</span><span class="o">/</span><span class="nb">type</span>
+<span class="n">mkdir</span> <span class="n">__sample_nginx_http_letsencrypt_and_ssl_redirect</span>
+<span class="n">cd</span> <span class="n">__sample_nginx_http_letsencrypt_and_ssl_redirect</span>
+<span class="n">mkdir</span> <span class="n">parameter</span>
+<span class="n">echo</span> <span class="n">webroot</span> <span class="o">&gt;</span> <span class="n">parameter</span><span class="o">/</span><span class="n">required</span>
+<span class="n">touch</span> <span class="n">manifest</span>
+<span class="n">touch</span> <span class="n">gencode</span><span class="o">-</span><span class="n">remote</span>
+</pre></div>
+</div>
+<p>Edit manifest:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>domain=&quot;$__object_id&quot;
+webroot=&quot;$(cat &quot;$__object/parameter/webroot&quot;)&quot;
+# make sure we have nginx package
+__package nginx
+# setup Let&#39;s Encrypt HTTP acme challenge, redirect HTTP to HTTPS
+require=&quot;__package/nginx&quot; __file &quot;/etc/nginx/sites-enabled/http-$domain&quot; \
+    --source - --mode 0644 &lt;&lt; EOF
+server {
+    listen *:80;
+    listen [::]:80;
+
+    server_name $domain;
+
+    # Let&#39;s Encrypt
+    location /.well-known/acme-challenge/ {
+        root $webroot;
+    }
+
+    # Everything else -&gt; SSL
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
+EOF
+</pre></div>
+</div>
+<p>Edit gencode-remote:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s2">&quot;service nginx reload&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-init-manifest">
+<h2><span class="section-number">8.7. </span>Creating init manifest<a class="headerlink" href="#creating-init-manifest" title="Permalink to this headline">¶</a></h2>
+<p>Next create init manifest:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/.</span><span class="n">cdist</span><span class="o">/</span><span class="n">manifest</span>
+<span class="n">printf</span> <span class="s2">&quot;__sample_bottle_hosting --projectname sample --user app --domain \$__target_host sample</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">&gt;</span> <span class="n">sample</span>
+</pre></div>
+</div>
+<p>Using this init manifest our target host will be configured using our <strong>__sample_bottle_hosting</strong>
+type with projectname <em>sample</em>, user <em>app</em> and domain equal to <strong>__target_host</strong>.
+Here the last positional argument <em>sample</em> is type's object id. For details on
+<strong>__target_host</strong> and <strong>__object_id</strong> see
+<a class="reference external" href="cdist-reference.html#environment-variables-for-reading">Environment variables (for reading)</a>
+reference.</p>
+</div>
+<div class="section" id="configuring-host">
+<h2><span class="section-number">8.8. </span>Configuring host<a class="headerlink" href="#configuring-host" title="Permalink to this headline">¶</a></h2>
+<p>Finally configure test.ungleich.ch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cdist</span> <span class="n">config</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">i</span> <span class="o">~/.</span><span class="n">cdist</span><span class="o">/</span><span class="n">manifest</span><span class="o">/</span><span class="n">sample</span> <span class="n">test</span><span class="o">.</span><span class="n">ungleich</span><span class="o">.</span><span class="n">ch</span>
+</pre></div>
+</div>
+<p>After cdist configuration is successfully finished our host is ready.</p>
+</div>
+<div class="section" id="creating-python-bottle-application">
+<h2><span class="section-number">8.9. </span>Creating python bottle application<a class="headerlink" href="#creating-python-bottle-application" title="Permalink to this headline">¶</a></h2>
+<p>We now need to create Bottle application. As you remember from the beginning
+of this walkthrough our type does not create the actual python application,
+its intention is only to configure hosting for specified user and project.
+It is up to the user to create his/her applications.</p>
+<p>Become app user:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">su</span> <span class="o">-</span><span class="n">l</span> <span class="n">app</span>
+</pre></div>
+</div>
+<div class="section" id="preparing-database">
+<h3><span class="section-number">8.9.1. </span>Preparing database<a class="headerlink" href="#preparing-database" title="Permalink to this headline">¶</a></h3>
+<p>We need to prepare database for our application. Create table and
+insert some items:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;create table items (item varchar(255));&quot;</span>
+
+<span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;insert into items(item) values(&#39;spam&#39;);&quot;</span>
+<span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;insert into items(item) values(&#39;eggs&#39;);&quot;</span>
+<span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;insert into items(item) values(&#39;sausage&#39;);&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-application">
+<h3><span class="section-number">8.9.2. </span>Creating application<a class="headerlink" href="#creating-application" title="Permalink to this headline">¶</a></h3>
+<p>Next create sample app:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="n">app</span>
+<span class="n">mkdir</span> <span class="n">sample</span>
+<span class="n">cd</span> <span class="n">sample</span>
+</pre></div>
+</div>
+<p>Create app.py with the following content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span> <span class="nn">bottle</span>
+<span class="kn">import</span> <span class="nn">bottle_pgsql</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">application</span> <span class="o">=</span> <span class="n">bottle</span><span class="o">.</span><span class="n">Bottle</span><span class="p">()</span>
+<span class="n">plugin</span> <span class="o">=</span> <span class="n">bottle_pgsql</span><span class="o">.</span><span class="n">Plugin</span><span class="p">(</span><span class="s1">&#39;dbname=app user=app password=&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_index</span><span class="p">(</span><span class="n">db</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;select * from items&#39;</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="s1">&#39;&lt;html&gt;&lt;body&gt;&lt;h3&gt;Items:&lt;/h3&gt;&lt;ul&gt;&#39;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">rv</span> <span class="o">+=</span> <span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;item&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span>
+    <span class="n">rv</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;&#39;</span>
+    <span class="k">return</span> <span class="n">rv</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">bottle</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create wsgi.py with the following content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="kn">import</span> <span class="nn">app</span>
+<span class="n">application</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">app</span>
+</pre></div>
+</div>
+<p>We have configured uWSGI with <strong>touch-reload = $projectname/wsgi.py</strong> so after
+we have changed our <strong>wsgi.py</strong> file uWSGI reloads the application.</p>
+<p>Our application selects and lists items from <strong>items</strong> table.</p>
+</div>
+<div class="section" id="opening-application">
+<h3><span class="section-number">8.9.3. </span>Opening application<a class="headerlink" href="#opening-application" title="Permalink to this headline">¶</a></h3>
+<p>Finally try the application:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">test</span><span class="o">.</span><span class="n">ungleich</span><span class="o">.</span><span class="n">ch</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>It should redirect to HTTPS and return:</p>
+<div class="highlight docutils container">
+<h3>Items:</h3>
+
+<ul>
+    <li>spam</li>
+    <li>eggs</li>
+    <li>sausage</li>
+</ul></div>
+</div>
+</div>
+<div class="section" id="what-s-next">
+<h2><span class="section-number">8.10. </span>What's next?<a class="headerlink" href="#what-s-next" title="Permalink to this headline">¶</a></h2>
+<p>Continue reading next sections ;)</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="man1/cdist.html" class="btn btn-neutral float-right" title="9. cdist(1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-quickstart.html" class="btn btn-neutral float-left" title="7. Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

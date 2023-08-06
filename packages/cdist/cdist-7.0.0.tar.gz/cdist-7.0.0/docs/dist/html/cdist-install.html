@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4. How to install cdist &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="5. How to upgrade cdist" href="cdist-upgrade.html" />
+    <link rel="prev" title="3. Supported operating systems" href="cdist-os.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. How to install cdist</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">4.1. Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#source-host">4.1.1. Source Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#target-hosts">4.1.2. Target Hosts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#install-cdist">4.2. Install cdist</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-git">4.2.1. From git</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#available-versions-in-git">4.2.1.1. Available versions in git</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#building-and-using-documentation-man-and-html">4.2.1.2. Building and using documentation (man and html)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#python-package">4.2.2. Python package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-source-with-signature-verification">4.2.3. Installing from source with signature verification</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-upgrade.html">5. How to upgrade cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">4. </span>How to install cdist</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-install.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-install-cdist">
+<h1><span class="section-number">4. </span>How to install cdist<a class="headerlink" href="#how-to-install-cdist" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2><span class="section-number">4.1. </span>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="source-host">
+<h3><span class="section-number">4.1.1. </span>Source Host<a class="headerlink" href="#source-host" title="Permalink to this headline">¶</a></h3>
+<p>This is the machine from which you will configure target hosts.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>/bin/sh: A POSIX like shell (for instance bash, dash, zsh)</p></li>
+<li><p>Python &gt;= 3.5</p></li>
+<li><p>SSH client</p></li>
+<li><p>sphinx with the rtd theme (for building html docs and/or the man pages)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="target-hosts">
+<h3><span class="section-number">4.1.2. </span>Target Hosts<a class="headerlink" href="#target-hosts" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>/bin/sh: A POSIX like shell (for instance bash, dash, zsh)</p></li>
+<li><p>SSH server</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="install-cdist">
+<h2><span class="section-number">4.2. </span>Install cdist<a class="headerlink" href="#install-cdist" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="from-git">
+<h3><span class="section-number">4.2.1. </span>From git<a class="headerlink" href="#from-git" title="Permalink to this headline">¶</a></h3>
+<p>Cloning cdist from git gives you the advantage of having
+a version control in place for development of your own stuff
+immediately.</p>
+<p>To install cdist, execute the following commands:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://code.ungleich.ch/ungleich-public/cdist.git
+<span class="nb">cd</span> cdist
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="k">$(</span><span class="nb">pwd</span> -P<span class="k">)</span>/bin
+</pre></div>
+</div>
+<p>From version 4.2.0 cdist tags and releases are signed.
+You can get GPG public key used for signing <a class="reference external" href="_static/pgp-key-EFD2AE4EC36B6901.asc">here</a>.
+It is assumed that you are familiar with <em>git</em> ways of signing and verification.</p>
+<p>You can also get cdist from <a class="reference external" href="https://github.com/ungleich/cdist">github mirror</a>.</p>
+<p>To install cdist with distutils from cloned repository, first you have to
+create version.py:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./bin/cdist-build-helper version
+</pre></div>
+</div>
+<p>Then you install it with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make install
+</pre></div>
+</div>
+<p>or with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make install-user
+</pre></div>
+</div>
+<p>to install it into user <em>site-packages</em> directory.
+Or directly with distutils:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python setup.py install
+</pre></div>
+</div>
+<p>Note that <cite>bin/cdist-build-helper</cite> script is intended for cdist maintainers.</p>
+<div class="section" id="available-versions-in-git">
+<h4><span class="section-number">4.2.1.1. </span>Available versions in git<a class="headerlink" href="#available-versions-in-git" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p>The active development takes place in the <strong>master</strong> branch</p></li>
+<li><p>The released versions can be found in the tags</p></li>
+</ul>
+</div></blockquote>
+<p>Other branches may be available for features or bugfixes, but they
+may vanish at any point. To select a specific branch use</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generic code</span>
+git checkout -b &lt;localbranchname&gt; origin/&lt;branchname&gt;
+</pre></div>
+</div>
+<p>So for instance if you want to use and stay with version 4.1, you can use</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git checkout -b <span class="m">4</span>.1 origin/4.1
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-and-using-documentation-man-and-html">
+<h4><span class="section-number">4.2.1.2. </span>Building and using documentation (man and html)<a class="headerlink" href="#building-and-using-documentation-man-and-html" title="Permalink to this headline">¶</a></h4>
+<p>If you want to build and use the documentation, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make docs
+</pre></div>
+</div>
+<p>Documentation comes in two formats, man pages and full HTML
+documentation. Documentation is built into distribution's
+docs/dist directory. man pages are in docs/dist/man and
+HTML documentation in docs/dist/html.</p>
+<p>If you want to use man pages, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">MANPATH</span><span class="o">=</span><span class="nv">$MANPATH</span>:<span class="k">$(</span><span class="nb">pwd</span> -P<span class="k">)</span>/docs/dist/man
+</pre></div>
+</div>
+<p>Or you can move man pages from docs/dist/man directory to some
+other directory and add it to MANPATH.</p>
+<p>Full HTML documentation can be accessed at docs/dist/html/index.html.</p>
+<p>You can also build only man pages or only html documentation, for
+only man pages run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make man
+</pre></div>
+</div>
+<p>for only html documentation run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make html
+</pre></div>
+</div>
+<p>You can also build man pages for types in your ~/.cdist directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make dotman
+</pre></div>
+</div>
+<p>Built man pages are now in docs/dist/man directory. If you have
+some other custom .cdist directory, e.g. /opt/cdist then use:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">DOT_CDIST_PATH</span><span class="o">=</span>/opt/cdist dotman
+</pre></div>
+</div>
+<p>Note that <cite>dotman</cite>-target has to be built before a <cite>make docs</cite>-run, otherwise
+the custom man-pages are not picked up.</p>
+</div>
+</div>
+<div class="section" id="python-package">
+<h3><span class="section-number">4.2.2. </span>Python package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h3>
+<p>Cdist is available as a python package at
+<a class="reference external" href="http://pypi.python.org/pypi/cdist/">PyPi</a>. You can install it using</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install cdist
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-from-source-with-signature-verification">
+<h3><span class="section-number">4.2.3. </span>Installing from source with signature verification<a class="headerlink" href="#installing-from-source-with-signature-verification" title="Permalink to this headline">¶</a></h3>
+<p>If you want to install cdist from signed source and verify it, first you need to
+download cdist archive and its detached signature.</p>
+<p>Get both, <em>cdist-x.y.z.tar.gz</em> and <em>cdist-x.y.z.tar.gz.asc</em> from release
+notes of the desired tag <em>x.y.z</em> at
+<a class="reference external" href="https://code.ungleich.ch/ungleich-public/cdist/-/tags">cdist git repository</a>.</p>
+<p>Get GPG public key used for signing <a class="reference external" href="_static/pgp-key-EFD2AE4EC36B6901.asc">here</a>
+and import it into GPG.</p>
+<p>Now cdist source archive can be verified using <cite>gpg</cite>, e.g. to verify <cite>cdist-6.2.0</cite>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ gpg --verify cdist-6.2.0.tar.gz.asc cdist-6.2.0.targ.gz
+gpg: Signature made Sat Nov <span class="m">30</span> <span class="m">23</span>:14:19 <span class="m">2019</span> CET
+gpg:                using RSA key 69767822F3ECC3C349C1EFFFEFD2AE4EC36B6901
+gpg: Good signature from <span class="s2">&quot;ungleich GmbH (ungleich FOSS) &lt;foss@ungleich.ch&gt;&quot;</span> <span class="o">[</span>ultimate<span class="o">]</span>
+</pre></div>
+</div>
+<p>Further steps are the same as for <a class="reference external" href="cdist-install.html#from-git">installing from git</a>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-upgrade.html" class="btn btn-neutral float-right" title="5. How to upgrade cdist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-os.html" class="btn btn-neutral float-left" title="3. Supported operating systems" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

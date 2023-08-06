@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5. How to upgrade cdist &mdash; cdist 7.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Support" href="cdist-support.html" />
+    <link rel="prev" title="4. How to install cdist" href="cdist-install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cdist
+          
+
+          
+            
+            <img src="_static/cdist-logo.jpeg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cdist-why.html">1. Why should I use cdist?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-features.html">2. Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-os.html">3. Supported operating systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-install.html">4. How to install cdist</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. How to upgrade cdist</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#update-the-git-installation">5.1. Update the git installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#safely-upgrading-to-new-versions">5.1.1. Safely upgrading to new versions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#update-the-python-package">5.2. Update the python package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-update-instructions">5.3. General update instructions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-3-0-to-3-1">5.3.1. Updating from 3.0 to 3.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-2-3-to-3-0">5.3.2. Updating from 2.3 to 3.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-2-2-to-2-3">5.3.3. Updating from 2.2 to 2.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-2-1-to-2-2">5.3.4. Updating from 2.1 to 2.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-2-0-to-2-1">5.3.5. Updating from 2.0 to 2.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-7-to-2-0">5.3.6. Updating from 1.7 to 2.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-6-to-1-7">5.3.7. Updating from 1.6 to 1.7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-5-to-1-6">5.3.8. Updating from 1.5 to 1.6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-3-to-1-5">5.3.9. Updating from 1.3 to 1.5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-2-to-1-3">5.3.10. Updating from 1.2 to 1.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-1-to-1-2">5.3.11. Updating from 1.1 to 1.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-from-1-0-to-1-1">5.3.12. Updating from 1.0 to 1.1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-support.html">6. Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-quickstart.html">7. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-real-world.html">8. Dive into real world cdist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist.html">9. cdist(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-dump.html">10. cdist-dump(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="man1/cdist-new-type.html">11. cdist-new-type(1)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-bootstrap.html">12. Bootstrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-configuration.html">13. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-manifest.html">14. Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-type.html">15. cdist type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-types.html">16. cdist types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-explorer.html">17. Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-messaging.html">18. Messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-parallelization.html">19. Parallelization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-inventory.html">20. Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-preos.html">21. PreOS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-scan.html">22. Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-integration.html">23. cdist integration / using cdist as library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-reference.html">24. Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-best-practice.html">25. Best practice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-stages.html">26. Execution stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-cache.html">27. Local cache overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-saving-output-streams.html">28. Saving output streams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-remote-exec-copy.html">29. Remote exec and copy commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-hacker.html">30. Hacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdist-troubleshooting.html">31. Troubleshooting</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cdist</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li><span class="section-number">5. </span>How to upgrade cdist</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cdist-upgrade.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-upgrade-cdist">
+<h1><span class="section-number">5. </span>How to upgrade cdist<a class="headerlink" href="#how-to-upgrade-cdist" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="update-the-git-installation">
+<h2><span class="section-number">5.1. </span>Update the git installation<a class="headerlink" href="#update-the-git-installation" title="Permalink to this headline">¶</a></h2>
+<p>To upgrade cdist in the current branch use</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git pull
+
+<span class="c1"># Also update the manpages</span>
+make man
+<span class="nb">export</span> <span class="nv">MANPATH</span><span class="o">=</span><span class="nv">$MANPATH</span>:<span class="k">$(</span><span class="nb">pwd</span> -P<span class="k">)</span>/doc/man
+</pre></div>
+</div>
+<p>If you stay on a version branch (i.e. 1.0, 1.1., ...), nothing should break.
+The master branch on the other hand is the development branch and may not be
+working, break your setup or eat the tree in your garden.</p>
+<div class="section" id="safely-upgrading-to-new-versions">
+<h3><span class="section-number">5.1.1. </span>Safely upgrading to new versions<a class="headerlink" href="#safely-upgrading-to-new-versions" title="Permalink to this headline">¶</a></h3>
+<p>To upgrade to <strong>any</strong> further cdist version, you can take the
+following procedure to do a safe upgrade:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create new branch to try out the update</span>
+git checkout -b upgrade_cdist
+
+<span class="c1"># Get latest cdist version in git database</span>
+git fetch -v
+
+<span class="c1"># see what will happen on merge - replace</span>
+<span class="c1"># master with the branch you plan to merge</span>
+git diff upgrade_cdist..origin/master
+
+<span class="c1"># Merge the new version</span>
+git merge origin/master
+</pre></div>
+</div>
+<p>Now you can ensure all custom types work with the new version.
+Assume that you need to go back to an older version during
+the migration/update, you can do so as follows:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># commit changes</span>
+git commit -m ...
+
+<span class="c1"># go back to original branch</span>
+git checkout master
+</pre></div>
+</div>
+<p>After that, you can go back and continue the upgrade:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># git checkout upgrade_cdist</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="update-the-python-package">
+<h2><span class="section-number">5.2. </span>Update the python package<a class="headerlink" href="#update-the-python-package" title="Permalink to this headline">¶</a></h2>
+<p>To upgrade to the latest version do</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install --upgrade cdist
+</pre></div>
+</div>
+</div>
+<div class="section" id="general-update-instructions">
+<h2><span class="section-number">5.3. </span>General update instructions<a class="headerlink" href="#general-update-instructions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="updating-from-3-0-to-3-1">
+<h3><span class="section-number">5.3.1. </span>Updating from 3.0 to 3.1<a class="headerlink" href="#updating-from-3-0-to-3-1" title="Permalink to this headline">¶</a></h3>
+<p>The type <strong>__ssh_authorized_keys</strong> now also manages existing keys,
+not only the ones added by cdist.</p>
+</div>
+<div class="section" id="updating-from-2-3-to-3-0">
+<h3><span class="section-number">5.3.2. </span>Updating from 2.3 to 3.0<a class="headerlink" href="#updating-from-2-3-to-3-0" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>changed</strong> attribute of objects has been removed.
+Use <a class="reference external" href="/software/cdist/man/3.0.0/man7/cdist-messaging.html">messaging</a> instead.</p>
+</div>
+<div class="section" id="updating-from-2-2-to-2-3">
+<h3><span class="section-number">5.3.3. </span>Updating from 2.2 to 2.3<a class="headerlink" href="#updating-from-2-2-to-2-3" title="Permalink to this headline">¶</a></h3>
+<p>No incompatibilities.</p>
+</div>
+<div class="section" id="updating-from-2-1-to-2-2">
+<h3><span class="section-number">5.3.4. </span>Updating from 2.1 to 2.2<a class="headerlink" href="#updating-from-2-1-to-2-2" title="Permalink to this headline">¶</a></h3>
+<p>Starting with 2.2, the syntax for requiring a singleton type changed:
+Old format:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__singleton_type/singleton&quot;</span> ...
+</pre></div>
+</div>
+<p>New format:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">require</span><span class="o">=</span><span class="s2">&quot;__singleton_type&quot;</span> ...
+</pre></div>
+</div>
+<p>Internally the &quot;singleton&quot; object id was dropped to make life more easy.
+You can probably fix your configuration by running the following code
+snippet (currently untested, please report back if it works for you):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>find ~/.cdist/* -type f -exec sed -i <span class="s1">&#39;s,/singleton,,&#39;</span> <span class="o">{}</span> <span class="se">\;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="updating-from-2-0-to-2-1">
+<h3><span class="section-number">5.3.5. </span>Updating from 2.0 to 2.1<a class="headerlink" href="#updating-from-2-0-to-2-1" title="Permalink to this headline">¶</a></h3>
+<p>Have a look at the update guide for [[2.0 to 2.1|2.0-to-2.1]].</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Type <strong>__package* and __process</strong> use --state <strong>present</strong> or <strong>absent</strong>.
+The states <strong>removed/installed</strong> and <strong>stopped/running</strong> have been removed.
+Support for the new states is already present in 2.0.</p></li>
+<li><p>Type <strong>__directory</strong>: Parameter --parents and --recursive are now boolean
+The old &quot;yes/no&quot; values need to be removed.</p></li>
+<li><p>Type <strong>__rvm_ruby</strong>: Parameter --default is now boolean
+The old &quot;yes/no&quot; values need to be removed.</p></li>
+<li><p>Type <strong>__rvm_gemset</strong>: Parameter --default is now boolean
+The old &quot;yes/no&quot; values need to be removed.</p></li>
+<li><p>Type <strong>__addifnosuchline</strong> and <strong>__removeline</strong> have been replaced by <strong>__line</strong></p></li>
+<li><p>The <strong>conf</strong> directory is now located at <strong>cdist/conf</strong>.
+You need to migrate your types, explorers and manifests
+manually to the new location.</p></li>
+<li><p>Replace the variable <strong>__self</strong> by <strong>__object_name</strong>
+Support for the variable <strong>__object_name</strong> is already present in 2.0.</p></li>
+<li><p>The types <strong>__autofs</strong>, <strong>__autofs_map</strong> and <strong>__autofs_reload</strong> have been removed
+(no maintainer, no users)</p></li>
+<li><p>Type <strong>__user</strong>: Parameter --groups removed (use the new __user_groups type)</p></li>
+<li><dl class="simple">
+<dt>Type <strong>__ssh_authorized_key</strong> has been replaced by more flexible type</dt><dd><p><strong>__ssh_authorized_keys</strong></p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="updating-from-1-7-to-2-0">
+<h3><span class="section-number">5.3.6. </span>Updating from 1.7 to 2.0<a class="headerlink" href="#updating-from-1-7-to-2-0" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Ensure python (&gt;= 3.2) is installed on the source host</p></li>
+<li><p>Use &quot;cdist config host&quot; instead of &quot;cdist-deploy-to host&quot;</p></li>
+<li><p>Use &quot;cdist config -p host1 host2&quot; instead of &quot;cdist-mass-deploy&quot;</p></li>
+<li><p>Use &quot;cdist banner&quot; for fun</p></li>
+<li><p>Use <strong>__object_name</strong> instead of <strong>__self</strong> in manifests</p></li>
+</ul>
+</div>
+<div class="section" id="updating-from-1-6-to-1-7">
+<h3><span class="section-number">5.3.7. </span>Updating from 1.6 to 1.7<a class="headerlink" href="#updating-from-1-6-to-1-7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>If you used the global explorer <strong>hardware_type</strong>, you need to change
+your code to use <strong>machine</strong> instead.</p></li>
+</ul>
+</div>
+<div class="section" id="updating-from-1-5-to-1-6">
+<h3><span class="section-number">5.3.8. </span>Updating from 1.5 to 1.6<a class="headerlink" href="#updating-from-1-5-to-1-6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>If you used <strong>__package_apt --preseed</strong>, you need to use the new
+type <strong>__debconf_set_selections</strong> instead.</p></li>
+<li><p>The <strong>__package</strong> types accepted either --state deinstalled or
+--state uninstalled. Starting with 1.6, it was made consistently
+to --state removed.</p></li>
+</ul>
+</div>
+<div class="section" id="updating-from-1-3-to-1-5">
+<h3><span class="section-number">5.3.9. </span>Updating from 1.3 to 1.5<a class="headerlink" href="#updating-from-1-3-to-1-5" title="Permalink to this headline">¶</a></h3>
+<p>No incompatibilities.</p>
+</div>
+<div class="section" id="updating-from-1-2-to-1-3">
+<h3><span class="section-number">5.3.10. </span>Updating from 1.2 to 1.3<a class="headerlink" href="#updating-from-1-2-to-1-3" title="Permalink to this headline">¶</a></h3>
+<p>Rename <strong>gencode</strong> of every type to <strong>gencode-remote</strong>.</p>
+</div>
+<div class="section" id="updating-from-1-1-to-1-2">
+<h3><span class="section-number">5.3.11. </span>Updating from 1.1 to 1.2<a class="headerlink" href="#updating-from-1-1-to-1-2" title="Permalink to this headline">¶</a></h3>
+<p>No incompatibilities.</p>
+</div>
+<div class="section" id="updating-from-1-0-to-1-1">
+<h3><span class="section-number">5.3.12. </span>Updating from 1.0 to 1.1<a class="headerlink" href="#updating-from-1-0-to-1-1" title="Permalink to this headline">¶</a></h3>
+<p>In 1.1 the type <strong>__file</strong> was split into <strong>__directory</strong>, <strong>__file</strong> and
+<strong>__link</strong>. The parameter <strong>--type</strong> was removed from <strong>__file</strong>. Thus you
+need to replace <strong>__file</strong> calls in your manifests:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Remove --type from all __file calls</p></li>
+<li><p>If type was symlink, use __link and --type symbolic</p></li>
+<li><p>If type was directory, use __directory</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cdist-support.html" class="btn btn-neutral float-right" title="6. Support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cdist-install.html" class="btn btn-neutral float-left" title="4. How to install cdist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ungleich GmbH 2021
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

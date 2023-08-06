@@ -1,0 +1,1040 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "CDIST" "1" "Jul 31, 2022" "7.0.0" "cdist"
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH NAME
+.sp
+cdist \- Usable Configuration Management
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+cdist [\-h] [\-V] {banner,config,install,inventory,preos,shell,info} ...
+
+cdist banner [\-h] [\-l LOGLEVEL] [\-q] [\-v]
+
+cdist config [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+             [\-g CONFIG_FILE] [\-4] [\-6] [\-C CACHE_PATH_PATTERN]
+             [\-c CONF_DIR] [\-i MANIFEST] [\-j [JOBS]] [\-\-log\-server]
+             [\-n] [\-o OUT_PATH] [\-P] [\-R [{tar,tgz,tbz2,txz}]]
+             [\-r REMOTE_OUT_PATH] [\-\-remote\-copy REMOTE_COPY]
+             [\-\-remote\-exec REMOTE_EXEC] [\-S] [\-I INVENTORY_DIR] [\-A]
+             [\-a] [\-f HOSTFILE] [\-p [HOST_MAX]] [\-s] [\-t]
+             [host [host ...]]
+
+cdist install [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+              [\-g CONFIG_FILE] [\-4] [\-6] [\-C CACHE_PATH_PATTERN]
+              [\-c CONF_DIR] [\-i MANIFEST] [\-j [JOBS]] [\-\-log\-server]
+              [\-n] [\-o OUT_PATH] [\-P] [\-R [{tar,tgz,tbz2,txz}]]
+              [\-r REMOTE_OUT_PATH] [\-\-remote\-copy REMOTE_COPY]
+              [\-\-remote\-exec REMOTE_EXEC] [\-S] [\-I INVENTORY_DIR] [\-A]
+              [\-a] [\-f HOSTFILE] [\-p [HOST_MAX]] [\-s] [\-t]
+              [host [host ...]]
+
+cdist inventory [\-h] {add\-host,add\-tag,del\-host,del\-tag,list} ...
+
+cdist inventory add\-host [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+                         [\-g CONFIG_FILE] [\-I INVENTORY_DIR] [\-f HOSTFILE]
+                         [host [host ...]]
+
+cdist inventory add\-tag [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+                        [\-g CONFIG_FILE] [\-I INVENTORY_DIR] [\-f HOSTFILE]
+                        [\-T TAGFILE] [\-t TAGLIST]
+                        [host [host ...]]
+
+cdist inventory del\-host [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+                         [\-g CONFIG_FILE] [\-I INVENTORY_DIR] [\-a]
+                         [\-f HOSTFILE]
+                         [host [host ...]]
+
+cdist inventory del\-tag [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+                        [\-g CONFIG_FILE] [\-I INVENTORY_DIR] [\-a]
+                        [\-f HOSTFILE] [\-T TAGFILE] [\-t TAGLIST]
+                        [host [host ...]]
+
+cdist inventory list [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-\-colors WHEN]
+                     [\-g CONFIG_FILE] [\-I INVENTORY_DIR] [\-a] [\-f HOSTFILE]
+                     [\-H] [\-t]
+                     [host [host ...]]
+
+cdist preos [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-c CONF_DIR] [\-g CONFIG_FILE] [\-L]
+            [preos] ...
+
+cdist preos [preos\-options] debian [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-a ARCH] [\-B]
+                                   [\-C] [\-c CDIST_PARAMS] [\-D DRIVE] [\-e REMOTE_EXEC]
+                                   [\-i MANIFEST] [\-k KEYFILE ] [\-m MIRROR]
+                                   [\-P ROOT_PASSWORD] [\-p PXE_BOOT_DIR] [\-r]
+                                   [\-S SCRIPT] [\-s SUITE] [\-y REMOTE_COPY]
+                                   target_dir
+
+cdist preos [preos\-options] devuan [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-a ARCH] [\-B]
+                                   [\-C] [\-c CDIST_PARAMS] [\-D DRIVE] [\-e REMOTE_EXEC]
+                                   [\-i MANIFEST] [\-k KEYFILE ] [\-m MIRROR]
+                                   [\-P ROOT_PASSWORD] [\-p PXE_BOOT_DIR] [\-r]
+                                   [\-S SCRIPT] [\-s SUITE] [\-y REMOTE_COPY]
+                                   target_dir
+
+cdist preos [preos\-options] ubuntu [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-b] [\-a ARCH] [\-B]
+                                   [\-C] [\-c CDIST_PARAMS] [\-D DRIVE] [\-e REMOTE_EXEC]
+                                   [\-i MANIFEST] [\-k KEYFILE ] [\-m MIRROR]
+                                   [\-P ROOT_PASSWORD] [\-p PXE_BOOT_DIR] [\-r]
+                                   [\-S SCRIPT] [\-s SUITE] [\-y REMOTE_COPY]
+                                   target_dir
+
+cdist shell [\-h] [\-l LOGLEVEL] [\-q] [\-v] [\-\-colors WHEN] [\-s SHELL]
+
+cdist info [\-h] [\-a] [\-c CONF_DIR] [\-e] [\-F] [\-f] [\-g CONFIG_FILE] [\-t]
+           [pattern]
+
+cdist scan \-I INTERFACE [\-\-m MODE] [\-\-name\-mapper PATH_TO_SCRIPT] [\-\-list]
+           [\-d CONFIG_DELAY] [\-t TRIGGER_DELAY]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH DESCRIPTION
+.sp
+cdist is the frontend executable to the cdist configuration management.
+It supports different subcommands as explained below.
+.sp
+It is written in Python so it requires \fBpython\fP(1) to be installed.
+It requires a minimal Python version 3.5.
+.SH GENERAL
+.sp
+All commands accept the following options:
+.INDENT 0.0
+.TP
+\fB\-h, \-\-help\fP
+Show the help screen.
+.TP
+\fB\-\-colors WHEN\fP
+Colorize cdist\(aqs output. If enabled, cdist will use different colors for
+different log levels.
+WHEN recognizes the values \(aqalways\(aq, \(aqnever\(aq, and \(aqauto\(aq (the default).
+.sp
+If the value is \(aqauto\(aq, colored output is enabled if stdout is a TTY
+unless the NO_COLOR (\fI\%https://no\-color.org/\fP) environment variable is defined.
+.TP
+\fB\-l LOGLEVEL, \-\-log\-level LOGLEVEL\fP
+Set the specified verbosity level. The levels, in
+order from the lowest to the highest, are: ERROR (\-1),
+WARNING (0), INFO (1), VERBOSE (2), DEBUG (3), TRACE (4
+or higher). If used along with \-v then \-v increases
+last set value and \-l overwrites last set value.
+.TP
+\fB\-q, \-\-quiet\fP
+Quiet mode: disables logging, including WARNING and ERROR.
+.TP
+\fB\-v, \-\-verbose\fP
+Increase the verbosity level. Every instance of \-v
+increments the verbosity level by one. Its default
+value is 0 which includes ERROR and WARNING levels.
+The levels, in order from the lowest to the highest,
+are: ERROR (\-1), WARNING (0), INFO (1), VERBOSE (2),
+DEBUG (3), TRACE (4 or higher). If used along with \-l
+then \-l overwrites last set value and \-v increases
+last set value.
+.TP
+\fB\-V, \-\-version\fP
+Show version and exit.
+.UNINDENT
+.SH BANNER
+.sp
+Displays the cdist banner. Useful for printing
+cdist posters \- a must have for every office.
+.SH CONFIG/INSTALL
+.sp
+Configure/install one or more hosts.
+Install command is currently in beta.
+.INDENT 0.0
+.TP
+\fB\-4, \-\-force\-ipv4\fP
+Force to use IPv4 addresses only. No influence for
+custom remote commands.
+.TP
+\fB\-6, \-\-force\-ipv6\fP
+Force to use IPv6 addresses only. No influence for
+custom remote commands.
+.TP
+\fB\-A, \-\-all\-tagged\fP
+Use all hosts present in tags db. Currently in beta.
+.TP
+\fB\-a, \-\-all\fP
+List hosts that have all specified tags, if \-t/\-\-tag
+is specified.
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-C CACHE_PATH_PATTERN, \-\-cache\-path\-pattern CACHE_PATH_PATTERN\fP
+Specify custom cache path pattern. If it is not set then
+default hostdir is used. For more info on format see
+\fBCACHE PATH PATTERN FORMAT\fP below.
+.TP
+\fB\-c CONF_DIR, \-\-conf\-dir CONF_DIR\fP
+Add a configuration directory. Can be specified multiple times.
+If configuration directories contain conflicting types, explorers or
+manifests, then the last one found is used.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read specified file for a list of additional hosts to operate on
+or if \(aq\-\(aq is given, read stdin (one host per line). For the file
+format see \fBHOSTFILE FORMAT\fP below.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.TP
+\fB\-i MANIFEST, \-\-initial\-manifest MANIFEST\fP
+Path to a cdist manifest or \- to read from stdin.
+.TP
+\fB\-j [JOBS], \-\-jobs [JOBS]\fP
+Operate in parallel in specified maximum number of
+jobs. Global explorers, object prepare and object run
+are supported. Without argument CPU count is used by
+default.
+.TP
+\fB\-\-log\-server\fP
+Start a log server for sub processes to use. This is
+mainly useful when running cdist nested from a code\-
+local script. Log server is always implicitly started
+for \(aqinstall\(aq command.
+.TP
+\fB\-n, \-\-dry\-run\fP
+Do not execute code.
+.TP
+\fB\-o OUT_PATH, \-\-out\-dir OUT_PATH\fP
+Directory to save cdist output in.
+.TP
+\fB\-P, \-\-timestamp\fP
+Timestamp log messages with the current local date and time
+in the format: YYYYMMDDHHMMSS.us.
+.TP
+\fB\-p [HOST_MAX], \-\-parallel [HOST_MAX]\fP
+Operate on multiple hosts in parallel for specified
+maximum hosts at a time. Without argument CPU count is
+used by default.
+.TP
+\fB\-R [{tar,tgz,tbz2,txz}], \-\-use\-archiving [{tar,tgz,tbz2,txz}]\fP
+Operate by using archiving with compression where
+appropriate. Supported values are: tar \- tar archive,
+tgz \- gzip tar archive (the default), tbz2 \- bzip2 tar
+archive and txz \- lzma tar archive. Currently in beta.
+.TP
+\fB\-r REMOTE_OUT_PATH, \-\-remote\-out\-dir REMOTE_OUT_PATH\fP
+Directory to save cdist output in on the target host.
+.TP
+\fB\-S, \-\-disable\-saving\-output\-streams\fP
+Disable saving output streams.
+.TP
+\fB\-s, \-\-sequential\fP
+Operate on multiple hosts sequentially (default).
+.TP
+\fB\-\-remote\-copy REMOTE_COPY\fP
+Command to use for remote copy (should behave like scp).
+.TP
+\fB\-\-remote\-exec REMOTE_EXEC\fP
+Command to use for remote execution (should behave like ssh).
+.TP
+\fB\-t, \-\-tag\fP
+Host is specified by tag, not hostname/address; list
+all hosts that contain any of specified tags.
+Currently in beta.
+.UNINDENT
+.SS HOSTFILE FORMAT
+.sp
+The HOSTFILE contains one host per line.
+A comment is started with \(aq#\(aq and continues to the end of the line.
+Any leading and trailing whitespace on a line is ignored.
+Empty lines are ignored/skipped.
+.sp
+The Hostfile lines are processed as follows. First, all comments are
+removed. Then all leading and trailing whitespace characters are stripped.
+If such a line results in empty line it is ignored/skipped. Otherwise,
+host string is used.
+.SS CACHE PATH PATTERN FORMAT
+.sp
+Cache path pattern specifies path for a cache directory subdirectory.
+In the path, \(aq%N\(aq will be substituted by the target host, \(aq%h\(aq will
+be substituted by the calculated host directory, \(aq%P\(aq will be substituted
+by the current process id. All format codes that
+\fBpython\fP \fBdatetime.strftime()\fP function supports, except
+\(aq%h\(aq, are supported. These date/time directives format cdist config/install
+start time.
+.sp
+If empty pattern is specified then default calculated host directory
+is used.
+.sp
+Calculated host directory is a hash of a host cdist operates on.
+.sp
+Resulting path is used to specify cache path subdirectory under which
+current host cache data are saved.
+.SH INVENTORY
+.sp
+Manage inventory database.
+Currently in beta with all sub\-commands.
+.SH INVENTORY ADD-HOST
+.sp
+Add host(s) to inventory database.
+.INDENT 0.0
+.TP
+\fBhost\fP
+Host(s) to add.
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read additional hosts to add from specified file or
+from stdin if \(aq\-\(aq (each host on separate line).
+Hostfile format is the same as config hostfile format.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.UNINDENT
+.SH INVENTORY ADD-TAG
+.sp
+Add tag(s) to inventory database.
+.INDENT 0.0
+.TP
+\fBhost\fP
+List of host(s) for which tags are added.
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read additional hosts to add tags from specified file
+or from stdin if \(aq\-\(aq (each host on separate line).
+Hostfile format is the same as config hostfile format.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.TP
+\fB\-T TAGFILE, \-\-tag\-file TAGFILE\fP
+Read additional tags to add from specified file or
+from stdin if \(aq\-\(aq (each tag on separate line).
+Tagfile format is the same as config hostfile format.
+.TP
+\fB\-t TAGLIST, \-\-taglist TAGLIST\fP
+Tag list to be added for specified host(s), comma
+separated values.
+.UNINDENT
+.SH INVENTORY DEL-HOST
+.sp
+Delete host(s) from inventory database.
+.INDENT 0.0
+.TP
+\fBhost\fP
+Host(s) to delete.
+.TP
+\fB\-a, \-\-all\fP
+Delete all hosts.
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read additional hosts to delete from specified file or
+from stdin if \(aq\-\(aq (each host on separate line).
+Hostfile format is the same as config hostfile format.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.UNINDENT
+.SH INVENTORY DEL-TAG
+.sp
+Delete tag(s) from inventory database.
+.INDENT 0.0
+.TP
+\fBhost\fP
+List of host(s) for which tags are deleted.
+.TP
+\fB\-a, \-\-all\fP
+Delete all tags for specified host(s).
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read additional hosts to delete tags for from
+specified file or from stdin if \(aq\-\(aq (each host on
+separate line). Hostfile format is the same as
+config hostfile format.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.TP
+\fB\-T TAGFILE, \-\-tag\-file TAGFILE\fP
+Read additional tags from specified file or from stdin
+if \(aq\-\(aq (each tag on separate line).
+Tagfile format is the same as config hostfile format.
+.TP
+\fB\-t TAGLIST, \-\-taglist TAGLIST\fP
+Tag list to be deleted for specified host(s), comma
+separated values.
+.UNINDENT
+.SH INVENTORY LIST
+.sp
+List inventory database.
+.INDENT 0.0
+.TP
+\fBhost\fP
+Host(s) to list.
+.TP
+\fB\-a, \-\-all\fP
+List hosts that have all specified tags, if \-t/\-\-tag
+is specified.
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-f HOSTFILE, \-\-file HOSTFILE\fP
+Read additional hosts to list from specified file or
+from stdin if \(aq\-\(aq (each host on separate line). If no
+host or host file is specified then, by default, list
+all. Hostfile format is the same as config hostfile format.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-H, \-\-host\-only\fP
+Suppress tags listing.
+.TP
+\fB\-I INVENTORY_DIR, \-\-inventory INVENTORY_DIR\fP
+Use specified custom inventory directory. Inventory
+directory is set up by the following rules: if cdist
+configuration resolves this value then specified
+directory is used, if HOME env var is set then
+~/.cdit/inventory is used, otherwise distribution
+inventory directory is used.
+.TP
+\fB\-t, \-\-tag\fP
+Host is specified by tag, not hostname/address; list
+all hosts that contain any of specified tags.
+.UNINDENT
+.SH PREOS
+.sp
+Create PreOS.
+.INDENT 0.0
+.TP
+\fB\-c CONF_DIR, \-\-conf\-dir CONF_DIR\fP
+Add configuration directory (one that contains "preos" subdirectory).
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-L, \-\-list\-preoses\fP
+List available PreOS\-es.
+.UNINDENT
+.sp
+Currently, the following PreOS\-es are supported:
+.INDENT 0.0
+.IP \(bu 2
+debian
+.IP \(bu 2
+ubuntu
+.IP \(bu 2
+devuan
+.UNINDENT
+.SH PREOS DEBIAN/DEVUAN
+.INDENT 0.0
+.TP
+\fBtarget_dir\fP
+target directory where PreOS will be bootstrapped
+.TP
+\fB\-a ARCH, \-\-arch ARCH\fP
+target debootstrap architecture, by default \(aqamd64\(aq
+.TP
+\fB\-B, \-\-bootstrap\fP
+do bootstrap step
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-C, \-\-configure\fP
+do configure step
+.TP
+\fB\-c CDIST_PARAMS, \-\-cdist\-params CDIST_PARAMS\fP
+parameters that will be passed to cdist config, by
+default \(aq\-v\(aq is used
+.TP
+\fB\-D DRIVE, \-\-drive\-boot DRIVE\fP
+create bootable PreOS on specified drive
+.TP
+\fB\-e REMOTE_EXEC, \-\-remote\-exec REMOTE_EXEC\fP
+remote exec that cdist config will use, by default
+internal script is used
+.TP
+\fB\-i MANIFEST, \-\-init\-manifest MANIFEST\fP
+init manifest that cdist config will use, by default
+internal init manifest is used
+.TP
+\fB\-k KEYFILE, \-\-keyfile KEYFILE\fP
+ssh key files that will be added to cdist config;
+\(aq\fB__ssh_authorized_keys root ...\fP\(aq type is appended to initial manifest
+.TP
+\fB\-m MIRROR, \-\-mirror MIRROR\fP
+use specified mirror for debootstrap
+.TP
+\fB\-P ROOT_PASSWORD, \-\-root\-password ROOT_PASSWORD\fP
+Set specified password for root, generated by default
+.TP
+\fB\-p PXE_BOOT_DIR, \-\-pxe\-boot\-dir PXE_BOOT_DIR\fP
+PXE boot directory
+.TP
+\fB\-r, \-\-rm\-bootstrap\-dir\fP
+remove target directory after finishing
+.TP
+\fB\-S SCRIPT, \-\-script SCRIPT\fP
+use specified script for debootstrap
+.TP
+\fB\-s SUITE, \-\-suite SUITE\fP
+suite used for debootstrap, by default \(aqstable\(aq
+.TP
+\fB\-y REMOTE_COPY, \-\-remote\-copy REMOTE_COPY\fP
+remote copy that cdist config will use, by default
+internal script is used
+.UNINDENT
+.SH PREOS UBUNTU
+.INDENT 0.0
+.TP
+\fBtarget_dir\fP
+target directory where PreOS will be bootstrapped
+.TP
+\fB\-a ARCH, \-\-arch ARCH\fP
+target debootstrap architecture, by default \(aqamd64\(aq
+.TP
+\fB\-B, \-\-bootstrap\fP
+do bootstrap step
+.TP
+\fB\-b, \-\-beta\fP
+Enable beta functionality.
+.TP
+\fB\-C, \-\-configure\fP
+do configure step
+.TP
+\fB\-c CDIST_PARAMS, \-\-cdist\-params CDIST_PARAMS\fP
+parameters that will be passed to cdist config, by
+default \(aq\-v\(aq is used
+.TP
+\fB\-D DRIVE, \-\-drive\-boot DRIVE\fP
+create bootable PreOS on specified drive
+.TP
+\fB\-e REMOTE_EXEC, \-\-remote\-exec REMOTE_EXEC\fP
+remote exec that cdist config will use, by default
+internal script is used
+.TP
+\fB\-i MANIFEST, \-\-init\-manifest MANIFEST\fP
+init manifest that cdist config will use, by default
+internal init manifest is used
+.TP
+\fB\-k KEYFILE, \-\-keyfile KEYFILE\fP
+ssh key files that will be added to cdist config;
+\(aq\fB__ssh_authorized_keys root ...\fP\(aq type is appended to initial manifest
+.TP
+\fB\-m MIRROR, \-\-mirror MIRROR\fP
+use specified mirror for debootstrap
+.TP
+\fB\-P ROOT_PASSWORD, \-\-root\-password ROOT_PASSWORD\fP
+Set specified password for root, generated by default
+.TP
+\fB\-p PXE_BOOT_DIR, \-\-pxe\-boot\-dir PXE_BOOT_DIR\fP
+PXE boot directory
+.TP
+\fB\-r, \-\-rm\-bootstrap\-dir\fP
+remove target directory after finishing
+.TP
+\fB\-S SCRIPT, \-\-script SCRIPT\fP
+use specified script for debootstrap
+.TP
+\fB\-s SUITE, \-\-suite SUITE\fP
+suite used for debootstrap, by default \(aqxenial\(aq
+.TP
+\fB\-y REMOTE_COPY, \-\-remote\-copy REMOTE_COPY\fP
+remote copy that cdist config will use, by default
+internal script is used
+.UNINDENT
+.SH SHELL
+.sp
+This command allows you to spawn a shell that enables access
+to the types as commands. It can be thought as an
+"interactive manifest" environment. See below for example
+usage. Its primary use is for debugging type parameters.
+.INDENT 0.0
+.TP
+\fB\-s SHELL, \-\-shell SHELL\fP
+Select shell to use, defaults to current shell. Used shell should
+be POSIX compatible shell.
+.UNINDENT
+.SH INFO
+.sp
+Display information for cdist (global explorers, types).
+.INDENT 0.0
+.TP
+\fBpattern\fP
+Glob pattern. If it contains special characters(\(aq?\(aq, \(aq*\(aq, \(aq[\(aq) then it is
+used as specified, otherwise it is translated to \fI*pattern*\fP\&.
+.TP
+\fB\-h, \-\-help\fP
+Show help message and exit.
+.TP
+\fB\-a, \-\-all\fP
+Display all info. This is the default.
+.TP
+\fB\-c CONF_DIR, \-\-conf\-dir CONF_DIR\fP
+Add configuration directory (can be repeated).
+.TP
+\fB\-e, \-\-global\-explorers\fP
+Display info for global explorers.
+.TP
+\fB\-F, \-\-fixed\-string\fP
+Interpret pattern as a fixed string.
+.TP
+\fB\-f, \-\-full\fP
+Display full details.
+.TP
+\fB\-g CONFIG_FILE, \-\-config\-file CONFIG_FILE\fP
+Use specified custom configuration file.
+.TP
+\fB\-t, \-\-types\fP
+Display info for types.
+.UNINDENT
+.SH SCAN
+.sp
+Runs cdist as a daemon that discover/watch on hosts and reconfigure them
+periodically.
+.INDENT 0.0
+.TP
+\fB\-I INTERFACE, \-\-interfaces INTERFACE\fP
+Interface to listen on. Can be specified multiple times.
+.TP
+\fB\-m MODE, \-\-mode MODE\fP
+Scanner components to enable. Can be specified multiple time to enable more
+than one component. Supported modes are: scan, trigger and config. Defaults
+to tiggger and scan.
+.TP
+\fB\-\-name\-mapper PATH_TO_SCRIPT\fP
+Path to script used to resolve a remote host name from an IPv6 address.
+.TP
+\fB\-\-list\fP
+List known hosts and exit.
+.TP
+\fB\-d CONFIG_DELAY, \-\-config\-delay CONFIG_DELAY\fP
+How long (seconds) to wait before reconfiguring after last try (config mode only).
+.TP
+\fB\-t TRIGGER_DELAY, \-\-tigger\-delay TRIGGER_DELAY\fP
+How long (seconds) to wait between ICMPv6 echo requests (trigger mode only).
+.UNINDENT
+.SH CONFIGURATION
+.sp
+cdist obtains configuration data from the following sources in the following
+order (from higher to lower precedence):
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+command\-line options
+.IP 2. 3
+configuration file specified at command\-line
+.IP 3. 3
+configuration file specified in CDIST_CONFIG_FILE environment variable
+.IP 4. 3
+environment variables
+.IP 5. 3
+user\(aqs configuration file (first one found of ~/.cdist.cfg, $XDG_CONFIG_HOME/cdist/cdist.cfg, in specified order)
+.IP 6. 3
+system\-wide configuration file (/etc/cdist.cfg).
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS CONFIGURATION FILE FORMAT
+.sp
+cdist configuration file is in the INI file format. Currently it supports
+only [GLOBAL] section.
+The possible keywords and their meanings are as follows:
+.INDENT 0.0
+.TP
+\fBarchiving\fP
+Use specified archiving. Valid values include:
+\(aqnone\(aq, \(aqtar\(aq, \(aqtgz\(aq, \(aqtbz2\(aq and \(aqtxz\(aq.
+.TP
+\fBbeta\fP
+Enable beta functionality. It recognizes boolean values from
+\(aqyes\(aq/\(aqno\(aq, \(aqon\(aq/\(aqoff\(aq, \(aqtrue\(aq/\(aqfalse\(aq and \(aq1\(aq/\(aq0\(aq.
+.TP
+\fBcache_path_pattern\fP
+Specify cache path pattern.
+.TP
+\fBcolored_output\fP
+Colorize cdist\(aqs output. cf. the \fB\-\-colors\fP option.
+.TP
+\fBconf_dir\fP
+List of configuration directories separated with the character conventionally
+used by the operating system to separate search path components (as in PATH),
+such as \(aq:\(aq for POSIX or \(aq;\(aq for Windows.
+If also specified at command line then values from command line are
+appended to this value.
+.TP
+\fBinit_manifest\fP
+Specify default initial manifest.
+.TP
+\fBinventory_dir\fP
+Specify inventory directory.
+.TP
+\fBjobs\fP
+Specify number of jobs for parallel processing. If \-1 then the default,
+number of CPU\(aqs in the system is used. If 0 then parallel processing in
+jobs is disabled. If set to positive number then specified maximum
+number of processes will be used.
+.TP
+\fBlocal_shell\fP
+Shell command used for local execution.
+.TP
+\fBout_path\fP
+Directory to save cdist output in.
+.TP
+\fBparallel\fP
+Process hosts in parallel. If \-1 then the default, number of CPU\(aqs in
+the system is used. If 0 then parallel processing of hosts is disabled.
+If set to positive number then specified maximum number of processes
+will be used.
+.TP
+\fBremote_copy\fP
+Command to use for remote copy (should behave like scp).
+.TP
+\fBremote_exec\fP
+Command to use for remote execution (should behave like ssh).
+.TP
+\fBremote_out_path\fP
+Directory to save cdist output in on the target host.
+.TP
+\fBremote_shell\fP
+Shell command at remote host used for remote execution.
+.TP
+\fBsave_output_streams\fP
+Enable/disable saving output streams (enabled by default).
+It recognizes boolean values from \(aqyes\(aq/\(aqno\(aq, \(aqon\(aq/\(aqoff\(aq, \(aqtrue\(aq/\(aqfalse\(aq
+and \(aq1\(aq/\(aq0\(aq.
+.TP
+\fBtimestamp\fP
+Timestamp log messages with the current local date and time
+in the format: YYYYMMDDHHMMSS.us.
+.TP
+\fBverbosity\fP
+Set verbosity level. Valid values are:
+\(aqERROR\(aq, \(aqWARNING\(aq, \(aqINFO\(aq, \(aqVERBOSE\(aq, \(aqDEBUG\(aq, \(aqTRACE\(aq and \(aqOFF\(aq.
+.UNINDENT
+.SH FILES
+.INDENT 0.0
+.TP
+.B ~/.cdist
+Your personal cdist config directory. If exists it will be
+automatically used.
+.TP
+.B ~/.cdist/cache
+Local cache directory.
+.TP
+.B ~/.cdist/inventory
+The home inventory directory. If ~/.cdist exists it will be used as
+default inventory directory.
+.TP
+.B ~/.cdist/preos
+PreOS plugins directory, if existing.
+.TP
+.B cdist/conf
+The distribution configuration directory. It contains official types and
+explorers. This path is relative to cdist installation directory.
+.TP
+.B cdist/inventory
+The distribution inventory directory.
+This path is relative to cdist installation directory.
+.TP
+.B cdist/preos
+The distribution PreOS plugins directory.
+.TP
+.B /etc/cdist.cfg
+Global cdist configuration file, if exists.
+.TP
+.B ~/.cdist.cfg or $XDG_CONFIG_HOME/cdist/cdist.cfg
+Local cdist configuration file, if exists.
+.UNINDENT
+.SH NOTES
+.sp
+cdist detects if host is specified by IPv6 address. If so then remote_copy
+command is executed with host address enclosed in square brackets
+(see \fBscp\fP(1)).
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Configure ikq05.ethz.ch with debug enabled
+% cdist config \-vvv ikq05.ethz.ch
+
+# Configure hosts in parallel and use a different configuration directory
+% cdist config \-c ~/p/cdist\-nutzung \e
+    \-p ikq02.ethz.ch ikq03.ethz.ch ikq04.ethz.ch
+
+# Use custom remote exec / copy commands
+% cdist config \-\-remote\-exec /path/to/my/remote/exec \e
+    \-\-remote\-copy /path/to/my/remote/copy \e
+    \-p ikq02.ethz.ch ikq03.ethz.ch ikq04.ethz.ch
+
+# Configure hosts read from file loadbalancers
+% cdist config \-f loadbalancers
+
+# Configure hosts read from file web.hosts using 16 parallel jobs
+% cdist config \-j 16 \-f web.hosts
+
+# Display banner
+cdist banner
+
+# Show help
+% cdist \-\-help
+
+# Show Version
+% cdist \-\-version
+
+# Enter a shell that has access to emulated types
+% cdist shell
+% __git
+usage: __git \-\-source SOURCE [\-\-state STATE] [\-\-branch BRANCH]
+             [\-\-group GROUP] [\-\-owner OWNER] [\-\-mode MODE] object_id
+
+# Install ikq05.ethz.ch with debug enabled
+% cdist install \-vvv ikq05.ethz.ch
+
+# List inventory content
+% cdist inventory list \-b
+
+# List inventory for specified host localhost
+% cdist inventory list \-b localhost
+
+# List inventory for specified tag loadbalancer
+% cdist inventory list \-b \-t loadbalancer
+
+# Add hosts to inventory
+% cdist inventory add\-host \-b web1 web2 web3
+
+# Delete hosts from file old\-hosts from inventory
+% cdist inventory del\-host \-b \-f old\-hosts
+
+# Add tags to specified hosts
+% cdist inventory add\-tag \-b \-t europe,croatia,web,static web1 web2
+
+# Add tag to all hosts in inventory
+% cdist inventory add\-tag \-b \-t vm
+
+# Delete all tags from specified host
+% cdist inventory del\-tag \-b \-a localhost
+
+# Delete tags read from stdin from hosts specified by file hosts
+% cdist inventory del\-tag \-b \-T \- \-f hosts
+
+# Configure hosts from inventory with any of specified tags
+% cdist config \-b \-t web dynamic
+
+# Configure hosts from inventory with all specified tags
+% cdist config \-b \-t \-a web dynamic
+
+# Configure all hosts from inventory db
+$ cdist config \-b \-A
+
+# Create default debian PreOS in debug mode
+$ cdist preos debian /preos/preos\-debian \-vvvv \-C \e
+    \-k ~/.ssh/id_rsa.pub \-p /preos/pxe\-debian
+
+# Create ubuntu PreOS
+$ cdist preos ubuntu /preos/preos\-ubuntu \-C \e
+    \-k ~/.ssh/id_rsa.pub \-p /preos/pxe\-ubuntu
+
+# Create ubuntu PreOS on drive /dev/sdb
+# and set root password to \(aqpassword\(aq.
+$ cdist preos ubuntu /mnt \-B \-C \e
+    \-k ~/.ssh/id_rsa.pub \-D /dev/sdb \e
+    \-P password
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH ENVIRONMENT
+.INDENT 0.0
+.TP
+.B TMPDIR, TEMP, TMP
+Setup the base directory for the temporary directory.
+See \fI\%http://docs.python.org/py3k/library/tempfile.html\fP for
+more information. This is rather useful, if the standard
+directory used does not allow executables.
+.TP
+.B CDIST_PATH
+Colon delimited list of config directories.
+.TP
+.B CDIST_LOCAL_SHELL
+Selects shell for local script execution, defaults to /bin/sh.
+.TP
+.B CDIST_REMOTE_SHELL
+Selects shell for remote script execution, defaults to /bin/sh.
+.TP
+.B CDIST_OVERRIDE
+Allow overwriting type parameters.
+.TP
+.B CDIST_ORDER_DEPENDENCY
+Create dependencies based on the execution order.
+Note that in version 6.2.0 semantic of this processing mode is
+finally fixed and well defined.
+.TP
+.B CDIST_REMOTE_EXEC
+Use this command for remote execution (should behave like ssh).
+.TP
+.B CDIST_REMOTE_COPY
+Use this command for remote copy (should behave like scp).
+.TP
+.B CDIST_INVENTORY_DIR
+Use this directory as inventory directory.
+.TP
+.B CDIST_BETA
+Enable beta functionality.
+.TP
+.B CDIST_CACHE_PATH_PATTERN
+Custom cache path pattern.
+.TP
+.B CDIST_COLORED_OUTPUT
+Colorize cdist\(aqs output. cf. the \fB\-\-colors\fP option.
+.TP
+.B CDIST_CONFIG_FILE
+Custom configuration file.
+.UNINDENT
+.SH EXIT STATUS
+.sp
+The following exit values shall be returned:
+.sp
+0   Successful completion.
+.sp
+1   One or more host configurations failed.
+.SH AUTHORS
+.sp
+Originally written by Nico Schottelius <\fI\%nico\-cdist\-\-@\-\-schottelius.org\fP>
+and Steven Armstrong <\fI\%steven\-cdist\-\-@\-\-armstrong.cc\fP>.
+.SH CAVEATS
+.sp
+When operating in parallel, either by operating in parallel for each host
+(\-p/\-\-parallel) or by parallel jobs within a host (\-j/\-\-jobs), and depending
+on target SSH server and its configuration you may encounter connection drops.
+This is controlled with sshd \fBMaxStartups\fP configuration options.
+You may also encounter session open refusal. This happens with ssh multiplexing
+when you reach maximum number of open sessions permitted per network
+connection. In this case ssh will disable multiplexing.
+This limit is controlled with sshd \fBMaxSessions\fP configuration
+options. For more details refer to \fBsshd_config\fP(5).
+.sp
+When requirements for the same object are defined in different manifests (see
+example below), for example, in init manifest and in some other type manifest
+and those requirements differ then dependency resolver cannot detect
+dependencies correctly. This happens because cdist cannot prepare all objects first
+and run all objects afterwards. Some object can depend on the result of type
+explorer(s) and explorers are executed during object run. cdist will detect
+such case and display a warning message. An example of such a case:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+init manifest:
+    __a a
+    require="__e/e" __b b
+    require="__f/f" __c c
+    __e e
+    __f f
+    require="__c/c" __d d
+    __g g
+    __h h
+
+type __g manifest:
+    require="__c/c __d/d" __a a
+
+Warning message:
+    WARNING: cdisttesthost: Object __a/a already exists with requirements:
+    /usr/home/darko/ungleich/cdist/cdist/test/config/fixtures/manifest/init\-deps\-resolver /tmp/tmp.cdist.test.ozagkg54/local/759547ff4356de6e3d9e08522b0d0807/data/conf/type/__g/manifest: set()
+    /tmp/tmp.cdist.test.ozagkg54/local/759547ff4356de6e3d9e08522b0d0807/data/conf/type/__g/manifest: {\(aq__c/c\(aq, \(aq__d/d\(aq}
+    Dependency resolver could not handle dependencies as expected.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH COPYING
+.sp
+Copyright (C) 2011\-2020 Nico Schottelius. Free use of this software is
+granted under the terms of the GNU General Public License v3 or later (GPLv3+).
+.SH COPYRIGHT
+ungleich GmbH 2021
+.\" Generated by docutils manpage writer.
+.
