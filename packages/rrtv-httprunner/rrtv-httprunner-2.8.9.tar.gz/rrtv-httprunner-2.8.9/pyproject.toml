@@ -1,0 +1,76 @@
+[tool.poetry]
+name = "rrtv-httprunner"
+version = "2.8.9"
+description = "One-stop solution for HTTP(S) testing."
+license = "Apache-2.0"
+readme = "README.md"
+authors = ["chenfanghang <chenfanghang@foxmail.com>"]
+
+keywords = ["HTTP", "api", "test", "requests", "locustio"]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8"
+]
+
+include = ["docs/CHANGELOG.md"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+requests = "^2.22.0"
+pyyaml = "^5.1.2"
+jinja2 = "^2.10.3"
+pydantic = "^1.4"
+loguru = "^0.4.1"
+jmespath = "^0.9.5"
+black = "^19.10b0"
+pytest = "^6.2.4"
+pytest-html = "^2.1.1"
+pytest-xdist = "^2.3.0"
+sentry-sdk = "^0.14.4"
+PyMySQL = "^1.0.2"
+redis = "^3.5.3"
+jsonpath = "^0.82"
+pymongo = "^3.11.3"
+deepdiff = "^5.5.0"
+json5 = "^0.9.6"
+demjson3 = "^3.0.5"
+curlify = "^2.2.1"
+pandas = "^1.3.2"
+openpyxl = "^3.0.7"
+xlrd = "^2.0.1"
+elasticsearch5 = "^5.5.6"
+jsonschema = "^4.3.3"
+allure-pytest = { version = "^2.8.16", optional = true }
+requests-toolbelt = { version = "^0.9.1", optional = true }
+filetype = { version = "^1.0.7", optional = true }
+locust = { version = "^1.0.3", optional = true }
+
+[tool.poetry.extras]
+allure = ["allure-pytest"]                  # pip install "rrtv_httprunner[allure]", poetry install -E allure
+upload = ["requests-toolbelt", "filetype"]  # pip install "rrtv_httprunner[upload]", poetry install -E upload
+locust = ["locust"]                         # pip install "rrtv_httprunner[locust]", poetry install -E locust
+
+[tool.poetry.dev-dependencies]
+coverage = "^4.5.4"
+uvicorn = "^0.11.3"
+fastapi = "^0.49.0"
+
+[tool.poetry.scripts]
+httprunner = "rrtv_httprunner.cli:main"
+hrun = "rrtv_httprunner.cli:main_hrun_alias"
+hmake = "rrtv_httprunner.cli:main_make_alias"
+har2case = "rrtv_httprunner.cli:main_har2case_alias"
+locusts = "rrtv_httprunner.ext.locust:main_locusts"
+
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"
