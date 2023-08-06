@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "itkwidgets"
+authors = [{name = "Matt McCormick", email = "matt.mccormick@kitware.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+dynamic = ["version", "description"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    'Development Status :: 3 - Alpha',
+    'Framework :: IPython',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Topic :: Multimedia :: Graphics',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+]
+keywords = [
+    "jupyter",
+    "jupyterlab-extension",
+    "widgets",
+    "itk",
+    "imaging",
+    "visualization",
+    "webgl",
+    "webgpu",
+]
+
+requires-python = ">=3.7"
+dependencies = [
+    "itkwasm",
+    "imjoy-rpc >= 0.5.13",
+    "imjoy-utils >= 0.1.2",
+    "numcodecs",
+    "zarr",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[project.urls]
+Home = "https://itkwidgets.readthedocs.io/en/latest/"
+Documentation = "https://itkwidgets.readthedocs.io/en/latest/"
+Source = "https://github.com/InsightSoftwareConsortium/itkwidgets"
+
+[project.optional-dependencies]
+lab = [
+    "imjoy-jupyter-extension >=0.3.0",
+    "imjoy-elfinder[jupyter]"
+]
+notebook = [
+    "imjoy-jupyterlab-extension >=0.1.13",
+    "imjoy-elfinder[jupyter]"
+]
+test = [
+    "pytest >=2.7.3",
+]
+doc = ["sphinx"]
