@@ -1,0 +1,26 @@
+<div tal:define="name name|field.name;
+                 true_val true_val|field.widget.true_val;
+                 css_class css_class|field.widget.css_class;
+                 style style|field.widget.style;
+                 oid oid|field.oid;
+                 use_buefy use_buefy|0;"
+     tal:omit-tag="">
+
+  <div tal:condition="not use_buefy" class="checkbox">
+    <input type="checkbox"
+           name="${name}" value="${true_val}"
+           id="${oid}"
+           tal:attributes="checked cstruct == true_val;
+                           class css_class;
+                           style style;" />
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + name;">
+    <b-checkbox name="${name}"
+                v-model="${vmodel}"
+                native-value="${true_val}">
+      {{ ${vmodel} }}
+    </b-checkbox>
+  </div>
+</div>

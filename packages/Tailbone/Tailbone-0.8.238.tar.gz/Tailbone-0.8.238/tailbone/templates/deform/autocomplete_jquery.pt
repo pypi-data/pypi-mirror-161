@@ -1,0 +1,122 @@
+<div tal:define="name name|field.name;
+                 css_class css_class|field.widget.css_class;
+                 oid oid|field.oid;
+                 field_display field_display;
+                 style style|field.widget.style;
+                 url url|field.widget.service_url;
+                 use_buefy use_buefy|0;"
+     tal:omit-tag="">
+
+  <div tal:condition="not use_buefy"
+       id="${oid}-container"
+       class="autocomplete-container">
+  <input type="hidden"
+         name="${name}"
+         id="${oid}"
+         value="${cstruct}" />
+
+  <input type="text"
+         name="${oid}-textbox"
+         id="${oid}-textbox"
+         value="${field_display}"
+         class="autocomplete-textbox"
+         style="display: none;" />
+
+  <div id="${oid}-display"
+       class="autocomplete-display"
+       style="display: none;">
+
+    <span>${field_display or ''}</span>
+    <button type="button" id="${oid}-change" class="autocomplete-change">Change</button>
+
+  </div>
+
+  <script type="text/javascript">
+      deform.addCallback(
+        '${oid}',
+        function (oid) {
+
+            $('#' + oid + '-textbox').autocomplete(${options});
+
+            $('#' + oid + '-textbox').on('autocompleteselect', function (event, ui) {
+                $('#' + oid).val(ui.item.value);
+                $('#' + oid + '-display span:first').text(ui.item.label);
+                $('#' + oid + '-textbox').hide();
+                $('#' + oid + '-display').show();
+                $('#' + oid + '-textbox').trigger('autocompletevalueselected',
+                                                  [ui.item.value, ui.item.label]);
+                return false;
+            });
+
+            $('#' + oid + '-change').click(function() {
+                $('#' + oid).val('');
+                $('#' + oid + '-display').hide();
+                with ($('#' + oid + '-textbox')) {
+                    val('');
+                    show();
+                    focus();
+                }
+                $('#' + oid + '-textbox').trigger('autocompletevaluecleared');
+            });
+
+        }
+      );
+  </script>
+
+  <script tal:condition="cleared_callback" type="text/javascript">
+      deform.addCallback(
+        '${oid}',
+        function (oid) {
+            $('#' + oid + '-textbox').on('autocompletevaluecleared', function() {
+                ${cleared_callback}();
+            });
+        }
+      );
+  </script>
+
+  <script tal:condition="selected_callback" type="text/javascript">
+      deform.addCallback(
+        '${oid}',
+        function (oid) {
+            $('#' + oid + '-textbox').on('autocompletevalueselected', function(event, uuid, label) {
+                ${selected_callback}(uuid, label);
+            });
+        }
+      );
+  </script>
+
+  <script tal:condition="cstruct" type="text/javascript">
+      deform.addCallback(
+        '${oid}',
+        function (oid) {
+            $('#' + oid + '-display').show();
+        }
+      );
+  </script>
+
+  <script tal:condition="not cstruct" type="text/javascript">
+      deform.addCallback(
+        '${oid}',
+        function (oid) {
+            $('#' + oid + '-textbox').show();
+        }
+      );
+  </script>
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + name;"
+       tal:omit-tag="">
+    <tailbone-autocomplete name="${name}"
+                           ref="${ref}"
+                           service-url="${url}"
+                           v-model="${vmodel}"
+                           initial-label="${field_display}"
+                           tal:attributes=":assigned-label assigned_label or 'null';
+                                           @input input_callback|'';
+                                           @new-label new_label_callback|'';">
+
+    </tailbone-autocomplete>
+  </div>
+
+</div>

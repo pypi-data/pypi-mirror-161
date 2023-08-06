@@ -1,0 +1,48 @@
+<!--! -*- mode: html; -*- -->
+<div tal:define="css_class css_class|field.widget.css_class;
+                 oid oid|field.oid;
+                 field_name field_name|field.name;
+                 style style|field.widget.style;
+                 type_name type_name|field.widget.type_name;
+                 use_buefy use_buefy|0;"
+      tal:omit-tag="">
+
+  <div tal:condition="not use_buefy" tal:omit-tag="">
+    ${field.start_mapping()}
+    <input type="${type_name}"
+           name="date"
+           value="${cstruct}"
+
+           tal:attributes="class string: ${css_class or ''} form-control;
+                           style style"
+           id="${oid}"/>
+    ${field.end_mapping()}
+    <script type="text/javascript">
+     deform.addCallback(
+      '${oid}',
+       function deform_cb(oid) {
+           $('#' + oid).datepicker(${options_json});
+       }
+     );
+    </script>
+    <script tal:condition="selected_callback" type="text/javascript">
+        deform.addCallback(
+          '${oid}',
+          function (oid) {
+              $('#' + oid).datepicker('option', 'onSelect', ${selected_callback});
+          }
+        );
+    </script>
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + field_name;">
+    ${field.start_mapping()}
+    <tailbone-datepicker name="date"
+                         id="${oid}"
+                         v-model="${vmodel}">
+    </tailbone-datepicker>
+    ${field.end_mapping()}
+  </div>
+
+</div>

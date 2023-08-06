@@ -1,0 +1,44 @@
+<!--! -*- mode: html; -*- -->
+<tal:block tal:define="oid oid|field.oid;
+                       css_class css_class|field.widget.css_class;
+                       style style|field.widget.style;
+                       field_name field_name|field.name;
+                       use_buefy use_buefy|0;">
+
+  <div tal:condition="not use_buefy" tal:omit-tag="">
+    ${field.start_mapping()}
+    <input type="file" name="upload" id="${oid}"
+           tal:attributes="style style;
+                           accept accept|field.widget.accept;
+                           data-filename cstruct.get('filename');
+                           attributes|field.widget.attributes|{};"/>
+    <input tal:define="uid cstruct.get('uid')"
+           tal:condition="uid"
+           type="hidden" name="uid" value="${uid}"/>
+    ${field.end_mapping()}
+    <script type="text/javascript">
+      deform.addCallback('${oid}', function (oid) {
+        $('#' + oid).upload();
+      });
+    </script>
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + field_name;">
+    ${field.start_mapping()}
+    <b-field class="file">
+      <b-upload name="upload"
+                v-model="${vmodel}">
+        <a class="button is-primary">
+          <b-icon pack="fas" icon="upload"></b-icon>
+          <span>Click to upload</span>
+        </a>
+      </b-upload>
+      <span class="file-name" v-if="${vmodel}">
+        {{ ${vmodel}.name }}
+      </span>
+    </b-field>
+    ${field.end_mapping()}
+  </div>
+
+</tal:block>

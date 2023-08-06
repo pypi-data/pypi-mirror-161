@@ -1,0 +1,27 @@
+<div tal:define="rows rows|field.widget.rows;
+                 cols cols|field.widget.cols;
+                 css_class css_class|field.widget.css_class;
+                 oid oid|field.oid;
+                 name name|field.name;
+                 style style|field.widget.style;
+                 use_buefy use_buefy|0;"
+     tal:omit-tag="">
+
+  <div tal:condition="not use_buefy" tal:omit-tag="">
+    <textarea tal:attributes="rows rows;
+                              cols cols;
+                              class string: form-control ${css_class or ''};
+                              style style;
+                              attributes|field.widget.attributes|{};"
+              id="${oid}"
+              name="${name}">${cstruct}</textarea>
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + name;">
+    <b-input type="textarea"
+             name="${name}"
+             v-model="${vmodel}">
+    </b-input>
+  </div>
+</div>

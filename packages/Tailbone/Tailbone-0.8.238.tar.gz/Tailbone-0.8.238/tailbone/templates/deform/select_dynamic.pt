@@ -1,0 +1,34 @@
+<!--! -*- mode: html; -*- -->
+<div tal:define="
+     name name|field.name;
+     oid oid|field.oid;
+     style style|field.widget.style;
+     size size|field.widget.size;
+     css_class css_class|field.widget.css_class;
+     unicode unicode|str;
+     optgroup_class optgroup_class|field.widget.optgroup_class;
+     multiple multiple|field.widget.multiple;
+     vmodel vmodel|'field_model_' + name;
+     input_handler input_handler|'';"
+     tal:omit-tag="">
+
+  <b-select tal:attributes="name name;
+                            id oid;
+                            placeholder '(please choose)';
+                            class string: form-control ${css_class or ''};
+                            multiple multiple;
+                            size size;
+                            style style;
+                            v-model vmodel;
+                            @input input_handler;
+                            attributes|field.widget.attributes|{};">
+
+    <option v-for="item in ${name}_options"
+            tal:attributes=":key 'item.value';
+                            :value 'item.value';">
+      {{ item.label }}
+    </option>
+
+  </b-select>
+
+</div>

@@ -1,0 +1,58 @@
+<!--! -*- mode: html; -*- -->
+<div tal:define="oid oid|field.oid;
+                 name name|field.name;
+                 css_class css_class|field.widget.css_class;
+                 style style|field.widget.style;
+                 use_buefy use_buefy|0;"
+     i18n:domain="deform"
+     tal:omit-tag="">
+
+  <div tal:condition="not use_buefy" tal:omit-tag="">
+    ${field.start_mapping()}
+    <div>
+      <input type="text" name="cases" value="${cases}"
+             tal:attributes="style style;
+                             class string: form-control ${css_class or ''};
+                             cases_attributes|field.widget.cases_attributes|{};"
+             placeholder="cases"
+             autocomplete="off"
+             id="${oid}-cases"/>
+      Cases
+    </div>
+    <div>
+      <input type="text" name="units" value="${units}"
+             tal:attributes="class string: form-control ${css_class or ''};
+                             style style;
+                             units_attributes|field.widget.units_attributes|{};"
+             placeholder="units"
+             autocomplete="off"
+             id="${oid}-units"/>
+      Units
+    </div>
+    ${field.end_mapping()}
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + name;"
+       tal:omit-tag="">
+
+    ${field.start_mapping()}
+
+    <b-field label="Cases">
+      <b-input name="cases" autocomplete="off"
+               tal:attributes="v-model string: ${vmodel + '.cases'};
+                               cases_attributes|field.widget.cases_attributes|{};">
+      </b-input>
+    </b-field>
+
+    <b-field label="Units">
+      <b-input name="units" autocomplete="off"
+               tal:attributes="v-model string: ${vmodel + '.units'};
+                               units_attributes|field.widget.units_attributes|{};">
+      </b-input>
+    </b-field>
+
+    ${field.end_mapping()}
+  </div>
+
+</div>

@@ -1,0 +1,89 @@
+<div tal:define="oid oid|field.oid;
+                 true_val true_val|field.widget.true_val;
+                 use_buefy use_buefy|0;"
+     tal:omit-tag="">
+
+  <div tal:condition="not use_buefy"
+       tal:omit-tag="">
+  ${field.start_mapping()}
+
+  <div class="permissions-outer">
+
+  <tal:loop tal:repeat="groupkey sorted(permissions, key=lambda k: permissions[k]['label'].lower())">
+    <div tal:define="perms permissions[groupkey]['perms'];"
+         class="permissions-group">
+      <p class="group-label">${permissions[groupkey]['label']}</p>
+
+      <tal:loop tal:repeat="key sorted(perms, key=lambda p: perms[p]['label'].lower())">
+        <div class="perm">
+          <label>
+            <input type="checkbox"
+                   name="${key}"
+                   id="${oid}-${key}"
+                   value="${true_val}"
+                   tal:attributes="checked python:field.widget.get_checked_value(cstruct, key);" />
+            ${perms[key]['label']}
+          </label>
+        </div>
+      </tal:loop>
+
+    </div>
+  </tal:loop>
+
+  </div>
+
+  ${field.end_mapping()}
+  </div>
+
+  <div tal:condition="use_buefy">
+    ${field.start_mapping()}
+
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          showing group:
+        </div>
+        <div class="level-item">
+          <!-- TODO: should make this v-model dynamic -->
+          <b-select v-model="showingPermissionGroup">
+            <option value="">(all)</option>
+            <tal:loop tal:repeat="groupkey sorted(permissions, key=lambda k: permissions[k]['label'].lower())">
+              <option tal:attributes="value groupkey">
+                ${permissions[groupkey]['label']}
+              </option>
+            </tal:loop>
+          </b-select>
+        </div>
+      </div>
+    </div>
+
+    <tal:loop tal:repeat="groupkey sorted(permissions, key=lambda k: permissions[k]['label'].lower())">
+      <div tal:define="perms permissions[groupkey]['perms'];"
+           class="permissions-group">
+        <!-- TODO: should use more dynamic v-model name -->
+        <div class="card"
+             tal:attributes="v-show string: !showingPermissionGroup || showingPermissionGroup == '${permissions[groupkey]['key']}';">
+          <header class="card-header">
+            <p class="card-header-title">${permissions[groupkey]['label']}</p>
+          </header>
+          <div class="card-content">
+            <tal:loop tal:repeat="key sorted(perms, key=lambda p: perms[p]['label'].lower())">
+              <div class="perm">
+                <label>
+                  <input type="checkbox"
+                         name="${key}"
+                         id="${oid}-${key}"
+                         value="${true_val}"
+                         tal:attributes="checked python:field.widget.get_checked_value(cstruct, key);" />
+                  ${perms[key]['label']}
+                </label>
+              </div>
+            </tal:loop>
+          </div><!-- card-content -->
+        </div><!-- card -->
+      </div><!-- permissions-group -->
+    </tal:loop>
+
+    ${field.end_mapping()}
+  </div>
+</div>

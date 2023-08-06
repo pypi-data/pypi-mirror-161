@@ -1,0 +1,37 @@
+<span tal:define="name name|field.name;
+                  css_class css_class|field.widget.css_class;
+                  oid oid|field.oid;
+                  field_name field_name|field.name;
+                  mask mask|field.widget.mask;
+                  mask_placeholder mask_placeholder|field.widget.mask_placeholder;
+                  style style|field.widget.style;
+                  autocomplete autocomplete|field.widget.autocomplete|'off';"
+      tal:omit-tag="">
+
+  <div tal:condition="not use_buefy" tal:omit-tag="">
+    <input type="text" name="${name}" value="${cstruct}" 
+           tal:attributes="class string: form-control ${css_class or ''};
+                           style style;
+                           autocomplete autocomplete;
+                           "
+           id="${oid}"/>
+    %
+    <script tal:condition="mask" type="text/javascript">
+      deform.addCallback(
+         '${oid}',
+         function (oid) {
+            $("#" + oid).mask("${mask}", 
+                 {placeholder:"${mask_placeholder}"});
+         });
+    </script>
+  </div>
+
+  <div tal:condition="use_buefy"
+       tal:define="vmodel vmodel|'field_model_' + field_name;">
+    <!-- TODO: need to handle mask somehow? -->
+    <b-input name="${field_name}"
+             id="${oid}"
+             v-model="${vmodel}">
+    </b-input>
+  </div>
+</span>
