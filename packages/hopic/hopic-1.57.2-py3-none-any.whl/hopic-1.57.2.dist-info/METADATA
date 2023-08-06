@@ -1,0 +1,63 @@
+Metadata-Version: 2.1
+Name: hopic
+Version: 1.57.2
+Summary: In order to simplify the CI configuration we are switching away from the generic jenkins shared pipeline which is completely written in Groovy. Instead we are switching to the Hopic project which only has a minimal CI driver component written in Groovy with the rest written in Python. With Hopic local debugging is made significantly easier.
+Home-page: https://github.com/tomtom-international/hopic
+Author: TomTom N.V.
+License: Apache License 2.0
+Project-URL: Documentation, https://tomtom-international.github.io/hopic/
+Project-URL: Change Log, https://tomtom-international.github.io/hopic/changes.html
+Project-URL: Source Code, https://github.com/tomtom-international/hopic
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: Apache Software License
+Requires-Python: >=3.6.5
+Description-Content-Type: text/x-rst
+Requires-Dist: Click (<8.0,>=7.0)
+Requires-Dist: click-log
+Requires-Dist: commisery (<1,>=0.5)
+Requires-Dist: GitPython (!=3.1.15,<4,>=3)
+Requires-Dist: python-dateutil
+Requires-Dist: PyYAML
+Requires-Dist: setuptools
+Requires-Dist: typeguard (<2.11,<3,>=2.10)
+Requires-Dist: importlib-metadata (>=3.6) ; python_version < "3.10.0b1"
+Requires-Dist: typing-extensions (>=3.6.4) ; python_version < "3.8"
+Provides-Extra: interactive
+Requires-Dist: keyring (<22,>=21.5.0) ; extra == 'interactive'
+Requires-Dist: netstruct (>=1.1.2<2) ; extra == 'interactive'
+
+.. You can view the documentation for Hopic at URL  : /pages/PIPE/hopic/pages/browse/
+
+In order to simplify the CI configuration we are switching away from the **generic jenkins shared pipeline** which is completely written in Groovy.
+Instead we are switching to the Hopic project which only has a minimal **CI driver** component written in Groovy with the rest written in Python.
+With Hopic local debugging is made significantly easier.
+
+As of now the commit stage can be adapted to use Hopic's functionality.
+With this most of the required configuration will live in the hopic-ci-config.yaml file replacing the groovy snippets from the commit stage in jenkins file.
+This can be locally tested with the command - **"hopic"**
+
+
+Using Hopic locally
+-------------------
+
+**Install the hopic** command with below package
+
+.. code-block:: console
+
+   pip3 install --user 'git+https://github.com/tomtom-international/hopic.git@release/1#egg=hopic[interactive]'
+
+.. _BashComplete: https://click.palletsprojects.com/en/7.x/bashcomplete/#activation
+
+**Enable TAB completion** - include the below line in your .bashrc ( BashComplete_ )
+
+.. code-block:: console
+
+   eval "$(_HOPIC_COMPLETE=source hopic)"
+
+For the command line help on hopic usage
+
+.. code-block:: console
+
+   hopic --help
+
+
