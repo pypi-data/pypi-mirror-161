@@ -1,0 +1,80 @@
+Metadata-Version: 2.1
+Name: seloger-google-sheets
+Version: 1.0.6
+Summary: Tired of searching with your mouse ? Let's automate the process.
+Home-page: https://github.com/arthuRHD/seloger-google-sheets
+Author: Arthur RICHARD
+Author-email: arthur.richard@protonmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: google-api-core (==2.8.2)
+Requires-Dist: google-api-python-client (==2.52.0)
+Requires-Dist: google-auth-httplib2 (==0.1.0)
+Requires-Dist: google-auth-oauthlib (==0.5.2)
+Requires-Dist: google-auth (==2.9.0)
+Requires-Dist: pydantic (==1.9.1)
+Requires-Dist: requests (==2.22.0)
+
+# seloger-google-sheets
+
+Tired of searching with your mouse ? Let's automate the process.
+
+This is meant to be used as a package for your bot. 
+
+I'm currently only supporting seloger.com and google sheets as third parties. For other integrations, feel free to write an issue.
+
+## Genereting credentials
+
+### Google sheets
+
+To learn how to create credentials, go to [Create credentials](https://developers.google.com/workspace/guides/create-credentials).
+
+Once you create the credentials, make sure the downloaded JSON file is saved as credentials.json. Then move the file to your working directory and fill the path when instanciating the service.
+
+### SeLoger
+
+An account on *RapidAPI* is needed to retrieve an API key.
+
+[https://rapidapi.com/apidojo/api/seloger/](https://rapidapi.com/apidojo/api/seloger/)
+
+## Usage
+
+### Install
+
+```sh
+pip install seloger-google-sheets
+```
+
+### Write your script
+
+```py
+from typing import List
+from seloger_google_sheets import RealEstate
+from seloger_google_sheets.google import GoogleSpreadsheetsService
+from seloger_google_sheets.seloger import (SelogerService, SelogerSearchQuery, RealEstateFilter, 
+RealEstateType, TransactionType)
+
+
+seloger = SelogerService(api_key='my_seloger_api_key')
+google_sheets = GoogleSpreadsheetsService(credentials_file_path='./credentials.json')
+
+query = SelogerSearchQuery(
+    maximumPrice="800",
+    bedrooms="1",
+    zipCodes="76300,76800,76000",
+    includeNewConstructions="false",
+    transactionType=TransactionType.RENT,
+    realtyTypes=RealEstateType.APPARTMENT,
+    sortBy=RealEstateFilter.NEWEST
+)
+
+results: List[RealEstate] = seloger.search(query)
+google_sheets.use("my_sheet_id").clear().insert(results)
+```
+
+
