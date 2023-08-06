@@ -1,0 +1,100 @@
+Metadata-Version: 2.1
+Name: yabs
+Version: 0.5.0
+Summary: Yet Another Build Script
+Home-page: https://github.com/mar10/yabs
+Author: Martin Wendt
+Author-email: yabs@wwwendt.de
+Maintainer: Martin Wendt
+Maintainer-email: yabs@wwwendt.de
+License: MIT
+Project-URL: Bug Tracker, https://github.com/mar10/yabs/issues
+Project-URL: Source Code, https://github.com/mar10/yabs
+Project-URL: Documentation, https://yabs.readthedocs.io
+Project-URL: Download, https://github.com/mar10/yabs/releases/latest
+Keywords: build,setup,ci,workflow,automation
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Topic :: System :: Installation/Setup
+Classifier: Topic :: System :: Software Distribution
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: GitPython
+Requires-Dist: PyGithub
+Requires-Dist: PyYAML
+Requires-Dist: semantic-version
+Requires-Dist: setuptools
+Requires-Dist: snazzy
+Requires-Dist: toml
+Requires-Dist: twine
+Requires-Dist: wheel
+
+# ![logo](https://raw.githubusercontent.com/mar10/yabs/master/docs/sphinx/yabs_48x48.png) yabs
+
+> Test, Build, Deliver!
+
+[![Build Status](https://travis-ci.com/mar10/yabs.svg?branch=master)](https://travis-ci.com/mar10/yabs)
+[![Latest Version](https://img.shields.io/pypi/v/yabs.svg)](https://pypi.python.org/pypi/yabs/)
+[![License](https://img.shields.io/pypi/l/yabs.svg)](https://github.com/mar10/yabs/blob/master/LICENSE.txt)
+[![Documentation Status](https://readthedocs.org/projects/yabs/badge/?version=latest)](https://yabs.readthedocs.io/)
+[![Coverage Status](https://coveralls.io/repos/github/mar10/yabs/badge.svg?branch=master)](https://coveralls.io/github/mar10/yabs?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![Released with: Yabs](https://img.shields.io/badge/released%20with-yabs-yellowgreen)](https://github.com/mar10/yabs)
+[![StackOverflow: yabs](https://img.shields.io/badge/StackOverflow-yabs-blue.svg)](https://stackoverflow.com/questions/tagged/yabs)
+
+
+## Overview
+
+Build and deployment automation for Python projects.
+
+A typical release workflow may look like this:
+
+1. Check preconditions: *Is the workspace clean, anything to commit?*,
+   *Is GitHub reachable?*, *Are we on the correct branch?*, ...
+2. Make sure static code linters and unit tests pass.
+3. Bump the project's version number (major, minor, or patch, according to
+   [Semantic Versioning](https://semver.org)). <br>
+   Then patch the version string into the respective Python module or text file.
+4. Build *sdist*, *wheel* and *msi installer* assets.
+5. Tag the version, commit, and push.
+6. Upload distribution to [PyPI](https://pypi.org).
+7. Create a new release on [GitHub](https://github.com) and upload assets.
+8. Create a new release on the 
+   [Windows Packager Manager Repository](https://github.com/microsoft/winget-pkgs).
+9. Bump, tag, commit, and push for post-release.
+
+Custom tasks may be added using the plugin framework.
+
+[Read the documentation](https://yabs.readthedocs.io/en/latest/ug_tutorial.html)
+for details.
+
+
+## Preconditions
+
+- Use [git](https://git-scm.com), [PyPI](https://pypi.org),
+  and [GitHub](https://github.com).
+- Version numbers follow roughly the [Semantic Versioning](https://semver.org) 
+  pattern.
+- The project's version number is maintained in
+  [one of the supported locations](https://yabs.readthedocs.io/)
+
+(See [grunt-yabs](https://github.com/mar10/grunt-yabs) for a node.js variant
+if you have a JavaScript based development stack.)
+
+[![asciicast](https://asciinema.org/a/6jPN5JTNBt2LT52C6R8HZEK1g.svg)](https://asciinema.org/a/6jPN5JTNBt2LT52C6R8HZEK1g)
+
+![logo](https://raw.githubusercontent.com/mar10/yabs/master/docs/sphinx/screenshot_ps_dryrun.png)
+
+![logo](https://raw.githubusercontent.com/mar10/yabs/master/docs/sphinx/screenshot_ps_info.png)
