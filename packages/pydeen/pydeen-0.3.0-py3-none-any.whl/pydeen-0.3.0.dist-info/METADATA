@@ -1,0 +1,288 @@
+Metadata-Version: 2.1
+Name: pydeen
+Version: 0.3.0
+Summary: Python Data Engineer Enterprise Notebook
+Author: MDJoerg (Joerg Mueller)
+Author-email: <mdjoerg@joomp.de>
+License: UNKNOWN
+Keywords: python,data,data science,enterprise,analysis,toolbox,notebook
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# PYDEEN
+
+
+
+Python Data Engineer Enterprise Notebook
+
+
+
+(work in progress)
+
+
+# How to use the websocket listener
+
+
+
+The pydeen package includes a simple websocket client to listen to external messages. A simple command mode is implemented and other message formats and commands can be enhanced.
+
+
+
+
+
+## The built-in command mode
+
+
+
+If activated, the websocket listener can handle simple commands like echo, ping, info, quit, message.
+
+The syntax is `<command>::<receiver>::[payload]`. 
+
+
+
+The separator is predefined as "::" and the payload is optional. The receiver information can be:
+
+- a single client ID like "MyClientID"
+
+- a wildcard like "*" or "[]"
+
+- a group ID 
+
+- or a list of groups and client id.
+
+
+
+Some Examples:
+
+- `echo::MyClientID:this is the echo payload`
+
+- `ping::*`
+
+- `message::["group1","group2"]::My Message Text`
+
+
+
+
+
+### Code Example
+
+
+
+This example uses the free socket test server https://www.piesocket.com. Check the output and send commands with https://www.piesocket.com/websocket-tester.
+
+Cancel the service with CTRL-C or send a "quit" command.
+
+
+
+    from pydeen.wsocket import WebSocketService
+
+    from pydeen.http import HTTPBackend
+
+
+
+    # create backend & service
+
+    backend = HTTPBackend("Free PieSocket Server", "wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")  
+
+    service = WebSocketService(backend)  
+
+
+
+    # configure service: set my client id and initialize command mode  
+
+    service.set_client_id("MyClientID")  
+
+    service.set_command_mode()  
+
+
+
+    # start the service now in an endless loop      
+
+    service.run()  
+
+
+
+
+
+### Register to groups
+
+
+
+Add the registration to groups in the configure section.
+
+
+
+    service.register_group("testgruppe")  
+
+    service.register_group("lager1")
+
+
+
+
+
+### Implement and register custom commands
+
+
+
+Redefine the ServiceCommand and register it before starting the service.
+
+
+
+
+
+    from pydeen.service import ServiceCommand  
+
+
+
+    class MyServiceCommand(ServiceCommand):
+
+
+
+        def __init__(self, command, description):
+
+            super().__init__(command, description)
+
+
+
+        def handle(self, command, payload, service) -> bool:
+
+            print("MY COMMAND CALLED")
+
+            return True
+
+
+
+    service_command = MyServiceCommand("custom_cmd", "My Custom Command Handler")  
+
+    service.register_command(service_command)
+
+
+
+
+
+## Service authentification
+
+
+
+To use authentification an Auth-Object has been set to the backend. At the moment only AuthBasic is supported.
+
+
+
+    from pydeen.auth import AuthBasic
+
+
+
+    myauth = AuthBasic()
+
+    myauth.set_basic_auth("user", "password")
+
+
+
+    backend = HTTPBackend("MySocketServer", "ws://<host>/path/to/socket", auth=myauth)
+
+
+
+
+
+## Implement and register an own action handler
+
+
+
+A custom message handler can be implemented if you want to process your own messages. A custom service action has to be redefined from ServiceAction and registered to the service.
+
+To methods have to be redefined:
+
+- parse - to check the incoming payload
+
+- handle - to process the message
+
+
+
+  
+
+`      
+
+    
+
+    from pydeen.service import ServiceAction  
+
+  
+
+    class MyServiceAction(ServiceAction):  
+
+  
+
+        def parse(self, payload) -> bool:  
+
+            print("MY ACTION CALLED")  
+
+            if payload.find("{") == 0:  
+
+                return True  
+
+            else:  
+
+                return False      
+
+  
+
+        def handle(self, payload, service):  
+
+            print("MY ACTION HANDLED")  
+
+            return False  
+
+    
+
+    service_action = MyServiceAction()  
+
+    service.register_action(service_action)  
+
+  
+
+`       
+
+
+
+
+
+
+# CHANGELOG
+
+0.3.0 2022-08-04 sap abap odata support
+
+- command line menu framework
+
+- redesign pyodata support
+
+- support for sap abap odata gateway
+
+
+
+0.2.0 2022-06-30 odata v1 
+
+- doc for websocket usage
+
+- websocket restart mode
+
+- odata v2 access (pyodata) - early access
+
+
+
+0.1.0 2022-06-21 initial pre-alpha release
+
+---
+
+- core types
+
+- config file handling
+
+- websocket scenario with default command handler for SAP APC
+
