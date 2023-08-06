@@ -1,0 +1,25 @@
+# Gym-style API environment
+
+## Environment dynamics
+
+<img width="500" height="300" src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
+
+
+## A write up
+[Here's](https://www.overleaf.com/project/62b89d3b150bcf81e449aeb3) the most recent write up regarding the envoronment and algorithms applied to it.
+
+## To install
+- git clone https://github.com/claudia-viaro/gym-update.git
+- cd gym-update
+- !pip install gym-update
+- import gym
+- import gym_update
+- env =gym.make('update-v0')
+
+# To change version
+- change version to, e.g., 1.0.7 from setup.py file
+- git clone https://github.com/claudia-viaro/gym-update.git
+- cd gym-update
+- python setup.py sdist bdist_wheel
+- twine check dist/*
+- twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
