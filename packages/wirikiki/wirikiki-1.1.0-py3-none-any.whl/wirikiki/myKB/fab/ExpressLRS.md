@@ -1,0 +1,14 @@
+# Setup
+```
+DRegulatory_Domain_ISM_2400
+DMY_BINDING_PHRASE="fdev31"
+DHYBRID_SWITCHES_8
+DFEATURE_OPENTX_SYNC
+DUART_INVERTED
+DFAST_SYNC
+```
+
+UID bytes: 11,240,22,29,225,16
+```
+set expresslrs_uid = 11,240,22,29,225,16
+```
