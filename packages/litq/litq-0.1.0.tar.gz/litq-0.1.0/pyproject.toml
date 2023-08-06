@@ -1,0 +1,88 @@
+##########################################
+# Build system configs
+##########################################
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "litq"
+version = "0.1.0"
+authors = [
+  { name="rednafi", email="redowan.nafi@gmail.com" },
+]
+description = ">> Off process queue with sqlite <<"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+dependencies = [
+    "click"
+]
+
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pip-tools",
+    "pytest",
+    "twine",
+    "hatch",
+    "build",
+    "types-setuptools",
+    "types-pkg_resources",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/rednafi/rubric"
+"Issue Tracker" = "https://github.com/pypa/rubric/issues"
+
+[project.scripts]
+litq = "litq.__init__:cli"
+
+[tool.hatch.build]
+include = [
+  "litq/*",
+  "/tests/*",
+]
+
+##########################################
+# Development configs
+##########################################
+
+[tool.isort]
+profile = "black"
+atomic = true
+extend_skip_glob = "scripts"
+line_length = 88
+
+[tool.black]
+extend-exclude = "scripts"
+
+[tool.mypy]
+follow_imports = "skip"
+ignore_missing_imports = true
+warn_no_return = false
+warn_unused_ignores = true
+allow_redefinition = true
+pretty = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+exclude = ["build", "tests"]
