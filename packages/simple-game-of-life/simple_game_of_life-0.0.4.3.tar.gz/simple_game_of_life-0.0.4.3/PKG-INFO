@@ -1,0 +1,96 @@
+Metadata-Version: 2.1
+Name: simple_game_of_life
+Version: 0.0.4.3
+Summary: Conway's game of life in python
+Home-page: UNKNOWN
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# Game Of Life
+
+Simple way to play Conway's game of life in python.<br>
+You can import your own map as json file name "save.json", using `get_MAP` methode.<br>
+All you custom maps (in the save.json file) are available in the list `custom_maps`.<br>
+Other custom maps are available such as: `my_map_1` and `my_map_2`, created using `Map` class : <br>
+```python
+from simple_game_of_life import Map
+m = Map(100)
+my_map_1 = m.mini_random_MAP((25, 20))
+my_map_2 = m.kind(kind="line 10")
+```
+
+<br>
+<br>
+**NOTE** : Two artificials borders are created for each map, <br>
+The first one is visible while playing, it's in black.<br>
+The second one is white (invisible) just after the black border, no cell can born here
+
+
+## Installation
+
+Run the following command to install:
+```$ pip install simple-game-of-life ```
+
+## Usage
+
+for a random map
+```python
+from simple_game_of_life import GameOfLife
+game = GameOfLife(50) 
+game.start_animation()
+```
+
+for a custom map
+```python
+from simple_game_of_life import GameOfLife
+from random import choice
+custom_map = GameOfLife.get_MAP() # custom_map already saved in the json file
+game = GameOfLife(custom_map=choice(my_custom_map))
+game.start_animation()
+# Note you can also import custom_map like that :
+# from simple_game_of_life import custom_map 
+```
+
+to implement a pattern :
+```python
+from simple_game_of_life import GameOfLife, Map
+glider = [[0,1,0],
+          [0,0,1],
+          [1,1,1]]
+m = Map(100)
+my_map = m.my_pattern(glider)
+game = GameOfLife(custom_map=my_map)
+game.start_animation()
+```
+
+# Other usage
+
+`GameOfLife` classe :<br>
+    - You can save a map by using `saved_MAP` methode.<br>
+    - You can get a map by using `get_MAP` methode.<br>
+    - You can reset all saved map by using `reset_MAP` methode.<br>
+    - You can get all frames by using `get_history` methode.<br>
+    - You can set a new animation with the same instance using `new_animation` methode.<br>
+
+
+`Map` classe :<br>
+    - `full_random_MAP` : all the map gonna be random.<br>
+    - `mini_random_MAP` : a portion of the map gonna be random.<br>
+    - `my_pattern` : insert your pattern into an empty map.<br>
+    - `kind` : insert well know pattern into an empty map, (currenly 5 patterns are alives).<br>
+
+
+You can also calculate the average time of instancing, using `timeit` function:
+```python
+game = timeit(GameOfLife, loop=100, size_or_side=50, frames=200) # loop : number of loop
+game.start_animation()
+```
+
