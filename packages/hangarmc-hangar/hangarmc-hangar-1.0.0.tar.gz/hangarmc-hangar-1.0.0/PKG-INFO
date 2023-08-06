@@ -1,0 +1,74 @@
+Metadata-Version: 2.1
+Name: hangarmc-hangar
+Version: 1.0.0
+Summary: Hangar SDK for python
+Home-page: https://pypi.org/project/hangarmc-hangar/
+License: MIT
+Author: Oskar
+Author-email: 56176746+OskarZyg@users.noreply.github.com
+Requires-Python: >=3.10,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Requires-Dist: orjson (>=3.7.8,<4.0.0)
+Requires-Dist: python-dateutil (>=2.8.2,<3.0.0)
+Requires-Dist: urllib3 (>=1.26.11,<2.0.0)
+Project-URL: Documentation, https://github.com/OskarsMC-Network/hangarmc-hangar/blob/main/README.md
+Project-URL: Repository, https://github.com/OskarsMC-Network/hangarmc-hangar/
+Description-Content-Type: text/markdown
+
+# hangarmc-hangar
+
+pythonic type-hinted [hangar](https://github.com/HangarMC/Hangar) API wrapper
+
+## Installation
+
+hangarmc-hangar requires python 3.9 or above
+
+```shell
+# PIP3
+pip3 install hangarmc-hangar
+# PIP
+pip install hangarmc-hangar
+# Poetry
+poetry add hangarmc-hangar
+```
+
+## API
+
+All functions and classes are properly type hinted and documented with quotes/comments. Please file an issue or pull
+request if any issues are found.
+
+### Basic Usage
+
+#### Example
+
+```python
+from hangarmc_hangar import Hangar, HangarApiException
+
+# Create an SDK instance
+hangar = Hangar()
+
+try:
+    # Get all projects
+    projects = hangar.search_projects()
+    # Output data
+    print(f"Project amount: {projects.pagination.count}")
+    for project in projects.result:
+        print(project.name)
+except HangarApiException as e:
+    raise
+
+```
+
+#### Output
+
+```shell
+$ python sketch.py
+Project amount: 32
+CoolProject
+NotQuests
+EndBiomeFixer
+... and on
+```
+
