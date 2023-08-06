@@ -1,0 +1,127 @@
+[tool.poetry]
+name = "strawberry-django-plus"
+version = "1.22.0"
+description = "Enhanced Strawberry GraphQL integration with Django"
+authors = ["Thiago Bellini Ribeiro <thiago@bellini.dev>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/blb-ventures/strawberry-django-plus"
+repository = "https://github.com/blb-ventures/strawberry-django-plus"
+documentation = "https://strawberry-django-plus.readthedocs.io"
+keywords = ["strawberry", "django", "graphql", "relay", "optimizer"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Framework :: Django",
+  "Framework :: Django :: 3.2",
+  "Framework :: Django :: 4.0",
+  "Framework :: Django :: 4.1",
+]
+packages = [{ include = "strawberry_django_plus" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+django = ">= 3.2"
+strawberry-graphql = ">= 0.115.0"
+strawberry-graphql-django = ">= 0.4.0"
+typing-extensions = ">= 4.2.0"
+django-debug-toolbar = { version = ">=3.4", optional = true }
+django-choices-field = { version = ">=2.0", optional = true }
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+codecov = "^2.1.12"
+django-types = "^0.15.0"
+flake8 = "^4.0.1"
+flake8-broken-line = "^0.4.0"
+flake8-bugbear = "^22.4.25"
+flake8-builtins = "^1.5.3"
+flake8-comprehensions = "^3.10.0"
+flake8-polyfill = "^1.0.2"
+flake8-return = "^1.1.3"
+flake8-simplify = "^0.19.2"
+isort = "^5.10.1"
+pytest = "^7.1.2"
+pytest-cov = "^3.0.0"
+pytest-django = "^4.5.2"
+django-extensions = "^3.1.5"
+ipython = "^8.4.0"
+factory-boy = "^3.2.1"
+pytest-asyncio = "^0.19.0"
+django-debug-toolbar = "^3.2.4"
+django-choices-field = "^2.0"
+django-guardian = "^2.4.0"
+mkdocs = "^1.3.0"
+mkdocs-markdownextradata-plugin = "^0.2.5"
+mkdocs-material = "^8.3.9"
+mkdocs-minify-plugin = "^0.5.0"
+pymdown-extensions = "^9.5"
+Markdown = "^3.3.7"
+
+
+[tool.poetry.extras]
+enum = ["django-choices-field"]
+debug-toolbar = ["django-debug-toolbar"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310']
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | __pycached__
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+force_sort_within_sections = true
+
+[tool.pyright]
+pythonVersion = "3.8"
+useLibraryCodeForTypes = true
+venvPath = "."
+venv = ".venv"
+ignore = ["**/migrations"]
+reportCallInDefaultInitializer = "warning"
+reportMatchNotExhaustive = "warning"
+reportMissingSuperCall = "warning"
+reportOverlappingOverload = "warning"
+reportUninitializedInstanceVariable = "none"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUntypedNamedTuple = "error"
+reportUnusedExpression = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryContains = "warning"
+strictDictionaryInference = true
+strictListInference = true
+strictSetInference = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "demo.settings"
+python_files = "tests/test_*.py"
+addopts = "-p no:warnings --nomigrations --cov=./ --cov-report term-missing:skip-covered"
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
