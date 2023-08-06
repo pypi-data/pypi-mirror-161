@@ -1,0 +1,390 @@
+# Triggers available
+# state: null
+# value: value that needs to change by in order to trigger
+# time: seconds since last trigger
+# [always]
+
+default_cos: &default_cos
+  [state]
+
+daily_sync: &daily_sync
+  [time, 86400]
+
+daily_deadline: &daily_deadline
+  [deadline, 86400]
+
+parameters:
+  dev_id:
+    source: roll
+    triggers:
+      process:
+        store:
+          - [always]
+        send:
+          - *daily_sync
+          - *default_cos
+  address-output-1:
+    name: "Output Address 1"
+    source: block
+    form:
+      type: ParamMask
+      address: 1038
+      idx: address-output-1
+      block: 0
+      mask: 0xFF
+      rshift: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 255
+  address-output-2:
+    name: "Output Address 2"
+    source: block
+    form:
+      type: ParamMask
+      address: 1039
+      idx: address-output-2
+      block: 0
+      mask: 0xFF00
+      rshift: 8
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 255
+  address-output-3:
+    name: "Output Address 3"
+    source: block
+    form:
+      type: ParamMask
+      address: 1039
+      idx: address-output-3
+      block: 0
+      mask: 0xFF
+      rshift: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 255
+  address-output-4:
+    name: "Output Address 4"
+    source: block
+    form:
+      type: ParamMask
+      address: 1040
+      idx: address-output-4
+      block: 0
+      mask: 0xFF00
+      rshift: 8
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 255
+  invert-state:
+    source: block
+    form:
+      type: ParamBits
+      address: 1040
+      idx: invert-state
+      block: 0
+      bitmask:
+        invert-state-output-4: 3
+        invert-state-output-3: 2
+        invert-state-output-2: 1
+        invert-state-output-1: 0
+  invert-state-output-1:
+    name: "Invert State - Output 1"
+    source: block
+    block: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        event:
+          - [ always ]
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  invert-state-output-2:
+    name: "Invert State - Output 2"
+    source: block
+    block: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        event:
+          - [ always ]
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  invert-state-output-3:
+    name: "Invert State - Output 3"
+    source: block
+    block: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        event:
+          - [ always ]
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  invert-state-output-4:
+    name: "Invert State - Output 4"
+    source: block
+    block: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        event:
+          - [ always ]
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  fault-output-delay:
+    name: "Fault Output Delay"
+    source: block
+    form:
+      type: ParamMaskScale
+      block: 0
+      address: 1041
+      idx: fault-output-delay
+      mask: 0xFF00
+      scale: 0.2
+      rshift: 8
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 51
+            step: 0.2
+            scale: 5
+  fault-state-output-1:
+    name: "Fault State - Output 1"
+    source: block
+    form:
+      type: ParamMask
+      address: 1041
+      idx: fault-state-output-1
+      block: 0
+      mask: 0x1
+      rshift: 0
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  fault-state-output-2:
+    name: "Fault State - Output 2"
+    source: block
+    form:
+      type: ParamMask
+      address: 1041
+      idx: fault-state-output-2
+      block: 0
+      mask: 0x2
+      rshift: 1
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  fault-state-output-3:
+    name: "Fault State - Output 3"
+    source: block
+    form:
+      type: ParamMask
+      address: 1041
+      idx: fault-state-output-3
+      block: 0
+      mask: 0x4
+      rshift: 2
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  fault-state-output-4:
+    name: "Fault State - Output 4"
+    source: block
+    form:
+      type: ParamMask
+      address: 1041
+      idx: fault-state-output-4
+      block: 0
+      mask: 0x8
+      rshift: 3
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 1
+  trip-mask-output-1:
+    name: "Trip Mask - Output 1"
+    source: block
+    form:
+      type: Param
+      address: 1038
+      idx: trip-mask-output-1
+      block: 1
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 65535
+  trip-mask-output-2:
+    name: "Trip Mask - Output 2"
+    source: block
+    form:
+      type: Param
+      address: 1039
+      idx: trip-mask-output-2
+      block: 1
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 65535
+  trip-mask-output-3:
+    name: "Trip Mask - Output 3"
+    source: block
+    form:
+      type: Param
+      address: 1040
+      idx: trip-mask-output-3
+      block: 1
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 65535
+  trip-mask-output-4:
+    name: "Trip Mask - Output 4"
+    source: block
+    form:
+      type: Param
+      address: 1041
+      idx: trip-mask-output-4
+      block: 1
+    triggers:
+      collect:
+        read:
+          - *daily_deadline
+      process:
+        send:
+          - [ always ]
+      write:
+        validators:
+          - trig_type: range
+            min: 0
+            max: 65535
