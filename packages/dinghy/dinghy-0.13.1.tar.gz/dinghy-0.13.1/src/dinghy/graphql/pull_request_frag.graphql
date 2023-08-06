@@ -1,0 +1,47 @@
+# https://docs.github.com/en/graphql/reference/objects#pullrequest
+fragment pullRequestData on PullRequest {
+  __typename
+  id
+  repository {
+    ...repoData   # fragment: repo_frag.graphql
+  }
+  author {
+    ...authorData   # fragment: author_frag.graphql
+  }
+  number
+  title
+  url
+  bodyText
+  createdAt
+  updatedAt
+  closed
+  closedAt
+  merged
+  mergedAt
+  isDraft
+  labels(first: 30) {
+    nodes {
+      color
+      name
+    }
+  }
+  comments(first: 100) {
+    totalCount
+    nodes {
+      ...commentData    # fragment: comment_frag.graphql
+    }
+  }
+  reviews(first: 100) {
+    totalCount
+    nodes {
+      ...reviewData     # fragment: review_frag.graphql
+    }
+  }
+  reviewThreads(first: 100) {
+    # https://docs.github.com/en/graphql/reference/objects#pullrequestreviewthread
+    totalCount
+    nodes {
+      ...reviewThreadData   # fragment: reviewthread_frag.graphql
+    }
+  }
+}

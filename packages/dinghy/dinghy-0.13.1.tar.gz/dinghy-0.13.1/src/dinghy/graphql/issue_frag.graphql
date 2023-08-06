@@ -1,0 +1,34 @@
+# https://docs.github.com/en/graphql/reference/objects#issue
+fragment issueData on Issue {
+  __typename
+  id
+  repository {
+    ...repoData   # fragment: repo_frag.graphql
+  }
+  number
+  url
+  title
+  state
+  stateReason
+  createdAt
+  updatedAt
+  closed
+  closedAt
+  author {
+    ...authorData   # fragment: author_frag.graphql
+  }
+  bodyText
+  comments(last: 100) {
+    totalCount
+    nodes {
+      ...commentData    # fragment: comment_frag.graphql
+    }
+  }
+  labels(first: 30) {
+    nodes {
+      color
+      name
+    }
+  }
+  # Issues have timelineItems, but added or removed from projectNext isn't listed.
+}

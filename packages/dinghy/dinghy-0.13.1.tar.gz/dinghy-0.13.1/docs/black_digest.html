@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<head>
+  <title>Sample Dinghy report - Activity</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/primer/octicons/main/icons/comment-discussion-24.svg" type="image/svg+xml">
+  <style>
+  body {
+    font-family: sans-serif;
+    max-width: 60em;
+    margin: auto;
+    line-height: 1.3;
+    color: black;
+  }
+  ul {
+    padding-left: 0;
+    list-style-type: none;
+  }
+  li {
+    margin: 0;
+  }
+  li p {
+    margin: 0;
+  }
+  ul.repos > li {
+    margin-top: 2em;
+  }
+  ul.entries > li {
+    margin-top: 1em;
+  }
+  ul.entries > li > p {
+    margin-left: 4.2em;
+  }
+  ul.entries > li > p:first-child {
+    text-indent: -2.1em;   /* not sure why it's half the 4.2em indent */
+  }
+  ul.comments > li > p {
+    margin-left: 4.2em;
+    padding-left: 1.6em;
+    text-indent: -1.6em;
+  }
+  ul.thread_comment ul.thread_comment {
+    padding-left: 1.6em;
+  }
+  ul.thread_comment > li > p {
+    padding-left: 7.3em;
+    text-indent: -1.6em;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  a:hover {
+    text-decoration: none;
+    color: #0969da;
+  }
+  .footer a:hover {
+    text-decoration: underline;
+  }
+  .reponame {
+    font-weight: bold;
+    font-size: 150%;
+    margin-right: .5em;
+  }
+  .label {
+    padding: .2em .5em .1em .5em;
+    border-radius: 2em;
+    font-size: 75%;
+    opacity: .85;
+    vertical-align: middle;
+    white-space: nowrap;
+    /* GitHub label style computations, lifted from github.com */
+    border: 1px solid transparent;
+    --perceived-lightness: calc( ((var(--label-r) * 0.2126) + (var(--label-g) * 0.7152) + (var(--label-b) * 0.0722)) / 255 );
+    --lightness-switch: max(0, min(calc((var(--perceived-lightness) - var(--lightness-threshold)) * -1000), 1));
+    --lightness-threshold: 0.453;
+    --border-threshold: 0.96;
+    --border-alpha: max(0, min(calc((var(--perceived-lightness) - var(--border-threshold)) * 100), 1));
+    background: rgb(var(--label-r), var(--label-g), var(--label-b));
+    color: hsl(0, 0%, calc(var(--lightness-switch) * 100%));
+    border-color: hsla(var(--label-h), calc(var(--label-s) * 1%), calc((var(--label-l) - 25) * 1%), var(--border-alpha));
+  }
+  .homerepo {
+    color: #888;
+  }
+  .old > p {
+    color: #888;
+  }
+  .footer {
+    color: #888;
+    font-style: italic;
+    margin-top: 3em;
+  }
+  .octicons {
+    display: inline-block;
+    padding-right: .3em;
+  }
+  .octicon {
+    width: 1.3em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+    background-repeat: no-repeat;
+    padding-bottom: .2em;
+  }
+  .octicon.star {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/star-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(98deg) saturate(8) brightness(0.5);
+  
+  }
+  .octicon.x {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/x-16.svg);
+  
+  }
+  .octicon.check {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/check-16.svg);
+  
+  }
+  .octicon.checkcircle {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/check-circle-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(98deg) saturate(8) brightness(0.5);
+  
+  }
+  .octicon.comment.resolved {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/tasklist-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(98deg) saturate(8) brightness(0.5);
+  
+  }
+  .octicon.comment {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/comment-16.svg);
+  
+  }
+  .octicon.eye {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/eye-16.svg);
+  
+  }
+  .octicon.filediff {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/file-diff-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(316deg) saturate(6) brightness(.8);
+  
+  }
+  .octicon.dash {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/dash-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(172deg) saturate(0.43) brightness(1.25);
+  
+  }
+  .octicon.pull {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/git-pull-request-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(98deg) saturate(8) brightness(0.5);
+  
+  }
+  .octicon.pull.draft {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/git-pull-request-draft-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(172deg) saturate(0.43) brightness(0.65);
+  
+  }
+  .octicon.pull.closed {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/git-pull-request-closed-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(316deg) saturate(6) brightness(.8);
+  
+  }
+  .octicon.pull.merged {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/git-merge-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(220deg) saturate(8) brightness(.65);
+  
+  }
+  .octicon.issue {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/issue-opened-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(98deg) saturate(8) brightness(0.5);
+  
+  }
+  .octicon.issue.closed {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/issue-closed-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(220deg) saturate(8) brightness(.65);
+  
+  }
+  .octicon.issue.wontdo {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/skip-16.svg);
+  filter: invert(1) brightness(.5) sepia(1) hue-rotate(172deg) saturate(0.43) brightness(0.65);
+  
+  }
+  </style>
+<body>
+
+<h1>Sample Dinghy report - Activity</h1>
+
+<ul class="repos">
+  <li>
+      <p><span class="reponame"><a href="https://github.com/psf/black">psf/black</a></span>
+      repo issues and pull requests
+      </p>
+      
+        <ul class="entries">
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3199"><span class="octicons" title="merged pull request, newly merged"><span class="octicon dash"></span><span class="octicon check"></span><span class="octicon merged pull"></span></span><b>Move fuzz.py to scripts/</b> #3199</a>
+              [ichard26]
+
+              <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: cleanup</span>
+                <span class="label" style="--label-r:0;--label-g:0;--label-b:0;--label-h:0;--label-s:0;--label-l:0;">skip news</span>
+                
+              </p><p>Description
+Makes more sense in scripts/ anyway.
+Checklist - did you ...
+
+ Add a CHANGELOG entry if necessary? -&gt;...</p></li>
+          <li class="closed">
+
+              <p><a href="https://github.com/psf/black/issues/2251"><span class="octicons" title="closed issue"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon closed issue"></span></span><b>[Python 2 has been deprecated] - Formalise Python support policy</b> #2251</a>
+              [felix-hilden]
+
+              <span class="label" style="--label-r:212;--label-g:197;--label-b:249;--label-h:257;--label-s:81;--label-l:87;">help wanted</span>
+                <span class="label" style="--label-r:251;--label-g:205;--label-b:0;--label-h:49;--label-s:100;--label-l:49;">T: documentation</span>
+                <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: maintenance</span>
+                <span class="label" style="--label-r:249;--label-g:208;--label-b:196;--label-h:13;--label-s:81;--label-l:87;">S: needs discussion</span>
+                
+              </p><p>Status update
+November 1st, 2021 @ 10:36AM EST by @ichard26
+We&#39;ve deprecated Python 2 support starting with version...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/issues/2251#issuecomment-885829194" title="07-31 21:01">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>pradyunsg</b>: Honestly, I don&#39;t see any good reason to maintain support for a single day beyond EoL.
+The main...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/2278"><span class="octicons" title="pull request"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon pull"></span></span><b>Parenthesize conditional expressions</b> #2278</a>
+              [JEphron]
+
+              <span class="label" style="--label-r:191;--label-g:212;--label-b:242;--label-h:215;--label-s:66;--label-l:84;">F: parentheses</span>
+                
+              </p><p>Context: #2248</p></li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/3080"><span class="octicons" title="issue"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>unnecessary parentheses in unpacking aren&#39;t removed</b> #3080</a>
+              [Akuli]
+
+              <span class="label" style="--label-r:0;--label-g:82;--label-b:204;--label-h:215;--label-s:100;--label-l:40;">T: design</span>
+                <span class="label" style="--label-r:191;--label-g:212;--label-b:242;--label-h:215;--label-s:66;--label-l:84;">F: parentheses</span>
+                <span class="label" style="--label-r:70;--label-g:207;--label-b:84;--label-h:126;--label-s:58;--label-l:54;">S: accepted</span>
+                
+              </p><p>Describe the style change
+Replace (foo) with foo when unpacking, where foo is an expression.
+Examples in the current...</p></li>
+          <li class="closed">
+
+              <p><a href="https://github.com/psf/black/issues/3073"><span class="octicons" title="closed issue, newly closed"><span class="octicon dash"></span><span class="octicon check"></span><span class="octicon closed issue"></span></span><b>Black pre-commit and black command line disagree</b> #3073</a>
+              [justinxzhao]
+
+              <span class="label" style="--label-r:215;--label-g:58;--label-b:74;--label-h:353;--label-s:66;--label-l:53;">T: bug</span>
+                <span class="label" style="--label-r:174;--label-g:238;--label-b:135;--label-h:97;--label-s:75;--label-l:73;">C: integrations</span>
+                <span class="label" style="--label-r:249;--label-g:208;--label-b:196;--label-h:13;--label-s:81;--label-l:87;">S: needs repro</span>
+                
+              </p><p>Version information
+pre-commit version: 2.19.0
+&gt; pre-commit --version
+pre-commit 2.19.0
+pre-commit black version:...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/issues/3073#issuecomment-1201637958" title="08-01 19:43">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>ichard26</b>: Could that be the culprit?
+
+Yeah, we changed the formatting style quite a bit between 21.12b0...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/2907"><span class="octicons" title="issue"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>When detecting Python versions, `f&#34;{x=}&#34;` should imply 3.8+</b> #2907</a>
+              [Zac-HD]
+
+              <span class="label" style="--label-r:162;--label-g:238;--label-b:239;--label-h:180;--label-s:70;--label-l:78;">T: enhancement</span>
+                <span class="label" style="--label-r:70;--label-g:207;--label-b:84;--label-h:126;--label-s:58;--label-l:54;">S: accepted</span>
+                <span class="label" style="--label-r:22;--label-g:188;--label-b:132;--label-h:159;--label-s:79;--label-l:41;">C: parser</span>
+                <span class="label" style="--label-r:22;--label-g:188;--label-b:132;--label-h:159;--label-s:79;--label-l:41;">C: target version</span>
+                
+              </p><p>Describe the bug
+The = specifier was added to f-strings in Python 3.8, but Black does not yet distinguish it from...</p></li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/2232"><span class="octicons" title="issue"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>Crash with fmt: off + decorator</b> #2232</a>
+              [rdemetrescu]
+
+              <span class="label" style="--label-r:215;--label-g:58;--label-b:74;--label-h:353;--label-s:66;--label-l:53;">T: bug</span>
+                <span class="label" style="--label-r:255;--label-g:0;--label-b:0;--label-h:0;--label-s:100;--label-l:50;">C: invalid code</span>
+                <span class="label" style="--label-r:191;--label-g:212;--label-b:242;--label-h:215;--label-s:66;--label-l:84;">F: fmtoff</span>
+                
+              </p><p>Describe the bug
+I am getting an exception error: cannot format test_black.py: INTERNAL ERROR: Black produced code...</p></li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/3124"><span class="octicons" title="issue"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>Use PEP 621&#39;s [project.requires-python] field to automatically set --target-version</b> #3124</a>
+              [GamePad64]
+
+              <span class="label" style="--label-r:162;--label-g:238;--label-b:239;--label-h:180;--label-s:70;--label-l:78;">T: enhancement</span>
+                <span class="label" style="--label-r:22;--label-g:188;--label-b:132;--label-h:159;--label-s:79;--label-l:41;">C: configuration</span>
+                <span class="label" style="--label-r:22;--label-g:188;--label-b:132;--label-h:159;--label-s:79;--label-l:41;">C: target version</span>
+                
+              </p><p>PEP 621 provides project.requires-python field in pyproject.toml. I expect, that most of the tools will support this...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/issues/3124#issuecomment-1200388628" title="07-31 09:40">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>stinodego</b>: I indeed looked at poetry-core for the version parsing. But if you wanted to use their version...</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/issues/3124#issuecomment-1202187702" title="08-02 08:35">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>ssbarnea</b>: I hope to see this feature being added and maybe in a way that it would make it easy to reuse in...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="closed">
+
+              <p><a href="https://github.com/psf/black/issues/2975"><span class="octicons" title="closed issue, newly closed"><span class="octicon dash"></span><span class="octicon check"></span><span class="octicon closed issue"></span></span><b>Docker images use a user install of Black so don&#39;t work when running as another user</b> #2975</a>
+              [RoryDungan]
+
+              <span class="label" style="--label-r:162;--label-g:238;--label-b:239;--label-h:180;--label-s:70;--label-l:78;">T: enhancement</span>
+                <span class="label" style="--label-r:212;--label-g:197;--label-b:249;--label-h:257;--label-s:81;--label-l:87;">help wanted</span>
+                <span class="label" style="--label-r:174;--label-g:238;--label-b:135;--label-h:97;--label-s:75;--label-l:73;">C: integrations</span>
+                <span class="label" style="--label-r:171;--label-g:87;--label-b:9;--label-h:28;--label-s:90;--label-l:35;">C: packaging</span>
+                <span class="label" style="--label-r:70;--label-g:207;--label-b:84;--label-h:126;--label-s:58;--label-l:54;">S: accepted</span>
+                
+              </p><p>Describe the bug
+Since bd96139, Docker images use a user install of Black. This means they can&#39;t be used when...</p></li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3202"><span class="octicons" title="merged pull request, newly created, newly merged"><span class="octicon star"></span><span class="octicon check"></span><span class="octicon merged pull"></span></span><b>makes install available for all users in docker image</b> #3202</a>
+              [n-borges]
+
+              <span class="label" style="--label-r:174;--label-g:238;--label-b:135;--label-h:97;--label-s:75;--label-l:73;">C: integrations</span>
+                
+              </p><p>Description
+Changes the default docker image installation to be made in a virtualenv. This way we get to keep the...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#issuecomment-1201753240" title="08-01 21:42">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>ichard26</b>: hey thanks for picking this up so quickly, I really appreciate it! 🖤
+Anyway, I think this PR...</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#issuecomment-1201758063" title="08-01 21:49">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>n-borges</b>: hey thanks for picking this up so quickly, I really appreciate it! black_heart
+Anyway, I think...</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#pullrequestreview-1057922444" title="08-01 22:27">
+                        <span class="octicon filediff" title="reviewed, changes requested"></span>
+                          
+                        
+                        <b>cooperlees</b>: Thanks. This makes sense. I just think we can tweak a few things.</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r934964502" title="08-01 22:27">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>cooperlees</b>: Don&#39;t know if this will work - Ignore if it does not ...
+  
+    
+      
+        Suggested...</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r935211785" title="08-02 07:32">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>n-borges</b>: Thanks for the suggestion, i agree. Being that RUN instructions are independent from each other...</a></p>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r934965535" title="08-01 22:27">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>cooperlees</b>: Suggested change
+        
+          
+    
+
+        
+      
+    
+    
+      
+          
+         ...</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r935222807" title="08-02 07:44">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>n-borges</b>: Got it, adding this as well</a></p>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r934965429" title="08-01 22:29">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>cooperlees</b>: Will this make the PATH persistent like this? i.e.everyone who download and runs commands in...</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3202#discussion_r935200362" title="08-02 07:19">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>n-borges</b>: Yes, it will prepend the PATH for all users. Here&#39;s a couple examples:
+# test output as host...</a></p>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#pullrequestreview-1058947862" title="08-02 15:09">
+                        <span class="octicon checkcircle" title="reviewed, approved"></span>
+                          
+                        
+                        <b>cooperlees</b>: Thanks for the testing. This all looks good to go for me. Shouldn&#39;t break anyone unless they...</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#issuecomment-1202841196" title="08-02 15:35">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>n-borges</b>: Ok, thanks for the review!</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3202#issuecomment-1202903245" title="08-02 16:01">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>cooperlees</b>: Ok, thanks for the review!
+
+Thanks for the fix and taking feedback so well + working together to...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3198"><span class="octicons" title="pull request"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon pull"></span></span><b>Added depreciated warning in filter warning</b> #3198</a>
+              [shivamdurgbuns]
+
+              <span class="label" style="--label-r:0;--label-g:0;--label-b:0;--label-h:0;--label-s:0;--label-l:0;">skip news</span>
+                <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: maintenance</span>
+                
+              </p><p>Signed-off-by: Shivam Durgbuns shivamdurgbuns@gmail.com
+fixes: #3176
+
+Description
+
+Checklist - did you ...
+
+
+ Add a...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3198#pullrequestreview-1057921597" title="08-01 22:24">
+                        
+                            <span class="octicon eye" title="reviewed"></span>
+                          
+                        
+                        <b>ichard26</b>: There is no mitigation here, it&#39;s simply ignoring the issue. We might want to also try except...</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3198#discussion_r934963904" title="08-01 22:24">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>ichard26</b>: Suggested change
+        
+          
+    
+
+        
+      
+    
+    
+      
+          
+         ...</a></p>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3198#issuecomment-1201891463" title="08-02 00:50">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>graingert</b>: There is no mitigation here, it&#39;s simply ignoring the issue. We might want to also try except...</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3198#discussion_r935885156" title="08-02 18:09">
+                        
+                            <span class="octicon eye" title="reviewed"></span>
+                          
+                        
+                        <b>graingert</b>: My intention was that you&#39;d apply the mitigation rather than change the comment ;)</a></p>
+                      
+                        <ul class="thread_comment"><li>
+                      <p><a href="https://github.com/psf/black/pull/3198#discussion_r935914064" title="08-02 18:42">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>shivamdurgbuns</b>: @graingert I am not getting it. You want me to raise Import Error exception on catching...</a></p>
+                      
+                    </li>
+                  </ul>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/3203"><span class="octicons" title="issue, newly created"><span class="octicon star"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>Remove optional brackets around unpacking</b> #3203</a>
+              [TomFryers]
+
+              <span class="label" style="--label-r:0;--label-g:82;--label-b:204;--label-h:215;--label-s:100;--label-l:40;">T: design</span>
+                <span class="label" style="--label-r:191;--label-g:212;--label-b:242;--label-h:215;--label-s:66;--label-l:84;">F: parentheses</span>
+                <span class="label" style="--label-r:70;--label-g:207;--label-b:84;--label-h:126;--label-s:58;--label-l:54;">S: accepted</span>
+                
+              </p><p>Remove optional brackets around unpacking
+Since #2945, Black removes brackets in the following situation:
+for (x, y)...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/issues/3203#issuecomment-1203201930" title="08-02 20:50">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>ichard26</b>: I agree, cross-linking with #3080.</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/3204"><span class="octicons" title="issue, newly created"><span class="octicon star"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>Black -C doesn&#39;t remove trailing commas in indices</b> #3204</a>
+              [TomFryers]
+
+              <span class="label" style="--label-r:215;--label-g:58;--label-b:74;--label-h:353;--label-s:66;--label-l:53;">T: bug</span>
+                <span class="label" style="--label-r:191;--label-g:212;--label-b:242;--label-h:215;--label-s:66;--label-l:84;">F: trailing comma</span>
+                
+              </p><p>Describe the bug
+Trailing commas inside indexing square brackets are not removed when running Black with -C. This...</p></li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3205"><span class="octicons" title="merged pull request, newly created, newly merged"><span class="octicon star"></span><span class="octicon check"></span><span class="octicon merged pull"></span></span><b>Remove invalid syntax in test</b> #3205</a>
+              [TomFryers]
+
+              <span class="label" style="--label-r:0;--label-g:0;--label-b:0;--label-h:0;--label-s:0;--label-l:0;">skip news</span>
+                <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: maintenance</span>
+                
+              </p><p>Description
+uR is not a legal string prefix, so this test breaks (AssertionError: cannot use --safe with this file;...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3205#issuecomment-1203209353" title="08-02 21:00">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>TomFryers</b>: I don&#39;t think a changelog entry is essential here!</a></p>
+                      
+                    </li>
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3205#pullrequestreview-1059432652" title="08-02 21:10">
+                        <span class="octicon checkcircle" title="reviewed, approved"></span>
+                          
+                        
+                        <b>ichard26</b>: ah of course I was the one who introduced this faulty test case haha, thank you for catching and...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="open">
+
+              <p><a href="https://github.com/psf/black/issues/3206"><span class="octicons" title="issue, newly created"><span class="octicon star"></span><span class="octicon dash"></span><span class="octicon issue"></span></span><b>Run PyPI release workflow weekly on `main` targeting TestPyPI</b> #3206</a>
+              [ichard26]
+
+              <span class="label" style="--label-r:171;--label-g:87;--label-b:9;--label-h:28;--label-s:90;--label-l:35;">C: packaging</span>
+                <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: maintenance</span>
+                
+              </p><p>With the (soon to be) introduction of mypyc into our release pipeline, releasing now means rolling the dice on...</p></li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3197"><span class="octicons" title="draft pull request"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon draft pull"></span></span><b>Port &amp; upstream mypyc wheel build workflow</b> #3197</a>
+              [ichard26]
+
+              <span class="label" style="--label-r:0;--label-g:0;--label-b:0;--label-h:0;--label-s:0;--label-l:0;">skip news</span>
+                <span class="label" style="--label-r:80;--label-g:86;--label-b:120;--label-h:230;--label-s:20;--label-l:39;">C: maintenance</span>
+                
+              </p><p>Description
+This was the last part of #3017. I say was because I rewrote most of the build setup in an effort to...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/3197#issuecomment-1200078453" title="08-03 00:48">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>github-actions</b>: diff-shades reports zero changes comparing this PR (7e11f93) to main (507234c).
+
+What is this? |...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/3162"><span class="octicons" title="pull request"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon pull"></span></span><b>Add parens around implicit string concatenations where increases readability</b> #3162</a>
+              [yilei]
+
+              
+              </p><p>Description
+
+This PR resolves #3159. It adds parentheses around implicit string concatenations when it&#39;s inside a...</p></li>
+          <li class="">
+
+              <p><a href="https://github.com/psf/black/pull/2885"><span class="octicons" title="pull request"><span class="octicon dash"></span><span class="octicon dash"></span><span class="octicon pull"></span></span><b>Add improved docstring processing</b> #2885</a>
+              [TomFryers]
+
+              
+              </p><p>Description
+One of the things discussed in issue #144 was quote placement. Reading through the discussion, there...</p><ul class="comments">
+                  <li>
+                      <p><a href="https://github.com/psf/black/pull/2885#issuecomment-1043288305" title="08-03 10:21">
+                        
+                          <span class="octicon comment" title="comment"></span>
+                        
+                        <b>github-actions</b>: diff-shades results comparing this PR (08ec335) to main (507234c). The full diff is available in...</a></p>
+                      
+                    </li>
+                  </ul>
+              </li>
+          </ul>
+      
+    </li>
+  </ul>
+
+<p class="footer">
+  created at 2022-08-03 09:17 by
+  <a href="https://pypi.org/project/dinghy/0.13.1">
+    dinghy
+    <span class="dinghy_version">0.13.1</span></a>.
+</p>

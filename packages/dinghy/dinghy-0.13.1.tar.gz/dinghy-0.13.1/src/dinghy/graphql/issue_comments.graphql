@@ -1,0 +1,18 @@
+query getIssueComments(
+  $id: ID!
+  $after: String
+) {
+  node(id:$id) {
+    ... on Issue {
+      comments(first: 100, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          ...commentData    # fragment: comment_frag.graphql
+        }
+      }
+    }
+  }
+}
