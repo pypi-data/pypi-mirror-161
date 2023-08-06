@@ -1,0 +1,151 @@
+stages:
+  - test
+  - package
+  - deploy
+
+variables:
+  RPM_REPO: incubator
+  RPM_REPO_EOS: /eos/project/l/lhcbwebsites/www/lhcb-rpm/${RPM_REPO}
+  RPM_REPO_URL: "https://lhcb-rpm.web.cern.ch/lhcb-rpm/${RPM_REPO}/"
+
+centos7:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:centos7
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+python2.7:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-2.7
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+python3.6:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.6
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+python3.7:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.7
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+python3.8:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.8
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+python3.9:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.9
+  script:
+    - python --version
+    - pip install -e .
+    - python setup.py nosetests --cover-package ${CI_PROJECT_NAME}
+  artifacts:
+    paths:
+      - cover
+    when: always
+    expire_in: 1 week
+
+formatting:
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.7
+  script:
+    # Need to use click 7.x to avoid "ImportError: cannot import name '_unicodefun' from 'click'"
+    - pip install black==20.8b1 'click~=7.0'
+    - black --check --exclude templates .
+
+# Packaging step
+compiler-wrappers-rpm:
+  stage: package
+  dependencies: []
+  tags:
+    - cvmfs
+  image: gitlab-registry.cern.ch/lhcb-core/lbdocker/centos7-build
+  variables:
+    NO_LBLOGIN: "1"
+  script:
+    - mkdir -p ~/rpmbuild/SOURCES public
+    - cp bin/lb-gen-compiler-wrapper /userhome/rpmbuild/SOURCES
+    - rpmbuild -bb rpm/CompilerWrappers.spec
+    - rpm_name=$(ls /userhome/rpmbuild/RPMS/noarch/ | grep 'rpm$' | head -1)
+    - mv /userhome/rpmbuild/RPMS/noarch/${rpm_name} public
+    - if curl --silent --head ${RPM_REPO_URL}${rpm_name} | grep -q "200 OK" ; then
+    -   echo "${rpm_name} already in ${RPM_REPO_URL}, will not deploy"
+    - else
+    -   touch public/to_deploy
+    - fi
+  artifacts:
+    paths:
+      - public
+    when: always
+    expire_in: 1 week
+
+
+deploy-packages:
+  stage: deploy
+  only:
+    - tags
+  dependencies: []
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.7
+  script:
+    - python setup.py sdist --dist-dir public/
+    - python setup.py bdist_wheel --dist-dir public/
+    - if [ -z "$TWINE_PASSWORD" ] ; then echo "Set TWINE_PASSWORD in CI variables" ; exit 1 ; fi
+    - twine upload -u __token__ public/*
+  before_script: []
+  after_script: []
+
+deploy-rpm:
+  stage: deploy
+  dependencies:
+    - compiler-wrappers-rpm
+  image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
+  script:
+    - test -z "$EOS_ACCOUNT_USERNAME" -o -z "$EOS_ACCOUNT_PASSWORD" && exit 0 || true
+    # Script that performs the deploy to EOS. Makes use of the variables defined in the project
+    # It will copy the generated content to the folder in EOS
+    - export EOS_PATH=${RPM_REPO_EOS}
+    - if [ -e public/to_deploy ] ; then
+    -   rm -f public/to_deploy
+    -   echo "publishing $(find public -type f -ls | wc -l) files:"
+    -   find public -type f -ls
+    -   deploy-eos
+    - else
+    -   echo "nothing to publish"
+    - fi
+  # do not run any globally defined before_script or after_script for this step
+  before_script: []
+  after_script: []
