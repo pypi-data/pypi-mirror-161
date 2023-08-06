@@ -1,0 +1,18 @@
+{% extends 'assistants/bricks/base/actions.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} assistants-actions-ontime-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Action on time') plural=_('{count} Actions on time') empty=verbose_name icon='action' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='assistants__create_action'|url:object.id label=_('New action') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No action on time' %}
+{% endblock %}

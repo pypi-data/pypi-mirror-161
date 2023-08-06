@@ -1,0 +1,204 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_widgets creme_bricks %}
+{% load has_perm_to url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-customforms-brick{% endblock %}
+
+{% block brick_script %}
+<script type="text/javascript">
+    $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
+        new creme.FormGroupsController({
+            expandUrl: "{% url 'creme_config__customforms_brick_show_details' %}"
+        }).bind(brick);
+    });
+ </script>
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') icon='config' %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_custom_form' as delete_url %}
+    {% for ctw in page.object_list %}
+    {% with ctype=ctw.ctype %}
+{#    <div class="brick-list-item customform-config-item{% if ctw.collapsed %} customform-config-collapsed{% endif %}"> #}
+    <div class="brick-list-item customform-config-ctype{% if ctw.collapsed %} customform-config-collapsed{% endif %}">
+{#        <div class="customform-config-group-title"> #}
+        <div class="customform-config-ctype-title">
+            {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %}<span>{{ctype}}</span>
+
+            <a class="customform-config-show-details" href="#" data-ct-id="{{ctype.id}}">{% translate 'Show details' %}</a>
+            <a class="customform-config-hide-details" href="#">{% translate 'Hide details' %}</a>
+        </div>
+
+        <div class="customform-config-ctype-content">
+            <p class="help-instructions">{% translate 'Drag and drop the groups to order them.' %}</p>
+        {% for descriptor in ctw.descriptors %}
+            <div class="customform-config-descriptor">
+                <div class="customform-config-descriptor-title">
+                    <span>{{descriptor.verbose_name}}</span>
+                    {% if descriptor.items|length < max_conf_count %}
+                        {% brick_action id='add' url='creme_config__create_custom_form'|url:descriptor.id label=_('Add a form for a role') display='both' enabled=admin_perm %}
+                    {% endif %}
+                </div>
+                <div class="customform-config-items">
+                {% for item in descriptor.items %}
+                    <div class="customform-config-item">{# TODO (2.4): customform-config-item-collapsed #}
+                        <div class="customform-config-item-title">
+{% comment %} TODO (2.4): reactivate the collapsing feature in 2.4 ; need to store the extended cforms in BrickState to avoid the cform to collapse every time it is edited.
+                            <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Show this form' %}"><div class="toggle-icon"></div></div>
+                            <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Hide this form' %}"><div class="toggle-icon"></div></div>
+{% endcomment %}
+
+                            {{item.verbose_name}}
+                            {% if item.can_be_deleted %}{% brick_action id='delete' url=delete_url __id=item.id enabled=admin_perm %}{% endif %}
+                        </div>
+                        <div class="customform-config-item-content">{% url 'creme_config__delete_custom_form_cell' item.id as delete_cell_url %}
+                            <div class="customform-config-fields">
+                                <table>
+                                    <tbody class="customform-config-blocks">
+                                    {% for group in item.groups %}
+                                    {% with form_group_id=forloop.counter0 layout=group.layout %}{% url 'creme_config__setlayout_custom_form_group' item.id form_group_id as layout_url %}
+                                        <tr data-reorderable-form-group-url="{% url 'creme_config__reorder_custom_form_group' item.id form_group_id %}">
+                                            <td class="customform-config-block-container">
+                                                <div class="customform-config-block customform-config-block-layout-{% if layout == LAYOUT_REGULAR %}regular{% elif layout == LAYOUT_DUAL_FIRST %}dual-first{% else %}dual-second{% endif %}">
+                                                    <div class="customform-config-block-header">
+                                                        {% if layout == LAYOUT_REGULAR %}
+                                                            {% brick_action id='update' url=layout_url __layout='dual_second' icon='next' label=_('Display this group on the second half only') enabled=admin_perm %}
+                                                        {% elif layout == LAYOUT_DUAL_SECOND %}
+                                                            {% brick_action id='update' url=layout_url __layout='regular' icon='previous' label=_('Display this group on the whole width') enabled=admin_perm %}
+                                                        {% endif %}
+                                                       <span class="customform-config-block-header-title">{{group.name}}</span>
+                                                        {% if not group.extra_group_id %}{% url 'creme_config__edit_custom_form_group' item.id form_group_id as edit_url %}
+                                                            {% brick_action id='edit' url=edit_url label=_('Edit this group') enabled=admin_perm %}
+                                                        {% endif %}
+                                                        {% brick_action id='delete' url='creme_config__delete_custom_form_group'|url:item.id __group_id=form_group_id label=_('Delete this group') enabled=admin_perm %}
+                                                        {% if layout == LAYOUT_REGULAR %}
+                                                            {% brick_action id='update' url=layout_url __layout='dual_first' icon='previous' label=_('Display this group on the first half only') enabled=admin_perm %}
+                                                        {% elif layout == LAYOUT_DUAL_FIRST %}
+                                                            {% brick_action id='update' url=layout_url __layout='regular' icon='next' label=_('Display this group on the whole width') enabled=admin_perm %}
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="customform-config-block-content">
+                                                        <table>
+                                                            <tbody>
+                                                                {% for cell in group.cells %}
+                                                                <tr>
+                                                                    <td {% brick_table_data_status primary %}>{{cell}}</td>
+                                                                    <td {% brick_table_data_status action %}>
+                                                                        {% brick_action id='delete' url=delete_cell_url __cell_key=cell.key label=_('Delete this field') enabled=admin_perm %}
+                                                                    </td>
+                                                                </tr>
+                                                                {% endfor %}
+                                                            <tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            <td>
+                                        </tr>
+                                    {% endwith %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="customform-config-fields-actions">
+                                    {% brick_action id='add' url='creme_config__add_custom_form_group'|url:item.id label=_('Add a group') display='both' enabled=admin_perm %}
+                                    {% if item.has_extra_groups %}
+                                        {% brick_action id='add' url='creme_config__add_custom_form_extra_group'|url:item.id label=_('Add a special group') display='both' enabled=admin_perm %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="customform-config-errors">
+                            {% with errors=item.errors %}
+                                {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+                            {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+
+{% comment %}
+        <div class="customform-config-group brick-table">
+            <table class="brick-table-content">
+                <tbody>
+                    {% for descriptor in ctw.descriptors %}
+                    <tr>{% url 'creme_config__delete_custom_form_cell' descriptor.id as delete_cell_url %}
+                        <td class="customform-config-ctype-label">{{descriptor.verbose_name}}</td>
+                        <td class="customform-config-fields">
+                            <p class="help-instructions">{% translate 'Drag and drop the groups to order them.' %}</p>
+                            <table>
+                                <tbody class="customform-config-blocks">
+                                {% for group in descriptor.groups %}
+                                {% with form_group_id=forloop.counter0 layout=group.layout %}{% url 'creme_config__setlayout_custom_form_group' descriptor.id form_group_id as layout_url %}
+                                    <tr data-reorderable-form-group-url="{% url 'creme_config__reorder_custom_form_group' descriptor.id form_group_id %}">
+                                        <td class="customform-config-block-container">
+                                            <div class="customform-config-block customform-config-block-layout-{% if layout == LAYOUT_REGULAR %}regular{% elif layout == LAYOUT_DUAL_FIRST %}dual-first{% else %}dual-second{% endif %}">
+                                                <div class="customform-config-block-header">
+                                                    {% if layout == LAYOUT_REGULAR %}
+                                                        {% brick_action id='update' url=layout_url __layout='dual_second' icon='next' label=_('Display this group on the second half only') enabled=admin_perm %}
+                                                    {% elif layout == LAYOUT_DUAL_SECOND %}
+                                                        {% brick_action id='update' url=layout_url __layout='regular' icon='previous' label=_('Display this group on the whole width') enabled=admin_perm %}
+                                                    {% endif %}
+                                                   <span class="customform-config-block-header-title">{{group.name}}</span>
+                                                    {% if not group.extra_group_id %}{% url 'creme_config__edit_custom_form_group' descriptor.id form_group_id as edit_url %}
+                                                        {% brick_action id='edit' url=edit_url label=_('Edit this group') enabled=admin_perm %}
+                                                    {% endif %}
+                                                    {% brick_action id='delete' url='creme_config__delete_custom_form_group'|url:descriptor.id __group_id=form_group_id label=_('Delete this group') enabled=admin_perm %}
+                                                    {% if layout == LAYOUT_REGULAR %}
+                                                        {% brick_action id='update' url=layout_url __layout='dual_first' icon='previous' label=_('Display this group on the first half only') enabled=admin_perm %}
+                                                    {% elif layout == LAYOUT_DUAL_FIRST %}
+                                                        {% brick_action id='update' url=layout_url __layout='regular' icon='next' label=_('Display this group on the whole width') enabled=admin_perm %}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="customform-config-block-content">
+                                                    <table>
+                                                        <tbody>
+                                                            {% for cell in group.cells %}
+                                                            <tr>
+                                                                <td {% brick_table_data_status primary %}>{{cell}}</td>
+                                                                <td {% brick_table_data_status action %}>
+                                                                    {% brick_action id='delete' url=delete_cell_url __cell_key=cell.key label=_('Delete this field') enabled=admin_perm %}
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        <tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        <td>
+                                    </tr>
+                                {% endwith %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="customform-config-fields-actions">
+                                {% brick_action id='add' url='creme_config__add_custom_form_group'|url:descriptor.id label=_('Add a group') display='both' enabled=admin_perm %}
+                                {% if descriptor.has_extra_groups %}
+                                    {% brick_action id='add' url='creme_config__add_custom_form_extra_group'|url:descriptor.id label=_('Add a special group') display='both' enabled=admin_perm %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="customform-config-errors">
+                        {% with errors=descriptor.errors %}
+                            {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+                        {% endwith %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endcomment %}
+
+    </div>
+    {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% translate 'No custom form' %}
+{% endblock %}

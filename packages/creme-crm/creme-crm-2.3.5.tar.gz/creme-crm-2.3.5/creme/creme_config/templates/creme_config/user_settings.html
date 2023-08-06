@@ -1,0 +1,30 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'View your settings' %} - {% endblock %}
+
+{% block content %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% translate 'Home' as title %}
+            <div class="bar-icon">{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}</div>
+            <div class="bar-title"><h1>{% translate 'View and edit your Creme settings' %}</h1></div>
+        </div>
+    </div>
+
+    <div class="theme_picker">{{theme_form}}</div>
+    <div class="tz_picker">{{tz_form}}</div>
+    <div class="language_picker">{{language_form}}</div>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        return new creme.UserSettingController($(this));
+    });
+    </script>
+
+    {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
+    {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
+    {% brick_declare apps_usersettings_bricks %}
+    {% brick_display blocks_mypage_locations_brick user_setting_values_brick apps_usersettings_bricks %}
+
+    {% brick_end %}
+{% endblock %}

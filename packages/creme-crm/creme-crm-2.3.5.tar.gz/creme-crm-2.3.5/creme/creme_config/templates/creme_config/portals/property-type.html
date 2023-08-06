@@ -1,0 +1,19 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of properties' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Types of property' %}
+{% endblock %}
+
+{% block portal_bricks %}
+{% blocktranslate asvar help_msg %}Properties are kind of markers (eg: "likes Open Source") you set on entities, & which are useful in several cases (filtering, Relationships constraints…).
+Create new types here to make them available for entities.
+
+BEWARE: deleting a Property type will delete the associated properties.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+
+    {% brick_import app='creme_config' name='property_types' as property_types_brick %}
+    {% brick_display property_types_brick %}
+{% endblock %}

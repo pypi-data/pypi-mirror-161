@@ -1,0 +1,59 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load and_op has_perm_to print_field uca_sort url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Type of property') plural=_('{count} Types of property') empty=verbose_name icon='property' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_ptype'|url label=_('New custom type of property') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='text'           status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='subject_ctypes' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_copiable'    status='nowrap' %}
+    {% brick_table_column title=_('Statistics') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% for prop_type in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
+        <td class="property-subjects">
+            {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=8 empty=_('No related type of resource') summary=_('{count} types of resource') %}
+        </td>
+        <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
+        <td class="property-count">
+            {% blocktranslate count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}
+        </td>
+        {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
+        <td {% brick_table_data_status action %}>
+            {% if prop_type.enabled %}
+                {% brick_table_action id='update' url='creme_config__disable_ptype'|url:prop_type.id label=_('Disable') display='text' enabled=admin_perm %}
+            {% else %}
+                {% brick_table_action id='update' url='creme_config__enable_ptype'|url:prop_type.id  label=_('Enable')  display='text' enabled=admin_perm %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if prop_type.enabled %}
+                {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %}
+        </td>
+        {% endwith %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No type of property for the moment' %}
+{% endblock %}
