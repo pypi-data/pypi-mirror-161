@@ -1,0 +1,143 @@
+Metadata-Version: 2.1
+Name: zocalo
+Version: 0.23.0
+Summary: Infrastructure components for automated data processing at Diamond Light Source
+Home-page: UNKNOWN
+Author: Diamond Light Source - Data Analysis Group
+Author-email: dataanalysis@diamond.ac.uk
+License: BSD
+Project-URL: Bug-Tracker, https://github.com/DiamondLightSource/python-zocalo/issues
+Project-URL: Changelog, https://github.com/DiamondLightSource/python-zocalo/blob/main/HISTORY.rst
+Project-URL: Documentation, https://github.com/DiamondLightSource/python-zocalo
+Project-URL: Download, https://github.com/DiamondLightSource/python-zocalo/releases
+Project-URL: GitHub, https://github.com/DiamondLightSource/python-zocalo
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: PyYAML
+Requires-Dist: graypy (>=1.0)
+Requires-Dist: marshmallow
+Requires-Dist: requests
+Requires-Dist: pydantic
+Requires-Dist: setuptools
+Requires-Dist: workflows (>=2.14)
+
+======
+Zocalo
+======
+
+
+.. image:: https://img.shields.io/pypi/v/zocalo.svg
+        :target: https://pypi.python.org/pypi/zocalo
+        :alt: PyPI release
+
+.. image:: https://img.shields.io/conda/vn/conda-forge/zocalo.svg
+        :target: https://anaconda.org/conda-forge/zocalo
+        :alt: Conda version
+
+.. image:: https://dev.azure.com/zocalo/python-zocalo/_apis/build/status/DiamondLightSource.python-zocalo?branchName=main
+        :target: https://dev.azure.com/zocalo/python-zocalo/_build/latest?definitionId=2&branchName=main
+        :alt: Build status
+
+.. image:: https://img.shields.io/lgtm/grade/python/g/DiamondLightSource/python-zocalo.svg?logo=lgtm&logoWidth=18
+        :target: https://lgtm.com/projects/g/DiamondLightSource/python-zocalo/context:python
+        :alt: Language grade: Python
+
+.. image:: https://img.shields.io/lgtm/alerts/g/DiamondLightSource/python-zocalo.svg?logo=lgtm&logoWidth=18
+        :target: https://lgtm.com/projects/g/DiamondLightSource/python-zocalo/alerts/
+        :alt: Total alerts
+
+.. image:: https://readthedocs.org/projects/zocalo/badge/?version=latest
+        :target: https://zocalo.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation status
+
+.. image:: https://img.shields.io/pypi/pyversions/zocalo.svg
+        :target: https://pypi.org/project/zocalo/
+        :alt: Supported Python versions
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+        :target: https://github.com/ambv/black
+        :alt: Code style: black
+
+.. image:: https://img.shields.io/pypi/l/zocalo.svg
+        :target: https://pypi.python.org/pypi/zocalo
+        :alt: BSD license
+
+..
+
+        |
+        | `M. Gerstel, A. Ashton, R.J. Gildea, K. Levik, and G. Winter, "Data Analysis Infrastructure for Diamond Light Source Macromolecular & Chemical Crystallography and Beyond", in Proc. ICALEPCS'19, New York, NY, USA, Oct. 2019, pp. 1031-1035. <https://doi.org/10.18429/JACoW-ICALEPCS2019-WEMPR001>`_ |DOI|
+
+        .. |DOI| image:: https://img.shields.io/badge/DOI-10.18429/JACoW--ICALEPCS2019--WEMPR001-blue.svg
+                :target: https://doi.org/10.18429/JACoW-ICALEPCS2019-WEMPR001
+                :alt: Primary Reference DOI
+
+|
+
+Zocalo is an automated data processing system designed at Diamond Light Source. This repository contains infrastructure components for Zocalo.
+
+The idea of Zocalo is a simple one - to build a messaging framework, where text-based messages are sent between parts of the system to coordinate data analysis. In the wider scope of things this also covers things like archiving, but generally it is handling everything that happens after data aquisition.
+
+Zocalo as a wider whole is made up of two repositories (plus some private internal repositories when deployed at Diamond):
+
+* `DiamondLightSource/python-zocalo <https://github.com/DiamondLightSource/python-zocalo>`_ - Infrastructure components for automated data processing, developed by Diamond Light Source. The package is available through `PyPi <https://pypi.org/project/zocalo/>`__ and `conda-forge <https://anaconda.org/conda-forge/zocalo>`__.
+* `DiamondLightSource/python-workflows <https://github.com/DiamondLightSource/python-workflows/>`_ - Zocalo is built on the workflows package. It shouldn't be necessary to interact too much with this package, as the details are abstracted by Zocalo. workflows controls the logic of how services connect to each other and what a service is, and actually send the messages to a message broker. Currently this is an ActiveMQ_ broker (via STOMP_) but support for a RabbitMQ_ broker (via pika_) is being added. This is also available on `PyPi <https://pypi.org/project/workflows/>`__ and `conda-forge <https://anaconda.org/conda-forge/workflows>`__.
+
+As mentioned, Zocalo is currently built on top of ActiveMQ. ActiveMQ is an apache project that provides a `message broker <https://en.wikipedia.org/wiki/Message_broker>`_ server, acting as a central dispatch that allows various services to communicate. Messages are plaintext, but from the Zocalo point of view it's passing aroung python objects (json dictionaries). Every message sent has a destination to help the message broker route. Messages may either be sent to a specific queue or broadcast to multiple queues. These queues are subscribed to by the services that run in Zocalo. In developing with Zocalo, you may have to interact with ActiveMQ or RabbitMQ, but it is unlikely that you will have to configure it.
+
+Zocalo allows for the monitoring of jobs executing ``python-workflows`` services or recipe wrappers. The ``python-workflows`` package contains most of the infrastructure required for the jobs themselves and more detailed documentation of its components can be found in the ``python-workflows`` `GitHub repository <https://github.com/DiamondLightSource/python-workflows/>`_ and `the Zocalo documentation <https://zocalo.readthedocs.io>`_.
+
+.. _ActiveMQ: http://activemq.apache.org/
+.. _STOMP: https://stomp.github.io/
+.. _RabbitMQ: https://www.rabbitmq.com/
+.. _pika: https://github.com/pika/pika
+
+
+=======
+History
+=======
+
+Unreleased
+----------
+
+0.23.0 (2022-08-02)
+-------------------
+* Remove deprecated ``zocalo.enable_graylog()`` function
+* Use ``LoggingAdapter`` to append ``recipe_ID`` to wrapper logs.
+  This was inadvertantly broken for the logging plugin added in #176.
+  Derived wrappers should now use self.log rather than instantiating
+  a logger directly.
+
+0.22.0 (2022-07-12)
+-------------------
+* ``zocalo.wrapper``: Enable access to ``zocalo.configuration`` object through ``BaseWrapper.config`` attribute
+* ``zocalo.configure_rabbitmq`` cli: check response status codes to catch failed API calls
+* ``zocalo.configure_rabbitmq`` cli: don't set x-single-active-consumer for streams
+
+0.21.0 (2022-06-28)
+-------------------
+* ``zocalo.configure_rabbitmq`` cli: require passing user config
+  via explicit ``--user-config`` parameter
+* ``zocalo.configure_rabbitmq`` cli: optionally disable implicit
+  dlq creation via ``dead-letter-queue-create: false``
+
+0.20.0 (2022-06-17)
+-------------------
+* ``zocalo.configure_rabbitmq`` cli: require explicit
+  `dead-letter-routing-key-pattern` when requesting
+  creation of a DLQ for a given queue.
+
+0.19.0 (2022-05-24)
+-------------------
+* ``zocalo.configure_rabbitmq`` cli: advanced binding configuration
+
+
