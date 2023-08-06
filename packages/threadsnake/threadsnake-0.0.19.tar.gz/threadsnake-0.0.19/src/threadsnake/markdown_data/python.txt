@@ -1,0 +1,21 @@
+{
+    "```python([\\w\\W]+?)```": {
+        "rep": "<div style=\"padding:0em 1em; color:#BCF; background:black; font-family:candara;\">\\1</div>",
+        "styles":"body{font-family:candara, arial; padding:2em; background-color:#222;color:#eee;} a{text-decoration:none;color:#D40;}",
+        "inner": {
+            "(\\r\\n|\\r|\\n)": "\r\n<br/>\r\n",
+            "(    |\t)": "&nbsp;&nbsp;&nbsp;&nbsp;",
+            "('''[\\w\\W]*?'''|'[\\w\\W]*?')": {
+                "rep": "<span style=\"color:#F94;\">\\1</span>",
+                "inner": {
+                    "([{}])": "<span style=\"color:blue;\">\\1</span>"
+                }
+            },
+            "([\\w\\d_]+)\\(": "<span style=\"color:#FF6;\">\\1</span>(",
+            "([\\W])(as|assert|break|continue|del|elif|else|except|finally|for|from|if|import|pass|raise|return|try|while|with|yield)([\\W])": "\\1<span style=\"color:#F4F;\">\\2</span>\\3",
+            "([\\W])(and|class|def|False|global|in|is|lambda|None|nonlocal|not|or|True)([\\W])": "\\1<span style=\"color:#66F;\">\\2</span>\\3",
+            "([{}\\[\\]\\(\\)]+)": "<span style=\"color:white;\">\\1</span>",
+            "(\\@)": "<span style=\"color:green;\">\\1</span>"
+        }
+    }
+}
