@@ -1,0 +1,24 @@
+<nz-modal
+    (nzOnCancel)="closePopup()"
+    [nzFooter]="null"
+    [nzVisible]="popupShown"
+    nzTitle="Select Layers"
+>
+    <p *ngIf="noItems()">There are no layers to view at this time.</p>
+    <div *ngIf="!noItems()">
+        <nz-table ngSize="small" nzTemplateMode>
+            <tbody>
+                <tr *ngFor="let item of items">
+                    <td>
+                        <nz-switch
+                            (ngModelChange)="toggleLayerVisible(item)"
+                            [ngModel]="item.visible"
+                        ></nz-switch>
+                    </td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.order}}</td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</nz-modal>

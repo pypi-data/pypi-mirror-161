@@ -1,0 +1,71 @@
+<nz-modal
+    (nzOnCancel)="closePopup()"
+    [nzVisible]="popupShown"
+    nzTitle="Create or Edit Diagram Branch"
+>
+    <nz-tabset (nzSelectedIndexChange)="barIndex = $event">
+        <nz-tab nzTitle="Create New">
+            <div class="peek-details-section">
+                <div class="container-fluid">
+                    <!--Displayed form data -->
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="details-section-title">Name</div>
+                            <div class="details-section-value">
+                                <input
+                                    [(ngModel)]="newBranch.name"
+                                    class="editable"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="details-section-title">Comment</div>
+                            <div class="details-section-value">
+                                <div class="details-section-value">
+                                    <textarea
+                                        [(ngModel)]="newBranch.comment"
+                                        class="multiline editable"
+                                        type="text"
+                                    >
+                                    </textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nz-tab>
+        <nz-tab nzTitle="Edit Existing">
+            <div>
+                <p *ngIf="noItems()">There are no existing branches.</p>
+                <div *ngIf="!noItems()">
+                    <nz-table ngSize="small" nzTemplateMode>
+                        <tbody>
+                            <tr
+                                (click)="selectBranch(item)"
+                                *ngFor="let item of items"
+                                [class.bg-info]="isBranchSelected(item)"
+                                style="cursor: pointer"
+                            >
+                                <td [class.bg-info]="isBranchSelected(item)">
+                                    {{item.name}}
+                                </td>
+                                <td [class.bg-info]="isBranchSelected(item)">
+                                    {{item.order}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
+                </div>
+            </div>
+        </nz-tab>
+    </nz-tabset>
+    <div *nzModalFooter>
+        <button (click)="startEditing()" nz-button nzType="primary">
+            Start Editing
+        </button>
+    </div>
+</nz-modal>
