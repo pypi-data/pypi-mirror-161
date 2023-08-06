@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Swagger UI</title>
+  <link rel="stylesheet" type="text/css" href="{{ css_dir }}swagger-ui.css" />
+  <link rel="stylesheet" type="text/css" id="slate-css" media="none" href="{{ css_dir }}/swagger-ui-dark.css" />
+</head>
+
+<body style="overflow:hidden;background: {{background}};">
+  <div id="swagger-ui"></div>
+  <script src="{{ js_dir }}/swagger-ui-bundle.js" charset="UTF-8"> </script>
+  <script src="{{ js_dir }}/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+  <script>
+    window.onload = function () {
+      window.ui = SwaggerUIBundle({
+        "dom_id": '#swagger-ui',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        {% if openapi_spec_url is string %}
+        url: '{{openapi_spec_url}}',
+        {% elif openapi_spec_url is sequence %}
+        urls: [
+        {% for item in openapi_spec_url %}
+          {url:"{{item.url}}", name:"{{item.name}}"},
+        {% endfor %}
+        ],
+        layout: "StandaloneLayout",
+        {% endif %}
+        {{options}}
+      })
+
+      {% if oath2_prop != "{}" %}
+      window.ui.initOAuth({{oath2_prop}})
+      {% endif %}
+
+      const scheme = parent.scheme
+      if (scheme === "slate") {
+          enable_dark_mode();
+      }
+    }
+
+    const resize_ob = new ResizeObserver(function(entries) {
+      parent.update_swagger_ui_iframe_height("{{id}}");
+    });
+
+    // start observing for resize
+    resize_ob.observe(document.querySelector("body"));
+
+    enable_dark_mode = function(){
+      document.getElementById("slate-css").media = ""
+    }
+
+    disable_dark_mode = function(){
+      document.getElementById("slate-css").media = "none"
+    }
+  </script>
+</body>
+
+</html>
