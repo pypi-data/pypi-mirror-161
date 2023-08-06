@@ -1,0 +1,1592 @@
+{
+  "overwrite": true,
+  "dashboard": {
+    "id": null,
+    "uid": null,
+    "version": 0,
+    "schemaVersion": 16,
+    "title": "{{ dashboardTitle or 'Luftdaten-Viewer » ' + sensorNetwork.upper() + ' » Trend' }}",
+    "tags": [
+      "luftdaten-viewer",
+      "trend"
+    ],
+    "timezone": "browser",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "style": "light",
+    "time": {
+      "from": "now-{{ timeFromOffset or '7d' }}",
+      "to": "now"
+    },
+    "refresh": "{{ timeRefresh or '10m' }}",
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "links": [
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info",
+        "type": "link",
+        "url": "http://luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info map",
+        "type": "link",
+        "url": "http://deutschland.maps.luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info archive",
+        "type": "link",
+        "url": "http://archive.luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "Luftdatenpumpe @ GitHub",
+        "type": "link",
+        "url": "https://github.com/earthobservations/luftdatenpumpe"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "Luftdatenpumpe @ Hiveeyes",
+        "type": "link",
+        "url": "https://community.hiveeyes.org/t/ldi-dataplane-v2/1412"
+      }
+    ],
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 20,
+        "panels": [],
+        "repeat": "{{ sensorNetwork }}_station_id",
+        "scopedVars": {
+        },
+        "title": "Measurements for ${{ sensorNetwork }}_station_id",
+        "type": "row"
+      },
+      {
+        "aliasColors": {
+          "PM10": "#AEA2E0",
+          "PM10 in 15 min": "#705DA0",
+          "PM2.5": "#BF1B00",
+          "PM2.5 in 15min": "#890F02",
+          "humidity": "#82B5D8"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "{{ tsdbDatasource }}",
+        "decimals": 1,
+        "editable": true,
+        "error": false,
+        "fill": 0,
+        "grid": {},
+        "gridPos": {
+          "h": 13,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "height": "500",
+        "id": 18,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": false,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 1,
+        "points": false,
+        "renderer": "flot",
+        "scopedVars": {
+        },
+        "seriesOverrides": [
+          {
+            "alias": "PM10 in 15 min",
+            "fill": 1,
+            "linewidth": 3,
+            "yaxis": 1
+          },
+          {
+            "alias": "PM2.5 in 15min",
+            "fill": 1,
+            "linewidth": 3,
+            "yaxis": 1
+          },
+          {
+            "alias": "PM10",
+            "lines": false,
+            "pointradius": 1,
+            "points": true
+          },
+          {
+            "alias": "PM2.5",
+            "lines": false,
+            "pointradius": 1,
+            "points": true
+          },
+          {
+            "alias": "humidity",
+            "linewidth": 2,
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "PM2.5",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm10'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "A",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm2-5'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "PM2.5 in 15min",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm2-5'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "15m"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm2-5'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "PM10",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm10'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "1m"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "C",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "PM10 in 15 min",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm10'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "15m"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "D",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "humidity",
+            "dsType": "influxdb",
+            "groupBy": [
+              {
+                "params": [
+                  "15m"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "E",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "humidity"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": false,
+            "line": true,
+            "op": "gt",
+            "value": 40
+          },
+          {
+            "colorMode": "warning",
+            "fill": false,
+            "line": true,
+            "op": "gt",
+            "value": 25
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "PM10, PM2.5 and humidity",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "cumulative"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "none",
+            "label": "μm/m³",
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "humidity",
+            "label": "",
+            "logBase": 1,
+            "max": "100",
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 28
+        },
+        "id": 21,
+        "panels": [],
+        "repeat": "{{ sensorNetwork }}_station_id",
+        "scopedVars": {
+        },
+        "title": "EU Limits for particulates @ ${{ sensorNetwork }}_station_id",
+        "type": "row"
+      },
+      {
+        "cacheTimeout": null,
+        "colorBackground": false,
+        "colorValue": true,
+        "colors": [
+          "rgba(50, 172, 45, 0.97)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(245, 54, 54, 0.9)"
+        ],
+        "datasource": "{{ tsdbDatasource }}",
+        "format": "none",
+        "gauge": {
+          "maxValue": 100,
+          "minValue": 0,
+          "show": true,
+          "thresholdLabels": true,
+          "thresholdMarkers": true
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 29
+        },
+        "height": "230px",
+        "id": 15,
+        "interval": null,
+        "links": [],
+        "mappingType": 1,
+        "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+        ],
+        "maxDataPoints": 100,
+        "nullPointMode": "connected",
+        "nullText": null,
+        "postfix": "",
+        "postfixFontSize": "20%",
+        "prefix": "",
+        "prefixFontSize": "50%",
+        "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+        ],
+        "scopedVars": {
+        },
+        "sparkline": {
+          "fillColor": "rgba(31, 118, 189, 0.18)",
+          "full": false,
+          "lineColor": "rgb(31, 120, 193)",
+          "show": true
+        },
+        "tableColumn": "",
+        "targets": [
+          {
+            "alias": "",
+            "dsType": "influxdb",
+            "groupBy": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": "25,50",
+        "timeFrom": "24h",
+        "title": "PM10",
+        "type": "singlestat",
+        "valueFontSize": "100%",
+        "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+        ],
+        "valueName": "current"
+      },
+      {
+        "cacheTimeout": null,
+        "colorBackground": false,
+        "colorValue": true,
+        "colors": [
+          "rgba(50, 172, 45, 0.97)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(245, 54, 54, 0.9)"
+        ],
+        "datasource": "{{ tsdbDatasource }}",
+        "format": "none",
+        "gauge": {
+          "maxValue": 100,
+          "minValue": 0,
+          "show": true,
+          "thresholdLabels": true,
+          "thresholdMarkers": true
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 29
+        },
+        "height": "230px",
+        "id": 14,
+        "interval": null,
+        "links": [],
+        "mappingType": 1,
+        "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+        ],
+        "maxDataPoints": 100,
+        "nullPointMode": "connected",
+        "nullText": null,
+        "postfix": "",
+        "postfixFontSize": "20%",
+        "prefix": "",
+        "prefixFontSize": "50%",
+        "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+        ],
+        "scopedVars": {
+        },
+        "sparkline": {
+          "fillColor": "rgba(31, 118, 189, 0.18)",
+          "full": false,
+          "lineColor": "rgb(31, 120, 193)",
+          "show": true
+        },
+        "tableColumn": "",
+        "targets": [
+          {
+            "alias": "",
+            "dsType": "influxdb",
+            "groupBy": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm2-5'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": "15,30",
+        "timeFrom": "24h",
+        "title": "PM2.5 (no limit)",
+        "type": "singlestat",
+        "valueFontSize": "100%",
+        "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+        ],
+        "valueName": "current"
+      },
+      {
+        "cacheTimeout": null,
+        "colorBackground": false,
+        "colorValue": true,
+        "colors": [
+          "rgba(50, 172, 45, 0.97)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(245, 54, 54, 0.9)"
+        ],
+        "datasource": "{{ tsdbDatasource }}",
+        "format": "none",
+        "gauge": {
+          "maxValue": 100,
+          "minValue": 0,
+          "show": true,
+          "thresholdLabels": true,
+          "thresholdMarkers": true
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 29
+        },
+        "height": "230px",
+        "id": 16,
+        "interval": null,
+        "links": [],
+        "mappingType": 1,
+        "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+        ],
+        "maxDataPoints": 100,
+        "nullPointMode": "connected",
+        "nullText": null,
+        "postfix": "",
+        "postfixFontSize": "50%",
+        "prefix": "",
+        "prefixFontSize": "50%",
+        "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+        ],
+        "scopedVars": {
+        },
+        "sparkline": {
+          "fillColor": "rgba(31, 118, 189, 0.18)",
+          "full": false,
+          "lineColor": "rgb(31, 120, 193)",
+          "show": true
+        },
+        "tableColumn": "",
+        "targets": [
+          {
+            "alias": "",
+            "dsType": "influxdb",
+            "groupBy": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": "20,40",
+        "timeFrom": "1y",
+        "title": "PM10",
+        "type": "singlestat",
+        "valueFontSize": "100%",
+        "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+        ],
+        "valueName": "current"
+      },
+      {
+        "cacheTimeout": null,
+        "colorBackground": false,
+        "colorValue": true,
+        "colors": [
+          "rgba(50, 172, 45, 0.97)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(245, 54, 54, 0.9)"
+        ],
+        "datasource": "{{ tsdbDatasource }}",
+        "format": "none",
+        "gauge": {
+          "maxValue": 100,
+          "minValue": 0,
+          "show": true,
+          "thresholdLabels": true,
+          "thresholdMarkers": true
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 29
+        },
+        "height": "230px",
+        "id": 17,
+        "interval": null,
+        "links": [],
+        "mappingType": 1,
+        "mappingTypes": [
+          {
+            "name": "value to text",
+            "value": 1
+          },
+          {
+            "name": "range to text",
+            "value": 2
+          }
+        ],
+        "maxDataPoints": 100,
+        "nullPointMode": "connected",
+        "nullText": null,
+        "postfix": "",
+        "postfixFontSize": "50%",
+        "prefix": "",
+        "prefixFontSize": "50%",
+        "rangeMaps": [
+          {
+            "from": "null",
+            "text": "N/A",
+            "to": "null"
+          }
+        ],
+        "scopedVars": {
+        },
+        "sparkline": {
+          "fillColor": "rgba(31, 118, 189, 0.18)",
+          "full": false,
+          "lineColor": "rgb(31, 120, 193)",
+          "show": true
+        },
+        "tableColumn": "",
+        "targets": [
+          {
+            "dsType": "influxdb",
+            "groupBy": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm2-5'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": "12.5,25",
+        "timeFrom": "1y",
+        "title": "PM2.5",
+        "type": "singlestat",
+        "valueFontSize": "100%",
+        "valueMaps": [
+          {
+            "op": "=",
+            "text": "N/A",
+            "value": "null"
+          }
+        ],
+        "valueName": "current"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 70
+        },
+        "id": 22,
+        "panels": [],
+        "repeat": "{{ sensorNetwork }}_station_id",
+        "title": "Particulates and weather for ${{ sensorNetwork }}_station_id",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "{{ tsdbDatasource }}",
+        "decimals": 1,
+        "editable": true,
+        "error": false,
+        "fill": 0,
+        "grid": {},
+        "gridPos": {
+          "h": 10,
+          "w": 14,
+          "x": 0,
+          "y": 71
+        },
+        "height": "",
+        "id": 1,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": false,
+          "min": false,
+          "rightSide": false,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "PM10",
+            "color": "#F9D9F9",
+            "linewidth": 4,
+            "yaxis": 1
+          },
+          {
+            "alias": "PM2.5",
+            "color": "#806EB7",
+            "linewidth": 4,
+            "yaxis": 1
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "PM10",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm10'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "$__interval"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "A",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "PM2.5",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm2-5'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "$__interval"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm2-5'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 40
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Particles @ ${{ sensorNetwork }}_station_id",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "cumulative"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "none",
+            "label": "μm/m³",
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "none",
+            "label": "",
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": false
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "{{ tsdbDatasource }}",
+        "decimals": 1,
+        "editable": true,
+        "error": false,
+        "fill": 0,
+        "grid": {},
+        "gridPos": {
+          "h": 10,
+          "w": 10,
+          "x": 14,
+          "y": 71
+        },
+        "height": "",
+        "id": 12,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": false,
+          "min": false,
+          "rightSide": false,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "humidity",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "temperature",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm2-5'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "$__interval"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "C",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "temperature"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          },
+          {
+            "alias": "humidity",
+            "dsType": "influxdb",
+            "fields": [
+              {
+                "func": "mean",
+                "name": "{{ fields['pm2-5'] }}"
+              }
+            ],
+            "groupBy": [
+              {
+                "params": [
+                  "$__interval"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "groupByTags": [],
+            "hide": false,
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "D",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "humidity"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": [
+          {
+            "colorMode": "critical",
+            "fill": true,
+            "line": true,
+            "op": "gt",
+            "value": 40
+          }
+        ],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Weather @ ${{ sensorNetwork }}_station_id",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "cumulative"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "celsius",
+            "label": "°C",
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "humidity",
+            "label": "%H",
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 81
+        },
+        "id": 23,
+        "panels": [],
+        "repeat": null,
+        "title": "Info",
+        "type": "row"
+      },
+      {
+        "content": "# Particulates\n\nAtmospheric particulate matter – also known as particulate matter (PM) or particulates – are microscopic solid or liquid matter suspended in the Earth's atmosphere. The term aerosol commonly refers to the particulate/air mixture, as opposed to the particulate matter alone. Sources of particulate matter can be man-made or natural. They have impacts on climate and precipitation that adversely affect human health.\n\nSubtypes of atmospheric particulate matter include suspended particulate matter (SPM), thoracic and respirable particles, inhalable coarse particles, which are particles with a diameter between 2.5 and 10 micrometres (μm), fine particles with a diameter of 2.5 μm or less PM2.5 , PM10 ultrafine particles, and soot\n\nThe IARC and WHO designate airborne particulates a Group 1 carcinogen. Particulates are the deadliest form of air pollution[citation needed] due to their ability to penetrate deep into the lungs and blood streams unfiltered, causing permanent DNA mutations, heart attacks, and premature death. In 2013, a study involving 312,944 people in nine European countries revealed that there was no safe level of particulates and that for every increase of 10 μg/m3 in PM10, the lung cancer rate rose 22%. The smaller PM2.5 were particularly deadly, with a 36% increase in lung cancer per 10 μg/m3 as it can penetrate deeper into the lungs.\n\nThe European Union has established these limits for particulates in air\n\n|                                        | **PM10 since 1 January 2005** | **PM2.5 since 1 January 2015** |\n|----------------------------------------|--------------------------|----------------------------|\n| **Yearly average**                         | 40 µg/m3                 | 25 µg/m3                   |\n| **Daily average (24-hour)**                | 50 µg/m3                 | None                       |\n| **Allowed number of exceedences per year** | 35                       | None                       |\n\n(*[Source: Wikipedia](https://en.wikipedia.org/wiki/Particulates)*)",
+        "gridPos": {
+          "h": 19,
+          "w": 12,
+          "x": 0,
+          "y": 82
+        },
+        "id": 6,
+        "links": [],
+        "mode": "markdown",
+        "title": "About Atmospheric particulate matter",
+        "type": "text"
+      },
+      {
+        "content": "## About Luftdatenpumpe\n\n#### Features\n- **Data sources**: [luftdaten.info] (LDI), [IRCELINE]\n- **Production**: [Luftdatenpumpe]\n- **Development**: [Erneuerung der Luftdatenpumpe], [LDI data plane v2]. All contributions welcome. \n- **Composition**: [The Hiveeyes Project]. Developing a flexible beehive monitoring infrastructure.\n\n#### Production process\n1. [Luftdatenpumpe] acquires the current window of measurement readings from the upstream data source.\n2. While iterating the readings, it collects information about all stations and sensors they are originating from.\n3. Then, each stations location information gets enhanced by \n   - attaching its geospatial position as a [Geohash].\n   - attaching a synthetic real-world address resolved using the reverse geocoding service [Nominatim] by [OpenStreetMap].\n4. Finally, station information is stored into a PostGIS database using the fine  \n   [dataset] package while observation/measurement data is stored into InfluxDB.\n5. Luftdatenpumpe also includes templates for the Grafana panels you are seeing here.\n\nEnjoy exploring and stay curious.\n\n[luftdaten.info]: http://luftdaten.info/\n[IRCELINE]: https://github.com/irceline/open_data\n[Luftdatenpumpe]: https://github.com/earthobservations/luftdatenpumpe\n[Erneuerung der Luftdatenpumpe]: https://community.hiveeyes.org/t/erneuerung-der-luftdatenpumpe/1199\n[LDI data plane v2]: https://community.hiveeyes.org/t/ldi-data-plane-v2/1412\n[The Hiveeyes Project]: https://hiveeyes.org/\n\n[OpenStreetMap]: https://en.wikipedia.org/wiki/OpenStreetMap\n[Nominatim]: https://wiki.openstreetmap.org/wiki/Nominatim\n[Geohash]: https://en.wikipedia.org/wiki/Geohash\n[dataset]: https://dataset.readthedocs.io/\n[SQLAlchemy]: https://www.sqlalchemy.org/\n[RDBMS]: https://en.wikipedia.org/wiki/Relational_database_management_system\n",
+        "gridPos": {
+          "h": 19,
+          "w": 12,
+          "x": 12,
+          "y": 82
+        },
+        "id": 7,
+        "links": [],
+        "mode": "markdown",
+        "title": "About Luftdatenpumpe",
+        "type": "text"
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "Country",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_countrycode",
+          "options": [],
+          "query": "SELECT osm_country_code AS __value, country_and_countrycode AS __text FROM {{ sensorNetwork }}_network ORDER BY osm_country_code",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "State",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_state",
+          "options": [],
+          "query": "SELECT osm_state AS __value, state_and_country AS __text FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) ORDER BY osm_country_code, osm_state",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "City",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_city",
+          "options": [],
+          "query": "SELECT osm_city AS __value, city_and_state_and_country AS __text FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) AND osm_state IN (${{ sensorNetwork }}_station_state) AND osm_city != '' ORDER BY osm_country_code, osm_state, osm_city",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "Sensor type",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_sensortype",
+          "options": [],
+          "query": "SELECT sensor_type_id AS __value, concat( sensor_type_name, '    |', CAST(COUNT(sensor_type_id) AS text), '|' ) AS __text FROM {{ sensorNetwork }}_sensors WHERE sensor_type_id IS NOT NULL GROUP BY sensor_type_name, sensor_type_id ORDER BY sensor_type_name",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": false,
+          "label": "Choose multiple stations",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_id",
+          "options": [],
+          "query": "SELECT station_id AS __value, name_and_id AS __text FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) AND osm_state IN (${{ sensorNetwork }}_station_state) AND osm_city IN (${{ sensorNetwork }}_station_city) AND sensor_type_id IN (${{ sensorNetwork }}_station_sensortype) ORDER BY osm_country_code, osm_state, osm_city, osm_road",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "timepicker": {
+      "type": "timepicker",
+      "enable": true,
+      "hidden": false,
+      "collapse": false,
+      "notice": false,
+      "now": true,
+      "status": "Stable",
+      "refresh_intervals": [
+        "5m",
+        "10m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    }
+  }
+}
