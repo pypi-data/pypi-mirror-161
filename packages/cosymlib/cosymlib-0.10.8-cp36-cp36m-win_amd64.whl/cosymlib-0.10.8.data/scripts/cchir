@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+from cosymlib import Cosymlib, __version__
+from cosymlib.file_io.tools import print_header, print_footer, print_input_info
+from cosymlib.file_io import read_generic_structure_file, get_connectivity_from_file, get_permutation_from_file
+
+import argparse
+import sys
+import yaml
+
+
+# positional arguments
+parser = argparse.ArgumentParser(description='chirality')
+
+# positional arguments
+parser.add_argument(type=str,
+                    dest='input_file',
+                    nargs='?', default=None,
+                    help='input file with structures')
+parser.add_argument(type=str,
+                    dest="yaml_input",
+                    nargs='?', default=None,
+                    help='input file with keywords')
+# Main options
+parser.add_argument('-m', '--measure',
+                    dest='measure',
+                    action='store_true',
+                    default=False,
+                    help='compute the chiral symmetry measure of the input structures')
+parser.add_argument('-order',
+                    dest='order',
+                    default=1,
+                    type=int,
+                    help='max order of Sn calculation')
+parser.add_argument('-o', '--output',
+                    dest='output_name',
+                    metavar='filename',
+                    default=None,
+                    help='store output into a file')
+parser.add_argument('-c', '--central_atom',
+                    action='store',
+                    dest='central_atom',
+                    metavar='N',
+                    type=int,
+                    default=0,
+                    help='central atom is in position N in the input structure')
+
+# Extra options
+parser.add_argument('--info',
+                    action='store_true',
+                    default=False,
+                    help='print information about the input structures')
+parser.add_argument('-v', '--version',
+                    dest='version',
+                    action='store_true',
+                    default=False,
+                    help='print information about the input structures')
+
+# Modifiers
+parser.add_argument('--center',
+                    dest='center', metavar='R',
+                    type=float,
+                    default=None,
+                    nargs=3,
+                    help='fix coordinates x,y,z for the center of symmetry operations (Angs)')
+parser.add_argument('--ignore_connectivity',
+                    dest='ignore_connectivity',
+                    action='store_true',
+                    default=False,
+                    help='ignore connectivity')
+parser.add_argument('--ignore_atoms_labels',
+                    dest='ignore_atoms_labels',
+                    action='store_true',
+                    default=False,
+                    help='ignore atom labels for structures in the input file')
+parser.add_argument('--connectivity_thresh',
+                    dest='connectivity_thresh',
+                    metavar='R',
+                    type=float,
+                    default=None,
+                    help='relative threshold to determine the connectivity (default: 1.1)')
+parser.add_argument('--connectivity_file',
+                    dest='connectivity_file',
+                    metavar='filename',
+                    default=None,
+                    help='use connectivity stored in file')
+parser.add_argument('--permutation_file',
+                    dest='permutation_file',
+                    metavar='filename',
+                    type=str,
+                    default=None,
+                    help='use atoms permutation stored in file')
+parser.add_argument('--print_precision',
+                    dest='print_precision', metavar='I',
+                    type=int,
+                    default=3,
+                    help='number of decimal places to print (default: 3)')
+
+
+args = parser.parse_args()
+
+if args.yaml_input:
+    with open(args.yaml_input, 'r') as stream:
+        input_parameters = yaml.safe_load(stream)
+
+    for key, value in input_parameters.items():
+        if key.lower() in args:
+            setattr(args, key.lower(), value)
+        else:
+            raise KeyError("Key %s is not valid" % key)
+
+if args.connectivity_file:
+    connectivity = get_connectivity_from_file(args.connectivity_file)
+else:
+    connectivity = None
+
+if args.permutation_file:
+    permutation = get_permutation_from_file(args.permutation_file)
+else:
+    permutation = [None]
+
+if args.version:
+    print('Cosymlib version = {}'.format(__version__))
+    exit()
+
+common_output = open(args.output_name, 'w') if args.output_name is not None else sys.stdout
+print_header(common_output)
+
+if args.input_file is None:
+    parser.error('No input file selected! An existing file must be provide')
+
+structures = read_generic_structure_file(args.input_file, read_multiple=True)
+
+structure_set = Cosymlib(structures,
+                         ignore_atoms_labels=args.ignore_atoms_labels,
+                         ignore_connectivity=args.ignore_connectivity,
+                         connectivity=connectivity,
+                         connectivity_thresh=args.connectivity_thresh,
+                         precision=args.print_precision)
+
+if args.info:
+    print_input_info(structure_set.get_geometries(), output=common_output)
+    exit()
+
+
+# Chirality commands
+if args.measure:
+    for i, p in enumerate(permutation):
+        structure_set.print_chirality_measure(args.order,
+                                              central_atom=args.central_atom,
+                                              center=args.center,
+                                              permutation=p,
+                                              output=common_output)
+        if i < len(permutation)-1:
+            print('.'*70 + '\n')
+
+print_footer(common_output)
