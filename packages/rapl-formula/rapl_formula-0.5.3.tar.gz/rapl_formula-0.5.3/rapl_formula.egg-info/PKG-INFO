@@ -1,0 +1,87 @@
+Metadata-Version: 2.1
+Name: rapl-formula
+Version: 0.5.3
+Summary: PowerAPI formula using RAPL counters to provides power consumption information.
+Home-page: UNKNOWN
+Author: Guillaume Fieni, Arthur d'Azémar, Jordan Bouchoucha, Romain Rouvoy
+Author-email: powerapi-staff@inria.fr
+License: BSD 3-Clause License
+Description: # RAPL-formula
+        
+        A [powerAPI](https://github.com/powerapi-ng/powerapi) formula using RAPL
+        counters to provides power consumption information of each socket of the
+        monitored machine.
+        
+        Use RAPL data collected with the
+        [hwpc-sensor](https://github.com/powerapi-ng/hwpc-sensor) and convert it into
+        power consumption measures (in Watt). The power consumption measures are store
+        in a MongoDB database.
+        
+        # Quick start
+        
+        We detail here how to quickly start rapl-formula and connect it to a hwpc-sensor
+        using a mongoDB instance.
+        
+        For more detail see our documentation [here](http://powerapi.org)
+        
+        ## Get input data
+        
+        You have to launch the [hwpc-sensor](https://github.com/powerapi-ng/hwpc-sensor) to
+        monitor sockets. The sensor must store its data in a mongoDB database. This
+        database must be accessible by the rapl_formula.
+        
+        ## Configuration
+        
+        You can pass the configuration through a file or the CLI.
+        In both case the parameters to precises are the following :
+        
+        - `verbose` (bool)
+        - `stream` (bool): If working with a sensor in real-time
+        - `input`
+        - `output`
+        - `enable-cpu-formula` (bool): Enable CPU formula', default=True
+        - `enable-dram-formula` (bool): Enable DRAM formula, default=True
+        - `'cpu-rapl-ref-event` (str): RAPL event used as reference for the CPU power models, default='RAPL_ENERGY_PKG'
+        - `'dram-rapl-ref-event` (str): RAPL event used as reference for the DRAM power models, default='RAPL_ENERGY_DRAM'
+        - `'sensor-report-sampling-interval` (int): (for stream mode) The frequency with which measurements are made
+          (in milliseconds)
+        
+        BSD 3-Clause License
+        
+        Copyright (c) 2019, PowerAPI
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        * Redistributions of source code must retain the above copyright notice, this
+          list of conditions and the following disclaimer.
+        
+        * Redistributions in binary form must reproduce the above copyright notice,
+          this list of conditions and the following disclaimer in the documentation
+          and/or other materials provided with the distribution.
+        
+        * Neither the name of the copyright holder nor the names of its
+          contributors may be used to endorse or promote products derived from
+          this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+        AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Keywords: energy,powerapi,power meter,rapl
+Platform: any
+Classifier: Programming Language :: Python :: 3.7
+Classifier: License :: OSI Approved :: BSD License
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Provides-Extra: docs
+Provides-Extra: influxdb
+Provides-Extra: mongodb
