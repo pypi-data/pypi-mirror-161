@@ -1,0 +1,3 @@
+This directory contains simple examples demonstrating the use of some specific
+features such as how to setup a custom editor, how to setup settings and
+style,...

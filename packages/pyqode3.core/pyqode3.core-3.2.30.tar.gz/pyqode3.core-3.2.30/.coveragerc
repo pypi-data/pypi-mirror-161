@@ -1,0 +1,51 @@
+[run]
+source = pyqode
+omit =
+    # qt design ui files
+    *_ui.py
+    *_rc.py
+    # do not test designer forms and designer plugins
+    *pyqode/core/_designer_plugins/*
+    *pyqode/core/_forms/*
+    # dialogs are pretty hard to test reliably (something QTest.keyPress does
+    # not work, that lead to some falsly failing tests).
+    *pyqode/core/dialogs/*
+    *pyqode/core/tools/*
+    *pyqode/core/widgets/tabs.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Don't complain about missing debug-only code:
+    __debug__
+    def __repr__
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+    raise RuntimeError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if False:
+    if __name__ == .__main__.:
+    pass
+    serve_forever
+
+    def main\(.*:
+
+    # Don't complain if non importable code is not run
+    except ImportError
+    except AttributeError
+    except RuntimeError
+    except ClassNotFound
+
+    # Don't complain if platform specific code isn't run
+    if sys.platform.*:
+    if.*platform.*:
+    .endswith('.exe')
+    'frozen'
+
+    # Don't complain about _logger function not being called
+    logging.getLogger
+    _logger
