@@ -1,0 +1,168 @@
+Changes with version 1.2.1
+
+ *) Add support for Python 3.11
+
+ *) Removed debug print from setup.py
+
+ *) Update project boilerplate
+
+
+Changes with version 1.2.0
+
+ *) Improve regex detection. Fixes #17, #23
+
+ *) Add aarch64 wheels (issue #24, #25, contributed by odidev)
+
+ *) Add tests to source distribution (issue #20, contributed by dvzrv)
+
+ *) bytearray input now produces bytearray output
+
+ *) Update python support: 2.7, 3.6+
+
+ *) Emit the correct env var name in the warning message if the compilation of
+    the C implementation fails.
+
+
+Changes with version 1.1.0
+
+ *) Add support for unnested template literals (ECMA-6). Fixes #8. Kind of.
+
+ *) Allow +, - and * in front of regexes. Fixes #13.
+
+ *) The python version will only accept the C implementation if the versions
+    match exactly. This should prevent using older installed C versions.
+    Fixes #11. This issue is now more relevant since #7 is fixed.
+
+ *) The C extension is now optional in the build process. You can make it
+    required by setting the SETUP_CEXT_REQUIRED environment variable to 1.
+    Fixes #7.
+
+ *) Both python 2 and 3 now accept bytes and text as input. All other types now
+    raise a TypeError. Before they possibly have been converted to a string,
+    depending on the python version and the implementation.
+
+ *) Support for PyPy and Jython is no longer tested. Patches are accepted,
+    though.
+
+ *) Minor adaptions for GCC 8
+
+ *) Fix an inconsistency in the jsmin_for_posers function. It was not working
+    properly with bang-comments enabled.
+
+ *) Docs are no longer installed locally.
+
+ *) Rework the setup and project management system. Add some real tests. Get rid
+    of epydoc in favor of sphinx. Adapt to latest sphinx version.
+
+
+Changes with version 1.0.12
+
+ *) Benchmark updates, dropped slimit benchmarks, because of installation
+    trouble
+
+ *) Reworked handling of comments starting with exclamation marks. The matcher
+    should no longer get out of sync, even if they appear in the middle of other
+    matches.
+
+ *) Handle line terminators before and after regex literals more sensible
+
+
+Changes with version 1.0.11
+
+ *) Benchmark updates
+
+ *) Lifted max restrictions for CPython and Jython as well.
+
+ *) Lifted max restrictions for pypy versions. Added pypy3 support.
+    Submitted by https://github.com/tony
+
+
+Changes with version 1.0.10
+
+ *) Added support for pypy 2.2
+
+ *) Relint with newer pylint
+
+ *) Fix locale problem with the setup script on python3.
+    Submitted by https://github.com/svenstaro
+
+
+Changes with version 1.0.9
+
+ *) Documentation and benchmark updates
+
+
+Changes with version 1.0.8
+
+ *) Updated benchmarks
+
+ *) Added command line option for keeping comments starting with an exclamation
+    mark (-b)
+
+ *) Added command line option for disabling the C implemention (-p)
+
+ *) Added support for python 3.4
+
+ *) Added support for keeping comments starting with an exclamation mark. This
+    feature can be enabled by passing keep_bang_comments=True to the jsmin
+    function.
+
+
+Changes with version 1.0.7
+
+ *) Fix inconsistency between Python and C (Python implementation was buggy).
+    Spotted by: Dave Smith <dave thesmithfam.org>
+
+ *) Added support for jython 2.7
+
+
+Changes with version 1.0.6
+
+ *) Added compat option to setup.py supporting the pip installer
+
+ *) Added support for pypy (1.9, 2.0)
+
+ *) Added support for jython (2.5)
+
+
+Changes with version 1.0.5
+
+ *) Newline removal before ! operator was made more sensible.
+
+
+Changes with version 1.0.4
+
+ *) Added support for Python 3.3
+
+ *) Collapsion protection was reduced to "+ +" and "- -" sequences (which
+    still includes longer sequences like "+ ++")
+
+
+Changes with version 1.0.3
+
+ *) "+ ++" and "- --" sequences are no longer collapsed. They were before,
+    because the original jsmin collapsed them, too.
+
+ *) Updated benchmarks, added slimit and removed jsmin v8 (because it produced
+    invalid results).
+
+ *) Removed "classic" regex variant.
+
+
+Changes with version 1.0.2
+
+ *) Although it should work, python 2.3 is no longer supported.
+    (No suitable test environment)
+
+ *) "return /regex/" is now recognized as regex expression. It wasn't before,
+    because the original jsmin ignored that, too.
+
+
+Changes with version 1.0.1
+
+ *) Add C extension reimplementing the regex from rjsmin.py
+
+
+Changes with version 1.0.0
+
+ *) First stable release.

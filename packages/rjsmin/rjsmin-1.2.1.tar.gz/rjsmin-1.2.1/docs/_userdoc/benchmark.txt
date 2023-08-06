@@ -1,0 +1,218 @@
+.. copyright:
+    Copyright 2011 - 2022
+    André Malo or his licensors, as applicable
+
+.. license:
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+:orphan:
+
+
+====================
+ rJSmin - Benchmark
+====================
+
+.. contents::
+    :local:
+
+
+The following numbers have been measured with the bench package provided
+in the source distribution. Since the numbers don't vary much between
+python minor releases (e.g. 3.3 vs 3.4), only one benchmark per major
+version is given below. The :file:`docs/BENCHMARKS` file in the source
+distribution contains a more comprehensive list.
+Said that - there is a considerable speed up of the python-only ports to
+be observed with Python 3.11. Thatswhy the benchmark will list all
+Python 3 versions up to 3.10.
+
+Here's the list of benchmarked implementations:
+
+**Simple port**
+  The original jsmin.py port by Baruch Even
+
+**jsmin 2.0.9**
+  A speed-refactored python port by Dave St.Germain. There are some
+  spikes in lower Python 3 versions (especially for the big file
+  [apiviewer.js]).
+
+|**rjsmin**|
+  this very project
+
+**_**\ |**rjsmin**|
+  The C reimplementation of |rjsmin|
+
+Note that the various implementations produce output different from the
+original jsmin.c for one reason or another. Also the simple port was
+modified to use ``cStringIO`` if available (it's faster then) or io (for
+python 3).
+
+And here's a list of the benchmarked javascript files:
+
+- apiviewer is a file from the qooxdoo framework. Very big and already
+  compressed.
+- bootstrap is the popular twitter toolkit, version 2.0.4
+- DateTimeShortcuts is part of the Django admin interface (1.8.5)
+- jquery is jquery-1.7.1.js; the uncompressed development download.
+- knockout is knockout-2.0.0.js, the compressed download.
+- markermanager is the V3 port of the google maps markermanager.
+
+Inside the parentheses are size information in KiB [#]_\.  The sign
+behind the size value denotes the size difference in relation to the
+simple port (i.e. jsmin itself).
+
+.. [#] Bytes / 1024 for Python 2 and Code Points / 1024 for Python 3
+
+
+.. begin tables
+
+Python 3.11.0
+~~~~~~~~~~~~~
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | apiviewer (953.2)        | bootstrap (49.0)      |
++=============+==========================+=======================+
+| Simple Port |     431.31 ms (951.5 \*) |    16.73 ms (26.4 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |     788.46 ms (951.5 >)  |    10.26 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |      26.90 ms (951.5 =)  |     5.97 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |       3.25 ms (951.5 =)  |     0.14 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | DateTimeShortcuts (18.3) | jquery (242.4)        |
++=============+==========================+=======================+
+| Simple Port |        6.27 ms (10.2 \*) |   88.53 ms (135.9 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |        3.88 ms (10.3 >)  |   70.68 ms (136.8 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.55 ms (10.2 >)  |   38.23 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.04 ms (10.2 >)  |    0.88 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | knockout (38.9)          | markermanager (28.6)  |
++=============+==========================+=======================+
+| Simple Port |       14.57 ms (38.6 \*) |     8.22 ms (11.6 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |       10.65 ms (38.6 >)  |     5.15 ms (11.6 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.29 ms (38.6 >)  |     2.39 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.10 ms (38.6 >)  |     0.06 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+
+
+Python 3.10.5
+~~~~~~~~~~~~~
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | apiviewer (953.2)        | bootstrap (49.0)      |
++=============+==========================+=======================+
+| Simple Port |     903.15 ms (951.5 \*) |    38.04 ms (26.4 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |     915.99 ms (951.5 >)  |    14.37 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |      28.05 ms (951.5 =)  |     7.09 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |       3.33 ms (951.5 =)  |     0.14 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | DateTimeShortcuts (18.3) | jquery (242.4)        |
++=============+==========================+=======================+
+| Simple Port |       14.04 ms (10.2 \*) |  198.91 ms (135.9 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |        5.52 ms (10.3 >)  |   94.06 ms (136.8 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.86 ms (10.2 >)  |   47.12 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.04 ms (10.2 >)  |    0.88 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | knockout (38.9)          | markermanager (28.6)  |
++=============+==========================+=======================+
+| Simple Port |       35.98 ms (38.6 \*) |    18.57 ms (11.6 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |       15.45 ms (38.6 >)  |     7.31 ms (11.6 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.46 ms (38.6 >)  |     2.96 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.11 ms (38.6 >)  |     0.06 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+
+
+Python 2.7.18
+~~~~~~~~~~~~~
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | apiviewer (953.2)        | bootstrap (49.0)      |
++=============+==========================+=======================+
+| Simple Port |    1137.84 ms (951.5 \*) |    46.22 ms (26.4 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |    1096.42 ms (951.5 >)  |    18.86 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |      28.20 ms (951.5 =)  |     7.13 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |       2.07 ms (951.5 =)  |     0.13 ms (26.4 >)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | DateTimeShortcuts (18.3) | jquery (242.4)        |
++=============+==========================+=======================+
+| Simple Port |       17.17 ms (10.2 \*) |  240.54 ms (135.9 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |        7.13 ms (10.3 >)  |  120.46 ms (136.8 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.86 ms (10.2 >)  |   46.71 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.04 ms (10.2 >)  |    0.80 ms (135.9 =)  |
++-------------+--------------------------+-----------------------+
+
+.. rst-class:: benchmark
+
++-------------+--------------------------+-----------------------+
+| Name        | knockout (38.9)          | markermanager (28.6)  |
++=============+==========================+=======================+
+| Simple Port |       45.62 ms (38.6 \*) |    22.79 ms (11.6 \*) |
++-------------+--------------------------+-----------------------+
+| jsmin 2.0.9 |       20.94 ms (38.6 >)  |     9.51 ms (11.6 >)  |
++-------------+--------------------------+-----------------------+
+| |rjsmin|    |        1.48 ms (38.6 >)  |     2.88 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+| _\ |rjsmin| |        0.09 ms (38.6 >)  |     0.06 ms (11.6 =)  |
++-------------+--------------------------+-----------------------+
+
+.. end tables
+
+
+.. vim: ft=rest tw=72
