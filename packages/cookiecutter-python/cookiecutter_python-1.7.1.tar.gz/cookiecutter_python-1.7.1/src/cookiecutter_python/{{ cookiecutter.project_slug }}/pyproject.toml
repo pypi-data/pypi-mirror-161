@@ -1,0 +1,184 @@
+# BUILD
+
+[build-system]
+{% if cookiecutter.project_type == "pytest-plugin" %}
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+{% else %}
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Poetry
+
+# Information required for building (sdist/wheel)
+## Also renders on pypi as 'subtitle'
+[tool.poetry]
+name = "{{ cookiecutter.pkg_name }}"
+version = "{{ cookiecutter.version }}"
+description = "{{ cookiecutter.project_short_description }}"
+authors = ["{{ cookiecutter.full_name }} <{{ cookiecutter.author_email }}>"]
+maintainers = ["{{ cookiecutter.full_name }} <{{ cookiecutter.author_email }}>"]
+license = "AGPL-3.0-only"
+readme = "README.rst"
+
+homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}"
+repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}"
+documentation = "https://{{ cookiecutter.repo_name }}.readthedocs.io/"
+
+keywords = [
+    "python package",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Natural Language :: English",
+    "Operating System :: Unix",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Software Distribution",
+    "Typing :: Typed"
+]
+
+packages = [
+    { include = "{{ cookiecutter.pkg_name }}", from = "src" },
+]
+
+include = [
+    { path = "tests", format = "sdist" },
+    { path = "docs/**/*.rst", format = "sdist" },
+    { path = "docs/conf.py", format = "sdist" },
+    { path = "src/**/*.typed", format = "sdist" },
+    { path = "src/stubs/*.pyi", format = "sdist" },
+    "pyproject.toml",
+    "LICENSE",
+    "README.rst",
+    "CONTRIBUTING.md",
+    "CHANGELOG.rst",
+]
+
+exclude = [
+    "docs/*",
+    "requirements/*",
+    "scripts/*.py",
+    "tox.ini",
+    ".bettercodehub.yml",
+    ".circleci/config.yml",
+    ".coveragerc",
+    ".DS_Store",
+    ".gitignore",
+    ".prospector.yml",
+    ".pylintrc",
+    ".readthedocs.yml",
+    ".scrutinizer.yml",
+    ".travis.yml"
+]
+
+# PyPi url links, that appear in 'Project Links' section
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/{{ cookiecutter.repo_name }}/issues"
+"CI: Github Actions" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}/actions"
+"Documentation" = "https://{{ cookiecutter.repo_name }}.readthedocs.io/"
+"Source Code" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}"
+"Changelog" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}/blob/master/CHANGELOG.rst"
+"Code of Conduct" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}/blob/master/CONTRIBUTING.rst"
+{% endif %}
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+# Test: packages imported in test code and packages required for the "test runner"
+pytest = { version = ">= 6.2.4", optional = true }
+pytest-cov = { version = ">= 2.12", optional = true }
+pytest-explicit = { version = "~= 1.0.1", optional = true }
+pytest-xdist = { version = ">= 1.34", optional = true }
+{% if cookiecutter.project_type == "module+cli" %}
+pytest-click = { version = "^1.1.0", optional = true }
+{% endif %}
+
+# Docs: development and build dependencies
+sphinx = { version = "~= 4.0", optional = true }
+sphinx-autodoc-typehints = { version = ">= 1.10", optional = true }
+sphinx-rtd-theme = { version = "== 0.5.0", optional = true }
+sphinxcontrib-spelling = { version = "~= 7.3.3", optional = true }
+
+# Type Checking: packages required for the type check (ie mypy) to pass
+mypy = { version = "== 0.961", optional = true }
+
+# Note: "^" is the more conservative compared to "~"
+
+[tool.poetry.extras]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-explicit",
+    "pytest-xdist",
+{% if cookiecutter.project_type == "module+cli" %}
+    "pytest-click",
+{% endif %}
+]
+docs = [
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx-rtd-theme",
+    "sphinxcontrib-spelling",
+]
+typing = [
+    "mypy",
+    "types-requests",
+    "pytest",
+{% if cookiecutter.project_type == "module+cli" %}
+    "pytest-click",
+{% endif %}
+]
+
+
+{% if cookiecutter.project_type == "module+cli" %}
+[tool.poetry.scripts]
+{{ cookiecutter.pkg_name|replace('_', '-') }} = '{{ cookiecutter.pkg_name }}.cli:main'
+{% endif %}
+
+
+# TOOLS
+
+[tool.pytest.ini_options]
+minversion = "6.2"
+addopts = "--strict-markers"
+markers = [
+    "slow: Marks a slow test",
+    "integration: Tests applicable to a newly Generated Project, running with tox",
+    "network_bound: Require internet connection",
+]
+testpaths = [
+    "tests",
+]
+
+
+[tool.black]
+line-length = 95
+include = '\.pyi?$'
+extend-exclude = '''
+'''
+
+[tool.isort]
+profile = 'black'
+
+[tool.bandit]
+tests = []
+skips = [
+    "B101",
+]
+
+[tool.software-release]
+version_variable = "src/{{ cookiecutter.pkg_name }}/__init__.py:__version__"
