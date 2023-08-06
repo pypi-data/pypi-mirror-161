@@ -1,0 +1,522 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "QueueMessage": {
+      "type": "object",
+      "properties": {
+        "recordType": {
+          "description": "Type of record",
+          "enum": [
+            "ARTIFACT_UPLOAD_REQUEST",
+            "EXCEPTION_EVENT",
+            "LOG_EVENT",
+            "OPENTELEMETRY_DATA",
+            "UTF_TEST_EVENT"
+          ],
+          "type": "string"
+        },
+        "recordSubType": {
+          "description": "Subtype of record. Not all types have a subtype, but it is required when they have one.",
+          "enum": [
+            "BUILD_RESULT",
+            "SESSION_START",
+            "SESSION_STOP",
+            "TEST_RESULT"
+          ],
+          "type": "string"
+        },
+        "tenantKey": {
+          "description": "Unique string that identifies the app/group sending the message.\nForward looking to match the data lake infrastructure.",
+          "type": "string"
+        },
+        "recordTimestamp": {
+          "description": "UTC datetime.\nUse ISO-8601 format with time zone\n2022-03-10T18:50:05Z",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/QueueRecord",
+          "description": "Record Payload.\nThis is flexible to allow different fields for different record types and DB tables"
+        }
+      },
+      "required": [
+        "payload",
+        "recordTimestamp",
+        "recordType",
+        "tenantKey"
+      ]
+    },
+    "QueueMessageV1": {
+      "type": "object",
+      "properties": {
+        "recordType": {
+          "description": "Type of record",
+          "enum": [
+            "ARTIFACT_UPLOAD_REQUEST",
+            "EXCEPTION_EVENT",
+            "LOG_EVENT",
+            "TEST_EVENT",
+            "UTF_TEST_EVENT"
+          ],
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/QueueRecord",
+          "description": "Record Payload"
+        },
+        "timestamp": {
+          "description": "UTC Timestamp\nGiven in seconds since epoch (unix time)",
+          "type": "number"
+        }
+      },
+      "required": [
+        "payload",
+        "recordType",
+        "timestamp"
+      ]
+    },
+    "QueueRecord": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "TelemetryData": {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "enum": [
+            "LOGS",
+            "METRICS",
+            "TRACES"
+          ],
+          "type": "string"
+        },
+        "base64ProtobufData": {
+          "type": "string"
+        },
+        "compression": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "base64ProtobufData",
+        "dataType"
+      ]
+    },
+    "ArtifactUploadRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "extension": {
+          "type": "string"
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ArtifactMetadata"
+            },
+            {
+              "$ref": "#/definitions/ArtifactBuildMetadata"
+            }
+          ]
+        },
+        "base64Content": {
+          "type": "string"
+        },
+        "validateMetadata": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "base64Content",
+        "extension",
+        "metadata",
+        "name",
+        "validateMetadata"
+      ]
+    },
+    "ArtifactMetadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "ArtifactBuildMetadata": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "stack": {
+          "type": "string"
+        },
+        "build_number": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "studio": {
+          "type": "string"
+        },
+        "compiler": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "test_suite": {
+          "type": "string"
+        },
+        "chip_id": {
+          "type": "string"
+        },
+        "studio_build_version": {
+          "type": "string"
+        },
+        "compiler_build_version": {
+          "type": "string"
+        }
+      }
+    },
+    "SqaAppBuildResult": {
+      "description": "Tied to the table: testdatabase.appBuildResults",
+      "type": "object",
+      "properties": {
+        "session_pk_id": {
+          "description": "Logical FK to dbo.jobStatusTable.\nNot creating the constraint in case this comes in before the session record.",
+          "type": "string"
+        },
+        "app_name": {
+          "description": "Name of the application",
+          "type": "string"
+        },
+        "app_description": {
+          "description": "Description of what the application does",
+          "type": "string"
+        },
+        "test_suite_name": {
+          "description": "Description of the grouping of applications",
+          "type": "string"
+        },
+        "test_result_type": {
+          "description": "Need table for validation created from the existing java enum",
+          "type": "string"
+        },
+        "executor_name": {
+          "description": "Where the application was built",
+          "type": "string"
+        },
+        "feature_name": {
+          "description": "Feature being tested by this test",
+          "type": "string"
+        },
+        "module_name": {
+          "description": "Description of the device type that the application runs on",
+          "type": "string"
+        },
+        "phy_name": {
+          "description": "Radio configuration used by the device",
+          "type": "string"
+        },
+        "test_result": {
+          "description": "Did the application build",
+          "enum": [
+            "FAIL",
+            "PASS",
+            "block",
+            "fail",
+            "pass",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "engineer_name": {
+          "description": "Name of the engineer who created the test",
+          "type": "string"
+        },
+        "exception_msg": {
+          "description": "Stack dump exception message from build",
+          "type": "string"
+        },
+        "iot_req_id": {
+          "description": "JIRA IOT Req Number",
+          "type": "string"
+        },
+        "tool_chain": {
+          "description": "Need table for validation.\nThis is the tool and version used to build the application with colon separation\niar:7.80.1",
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "test_duration_sec": {
+          "description": "Length of time to build the application",
+          "type": "number"
+        }
+      },
+      "required": [
+        "app_name",
+        "session_pk_id",
+        "test_duration_sec",
+        "test_result",
+        "test_result_type"
+      ]
+    },
+    "SqaTestResult": {
+      "description": "Tied to the table: testdatabase.testResults_new",
+      "type": "object",
+      "properties": {
+        "session_pk_id": {
+          "description": "Logical FK to dbo.jobStatusTable.\nNot creating the constraint in case this comes in before the session record.",
+          "type": "string"
+        },
+        "test_case_id": {
+          "description": "Passed in from the test executor.\nFrom the test management system or git.",
+          "type": "string"
+        },
+        "test_case_version_num": {
+          "type": "integer"
+        },
+        "test_suite_name": {
+          "description": "Named group of tests",
+          "type": "string"
+        },
+        "test_description": {
+          "description": "What does the test case actually do",
+          "type": "string"
+        },
+        "test_result_type": {
+          "description": "Need to create a table for verification of this field",
+          "enum": [
+            "buildapp",
+            "compliance",
+            "dbtest",
+            "duration",
+            "endurance",
+            "feature",
+            "na",
+            "negative",
+            "performance",
+            "regression",
+            "repeatability",
+            "smoke",
+            "soak",
+            "system",
+            "test"
+          ],
+          "type": "string"
+        },
+        "test_parametric_data": {
+          "description": "Test Parametric Data",
+          "type": "string"
+        },
+        "test_case_name": {
+          "description": "Human readable version of the test case ID\nShort summary/description",
+          "type": "string"
+        },
+        "executor_name": {
+          "description": "Where the test actually ran",
+          "type": "string"
+        },
+        "feature_name": {
+          "description": "Feature being tested by this test",
+          "type": "string"
+        },
+        "test_creation_date": {
+          "description": "Date the test was created\nISO-8601 format",
+          "type": "string"
+        },
+        "testbed_name": {
+          "description": "Grouping of all of the hardware used to execute the test",
+          "type": "string"
+        },
+        "module_name": {
+          "description": "Testbed component list",
+          "type": "string"
+        },
+        "phy_name": {
+          "description": "Radio configuration used by the device",
+          "type": "string"
+        },
+        "test_result": {
+          "enum": [
+            "block",
+            "fail",
+            "metrics",
+            "pass",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "engineer_name": {
+          "description": "Name of the engineer who created the test",
+          "type": "string"
+        },
+        "exception_msg": {
+          "description": "If an error occurs, this is the message returned.",
+          "type": "string"
+        },
+        "iot_req_id": {
+          "type": "string"
+        },
+        "tool_chain": {
+          "description": "Need table for validation.\nThis is the tool and version used to build the application with colon separation\niar:7.80.1",
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "vendor_build": {
+          "type": "string"
+        },
+        "vendor_result": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "portal_watch": {
+          "description": "Change this to boolean - default false",
+          "type": "string"
+        },
+        "test_duration_sec": {
+          "description": "Test duration in seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "executor_name",
+        "feature_name",
+        "iot_req_id",
+        "module_name",
+        "session_pk_id",
+        "test_case_id",
+        "test_case_name",
+        "test_case_version_num",
+        "test_creation_date",
+        "test_duration_sec",
+        "test_result",
+        "test_result_type",
+        "testbed_name",
+        "tool_chain"
+      ]
+    },
+    "SqaTestSession": {
+      "description": "Tied to the table: dbo.jobStatusTable",
+      "type": "object",
+      "properties": {
+        "PK_ID": {
+          "description": "UUID generated by the Jenkins client software",
+          "type": "string"
+        },
+        "startTime": {
+          "description": "ISO-8601 Datetime",
+          "type": "string"
+        },
+        "stopTime": {
+          "description": "ISO-8601 datetime",
+          "type": "string"
+        },
+        "jenkinsJobStatus": {
+          "description": "Status of the Jenkins job",
+          "enum": [
+            "COMPLETE",
+            "FAIL",
+            "IN PROGRESS"
+          ],
+          "type": "string"
+        },
+        "duration": {
+          "description": "Elapsed number of seconds for the Jenkins job.\nShould be close to stop time - start time.\nChange the data type in the DB to integer.",
+          "type": "integer"
+        },
+        "jobType": {
+          "description": "Type of Jenkins job",
+          "enum": [
+            "buildapp",
+            "compliance",
+            "dbtest",
+            "duration",
+            "endurance",
+            "feature",
+            "na",
+            "negative",
+            "performance",
+            "regression",
+            "repeatability",
+            "smoke",
+            "soak",
+            "system",
+            "test"
+          ],
+          "type": "string"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "branchName": {
+          "type": "string"
+        },
+        "stackName": {
+          "type": "string"
+        },
+        "SDKBuildNum": {
+          "type": "integer"
+        },
+        "SDKUrl": {
+          "type": "string"
+        },
+        "studioUrl": {
+          "type": "string"
+        },
+        "totalTests": {
+          "type": "integer"
+        },
+        "PASS_cnt": {
+          "type": "integer"
+        },
+        "FAIL_cnt": {
+          "type": "integer"
+        },
+        "SKIP_cnt": {
+          "type": "integer"
+        },
+        "BLOCK_cnt": {
+          "type": "integer"
+        },
+        "jenkinsServerName": {
+          "type": "string"
+        },
+        "jenkinRunNum": {
+          "type": "integer"
+        },
+        "jenkinsJobName": {
+          "type": "string"
+        },
+        "jenkinsTestResultsUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "PK_ID",
+        "SDKBuildNum",
+        "branchName",
+        "jenkinRunNum",
+        "jenkinsJobName",
+        "jenkinsJobStatus",
+        "jenkinsServerName",
+        "jenkinsTestResultsUrl",
+        "releaseName",
+        "stackName",
+        "startTime"
+      ]
+    },
+    "LogEvent": {
+      "type": "object"
+    },
+    "ExceptionEvent": {
+      "type": "object"
+    }
+  }
+}
