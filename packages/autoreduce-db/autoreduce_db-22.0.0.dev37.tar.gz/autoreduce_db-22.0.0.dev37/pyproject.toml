@@ -1,0 +1,51 @@
+[build-system]
+requires = ["wheel", "setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoreduce_db"
+version = "22.0.0.dev37"
+description = "Database config for the Autoreduction service"
+readme = "README.md"
+license = { text = "GNU General Public License" }
+classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+dependencies = ['autoreduce_utils==22.0.0.dev23', 'Django==4.0.6']
+
+[project.urls]
+"Repository" = "https://github.com/autoreduction/db"
+"Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
+
+[tool.setuptools]
+packages = ["autoreduce_db"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "autoreduce_db.autoreduce_django.settings"
+norecursedirs = [".*", "dist", "CVS", "_darcs", "{arch}", "*.egg"]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+[tool.yapf]
+column_limit = 120
+based_on_style = "pep8"
+
+[tool.yapfignore]
+ignore_patterns = ["setup.py", "**/migrations", "venv/", "venv3/"]
+
+[tool.pylint.MAIN]
+load-plugins = ["pylint_django"]
+django-settings-module = "autoreduce_django.settings"
+extension-pkg-whitelist = ["pydantic"]
+disable = [
+    "R0904", # too-many-public-methods
+    "R0902", # too-many-instance-attributes
+    "R0903", # too-few-public-methods
+    "R1705", # no-else-return
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+]
+ignore = [".git", "migrations"]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.pylint.DESIGN]
+max-args = 8
