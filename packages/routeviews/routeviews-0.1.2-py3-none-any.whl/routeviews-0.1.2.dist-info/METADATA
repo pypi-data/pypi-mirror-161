@@ -1,0 +1,296 @@
+Metadata-Version: 2.1
+Name: routeviews
+Version: 0.1.2
+Summary: CLI tools that support RouteViews.
+Home-page: https://github.com/routeviews/routeviews-cli
+Author: University of Oregon
+Author-email: rleonar7@uoregon.edu
+License: MIT
+Keywords: RouteViews,CLI,peeringdb,API,Integration
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: System :: Networking :: Monitoring
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.8
+Description-Content-Type: text/markdown
+Requires-Dist: ConfigArgParse (>=1)
+Requires-Dist: PyYAML (>=6)
+Requires-Dist: netmiko (>=3)
+Requires-Dist: pathvalidate (>=2)
+Requires-Dist: rdap (>=1)
+Requires-Dist: requests (>=2)
+Requires-Dist: ruamel.yaml (>=0.17)
+Requires-Dist: tabulate (>=0.8)
+Requires-Dist: uologging (>=0.7.3)
+
+Route Views requires many tools to support its functionality.
+This package is a place for those tools to live.
+
+This package also acts as a python library for Route Views.
+
+## `routeviews-build-peer` CLI tool
+
+This tool is for (consistently) updating the [Route Views ansible inventory (private repo)](https://github.com/routeviews/infra) when folks submit new peer requests. 
+
+> This tool uses information provided by PeeringDB for the peering information.
+
+### Prerequisites
+
+1. *Route Views Ansible Inventory*: You must have a local copy of the Route Views ansible inventory available, for this tool to update.
+    * If you will be running this command with any regularity, is useful to export the `ROUTEVIEWS_INVENTORY` environment variable to point to your local copy of the [Route Views ansible inventory repository (private)](https://github.com/routeviews/infra).
+    ```
+    # (Optional) Place in your ~/.bashrc
+    export ROUTEVIEWS_INVENTORY='<working-tree>/ansible/inventory'
+    ```
+    * `<working-tree>` refers to wherever you've cloned the repository on your filesystem.
+
+### Example: Peer with an ASN using IP Addresses
+
+This tool supports arguments for `asn`, as well as `ip`.
+The `ip` argument can be used multiple times to peer with multiple IP Addresses at once.
+
+> ⚠ Only supports peering with one ASN at a time.
+
+> ℹ Use the `--help` flag to learn more about how to use these arguments.
+
+As discussed in the [prerequisites](#prerequisites-1), there is also the `inventory` argument required that points to the "inventory/" directory.
+
+> ℹ Tip: Provide an `asn` and omit the `ip` argument entirely -- the tool will attempt to peer with ALL compatible IP Addresses for the provided `asn`!
+
+    routeviews-build-peer \
+        --inventory <working-tree>/ansible/inventory \
+        --asn 15169 \
+        --ip 202.249.2.189 \
+        --ip 2001:200:0:fe00::3b41:0 \
+        --ip 80.249.208.247 \
+        --ip 2001:7f8:1::a501:5169:1 
+    Changes:
+
+    Diff of "<working-tree>/ansible/inventory/host_vars/route-views.amsix.routeviews.org"
+    + peer_as: 15169
+    + peer_address: 80.249.208.247
+    + description: AMS-IX
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7f8:1::a501:5169:1
+    + description: AMS-IX
+    + afi_safis:
+    +   - ipv6_unicast
+
+    Diff of "<working-tree>/ansible/inventory/host_vars/route-views.wide.routeviews.org"
+    + peer_as: 15169
+    + peer_address: 202.249.2.189
+    + description: DIX-IE
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:200:0:fe00::3b41:0
+    + description: DIX-IE
+    + afi_safis:
+    +   - ipv6_unicast
+
+### Example: Peer with an ASN (at ALL IXes)
+
+If an ASN is wanting to connect wherever possible, provide only the `asn` argument and the tool will determine all the possible `ip` arguments from PeeringDB.
+
+    routeviews-build-peer \
+        --inventory <working-tree>/ansible/inventory \
+        --asn 15169
+
+    Changes:
+
+    Diff of "/home12/rleonar7/routeviews/infra/ansible/inventory/host_vars/route-views.perth.routeviews.org"
+    + peer_as: 15169
+    + peer_address: 218.100.52.3
+    + description: 'IX Australia (Sydney NSW): NSW-IX'
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7fa:11:4:0:3b41:0:1
+    + description: 'IX Australia (Sydney NSW): NSW-IX'
+    + afi_safis:
+    +   - ipv6_unicast
+    + peer_as: 15169
+    + peer_address: 218.100.53.29
+    + description: 'IX Australia (Sydney NSW): NSW-IX'
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7fa:11:4:0:3b41:0:2
+    + description: 'IX Australia (Sydney NSW): NSW-IX'
+    + afi_safis:
+    +   - ipv6_unicast
+    + peer_as: 15169
+    + peer_address: 218.100.78.154
+    + description: 'IX Australia (Melbourne VIC): VIC-IX'
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7fa:11:1:0:3b41:0:2
+    + description: 'IX Australia (Melbourne VIC): VIC-IX'
+    + afi_safis:
+    +   - ipv6_unicast
+    + peer_as: 15169
+    + peer_address: 218.100.78.153
+    + description: 'IX Australia (Melbourne VIC): VIC-IX'
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7fa:11:1:0:3b41:0:1
+    + description: 'IX Australia (Melbourne VIC): VIC-IX'
+    + afi_safis:
+    +   - ipv6_unicast
+
+    Diff of "/home12/rleonar7/routeviews/infra/ansible/inventory/host_vars/route-views.amsix.routeviews.org"
+    + peer_as: 15169
+    + peer_address: 80.249.208.247
+    + description: AMS-IX
+    + afi_safis:
+    +   - ipv4_unicast
+    + peer_as: 15169
+    + peer_address: 2001:7f8:1::a501:5169:1
+    + description: AMS-IX
+    + afi_safis:
+    ... trimmed for brevity...
+
+## `routeviews-email-peers` CLI tool
+
+This tool will get a list of email addresses for any networks that are actively peered with a particular Route Views Collector.
+This tool is for gathering email address information about Route Views Collector's peers around the world, leveraging [PeeringDB]() and [RDAP](TODO).
+
+> Future Plan: Use UO SMTP server to automate actually sending *many* types of 'standard Route Views Operations emails' (use Jinja2 Templates for the email templates).
+
+### Prerequisites
+
+1. *SSH Access*: This script uses NetMiko, and assumes that the current user can SSH into the collector using SSH keys (recommend using an `ssh-agent`).
+2. *PeeringDB Account (Optional, if you would like this tool to search PeeringDB)*: Export your PeeringDB credentials as environment variables, `PEERINGDB_USERNAME` and `PEERINGDB_PASSWORD`:
+    ```
+    # (Optional) Place in your ~/.bashrc
+    export PEERINGDB_USERNAME=rleonar7
+    export PEERINGDB_PASSWORD=MySuperSecretPassword
+    ```
+> (non)Anonymous access to PeeringDB API: Unfortunately, PeeringDB APIs only return the info we need when using a PeeringDB account, and not when using anonymous access.
+
+### Example
+
+Run the `routeviews-email-peers` command against a specific Route Views collector, e.g. "route-views4.routeviews.org".
+
+Today, this command will to produce a semicolon-separated list of email addresses for each (established) peering session on that collector.
+
+    $ routeviews-email-peers --collector route-views4.routeviews.org
+    > WARNING:root:No email found for ASN: 204028
+    > noc@netactuate.com; noc@enetworks.co.za; noc@net.internet2.edu; ... trimmed for brevity...
+
+## YAML Python API
+
+We have a custom YAML module for handling (Ansible) YAML config files.
+In particular, this module will handle whitespace matching the standard way used throughout the Route Views Infrastructure repo.
+Further, this module ensures that the order data dumped is the same as ingested.
+
+> Today, this functionality comes thanks to the [ruamel.yaml package (PyPI)](https://pypi.org/project/ruamel.yaml/)!
+
+### Example
+
+This example loads a file by filename, then saves that file back.
+
+> In this case, this will essentially create a copy the "vars.yml" file.
+>
+> ℹ Tip: The "vars2.yml" copy, or any file dumped using `routeviews.yaml`, will follow the Route Views YAML styling convention.
+
+    import routeviews.yaml
+
+    my_variables = routeviews.yaml.load('vars.yml')
+
+    # ... make updates to `my_variables`...
+
+    routeviews.yaml.dump(my_variables, 'vars2.yml')
+
+## Additional APIs
+
+Besides the CLI tools discussed above, this package contains many internal packages/modules that might be useful.
+
+> ⚠ NOTICE: Major version zero (0.y.z) is for initial development. Anything MAY change at any time. This public API SHOULD NOT be considered stable.
+
+* There is the `routeviews.peeringdb` package that has some great methods for interfacing with the PeeringDB API.
+* There is the `routeviews.yaml` module that can load and save YAML config files (without rearranging them).
+    * Depends on the [`ruamel.yaml` package](https://pypi.org/project/ruamel.yaml/)
+* There is the `routeviews.ansible` package, that can load, modify, and save the Route Views Ansible Inventory.
+* There is the `routeviews.bgpsummery` module, that defines a `BGPSummary` class as well as functions for retrieving a `BGPSummary` from any collector.
+* There is the (start of a) `routeviews.api` module/package, for interfacing with the Route Views API/DB (undocumented).
+
+
+
+
+
+
+
+
+# Release Notes
+
+This project follows [Semantic Versioning](https://semver.org/).
+
+> Notice: Major version zero (0.y.z) is for initial development. Anything MAY change at any time. This public API SHOULD NOT be considered stable.
+
+## 0.1.2
+
+* Fix PeeringDB Authentication!
+    * See the [relevant GitHub Issue](https://github.com/peeringdb/peeringdb/issues/1206#issuecomment-1202550667) where we discovered the following details about PeeringDB API Basic Authentication:
+    > 1. Do NOT base64 encode
+    > 2. Username/Password Must be space-separated (e.g., must not be colon ":" separated)
+    > 3. Username when using API tokens is "Api-Key"
+    > 4. Ensure "www" is in all API requests!
+* Enable using PeeringDB API Key instead of username/password.
+    * Exposed via `--peeringdb-key` argument in `routeviews-build-peer` CLI tool (or as env var: `PEERINGDB_KEY`).
+* Add the filepath to the exception message when `routeviews.yaml` encounters a `ParseError`.
+    * This enables fixing syntax issues very quickly.
+    * "Unable to parse `<filepath>`" is the added message, seen below:
+    ```
+    ... omitted traceback for brevity...
+    routeviews.yaml.ParseError: while parsing a block mapping
+        in "<unicode string>", line 1, column 1:
+            short_name: decix
+            ^ (line: 1)
+    expected <block end>, but found '-'
+        in "<unicode string>", line 109, column 1:
+            - peer_as: 8888
+            ^ (line: 109)
+    Unable to parse <working-tree>/ansible/inventory/host_vars/route-views.decix.routeviews.org
+    ```
+* Ensure that PyVCR cassettes do not contain HTTP Basic Authentication secrets.
+    * Rotated the (randomly generated) Base64 encoded password that was previously exposed via HTTP Basic Authentication Headers. 
+
+## 0.1.1
+
+* Fix Bug: Package failed to declare some critical dependencies. 
+
+
+## 0.1.0
+
+> Bug: Package failed to declare some critical dependencies. 
+> Was missing `uologging` and `raumel.yaml` dependencies deceleration in "setup.py".
+
+The first release of the routeviews package contains some core CLI tools, as well as some functions/classes that might be useful to routeviews maintainers.
+
+### CLI Tools
+
+Provide two CLI tools:
+
+* [`routeviews-build-peer` CLI tool](./user-guide.md#routeviews-build-peer-cli-tool): automation of updating ["Route Views Ansible inventory"](https://github.com/routeviews/infra), toward 'adding BGP peers to XYZ collectors'.
+* [`routeviews-email-peers` CLI tool](./user-guide.md#routeviews-email-peers-cli-tool): get list of email addresses actively peered with a Route Views Collector.
+
+### Libraries
+
+* There is the `routeviews.peeringdb` package that has some great methods for interfacing with the PeeringDB API.
+* There is the `routeviews.yaml` module that can load and save YAML config files (without rearranging them).
+    * Depends on the [`ruamel.yaml` package](https://pypi.org/project/ruamel.yaml/)
+* There is the `routeviews.ansible` package, that can load, modify, and save the Route Views Ansible Inventory.
+* There is the `routeviews.bgpsummery` module, that defines a `BGPSummary` class as well as functions for retrieving a `BGPSummary` from any collector.
+* There is the (start of a) `routeviews.api` module/package, for interfacing with the Route Views API/DB (undocumented).
+
+
+
+
+
+
