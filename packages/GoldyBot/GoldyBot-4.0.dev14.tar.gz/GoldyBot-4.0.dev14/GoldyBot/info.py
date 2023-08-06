@@ -1,0 +1,7 @@
+# Bot Version
+
+version = "4.0dev14"
+name = f"Goldy Bot ({version})"
+
+v_short = version
+bot_version = name
