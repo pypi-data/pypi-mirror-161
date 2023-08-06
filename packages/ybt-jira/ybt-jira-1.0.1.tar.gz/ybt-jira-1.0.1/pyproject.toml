@@ -1,0 +1,57 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ybt-jira"
+version = "1.0.1"
+description = "TODO: add description"
+readme = "README.md"
+authors = [{ name = "y24 ved", email = "y24.ved@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+]
+keywords = ["jira"]
+dependencies = [
+    "tomli",
+    "jira",
+    "rich",
+]
+requires-python = ">=3.6"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "bumpver",
+    "autopep8",
+    "pip-tools",
+]
+
+[project.urls]
+Homepage = "https://github.com/y24ved/ybt-jira"
+
+[project.scripts]
+realpython = "yjira.__main__:main"
+
+[tool.bumpver]
+current_version = "1.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+"src/yjira/__init__.py" = [
+    "{version}",
+]
