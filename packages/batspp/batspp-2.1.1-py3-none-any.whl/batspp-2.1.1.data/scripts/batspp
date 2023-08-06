@@ -1,0 +1,203 @@
+#!python
+#
+# BATSPP
+#
+# Shell style tests using bats-core
+#
+## TODO: add timer and print execution time
+## TODO: use a separate pass of the test source to fill in the missing test names.
+## TODO: implement --discover flag to discover all tests file in a folder.
+
+
+"""
+BATSPP
+
+Shell style tests using bats-core
+
+You can run tests for aliases and more using the
+command line with '$ [command]' followed by the
+expected output:
+
+ $ echo -e "hello\nworld"
+ hello
+ world
+
+ $ echo "this is a test" | wc -c
+ 15
+
+Also you can test bash functions:
+ [functions + args] => [expected]:
+ fibonacci 9 => "0 1 1 2 3 5 8 13 21 34"
+"""
+
+
+# Standard packages
+import os
+import sys
+
+
+# Installed packages
+from mezcla.main import Main
+from mezcla import system
+from mezcla import debug
+from mezcla import glue_helpers as gh
+from mezcla import text_utils
+
+
+# Local modules
+from __version__ import __version__
+from batspp_opts import BatsppOpts
+from batspp_args import BatsppArgs
+from batspp_test import BatsppTest
+
+
+# Command-line labels and
+# enviroment variables constants
+FILE = 'file'
+SAVE = 'save'
+SOURCES = 'sources'
+OUTPUT = 'output'
+DEBUG = 'debug'
+HEXDUMP_DEBUG = 'hexdump_debug'
+VERBOSE_DEBUG = 'verbose_debug'
+TMP = 'TMP'
+TEMP_DIR = 'temp_dir'
+COPY_DIR = 'copy_dir'
+VISIBLE_PATHS = 'visible_paths'
+RUN_OPTS = 'run_options'
+SKIP_RUN = 'skip_run'
+OMIT_TRACE = 'omit_trace'
+DISABLE_ALIASES = 'disable_aliases'
+VERSION = 'version'
+
+
+class Batspp(Main):
+    """Argument processing class"""
+
+    # Class-level member variables for arguments
+    # (avoids need for class constructor)
+    file = ''
+    save_path = ''
+    sources = []
+    output = False
+    hexdump_debug = False
+    verbose_debug = False
+    debug = ''
+    temp_dir = ''
+    copy_dir = ''
+    visible_paths = []
+    run_opts = ''
+    skip_run = False
+    omit_trace = False
+    disable_aliases = False
+    version = False
+
+    def setup(self) -> None:
+        """Process arguments"""
+        debug.trace(7, f'batspp.setup() self={self}')
+
+        tmp = system.getenv_text(TMP, "/tmp", "Temporary directory")
+
+        # Check the command-line/enviroment vars options
+        self.file = self.get_parsed_argument(FILE, self.file)
+        self.save_path = self.get_entered_text(SAVE, self.temp_file)
+        self.sources = text_utils.extract_string_list(self.get_entered_text(SOURCES, ''))
+        self.output = self.get_entered_bool(OUTPUT, self.output)
+        self.hexdump_debug = self.get_entered_bool(HEXDUMP_DEBUG, self.hexdump_debug)
+        self.verbose_debug = self.get_entered_bool(VERBOSE_DEBUG, self.verbose_debug)
+        self.debug = self.get_entered_text(DEBUG, self.debug)
+        self.temp_dir = self.get_entered_text(TEMP_DIR, gh.form_path(tmp, f"batspp-{os.getpid()}"))
+        self.copy_dir = self.get_entered_text(COPY_DIR, self.copy_dir)
+        self.visible_paths = text_utils.extract_string_list(self.get_entered_text(VISIBLE_PATHS, ''))
+        self.run_opts = self.get_entered_text(RUN_OPTS, self.run_opts)
+        self.skip_run = self.get_entered_bool(SKIP_RUN, self.skip_run)
+        self.omit_trace = self.get_entered_bool(OMIT_TRACE,  self.omit_trace)
+        self.disable_aliases = self.get_entered_bool(DISABLE_ALIASES,  self.disable_aliases)
+        self.version = self.has_parsed_option(VERSION)
+
+    def run_main_step(self) -> None:
+        """Process main script"""
+
+        if self.version:
+            print(f'Batspp version {__version__}')
+            return
+
+        # Build tests
+        test = BatsppTest()
+        opts = BatsppOpts(
+            hexdump_debug = self.hexdump_debug,
+            verbose_debug = self.verbose_debug,
+            omit_trace = self.omit_trace,
+            disable_aliases = self.disable_aliases
+        )
+        args = BatsppArgs(
+            sources = self.sources,
+            temp_dir = self.temp_dir,
+            visible_paths = self.visible_paths,
+            run_opts = self.run_opts,
+            copy_dir = self.copy_dir,
+            debug = self.debug
+        )
+
+        test.set_options(opts)
+        test.set_arguments(args)
+
+        try:
+            test.parse_file(self.file)
+        except: # pylint: disable=bare-except
+            print(f'Not founded tests on file {self.file}')
+            return
+
+        test.save(self.save_path)
+
+        # STDOUT
+        if self.output:
+            print(test.get_tests())
+        elif not self.skip_run:
+            print(test.run())
+
+    def get_entered_bool(self, label:str, default:bool=False) -> bool:
+        """
+        Return entered LABEL var/arg bool by command-line or enviroment variable,
+        also can be specified a DEFAULT value
+        """
+        result = (self.has_parsed_option(label.lower()) or
+                  system.getenv_bool(var=label.upper()))
+        result = result if result else default
+        debug.trace(7, f'batspp.get_entered_bool(label={label}) => {result}')
+        return result
+
+    def get_entered_text(self, label:str, default:str='') -> str:
+        """
+        Return entered LABEL var/arg text by command-line or enviroment variable,
+        also can be specified a DEFAULT value
+        """
+        result = (self.get_parsed_argument(label=label.lower()) or
+                  system.getenv_text(var=label.upper()))
+        result = result if result else default
+        debug.trace(7, f'batspp.get_entered_text(label={label}) => {result}')
+        return result
+
+
+if __name__ == '__main__':
+
+    print_version = (f"--{VERSION}" in " ".join(sys.argv))
+
+    app = Batspp(description = __doc__,
+                 positional_arguments = [(FILE, 'Test filename')] if not print_version else None,
+                 boolean_options = [(VERSION, 'Show installed Batspp version'),
+                                    (OUTPUT, 'Print generated test'),
+                                    (HEXDUMP_DEBUG, 'Print hexdump debug when an assertion fail'),
+                                    (VERBOSE_DEBUG, 'Print debug verbose when an assertion fail'),
+                                    (SKIP_RUN, 'Do not run the test script'),
+                                    (OMIT_TRACE, 'Omit actual/expected trace from test file'),
+                                    (DISABLE_ALIASES, 'Disable alias expansion')],
+                 text_options = [(SAVE, 'Specify path to save the generated test file'),
+                                 (SOURCES, 'Specify files to be sourced, i.e "file1.bash file2.bash"'),
+                                 (TEMP_DIR, 'Temporary directory to use for tests'),
+                                 (VISIBLE_PATHS, 'Make paths visible to tests file'),
+                                 (RUN_OPTS, 'Options for run Bats command'),
+                                 (COPY_DIR, 'Copy directory to temp. dir for input files, etc.'),
+                                 (DEBUG, 'Add custom debug to actual/expected values')],
+                 manual_input = True)
+    app.run()
