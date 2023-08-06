@@ -1,0 +1,59 @@
+Metadata-Version: 2.1
+Name: stemquests
+Version: 1.1.1
+Summary: Dark web HTTP requests using Tor, a stem helper library.
+Author-email: Ian Costa <costa.ian18@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2022 Ian Costa
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/SammyTheBEAST/stemquests
+Project-URL: Bug Tracker, https://github.com/SammyTheBEAST/stemquests/issues
+Keywords: tor,requests,stem,dark web
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Internet :: WWW/HTTP :: Session
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+License-File: LICENSE
+
+# stemquests
+
+Python Requests and Stem helper for making HTTP requests over Tor.
+
+# Purpose
+
+A Tor proxy and the Python [requests](https://pypi.org/project/requests/) package are difficult to work with. This package attempts to fix this issue by creating a module (TorInstance) that allows starting new Tor proxy processes using stem, then generating requests Sessions to send requests with.
+
+# Usage
+
+Simply import TorInstance, create the object, then call tor.get_session() to get a new requests session!
+
+```
+from stemquests import TorInstance
+
+tor = TorInstance()
+session = tor.get_session()
+
+print(session.get('https://check.torproject.org').text)
+```
