@@ -1,0 +1,215 @@
+Metadata-Version: 2.1
+Name: pyams-scheduler
+Version: 1.9.0
+Summary: PyAMS tasks scheduler
+Home-page: https://pyams.readthedocs.io
+Author: Thierry Florac
+Author-email: tflorac@ulthar.net
+License: ZPL
+Keywords: Pyramid PyAMS
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: Zope Public License
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python
+Classifier: Framework :: Pyramid
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: setuptools
+Requires-Dist: apscheduler
+Requires-Dist: chardet
+Requires-Dist: paramiko
+Requires-Dist: persistent
+Requires-Dist: pyams-layer
+Requires-Dist: pyams-mail
+Requires-Dist: pyams-security
+Requires-Dist: pyams-site
+Requires-Dist: pyams-utils
+Requires-Dist: pyams-zmq
+Requires-Dist: pyramid
+Requires-Dist: pyramid-mailer
+Requires-Dist: requests
+Requires-Dist: transaction
+Requires-Dist: zope.annotation
+Requires-Dist: zope.component
+Requires-Dist: zope.componentvocabulary
+Requires-Dist: zope.container
+Requires-Dist: zope.interface
+Requires-Dist: zope.intid
+Requires-Dist: zope.lifecycleevent
+Requires-Dist: zope.location
+Requires-Dist: zope.schema
+Requires-Dist: zope.traversing
+Provides-Extra: test
+Requires-Dist: pyams-zmi ; extra == 'test'
+Requires-Dist: pyramid-zcml ; extra == 'test'
+Requires-Dist: zope.exceptions ; extra == 'test'
+
+=======================
+PyAMS scheduler package
+=======================
+
+.. contents::
+
+
+What is PyAMS?
+==============
+
+PyAMS (Pyramid Application Management Suite) is a small suite of packages written for applications
+and content management with the Pyramid framework.
+
+**PyAMS** is actually mainly used to manage web sites through content management applications (CMS,
+see PyAMS_content package), but many features are generic and can be used inside any kind of web
+application.
+
+All PyAMS documentation is available on `ReadTheDocs <https://pyams.readthedocs.io>`_; source code
+is available on `Gitlab <https://gitlab.com/pyams>`_ and pushed to `Github
+<https://github.com/py-ams>`_. Doctests are available in the *doctests* source folder.
+
+
+What is PyAMS scheduler?
+========================
+
+PyAMS_scheduler is an extension package for PyAMS which can be used to handle tasks scheduling.
+The kind of tasks that can be scheduled are local commands, remote commands started through
+SSH, HTTP or HTTPS remote services, REST APIs, SQL commands, files transfers, or custom
+commands that can be provided by special extension packages; you can also create pipelines,
+where the output of a command can be used as input for the next command.
+
+The tasks definition is stored into the ZODB, as well as the execution history of each task.
+
+The package relies on ZeroMQ for process synchronisation, and APScheduler for tasks scheduling.
+
+
+Changelog
+=========
+
+1.9.0
+-----
+ - added new status to be used on task execution failure
+ - added new task status class mapping
+
+1.8.0
+-----
+ - added exception class to handle task execution errors
+ - updated notification status on task execution error
+
+1.7.1
+-----
+ - updated JWT tokens handler in REST API client task
+
+1.7.0
+-----
+ - added properties to REST API client task to set login and password attributes of
+   JWT authentication service
+
+1.6.7
+-----
+ - updated Gitlab-CI for Python 3.10
+
+1.6.6
+-----
+ - added support for Python 3.10
+ - PyAMS_security interfaces refactoring
+ - use new ZMI attribute switcher column in task notifications
+
+1.6.5
+-----
+ - check job next run time when getting list of scheduled jobs
+ - added ping message handler to check process communication
+
+1.6.4
+-----
+ - use constants to define tasks schedule modes
+ - use new generic ZMI columns classes in notifications management view
+
+1.6.3
+-----
+ - translation update
+
+1.6.2
+-----
+ - updated new request base URL when running a task to be able to generate correct
+   absolute URLs
+
+1.6.1
+-----
+ - added check for correct host configuration before sending notifications
+
+1.6.0
+-----
+ - added support for *PyAMS_chat* package to send notifications after task execution
+
+1.5.0
+-----
+ - replaced after-commit hooks with new PyAMS_utils transaction manager
+ - added option to display scheduler access menu in site home
+
+1.4.3
+-----
+ - updated history item view form CSS class
+
+1.4.2
+-----
+ - version mismatch
+
+1.4.1
+-----
+ - added return link to site utilities view from scheduler tasks view
+
+1.4.0
+-----
+ - added scheduler label adapter
+ - updated add and edit forms title
+ - updated package include scan
+
+1.3.3
+-----
+ - updated menus order in management interface
+ - replace ITableElementName interface with IObjectLabel
+
+1.3.2
+-----
+ - reset task internal ID after cloning
+ - corrected check on request registry when removing task
+
+1.3.1
+-----
+ - added and updated task add and edit forms AJAX renderer
+ - Pylint updates
+
+1.3.0
+-----
+ - updated tasks notifications management, to be able to add new notifications modes
+   easily
+ - moved all task related interfaces to pyams_scheduler.interfaces.task module
+
+1.2.1
+-----
+ - corrected timezone error in task history check
+ - added missing "context" argument to permission check
+ - small updates in tasks management forms
+
+1.2.0
+-----
+ - removed support for Python < 3.7
+ - updated synchronizer exceptions
+ - updated FTP synchronizer handler
+
+1.1.1
+-----
+ - updated scheduler generations updater order
+
+1.1.0
+-----
+ - added task copy hook
+ - added action to duplicate an existing task
+
+1.0.1
+-----
+ - updated Gitlab-CI configuration
+ - removed Travis-CI configuration
+
+1.0.0
+-----
+ - initial release
+
+
