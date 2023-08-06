@@ -1,0 +1,94 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "autohooks"
+version = "22.8.0"
+description = "Library for managing git hooks"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/greenbone/autohooks"
+repository = "https://github.com/greenbone/autohooks"
+classifiers=[
+  # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # pylint: disable=line-too-long
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Software Development :: Version Control :: Git",
+]
+keywords = [
+  "git",
+  "formatting",
+  "linting",
+  "hooks",
+]
+
+packages = [
+  { include = "autohooks"},
+  { include = "tests", format = "sdist" },
+  { include = "CHANGELOG.md", format = "sdist"},
+  { include = "RELEASE.md", format = "sdist"},
+  { include = "poetry.lock", format = "sdist"},
+  { include = "poetry.toml", format = "sdist"},
+]
+include = [
+  "autohooks/precommit/template",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+tomlkit = ">=0.5.11"
+pontos = ">=22.8.0"
+rich = "^12.5.1"
+
+[tool.poetry.dev-dependencies]
+autohooks-plugin-black = ">=21.12.0"
+autohooks-plugin-pylint = ">=21.6.0"
+autohooks-plugin-isort = ">=22.3.0"
+rope = "^1.3.0"
+
+[tool.poetry.scripts]
+autohooks = "autohooks.cli:main"
+
+[tool.black]
+line-length = 80
+target-version = ['py37', 'py38', 'py39', 'py310']
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.venv
+  | \.circleci
+  | \.github
+  | \.vscode
+  | _build
+  | build
+  | dist
+  | docs
+)/
+'''
+
+[tool.autohooks]
+pre-commit = [
+  'autohooks.plugins.isort',
+  'autohooks.plugins.black',
+  'autohooks.plugins.pylint',
+]
+mode = "poetry"
+
+[tool.pontos.version]
+version-module-file = "autohooks/__version__.py"
+
+[tool.isort]
+profile = "black"
+line_length = 80
