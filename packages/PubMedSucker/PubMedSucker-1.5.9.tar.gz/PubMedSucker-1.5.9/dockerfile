@@ -1,0 +1,16 @@
+FROM python:3.10
+#FROM pypy:3.6
+#
+# PupMedSucker 
+#
+
+RUN mkdir /data
+ENV CONFIGS_PUBMED_XML_DOWNLOAD_DIR=/data/pubmed_download
+ENV CONFIGS_LOG_PATH=/data/log/
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+COPY . $PWD
+
+RUN pip3 install --no-cache-dir -e .
+WORKDIR /opt/app/pms
+CMD [ "python3", "./main.py" ]

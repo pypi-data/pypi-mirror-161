@@ -1,0 +1,28 @@
+version: "3"
+services:
+
+  redis:
+    image: redis
+    command: [ "redis-server", "--save", "''", "--appendonly", "no" ]
+
+  neo4j:
+    image: neo4j:4.4
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4JLABS_PLUGINS=["apoc"]
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./data/neo4j:/data
+  pms:
+    build: .
+    environment:
+      - CONFIGS_NEO4J="{'host':'neo4j','port':'7687'}"
+      - CONFIGS_REDIS="{'host':'redis'}"
+      - CONFIGS_BASE_LINE_MODE=true
+      - CONFIGS_PUBMED_SOURCE=10
+    volumes:
+      - ./data:/data
+      - ./log:/log
+      - ./dump:/dump
