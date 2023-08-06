@@ -1,0 +1,344 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "common.proto";
+import "integration_source.proto";
+
+option java_package = "io.calixa.domain.action";
+package calixa.domain.action;
+
+enum ActionState {
+  ACTION_STATE_UNSPECIFIED = 0;
+  ACTION_STATE_ENABLED = 1;
+  ACTION_STATE_DISABLED = 2;
+}
+
+enum ActionInvocationStatus {
+  ACTION_INVOCATION_STATUS_UNSPECIFIED = 0;
+  ACTION_INVOCATION_STATUS_SUCCESS = 1;
+  ACTION_INVOCATION_STATUS_FAILED = 2;
+}
+
+// frequency for automation actions, used on suppression mechanisms
+// there is a reasoning to this being here, not all automations will have
+// frequency, so we must add to the specific ActionParams in order for the UI
+// to be able to show the fields
+enum AutomationActionFrequency {
+  AUTOMATION_FREQUENCY_UNSPECIFIED = 0;
+  AUTOMATION_FREQUENCY_HOURLY = 1;
+  AUTOMATION_FREQUENCY_DAILY = 2;
+  AUTOMATION_FREQUENCY_WEEKLY = 3;
+  AUTOMATION_FREQUENCY_MONTHLY = 4;
+  AUTOMATION_FREQUENCY_QUARTERLY = 5;
+  AUTOMATION_FREQUENCY_YEARLY = 6;
+
+  AUTOMATION_FREQUENCY_ALL_TIME = 1000;
+}
+
+message ChargeRefundParams {
+  calixa.domain.common.Amount amount = 1;
+  string reason = 2;
+}
+
+message SubscriptionTrialUpdateParams {
+  google.protobuf.Timestamp trial_end_at = 1;
+}
+
+message CouponApplyParams {
+  string coupon_id = 1;
+}
+
+message OpportunityCreateParams {
+  // https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_opportunity.htm
+  string name = 1 ;
+  google.protobuf.Timestamp closed_at = 2;
+  calixa.domain.common.Amount amount = 3;
+  string stage_name = 4;
+  string owner_id = 5;
+  string opportunity_type = 6;
+  string account_id = 7; // This is the external Account ID in SF/HS
+  string contact_id = 8; // This is the external Contact ID in SF/HS
+  string deal_pipeline = 9;
+}
+
+message TaskCreateParams {
+  // https://legacydocs.hubspot.com/docs/methods/engagements/create_engagement
+  // NOTE: See the Json example as it is complete with examples, while Python example is not.
+  // NOTE: The task UI iN HubSpot is confusing. It has different/more fields than what's exposed in the API docs
+  string owner_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string body = 3;
+  string title = 4;
+  string status = 5;
+  string priority = 6;
+  string account_id = 7; // This is the external Account ID in SF/HS
+  string contact_id = 8; // This is the external Contact ID in SF/HS
+  reserved 9; // int64 relative_date_millis = 9
+  int32 relative_days = 10; // number of days to add to invocation dates when triggered from automation
+}
+
+message OwnershipUpdateParams {
+  // HubSpot/Salesforce internal ID, coming from either:
+  // - SALESFORCE_USER entity
+  // - HUBSPOT_OWNER entity
+  string owner_id = 1;
+  // HubSpot/Salesforce internal ID, coming from either:
+  // - SALESFORCE_CONTACT
+  // - SALESFORCE_ACCOUNT
+  // - HUBSPOT_COMPANY
+  // - HUBSPOT_CONTACT
+  string owned_object_id = 2;
+  // The 'owned_object_type' is used to send Salesforce or HubSpot object type,
+  // to be used by automation app to select API it needs to use to set owner ID.
+  // It could be one of,
+  // in Salesforce case:
+  //   1. SALESFORCE_ACCOUNT --> Account
+  //   2. SALESFORCE_CONTACT --> Contact
+  // in HubSpot case:
+  //   1. HUBSPOT_COMPANY --> Company
+  //   2. HUBSPOT_CONTACT --> Contact
+  calixa.domain.common.EntityType owned_object_type = 3;
+}
+
+message CadenceAddPersonParams {
+  string cadence_id = 1;
+  string person_id = 2;
+  string owner_id = 3;
+  string user_id = 4; // user_id represents the "Assigned to" on Salesloft
+}
+
+message SequenceAddProspectParams {
+  string sequence_id = 1;
+  string prospect_id = 2;
+  string mailbox_id = 3;
+}
+
+message CustomParams {
+  google.protobuf.Struct payload = 2;
+}
+
+message RedirectParams {
+  string url = 1;
+}
+
+message AddToContactListParams {
+  string list_id = 1;
+  string contact_id = 2;
+}
+
+message RequestConfig {
+  string url = 1;
+  string httpMethod = 2;
+  repeated string headers = 3;
+  // This is a payload that of static values that is configured into the Action.
+  // When custom action is invoked, this payload and the payload created at
+  // invocation time are merged together and sent to the the external APi
+  google.protobuf.Struct payload = 4;
+}
+
+// Domain of all Action Types supported in platform.
+// Keep the proto field numbers in sync with ActionParams.
+// 1) Try to add new enums/params for standard actions with this name pattern:
+// Enums: "<AFFECTED OBJECT NAME>_<ACTION NAME>" (ALL CAPS SNAKE_CASE)
+// Param: "<AFFECTED OBJECT NAME>_<ACTION NAME>_params" (CapitalizedCamelCase)
+
+// 2) Keep entity action categories together in their namespace/number range
+// 3) Add the respective params migration to MigrateNewActions file
+// 4) Add the respective params migration to InstallWorkflow#addActions file
+// 5) Add the installation test to IntegrationManagerServiceTest
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_CHARGE_REFUND = 1;
+  ACTION_TYPE_SUBSCRIPTION_TRIAL_UPDATE = 100;
+  ACTION_TYPE_COUPON_APPLY = 200;
+  ACTION_TYPE_OPPORTUNITY_CREATE = 300;
+  ACTION_TYPE_OPPORTUNITY_CREATE_USER = 301;
+  ACTION_TYPE_TASK_CREATE = 400;
+  ACTION_TYPE_TASK_CREATE_USER = 401;
+  ACTION_TYPE_CADENCE_ADD_PERSON = 500;
+  ACTION_TYPE_SEQUENCE_ADD_PROSPECT = 600;
+
+  ACTION_TYPE_CUSTOM = 10000;
+  ACTION_TYPE_REDIRECT = 10001;
+  ACTION_TYPE_ADD_TO_CONTACT_LIST = 700;
+}
+
+message ActionParams {
+  // Keep entity action categories together in their namespace/number range
+  oneof params {
+    ChargeRefundParams charge_refund_params = 1;
+    SubscriptionTrialUpdateParams subscription_trial_update_params = 100;
+    CouponApplyParams coupon_apply_params = 200;
+    OpportunityCreateParams opportunity_create_params = 300;
+    TaskCreateParams task_create_params = 400;
+    CadenceAddPersonParams cadence_add_person_params = 500;
+    SequenceAddProspectParams sequence_add_prospect_params = 600;
+    OwnershipUpdateParams ownership_update_params = 700;
+
+    CustomParams custom_params = 10000;
+    RedirectParams redirect_params = 10001;
+
+    AddToContactListParams add_to_contact_list_params = 800;
+  }
+
+  reserved 536870911; // previously bool force
+}
+
+message ThirdPartyActionInvocationResponse {
+  map<string, string> headers = 1;
+  map<string, string> meta = 2;
+  string body = 3;
+  int32 status_code = 4;
+}
+
+message ActionConfig {
+  string title = 1;
+
+  // Used to indicate which gRPC stub (for Python apps) should be called when invoking standard actions.
+  // It should be UNSPECIFIED for custom actions
+  calixa.domain.integration.IntegrationSource source = 2;
+  // Used as a constraint to check if the entity being acted upon supports the configured action type
+  // Example: Refund a Charge -> OK / Refund an Opportunity -> Not supported
+  calixa.domain.common.EntityType entity_type = 3;
+  string created_by_organization_user = 4;
+  ActionParams default_action_params = 5;
+  ActionState action_state = 6;
+  ActionType action_type = 7;
+  string description = 8;
+
+  // Optional fields used by Custom Action types
+  RequestConfig request_config = 100;
+
+  // Console/UI related fields
+  //
+  // Array with information about _how_ to render this action in the UI
+  // For standard actions, this is statically defined (see DefaultActionConfigUtils.java)
+  // For custom actions, this is going to be user defined through the action builder UI
+  repeated DisplayField display_fields = 1000;
+  // Array with information about _where_ to render this action in the UI
+  // NOTE: Do not confuse with field #3 above, which is used as a constraint/validation helper
+  repeated calixa.domain.common.EntityType display_on_entity_types = 1001;
+  
+  bool installed_by_parent_integration = 1002; // whenever an action is installed from the parent integration, this must be true
+}
+
+
+/**
+  Example of Standard Actions mapped in the from end
+  - https://github.com/calixa-io/console/blob/master/src/js/constants/action_constants.js#L27-L38:
+
+ 'DisplayField' is the field representation in an Action's UI for instance:
+
+ THE FORM IN CONSOLE READY TO INVOKE AN ACTION:
+ ____________________________________________________________
+ | RESET PASSWORD IN MYWEBSITE.COM
+ |
+ | *Email to reset: "derp@mywebsite.com"
+ |  Reason for reset: = "User forgot the password"
+ |
+ |
+ |                                                  |SEND|
+ |___________________________________________________________
+
+ THIS ACTION ENTITY PROTO:
+ The action above is called "RESET PASSWORD IN MYWEBSITE.COM" and has the respective "ActionConfig.DisplayFields"
+
+ 1. display_field {
+      key = "email",
+      display = "Email to reset"
+      field_type = DisplayFieldType.STRING
+      required = true
+
+ 2. display_field {
+      id = "reason",
+      display_name= "Reason to reset"
+      field_type = DisplayFieldType.STRING
+      field_style = DisplayFieldStyle.MULTILINE
+      required = false
+
+
+ INVOKING THE ACTION:
+ When the UI button "SEND" is pressed, ActionResource#invokeAction should be called with the following HTTP request from console
+
+ 1. action_canonical_id = <this actions' canonical id>
+ 2. entity_canonical_id = <this charge's canonical id>  TODO NOTE: For Custom Actions V1, this will be a 'User' or 'Account' canonical id
+ 3. custom_params = {
+      payload = {
+           "email": "derp@mywebsite.com",
+           "reason": "User forgot the password"
+      }
+      // The payload map should be <display_field.id> -> <value inserted by the user>
+
+
+ HANDLING THE ACTION'S REQUEST:
+ Finally, ActionService will handle the request internally and POST a request to the configured URL, for instance:
+
+    POST "<the API url defined when the action was created>"
+       {
+          "email" = "derp@mywebsite.com",
+          "reason" = "User forgot the password"
+
+          "entity" = {...} TODO Data of the affected entity –– Which subset of data to send?
+       }
+
+ */
+message DisplayField {
+  string key = 1;
+  string display = 2;
+
+  DisplayFieldType field_type = 3;
+  string placeholder = 4;
+  bool required = 5;
+
+  // For searchable entities the values below should be populated
+  calixa.domain.common.EntityType supplied_by_entity_type = 6; // The entity type to be searched for
+  repeated string supplied_by_id_name = 7; // List of possible paths in the object, used for display in the UI
+  string supplied_by_id_secondary_name = 10; // Secondary path to show fallback information in the UI
+
+  string supplied_by_id_value = 8; // Path to the value to be used in the final action invocation call
+  string supplied_by_entity_filter = 9; // optional entity filter console appends with AND on action search typings
+
+  DisplayFieldContext context = 11; // defines which context this can be used, automations or actions or both
+  string secondary_display = 12; // some new fields have information before (field display) and after (this field) the input
+
+  repeated Value options = 100;
+  map<string, string> initial_value = 101;
+  map<string, string> render_when = 102;
+  google.protobuf.Struct properties = 103;
+
+  // Used to sort multiple display fields in one configuration. Use 0 to indicate a value was not appropriately set
+  int32 order = 10000;
+}
+
+message Value {
+  string key = 1;
+  string display = 2;
+}
+
+enum DisplayFieldType {
+  DISPLAY_FIELD_TYPE_UNSPECIFIED = 0;
+
+  DISPLAY_FIELD_TYPE_AMOUNT = 1;
+  DISPLAY_FIELD_TYPE_BOOLEAN = 2;
+  DISPLAY_FIELD_TYPE_COUNTRY = 3;
+  DISPLAY_FIELD_TYPE_CURRENCY = 4;
+  DISPLAY_FIELD_TYPE_DATE = 5;
+  DISPLAY_FIELD_TYPE_ENUM = 6;
+  DISPLAY_FIELD_TYPE_MICROS = 7;
+  DISPLAY_FIELD_TYPE_NUMBER = 8;
+  DISPLAY_FIELD_TYPE_PERCENTAGE = 9;
+  DISPLAY_FIELD_TYPE_STRING = 10;
+  DISPLAY_FIELD_TYPE_RENDERABLE = 11;
+  DISPLAY_FIELD_TYPE_HIDDEN = 12;
+}
+
+/**
+ * This defines which context the display field will be rendered or used
+ */
+enum DisplayFieldContext {
+  DISPLAY_FIELD_CONTEXT_UNSPECIFIED = 0;
+  DISPLAY_FIELD_CONTEXT_ACTION = 1;
+  DISPLAY_FIELD_CONTEXT_AUTOMATION = 2;
+}

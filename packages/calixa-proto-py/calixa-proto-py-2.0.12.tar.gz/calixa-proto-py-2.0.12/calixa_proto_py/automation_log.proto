@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package calixa.domain.automation.log;
+
+import "google/protobuf/timestamp.proto";
+import "entity.proto";
+import "action.proto";
+
+option java_package = "io.calixa.domain.automation.log";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+enum ExecutionStatus {
+  EXECUTION_STATUS_UNSPECIFIED = 0;
+  EXECUTION_STATUS_SUCCESS = 1;
+  EXECUTION_STATUS_ERROR = 2;
+  EXECUTION_STATUS_RATE_LIMITED = 3;
+}
+
+message AutomationLog {
+
+  string id = 1;
+  google.protobuf.Timestamp started_at = 2;
+  google.protobuf.Timestamp finished_at = 3;
+  ExecutionStatus status = 4;
+
+  // This entity has to be an 'Event' that triggered an automation
+  entity.Entity entity = 100;
+  entity.Entity automation = 101;
+  action.ThirdPartyActionInvocationResponse raw_response_payload = 102;
+
+
+  string error = 1000;
+}

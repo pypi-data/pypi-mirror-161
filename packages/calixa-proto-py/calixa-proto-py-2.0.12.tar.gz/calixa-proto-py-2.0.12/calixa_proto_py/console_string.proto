@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "integration_source.proto";
+
+option java_package = "io.calixa.domain.consolestring";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.consolestring;
+
+enum ConsoleStringKey {
+  CONSOLE_STRING_KEY_UNSPECIFIED = 0;
+  //WARNINGS
+  CONSOLE_STRING_KEY_INVALID_CURSOR_FIELD = 1000; // Your "{field}" field isn't properly formatted, which will affect your sync speed and cost.
+  CONSOLE_STRING_KEY_MISSING_ROWS = 1001;         // Some of your records are missing required fields. {count} records will be skipped.
+
+}
+// Represents a string defined on console level
+// key maps to a specific string
+// values are used to replace placeholders in references string
+message ConsoleString {
+  ConsoleStringKey key = 1;
+  map<string, string> values = 2;
+}

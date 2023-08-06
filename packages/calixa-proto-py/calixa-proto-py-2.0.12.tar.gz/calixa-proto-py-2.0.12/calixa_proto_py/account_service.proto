@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package calixa.domain.account;
+
+import "common.proto";
+import "entity.proto";
+
+option java_package = "io.calixa.domain.account";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+// THIS SERVICE IS DEPRECATED; Use EntityService#SaveEntity instead.
+service AccountService {
+  rpc SaveOpportunityEntity (SaveOpportunityEntityRequest) returns (calixa.domain.entity.Entity) {
+    option deprecated = true;
+  };
+  rpc SaveExternalAccountEntity (SaveExternalAccountEntityRequest) returns (calixa.domain.entity.Entity) {
+    option deprecated = true;
+  };
+  rpc SaveExternalAccountUserEntity (SaveExternalAccountUserEntityRequest) returns (calixa.domain.entity.Entity) {
+    option deprecated = true;
+  };
+}
+
+message SaveOpportunityEntityRequest {
+  calixa.domain.entity.Entity opportunity_entity = 3;
+}
+
+message SaveExternalAccountEntityRequest {
+  calixa.domain.entity.Entity external_entity = 2;
+  repeated calixa.domain.common.ExternalId related_external_entity_ids = 3 [deprecated=true];
+  string external_api_account_id = 4 [deprecated=true];// NEVER USED IN PYTHON
+}
+
+message SaveExternalAccountUserEntityRequest {
+  calixa.domain.entity.Entity external_entity = 2;
+  repeated calixa.domain.common.ExternalId related_external_entity_ids = 3 [deprecated=true];
+}

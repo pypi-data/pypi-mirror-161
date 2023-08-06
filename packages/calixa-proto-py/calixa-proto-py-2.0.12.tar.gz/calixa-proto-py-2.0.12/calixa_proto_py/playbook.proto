@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.playbook";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.playbook;
+
+message Playbook {
+  string organization_id = 1;
+  string playbook_id = 2;
+  string name = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // markdown text, contains playbook description
+  string description = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // List of action_ids (organization-specific), attached to this playbook.
+  // Frontend takes care of rendering based on the order of items.
+  // In PgSql this is stored as array of varchars
+  repeated string action_ids = 5;
+
+  string created_by_organization_user_id = 6;
+
+  google.protobuf.Timestamp created_at = 7 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 8 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // Specifies whether playbook's actions are Account or AccountUser related:
+  calixa.domain.common.EntityType entity_type = 9;
+}
+
+service PlaybookService {
+  rpc GetPlaybook (GetPlaybookRequest) returns (Playbook);
+  rpc GetPlaybooks (GetPlaybookRequest) returns (stream Playbook);
+  rpc PutPlaybook (PutPlaybookRequest) returns (Playbook);
+  rpc DeletePlaybook(DeletePlaybookRequest) returns (google.protobuf.Empty);
+}
+
+message GetPlaybookRequest {
+  // If playbook_id is specified, the specific Playbook is returned; otherwise
+  // all Playbooks are returned for the specified organization.
+  string playbook_id = 1;
+  // If entity_type is specified, Playbooks defined for specific entity type are returned;
+  // otherwise all Playbooks are returned for the specified organization.
+  calixa.domain.common.EntityType entity_type = 2;
+}
+
+message PutPlaybookRequest {
+  Playbook playbook = 1;
+}
+
+message DeletePlaybookRequest {
+  string playbook_id = 1;
+}

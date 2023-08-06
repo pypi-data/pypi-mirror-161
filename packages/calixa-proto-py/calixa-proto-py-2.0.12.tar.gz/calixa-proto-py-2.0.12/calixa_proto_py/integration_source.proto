@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+option java_package = "io.calixa.domain.integration";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.integration;
+
+// Represents whence the data came
+enum IntegrationSource {
+  INTEGRATION_SOURCE_UNSPECIFIED = 0;
+  INTEGRATION_SOURCE_STRIPE = 1;
+  reserved 2;  //INTEGRATION_SOURCE_COGNITO = 2;
+  INTEGRATION_SOURCE_MAILGUN = 3;
+  INTEGRATION_SOURCE_SEGMENT = 4;
+  INTEGRATION_SOURCE_ZENDESK = 5;
+  INTEGRATION_SOURCE_INTERCOM = 6;
+  INTEGRATION_SOURCE_FRONT = 7;
+  INTEGRATION_SOURCE_SENDGRID = 8;
+  INTEGRATION_SOURCE_FRESHDESK = 9;
+  INTEGRATION_SOURCE_SENTRY = 10;
+  INTEGRATION_SOURCE_SALESFORCE = 11;
+  INTEGRATION_SOURCE_HUBSPOT = 12;
+  INTEGRATION_SOURCE_GOOGLE_FIREBASE = 13;
+  INTEGRATION_SOURCE_SLACK = 14;
+  INTEGRATION_SOURCE_SALESLOFT = 15;
+  INTEGRATION_SOURCE_OUTREACH = 16;
+  INTEGRATION_SOURCE_CLEARBIT = 17;
+  INTEGRATION_SOURCE_AMPLITUDE = 18;
+  INTEGRATION_SOURCE_MIXPANEL = 19;
+
+  INTEGRATION_SOURCE_AUTO_METRICS = 536870907;
+
+  INTEGRATION_SOURCE_ORGANIZATION = 536870908 [deprecated = true];
+
+  // Special case: This represents an email address -- this is UNIVERSAL
+  INTEGRATION_SOURCE_UNIVERSAL_EMAIL = 536870909;
+
+  // We need to be special somehow, right? The max value for a protobuf field is the 2^29 - 1.
+  // We represent the use of Calixa via API (computer) and Console (human) separately to better
+  // enrich the log history in RequestContext. See integration.proto for more info.
+  INTEGRATION_SOURCE_CALIXA_CONSOLE = 536870910;
+  INTEGRATION_SOURCE_CALIXA_API = 536870911;
+
+}
+
+// Represents where the data is located when it is synced to Calixa, e.g.:
+// "BIGQUERY" stores "STRIPE" data
+// "BIGQUERY" stores "API" data
+//
+// This can be unspecified if it comes form an API
+enum IntegrationStore {
+  INTEGRATION_STORE_UNSPECIFIED = 0;
+
+  INTEGRATION_STORE_BIGQUERY = 1;
+  INTEGRATION_STORE_SNOWFLAKE = 2;
+  INTEGRATION_STORE_REDSHIFT = 3;
+}
+
+// Represents "How" the data was obtained; ie the means by which it entered our system.
+enum IntegrationChannel {
+  INTEGRATION_CHANNEL_UNSPECIFIED = 0;
+
+  // Data was obtained directly from a 3rd party source; e.g. webhook or
+  // our own App that calls into a 3rd party API.
+  INTEGRATION_CHANNEL_DIRECT = 1;
+
+  // Data was obtained via a customer's data warehouse
+  reserved 2;
+
+  // Data was obtained via Airbyte. While similar to DIRECT, this is a different
+  // channel since it is not our own code.
+  INTEGRATION_CHANNEL_AIRBYTE = 3;
+
+  // Data was obtained via Census API
+  INTEGRATION_CHANNEL_CENSUS = 4;
+
+  // Data synthesized by an internal Calixa process
+  INTEGRATION_CHANNEL_INTERNAL = 5;
+}

@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+import "sidedata/annotation.proto";
+
+import "common.proto";
+import "integration_source.proto";
+import "owner.proto";
+import "entity_reference.proto";
+import "learning.proto";
+
+option java_package = "io.calixa.domain.account";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.account;
+
+enum AccountStatus {
+  ACCOUNT_STATUS_UNSPECIFIED = 0;
+  ACCOUNT_ACTIVE = 1;
+  ACCOUNT_SUSPENDED = 2;
+  ACCOUNT_DELETED = 3;
+}
+
+enum OpportunityStatus {
+  OPPORTUNITY_STATUS_UNSPECIFIED = 0;
+  OPPORTUNITY_STATUS_OPEN = 1;
+  OPPORTUNITY_STATUS_CLOSED = 2;
+  OPPORTUNITY_STATUS_WON = 3;
+  OPPORTUNITY_STATUS_LOST = 4;
+  OPPORTUNITY_STATUS_CLOSED_WON = 5;
+}
+
+message Opportunity {
+  reserved 10; // int32 line_item_quantity = 10;
+  string name = 1;
+  string description = 2;
+  string stage = 3;
+  string type = 4;
+  string next_step = 5;
+  string owner = 6;
+  string created_by_user_id = 7;
+  string last_modified_by_user_id = 8;
+  double probability = 9;
+  OpportunityStatus opportunity_status = 11;
+  calixa.domain.common.Amount amount = 12;
+  google.protobuf.Timestamp closed_at = 13;
+  google.protobuf.Timestamp last_activity_at = 14;
+  double line_item_quantity = 15;
+}
+
+message Account {
+  reserved 1; // string account_id = 1 [deprecated = true];
+  reserved 2; // string organization_id = 2 [deprecated = true];
+  reserved 9; // previously address_id
+  reserved 10; // google.protobuf.Timestamp created_at = 10 [deprecated = true];
+  reserved 11; //google.protobuf.Timestamp updated_at = 11 [deprecated = true];
+  reserved 12; // string canonical_id = 12 [deprecated = true];
+
+  string name = 4;
+  AccountStatus status = 5;
+  string domain_name = 6;
+  string created_by_user_id = 7;
+  google.protobuf.Struct properties = 8;
+  common.Address address = 13;
+
+  google.protobuf.Timestamp signed_up_at = 14;
+  google.protobuf.Timestamp first_seen_at = 16;
+  google.protobuf.Timestamp last_seen_at = 17;
+  calixa.domain.owner.Owner owner = 18;
+
+  repeated ScoreValue score_value = 19 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 's',
+  }];
+
+  JourneyValue journey = 20 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 'j',
+  }];
+
+  repeated calixa.domain.entity.EntityReference enriched_with = 21;
+
+  reserved 22;
+
+  int64 users_count = 23;
+
+  repeated PredictionValue predictions = 24 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 'pv',
+  }];
+
+}
+
+enum AccountUserStatus {
+  ACCOUNT_USER_STATUS_UNSPECIFIED = 0;
+  ACCOUNT_USER_ACTIVE = 1;
+  ACCOUNT_USER_SUSPENDED = 2;
+  ACCOUNT_USER_DELETED = 3;
+  ACCOUNT_USER_INVITED = 4;
+
+  // Try to keep aligned with OrganizationUserStatus.
+}
+
+// TODO(pras): remove this message
+message AccountAssociation {
+  string account_id = 1;
+  reserved 2; // string role_id = 2;
+  string account_user_id = 3;
+  string canonical_account_id = 4;
+  string canonical_account_user_id = 5;
+  google.protobuf.Timestamp created_at = 20;
+  google.protobuf.Timestamp updated_at = 21;
+}
+
+// TODO(pras): remove this message
+message AccountUserAssociation {
+  // This is the inverse of AccountAssociation
+  string account_user_id = 1;
+  reserved 2; // string role_id = 2 [deprecated = true];
+  string canonical_account_user_id = 3;
+}
+
+message AccountUser {
+  reserved 1; // string account_user_id = 1 [deprecated = true];
+  reserved 3; // string organization_id = 3 [deprecated = true];
+  reserved 6;
+  reserved 11; // string canonical_id = 11 [deprecated = true];
+  reserved 20; // google.protobuf.Timestamp created_at = 20 [deprecated = true];
+  reserved 21; // google.protobuf.Timestamp updated_at = 21 [deprecated = true];
+
+  string email = 4;
+
+  AccountUserStatus status = 5;
+  google.protobuf.Timestamp last_seen_at = 12;
+  string first_name = 7;
+  string last_name = 8;
+
+  google.protobuf.Struct properties = 10;
+  google.protobuf.Timestamp signed_up_at = 13;
+  google.protobuf.Timestamp first_seen_at = 15;
+  calixa.domain.owner.Owner owner = 16;
+
+  repeated ScoreValue score_value = 17 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 's',
+  }];
+
+  JourneyValue journey = 18 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 'j',
+  }];
+  repeated calixa.domain.entity.EntityReference enriched_with = 19;
+}
+
+message Teammate {
+  reserved 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string name = 5;
+}
+
+message SideDataTest {
+  google.protobuf.Timestamp last_seen_at = 12
+  [(calixa.sidedata.def) = {
+    data_type: HIGH_VELOCITY,
+    qualifier: 'l',
+    options: [OPTION_KEEP_HIGHEST]
+  }];
+
+  google.protobuf.Timestamp user_last_seen_at = 19 [(calixa.sidedata.def) = {
+    data_type: HIGH_VELOCITY,
+    qualifier: 'u'
+  }];
+
+  repeated ScoreValue score_value = 20 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 's'
+  }];
+
+  int32 integer = 21 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 'i'
+  }];
+
+  JourneyValue journey_value = 22 [(calixa.sidedata.def) = {
+    data_type: HIGH_CARDINALITY,
+    qualifier: 'j'
+  }];
+
+}
+
+// side-data encapsulating scoring data:
+// 1) scoring function 2) scoring level 3) score value
+message ScoreValue {
+  string scoring_function_id = 1;
+  string scoring_function_level_id = 2; // this can be "" in case of no level
+  double value = 3;
+}
+
+// side-data encapsulating journey data:
+// 1) journey id 2) journey milestone id
+message JourneyValue {
+  string journey_id = 1;
+  string milestone_id = 2; // this can be "" in case of no milestone
+}
+
+// side-data encapsulating prediction data:
+// 1) prediction id 2) prediction value
+message PredictionValue {
+  string prediction_id = 1;
+  calixa.domain.learning.TaskModelPrediction prediction = 2;
+}

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "common.proto";
+import "google/protobuf/struct.proto";
+
+option java_package = "io.calixa.domain.notification";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.notification;
+
+message NotificationTestRequest {
+  oneof request_type {
+    HttpRequest http = 1;
+  }
+  string json_payload = 2;
+  common.EntityType entity_type = 3;
+  string organization_id = 4;
+  string automation_id = 5;
+}
+
+message HttpRequest {
+  string url = 1;
+  string httpMethod = 2;
+  map<string, string> headers = 3;
+}
+
+message HttpResponse {
+  int32 response_code = 1;
+  string response_body = 2;
+}
+
+message NotificationTestResponse {
+  bool success = 1;
+  google.protobuf.Struct trimmed_entity = 2;
+  oneof response_type {
+    HttpResponse http = 10;
+  }
+}
+
+service NotificationTestService {
+  rpc TestNotification(NotificationTestRequest) returns (NotificationTestResponse);
+}

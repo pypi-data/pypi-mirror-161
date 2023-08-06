@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "integration_source.proto";
+import "common.proto";
+import "authentication.proto";
+import "condition.proto";
+import "learning.proto";
+
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.organization";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.organization;
+
+enum AccessKeyStatus {
+  ACCESS_KEY_STATUS_UNSPECIFIED = 0;
+  ACCESS_KEY_ACTIVE = 1;
+  ACCESS_KEY_INACTIVE = 2;
+}
+
+enum OrganizationUserStatus {
+  ORGANIZATION_USER_STATUS_UNSPECIFIED = 0;
+  ORGANIZATION_USER_ACTIVE = 1;
+  ORGANIZATION_USER_SUSPENDED = 2;
+  ORGANIZATION_USER_DELETED = 3;
+  ORGANIZATION_USER_INVITED = 4;
+
+  // Try to keep aligned with AccountUserStatus.
+}
+
+message AccessKey {
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string access_key_id = 2 [(calixa.oltp.oltp_field) = {primary_key: true, nullable: false}];
+  string secret_access_key = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+  AccessKeyStatus status = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string created_by_organization_user_id = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+}
+
+message Settings {
+
+  reserved 1; // repeated calixa.domain.integration.IntegrationSource preferred_account_sources = 1;
+
+  google.protobuf.Timestamp new_user_experience_completed_at = 2;
+  google.protobuf.Timestamp new_user_experience_calixa_api_selected_at = 3;
+  google.protobuf.Timestamp new_user_experience_data_warehouse_selected_at = 6;
+
+  // Indicates what extended 'schema' API_USER and API_ACCOUNT entities have in order
+  // to support Customer Defined Properties. When creating Datawarehouse syncs, these
+  // custom properties can be exposed as way to allow users to map arbitrary columns
+  // into these custom properties on API entities.
+  repeated PropertyDefinition property_definitions = 4;
+
+  repeated calixa.domain.condition.ScoringFunction scoring_functions = 5;
+
+  // We will allow customers to define an ownership source independently
+  // from preferred sources. That means, customers will be able to say their
+  // source of truth for ownership records but will be able to display
+  // their Account and AccountUsers in search using preferred sources.
+  calixa.domain.integration.IntegrationSource ownership_source = 7;
+
+  repeated calixa.domain.condition.Journey journeys = 8;
+
+  reserved 9;
+
+  /*
+   * Tells us what is the linking definition to be used to map to an ApiAccount#id
+   */
+  repeated CrmLinkingDefinition api_account_linking_definitions = 10;
+
+  string dashboards = 11;
+  string quickviews = 12;
+
+  repeated calixa.domain.learning.PredictionTaskDefinition prediction_task_definitions = 13;
+}
+
+message OrganizationUserSettings {
+  repeated string favorite_views = 1;
+}
+
+message PropertyDefinition {
+  common.EntityType entity_type = 1;
+  string display_name = 2;  // e.g.: "Street name"
+  string property_name = 3; // e.g.: "street_name"
+  PropertyFieldType type = 4;
+  string field = 5;
+}
+
+enum PropertyFieldType {
+  PROPERTY_FIELD_TYPE_UNSPECIFIED = 0;
+  PROPERTY_FIELD_TYPE_INTEGER = 1;
+  PROPERTY_FIELD_TYPE_DECIMAL = 2;
+  PROPERTY_FIELD_TYPE_STRING = 3;
+  PROPERTY_FIELD_TYPE_BOOLEAN = 4;
+  PROPERTY_FIELD_TYPE_TIMESTAMP = 5;
+}
+
+message Organization {
+  string organization_id = 1 [deprecated = true];
+  string name = 2;
+
+  repeated AccessKey access_keys = 4 [deprecated = true];
+
+  google.protobuf.Timestamp created_at = 10 [deprecated = true];
+  google.protobuf.Timestamp updated_at = 11 [deprecated = true];
+
+  Settings settings = 20;
+}
+
+
+message OrganizationUser {
+  string organization_user_id = 1 [(calixa.oltp.oltp_field) = {primary_key: true, nullable: false}];
+  string organization_id = 2;
+
+  string email = 3 [(calixa.oltp.oltp_field) = {nullable: false}]; // Copied from firebase_users.email
+  reserved 4; // previously string encrypted_password
+
+
+  string firebase_user_id = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string name = 6; // Copied from firebase_users.name
+
+  string invite_email = 7;
+  string invite_token = 8;
+  OrganizationUserStatus status = 9;
+
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+
+  // For the Console-only, this is a front-end specified payload that
+  // captures arbitrary configuration settings that need to persist
+  // beyond the user's session lifetime (like Dashboard configs)
+  string client_data = 100;
+
+  OrganizationUserSettings settings = 12;
+}
+
+message TrendSearch {
+  // fields used by console to save a trend search request
+  // name that shows up and filter/rank_metrics stringified by console
+  // sort is stored as local state in client/browser side.
+  string name = 1;
+  calixa.domain.common.EntityType entity_type = 2;
+  string filters = 4;
+  string rank_metrics = 5;
+  string sort_field = 6;
+  string sort_order = 7;
+  repeated string columns = 8;
+
+  bool is_public = 9;
+  string created_by_organization_user_id = 10;
+  string folder_id = 11;
+}
+
+message CrmLinkingDefinition {
+  // Only STRIPE, SALESFORCE and HUBSPOT integration sources supported atm:
+  calixa.domain.integration.IntegrationSource source = 1;
+  // Name of the property to be used for linking:
+  string linking_field = 2;
+  // Timestamp of the last re-linking process:
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+message Folder {
+  string organization_id = 999 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string folder_id = 1 [(calixa.oltp.oltp_field) = {primary_key: true, nullable: false}];
+  string name = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+  bool is_public = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string description = 4 [(calixa.oltp.oltp_field) = {nullable: true}];
+  google.protobuf.Timestamp created_at = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 6 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string created_by_organization_user_id = 7 [(calixa.oltp.oltp_field) = {nullable: false}];
+  reserved 8; // google.protobuf.Timestamp deleted_at = 8;
+}
+
+service FolderService {
+  rpc CreateFolder (PutFolderRequest) returns (Folder);
+  rpc GetFolder (GetFolderRequest) returns (Folder);
+  rpc GetFolders (GetFolderRequest) returns (stream Folder);
+  rpc PutFolder (PutFolderRequest) returns (Folder);
+  rpc DeleteFolder(DeleteFolderRequest) returns (google.protobuf.Empty);
+}
+
+message GetFolderRequest {
+  // If folder_id is specified, the specific folder is returned; otherwise
+  // all folders are returned for the specified organization.
+  string folder_id = 1;
+}
+
+message PutFolderRequest {
+  Folder folder = 1;
+}
+
+message DeleteFolderRequest {
+  string folder_id = 1;
+}

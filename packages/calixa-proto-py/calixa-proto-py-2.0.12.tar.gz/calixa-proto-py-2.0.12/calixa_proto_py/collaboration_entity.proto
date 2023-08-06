@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common.proto";
+
+option java_package = "io.calixa.domain.collaboration";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.collaboration;
+
+enum PinnedState {
+  PINNED_STATE_UNSPECIFIED = 0;
+  PINNED = 1;
+  UNPINNED = 2;
+}
+
+enum ResolvedState {
+  RESOLVED_STATE_UNSPECIFIED = 0;
+  RESOLVED = 1;
+  UNRESOLVED = 2;
+}
+
+enum ReadState {
+  READ_STATE_UNSPECIFIED = 0;
+  READ = 1;
+  UNREAD = 2;
+}
+
+message Message {
+  reserved 1;  //string organization_id = 1 [deprecated = true];
+  string message_id = 2 [deprecated = true];
+  string thread_id = 3;
+  string body = 4;
+  string author_id = 5;
+  PinnedState pinned = 6;
+  ResolvedState resolved = 7;
+  reserved 500;  //google.protobuf.Timestamp created_at = 500 [deprecated = true];
+  reserved 501;  //google.protobuf.Timestamp updated_at = 501 [deprecated = true];
+}
+
+message Thread {
+  reserved 1;   //string organization_id = 1 [deprecated = true];
+  reserved 2;   //string thread_id = 2 [deprecated = true];
+  string title = 3;
+
+  // The entity off which this note hangs
+  calixa.domain.common.EntityType for_entity_type = 4;
+  // account, user ext id or event uuid
+  string for_canonical_id = 5;
+
+  PinnedState pinned = 6;
+  ResolvedState resolved = 7;
+  repeated Message messages = 8;
+  int64 message_count = 9;
+  reserved 500;   //google.protobuf.Timestamp created_at = 500 [deprecated = true];
+  reserved 501;   //google.protobuf.Timestamp updated_at = 501 [deprecated = true];
+}
+
+message OrganizationUserNotification {
+  string organization_id = 1;
+  string notification_id = 2;
+  string organization_user_id = 3;
+  string thread_id = 4;
+  ReadState read_state = 5;
+  google.protobuf.Timestamp created_at = 500;
+  google.protobuf.Timestamp updated_at = 501;
+}

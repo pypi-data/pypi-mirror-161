@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package calixa.domain.elt.log;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "integration.proto";
+import "common.proto";
+
+option java_package = "io.calixa.integration.elt.log";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+enum ImportLogStatus {
+  IMPORT_LOG_STATUS_UNSPECIFIED = 0;
+  IMPORT_LOG_STATUS_SUCCESS = 1;
+  IMPORT_LOG_STATUS_FAILURE_GENERIC = 2;
+}
+
+message ImportLog {
+  ImportLogStatus status = 1;
+  string status_message = 2;
+  // must be present
+  google.protobuf.Timestamp import_started_at = 3;
+  int64 duration_seconds = 4;
+  calixa.domain.integration.Integration integration = 5;
+  map<string, string> additional_information = 6;
+}
+
+service ImportLogService {
+  rpc GetImportLogs (GetImportLogsRequest) returns (GetImportLogsResponse);
+  rpc Evince (ImportLog) returns (google.protobuf.Empty);
+}
+
+message GetImportLogsRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+  // keeping all three, in case we switch BT to ES or vice-versa
+  int32 hits_per_page = 3;
+  int32 page = 4;
+  string cursor = 5;
+}
+
+message GetImportLogsResponse {
+  repeated ImportLog logs = 1;
+  // keeping all three, in case we switch BT to ES or vice-versa
+  string cursor = 2;
+  int32 hits_per_page = 3;
+  int32 page = 4;
+}

@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/field_mask.proto";
+
+
+
+import "event_label.proto";
+import "integration_source.proto";
+import "common.proto";
+import "counter.proto";
+import "condition.proto";
+
+option java_package = "io.calixa.domain.metric";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.metric;
+
+enum MetricStatus {
+  METRIC_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  DELETED = 2;
+}
+
+enum MetricType {
+  METRIC_TYPE_UNSPECIFIED = 0;
+
+  // A value accumulated over a time interval.
+  CUMULATIVE = 1;
+
+  // An instantaneous measurement of a value.
+  GAUGE = 2;
+
+  // Hardcoded queries that operate on other metrics
+  DERIVED = 3;
+}
+
+enum MetricValueType {
+  METRIC_VALUE_TYPE_UNSPECIFIED = 0;
+
+  // The value is a signed 64-bit integer.
+  INT64 = 1;
+
+  // The value is a double precision floating point number.
+  DOUBLE = 2;
+
+  // The value is money.
+  MONEY = 3;
+}
+
+// Captures the entity to which to associate the metric
+//TODO: reconcile this with EntityType
+enum MetricExternalEntityType {
+  METRIC_EXTERNAL_ENTITY_UNSPECIFIED = 0;
+
+  ORGANIZATION = 1;
+  ACCOUNT = 2;
+  ACCOUNT_USER = 3;
+}
+
+enum MetricOrigin {
+  METRIC_ORIGIN_UNSPECIFIED = 0;
+
+  // The metric was created by the Customer via the API.
+  METRIC_ORIGIN_API = 1;
+
+  // The metric was created by AutoMetrics system.
+  METRIC_ORIGIN_AUTOMATIC = 2;
+}
+
+enum MetricGroupBy {
+  METRIC_GROUP_BY_UNSPECIFIED = 0;
+  METRIC_GROUP_BY_HOUR = 1;
+  METRIC_GROUP_BY_DAY = 2;
+  METRIC_GROUP_BY_WEEK = 3;
+  METRIC_GROUP_BY_MONTH = 4;
+  METRIC_GROUP_BY_YEAR = 5;
+}
+
+enum MetricAggregateOperation {
+  METRIC_AGGREGATE_OPERATION_UNSPECIFIED = 0;
+  METRIC_AGGREGATE_OPERATION_SUM = 1;
+  METRIC_AGGREGATE_OPERATION_AVG = 2;
+  METRIC_AGGREGATE_OPERATION_COUNT = 3;
+}
+
+enum DerivedMetric {
+  DERIVED_METRIC_UNSPECIFIED = 0;
+  DERIVED_METRIC_DAYS_ACTIVE = 1;
+  DERIVED_METRIC_USERS_ACTIVE = 2;
+  DERIVED_METRIC_ACCOUNTS_ACTIVE = 3;
+}
+
+message MetricDescriptor {
+  string metric_descriptor_id = 1;
+  string organization_id = 2;
+
+  MetricStatus status = 5;
+  MetricType metric_type = 6;
+  MetricValueType value_type = 7;
+  MetricOrigin metric_origin = 8;
+
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+
+  repeated calixa.domain.common.EntityType supported_entity_types = 13;
+
+  string name = 100;
+  string description = 101;
+  google.protobuf.Struct properties = 102;
+  DerivedMetric derived_metric = 103;
+}
+
+// ---------------------- gRPCs
+
+service MetricService {
+  rpc CreateMetricDescriptor (CreateMetricDescriptorRequest) returns (MetricDescriptor);
+  rpc GetMetricDescriptor (GetMetricDescriptorRequest) returns (MetricDescriptor);
+  rpc FindOrCreateAutoMetricDescriptor (FindOrCreateAutoMetricDescriptorRequest) returns (MetricDescriptor);
+  rpc GetMetricDescriptors (GetMetricDescriptorRequest) returns (stream MetricDescriptor);
+  rpc UpdateMetricDescriptor (UpdateMetricDescriptorRequest) returns (MetricDescriptor);
+  rpc GetMetricDescriptorsByPropertyKeyValue (GetMetricDescriptorsByPropertyKeyValueRequest) returns (stream MetricDescriptor);
+  rpc GetTimeSeries (MetricTimeSeriesRequest) returns (stream MetricObservationAtTime);
+  rpc GetMetricSummary (MetricSummaryRequest) returns (MetricSummaryResponse);
+  rpc GetEntitiesForConditions (EntitiesForConditionsRequest) returns (EntitiesForConditionsResponse);
+}
+
+message EntitiesForConditionsRequest {
+  string organization_id = 1;
+  calixa.domain.condition.ConditionGroup condition_group = 2;
+
+  // Defines the maximum number of matching results to return
+  int32 limit = 3;
+
+  repeated integration.IntegrationSource preferred_sources = 4;
+  common.EntityType entity_type = 5;
+}
+
+message EntitiesForConditionsResponse {
+  // List of matching entities
+  repeated string canonical_ids = 1;
+}
+
+message CreateMetricDescriptorRequest {
+  MetricDescriptor metric_descriptor = 1;
+}
+
+message GetMetricDescriptorRequest {
+  // OrganizationId must be specified
+  string organization_id = 1;
+
+  // If metric_descriptor_id is specified, the specific metric descriptor is returned; otherwise
+  // all metric descriptors are returned for the specified organization.
+  string metric_descriptor_id = 4;
+
+  MetricOrigin metric_origin = 5;
+}
+
+message GetMetricDescriptorsByPropertyKeyValueRequest {
+  string organization_id = 1;
+  string key = 2 ;
+  string value = 3 ;
+}
+
+message FindOrCreateAutoMetricDescriptorRequest {
+  string organization_id = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+  calixa.domain.entity.EventLabel event_label = 3;
+  MetricType metric_type = 4;
+  MetricValueType value_type = 5;
+  google.protobuf.Struct properties = 6;
+  string name = 7;
+  repeated calixa.domain.common.EntityType supported_entity_types = 8;
+
+}
+
+message UpdateMetricDescriptorRequest {
+  MetricDescriptor metric_descriptor = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message RecordObservationResponse {
+  // TODO(freds): return back the current value or a specific success code?
+}
+
+message MetricObservation {
+  string metric_descriptor_id = 1;
+  string organization_id = 2;
+  string observation_id = 10; // TODO(pras): add validation later after backfilling
+  string event_id = 11; // optional event id present only for auto_metrics
+
+  MetricExternalEntityType external_entity_type = 3;
+  // TODO: this is confusing; should we split external entity observation to that of
+  // internal observations?
+
+  // THIS IS Api* Entity id. only to support API-posts from external world
+  string external_entity_id = 4;
+  // This is SHELL's canonical id - in-line with how we tag auto-metrics
+  string canonical_entity_id = 9;
+  // Shell canonical id for rollup metrics, eg: user_id for metric on account level
+  string subject_canonical_entity_id = 13;
+
+  repeated MetricObservationFeature metric_features = 14;
+
+
+  // the timestamp when the Customer measured the metric. This could be anytime in the past and is different
+  // than when we receive the event. reports will render based on the measured_at field.
+  google.protobuf.Timestamp measured_at = 5;
+
+  // when publishing a metric, this is the time at which the event was received by the API. this field is
+  // used to manage internally consistency of data; if we receive multiple events for the same measured_at time,
+  // the "last" received event wins.
+  google.protobuf.Timestamp received_at = 6;
+
+  // The value for the metric.
+  MetricValue metric_value = 7;
+
+  calixa.domain.common.RequestContext request_context = 8;
+
+  // These, at least for now, are the same properties in the Track event
+  google.protobuf.Struct properties = 12;
+}
+
+enum MetricObservationFeature {
+  METRIC_OBSERVATION_FEATURE_UNSPECIFIED = 0;
+  METRIC_OBSERVATION_FEATURE_IS_AUTO_METRIC = 1;
+  METRIC_OBSERVATION_FEATURE_IS_TRACK_METRIC = 2;
+}
+
+message MetricValue {
+  MetricValueType value_type = 1;
+  oneof values {
+    int64 value_as_int64 = 11;
+    double value_as_double = 12;
+    double value_as_money = 13;
+  }
+}
+
+message MetricObservationAtTime {
+  bool valuePresent = 1;
+  MetricValue metric_value = 2;
+  google.protobuf.Timestamp time = 3;
+}
+
+message MetricTimeSeriesRequest {
+  reserved 4;
+
+  string metric_descriptor_id = 1;
+  string organization_id = 2;
+
+  MetricExternalEntityType external_entity_type = 3;
+  // string external_entity_id = 4;
+  // THIS IS SHELL's canonical-id.
+  string canonical_entity_id = 5;
+
+  MetricGroupBy group_by = 100;
+  string time_zone = 101;
+  google.protobuf.Timestamp from = 102;
+  google.protobuf.Timestamp to = 103;
+
+  MetricAggregateOperation aggregate_operation = 104;
+}
+
+message MetricSummaryRequest {
+  string organization_id = 1;
+  string canonical_entity_id = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  MetricAggregateOperation aggregate_operation = 5;
+  repeated string metric_descriptor_ids = 6;
+}
+
+message AggregatedMetric {
+  double current = 1;
+  double previous = 2;
+  double delta = 3;
+}
+
+message MetricSummaryResponse {
+  map<string, AggregatedMetric> metric_summaries = 1;
+}

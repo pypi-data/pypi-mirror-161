@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package calixa.sidedata;
+
+import "google/protobuf/descriptor.proto";
+
+
+extend google.protobuf.FieldOptions {
+  SideDataDef def = 7001;
+}
+
+message SideDataDef {
+  DataType data_type = 1;
+  string qualifier = 2;
+  repeated Option options = 3;
+}
+
+enum DataType {
+  UNSPECIFIED = 0;
+  HIGH_VELOCITY = 1;
+  // This type of data will be retained only for 1 day max.
+  HIGH_CARDINALITY = 2;
+}
+
+enum Option {
+  OPTION_UNSPECIFIED = 0;
+  // these can only be set on int32/int64 or Timestamp field since they are stored
+  // in the cell timestamp
+  OPTION_KEEP_HIGHEST = 1;
+}

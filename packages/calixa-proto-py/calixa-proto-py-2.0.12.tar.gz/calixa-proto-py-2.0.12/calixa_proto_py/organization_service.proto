@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+import "organization.proto";
+import "entity.proto";
+
+option java_package = "io.calixa.domain.organization";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.organization;
+
+service OrganizationService {
+
+  rpc CreateOrganization (CreateOrganizationRequest) returns (Organization) {
+  }
+  rpc UpdateOrganization (UpdateOrganizationRequest) returns (Organization) {
+  }
+
+  rpc GetOrganization (GetOrganizationRequest) returns (Organization) {
+  }
+
+  rpc GetOrganizations (google.protobuf.Empty) returns (stream Organization) {
+  }
+
+  rpc CreateOrganizationUser (CreateOrganizationUserRequest) returns (entity.Entity) {
+  }
+  rpc UpdateOrganizationUser (UpdateOrganizationUserRequest) returns (entity.Entity) {
+  }
+  rpc PutOrganizationUser (entity.Entity) returns (entity.SaveEntityResponse) {
+  }
+  rpc GetOrganizationUser (GetOrganizationUserRequest) returns (entity.Entity) {
+  }
+  rpc ListOrganizationUsers (ListOrganizationUsersRequest) returns (stream entity.Entity) {
+  }
+
+  rpc CreateAccessKey (CreateKeyRequest) returns (AccessKey) {
+  }
+  rpc GetAccessKeys (GetOrganizationRequest) returns (stream AccessKey) {
+  }
+
+  rpc SendOrganizationUserInvite (SendOrganizationUserInvitesRequest) returns (SendOrganizationUserInvitesResponse) {
+  }
+  rpc AcceptOrganizationUserInvite (AcceptOrganizationUserInviteRequest) returns (AcceptOrganizationUserInviteResponse) {
+  }
+}
+
+message CreateKeyRequest {
+  string organization_id = 1;
+  string created_by_id = 2;
+}
+
+message CreateOrganizationRequest {
+  Organization organization = 1;
+}
+
+message CreateOrganizationUserRequest {
+  OrganizationUser organizationUser = 1;
+}
+
+message UpdateOrganizationRequest {
+  Organization organization = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateOrganizationUserRequest {
+  OrganizationUser organization_user = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message AccessAndSecretKeys {
+  string access_key_id = 1;
+  string secret_access_key = 2;
+}
+
+message GetOrganizationRequest {
+  oneof possible_keys {
+    string organization_id = 1;
+    AccessAndSecretKeys access_and_secret_keys = 2;
+  }
+}
+
+message GetOrganizationUserRequest {
+  string organization_id = 1;
+  oneof possible_keys {
+    string organization_user_id = 2;
+    string email = 3;
+    string invite_email = 4;
+    string firebase_user_id = 5;
+  }
+}
+
+message ListOrganizationUsersRequest {
+  oneof possible_keys {
+    string organization_id = 1;
+    string invite_email = 2;
+    string firebase_user_id = 3;
+  }
+}
+
+message SendOrganizationUserInvitesRequest {
+  OrganizationUser inviter = 1;
+  repeated OrganizationUser invitees = 2;
+  // TODO: Add RequestContext after we decide how to represent external side-effects.
+  //       (This call does not change anything within Calixa, but is an auditable action.)
+}
+
+message SendOrganizationUserInvitesResponse {
+  repeated OrganizationUser invitees = 1;
+  repeated bool email_results = 2;
+}
+
+message AcceptOrganizationUserInviteRequest {
+  string firebase_user_id = 1;
+  string invite_token = 2;
+}
+
+message AcceptOrganizationUserInviteResponse {
+  // This is the OrganizationUser that was explicitly accepted. Can be null.
+  OrganizationUser organization_user = 1;
+  // List of OrganizationUsers that were implicitly accepted.
+  repeated OrganizationUser implicit_organization_users = 2;
+}

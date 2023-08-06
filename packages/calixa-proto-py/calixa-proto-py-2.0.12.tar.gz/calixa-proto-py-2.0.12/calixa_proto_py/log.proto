@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+
+import "integration_source.proto";
+import "common.proto";
+
+option java_package = "io.calixa.domain.log";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.log;
+
+service WriteAheadLogService {
+  rpc Write (WriteAheadLongEntryRequest) returns (WriteAheadLongEntryResponse);
+  rpc FindById (FindWalEntryByIdRequest) returns (WriteAheadLogEntry);
+  rpc FindBySource (FindWalEntriesBySourceRequest) returns (stream WriteAheadLogEntry);
+}
+
+message ThirdPartyLogEntry {
+  map<string, string> headers = 1;
+  map<string, string> meta = 2;
+  string body = 3;
+}
+
+message FirstPartyLogEntry {
+  map<string, string> headers = 1;
+  string body = 2;
+  calixa.domain.common.RequestContext request_context = 3;
+
+}
+
+message WriteAheadLogEntry {
+  string id = 1;
+
+  string organization_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+  string instance_id = 4;
+
+  google.protobuf.Timestamp received_at = 10;
+  google.protobuf.Timestamp log_written_at = 11;
+
+  /**
+    * Marks the execution status of the processed WAL entry.
+    */
+  LogStatus log_status = 12;
+
+  /**
+    * Indicates whether the WAL entry is replayed from dead letter queue.
+    * `True` - if replayed from dead letter queue, else `False`
+   */
+  bool replayed_from_dead_letter_queue = 13;
+
+  oneof entry {
+    // An event that originated from Intercom, Stripe, etc.
+    ThirdPartyLogEntry third_party_log_entry = 100;
+
+    // An event that originated from api.calixa.io
+    FirstPartyLogEntry first_party_log_entry = 101;
+  }
+}
+
+message WriteAheadLongEntryRequest {
+  WriteAheadLogEntry log_entry = 1;
+}
+
+message FindWalEntryByIdRequest {
+  string wal_id = 2;
+}
+
+message FindWalEntriesBySourceRequest {
+  string organization_id = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+message WriteAheadLongEntryResponse {
+  // Intentionally left blank for now
+}
+
+enum LogStatus {
+  LOG_STATUS_UNSPECIFIED = 0;
+  LOG_STATUS_PROCESSED = 1;
+  LOG_STATUS_FAILED = 2;
+  LOG_STATUS_PENDING = 3;
+}

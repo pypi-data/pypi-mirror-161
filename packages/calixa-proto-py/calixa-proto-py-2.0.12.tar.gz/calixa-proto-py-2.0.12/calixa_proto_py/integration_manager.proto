@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common.proto";
+import "integration_source.proto";
+import "integration.proto";
+
+option java_package = "io.calixa.domain.integrationmanager";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.integrationmanager;
+
+enum DeleteIntegrationStatus {
+  DELETE_INTEGRATION_STATUS_UNSPECIFIED = 0;
+  DELETE_INTEGRATION_STATUS_SUCCESS = 1;
+  DELETE_INTEGRATION_STATUS_FAILURE = 2;
+  // The integration is in conflict state and cannot be deleted.
+  // For example, when backfill is in progress, the integration cannot be deleted.
+  DELETE_INTEGRATION_STATUS_CONFLICT = 3;
+}
+
+enum PublishBackfillTaskStatus {
+  PUBLISH_BACKFILL_TASK_STATUS_UNSPECIFIED = 0;
+  PUBLISH_BACKFILL_TASK_STATUS_SUCCESS = 1;
+  PUBLISH_BACKFILL_TASK_STATUS_FAILURE = 2;
+}
+
+service IntegrationManagerService {
+  rpc InstallIntegration(SaveIntegrationRequest) returns (InstallIntegrationResponse);
+  rpc PerformBackfill(PerformBackfillRequest) returns (PerformBackfillResponse);
+  rpc GetBackfillStatus(GetBackfillStatusRequest) returns (BackfillStatus);
+  rpc UpdateBackfillStatus(UpdateBackfillStatusRequest) returns (google.protobuf.Empty);
+
+  // For doc refer: https://www.notion.so/PRD-Integration-Install-Services-e8d834e3bf634b848f81bd5861aa28b7#fbcdaec916d8457790856f7f112e4fe8
+  rpc PublishBackfillTasks(PublishBackfillTasksRequest) returns (PublishBackfillTasksResponse);
+
+  // For more detailed workflow description, refer https://www.notion.so/Backfill-2-0-357737f0ba0a49ac97aa0074fe9878e1#fddaa33ff74d4351b5fb602aacc31d0c
+  rpc EnqueueNextBackfillTask(integration.BackfillTask) returns (integration.BackfillTask);
+
+  // For more detailed workflow description, refer https://www.notion.so/Backfill-2-0-357737f0ba0a49ac97aa0074fe9878e1#fddaa33ff74d4351b5fb602aacc31d0c
+  rpc UpdateBackfillTaskStatus(integration.BackfillTask) returns (integration.BackfillTask);
+
+  rpc SaveDataWarehouseIntegration(SaveIntegrationRequest) returns (calixa.domain.integration.Integration);
+  rpc SaveIntegration(SaveIntegrationRequest) returns (calixa.domain.integration.Integration);
+  // Deletes an integration from 3rd party app and then from platform
+  // - Integration: Revoke/Delete access tokens and remove configured webhook settings
+  // - Platform: Delete the integration entry from postgres integration and cursor table.
+  //
+  // Note: Since the request context has organization_id, instance_id and source
+  // that are needed to delete the integration, the DeleteIntegration request payload is made empty.
+  rpc DeleteIntegration(google.protobuf.Empty) returns (DeleteIntegrationResponse);
+
+  // Returns a list of all installed Integrations (plus their full configurations) for an
+  // organization
+  rpc GetIntegrations(GetIntegrationRequest) returns (stream calixa.domain.integration.Integration);
+
+  rpc GetIntegrationsForSource(GetIntegrationsForSourceRequest) returns (stream calixa.domain.integration.Integration) {
+    // TODO (krishna): Cleanup as part of https://github.com/calixa-io/platform/issues/2221
+    option deprecated = true;
+  }
+
+  rpc GetIntegrationsForSourceByPages(GetIntegrationsForSourceRequest) returns (GetIntegrationsForSourceResponse);
+
+  // Returns a singleton Integration config
+  rpc GetIntegration(GetIntegrationRequest) returns (calixa.domain.integration.Integration);
+
+  // Utility methods for setting/getting integration data by a particular property value.
+  rpc GetIntegrationByPropertyValue(GetIntegrationByPropertyValueRequest) returns (calixa.domain.integration.Integration);
+  rpc GetIntegrationsByPropertyValue(GetIntegrationByPropertyValueRequest) returns (stream calixa.domain.integration.Integration);
+  rpc OnboardSyncIntoAirbyte(AirbyteSyncRequest) returns (AirbyteSyncResponse);
+  rpc GetIntegrationByAirbyteMetadata(GetIntegrationByAirbyteMetadataRequest) returns (calixa.domain.integration.Integration);
+  rpc DeleteSyncFromAirbyte(AirbyteSyncRequest) returns (AirbyteSyncResponse);
+  rpc SetIntegrationByPropertyValue(IntegrationPropertyValueRequest) returns (google.protobuf.Empty);
+
+  rpc GetChildIntegration(GetChildIntegrationRequest) returns (calixa.domain.integration.Integration);
+  rpc GetChildIntegrationsForSource(GetChildIntegrationsForSourceRequest) returns (stream calixa.domain.integration.Integration);
+  // This is used by Cognito and Stripe; though those usages should be removed. See
+  // https://github.com/calixa-io/integration/issues/454
+  rpc GetIntegrationConfig (GetIntegrationConfigRequest) returns (IntegrationConfigResponse) {
+    option deprecated = true;
+  }
+
+  // Used by Cognito; should be removed. See https://github.com/calixa-io/integration/issues/454
+  rpc GetOrganizationIdsForIntegrationSource (GetOrganizationIdsForIntegrationSourceRequest) returns (stream GetOrganizationIdsForIntegrationSourceResponse) {
+    option deprecated = true;
+  }
+  // ==================================================================================================
+
+  // Used to update the integration credentials in DB.
+  // Should also sync credentials to any other system using them (i.e. Airbyte)
+  rpc UpdateCredentials(UpdateCredentialsRequest) returns (UpdateCredentialsResponse);
+}
+
+message PublishBackfillTasksRequest {
+  calixa.domain.integration.IntegrationSource source = 2;
+  repeated calixa.domain.common.EntityType entity_types_to_backfill = 3;
+  int32 integration_selection_window_in_minutes = 4;
+}
+
+message PublishBackfillTasksResponse {
+  calixa.domain.integration.IntegrationSource source = 2;
+  int32 integrations_processed_count = 3;
+  int32 backfill_tasks_published_count = 4;
+  PublishBackfillTaskStatus status = 5;
+}
+
+message SaveIntegrationRequest {
+  calixa.domain.integration.Integration integration = 1;
+  bool skip_verification = 3;
+}
+
+message DeleteIntegrationResponse {
+  DeleteIntegrationStatus status = 1;
+  string response = 2;
+}
+
+message IntegrationPropertyValueRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+  string key = 4;
+  string value = 5;
+}
+
+message GetIntegrationByPropertyValueRequest {
+  calixa.domain.integration.IntegrationSource source = 1;
+  string key = 2;
+  string value = 3;
+  bool include_deleted = 4;
+}
+
+message GetIntegrationByAirbyteMetadataRequest {
+  repeated string keys = 1;
+  string value = 2; // if empty, we will look for presence of key with any value
+}
+
+message AirbyteSyncRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+  string mapping_id = 4;
+}
+
+message AirbyteSyncResponse {
+  bool success = 1;
+  string failure_reason = 2;
+}
+
+message GetIntegrationRequest {
+  string organization_id = 1;
+
+  // These fields are only specified when fetching a specific Integration
+  string instance_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+  calixa.domain.integration.IntegrationChannel channel = 4; // TODO(freds): Make this backwards-copatible; assume DIRECT if not specified
+  bool include_child_integrations = 5;
+}
+
+message GetIntegrationsForSourceRequest {
+  calixa.domain.integration.IntegrationSource source = 1;
+  string organization_id = 2 [deprecated = true]; // optional
+  integration.PageRequest page_request = 3;
+}
+
+message GetIntegrationsForSourceResponse {
+  repeated calixa.domain.integration.Integration integrations = 1;
+  integration.PageResponse page_response = 2;
+}
+
+message GetChildIntegrationRequest {
+  string organization_id = 1;
+  string parent_instance_id = 2;
+  string installed_by_user = 3;
+}
+
+message GetChildIntegrationsForSourceRequest {
+  string organization_id = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+  string installed_by_user = 3;
+}
+
+message InstallIntegrationResponse {
+  string organization_id = 1;
+
+  // If the installation is successful, the created object is returned here. Check the
+  // install_status field to determine the status of the call.
+  calixa.domain.integration.Integration integration = 2;
+  calixa.domain.integration.InstallStatus install_status = 3;
+  string task_id = 4; // unique identifier performing the install task.
+}
+
+message PerformBackfillRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+  // TODO (krishna): Remove after backfill 2.0 https://github.com/calixa-io/platform/issues/2221
+  google.protobuf.Timestamp from = 4 [deprecated = true];
+  google.protobuf.Timestamp to = 5 [deprecated = true];
+}
+
+message PerformBackfillResponse {
+  string organization_id = 1;
+  string task_id = 2; // unique identifier performing the backfill task.
+}
+
+message GetBackfillStatusRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+  calixa.domain.integration.IntegrationSource source = 3;
+}
+
+message BackfillStatus {
+  double percent_complete = 1;
+  string organization_id = 2;
+  string instance_id = 3;
+  calixa.domain.integration.IntegrationSource source = 4;
+
+  google.protobuf.Timestamp started_at = 5;
+  google.protobuf.Timestamp completed_at = 6;
+}
+
+message UpdateBackfillStatusRequest {
+  calixa.domain.integration.Cursor cursor = 1;
+}
+
+// ===== Support Integration Metadata Service api's after migration from Organization Service ======
+
+
+message GetIntegrationConfigRequest {
+  string organization_id = 1;
+  string key = 2 [deprecated = true];
+  IntegrationConfigValueType type = 3 [deprecated = true];
+  calixa.domain.integration.IntegrationSource source = 4 [deprecated = true];
+}
+
+message IntegrationConfigResponse {
+  string organization_id = 1 [deprecated = true];
+  string key = 2 [deprecated = true];
+  oneof values {
+    string as_string = 3 [deprecated = true];
+    int64 as_long = 4 [deprecated = true];
+  }
+  calixa.domain.integration.IntegrationSource source = 5 [deprecated = true];
+}
+
+enum IntegrationConfigValueType {
+  INTEGRATION_CONFIG_VALUE_TYPE_UNSPECIFIED = 0 [deprecated = true];
+  INTEGRATION_CONFIG_VALUE_TYPE_STRING = 1 [deprecated = true];
+  INTEGRATION_CONFIG_VALUE_TYPE_LONG = 2 [deprecated = true];
+}
+
+message GetOrganizationIdsForIntegrationSourceRequest {
+  calixa.domain.integration.IntegrationSource source = 1 [deprecated = true];
+}
+
+message GetOrganizationIdsForIntegrationSourceResponse {
+  string organization_id = 1;
+}
+// ==================================================================================================
+
+message UpdateCredentialsRequest {
+  calixa.domain.integration.Integration integration = 1;
+}
+
+message UpdateCredentialsResponse {
+  calixa.domain.integration.Integration integration = 1;
+}

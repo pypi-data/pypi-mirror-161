@@ -1,0 +1,714 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+import "sidedata/annotation.proto";
+
+import "organization.proto";
+import "account.proto";
+import "billing.proto";
+import "common.proto";
+import "counter.proto";
+import "conversation.proto";
+import "collaboration_entity.proto";
+import "external_domain_model.proto";
+import "automation.proto";
+import "event_label.proto";
+import "integration_source.proto";
+import "push_notification.proto";
+import "tag.proto";
+import "action.proto";
+import "custom_entity.proto";
+import "entity_reference.proto";
+
+option java_package = "io.calixa.domain.entity";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.entity;
+
+enum EntityObserverNotificationPolicy {
+  ENTITY_OBSERVER_NOTIFICATION_POLICY_UNDEFINED = 0;
+  ENTITY_OBSERVER_NOTIFICATION_POLICY_ONCE = 1;
+  ENTITY_OBSERVER_NOTIFICATION_POLICY_ALWAYS = 2;
+}
+
+message ActionEvinceUpdate {
+  google.protobuf.FieldMask field_mask = 1;
+}
+
+message ActionAddUserToAccount {
+  common.ExternalId api_user_id = 1;
+}
+
+message ActionBillingEntityBelongsToOwner {
+  common.ExternalId billing_entity_id = 1;
+}
+
+message ActionLinkExternalAccountToAccount {
+  common.ExternalId external_account_primary_id = 1;
+}
+
+message EntityObserverAction {
+
+  oneof action {
+    ActionEvinceUpdate evince_update = 1;
+    ActionAddUserToAccount add_user_to_account = 2;
+    ActionBillingEntityBelongsToOwner billing_entity_belongs_to_owner = 3;
+    // 4 is available, as it has never been used in production.
+    ActionLinkExternalAccountToAccount link_external_account_to_account = 5;
+  }
+}
+
+message MutationObserver {
+  string organization_id = 1;
+
+  oneof observer {
+    EntityObserver entity_observer = 2;
+    RelationshipObserver relationship_observer = 3;
+  }
+
+  EntityObserverNotificationPolicy notification_policy = 11;
+  EntityObserverAction action = 12;
+}
+
+message RelationshipObserver {
+  common.ExternalId observed = 1;           // The entity being observed
+  common.ExternalId observer = 2;           // The entity observing
+
+  repeated entity.MutationType mutation_types = 3;
+  RelationshipType relationship_type = 4;
+  common.EntityType from_entity_type = 5;
+}
+
+message EntityObserver {
+  common.ExternalId observed = 1; // The entity being observed
+  common.ExternalId observer = 2; // The entity observing
+
+  // When mutation_types includes UPDATED, the FieldMask that must be set in
+  // order to invoke action
+  repeated entity.MutationType mutation_types = 3;
+  google.protobuf.FieldMask update_mask = 4;
+}
+
+message Entity {
+  reserved 303, 304, 2007, 2008;
+  reserved 3; // PushNotificationConfig push_notification_config in entity
+  reserved 9000; // previously calixa.domain.notification.PushNotificationLog
+  reserved 102; // calixa.domain.account.AccountUserRole account_user_role = 102;
+  reserved 2009;  //calixa.domain.external.CognitoUser cognito_user = 2009;
+
+  // These fields must be populated by the call site.
+  string organization_id = 1002;
+  string canonical_id = 1003;
+  repeated calixa.domain.common.ExternalId external_ids = 1004;
+
+  // These are managed by EntityGraph
+  google.protobuf.Timestamp internal_created_at = 1005;
+  google.protobuf.Timestamp internal_updated_at = 1006;
+  google.protobuf.Timestamp external_created_at = 1007;
+  google.protobuf.Timestamp external_updated_at = 1008;
+
+  EntityOrigin entity_origin = 1009;
+
+  // The 'entity_state' field describes whether entity is in one of the states:
+  // 1. Active
+  // 2. Deleted - entity was deleted in external CRM, we mark it as deleted
+  //    but we will keep the entity on our end.
+  EntityState entity_state = 1010;
+
+  oneof entity {
+    calixa.domain.organization.Organization organization = 1;
+    calixa.domain.organization.OrganizationUser organization_user = 2;
+    calixa.domain.organization.AccessKey access_key = 4;
+    calixa.domain.automation.Automation automation = 5;
+
+    calixa.domain.organization.TrendSearch trend_search = 20;
+
+    calixa.domain.collaboration.Thread note_thread = 50;
+    calixa.domain.collaboration.Message note_message = 51;
+
+    calixa.domain.account.Account account = 100;
+    calixa.domain.account.AccountUser account_user = 101;
+    calixa.domain.account.Opportunity opportunity = 105;
+    calixa.domain.account.Teammate teammate = 106;
+
+    calixa.domain.billing.Invoice invoice = 200;
+    calixa.domain.billing.Product product = 201;
+    calixa.domain.billing.Plan plan = 202;
+    calixa.domain.billing.Subscription subscription = 203;
+    calixa.domain.billing.InvoiceLineItem invoice_line_item = 204;
+    calixa.domain.billing.SubscriptionItem subscription_item = 205;
+    calixa.domain.billing.Charge charge = 206;
+    calixa.domain.billing.SavedPaymentMethod saved_payment_method = 207;
+    calixa.domain.billing.Refund refund = 208;
+
+    calixa.domain.conversation.Conversation conversation = 300;
+    calixa.domain.conversation.Message message = 301;
+    calixa.domain.conversation.Attachment attachment = 302;
+
+    calixa.domain.tag.Tag tag = 305;
+
+    Event event = 400;
+
+    calixa.domain.action.ActionConfig action_config = 500;
+
+    calixa.domain.customentity.CustomEntity custom_entity = 600;
+    calixa.domain.customentity.CustomEntityDefinition custom_entity_definition = 601;
+
+    // External Domain Models
+    calixa.domain.external.SalesforceAccount salesforce_account = 2000;
+    calixa.domain.external.SalesforceContact salesforce_contact = 2001;
+    calixa.domain.external.IntercomCompany intercom_company = 2002;
+    calixa.domain.external.IntercomContact intercom_contact = 2003;
+    calixa.domain.external.ZendeskOrganization zendesk_organization = 2004;
+    calixa.domain.external.ZendeskUser zendesk_user = 2005;
+    calixa.domain.external.StripeCustomer stripe_customer = 2006;
+    calixa.domain.external.ApiAccount api_account = 2010;
+    calixa.domain.external.ApiUser api_user = 2011;
+    calixa.domain.external.HubSpotCompany hubspot_company = 2012;
+    calixa.domain.external.HubSpotContact hubspot_contact = 2013;
+    calixa.domain.external.HubSpotOwner hubspot_owner = 2014;
+    calixa.domain.external.SalesforceUser salesforce_user = 2015;
+    calixa.domain.external.IntercomTag intercom_tag = 2016;
+    calixa.domain.external.SalesforceLead salesforce_lead = 2017;
+    calixa.domain.external.HubSpotDealStage hubspot_deal_stage = 2018;
+
+    calixa.domain.external.SalesloftUser salesloft_user = 2019;
+    calixa.domain.external.SalesloftCadence salesloft_cadence = 2020;
+    calixa.domain.external.SalesloftPerson salesloft_person = 2021;
+    calixa.domain.external.SalesloftCadenceMembership salesloft_cadence_membership = 2022;
+
+    calixa.domain.external.OutreachProspect outreach_prospect = 2023;
+    calixa.domain.external.OutreachSequence outreach_sequence = 2024;
+    calixa.domain.external.OutreachSequenceState outreach_sequence_state = 2025;
+
+    calixa.domain.external.ClearbitPerson clearbit_person = 2026;
+    calixa.domain.external.ClearbitCompany clearbit_company = 2027;
+
+    calixa.domain.external.SalesforceCustomProperty salesforce_custom_property = 2028 [deprecated = true];
+    calixa.domain.external.SalesforceCustomPropertyDefinition salesforce_custom_property_definition = 2029;
+
+    DataWarehouseSync data_warehouse_sync = 3000;
+  }
+}
+
+message EntitySnapshot {
+  Entity entity = 1;
+  google.protobuf.Timestamp snapped_at = 2;
+}
+
+enum RelationshipType {
+  GRAPH_EDGE_TYPE_UNSPECIFIED = 0;
+  GRAPH_EDGE_TYPE_BELONGS_TO = 1;
+  GRAPH_EDGE_TYPE_EXTERNALLY_KNOWN_AS = 2;
+
+  // For messages and conversations
+  GRAPH_EDGE_TYPE_COLLABORATOR_ON = 3;
+
+  // Events
+  GRAPH_EDGE_TYPE_EVENT_BELONGS_TO = 4;
+
+  // Tags
+  GRAPH_EDGE_TYPE_TAGGED_WITH = 5;
+
+  // House keeping
+  GRAPH_EDGE_TYPE_HOUSEKEEPING = 6;
+
+  GRAPH_EDGE_TYPE_OWNED_BY = 7;
+
+  GRAPH_EDGE_EXTERNAL_USER_BELONGS_TO_EXTERNAL_ACCOUNT = 8 [deprecated = true];
+
+  GRAPH_EDGE_TYPE_ACCOUNT_OR_ACCOUNT_USER_OWNED_BY = 9;
+
+  GRAPH_EDGE_TYPE_ENRICHED_WITH = 10;
+}
+
+enum EdgeDirection {
+  GRAPH_EDGE_DIRECTION_UNSPECIFIED = 0;
+  GRAPH_EDGE_DIRECTION_INCOMING = 1;
+  GRAPH_EDGE_DIRECTION_OUTGOING = 2;
+  GRAPH_EDGE_DIRECTION_BOTH = 3;
+}
+
+message RelatedEntity {
+  RelationshipType type = 1;
+  reserved 2; // map<string, string> properties = 2;
+  Entity entity = 3;
+  reserved 4; // bool exclude_in_json_serialization = 4;
+}
+
+message Relationship {
+  RelationshipType type = 2;
+  calixa.domain.common.EntityType from_type = 3;
+  string from_canonical_id = 4;
+  calixa.domain.common.EntityType to_type = 5;
+  string to_canonical_id = 6;
+
+  reserved 7; // map<string, string> properties = 7;
+  reserved 8; // Entity from_entity = 8 [deprecated = true];
+  reserved 9; // Entity to_entity = 9 [deprecated = true];
+  reserved 10; // Entity edge_entity = 10 [deprecated = true];
+
+  google.protobuf.Timestamp internal_created_at = 500;
+  google.protobuf.Timestamp internal_updated_at = 501;
+}
+
+message RelationshipSnapshot {
+  Relationship relationship = 1;
+  Entity from_entity = 2;
+  Entity to_entity = 3;
+  reserved 4; // Entity edge_entity = 4;
+  google.protobuf.Timestamp snapped_at = 5;
+}
+
+message EntityWithRelationships {
+  Entity entity = 1;
+  repeated Relationship relationships = 2;
+  repeated RelatedEntity related_entities = 3;
+  repeated Entity tags = 4;
+}
+
+enum MutationType {
+  MUTATION_TYPE_UNSPECIFIED = 0;
+  MUTATION_TYPE_CREATED = 1;
+  MUTATION_TYPE_UPDATED = 2;
+  MUTATION_TYPE_DELETED = 3;
+}
+
+// Represents bidirectional association between two entities (such as when a user is added to
+// an account).
+message RelationshipMutation {
+  reserved 1; // calixa.domain.entity.Relationship previous = 1 [deprecated = true];
+  reserved 2; // calixa.domain.entity.Relationship current = 2 [deprecated = true];
+  RelationshipSnapshot previous_mutation = 3;
+  RelationshipSnapshot current_mutation = 4;
+
+  MutationType mutation_type = 10;
+  google.protobuf.FieldMask update_mask = 11;
+}
+
+message EntityMutation {
+  // The previous state of the entity (if any). For DELETED events, this contains the previous
+  // state of an entity before it was deleted.
+  reserved 1; // calixa.domain.entity.Entity previous = 1 [deprecated = true];
+  EntitySnapshot previous_mutation = 3;
+
+  // The current state of the entity. For both CREATED or UPDATED events, this field captures the current
+  // state of the entity after all updates have been applied.
+  reserved 2; // calixa.domain.entity.Entity current = 2 [deprecated = true];
+  EntitySnapshot current_mutation = 4;
+
+  MutationType mutation_type = 10;
+  google.protobuf.FieldMask update_mask = 11;
+}
+
+// Custom events proto. For reference see:
+// https://www.notion.so/Automations-36ba6da3e6964dccb46c54c54358dbfe
+message Track {
+  string event = 1;
+  google.protobuf.Struct properties = 2; // See below (glg: where?) for what Properties mean
+  EntityReference belongs_to = 3;
+  string title = 4;
+  string subtitle = 5;
+  string body = 6;
+  string link = 7;
+
+  // if specified, indicates that this Track event was published anonymously (that
+  // is without knowing who the user is). Instead of a userId, we are given a
+  // stable identifier that will later be associated to a user.
+  //
+  // See this doc for how more context:
+  // https://www.notion.so/Anonymous-Users-Segment-23b8977d5f3a4ec5acaec290877ed0b8
+  string anonymous_id = 10;
+}
+
+message Error {
+  string id = 1; // unique error id of the external source
+  string title = 2;
+  EntityReference belongs_to = 3;
+  string message = 4;
+  string location = 5;
+  string external_tool_link = 6;
+  google.protobuf.Struct properties = 7;
+  // These fields represent who experienced the error
+  string user_id = 8;
+  string user_name = 9;
+  string user_email = 10;
+  string user_ip_address = 11;
+}
+
+message Event {
+
+  // BEGIN --
+  // Output variable for search serialization; TODO(freds|pras): DELETE WHEN SEARCH IS REBUILD
+  reserved 99999; // string organization_id = 99999 [deprecated = true];
+  reserved 99998; // string event_id = 99998 [deprecated = true];
+  reserved 99997; // google.protobuf.Timestamp created_at = 99997 [deprecated = true];
+  reserved 99996; // string canonical_account_id = 99996 [deprecated = true];
+  reserved 99995; // repeated string canonical_account_ids = 99995 [deprecated = true];
+  reserved 6; //EventType type = 6 [deprecated = true];
+  reserved 7; //google.protobuf.FieldMask update_mask = 7 [deprecated = true];
+  // END --
+
+  calixa.domain.common.RequestContext request_context = 1;
+  google.protobuf.Timestamp occurred_at = 2;
+
+  oneof event_type {
+    EntityMutation entity_mutation = 8;
+    RelationshipMutation relationship_mutation = 9;
+    Track track = 10;
+    Error error = 11;
+    ActionInvocationLog action_invocation_log = 12;
+    ActionInvocation action_invocation = 13;
+  }
+
+  repeated EventLabel labels = 20;
+  bool exclude_from_persistence = 30;
+}
+
+/**
+* For supporting Anonymous users, this message represents an association between
+* an Anonymous ID and an identified Entity in the graph. For more info, see:
+* https://www.notion.so/Anonymous-Users-Segment-23b8977d5f3a4ec5acaec290877ed0b8
+*/
+message AssociatedAnonymousEntity {
+  string anonymous_id = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+  EntityReference belongs_to = 3;
+}
+
+message AssociateAnonymousEntityResponse {
+  // intentionally left blank for now
+}
+
+message AssociatedAnonymousEntityWithEvent {
+  AssociatedAnonymousEntity associated_anonymous_entity = 1;
+  string canonical_event_id = 2;
+}
+
+service EventService {
+  rpc GetEventTimeline (EventTimelineRequest) returns (EventTimelineResponse);
+  rpc Evince (Entity) returns (EvinceResponse);
+  rpc EvinceBatch (EntityList) returns (EvinceResponse);
+}
+
+message EventTimelineRequest {
+
+  string organization_id = 1;
+
+  // The list of sources by which to filter results. If blank, all are returned
+  repeated calixa.domain.integration.IntegrationSource sources = 2;
+
+  // The list of labels by which to filter results. If blank, all are returned
+  repeated EventLabel event_labels = 3;
+
+  // The entity canonical_id by which to filter results.
+  string canonical_id = 4;
+
+  // The list of "extra params" by which to filter results. If blank, all are returned
+  repeated string params = 5;
+
+  // The beginning time range, inclusive
+  google.protobuf.Timestamp from = 10;
+
+  // The ending time range, inclusive. Yes, inclusive. No, not exclusive.
+  google.protobuf.Timestamp to = 11;
+
+  // Results per page. Keep this small.
+  int32 results_per_page = 12;
+
+  // Continuation cursor. If blank, "page 1" is returned, otherwise the results
+  // from where the last search (for the same parameters) returned.
+  string cursor = 13;
+}
+
+message EventTimelineResponse {
+  // The events in the time range
+  repeated EntityWithRelationships entities = 1;
+
+  // The cursor for the next iteration
+  string next_cursor = 2;
+}
+
+message GetEventsRequest {
+  string organization_id = 1;
+}
+
+message EntityList {
+  repeated Entity entities = 1;
+}
+
+message EvinceResponse {
+  // Intentionally left blank
+}
+
+service EntityService {
+  rpc GetEntity (GetEntityRequest) returns (Entity);
+  rpc GetHydratedEntity (GetEntityRequest) returns (EntityWithRelationships);
+  rpc DeleteEntity (DeleteEntityRequest) returns (google.protobuf.Empty);
+
+  rpc GetEntityWithRelationships (GetEntityWithRelationshipsRequest) returns (EntityWithRelationships) {
+    option deprecated = true;
+  };
+
+  rpc SaveEntity (SaveEntityRequest) returns (Entity) {
+    option deprecated = true;
+  }
+
+  rpc PutEntity (PutEntityRequest) returns (SaveEntityResponse);
+  rpc PatchEntity (PatchEntityRequest) returns (SaveEntityResponse);
+
+  rpc SaveRelationship (RelationshipRequest) returns (Relationship);
+  rpc RemoveRelationship (RelationshipRequest) returns (google.protobuf.Empty);
+
+  rpc GetExternalAccountsForExternalUser (ExternalAccountOrAccountUserRequest) returns (ExternalUserWithExternalAccounts) {
+    // This method should no longer be used. See CAL-288
+    // This can be removed once CAL-285 is done
+    option deprecated = true;
+  }
+  rpc GetExternalAccountUsersForExternalAccount (ExternalAccountOrAccountUserRequest) returns (ExternalAccountUsers) {
+    // This method should no longer be used. See CAL-288
+    // This can be removed once CAL-285 is done
+    option deprecated = true;
+  }
+
+  // special-case for getting all saved trend searches for org+org_user
+  rpc GetAllTrendSearches (GetAllTrendSearchesRequest) returns (stream EntityWithRelationships) {
+    option deprecated = true;
+  }
+  rpc GetTrendSearches (GetTrendSearchesRequest) returns (stream Entity);
+
+  rpc AssociateAnonymousEntity (AssociatedAnonymousEntity) returns (AssociateAnonymousEntityResponse);
+
+  rpc GetCustomEntityDefinitions (GetCustomEntityDefinitionsRequest) returns (stream Entity);
+  rpc GetDatawarehouseSyncs (GetDatawarehouseSyncsRequest) returns (stream Entity);
+
+  rpc GetShellEntityForExternalId(GetShellEntityForExternalIdRequest) returns (GetShellEntityForExternalIdResponse);
+}
+
+message GetShellEntityForExternalIdRequest {
+  string organization_id = 1;
+  common.EntityType entity_type = 2;
+  string id = 3;
+  integration.IntegrationSource source = 4;
+}
+
+message GetShellEntityForExternalIdResponse {
+  string organization_id = 1;
+  common.EntityType entity_type = 2;
+  string canonical_id = 3;
+}
+
+enum SaveEntityMutationType {
+  SAVE_ENTITY_MUTATION_TYPE_UNSPECIFIED = 0;
+  SAVE_ENTITY_MUTATION_TYPE_CREATED = 1;
+  SAVE_ENTITY_MUTATION_TYPE_UPDATED = 2;
+  SAVE_ENTITY_MUTATION_TYPE_DELETED = 3;
+
+  // The changes in the "source" were already applied on the "destination" and
+  // the update would have no affect.
+  SAVE_ENTITY_MUTATION_TYPE_NOOP = 4;
+
+  // The update arrived too late. We have a "newer" version of the entity
+  SAVE_ENTITY_MUTATION_TYPE_STALE_UPDATE = 5;
+}
+
+message SaveEntityResponse {
+  SaveEntityMutationType operation = 1;
+  Entity previous_entity = 2;
+  Entity current_entity = 3;
+  google.protobuf.FieldMask field_mask = 4;
+}
+
+message PutEntityRequest {
+  Entity entity = 1;
+}
+
+message PatchEntityRequest {
+  Entity entity = 1;
+
+  oneof id {
+    string canonical_id = 2;
+    calixa.domain.common.ExternalId primary_external_id = 3;
+  }
+
+  google.protobuf.Timestamp emitted_at = 4;
+  google.protobuf.FieldMask update_field_mask = 5;
+  google.protobuf.FieldMask delete_field_mask = 6;
+}
+
+message GetDatawarehouseSyncsRequest {
+  string organization_id = 1;
+  string instance_id = 2;
+}
+
+message GetCustomEntityDefinitionsRequest {
+  string organization_id = 1;
+}
+
+message GetTrendSearchesRequest {
+  string organization_id = 1;
+}
+
+message GetAllTrendSearchesRequest {
+  string organization_id = 1;
+  string organization_user_id = 2;
+}
+
+message ExternalAccountOrAccountUserRequest {
+  string organization_id = 1;
+  string primary_external_id = 2 [deprecated = true];
+}
+
+message AccountUserWithRole {
+  string external_account_user_id = 1;
+  reserved 2; // string role_id = 2;
+}
+
+message AccountWithRole {
+  string external_account_id = 1;
+  reserved 2; // string role_id = 2;
+  reserved 3; // string role_name = 3;
+}
+
+message ExternalUserWithExternalAccounts {
+  Entity external_user = 1;
+  repeated AccountWithRole accounts = 2;
+}
+
+message ExternalAccountUsers {
+  repeated AccountUserWithRole account_users = 1;
+}
+
+message ExternalEntityRequest {
+  string organization_id = 1;
+  calixa.domain.common.ExternalId primary_external_id = 2;
+  repeated calixa.domain.common.EntityType entity_types_to_expand = 3;
+}
+
+message SaveEntityRequest {
+  Entity entity = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteEntityRequest {
+  string organization_id = 1;
+  string canonical_id = 2;
+  calixa.domain.common.EntityType entity_type = 3;
+}
+
+message GetEntityRequest {
+  string organization_id = 1;
+  oneof id {
+    string canonical_id = 2;
+    calixa.domain.common.ExternalId primary_external_id = 3;
+  }
+  calixa.domain.common.EntityType entity_type = 20;
+}
+
+message GetEntityWithRelationshipsRequest {
+  string organization_id = 1;
+  string canonical_id = 2;
+  calixa.domain.common.EntityType entity_type = 20;
+  repeated calixa.domain.common.EntityType entity_types_to_exclude = 21;
+  repeated calixa.domain.common.EntityType entity_types_to_expand = 22;
+  repeated calixa.domain.entity.RelationshipType relationship_types = 23;
+  calixa.domain.entity.EdgeDirection edge_direction = 24;
+  int32 depth = 25;
+}
+
+message RelationshipRequest {
+  string organization_id = 1;
+  Relationship relationship = 2;
+}
+
+message ActionInvocationLog {
+
+  string id = 1;
+  google.protobuf.Timestamp started_at = 2;
+  google.protobuf.Timestamp finished_at = 3;
+  action.ActionInvocationStatus action_status = 4;
+  EntitySnapshot action = 5;
+  EntitySnapshot invoked_on_entity = 6;
+  action.ActionParams action_params = 7;
+  string invoked_by_organization_user = 8;
+
+  // fields for automations actions
+  string invoked_by_automation = 9;
+  string invoked_by_event_id = 10;
+
+  calixa.domain.action.ThirdPartyActionInvocationResponse raw_response_payload = 1000;
+}
+
+message EntityOrigin {
+  string instance_id = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+
+  // If the entity originated thru an extraction via ELT (Airbyte), then the external_extraction_id will
+  // be populated; otherwise the wal_id will be set.
+  string wal_id = 3; //;
+  string external_extraction_id = 4;
+}
+
+message DataWarehouseSync {
+  string id = 1;
+  string name = 2;
+  oneof type {
+    common.EntityType entity_type = 3;
+    string metric_descriptor_id = 10;
+  }
+  integration.IntegrationSource source = 4;
+  string instance_id = 5;
+  string schema = 6;
+  string table = 7;
+  repeated FieldMapper field_mappers = 8;
+  string cursor_field_name = 9;
+
+  // When 'entity_type' is 'custom_entity' we must provide the definition id
+  string custom_entity_definition_id = 100;
+  bool is_full_sync = 20;
+}
+
+message FieldMapper {
+  // The type is mapped by this field mapper
+  DataWarehouseFieldType field_type = 1;
+  // The name of field or column in the external store
+  string column_name = 2;
+  // The fully qualified field path of the field in the entity being mapped
+  string field = 3;
+  bool is_repeated = 4;
+}
+
+enum DataWarehouseFieldType {
+  DATA_WAREHOUSE_FIELD_TYPE_UNSPECIFIED = 0;
+  DATA_WAREHOUSE_FIELD_TYPE_INTEGER = 1;
+  DATA_WAREHOUSE_FIELD_TYPE_STRING = 2;
+  DATA_WAREHOUSE_FIELD_TYPE_ENUM = 3;      // TODO(freds): Not sure how to capture this yet...
+  DATA_WAREHOUSE_FIELD_TYPE_BOOLEAN = 4;   // TODO(freds): Not sure how to capture this yet...
+  DATA_WAREHOUSE_FIELD_TYPE_TIMESTAMP = 5;
+  DATA_WAREHOUSE_FIELD_TYPE_DECIMAL = 6;
+
+  // Special case field that supplies the unique external ID for the entity represented by the row
+  DATA_WAREHOUSE_FIELD_TYPE_PRIMARY_EXTERNAL_ID = 1000; // ExternalIdType.EXTERNAL_ID_TYPE_PRIMARY
+  DATA_WAREHOUSE_FIELD_TYPE_EMAIL_EXTERNAL_ID = 1001;   // ExternalIdType.EXTERNAL_ID_TYPE_EMAIL
+}
+
+message ActionInvocation {
+  string instance_id = 1;
+  calixa.domain.action.ActionParams action_params = 2;
+}
+
+enum EntityState {
+  ENTITY_STATE_ACTIVE = 0;
+  ENTITY_STATE_DELETED = 1; // entity was deleted in external CRM, we mark it as deleted
+}
+
+message AutomationEvent {
+  Entity automation = 1;
+  EntityWithRelationships entity_with_relationships = 2;
+  EntityReference entity_reference = 3;
+}

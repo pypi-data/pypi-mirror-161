@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package calixa.domain.notification;
+
+import "action.proto";
+
+option java_package = "io.calixa.domain.notification";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+enum Template {
+  TEMPLATE_UNSPECIFIED = 0;
+  EMAIL_NOTE = 1;
+  EMAIL_AUTOMATION = 2;
+  WEBHOOK = 3;
+  SLACK = 4;
+  TRACK_EVENT_AUTOMATION_EMAIL = 5;
+  TRACK_EVENT_AUTOMATION_SLACK = 6;
+  EMAIL_AUTOMATION_METRICS = 7;
+  SLACK_AUTOMATION_METRICS = 8;
+  EMAIL_INVITE = 9;
+}
+
+enum NotificationFrequency {
+  NOTIFICATION_FREQUENCY_UNSPECIFIED = 0;
+  NOTIFICATION_FREQUENCY_HOURLY = 1;
+  NOTIFICATION_FREQUENCY_DAILY = 2;
+  NOTIFICATION_FREQUENCY_WEEKLY = 3;
+  NOTIFICATION_FREQUENCY_MONTHLY = 4;
+  NOTIFICATION_FREQUENCY_QUARTERLY = 5;
+  NOTIFICATION_FREQUENCY_YEARLY = 6;
+
+  NOTIFICATION_FREQUENCY_ALL_TIME = 1000;
+}
+
+message Notification {
+  string organization_id = 1;
+  Template template = 2;
+  oneof channel {
+
+    Email email = 3;
+    action.RequestConfig webhook = 4;
+    Slack slack = 5;
+    Sms sms = 6;
+  }
+
+  NotificationFrequency notification_frequency = 51;
+  string time_zone = 52;
+  reserved 50; // int64 maximum_notify_frequency_seconds = 50;
+  string idempotency_key = 53;
+}
+
+/**
+ * NOTE:
+ * - 'body' exists for future proof if/when we allow users to craft their own messages
+ * - 'variables' are used when there is a pre-defined template (in Courier)
+ *
+ * Most likely 'body' will be empty when 'variables' are populated, and vice-versa
+ */
+message Email {
+  string to = 1;
+  string subject = 2;
+  string body = 3;
+  string variables = 4; // Variables defined in Courier email template
+}
+
+message Webhook {
+  string url = 1;
+  string payload = 2;
+}
+
+message Slack {
+  string access_token = 1;
+  string message = 3;
+  string body = 4;
+  string variables = 5; // Variables defined in Courier email template
+  oneof id {
+
+    string channel = 2;
+    string user_id = 6;
+    string email = 8;
+  }
+  string fallback_id = 7;
+}
+
+message Sms {
+  string number = 1;
+  string message = 2;
+}

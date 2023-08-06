@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/duration.proto";
+
+import "common.proto";
+import "entity_reference.proto";
+
+option java_package = "io.calixa.domain.learning";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.learning;
+
+
+enum FeatureValueType {
+  FEATURE_VALUE_TYPE_UNSPECIFIED = 0;
+  FEATURE_VALUE_TYPE_INT64 = 1;
+  FEATURE_VALUE_TYPE_DOUBLE = 2;
+  FEATURE_VALUE_TYPE_STRING = 3;
+  FEATURE_VALUE_TYPE_TIMESTAMP = 4;
+  FEATURE_VALUE_TYPE_BOOLEAN = 5;
+}
+
+/**
+ * Models a feature, with its 'id', 'type' (describing the type of value it holds),
+ * whether it is 'learnable' (i.e. if it is part of the vector passed to the ML model
+ * to be train and then to create a prediction) and which 'entity_type' it describes.
+ */
+message FeatureDefinition {
+  // unique identifier of a feature, should also be descriptive
+  string id = 1;
+  // longer description, explanation
+  string description = 2;
+  // Can the model "learn" on this feature? By default, no
+  bool learnable = 3;
+  FeatureValueType type = 4;
+}
+
+// TODO(freds): Add validations
+message FeatureValue {
+  // having a ref as opposed to FeatureDef might be more efficient if we use this in the BEAM job
+  // FeatureDef def = 1;
+  string feature_id = 1;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Value value = 5;
+}
+
+/**
+ * Enumerates the possible Prediction Tasks available. A Prediction Task
+ * might be comprised of several ML model, both supervised and not, whose output
+ * are then combined to generate a TaskResult.
+ */
+enum PredictionTask {
+  PREDICTION_TASK_UNSPECIFIED = 0;
+  PREDICTION_TASK_BIG_FISH = 1;
+  PREDICTION_TASK_SAME_FISH = 2;
+}
+
+/**
+ * Defines a PredictionTask: which models and which features for each models.
+ * A collection of these messages represent the 'prediction_task_definitions' for a given organization_id
+ * and it is stored in organization.proto:Settings
+ */
+message PredictionTaskDefinition {
+  string prediction_id = 100;
+  PredictionTask prediction_task = 1;
+  repeated ModelDefinition model_definitions = 2;
+  // which entity type this task for?
+  calixa.domain.common.EntityType entity_type = 3;
+  // here we can define also how to combine 'model_definitions'
+  // e.g. "combine 0-2 with Combiner x, 3-4 with Combiner Y"
+  // TODO(glg): define possible outputs. E.g. type: boolean, or enumeration: ["dog", "cat"]
+}
+
+/**
+ * Captures the required 'features' for each 'model_type'.
+ * We could also add BQ model's options here.
+ */
+message ModelDefinition {
+  ModelType model_type = 1;
+  // precondition: all FeatureDef.EntityType are the same
+  repeated FeatureDefinition features = 2;
+  // how often should the 'model_type' be re-built. It can't be more ofter that
+  // the period of feature extraction (typically 24h)
+  google.protobuf.Duration rebuild_period = 3;
+}
+
+/**
+ * Enumerates the supported model types. These are models supported by BigQuery ML.
+ * See https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create#model_option_list
+ */
+enum ModelType {
+  MODEL_TYPE_UNSPECIFIED = 0;
+  MODEL_TYPE_LOGISTIC_REG = 1;
+  MODEL_TYPE_KMEANS = 2;
+}
+
+/**
+ * Specifies 'how' was a training label computed.
+ */
+enum TaskLabelSource {
+  TASK_LABEL_SOURCE_UNSPECIFIED = 0;
+  TASK_LABEL_SOURCE_AUTOMATIC = 1; // Automatically assigned by some function
+  TASK_LABEL_SOURCE_USER = 2; // A human gave this label
+}
+
+/**
+ * Models a 'label' (string/number/list) for a PredictionTask. It also captures
+ * how the 'label' was assigned ('label_source') and when ('created_at').
+ */
+message TaskLabel {
+  PredictionTask prediction_task = 1;
+  TaskLabelSource label_source = 2;
+  google.protobuf.Value label = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+/**
+ * The output of a specific  PredictionTask.
+ * This data is also stored in BigQuery as the output of a specific model.
+ */
+message TaskModelPrediction {
+  PredictionTask prediction_task = 1;
+  ModelType model_type = 2;
+  google.protobuf.Value label = 3;
+  google.protobuf.Value predicted_label = 4;
+  float probability = 5;
+  map<string, float> top_feature_attributions = 6;
+}
+// TODO(glg): feature_vectors BT table
+message FeatureVector {
+  entity.EntityReference entity_reference = 1;
+  google.protobuf.Timestamp created_at = 2;
+  TaskLabel task_label = 3;
+  repeated FeatureValue feature_values = 4;
+}
+
+// Prediction workflow
+// see io.calixa.learning.LearningWorkflowReceiver
+
+enum WorkflowStage {
+  WORKFLOW_STAGE_UNKNOWN = 0;
+  WORKFLOW_STAGE_START = 1;
+  // extract Entity's feature vectors and labels
+  WORKFLOW_STAGE_FEATURES = 2;
+  // train Model with feature vectors and labels (for supervised learning)
+  WORKFLOW_STAGE_MODEL_TRAINING = 3;
+  // run Entity's feature vectors through the Model to obtain predictions
+  WORKFLOW_STAGE_PREDICTION = 4;
+}
+
+message PredictionWorkflow {
+  WorkflowStage stage = 1;
+  string organization_id = 2;
+  google.protobuf.Timestamp started_at = 3;
+  repeated PredictionJobId jobs = 4;
+  bool force_model_update = 5;
+}
+
+message PredictionJobId {
+  string job_id = 1;
+  ModelType model_type = 2;
+  PredictionTask prediction_task = 3;
+  string location = 4;
+  string project = 5;
+}

@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+import "account.proto";
+import "push_notification.proto";
+import "billing.proto";
+import "conversation.proto";
+import "collaboration_entity.proto";
+import "entity.proto";
+import "common.proto";
+import "counter.proto";
+import "automation_log.proto";
+import "condition.proto";
+import "automation.proto";
+import "metric.proto";
+
+option java_package = "io.calixa.domain.search";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.search;
+
+message SearchParameters {
+  oneof type {
+    calixa.domain.common.EntityType entity = 1;
+    bool automation_log = 11;
+    bool action_invocation_log = 12;
+  }
+
+  string filters = 2;
+  string facets = 3;
+  // repeated string facetFilters = 4;
+  string query = 5;
+  int64 from = 6;
+  int64 to = 7;
+
+  string sort_field = 8;
+  string sort_order = 9;
+  bool no_augment = 10;
+}
+
+message SavedSearch {
+  string saved_search_id = 1;
+  string organization_user_id = 2;
+  string organization_id = 3;
+
+  string name = 4;
+  SearchParameters parameters = 5;
+  repeated string columns = 6;
+
+  google.protobuf.Timestamp created_at = 20;
+  google.protobuf.Timestamp updated_at = 21;
+}
+
+message SearchRequest {
+  string organization_id = 1;
+  int32 page = 2;
+  int32 hits_per_page = 3;
+  SearchParameters parameters = 4;
+}
+
+message SearchResponseFacet {
+  string facet_name = 1;
+  map<string, int64> values = 2;
+}
+
+message SearchResponse {
+  repeated calixa.domain.entity.EntityWithRelationships entities = 2;
+
+  repeated SearchResponseFacet facets = 100;
+  int64 total_hits = 101;
+  int64 page = 102;
+  int64 total_pages = 103;
+  int64 hits_per_page = 104;
+  int64 processing_time_ms = 105;
+  bool timed_out = 106;
+}
+
+service IndexService {
+  rpc DeleteEntities (DeleteEntitiesRequest) returns (DeleteEntitiesResponse) {
+  }
+  rpc DeleteEntitiesById (DeleteEntitiesByIdRequest) returns (DeleteEntitiesResponse) {
+  }
+  rpc IndexEntities (IndexEntitiesRequest) returns (IndexEntitiesResponse) {
+  }
+  rpc IndexEntitiesStream (stream calixa.domain.entity.EntityWithRelationships) returns (IndexEntitiesResponse) {
+  }
+}
+
+message IndexEntitiesRequest {
+
+  // This is only necessary for routing.
+  string organization_id = 1;
+
+  // This is the (primary) new Entity we use when indexing.
+  repeated calixa.domain.entity.EntityWithRelationships entity_with_relationships = 2;
+
+  // This is a specific index for surfacing logs in the WebUI. This will remain
+  // after the Graph migration is complete.
+  repeated calixa.domain.automation.log.AutomationLog automation_logs = 52;
+  repeated calixa.domain.entity.ActionInvocationLog action_logs = 53;
+
+  // The following fields will be deprecated in a post-graph world
+
+  //    repeated calixa.domain.account.Account accounts = 50 [deprecated = true];
+  //    repeated calixa.domain.account.AccountUser accountUsers = 51 [deprecated = true];
+  //
+  //    repeated calixa.domain.billing.Invoice invoices = 53 [deprecated = true];
+  //    repeated calixa.domain.billing.Product products = 54 [deprecated = true];
+  //    repeated calixa.domain.billing.Plan plans = 55 [deprecated = true];
+  //    repeated calixa.domain.billing.Subscription subscriptions = 56 [deprecated = true];
+  //    repeated calixa.domain.billing.InvoiceLineItem invoice_line_items = 57 [deprecated = true];
+  //    repeated calixa.domain.billing.SubscriptionItem subscription_items = 58 [deprecated = true];
+  //    repeated calixa.domain.billing.Charge charges = 59 [deprecated = true];
+  //    repeated calixa.domain.billing.SavedPaymentMethod saved_payment_methods = 60 [deprecated = true];
+  //    repeated calixa.domain.billing.Refund refunds = 61 [deprecated = true];
+  //    // leave space for more billing events.
+  //
+  //    repeated calixa.domain.event.Event events = 70 [deprecated = true];
+  //
+  //    repeated calixa.domain.collaboration.Thread note_threads = 71 [deprecated = true];
+  //    repeated calixa.domain.collaboration.Message note_messages = 72 [deprecated = true];
+  //
+  //    repeated calixa.domain.conversation.LatestMessage latest_messages = 100 [deprecated = true];
+  //    repeated calixa.domain.conversation.ConversationSummary conversation_summaries = 101 [deprecated = true];
+
+}
+
+message DeleteEntitiesRequest {
+  string organization_id = 1;
+  repeated calixa.domain.entity.Entity deleted = 2;
+}
+message DeleteEntitiesByIdRequest {
+  string organization_id = 1;
+  string canonical_id = 2;
+  calixa.domain.common.EntityType type = 3;
+}
+message IndexEntitiesResponse {
+  // This space intentionally left blank
+}
+message DeleteEntitiesResponse {
+  // This space intentionally left blank
+}
+
+message MetricWithTimeRange {
+  string metric_descriptor_id = 1;
+  oneof metric_range {
+    calixa.domain.condition.RelativeTimeRange relative_time_range = 2;
+    calixa.domain.condition.AbsoluteTimeRange absolute_time_range = 3;
+  }
+}
+
+enum SortType {
+  SORT_TYPE_UNSPECIFIED = 0;
+  SORT_TYPE_PROPERTY = 1; // limited capability
+  SORT_TYPE_METRIC = 2;
+  SORT_TYPE_DELTA = 3;
+  SORT_TYPE_SCORING_FUNCTION = 4;
+  SORT_TYPE_JOURNEY = 5;
+  SORT_TYPE_PREDICTION = 6;
+}
+
+message TrendSearchRequest {
+  string organization_id = 1;
+  calixa.domain.common.EntityType entity_type = 2;
+  calixa.domain.condition.ConditionGroup condition = 3;
+  repeated MetricWithTimeRange rank_metrics = 4;
+  int32 page = 5;
+  int32 hits_per_page = 6;
+  SortType sort_type = 7;
+  string sort_field_type = 10;
+  // property key or metric id or prediction id
+  string sort_field = 8;
+  bool sort_asc = 9;
+  repeated calixa.domain.condition.ConditionOrGroup columns = 11;
+  // temporary boolean to trigger
+  bool isRocksetQuery = 99999;
+}
+
+enum RollupType {
+  ROLLUP_TYPE_UNSPECIFIED = 0;
+  ROLLUP_TYPE_EMAIL_DOMAIN = 1;
+}
+
+message TrendSearchRollupRequest {
+  string organization_id = 1;
+  calixa.domain.common.EntityType entity_type = 2;
+  calixa.domain.condition.ConditionGroup condition = 3; // filters
+  repeated MetricWithTimeRange rank_metrics = 4;
+  RollupType rollup_type = 5;
+
+  int32 page = 6;
+  int32 hits_per_page = 7;
+  SortType sort_type = 8;
+  string sort_field_type = 9;
+  // property key or metric id
+  string sort_field = 10;
+  bool sort_asc = 11;
+  repeated calixa.domain.condition.ConditionOrGroup columns = 12;
+}
+
+message TrendSearchRollupResponse {
+  string organization_id = 1;
+  repeated TrendSearchRollupRow rows = 2;
+}
+
+message TrendSearchRollupRow {
+  string predicate = 1; // this is domain name for now, let's see what the future holds...
+  int64 accounts_count = 2;
+  int64 users_count = 3;
+  repeated string owners = 4; // list of owner canonical ids
+  map<string, calixa.domain.metric.AggregatedMetric> aggregated_metrics = 5; // metrics
+}

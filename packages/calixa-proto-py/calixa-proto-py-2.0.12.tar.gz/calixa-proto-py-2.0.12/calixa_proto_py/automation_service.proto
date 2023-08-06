@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+import "common.proto";
+import "event_label.proto";
+import "entity.proto";
+import "integration_source.proto";
+import "automation.proto";
+
+option java_package = "io.calixa.domain.automation";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.automation;
+
+service AutomationService {
+  rpc GetAutomation(GetAutomationRequest) returns (calixa.domain.entity.Entity);
+  rpc GetAutomations(GetAutomationRequest) returns (stream calixa.domain.entity.Entity);
+  rpc SaveAutomation(SaveAutomationRequest) returns (calixa.domain.entity.Entity);
+  rpc Delete(DeleteAutomationRequest) returns (google.protobuf.Empty);
+}
+
+message SaveAutomationRequest {
+  calixa.domain.entity.Entity automation = 1;
+}
+
+message GetAutomationRequest {
+  string organization_id = 1;
+  string automation_id = 2;
+}
+
+message DeleteAutomationRequest {
+  string organization_id = 1;
+  string automation_id = 2;
+}
+
+message GetConditionTypesRequest {
+  // This is a stub, yet to be implemented
+}

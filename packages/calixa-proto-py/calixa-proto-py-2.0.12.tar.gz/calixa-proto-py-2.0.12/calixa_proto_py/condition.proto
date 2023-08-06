@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+import "common.proto";
+import "learning.proto";
+
+option java_package = "io.calixa.domain.condition";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.condition;
+
+enum ConditionFieldType {
+  CONDITION_FIELD_TYPE_UNSPECIFIED = 0;
+  CONDITION_FIELD_TYPE_STRING = 1;
+  CONDITION_FIELD_TYPE_INTEGER = 2;
+  CONDITION_FIELD_TYPE_MONEY = 3;
+  CONDITION_FIELD_TYPE_ENUM = 4;
+}
+
+enum RelativeTimeRange {
+  RELATIVE_TIME_RANGE_UNSPECIFIED = 0;
+  RELATIVE_TIME_RANGE_TODAY = 1;
+  RELATIVE_TIME_RANGE_YESTERDAY = 2;
+  RELATIVE_TIME_RANGE_LAST_7_DAYS = 3;
+  RELATIVE_TIME_RANGE_LAST_30_DAYS = 4;
+  RELATIVE_TIME_RANGE_LAST_90_DAYS = 5;
+  RELATIVE_TIME_RANGE_LAST_365_DAYS = 6;
+  RELATIVE_TIME_RANGE_ALL_TIME = 7;
+  RELATIVE_TIME_RANGE_LAST_180_DAYS = 8;
+}
+
+message AbsoluteTimeRange {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+
+enum FieldOperatorType {
+  FIELD_OPERATOR_TYPE_UNSPECIFIED = 0;
+  FIELD_OPERATOR_TYPE_EQ = 1;
+  FIELD_OPERATOR_TYPE_NE = 2;
+  FIELD_OPERATOR_TYPE_GT = 3;
+  FIELD_OPERATOR_TYPE_GTE = 4;
+  FIELD_OPERATOR_TYPE_LT = 5;
+  FIELD_OPERATOR_TYPE_LTE = 6;
+  FIELD_OPERATOR_TYPE_RANGE = 7;
+  FIELD_OPERATOR_TYPE_WITHIN = 8;
+  FIELD_OPERATOR_TYPE_IS = 9;
+  FIELD_OPERATOR_TYPE_CONTAINS = 10;
+  FIELD_OPERATOR_TYPE_ISNOT = 11;
+  FIELD_OPERATOR_TYPE_NOTCONTAIN = 12;
+  FIELD_OPERATOR_TYPE_BEFORE = 13;
+  FIELD_OPERATOR_TYPE_IS_SET = 14;
+  FIELD_OPERATOR_TYPE_IS_NOT_SET = 15;
+  // this operator respects the operand sign and will simply add the
+  // operand time value to 'now' in order to create
+  FIELD_OPERATOR_TYPE_BIDIRECTIONAL_WITHIN = 16;
+}
+
+message ConditionValue {
+  oneof value {
+    string s = 1;
+    int64 l = 2;
+    bool b = 3;
+    double d = 4;
+  }
+}
+
+message Condition {
+  string field = 1;
+  /*
+ `type` mainly used for segments, bigquery based. We are using same structure for automations
+  and trendsearch. Since we are restricting values to be just long and string here, we have no
+  way to figure out what is the actual type of a given field. We need it so that we can pick
+  one of (l|d|b|t|s)_value fields from BigQuery entity table record accordingly.
+ */
+  string type = 4;
+  FieldOperatorType operator = 2;
+  repeated ConditionValue values = 3;
+
+  // To mirror what is surfaced through the ConditionJson endpoint, the front-end
+  // now sends the specific type on which the field is set. This is somewhat
+  // redundant as "field = account.domain_name" and "entity_type = 'account'",
+  // but we're fine with this.
+  calixa.domain.common.EntityType entity_type = 10;
+}
+
+message MetricCondition {
+  // this is counter key, metric id
+  string metric_descriptor_id = 1;
+  // only few operators are supported for metric conditions
+  FieldOperatorType operator = 2;
+  repeated ConditionValue values = 3 ;
+
+  oneof metric_range {
+    RelativeTimeRange relative_time_range = 5;
+    AbsoluteTimeRange absolute_time_range = 6;
+  }
+
+  // TODO(freds): Add validations to these once we update TrendSearch to also
+  // use the following fields.
+  string time_zone = 10;
+  calixa.domain.common.EntityType entity_type = 11;
+
+  string type = 12 [deprecated = true]; // The type of field for the Condition used to set
+  // the condition value. Only used by Console; GrossHack
+
+  // used to express filters on metrics' properties: https://www.notion.so/Metric-Subproperties-API-72e68e9d5d7d496891f32b339a497518#16e7491a04e142e885ce26541e0a0b29
+  ConditionOrGroup conditions = 13;
+  MetricConditionType metric_condition_type = 14;
+}
+
+enum MetricConditionType {
+  METRIC_CONDITION_TYPE_UNSPECIFIED = 0;
+  METRIC_CONDITION_TYPE_THRESHOLD = 1;
+  METRIC_CONDITION_TYPE_PERCENTAGE_CHANGE = 2;
+}
+
+enum ComparedToRangeType {
+  COMPARE_TO_RANGE_TYPE_NOT_SPECIFIED = 0;
+  COMPARE_TO_RANGE_TYPE_PREVIOUS_PERIOD = 1;
+  COMPARE_TO_RANGE_TYPE_PREVIOUS_MONTH = 2;
+  COMPARE_TO_RANGE_TYPE_PREVIOUS_QUARTER = 3;
+  COMPARE_TO_RANGE_TYPE_PREVIOUS_YEAR = 4;
+}
+
+message Journey {
+  string id = 1;
+  string name = 2;
+  common.EntityType entity_type = 3;
+  // the index into the array determines the priority of the milestone
+  repeated JourneyMilestone milestones = 4;
+  google.protobuf.Timestamp definition_updated_at = 5;
+}
+
+message JourneyMilestone {
+  string id = 1;
+  condition.ConditionGroup filters = 2;
+
+  // opaque values for the backend, used in the frontend only
+  string name = 3;
+  string description = 4;
+  string color = 5;
+}
+
+message ScoringLevel {
+  string id = 1;
+  string name = 2;
+  condition.ConditionGroup filters = 4;
+  // for now only three levels, expand as we support more
+  // 0, 1, 2 -> high, med, low
+  int32 order = 5;
+}
+
+message ScoringFunction {
+  string id = 1;
+  string name = 2;
+  common.EntityType entity_type = 3;
+  repeated ScoringLevel levels = 4;
+  google.protobuf.Timestamp definition_updated_at = 5;
+}
+
+message ScoringFunctionCondition {
+  string scoring_function_id = 1;
+  FieldOperatorType operator = 2;
+
+  // These values will correspond to the sl_ ids or "None" (magic constant that
+  // can be found in ScoringFunctionUtil#SCORING_FUNCTION_INTENT_NONE_DISPLAY)
+  repeated string values = 3;
+  common.EntityType entity_type = 4;
+}
+
+message JourneyMilestoneCondition {
+  string journey_id = 1;
+  FieldOperatorType operator = 2;
+
+  // These values will correspond to the jm_ ids or "None"
+  // journey milestones are disjuncted (ORed together)
+  repeated string values = 3;
+}
+
+message PredictionTaskCondition {
+  string prediction_id = 100;
+  calixa.domain.learning.PredictionTask prediction_task = 1;
+  FieldOperatorType operator = 2; //;
+
+  repeated ConditionValue values = 3;
+}
+
+// Used for querying a detailed account rollup view:
+message AccountsRollupCondition {
+  string predicate = 1;
+  repeated ConditionValue values = 2;
+  // UNSPECIFIED added to make console happy when using condition in trendsearch:
+  FieldOperatorType operator = 3;
+}
+
+message ConditionOrGroup {
+  oneof conditionOrGroup {
+    Condition condition = 1;
+    ConditionGroup group = 2;
+    MetricCondition metric_condition = 3;
+    AccountsRollupCondition accounts_rollup_condition = 4;
+    ScoringFunctionCondition scoring_function_condition = 5;
+    JourneyMilestoneCondition journey_milestone_condition = 6;
+    PredictionTaskCondition prediction_task_condition = 7;
+  }
+}
+
+enum LogicOperatorType {
+  LOGIC_OPERATOR_TYPE_UNSPECIFIED = 0;
+  LOGIC_OPERATOR_TYPE_AND = 1;
+  LOGIC_OPERATOR_TYPE_OR = 2;
+}
+
+message ConditionGroup {
+  LogicOperatorType logic_operator = 1;
+  repeated ConditionOrGroup conditions = 2;
+}
