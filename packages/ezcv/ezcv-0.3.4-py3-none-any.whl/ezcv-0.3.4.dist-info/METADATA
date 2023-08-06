@@ -1,0 +1,412 @@
+Metadata-Version: 2.1
+Name: ezcv
+Version: 0.3.4
+Summary: An easy to use personal site generator
+Author: Kieran Wood
+Author-email: kieran@canadiancoding.ca
+Project-URL: User Docs, https://ezcv.readthedocs.io
+Project-URL: API Docs, https://kieranwood.ca/ezcv
+Project-URL: Forum, https://github.com/Descent098/ezcv/discussions
+Project-URL: Source, https://github.com/Descent098/ezcv
+Project-URL: Bug Report, https://github.com/Descent098/ezcv/issues/new?assignees=Descent098&labels=bug&template=bug_report.md&title=%5BBUG%5D
+Project-URL: Feature Request, https://github.com/Descent098/ezcv/issues/new?labels=enhancement&template=feature_request.md&title=%5BFeature%5D
+Project-URL: Roadmap, https://github.com/Descent098/ezcv/projects
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: docopt
+Requires-Dist: pyyaml
+Requires-Dist: jinja2
+Requires-Dist: markdown
+Requires-Dist: tqdm
+Requires-Dist: requests
+Requires-Dist: exifread
+Requires-Dist: python-markdown-math
+Requires-Dist: colored
+Requires-Dist: pillow
+Requires-Dist: css-html-js-minify
+Requires-Dist: livereload
+Requires-Dist: flask
+Provides-Extra: dev
+Requires-Dist: mkdocs ; extra == 'dev'
+Requires-Dist: pdoc3 ; extra == 'dev'
+
+![ezcv logo](https://raw.githubusercontent.com/Descent098/ezcv/master/.github/logo.png)
+
+[![Downloads](https://pepy.tech/badge/ezcv)](https://pepy.tech/project/ezcv) [![DeepSource](https://deepsource.io/gh/Descent098/ezcv.svg/?label=active+issues&show_trend=true&token=Yg9KssXSgrClbYRYM3OMJhbI)](https://deepsource.io/gh/Descent098/ezcv/?ref=repository-badge)
+
+# ezcv
+
+*A python-based static site generator for setting up a CV/Resume site*
+
+## Table of Contents
+
+- [What does ezcv do?](#what-does-ezcv-do)
+- [Features & Roadmap](#features--roadmap)
+- [Why should I use ezcv?](#why-should-i-use-ezcv)
+- [Who is ezcv for?](#who-is-ezcv-for)
+- [Quick-start](#quick-start)
+  - [No-code setup](#no-code-setup)
+  - [Installation](#installation)
+    - [From PyPi](#from-pypi)
+    - [From source](#from-source)
+    - [Getting started](#getting-started)
+      - [Default File structure](#file-structure)
+- [CLI](#cli)
+- [Additional Documentation](#additional-documentation)
+- [Examples and resources](#examples-and-resources)
+
+## What does ezcv do?
+
+ezcv is a purpose built static site generator for creating personal resume/portfolio/cv sites
+
+## Features & Roadmap
+
+- A large collection of [built in themes](https://ezcv.readthedocs.io/en/latest/included-themes/)
+- Flexible templating with Jinja2
+- Fully customizable configuration files and sections
+- Simple markdown syntax for content building
+
+## Why should I use ezcv?
+
+ezcv is a great choice if:
+
+- You are fond of one of the [built in themes](https://ezcv.readthedocs.io/en/latest/included-themes/)
+- You want a free and open source static site generator
+- If you want a simple to use static site generator based on Jinja
+- If you are familiar with markdown and yaml, and want a system that can be extended
+- You are not familiar with static site generators and want a simple one to try out
+- You want a static site generator with a built in github pages deploy pipeline
+
+ezcv is not a great choice if:
+
+- You want a widely used industry solution (something like [hugo](https://gohugo.io/) or [jekyl](https://jekyllrb.com/) would be better for this)
+- You need low level access to the API for complicated extensions that are not possible within jinja
+- You are not familiar with markdown, yaml and jinja and want a frontend to edit your site with ( [netlify](https://www.netlify.com/), [squarespace](https://www.squarespace.com/) or [wix](https://www.wix.com/) would be better for this)
+
+## Who is ezcv for?
+
+- People who are not necessarily familiar with coding, let alone web development
+- People who are familiar with web development and want a very simple to use static site generator
+- People who are familiar with web development but don't want to bother writing pure html for their site
+
+## Quick-start
+
+Here's everything you need to know to get started with ezcv. 
+
+### No-code/remote setup
+
+Note that there is an option to develop a site completely on your browser without needing to install anything or know how to use git. For details on setting this up, please visit [https://ezcv.readthedocs.io/en/latest/quick-start/#remote-editing](https://ezcv.readthedocs.io/en/latest/quick-start/#remote-editing).
+
+### Installation
+
+To use ezcv you will need python 3.6+ (earlier versions wont work) and pip for python 3.
+
+#### From PyPi
+
+1. Run ```pip install ezcv```
+
+#### From source
+
+1. Clone this repo: [https://github.com/Descent098/ezcv](https://github.com/Descent098/ezcv)
+2. Run ```pip install .``` or ```sudo pip3 install .```in the root directory
+
+#### Getting started
+
+The easiest way to get started is by running:
+
+```ezcv init <name>```
+
+Replacing the ```<name>``` argument with your name (use "" if you want to use your full name i.e. ```ezcv init "Kieran Wood"```). 
+
+##### File structure
+
+When you run the command a new folder will be created with your name, and some starter files like this:
+
+**Legend**
+
+| Icon | Meaning |
+|------|---------|
+|📁| File Folder |
+|📷| Image file |
+|📝| File you should edit/delete |
+|📄| File you don't need to edit/shouldn't delete |
+
+```
+📁<name>/
+├── 📁.github/
+│   └── 📁workflows/
+│       └── 📄ezcv-publish.yml
+├── 📁content/
+│   ├── 📁education/
+│   |   ├── 📝example-current.md
+│   |   └── 📝example-old.md
+│   ├── 📁projects/
+│   |   └── 📝example.md
+│   ├── 📁volunteering_experience/
+│   |   ├── 📝example-current.md
+│   |   └── 📝example-old.md
+│   └── 📁volunteering_experience/
+│       ├── 📝example-current.md
+│       └── 📝example-old.md
+├── 📁images/
+│   ├── 📷 abstract-landscape.jpg
+│   └── 📷 ice-caps.jpg
+├── 📄.gitignore
+└── 📝config.yml
+```
+
+From here you can go into your ```config.yml``` file and [pick a theme](https://ezcv.readthedocs.io/en/latest/included-themes/), then start filling out your content according to what's available for the theme.
+
+To preview your content use:
+
+```ezcv -p```
+
+If you're on github then pushing the contents to master/main will activate the publish workflow and automatically publish the site to ```<username>.github.io```.
+
+## CLI
+
+```shell
+Usage:
+    ezcv [-h] [-v] [-p]
+    ezcv build [-d OUTPUT_DIR] [-o]
+    ezcv init [<name>] [<theme>] [-f]
+    ezcv theme [-l] [-c] [-m] [<theme>]
+    ezcv section <SECTION_NAME> [-t=<type>]
+
+
+Options:
+-h, --help            show this help message and exit
+-v, --version         show program's version number and exit
+-l, --list            list the possible themes
+-c, --copy            copy the provided theme, or defined site theme
+-p, --preview         preview the current state of the site
+-o, --optimize        Optimize output files (takes longer to run)
+-f, --flask           Generate Flask routes and requirements.txt
+-d OUTPUT_DIR, --dir OUTPUT_DIR The folder name to export the site to
+-m, --metadata        Generate metadata for the theme
+-t=<type>, --type=<type> The type of section to generate [default: markdown]
+```
+
+See the [CLI Documentation](https://ezcv.readthedocs.io/en/latest/cli/) for additional details
+
+## Additional Documentation
+
+[User Docs](https://ezcv.readthedocs.io)
+
+[API Docs](https://kieranwood.ca/ezcv)
+
+## Examples and resources
+
+[Template repository for bootstrapping projects](https://github.com/qu-up/ezcv)
+
+[Template repository for ezcv integrated with flask](https://github.com/QU-UP/flask-ezcv)
+
+See documentation for [included themes](https://ezcv.readthedocs.io/en/latest/included-themes/) for examples of each of the included themes
+# Changelog
+
+## V0.3.4; July 29th 2022
+
+Adding a fix for macos installations
+
+### Bug Fixes
+
+- Fixed macos install bugs
+
+## V0.3.3; May 25th 2022
+
+The focus for this release was adding features that were not finalized in time for the `0.3.0`-`0.3.2` releases, and cleaning up some bugs.
+
+### Features
+
+- Added `required_config` section to theme metadata that's used:
+  - on initialization to generate the `config.yml` file
+  - on build to cancel the build if a required value is missing from `config.yml`
+- Added section command (**note** `ezcv theme -s <section name>` **will no longer work**)
+  - use `ezcv section <section name>` to get information
+  - use `ezcv section <section name> [<type>]` to create a new section (note *type* is only required for any non-markdown sections i.e. blogs [can be "blog" or "b"] or galleries [can be "gallery" or "g"]). See [cli documentation](https://ezcv.readthedocs.io/en/latest/cli/) for full usage details
+- Added deepsource integration
+- Added issue template for creating new themes
+
+### Themes
+
+- Added `massively`
+- Added `blog`
+- Added `evie`
+- Added `parallax`
+
+### Bug Fixes
+
+- Fixed bug with downloading `aerial` theme from remote
+- Fixed bug where `ezcv_version` was generated incorrectly in the metadata
+- Fixed a bug where a theme without a `metadata.yml` file would not load properly
+
+## V0.3.2; May 16th 2022
+
+More minor fixes
+
+### Bug Fixes
+
+- Included missing `flask` dependency
+
+## V0.3.1; May 16th 2022
+
+Minor fixes related to release
+
+### Bug Fixes
+
+- Fixed broken previews on documentation site
+- Included missing `livereload` dependency
+
+### Documentation improvements
+
+- Added additional theme provider suggestions
+
+## V0.3.0; May 16th 2022
+
+The focus for this release is on adding blog support, QoL features and making ezcv a more well rounded static site builder. There will be a few items released in `0.3.1` that were meant for `0.3.0`, but due to the need for `python -m ezcv` in order for github pipelines to work this release is going out now.
+
+### Features
+
+- Blog posts
+- Theme Metadata
+- Adding an optimized mode for builds to increase site performance
+- Added ability to create and use custom ad-hoc filters; pass a list of function objects (called `extra_filters`) to ```ezcv.generate_site()```
+- Added ability to directly invoke ezcv through python binary after installation ```python -m ezcv```
+- Added ability to specify a remote URl for `config.yml` theme variable
+- Added continuous previewing to `ezcv -p`
+- Added option to initialize with flask `ezcv init -f`
+- Added `python -m ezcv` invocation
+- Added logging to files so attached loggers can get details for troubleshooting (logging.info and logging.debug are recommended settings)
+
+### Themes
+
+- Added ability to embed theme metadata
+- Added blog section to existing themes
+  - dimension
+  - grayscale
+  - solid_state
+  - read_only
+
+### Bug Fixes
+
+- Added missing `highlightjs` to all themes for code blocks
+- Fixed bugs with preview loading in included themes docs
+
+### Documentation improvements
+
+- Added sections documenting new features
+- Rearranged included themes section to be alphabetical
+- Added section outlining sequence diagram for site generation
+- Added additional resources to help generating content
+- Added notice thanking theme providers
+
+## V0.2.2; August 2nd 2021
+
+Documentation bugs after release
+
+### Bug fixes
+
+- Fixed issue with mkdocs build not recognizing correct URL and image paths
+
+
+## V0.2.1; August 2nd 2021
+
+Fixed bugs after release
+
+### Bug fixes
+- Fixed the fact that colored was not included as setup.py dependency
+
+
+## V0.2.0; August 2nd 2021
+
+The focus for this release is to add new features and themes
+
+### Features
+
+- Added Resume Generator
+- Setup remote theme support
+- Added new section; gallery
+  - Supports multiple images being put together into a gallery
+- Google analytics config option
+- Custom Favicon 
+- Added new section creation CLI
+- When initializing with a theme that is not downloaded it will try to be downloaded on initialization instead of first build
+- Added support for all standard markdown file extensions (.md, .markdown, .mdown, .mkdn, .mkd, .mdwn)
+- Added support for many image file extensions as content (.jpg, .png, .jpeg, .gif, .svg, .webp, .apng, .jfif, .pjpeg, .pjp)
+- Added many new markdown extensions
+  - [footnotes](https://python-markdown.github.io/extensions/footnotes/)
+  - [tables](https://python-markdown.github.io/extensions/tables/)
+  - [toc (Table of contents)](https://python-markdown.github.io/extensions/toc/)
+  - [abbr(abbreviations)](https://python-markdown.github.io/extensions/abbreviations/)
+  - [def_list(Definition lists)](https://python-markdown.github.io/extensions/definition_lists/)
+  - [sane_lists(Sane lists)](https://python-markdown.github.io/extensions/sane_lists/)
+  - [mdx_math(Latex/formulas)](https://github.com/mitya57/python-markdown-math)
+- Created filters module for creating custom Jinja filters (will be an exposed API for adding your own in v0.3.0)
+- [Created several custom filters for optimizing & simplifying theme development](https://ezcv.readthedocs.io/en/latest/theme-development/#available-custom-filters)
+    - [split_to_sublists; Takes a list and splits it into sublists of size n](https://ezcv.readthedocs.io/en/latest/theme-development/#split_to_sublists)
+    - [get_image_path; Takes in the path to an image and returns it in usable format to use in img tags as src attribute](https://ezcv.readthedocs.io/en/latest/theme-development/#get_image_path)
+    - [get_filename_without_extension; Takes in path and returns filename without extension](https://ezcv.readthedocs.io/en/latest/theme-development/#get_filename_without_extension)
+    - [pretty_datetime; A utility function for pretty printing dates provided for jobs/getting a degree/volunteering etc](https://ezcv.readthedocs.io/en/latest/theme-development/#pretty_datetime)
+    - [pretty_defaultdict; Returns a prettyprinted form of a defaultdict](https://ezcv.readthedocs.io/en/latest/theme-development/#pretty_defaultdict)
+
+### Themes
+
+- Moved existing themes to new repo https://github.com/QU-UP/ezcv-themes
+- Added new themes
+  - [cv](https://ezcv.readthedocs.io/en/latest/included-themes/#resume)
+  - [Grayscale](https://ezcv.readthedocs.io/en/latest/included-themes/#grayscale)
+  - [Paradigm Shift](https://ezcv.readthedocs.io/en/latest/included-themes/#paradigm-shift)
+  - [Lens](https://ezcv.readthedocs.io/en/latest/included-themes/#lens)
+
+### Bug fixes
+
+- Fixed markdown files with different standard extensions not being recognized
+- Fixed markdown files with capitalized extensions not being recognized
+
+### Documentation Improvements
+
+- Added documentation for new features
+- Added additional onboarding videos/tutorials
+- Added section for finding help/support
+
+## V0.1.1; January 10th 2020
+
+Fixes following initial launch
+
+### Bug fixes
+
+- Added additional warnings for if necessary config value is not provided
+
+### Documentation improvements
+
+- Updated necessary docstrings
+
+## V0.1.0; January 10th 2020
+
+Initial release of ezcv
+
+### Features
+
+- Themes Added:
+  - [aerial](https://html5up.net/aerial)
+  - base
+  - [creative](https://startbootstrap.com/theme/creative)
+  - [dimension](https://html5up.net/dimension)
+  - [ethereal](https://html5up.net/ethereal)
+  - [freelancer](https://startbootstrap.com/theme/freelancer)
+  - [Identity](https://html5up.net/identity)
+  - [Read only](https://html5up.net/read-only)
+  - [Solid State](https://html5up.net/solid-state)
+  - [strata](https://html5up.net/strata)
+- Added initial [example site](https://github.com/Descent098/ezcv/tree/master/ezcv/example_site)
+- Added initial [CLI](https://ezcv.readthedocs.io/en/latest/cli/)
+- Added initial [core files](https://github.com/Descent098/ezcv/blob/master/ezcv/core.py#L289-L402)
+- Added to [pypi](https://pypi.org/project/ezcv/)
+
+### Documentation improvements
+
+- Added initial [api docs](https://kieranwood.ca/ezcv)
+- Added initial [user docs](https://ezcv.readthedocs.io)
