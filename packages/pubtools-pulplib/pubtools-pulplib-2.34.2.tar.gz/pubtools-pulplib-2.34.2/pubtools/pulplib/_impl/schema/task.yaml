@@ -1,0 +1,97 @@
+title: pulp2-task
+
+description: >-
+  Schema for a Pulp 2.x task dict, as returned by the
+  /pulp/api/v2/tasks/<task_id>/ API.
+
+$schema: http://json-schema.org/draft-07/schema#
+
+definitions:
+  # An error object
+  # https://docs.pulpproject.org/dev-guide/conventions/exceptions.html#error-details
+  error:
+    type: object
+    properties:
+
+      # Short identifier of error, e.g. PLP0018
+      code:
+        type: string
+
+      # Summary of error for end-user
+      description:
+        type: string
+
+      # Arbitrary key-value data, different per error code
+      data:
+        type: object
+
+    required:
+    - code
+    - description
+
+type: object
+
+properties:
+
+  # ID of the task, e.g. "7744e2df-39b9-46f0-bb10-feffa2f7014b"
+  task_id:
+    type: string
+
+  # Task state
+  state:
+    enum:
+    - accepted  # this value has never been observed
+    - running   # task is being worked on
+    - waiting   # task is waiting for a worker to pick it up
+    - finished  # task completed successfully
+    - error     # task completed unsuccessfully
+    - canceled  # task was canceled
+    - skipped   # Pulp decided not to execute this task
+
+  # The error - only non-null for failed tasks
+  error:
+    anyOf:
+    - type: "null"
+    - $ref: "#/definitions/error"
+
+  # Python traceback if an exception was raised - a single multi-line string
+  traceback:
+    anyOf:
+    - type: "null"
+    - type: string
+
+  # Tags of a task; a list of arbitrary strings
+  tags:
+    type: array
+    items:
+      type: string
+
+  # Task result. The content depends on the task type.
+  result:
+    anyOf:
+
+    # If it's not an object, we don't care what it is, just accept it.
+    - not:
+        type: object
+
+    # If it is an object, we will validate some inner fields.
+    - type: object
+      properties:
+        # For tasks operating on units (e.g. assoc/unassoc), this element
+        # in the result will record which unit(s) were affected.
+        units_successful:
+          type: array
+          items:
+            type: object
+            properties:
+              type_id:
+                type: string
+              unit_key:
+                type: object
+            required:
+            - type_id
+            - unit_key
+
+required:
+- task_id
+- state
