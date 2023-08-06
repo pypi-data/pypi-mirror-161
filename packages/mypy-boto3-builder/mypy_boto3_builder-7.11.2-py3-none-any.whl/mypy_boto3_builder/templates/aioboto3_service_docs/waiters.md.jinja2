@@ -1,0 +1,35 @@
+# Waiters
+
+> [Index](../README.md) > [{{ service_name.class_name }}](./README.md) > Waiters
+
+{% include "common/header_note.md.jinja2" with context %}
+
+{% for waiter in package.waiters -%}
+## {{ waiter.name }}
+
+Type annotations and code completion for `#!python session.client("{{ service_name.boto3_name }}").get_waiter("{{ waiter.waiter_name }}")`.
+[:material-aws: boto3 documentation]({{ waiter.boto3_doc_link }})
+
+```python title="Usage example"
+from {{ package.library_name }}.session import Session
+
+from {{ package.name }}.waiter import {{ waiter.name }}
+
+session = get_session()
+async with session.client("{{ service_name.boto3_name }}") as client:  # (1)
+    waiter: {{ waiter.name }} = client.get_waiter("{{ waiter.waiter_name }}")  # (2)
+    await waiter.wait()
+```
+
+1. client: [{{ package.client.name }}]({{ service_name.get_md_doc_link('client') }})
+2. waiter: [{{ waiter.name }}]({{ service_name.get_md_doc_link('waiters', waiter.name) }})
+
+{% for method in waiter.methods %}
+### {{ method.name|escape_md }}
+
+Type annotations and code completion for `#!python {{ waiter.name }}.{{ method.name }}` method.
+
+{% include "common/method_code.md.jinja2" with context -%}
+
+{% endfor -%}
+{% endfor %}
