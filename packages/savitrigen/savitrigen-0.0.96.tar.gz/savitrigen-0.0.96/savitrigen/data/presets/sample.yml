@@ -1,0 +1,65 @@
+meta:
+  version: 1.0
+  alias: project_name
+  owner: Capsul Brasil
+  product:
+    name: Pizzaria Savitri
+    group: Protolab
+
+plugins:
+  - '@savitri/plugin-referral'
+  - '@savitri/plugin-videoroom'
+
+backend:
+  collections:
+    pizza:
+      documentation: |
+        Pizzas disponíveis no cardápio do estabelecimento.
+        O usuário cadastra o nome da pizza e os ingredientes e o preço é automaticamente calculado.
+      translation:
+        pt_BR: pizza | pizzas
+
+      unicon: pizza-slice
+      route: true
+      report: true
+      presets:
+        - crud
+      fields:
+        name:
+          label: Nome
+          type: text
+        ingredients:
+          label: Ingredientes
+          type: checkbox
+          required: true
+          values:
+            - __query:
+                collection: ingredient
+                index:
+                  - name
+                  - price
+        price_small:
+          label: Preço (S)
+          type: number
+          readonly: true
+
+    ingredient:
+      translation:
+        pt_BR: ingrediente | ingredientes
+
+      unicon: chart-pie-alt
+      route: true
+      presets:
+        - crud
+      fields:
+        name:
+          label: Nome
+          type: text
+        price:
+          label: Custo de fabricação
+          description: Usando pizza gigante como referência
+          type: number
+
+frontend:
+  has_releases: true
+  default_locale: pt_BR
