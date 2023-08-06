@@ -1,0 +1,140 @@
+Metadata-Version: 2.1
+Name: drf-base64-filename
+Version: 1.0.10
+Summary: drf-base64-filename provides Serializer fields for using base64-encoded files with file names.
+Author-email: lhy <dev@lhy.kr>
+License: MIT License
+        
+        Copyright (c) 2020 Lee HanYeong
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Project-URL: GitHub, https://github.com/LeeHanYeong/drf-base64-filename
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 3.2
+Classifier: Programming Language :: Python
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# drf-base64-filename
+
+**drf-base64-filename** provides Serializer fields for using base64-encoded files with file names.
+
+## Setup
+
+Install `drf-base64-filename` to your Python environment
+
+```shell
+pip install drf-base64-filename
+```
+
+
+
+## Usage
+
+### Sample Model
+
+```python
+class SampleBase64ImageModel(models.Model):
+    parent = models.ForeignKey(
+        SampleParentModel, 
+        on_delete=models.CASCADE, 
+        related_name='image_set', 
+        blank=True, 
+        null=True,
+    )
+    image = models.ImageField(blank=True)
+
+class SampleBase64FileModel(models.Model):
+    parent = models.ForeignKey(
+        SampleParentModel, 
+        on_delete=models.CASCADE,
+        related_name='file_set', 
+        blank=True, 
+        null=True,
+    )
+    file = models.FileField(blank=True)
+```
+
+
+
+### Serializer Field
+
+```python
+class SampleNamedBase64ImageSerializer(serializers.ModelSerializer):
+    image = NamedBase64ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = SampleBase64ImageModel
+        fields = (
+            'id',
+            'image',
+        )
+
+
+class SampleNamedBase64FileSerializer(serializers.ModelSerializer):
+    file = NamedBase64FileField(required=False, allow_null=True)
+
+    class Meta:
+        model = SampleBase64FileModel
+        fields = (
+            'id',
+            'file',
+        )
+```
+
+
+
+### Sample request data
+
+```json
+{
+    "image": {
+        "file_name": "pby.jpg",
+        "encoded_str": "aHR0cHM6Ly9naXRodWIuY29tL2xlZWhhbnllb25n"
+    }
+}
+```
+
+### Sample response data
+
+```json
+{
+    "image": "http://test/media/pby.jpg"
+}
+```
+
+
+
+# Testing
+
+```shell
+cd test_project
+pip install -r requirements.txt
+pytest
+```
+
+
+
+## Contributing
+
+As an open source project, we welcome contributions.
+The code lives on [GitHub](https://github.com/LeeHanYeong/drf-base64-filename)
+
+ 
