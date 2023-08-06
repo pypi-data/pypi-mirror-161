@@ -1,0 +1,73 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "mumin"
+version = "1.10.0"
+description = "Seamlessly build the MuMiN dataset."
+authors = [
+    "Dan Saattrup Nielsen <dan.nielsen@alexandra.dk>",
+    "Ryan McConville <ryan.mcconville@bristol.ac.uk>",
+]
+readme = "README.md"
+license = "MIT"
+homepage = "https://mumin-dataset.github.io/"
+repository = "https://github.com/MuMiN-dataset/mumin-build"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+tqdm = "^4.62.0"
+transformers = "^4.20.0"
+torch = "^1.12.0"
+newspaper3k = "^0.2.8"
+pandas = "^1.4.3"
+python-dotenv = "^0.20.0"
+wrapt-timeout-decorator = "^1.3.12"
+
+[tool.poetry.dev-dependencies]
+pdoc = "^7.1.1"
+pytest = "^6.2.5"
+pre-commit = "^2.17.0"
+black = "^22.3.0"
+isort = "^5.10.1"
+pytest-xdist = "^2.5.0"
+pytest-cov = "^3.0.0"
+readme-coverage-badger = "^0.1.2"
+python-dotenv = "^0.20.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    '--verbose',
+    '--durations=10',
+    '--color=yes',
+    '-s',
+    '-vv',
+    '--doctest-modules',
+    '--cov=src/mumin',
+    '-n 1',
+]
+xfail_strict = true
+filterwarnings = ["error"]
+log_cli_level = "info"
+testpaths = ["tests", "src/mumin"]
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+	\.git
+| \.hg
+| \.mypy_cache
+| \.tox
+| \.venv
+| _build
+| buck-out
+| build
+)/
+'''
+
+[tool.isort]
+profile = "black"
