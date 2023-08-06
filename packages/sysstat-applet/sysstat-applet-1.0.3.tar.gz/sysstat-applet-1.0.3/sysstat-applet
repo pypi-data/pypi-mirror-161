@@ -1,0 +1,23 @@
+#!/usr/bin/python3 -u
+
+import argparse, daemon, syslog
+
+from appletlib.app      import Application
+from sysstatapplet.cpu  import IndicatorCpu
+from sysstatapplet.mem  import IndicatorMem
+from sysstatapplet.disk import IndicatorDisk
+
+def main(argdict):
+    app = Application("mechnich","sysstat-applet")
+    app.init(argdict)
+    i = [IndicatorCpu(), IndicatorMem(), IndicatorDisk()]
+    syslog.syslog( syslog.LOG_INFO, "INFO   startup complete");
+    return app.exec_()
+
+if __name__ == "__main__":
+    args = Application.parseCommandLine('Sysstat applet collection')
+    argdict = { 'verbosity': args.verbosity, 'daemon': args.daemon }
+    if args.daemon:
+        print("Running as daemon stopped working with PyQt5,"
+              " continuing anyway...")
+    main(argdict)
