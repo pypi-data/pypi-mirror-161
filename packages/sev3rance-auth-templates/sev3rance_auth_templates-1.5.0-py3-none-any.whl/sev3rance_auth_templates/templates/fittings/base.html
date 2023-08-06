@@ -1,0 +1,74 @@
+{% extends 'allianceauth/base.html' %}
+
+{% load i18n %}
+
+{% block extra_css %}
+    <style>
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flex-wrap {
+            display: -webkit-flex; /* Safari */
+            -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .table a.nostyle:not(.btn),
+        table a.nostyle:not(.btn) {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+    {% include 'bundles/datatables-css.html' %}
+
+    {% block more_css %}{%endblock%}
+{% endblock extra_css %}
+
+{% block content %}
+    <div>
+        <br />
+        <div>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">{% translate "Toggle navigation" %}</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+
+                        <a class="navbar-brand" href="{% url 'fittings:dashboard' %}">{% translate "Fittings and Doctrines" %}</a>
+                    </div>
+
+                    <ul class="nav navbar-nav navbar-left">
+                        <li><a href="{% url 'fittings:view_all_fits' %}">{% translate "View All Fits" %}</a></li>
+                        <li><a href="{% url 'fittings:view_all_categories' %}">{% translate "View All Categories" %}</a></li>
+                    </ul>
+
+                    {% if perms.fittings.manage %}
+                        <div class="dropdown pull-right aa-fittings-add-dropdown">
+                            <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="manageDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="fa fa-plus"></span>
+                            </button>
+
+                            <ul class="dropdown-menu" aria-labelledby="manageDrop">
+                                <li> <a href="{% url 'fittings:add_fit' %}">{% translate "Fitting" %}</a></li>
+                                <li> <a href="{% url 'fittings:add_doctrine' %}">{% translate "Doctrine" %}</a></li>
+                                <li> <a href="{% url 'fittings:add_category' %}">{% translate "Category" %}</a></li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </nav>
+
+            {% block fittings_block %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

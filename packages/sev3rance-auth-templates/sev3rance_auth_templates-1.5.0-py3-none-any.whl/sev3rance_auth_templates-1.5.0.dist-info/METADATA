@@ -1,0 +1,64 @@
+Metadata-Version: 2.1
+Name: sev3rance-auth-templates
+Version: 1.5.0
+Summary: Sev3rance Template Overrides for Alliance Auth
+Home-page: https://github.com/sev3rance/sev3rance-auth-templates
+Author: Peter Pfeufer
+Author-email: development@ppfeufer.de
+Maintainer: Peter Pfeufer
+Maintainer-email: development@ppfeufer.de
+License: GPL-3.0
+Project-URL: Issue / Bug Reports, https://github.com/sev3rance/sev3rance-auth-templates/issues
+Project-URL: Changelog, https://github.com/sev3rance/sev3rance-auth-templates/blob/master/CHANGELOG.md
+Keywords: allianceauth,eveonline,template,template_override,sev3rance
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 3.2
+Classifier: Framework :: Django :: 4.0
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: ~=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: allianceauth (>=2.15.0)
+
+# Alliance Auth Template Overrides used by Sev3rance Alliance
+
+# Sev3rance Auth Templates
+
+Template Overrides for Alliance Auth
+
+```shell
+pip install sev3rance-auth-templates
+```
+
+In `local.py` right after `INSTALLED_APPS`:
+
+```python
+# -7- Auth Templates - https://github.com/sev3rance/sev3rance-auth-templates
+INSTALLED_APPS.insert(0, "sev3rance_auth_templates")
+```
+
+**Important**
+
+If you are using `AA-GDPR`, the template stuff needs to be **after** the `AA_GDPR`
+entry, like this:
+
+```python
+# GDPR Compliance
+INSTALLED_APPS.insert(0, "aagdpr")
+AVOID_CDN = True
+
+# -7- Auth Templates - https://github.com/sev3rance/sev3rance-auth-templates
+INSTALLED_APPS.insert(0, "sev3rance_auth_templates")
+```
