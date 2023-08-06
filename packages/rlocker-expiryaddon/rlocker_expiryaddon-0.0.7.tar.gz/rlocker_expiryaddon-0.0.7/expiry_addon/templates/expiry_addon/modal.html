@@ -1,0 +1,33 @@
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="Modal-Expiry-Addon-{{ lockable_resource.id }}" class="modal fade">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+            <h4 class="modal-title" style="color: #ff4500">
+                <b>Expiry Addon Settings for {{ lockable_resource.name }}</b>
+            </h4>
+         </div>
+         <div class="modal-body">
+             {% if lockable_resource.resourceexpirypolicy %}
+             <form class="form-inline" role="form" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="add-expiry-hours-{{ lockable_resource.id }}">Add temporary expiry time by hours</label>
+                    <input type="number" class="form-control center-block"
+                           id="add-expiry-hours-{{ lockable_resource.id }}"
+                           required="true" name="add-expiry-hours-{{ lockable_resource.id }}"
+                           min="-8820" max="72" value="24">
+                </div>
+                <input type="hidden" id='id' name="id" value="{{ lockable_resource.id }}"/>
+                <input type="hidden" id='action' name="action" value="modify_expiry_addon"/>
+                <button type="submit" class="btn btn-danger">
+                    <b>Apply Changes</b>
+                </button>
+            </form>
+             {% else %}
+                 <b>Resource does not have an expiry policy!</b>
+             {% endif %}
+         </div>
+      </div>
+   </div>
+</div>
