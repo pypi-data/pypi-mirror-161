@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+import os; os.chdir("S:/siat")
+
+from siat.stock import *
+info=get_stock_profile("0700.HK",info_type='risk_esg')
+info=get_stock_profile("9988.HK",info_type='risk_esg')
+info=get_stock_profile("9618.HK",info_type='risk_esg')
+info=get_stock_profile("0992.HK",info_type='risk_esg')
+info=get_stock_profile("1398.HK",info_type='risk_esg')
+info=get_stock_profile("0939.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("1288.HK",info_type='risk_esg')
+info=get_stock_profile("0857.HK",info_type='risk_esg')
+info=get_stock_profile("0005.HK",info_type='risk_esg')
+info=get_stock_profile("2888.HK",info_type='risk_esg')
+info=get_stock_profile("8306.T",info_type='risk_esg')
+info=get_stock_profile("8411.T",info_type='risk_esg')
+info=get_stock_profile("7182.T",info_type='risk_esg')
+info=get_stock_profile("UBSG.SW",info_type='risk_esg')
+info=get_stock_profile("BAC",info_type='risk_esg')
+info=get_stock_profile("TD",info_type='risk_esg')
+info=get_stock_profile("GS",info_type='risk_esg')
+info=get_stock_profile("MS",info_type='risk_esg')
+info=get_stock_profile("USB",info_type='risk_esg')
+info=get_stock_profile("PNC",info_type='risk_esg')
+info=get_stock_profile("BK",info_type='risk_esg')
+info=get_stock_profile("JPM",info_type='risk_esg')
+
+info=get_stock_profile("SLB",info_type='risk_esg')
+info=get_stock_profile("COP",info_type='risk_esg')
+info=get_stock_profile("HAL",info_type='risk_esg')
+info=get_stock_profile("OXY",info_type='risk_esg')
+info=get_stock_profile("FCX",info_type='risk_esg')
+info=get_stock_profile("5713.T",info_type='risk_esg')
+info=get_stock_profile("1605.T",info_type='risk_esg')
+info=get_stock_profile("5020.T",info_type='risk_esg')
+info=get_stock_profile("2330.TW",info_type='risk_esg')
+info=get_stock_profile("2317.TW",info_type='risk_esg')
+info=get_stock_profile("2474.TW",info_type='risk_esg')
+info=get_stock_profile("3008.TW",info_type='risk_esg')
+info=get_stock_profile("2454.TW",info_type='risk_esg')
+
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
+info=get_stock_profile("3988.HK",info_type='risk_esg')
