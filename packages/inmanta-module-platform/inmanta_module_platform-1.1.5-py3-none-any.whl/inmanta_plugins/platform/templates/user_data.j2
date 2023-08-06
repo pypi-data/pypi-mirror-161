@@ -1,0 +1,183 @@
+#!/bin/bash
+# MARKER
+if [ ! -f /etc/os-release ]; then
+    echo "/etc/os-release is required to determine the target OS"
+    exit 1
+fi
+
+. /etc/os-release
+
+hostname {{ vm.name }}
+
+function create_config() {
+    {% if ssl_ca %}
+    cat > /etc/inmanta/server.crt <<EOF
+{{ssl_ca}}
+EOF
+    {% endif %}
+
+    cat > /etc/inmanta/inmanta.d/99-agent.cfg <<EOF
+[config]
+agent-repair-splay-time=10
+heartbeat-interval = 60
+fact-expire = 60
+state-dir=/var/lib/inmanta
+
+environment={{ env_id }}
+agent-names=\$node-name
+
+[agent_rest_transport]
+port={{port}}
+host={{env_server}}
+{% if token -%}
+token={{token}}
+{% endif %}
+{% if ssl -%}
+ssl=True
+{% endif %}
+{% if ssl_ca -%}
+ssl_ca_cert_file=/etc/inmanta/server.crt
+{% endif %}
+EOF
+}
+
+function install_el() {
+    hostnamectl set-hostname {{ vm.name }}
+    setenforce 0
+
+    # Install inmanta release {{release}}
+    {% if release == "dev" %}
+    cat > /etc/yum.repos.d/inmanta-oss-dev.repo <<EOF
+[inmanta-oss-dev]
+name=inmanta-oss-dev
+baseurl=https://packages.inmanta.com/public/oss-dev/rpm/el/\$releasever/\$basearch
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://packages.inmanta.com/public/oss-dev/gpg.DCDF0896322A8B93.key
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md
+EOF
+    {% else %}
+    cat > /etc/yum.repos.d/inmanta-oss-stable.repo <<EOF
+[inmanta-oss-stable]
+name=inmanta-oss-stable
+baseurl=https://packages.inmanta.com/public/oss-stable/rpm/el/\$releasever/\$basearch
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://packages.inmanta.com/public/oss-stable/gpg.A34DD0A274F07713.key
+gpgcheck=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+pkg_gpgcheck=1
+autorefresh=1
+type=rpm-md
+EOF
+    {% endif %}
+
+    # epel-release is required in order to resolve the `openssl11` dependency
+    yum install -y epel-release
+    yum install -y inmanta-oss-agent
+
+    create_config
+
+    systemctl start inmanta-agent
+    systemctl enable inmanta-agent
+}
+
+function install_fedora() {
+    hostnamectl set-hostname {{ vm.name }}
+    setenforce 0
+
+    # Install inmanta release {{release}}
+    {% if release == "dev" %}
+    cat > /etc/yum.repos.d/inmanta_oss_dev.repo <<EOF
+[inmanta-oss-dev]
+name=Inmanta OSS Dev snapshots
+baseurl=https://pkg.inmanta.com/inmanta-oss-dev/f\$releasever/
+gpgcheck=1
+gpgkey=https://pkg.inmanta.com/inmanta-oss-dev/inmanta-oss-dev-public-key
+repo_gpgcheck=1
+enabled=1
+enabled_metadata=1
+EOF
+    {% else %}
+    cat > /etc/yum.repos.d/inmanta_oss_stable.repo <<EOF
+[inmanta-oss-stable]
+name=Inmanta OSS stable
+baseurl=https://pkg.inmanta.com/inmanta-oss-stable/f\$releasever/
+gpgcheck=1
+gpgkey=https://pkg.inmanta.com/inmanta-oss-stable/inmanta-oss-stable-public-key
+repo_gpgcheck=1
+enabled=1
+enabled_metadata=1
+EOF
+    {% endif %}
+
+    yum install -y python3-devel gcc git python3-inmanta-agent
+
+    create_config
+
+    systemctl start inmanta-agent
+    systemctl enable inmanta-agent
+}
+
+function install_ubuntu() {
+    hostname {{ vm.name }}
+    echo {{ vm.name }} > /etc/hostname
+
+    # Install inmanta release {{release}}
+    add-apt-repository -y ppa:deadsnakes/ppa
+    apt-get update
+    apt-get install -y python3.6 libffi-dev python3.6-venv git
+
+    python3.6 -m venv /opt/inmanta
+
+    /opt/inmanta/bin/pip3 install -U pip
+    /opt/inmanta/bin/pip3 install -U setuptools
+    {% if release == "dev" -%}
+    curl -o /tmp/requirements.txt https://raw.githubusercontent.com/inmanta/inmanta/master/requirements.txt
+    /opt/inmanta/bin/pip3 install -c /tmp/requirements.txt git+https://github.com/inmanta/inmanta#egg=inmanta
+    {% else -%}
+    curl -o /tmp/requirements.txt https://raw.githubusercontent.com/inmanta/inmanta/latest/requirements.txt
+    /opt/inmanta/bin/pip3 install -c /tmp/requirements.txt inmanta
+    {% endif %}
+
+    mkdir -p /etc/inmanta/inmanta.d
+    create_config
+
+    cat > /etc/init/inmanta.conf <<EOF
+# inmanta - Inmanta cfg mgmt agent
+#
+# Inmanta agent
+description "Inmanta"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+exec /opt/inmanta/bin/inmanta -vvv agent
+EOF
+
+    initctl reload-configuration
+    start inmanta
+}
+
+if [[ "$ID" == "centos" ||  "$ID" == "rocky" ]];
+then
+    install_el
+elif [[ "$ID" == "ubuntu" ]];
+then
+    install_ubuntu
+elif [[ "$ID" == "fedora" ]];
+then
+    install_fedora
+else
+    echo "$ID $VERSION_ID not supported"
+fi

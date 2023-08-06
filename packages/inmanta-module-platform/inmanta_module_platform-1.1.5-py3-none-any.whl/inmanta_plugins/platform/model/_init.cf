@@ -1,0 +1,56 @@
+"""
+    Copyright 2017 Inmanta
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: code@inmanta.com
+"""
+
+entity UserdataVM:
+    """
+        Base class for virtual machines that provide a user_data attribute through which a shell script can be injected
+        at first boot of the virtual machine.
+
+        :attr user_data: A shell script that is executed at first boot.
+        :attr name: The name of the vm or host
+    """
+    string user_data
+end
+
+entity UserdataBootstrap:
+    """
+        Bootstrap an inmanta agent on the host by passing a shell script to the virtual machine user data.
+        Setting the INMANTA_RELEASE environment variable to dev will install the agent from development snapshots.
+
+        The user script will force the correct hostname and setenforce 0 to disable enforcing selinux.
+
+        .. warning:: Currently this script only support centos 7 or equivalent (rhel7, aws linux, sl7, ...), Ubuntu and Fedora.
+    """
+end
+
+implementation userdataBootstrap for UserdataBootstrap:
+    env_name = std::environment_name()
+    env_id = std::environment()
+    env_server = std::environment_server()
+    port = std::server_port()
+    release = std::get_env("INMANTA_RELEASE", "stable")
+    ssl_ca = std::server_ca()
+    ssl = std::server_ssl()
+    token = std::server_token()
+
+    self.vm.user_data = std::template("platform/user_data.j2")
+end
+
+implement UserdataBootstrap using userdataBootstrap
+
+UserdataBootstrap.vm [1] -- UserdataVM
