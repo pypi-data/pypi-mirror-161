@@ -1,0 +1,248 @@
+{
+  "type": "record",
+  "name": "DashboardUsageStatistics",
+  "namespace": "com.linkedin.pegasus2avro.dashboard",
+  "doc": "Experimental (Subject to breaking change) -- Stats corresponding to dashboard's usage.\n\nIf this aspect represents the latest snapshot of the statistics about a Dashboard, the eventGranularity field should be null. \nIf this aspect represents a bucketed window of usage statistics (e.g. over a day), then the eventGranularity field should be set accordingly. ",
+  "fields": [
+    {
+      "name": "timestampMillis",
+      "type": "long",
+      "doc": "The event timestamp field as epoch at UTC in milli seconds."
+    },
+    {
+      "name": "eventGranularity",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "TimeWindowSize",
+          "namespace": "com.linkedin.pegasus2avro.timeseries",
+          "doc": "Defines the size of a time window.",
+          "fields": [
+            {
+              "name": "unit",
+              "type": {
+                "type": "enum",
+                "name": "CalendarInterval",
+                "symbols": [
+                  "SECOND",
+                  "MINUTE",
+                  "HOUR",
+                  "DAY",
+                  "WEEK",
+                  "MONTH",
+                  "QUARTER",
+                  "YEAR"
+                ]
+              },
+              "doc": "Interval unit such as minute/hour/day etc."
+            },
+            {
+              "name": "multiple",
+              "type": "int",
+              "doc": "How many units. Defaults to 1.",
+              "default": 1
+            }
+          ]
+        }
+      ],
+      "doc": "Granularity of the event if applicable",
+      "default": null
+    },
+    {
+      "name": "partitionSpec",
+      "type": [
+        {
+          "type": "record",
+          "name": "PartitionSpec",
+          "namespace": "com.linkedin.pegasus2avro.timeseries",
+          "doc": "Defines how the data is partitioned",
+          "fields": [
+            {
+              "name": "type",
+              "type": {
+                "type": "enum",
+                "name": "PartitionType",
+                "symbols": [
+                  "FULL_TABLE",
+                  "QUERY",
+                  "PARTITION"
+                ]
+              },
+              "default": "PARTITION"
+            },
+            {
+              "name": "partition",
+              "type": "string",
+              "doc": "String representation of the partition",
+              "TimeseriesField": {}
+            },
+            {
+              "name": "timePartition",
+              "type": [
+                "null",
+                {
+                  "type": "record",
+                  "name": "TimeWindow",
+                  "fields": [
+                    {
+                      "name": "startTimeMillis",
+                      "type": "long",
+                      "doc": "Start time as epoch at UTC."
+                    },
+                    {
+                      "name": "length",
+                      "type": "TimeWindowSize",
+                      "doc": "The length of the window."
+                    }
+                  ]
+                }
+              ],
+              "doc": "Time window of the partition if applicable",
+              "default": null
+            }
+          ]
+        },
+        "null"
+      ],
+      "doc": "The optional partition specification.",
+      "default": {
+        "partition": "FULL_TABLE_SNAPSHOT",
+        "type": "FULL_TABLE",
+        "timePartition": null
+      }
+    },
+    {
+      "name": "messageId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "The optional messageId, if provided serves as a custom user-defined unique identifier for an aspect value.",
+      "default": null
+    },
+    {
+      "name": "viewsCount",
+      "type": [
+        "null",
+        "int"
+      ],
+      "doc": "The total number of times dashboard has been viewed",
+      "default": null,
+      "TimeseriesField": {}
+    },
+    {
+      "name": "executionsCount",
+      "type": [
+        "null",
+        "int"
+      ],
+      "doc": "The total number of dashboard executions (refreshes / syncs) ",
+      "default": null,
+      "TimeseriesField": {}
+    },
+    {
+      "name": "uniqueUserCount",
+      "type": [
+        "null",
+        "int"
+      ],
+      "doc": "Unique user count",
+      "default": null,
+      "TimeseriesField": {}
+    },
+    {
+      "name": "userCounts",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "DashboardUserUsageCounts",
+            "doc": "Records a single user's usage counts for a given resource",
+            "fields": [
+              {
+                "name": "user",
+                "type": "string",
+                "doc": "The unique id of the user.",
+                "java": {
+                  "class": "com.linkedin.pegasus2avro.common.urn.Urn"
+                }
+              },
+              {
+                "name": "viewsCount",
+                "type": [
+                  "null",
+                  "int"
+                ],
+                "doc": "The number of times the user has viewed the dashboard",
+                "default": null,
+                "TimeseriesField": {}
+              },
+              {
+                "name": "executionsCount",
+                "type": [
+                  "null",
+                  "int"
+                ],
+                "doc": "The number of times the user has executed (refreshed) the dashboard",
+                "default": null,
+                "TimeseriesField": {}
+              },
+              {
+                "name": "usageCount",
+                "type": [
+                  "null",
+                  "int"
+                ],
+                "doc": "Normalized numeric metric representing user's dashboard usage -- the number of times the user executed or viewed the dashboard. ",
+                "default": null,
+                "TimeseriesField": {}
+              },
+              {
+                "name": "userEmail",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "doc": "If user_email is set, we attempt to resolve the user's urn upon ingest",
+                "default": null,
+                "TimeseriesField": {}
+              }
+            ]
+          }
+        }
+      ],
+      "doc": "Users within this bucket, with frequency counts",
+      "default": null,
+      "TimeseriesFieldCollection": {
+        "key": "user"
+      }
+    },
+    {
+      "name": "favoritesCount",
+      "type": [
+        "null",
+        "int"
+      ],
+      "doc": "The total number of times that the dashboard has been favorited ",
+      "default": null,
+      "TimeseriesField": {}
+    },
+    {
+      "name": "lastViewedAt",
+      "type": [
+        "null",
+        "long"
+      ],
+      "doc": "Last viewed at\n\nThis should not be set in cases where statistics are windowed. ",
+      "default": null,
+      "TimeseriesField": {}
+    }
+  ],
+  "Aspect": {
+    "name": "dashboardUsageStatistics",
+    "type": "timeseries"
+  }
+}
