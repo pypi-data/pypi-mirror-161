@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Combination
+{% endblock %}
+
+
+{% block form %}
+<form action="{{ url_for('combination.combination', key='count', reverse='True') }}" method="POST">
+{% endblock %}
+
+
+{% block advanced %}
+<div class="tooltip">
+  <button onclick="myFunction()">Advanced Analysis</button>
+  <script>
+  function myFunction() {
+    const text = "This will connect to an external predictive engine!\nClick OK to proceed or Cancel.";
+    confirm(text);
+  }
+  </script>
+  <span class="tooltiptext">Click this link to see advanced combination analysis.</span>
+</div>
+{% endblock %}
+
+
+{% block chart %}
+<div>
+  <table>
+    <tr>
+      <th>
+        Evaluated Course 
+        <button type="submit" formaction="{{ url_for('combination.combination', key='course', reverse='False') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-down-a-z"></i>
+            <span class="tooltiptext">Click here to sort courses in ascending order.</span>
+          </div>
+        </button>
+        <button type="submit" formaction="{{ url_for('combination.combination', key='course', reverse='True') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-up-z-a"></i>
+            <span class="tooltiptext">Click here to sort courses in descending order.</span>
+          </div>
+        </button>
+      </th>
+      <th colspan="2">Combination</th>
+      <th>
+        Count
+        <button type="submit" formaction="{{ url_for('combination.combination', key='count', reverse='False') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-down-1-9"></i>
+            <span class="tooltiptext">Click here to sort combinations by count in ascending order.</span>
+          </div>
+        </button>
+        <button type="submit" formaction="{{ url_for('combination.combination', key='count', reverse='True') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-up-9-1"></i>
+            <span class="tooltiptext">Click here to sort combinations by count in descending order.</span>
+          </div>
+        </button>
+      </th>
+      <th>
+        Average Difficulty
+        <button type="submit" formaction="{{ url_for('combination.combination', key='mean', reverse='False') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-down-1-9"></i>
+            <span class="tooltiptext">Click here to sort combinations by average difficulty in ascending order.</span>
+          </div>
+        </button>
+        <button type="submit" formaction="{{ url_for('combination.combination', key='mean', reverse='True') }}">
+          <div class="tooltip">
+            <i class="fa-solid fa-arrow-up-9-1"></i>
+            <span class="tooltiptext">Click here to sort combinations by average difficulty in descending order.</span>
+          </div>
+        </button>
+      </th>
+    </tr>
+    {% for item in query_result %}
+      {% if row_limit is none or loop.index <= row_limit %}
+      <tr>
+        {% set other = item[0][1].difference((item[0][0],)) %}
+        <td>{{item[0][0].subject}} {{item[0][0].id}} - {{item[0][0].name}} </td>
+        {% for c in other %}
+          <td>{{c.subject}} {{c.id}}</td>
+        {% endfor %}
+        {% if other|length == 0 %}<td>-</td> <td>-</td>{% endif %}
+        {% if other|length == 1 %}<td>-</td>{% endif %}
+        <td>{{item[1].count}}</td>
+        <td>{{'%0.2f' % item[1].mean|float}}</td>
+      </tr>
+      {% endif %} 
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Summary Statistics
+{% endblock %}
+
+{% block form %}
+<form action="{{ url_for('summary.fetch') }}" method="POST">
+{% endblock %}
+
+{% block chart %}
+<div>
+  <table>
+    <tr>
+      <th>
+        Course 
+      </th>
+      <th>
+        Average Difficulty
+      </th>
+      <th>
+        Minimum Difficulty 
+      </th>
+      <th>
+        Maximum Difficulty 
+      </th>
+    </tr>
+    {% if microservice_result %}
+      {% for item in microservice_result %}
+      <tr>
+        <td>{{ item[0] }}</td>
+        <td>{{ item[1][0] }}</td>
+        <td>{{ item[1][1] }}</td>
+        <td>{{ item[1][2] }}</td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </table >
+</div>
+{% endblock %}
