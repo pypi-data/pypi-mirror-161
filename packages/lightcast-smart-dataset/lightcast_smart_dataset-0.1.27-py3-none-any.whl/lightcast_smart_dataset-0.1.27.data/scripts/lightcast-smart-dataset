@@ -1,0 +1,137 @@
+#!python
+"""lightcast-smart-dataset
+
+Usage:
+    lightcast-smart-dataset uk occupation-insight soc --username=<username> --password=<password> --occupation=<occupation> --area=<area>
+    [--area-level=<level>]
+    [--occupation-level=<level>]
+    lightcast-smart-dataset uk occupation-insight occupation --username=<username> --password=<password> --occupation=<occupation> --area=<area>
+    [--area-level=<level>]
+    [--occupation-level=<level>]
+    lightcast-smart-dataset global occupation-insight occupation --username=<username> --password=<password> --occupation=<occupation> --area=<area>
+    [--area-level=<level>]
+    [--occupation-level=<level>]
+    lightcast-smart-dataset taxonomy occupation --username=<username> --password=<password>
+    lightcast-smart-dataset taxonomy soc4 --username=<username> --password=<password>
+    lightcast-smart-dataset taxonomy global-market --username=<username> --password=<password>
+    lightcast-smart-dataset taxonomy uk-nuts3 --username=<username> --password=<password>
+    lightcast-smart-dataset -h | --help
+
+
+Options:
+    -h --help                     Show this screen
+    uk|global                     Use the UK Lightcast dataset or the global Lightcast dataset
+    occupation-insight            Use the Occupation Insight API
+    soc|occupation                Use the SOC or the Lightcast Occupation library
+    taxonomy                      Download a specific taxonomy
+    --username=<username>         Your username
+    --password=<password>         Your password
+    --occupation=<occupation>     The label of the desidered occupation
+    --area=<area>                 The label of the desidered area
+    --area-level=<level>          Level 1,2,3,4 (for UK) or 1,2 (for Global)
+    --occupation-level<level>     Level 1,2,3,4 (for Lightcast) or 1,2,3,4 (for SOC)
+"""
+from client import LightcastSmartDataset
+from docopt import docopt
+import sys
+import pandas as pd
+import datetime
+
+
+def export_results(response):
+    ds_current_year_active_postings = pd.DataFrame.from_dict(response.current_year_active_postings)
+    ds_previous_year_active_postings = pd.DataFrame.from_dict(response.previous_year_active_postings)
+    ds_time_serie = pd.concat([ds_current_year_active_postings, ds_previous_year_active_postings], axis=1)
+    ds_time_serie.columns = ["current_month", "current_unique_postings", "previous_month", "previous_unique_postings"]
+    ds_top_10_common_skills = pd.DataFrame.from_dict(response.top_10_common_skills)
+    ds_top_10_specialized_skills = pd.DataFrame.from_dict(response.top_10_specialized_skills)
+    ds_top_10_job_titles = pd.DataFrame.from_dict(response.top_10_job_titles)
+    ds_top_10_employers = pd.DataFrame.from_dict(response.top_10_employers)
+
+    ct = datetime.datetime.now()
+    ts = ct.timestamp()
+    writer = pd.ExcelWriter(f'lightcast_occupation_insight{ts}.xlsx',engine='xlsxwriter')   
+    workbook=writer.book
+    ws_time_serie=workbook.add_worksheet('time_serie')
+    ws_top_10_common_skills=workbook.add_worksheet('top_10_common_skills')
+    ws_top_10_spec_skills=workbook.add_worksheet('top_10_spec_skills')
+    ws_top_10_job_titles=workbook.add_worksheet('top_10_job_titles')
+    ws_top_10_employers=workbook.add_worksheet('top_10_employers')
+    writer.sheets['time_serie'] = ws_time_serie
+    writer.sheets['top_10_common_skills'] = ws_top_10_common_skills
+    writer.sheets['top_10_spec_skills'] = ws_top_10_spec_skills
+    writer.sheets['top_10_job_titles'] = ws_top_10_job_titles
+    writer.sheets['top_10_employers'] = ws_top_10_employers
+    ds_time_serie.to_excel(writer, sheet_name='time_serie', startrow=0 , startcol=0)
+    ds_top_10_common_skills.to_excel(writer, sheet_name='top_10_common_skills', startrow=0 , startcol=0)
+    ds_top_10_specialized_skills.to_excel(writer, sheet_name='top_10_spec_skills', startrow=0 , startcol=0)
+    ds_top_10_job_titles.to_excel(writer, sheet_name='top_10_job_titles', startrow=0 , startcol=0)
+    ds_top_10_employers.to_excel(writer, sheet_name='top_10_employers', startrow=0 , startcol=0)
+    writer.close()
+    writer.handles = None
+
+if __name__ == '__main__':
+    args = docopt(__doc__)
+    username = args.get('--username')
+    password = args.get('--password')
+    occupation = args.get('--occupation')
+    area = args.get('--area')
+    occupation_level = args.get('--occupation-level')
+    area_level = args.get('--area-level')
+
+
+    if args.get('taxonomy'):
+        client = LightcastSmartDataset(username=username, password=password)
+        if args.get('soc4'):
+            response = client.taxonomy().getSocLevel4()
+            soc4_occupation = pd.DataFrame.from_dict(response)
+            soc4_occupation.to_excel("soc4_occupation.xlsx")
+        if args.get('occupation'):
+            response = client.taxonomy().getOccupation()
+            occupation = pd.DataFrame.from_dict(response)
+            occupation.to_excel("occupation.xlsx")
+        if args.get('global-market'):
+            response = client.taxonomy().getGlobalMarket()
+            globalmarket = pd.DataFrame.from_dict(response)
+            globalmarket.to_excel("global-market.xlsx")
+        if args.get('uk-nuts3'):
+            response = client.taxonomy().getUkNuts3()
+            uknuts3 = pd.DataFrame.from_dict(response)
+            uknuts3.to_excel("uk-nuts3t.xlsx")
+
+    if args.get('uk'):
+        client = LightcastSmartDataset(username=username, password=password)
+        if args.get('soc') and args.get('occupation-insight'):
+            response = client.ukDataset().getSocOccupationInsight(
+                occupation=occupation,
+                occupation_level=occupation_level,
+                area=area,
+                area_level=area_level
+            )
+            print(response.raw_response.decode("utf-8"))
+            export_results(response)
+
+        if args.get('occupation') and args.get('occupation-insight'):
+            response = client.ukDataset().getOccupationInsight(
+                occupation=occupation,
+                occupation_level=occupation_level,
+                area=area,
+                area_level=area_level
+            )
+            print(response.raw_response.decode("utf-8"))
+            export_results(response)
+
+    elif args.get('global'):
+        client = LightcastSmartDataset(username=username, password=password)
+        if args.get('occupation-insight'):
+            response = client.globalDataset().getOccupationInsight(
+                occupation=occupation,
+                occupation_level=occupation_level,
+                area=area,
+                area_level=area_level
+            )
+            print(response.raw_response.decode("utf-8"))
+            export_results(response)
+    else:
+        print('[ERROR] Invalid operation, please check usage again',
+              file=sys.stderr)
