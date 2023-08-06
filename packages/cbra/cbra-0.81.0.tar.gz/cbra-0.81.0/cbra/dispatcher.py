@@ -1,0 +1,1 @@
+"""Declares :class:`Dispatcher`."""
