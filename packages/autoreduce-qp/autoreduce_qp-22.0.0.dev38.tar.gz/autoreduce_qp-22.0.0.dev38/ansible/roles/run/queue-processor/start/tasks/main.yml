@@ -1,0 +1,19 @@
+---
+
+- name: Start the container
+  community.docker.docker_container:
+    name: queue-processor
+    image: ghcr.io/autoreduction/autoreduce:latest
+    state: started
+    pull: true
+    env:
+      AUTOREDUCTION_PRODUCTION: "true"
+    volumes:
+      - /home/{{ autoreduction_user }}/.autoreduce:/home/{{ autoreduction_user }}/.autoreduce:rw
+      - /instrument:/instrument:rw
+      - /isis:/isis
+      - /shared-config:/shared-config
+    network_mode: host
+    detach: yes
+    comparisons:
+      image: strict
