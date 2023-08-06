@@ -1,0 +1,89 @@
+# ---------------------------------------------------------------------------------------------------------------------
+# LAMBDA
+# ---------------------------------------------------------------------------------------------------------------------
+
+locals {
+  {{ resource_name }}_lambda_name = "{{ resource_name }}-{{ workspace }}"
+  {%- if environment_variable_files %}
+  {{ resource_name }}_environment_variables = [
+    for envars_string in data.local_file.{{ resource_name }}_environment_variables_files: jsondecode(envars_string.content)
+  ]
+  {%- endif %}
+}
+
+data "aws_s3_object" "{{ resource_name }}-b64sha256" {
+  provider = aws.{{ resource_name }}
+  bucket = "{{ bucket }}"
+  key = "{{ key }}.b64sha256"
+}
+
+{% if layers -%}
+data "aws_lambda_layer_version" "{{ resource_name }}" {
+  provider = aws.{{ resource_name }}
+  for_each = {for layer_name in [{% for layer in layers %}"{{ layer }}",{% endfor %}]: layer_name => layer_name}
+  layer_name = each.value
+}
+{%- endif %}
+
+{% if environment_variable_files -%}
+data "local_file" "{{ resource_name }}_environment_variables_files" {
+  for_each = local.{{ resource_name }}_when_stage == 1 ? {for envar_file in {{ environment_variable_files | tojson }}: envar_file => envar_file} : {}
+  filename = each.value
+}
+{%- endif %}
+
+resource "aws_lambda_function" "{{ resource_name }}" {
+  provider = aws.{{ resource_name }}
+  count = local.{{ resource_name }}_when_stage
+  function_name = local.{{ resource_name }}_lambda_name
+  s3_bucket = "{{ bucket }}"
+  s3_key = "{{ key }}"
+  source_code_hash = local.{{ resource_name }}_when_stage > 0 ? data.aws_s3_object.{{ resource_name }}-b64sha256.body : ""
+  role = local.{{ resource_name }}_role_arn
+  handler = "{{ app_import_path }}"
+  description = "{{ description | replace("\n", "\\n") }}"
+  {%- if layers %}
+  layers = [for layer in data.aws_lambda_layer_version.{{ resource_name }} : layer.arn]
+  {%- endif %}
+  runtime = "python{{ python }}"
+  timeout = {{ timeout }}
+  memory_size = {{ memory_size }}
+  environment {
+    variables = merge(
+      {{ environment_variables | tojson }},
+{%- if environment_variable_files %}
+      [for item in local.{{ resource_name }}_environment_variables: merge(item,local.{{ resource_name }}_environment_variables...)][0],
+{%- endif %}
+      {"FLASK_DEBUG":"{{ '1' if workspace == "dev" else '0' }}", "FLASK_ENV":"{{ workspace }}"}
+    )
+  }
+  tracing_config {
+    mode = "Active"
+  }
+  vpc_config {
+    security_group_ids = local.{{ resource_name }}_security_group_ids
+    subnet_ids = local.{{ resource_name }}_subnet_ids
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.lambda_{{ resource_name }},
+  ]
+}
+
+resource "aws_lambda_permission" "{{ resource_name }}_allow_apigateway" {
+  provider = aws.{{ resource_name }}
+  count = local.{{ resource_name }}_when_stage
+  statement_id = "{{ resource_name }}_AllowExecutionFromAPIGateway"
+  action = "lambda:InvokeFunction"
+  function_name = local.{{ resource_name }}_lambda_name
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${join("", data.aws_api_gateway_rest_api.{{ resource_name }}.*.execution_arn)}/*/*"
+  depends_on = [aws_lambda_function.{{ resource_name }}]
+}
+
+resource "aws_cloudwatch_log_group" "lambda_{{ resource_name }}" {
+  provider = aws.{{ resource_name }}
+  count = local.{{ resource_name }}_when_stage
+  name = "/aws/lambda/${local.{{ resource_name }}_lambda_name}"
+  retention_in_days = 7
+}
