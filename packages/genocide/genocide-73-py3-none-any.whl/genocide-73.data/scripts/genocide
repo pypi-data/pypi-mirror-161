@@ -1,0 +1,88 @@
+#!python
+# This file is placed in the Public Domain.
+
+
+"Prosecutor. Court. Reconsider OTP-CR-117/19."
+
+
+__version__ = "73"
+
+
+import os
+import readline
+import sys
+import termios
+import time
+import traceback
+
+
+sys.path.insert(0, os.getcwd())
+sys.path.insert(0, "lib")
+
+
+from obj import Config
+
+
+Config.name = "genocide"
+Config.threaded = False
+Config.version = __version__
+Config.workdir = os.path.expanduser("~/.genocide")
+
+
+from genocide.irc import Config as IConfig
+
+
+IConfig.realname = "Prosecutor. Court. Reconsider OTP-CR-117/19."
+
+
+from obj import Class, Db, Object
+from obj import cdir, find, fntime, format, get, items, save, spl, update
+from obh import Callbacks, CLI, Commands, Console, Event, Handler, Table
+from obh import getname, starttime
+from obr import boot, init, isopt, wait, wrap
+
+
+import genocide.basic 
+import genocide.irc
+import genocide.model
+import genocide.rss
+
+
+Table.add(genocide.basic)
+Table.add(genocide.irc)
+Table.add(genocide.model)
+Table.add(genocide.rss)
+
+
+class CLI(CLI):
+
+    def raw(self, txt):
+        print(txt)
+
+
+class Console(Console):
+
+    def announce(self, txt):
+        pass
+
+    def raw(self, txt):
+        print(txt)
+
+
+def main():
+    boot(" ".join(sys.argv[1:]))
+    cdir(Config.workdir)
+    if len(sys.argv) > 1:
+        init("basic,irc,model,rss", Config.name, "reg")
+        c = CLI()
+        return c.cmd(" ".join(sys.argv[1:]))
+    print("%s shell started at %s" % (Config.name.upper(), time.ctime(starttime).replace("  ", " ")))
+    init("basic,irc,model,rss", "genocide", "reg")
+    init("irc,model,rss", "genocide")
+    print(format(Config, skip="password,type"))
+    c = Console()
+    c.start()
+    wait()
+
+
+wrap(main)
