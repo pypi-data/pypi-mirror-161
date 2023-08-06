@@ -1,0 +1,1 @@
+__all__=["course_info_model","course_type_model",]
