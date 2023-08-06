@@ -1,0 +1,152 @@
+Metadata-Version: 2.1
+Name: pymarketstack
+Version: 0.0.7
+Summary: A python library for the marketstack API
+Home-page: https://github.com/NoakPalander/pymarketstack
+Author: Noak Palander
+Author-email: noak.palander@protonmail.com
+Keywords: python,market,stocks,api,marketstack
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: Apache Software License
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# pymarketstack
+[![build](https://github.com/NoakPalander/pymarketstack/actions/workflows/python-publish.yml/badge.svg)](https://github.com/NoakPalander/pymarketstack/actions/workflows/python-publish.yml)
+
+Pymarket is a simple python library for the [Marketstack](https://marketstack.com/) API. It&rsquo;s a requirement to have a valid API token, the free version or a paid alternative, see [Pricing](https://marketstack.com/product). Needless to say, this is not an official library.
+
+# Available features
+The different features marketstack supports can be found on marketstack&rsquo;s [documentation](https://marketstack.com/documentation).
+
+### End of Data
+Gets the stock data after the market has closed.
+Supports 3 alternatives:
+
+-   All: Downloads all data.
+-   Latest: Downloads the data corresponding to the last date.
+-   Date: Downloads a specific range of data.
+
+### Intraday data
+Not yet implemented.
+
+### Splits data
+Not yet implemented.
+
+### Dividends data
+Not yet implemented.
+
+### Tickers
+Not yet implemented.
+
+### Exchanges
+Not yet implemented.
+
+### Currencies
+Not yet implemented.
+
+### Timezones
+Not yet implemented.
+
+# Usage
+```python
+from pymarketstack import EndOfDay, download
+
+query = EndOfDay.query(token="your api token")
+data, failed = download(query, "AAPL", "XEL", ...)
+```
+
+Here the first line will just create the request with the appropriate fields, the download function will return a tuple with a Response object and a list of strings corresponding to failed tickers. The query function has several options such as the usage of HTTPS, etc.
+If you want to check how much quota downloading the symbols will take, you can use the quota function as follows:
+
+```python
+from pymarketstack import EndOfDay, quota
+
+query = EndOfDay.query(token="your api token")
+q: int = quota(query, "AAPL", "XEL", ...)
+```
+
+An end of data request will return 2 things, a `Pagination` object and a list of `Data` objects. Both of which are wrapped
+in a `Response` object.
+
+
+### Responses
+```python
+class Response:
+    pagination: Pagination
+    data: List[Data]
+```
+
+The data field is overall the most interesting one and contains a single date of data for each ticker. The fields include things like date, symbol, open, close, high, low, among others. All the fields are listed in the [documentation.](https://marketstack.com/documentation)
+
+In case of an error the library will raise an exception corresponding to the common API error codes.
+An example API response could be:
+```json
+{
+    "pagination": {
+        "limit": 100,
+        "offset": 0,
+        "count": 100,
+        "total": 9944
+    },
+    "data": [
+        {
+            "open": 129.8,
+            "high": 133.04,
+            "low": 129.47,
+            "close": 132.995,
+            "volume": 106686703.0,
+            "adj_high": 133.04,
+            "adj_low": 129.47,
+            "adj_close": 132.995,
+            "adj_open": 129.8,
+            "adj_volume": 106686703.0,
+            "split_factor": 1.0,
+            "dividend": 0.0,
+            "symbol": "AAPL",
+            "exchange": "XNAS",
+            "date": "2021-04-09T00:00:00+0000"
+            },
+            [...]
+    ]
+}
+```
+
+which would be equivalent to
+```python
+Response(
+    pagination = Pagination(limit=100, offset=0, count=100, total=9944),
+    data = [
+        Data(
+            open=129.8,
+            high=133.04,
+            low=129.47,
+            close=132.995,
+            volume=106686703.0,
+            adj_high=133.04,
+            adj_low=129.47,
+            adj_close=132.995,
+            adj_open=129.8,
+            adj_volume=106686703.0,
+            split_factor=1.0,
+            dividend=0.0,
+            symbol="AAPL",
+            exchange="XNAS",
+            date=datetime.datetime(2021, 4, 29)
+        ),
+        ...
+    ]
+)
+```
+due to the usage of dataclasses-json, Response, Pagination, and Data are serializable to/from dicts and json strings.
+
+# Dependencies
+The dependencies used are listed in the requirements.txt package file but the main ones are:
+
+-   [aiohttp](https://pypi.org/project/aiohttp/)
+-   [dataclasses-json](https://pypi.org/project/dataclasses-json/)
+-   [marshmallow](https://pypi.org/project/marshmallow/)
+
+# License
+Apache 2.0, see the LICENSE file for more details.
