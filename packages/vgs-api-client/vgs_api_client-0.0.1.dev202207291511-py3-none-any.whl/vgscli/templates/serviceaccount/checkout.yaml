@@ -1,0 +1,15 @@
+apiVersion: 1.0.0
+kind: ServiceAccount
+data:
+  name: checkout-{{ vault_id }}
+  annotations:
+    "vgs.io/vault-id": "{{ vault_id }}"
+  scopes:
+    - name: financial-instruments:write
+      optional: true
+    - name: transfers:write
+      optional: true
+    - name: orders:write
+      optional: true
+
+  accessTokenLifespan: 28800
