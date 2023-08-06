@@ -1,0 +1,78 @@
+Metadata-Version: 2.1
+Name: mc-pdf2txt
+Version: 0.2.0
+Summary: Multi-column PDF to Text
+Home-page: https://github.com/tos-kamiya/mc-pdf2txt
+Author: Toshihiro kamiya
+Author-email: kamiya@mbj.nifty.com
+License: BSD 2-Clause License
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Provides-Extra: docopt-ng
+Provides-Extra: docopt
+License-File: LICENSE
+
+mc-pdf2txt
+==========
+
+Convert multi-column pdf to text with `poppler` and `tesseract`.
+
+## Install
+
+(1) Install dependencies:
+
+Install poppler.
+
+```sh
+sudo apt install poppler-utils
+```
+
+Install tesseract-ocr
+
+```sh
+sudo apt install tesseract-ocr
+```
+
+with the language data files of your choice, e.g.,
+
+```sh
+sudo apt install tesseract-ocr-jpn
+```
+
+(2) Install mc-pdf2txt
+
+To make `mc-pdf2txt` compatible with both `docopt` and `docopt-ng`, dependencies on them are now explicitly extra dependencies.
+
+If you know either `docopt` or `docopt-ng` is already installed on your system, just try the following:
+
+```sh
+pip3 install mc-pdf2txt
+```
+
+If you are unsure `docopt` or `docopt-ng` is installed on your system, try the following:
+
+```sh
+pip3 install mc-pdf2txt[docopt-ng]
+```
+
+## Usage
+
+```
+Usage:
+  mc-pdf2txt [options] <input>...
+
+Options:
+  -l LANG           Language, such as `eng`, `jpn`, or `eng+jpn`.
+  <input>           Input PDF file.
+  -o OUTPUT         Output text file.
+  -r DPI            Resolution of temporary image file [default: 600].
+  --timeout SEC     Timeout in sec to exec `pdftoppm` [default: 60].
+  --page-separator LINE     String to be output as page separator [default: ---].
+  --psm VALUE       Page segmentation mode of `tessoract-ocr` [default: 3].
+  --verbose         Verbose.
+```
