@@ -1,0 +1,191 @@
+['MainSettings'] <-:-:-> OMFITmainSettings <-:-:-> ./skeletonMainSettingsNamelist.txt <-:-:-> {}
+['MainSettings']['SETUP']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"OMFITcwd+os.sep+'runs'+os.sep" <-:-:-> {}
+['MainSettings']['SETUP']['modulesDir'] <-:-:-> OMFITexpression <-:-:-> _"if 'institutionProjectsDir' in MainSettings['SETUP']:\n    return_variable=os.path.abspath(MainSettings['SETUP']['institutionProjectsDir']+os.sep+os.environ['USER']+os.sep+'modules')+os.sep\nelse:\n    return_variable=os.path.abspath(os.environ['HOME']+os.sep+'OMFITdata'+os.sep+'modules')+os.sep" <-:-:-> {}
+['MainSettings']['SETUP']['projectsDir'] <-:-:-> OMFITexpression <-:-:-> _"if 'institutionProjectsDir' in MainSettings['SETUP']:\n    return_variable=os.path.abspath(MainSettings['SETUP']['institutionProjectsDir']+os.sep+os.environ['USER']+os.sep+'projects')+os.sep\nelse:\n    return_variable=os.path.abspath(os.environ['HOME']+os.sep+'OMFITdata'+os.sep+'projects')+os.sep" <-:-:-> {}
+['MainSettings']['SETUP']['stats_file'] <-:-:-> OMFITexpression <-:-:-> _"os.path.abspath(OMFITsettingsDir+'/OMFITstats.txt')" <-:-:-> {}
+['MainSettings']['SERVER']['ASIPP_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['CCFE_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['CEA_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['EPFL_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['GA_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['GF_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['GITHUB_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['IFERC_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['IFS_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['IPPCZ_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['IPPMPG_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['ITER_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['ITM_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['KFE_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['MIT_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['NERSC_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['PPPL_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['RFX_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['SWIP_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['TCV_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['UCSD_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['USPBR_username'] <-:-:-> OMFITexpression <-:-:-> _"os.environ['USER']" <-:-:-> {}
+['MainSettings']['SERVER']['abacus']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['abacus']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'IPPCZ_username\']+"@abacus.tok.ipp.cas.cz:22"' <-:-:-> {}
+['MainSettings']['SERVER']['alcdata']['MDS_server'] <-:-:-> OMFITexpression <-:-:-> _"if is_localhost(['cmodws', 'mfews', 'mferws']):\n   return_variable = 'alcdata.psfc.mit.edu:8000'\nelse:\n   return_variable = MainSettings['SERVER']['MIT_username']+'@alcdata.psfc.mit.edu:8000'" <-:-:-> {}
+['MainSettings']['SERVER']['alcdb2']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _"return_variable=OMFIT['MainSettings']['SERVER']['MIT_username']+':pfcworld@alcdb2.psfc.mit.edu:1433'" <-:-:-> {}
+['MainSettings']['SERVER']['alcdb2']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cmodws']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['altair']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['altair']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'CEA_username\']+"@altair.partenaires.cea.fr:22"' <-:-:-> {}
+['MainSettings']['SERVER']['altair']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['andromede']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['andromede']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'CEA_username\']+"@andromede1.partenaires.cea.fr:22"' <-:-:-> {}
+['MainSettings']['SERVER']['andromede']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['archimedes']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['archimedes']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'IFS_username\']+"@archimedes.ph.utexas.edu:22"' <-:-:-> {}
+['MainSettings']['SERVER']['atlas']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['atom']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['atom']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@atom.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['atom']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['aug_mdsplus']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['gate_aug']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['banach']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['banach']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@banach.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['banach']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['banach']['storedir'] <-:-:-> OMFITexpression <-:-:-> _"'/home/'+MainSettings['SERVER']['GA_username']+'/OMFITdata/archive'" <-:-:-> {}
+['MainSettings']['SERVER']['cfetr']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/home/com/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['cfetr']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'ASIPP_username\']+"@211.86.151.150:22"' <-:-:-> {}
+['MainSettings']['SERVER']['cfetr']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['cmodws']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['cmodws']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'MIT_username\']+"@cmodws%02d.psfc.mit.edu:22"%parent[\'workstation_number\']' <-:-:-> {}
+['MainSettings']['SERVER']['cmodws']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['mferws']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['cmodws']['workstation_number'] <-:-:-> OMFITexpression <-:-:-> _"return_variable=80\ntry:\n    if is_institution(OMFIT['MainSettings']['SETUP']['institution'],'MIT'):\n       return_variable=int(re.findall('cmodws[0-9]+',' '.join(utils_base._localhost_names))[0].strip('cmodws'))\nexcept Exception:\n    pass" <-:-:-> {}
+['MainSettings']['SERVER']['cori']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'NERSC_username\']+"@cori.nersc.gov:22"' <-:-:-> {}
+['MainSettings']['SERVER']['cori']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"if is_localhost('cori'):\n    return_variable=os.environ['SCRATCH']+'/OMFIT/runs/'\nelse:\n    return_variable='$SCRATCH/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['cybele']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@cybele.gat.com:2039"' <-:-:-> {}
+['MainSettings']['SERVER']['deepthought']['workDir'] <-:-:-> OMFITexpression <-:-:-> _'"/work/" + MainSettings[\'SERVER\'][\'GF_username\']+"/OMFIT/runs/"' <-:-:-> {}
+['MainSettings']['SERVER']['deepthought']['server'] <-:-:-> OMFITexpression <-:-:-> _'return_variable=MainSettings[\'SERVER\'][\'GF_username\']+"@deepthought"' <-:-:-> {}
+['MainSettings']['SERVER']['d3drdb']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _'user=\'guest\'\npasswd=\'guest_pwd\'\nfor login_file in [\'D3DRDB.sybase_login\',\'d3drdb.sybase_login\']:\n   login_file=os.environ[\'HOME\']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,\'r\') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception:\n      pass\nreturn_variable=user+\':\'+\'@\'+"d3drdb.gat.com:8001"' <-:-:-> {}
+['MainSettings']['SERVER']['d3drdb']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['d3dsqlsrvr']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _'user=\'guest\'\npasswd=\'guest_pwd\'\nfor login_file in [\'D3DRDB.sybase_login\',\'d3drdb.sybase_login\']:\n   login_file=os.environ[\'HOME\']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,\'r\') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception:\n      pass\nreturn_variable=user+\':\'+\'@\'+"d3drdb.gat.com:8001"' <-:-:-> {}
+['MainSettings']['SERVER']['d3dsqlsrvr']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['d3sqlsrvr']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _'user=\'guest\'\npasswd=\'guest_pwd\'\nfor login_file in [\'D3SQLSRVR.sybase_login\',\'d3sqlsrvr.sybase_login\']:\n   login_file=os.environ[\'HOME\']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,\'r\') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception:\n      pass\nreturn_variable=user+\':\'+\'@\'+"d3sqlsrvr.gat.com:1433"' <-:-:-> {}
+['MainSettings']['SERVER']['d3sqlsrvr']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['east_compute']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"'/tmp/'+MainSettings['SERVER']['ASIPP_username']+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['east_compute']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'ASIPP_username\']+"@cs4.ipp.ac.cn:22"' <-:-:-> {}
+['MainSettings']['SERVER']['east_compute']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['east_gate']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['east_database']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _'user=\'guest\'\npasswd=\'guest_pwd\'\nserver=\'202.127.205.9\'\nfor login_file in [\'east_database.sybase_login\']:\n   login_file=os.environ[\'HOME\']+os.sep+login_file\n   if os.path.exists(login_file):\n      with open(login_file,\'r\') as f:\n          try:\n              dummy,server,database_name,user,passwd=map(lambda x:x.strip(),f.readlines())\n              break\n          except Exception:\n              pass\nreturn_variable=user+\':\'+\'@\'+server+":3306"' <-:-:-> {}
+['MainSettings']['SERVER']['east_database']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"OMFIT['MainSettings']['SERVER']['east_gate']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['east_database']['driver'] <-:-:-> OMFITexpression <-:-:-> _"'MySQL'" <-:-:-> {}
+['MainSettings']['SERVER']['east_gate']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'ASIPP_username\']+"@gate.ipp.ac.cn:4022"' <-:-:-> {}
+['MainSettings']['SERVER']['eastdata']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['energy']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _"user='guest'\npasswd='guest_pwd'\nfor login_file in ['ENERGY.sybase_login','energy.sybase_login']:\n   login_file=os.environ['HOME']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,'r') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception as _excp:\n      print(_excp)\n      pass\nreturn_variable=f'{user}:{passwd}@energy.gat.com:1433'" <-:-:-> {}
+['MainSettings']['SERVER']['energy']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['engaging']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['engaging']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'MIT_username\']+"@eofe%s.mit.edu:22"%parent[\'workstation_number\']' <-:-:-> {}
+['MainSettings']['SERVER']['freia']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['freia']['server'] <-:-:-> OMFITexpression <-:-:-> _'if is_localhost(\'freia\'):\n   return_variable=assemble_server(os.environ[\'USER\'],\'\',platform.uname()[1],\'22\')\nelse:\n   servers=list(range(13,33))\n   servers.remove(15)\n   servers.remove(31)\n   index=hash(MainSettings[\'EXPERIMENT\'][\'projectID\'])%len(servers)\n   return_variable=MainSettings[\'SERVER\'][\'CCFE_username\']+"@freia%03d:22"%servers[index]' <-:-:-> {}
+['MainSettings']['SERVER']['freia']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['gadb-harvest']['HARVEST_server'] <-:-:-> OMFITexpression <-:-:-> _"if 'HARVEST_HOST' not in os.environ:\n    return_variable='gadb-harvest.duckdns.org'\nelse:\n    return_variable=os.environ['HARVEST_HOST']\n\nif 'HARVEST_PORT' not in os.environ:\n    return_variable+=':32000'\nelse:\n    return_variable+=':'+os.environ['HARVEST_PORT']" <-:-:-> {}
+['MainSettings']['SERVER']['gadb-harvest']['aws_credentials_file'] <-:-:-> OMFITexpression <-:-:-> _"aws_filename=os.sep.join([os.environ['HOME'],'.aws','credentials'])\nif os.path.exists(aws_filename):\n    return_variable=aws_filename\nelse:\n    return_variable=''" <-:-:-> {}
+['MainSettings']['SERVER']['gate_aug']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'IPPMPG_username\']+"@gate2.aug.ipp.mpg.de:22"' <-:-:-> {}
+['MainSettings']['SERVER']['heimdall']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['heimdall']['server'] <-:-:-> OMFITexpression <-:-:-> _'if is_localhost(\'heimdall\'):\n   return_variable=assemble_server(os.environ[\'USER\'],\'\',platform.uname()[1],\'22\')\nelse:\n   servers=list(range(49))\n   index=hash(MainSettings[\'EXPERIMENT\'][\'projectID\'])%len(servers)\n   return_variable=MainSettings[\'SERVER\'][\'CCFE_username\']+"@heimdall%03d:22"%servers[index]' <-:-:-> {}
+['MainSettings']['SERVER']['heimdall']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['helios']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/csc/workdir0/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['helios']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'IFERC_username\']+"@helios.iferc-csc.org"' <-:-:-> {}
+['MainSettings']['SERVER']['huez']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _"user='d3dpub'\npasswd='d3dpub'\nfor login_file in ['.pgdb','.pgpass']:\n   login_file=os.environ['HOME']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,'r') as _f:\n             user,passwd=map(lambda x:x.strip(),_f.read().split(':')[-2:])\n         break\n   except Exception:\n      pass\nreturn_variable=user+'@'+'huez.gat.com:5681'" <-:-:-> {}
+['MainSettings']['SERVER']['huez']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['iris']['tunnel']" <-:-:-> {}
+['MainSettings']['SERVER']['ikstar']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['ikstar']['server'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['KFE_username']+'@172.17.250.21:22'" <-:-:-> {}
+['MainSettings']['SERVER']['ikstar']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['iris']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/cluster-scratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['iris']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@iris.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['iris']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['iter_login']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['iter_login']['server'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['ITER_username']+'@hpc-login.iter.org:22'" <-:-:-> {}
+['MainSettings']['SERVER']['iter_sdcc']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['iter_sdcc']['server'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['ITER_username']+'@sdcc-login.iter.org:22'" <-:-:-> {}
+['MainSettings']['SERVER']['itm_gateway']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/pfs/scratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['itm_gateway']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'ITM_username\']+"@login.eufus.eu:22"' <-:-:-> {}
+['MainSettings']['SERVER']['jet_mdsplus']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['kstar_mds']['MDS_server'] <-:-:-> OMFITexpression <-:-:-> _"# KFE servers have different IP addresses facing their internal network vs. facing the internet\n# When on-site at KFE or on a VPN, access via the internet IP is impossible.\n# When off-site without VPN, access via the internal IP is impossible.\n# The IP addresses change sometimes, and sometimes there are other connection issues.\n# The expressions here are set up to try to make it easy to understand how the IPs are determined.\nif parent['on_site_kfe']:\n    s = parent['internal_mds_server']\nelse:\n    s = parent['external_mds_server']\nu = MainSettings['SERVER']['KFE_username']\nif u == '' or parent['on_site_kfe']:\n    return_variable = s\nelse:\n    return_variable = '{}@{}'.format(u, s)" <-:-:-> {}
+['MainSettings']['SERVER']['kstar_mds']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"if parent['on_site_kfe']: \n    return_variable = '' \nelse: \n    return_variable = MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['kstar_mds']['on_site_kfe'] <-:-:-> OMFITexpression <-:-:-> _"'.'.join(get_ip().split('.')[0:2]) == '172.17'" <-:-:-> {}
+['MainSettings']['SERVER']['lac']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['lac']['server'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['EPFL_username']+'@lac.epfl.ch:22'" <-:-:-> {}
+['MainSettings']['SERVER']['lac']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['EPFL_username']+'@lac911.epfl.ch:22'" <-:-:-> {}
+['MainSettings']['SERVER']['localhost']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"OMFITcwd+os.sep+'remote_runs'+os.sep" <-:-:-> {}
+['MainSettings']['SERVER']['loki']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _"user='guest'\npasswd='guest_pwd'\nfor login_file in ['loki.sybase_login','LOKI.sybase_login']:\n   login_file=os.environ['HOME']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,'r') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception as _excp:\n      print(_excp)\n      pass\nreturn_variable=f'{user}:{passwd}@loki.gat.com:1433'" <-:-:-> {}
+['MainSettings']['SERVER']['loki']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['mds_ipp_ac_cn']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['mdsplus_dev_gat']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['mferws']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['mferws']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'MIT_username\']+"@mferws%02d.psfc.mit.edu:9224"%parent[\'workstation_number\']' <-:-:-> {}
+['MainSettings']['SERVER']['mfews']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['mfews']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'MIT_username\']+"@mfews%02d.psfc.mit.edu:9224"%parent[\'workstation_number\']' <-:-:-> {}
+['MainSettings']['SERVER']['mfews']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['mferws']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['mfews']['workstation_number'] <-:-:-> OMFITexpression <-:-:-> _"return_variable=8\ntry:\n    if is_institution(OMFIT['MainSettings']['SETUP']['institution'],'MIT'):\n       return_variable=int(re.findall('mfews[0-9]+',' '.join(utils_base._localhost_names))[0].strip('mfews'))\nexcept Exception:\n    pass" <-:-:-> {}
+['MainSettings']['SERVER']['morti']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['morti']['server'] <-:-:-> OMFITexpression <-:-:-> _'"fusionbot@morti.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['morti']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['mst_mdsplus']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['nstxrdb']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _'user=MainSettings[\'SERVER\'][\'PPPL_username\']\npasswd=\'pfcworld\'\nfor login_file in [\'nstxlogs.sybase_login\']:\n   login_file=os.environ[\'HOME\']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,\'r\') as f:\n             user,passwd=map(lambda x:x.strip(),f.readlines())\n         break\n   except Exception:\n      pass\nreturn_variable=user+\':\'+\'@\'+"sql2008.pppl.gov"' <-:-:-> {}
+['MainSettings']['SERVER']['omega']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/cscratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['omega']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@omega.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['omega']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['orion']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['portal-ext']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/p/omfit/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['portal-ext']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'PPPL_username\']+"@portal-ext.pppl.gov:22"' <-:-:-> {}
+['MainSettings']['SERVER']['portal-ext']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_nx']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/p/omfit/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_nx']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'PPPL_username\']+"@nx%02d.pppl.gov:22"%(int(parent[\'workstation_number\']))' <-:-:-> {}
+['MainSettings']['SERVER']['pppl_nx']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_nx']['workstation_number'] <-:-:-> OMFITexpression <-:-:-> _"return_variable=80\ntry:\n    if is_institution(OMFIT['MainSettings']['SETUP']['institution'],'PPPL'):\n       return_variable=int(re.findall('nx[0-9]+',' '.join(utils_base._localhost_names))[0].strip('nx'))\nexcept Exception:\n    pass" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_postgres']['RDB_server'] <-:-:-> OMFITexpression <-:-:-> _"user='nstxpub'\npasswd='nstxpub'\nfor login_file in ['.pgdb','.pgpass']:\n   login_file=os.environ['HOME']+os.sep+login_file\n   try:\n      if os.path.exists(login_file):\n         with open(login_file,'r') as _f:\n             user,passwd=map(lambda x:x.strip(),_f.read().split(':')[-2:])\n         break\n   except Exception:\n      pass\nreturn_variable=user+'@'+'postgres-srv.pppl.gov:5432'" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_postgres']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['iris']['tunnel']" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_sunfire']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/p/omfit/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['pppl_sunfire']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'PPPL_username\']+"@sunfire08.pppl.gov:22"' <-:-:-> {}
+['MainSettings']['SERVER']['pppl_sunfire']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['rat']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"'/scratch/'+MainSettings['SERVER']['RFX_username']+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['rat']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'RFX_username\']+"@rat2.rfx.local:22"' <-:-:-> {}
+['MainSettings']['SERVER']['rat']['MDS_server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'RFX_username\']+"@rfxssh.igi.cnr.it:8000"' <-:-:-> {}
+['MainSettings']['SERVER']['rat']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['rfxssh']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['rfxssh']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"'/scratch/'+MainSettings['SERVER']['RFX_username']+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['rfxssh']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'RFX_username\']+"@rfxssh.igi.cnr.it:22"' <-:-:-> {}
+['MainSettings']['SERVER']['saga']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/mnt/beegfs/OMFIT/'+username+'/'" <-:-:-> {}
+['MainSettings']['SERVER']['saga']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@saga.gat.com"' <-:-:-> {}
+['MainSettings']['SERVER']['saga']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['saturn']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/cluster-scratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['saturn']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@saturn.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['saturn']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['shenma']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/scratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['shenma']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'ASIPP_username\']+"@shenma.ipp.ac.cn:22"' <-:-:-> {}
+['MainSettings']['SERVER']['shenma']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['skylark']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['sophie']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['sophie']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'KFE_username\']+"@172.23.103.120:22"' <-:-:-> {}
+['MainSettings']['SERVER']['sophie']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['soroban']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['soroban']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'IPPCZ_username\']+"@soroban.tok.ipp.cas.cz:22"' <-:-:-> {}
+['MainSettings']['SERVER']['summit_ga']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/home/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['summit_ga']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@summit1.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['summit_ga']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['swip_cluster']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/home/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['swip_cluster']['server'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['SWIP_username']+'@cluster02.swip.ac.cn:22'" <-:-:-> {}
+['MainSettings']['SERVER']['swip_cluster']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['tcabrcl']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['tcabrcl']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'USPBR_username\']+"@tcabrcl.if.usp.br"' <-:-:-> {}
+['MainSettings']['SERVER']['tcv_mdsplus']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['EPFL_username']+'@lac911.epfl.ch:22'" <-:-:-> {}
+['MainSettings']['SERVER']['tok']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/toks/scratch/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['tok']['server'] <-:-:-> OMFITexpression <-:-:-> _'if is_localhost(\'tok\'):\n   return_variable=assemble_server(os.environ[\'USER\'],\'\',platform.uname()[1],\'22\')\nelse:\n   return_variable=MainSettings[\'SERVER\'][\'IPPMPG_username\']+"@tok01:22"' <-:-:-> {}
+['MainSettings']['SERVER']['tok']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['gate_aug']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['toki']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['toki']['server'] <-:-:-> OMFITexpression <-:-:-> _'if is_localhost(\'toki\'):\n   return_variable=assemble_server(os.environ[\'USER\'],\'\',platform.uname()[1],\'22\')\nelse:\n   return_variable=MainSettings[\'SERVER\'][\'IPPMPG_username\']+"@toki08:22"' <-:-:-> {}
+['MainSettings']['SERVER']['toki']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['gate_aug']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['transpgrid']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['tscc']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['tscc']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'UCSD_username\']+"@tscc-login.sdsc.edu:22"' <-:-:-> {}
+['MainSettings']['SERVER']['ukstar']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['ukstar']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'KFE_username\']+"@172.17.250.201:22"' <-:-:-> {}
+['MainSettings']['SERVER']['ukstar']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER'][MainSettings['SERVER']['default_tunnel']]['server']" <-:-:-> {}
+['MainSettings']['SERVER']['vidar']['workDir'] <-:-:-> OMFITexpression <-:-:-> _"username=parse_server(SERVER[parseLocation(parentName)[-1]]['server'])[0]\nreturn_variable='/tmp/'+username+'/OMFIT/runs/'" <-:-:-> {}
+['MainSettings']['SERVER']['vidar']['server'] <-:-:-> OMFITexpression <-:-:-> _'MainSettings[\'SERVER\'][\'GA_username\']+"@vidar.gat.com:22"' <-:-:-> {}
+['MainSettings']['SERVER']['vidar']['tunnel'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['cybele']['server']" <-:-:-> {}
+['MainSettings']['SERVER']['idl'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['default']" <-:-:-> {}
+['MainSettings']['SERVER']['matlab'] <-:-:-> OMFITexpression <-:-:-> _"MainSettings['SERVER']['default']" <-:-:-> {}
+['MainSettings']['SERVER']['portal'] <-:-:-> OMFITexpression <-:-:-> _'\nreturn_variable = "portal-ext"\nfor server in ["pppl_nx", "pppl_sunfire"]:\n   if is_localhost(server):\n      return_variable = server\n      break\n' <-:-:-> {}
