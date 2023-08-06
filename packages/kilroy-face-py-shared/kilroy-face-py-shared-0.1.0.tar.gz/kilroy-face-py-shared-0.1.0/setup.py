@@ -1,0 +1,34 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+package_dir = \
+{'': 'src'}
+
+packages = \
+['kilroy_face_py_shared', 'kilroy_face_py_shared.resources']
+
+package_data = \
+{'': ['*']}
+
+extras_require = \
+{'dev': ['pytest>=7.0,<8.0'], 'test': ['pytest>=7.0,<8.0']}
+
+setup_kwargs = {
+    'name': 'kilroy-face-py-shared',
+    'version': '0.1.0',
+    'description': 'shared code for kilroy face SDKs in Python 🤝',
+    'long_description': '<h1 align="center">kilroy-face-py-shared</h1>\n\n<div align="center">\n\nshared code for kilroy face SDKs in Python 🤝\n\n[![Tests](https://github.com/kilroybot/kilroy-face-py-shared/actions/workflows/test-multiplatform.yml/badge.svg)](https://github.com/kilroybot/kilroy-face-py-shared/actions/workflows/test-multiplatform.yml)\n[![Docs](https://github.com/kilroybot/kilroy-face-py-shared/actions/workflows/docs.yml/badge.svg)](https://github.com/kilroybot/kilroy-face-py-shared/actions/workflows/docs.yml)\n\n</div>\n\n---\n\nTODO\n\n## Installing\n\nUsing `pip`:\n\n```sh\npip install kilroy-face-py-shared\n```\n',
+    'author': 'kilroy',
+    'author_email': 'kilroymail@pm.me',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': 'https://github.com/kilroybot/kilroy-face-py-shared',
+    'package_dir': package_dir,
+    'packages': packages,
+    'package_data': package_data,
+    'extras_require': extras_require,
+    'python_requires': '>=3.9,<4.0',
+}
+
+
+setup(**setup_kwargs)
