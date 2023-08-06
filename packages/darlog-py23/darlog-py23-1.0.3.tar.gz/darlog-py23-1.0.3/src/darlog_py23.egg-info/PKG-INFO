@@ -1,0 +1,69 @@
+Metadata-Version: 2.1
+Name: darlog-py23
+Version: 1.0.3
+Summary: A tiny compatibility module for cross-Python2/3 code.
+Home-page: https://github.com/Lex-DRL/darlog-py23
+Author: Lex Darlog (Lex-DRL)
+Maintainer: Lex Darlog (Lex-DRL)
+License: LGPL-3.0-or-later
+Description: # [darlog-py23](https://github.com/Lex-DRL/darlog-py23)
+        
+        A tiny compatibility module for cross-Python2/3 code.
+        It's not a replacement for neither ``six`` nor ``__future__`` modules but is more of an extension to them.
+        
+        Currently, defines only a few functions:
+        
+        ## Contents
+        
+        ### `to_least_str`
+        Converts the given value to a string:
+        
+        * Python 2: tries to turn to a `str`, `unicode` if fails.
+        * Python 3: just an alias for `str()`.
+        
+        ### `@dataclass` decorator
+        Tries to use the built-in decorator from Py3.10, falls back to 3.7 implementation and, finally, to `attr.s` if available.
+        
+        If none of those is found, applies a dummy decorator (which does nothing) - just to avoid exceptions.
+        
+        ### `@attrs` decorator
+        Similarly, tries to use `attr.s` and falls back to built-in `dataclass` (if available) or just a dummy decorator as a last resort.
+        
+        ## Installation
+        
+        ```shell script
+        python -m pip install -U darlog-py23
+        ```
+        
+        ## Development
+        
+        You can clone the git repo and add the contents of `src/` directory to your python installation by running this command in the repo root:
+        ```shell script
+        python -m pip install -e .[dev]
+        ```
+        
+        The version is specified in the main `__init__.py` file. To update the binary distribution (wheel), run:
+        ```shell script
+        python setup.py bdist_wheel sdist
+        ```
+        
+Keywords: 2to3,3to2,six,compatibility,wrapper
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*, <4
+Description-Content-Type: text/markdown
+Provides-Extra: dev
