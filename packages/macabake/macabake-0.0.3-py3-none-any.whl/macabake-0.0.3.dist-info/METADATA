@@ -1,0 +1,53 @@
+Metadata-Version: 2.1
+Name: macabake
+Version: 0.0.3
+Summary: 
+Author: Sam Korn
+Author-email: korn94sam@gmail.com
+Requires-Python: >=3.8,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: click (>=8.1.3,<9.0.0)
+Requires-Dist: lnd-grpc-client (>=0.4.4,<0.5.0)
+Description-Content-Type: text/markdown
+
+# Macabake
+A tool for creating custom macaroons
+
+
+# LND Config Environment Variables
+Put these environment variables into your path
+```
+export CRED_PATH=/home/lnd_user/Documents/creds/awesome-node/lnd
+export LND_CRED_PATH=/home/lnd_user/Documents/creds/awesome-node/lnd
+export LND_NODE_IP=awesome-node.m.voltageapp.io
+export LND_NODE_PORT=10009
+```
+
+This script expects there to be a valid `admin.macaroon` and a `tls.cert` file located at `CRED_PATH`/`LND_CRED_PATH`.
+
+# Example
+
+## Bake a custom macaroon
+```
+macabake bakemacaroon \
+    --apis Lightning OpenChannel \
+    --apis Lightning SubscribeChannelEvents \
+    --apis Lightning ConnectPeer \
+    --output_filename=mycustommacaroon.macaroon
+```
+The macaroon is saved into the same directory as `admin.macaroon`, which is at the `$CRED_PATH` environment variable.
+The `--apis` flag can be passed multiple times, and is two strings: Subsystem API_name. The subsystems are listed on the LND docs website, like in the image below or using the command:
+
+```macabake list-lnd-subsystems```
+
+You can view which APIs are in each subsystem like so:
+
+```macabake list-lnd-apis --subsystem WalletKit```
+
+# LND Subsystems from LND Docs
+Link to LND API Docs:
+![LND Docs](https://api.lightning.community/)
+![Example](subsystem_and_apis.png)
