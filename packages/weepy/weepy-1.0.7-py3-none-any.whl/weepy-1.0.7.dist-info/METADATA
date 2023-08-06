@@ -1,0 +1,197 @@
+Metadata-Version: 2.1
+Name: weepy
+Version: 1.0.7
+Summary: Tiny Python ASGI framework
+Home-page: https://gitlab.com/katry/weepy
+Author: Patrik Katrenak
+Author-email: patrik@katryapps.com
+License: UNKNOWN
+Platform: any
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: daemon ; extra == 'dev'
+Requires-Dist: uvicorn[standard] ; extra == 'dev'
+Requires-Dist: orjson ; extra == 'dev'
+Requires-Dist: python-dotenv ; extra == 'dev'
+Requires-Dist: requests ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Provides-Extra: orjson
+Requires-Dist: orjson ; extra == 'orjson'
+Provides-Extra: ujson
+Requires-Dist: ujson ; extra == 'ujson'
+
+# weepy
+
+Tiny python ASGI framework
+
+## Installing weepy
+
+Simply use pip for install this package
+Installation:
+```sh
+$ pip install weepy # basic version
+$ pip install weepy[orjson] # orjson version
+$ pip install weepy[ujson] # ujson version
+# dev version:
+$ pip install weepy[dev] # install developer requirements
+```
+
+## Running development server
+```sh
+$ weepy [web server parameters]
+```
+
+#### Using
+Change directory to project folder and run devserver.
+
+```sh
+$ weepy --host 127.0.0.1 --port 8080 --app `file`:`callable`
+```
+Replace `file` with filename (without file extension) with your main function and `callable` with your function. <br>
+App should run on [localhost:8080](http://localhost:8080/).
+
+#### Command parameters
+- `--env` should contain python ini configuration file
+- `--host` should contain IP address to bind server on
+- `--port` should contain port to be bind server on
+- `--app` should contain file and callable object separated by colon. (main:app)
+- `--pythonpath` should contain your code directory for imports in your project
+- `--daemon` starts server in deamon mode
+
+### Bash syntax:
+```sh
+$ weepy [--config CONFIG] [--host IP_ADDRESS] [--port PORT] [--app file:callable] [--pythonpath path] [--daemon]
+```
+
+You can create server configuration in uasgi ini file. <br>
+If you want to run python files without devserver add project directory to `PYTHONPATH`.
+
+## Using weepy
+
+### Initializing
+
+```py
+from weepy import ASGI
+
+application = ASGI(content_type="application/json", allow="*", charset="UTF-8")
+
+```
+#### ASGI parameters:
+- `content_type` - specifies the default content type of generated responses (optional, default: `application/json`)
+- `charset` - specifies the default charset generated responses (optional, default: `UTF-8`)
+- `allow` - specifies global setting for `Access-Control-Allow-Origin` header - can be overwrited by passing that header to response headers (optional, default `None` - for public API should be set to `*`)
+
+
+### Routes
+
+#### Route parameters
+- `endpoint` - object should contain str or regex Pattern to match request path (mandatory)
+- `type` - defines that routed is serving HTTP or WebSocket protocol (possible values: `http`, `websocket`; defalut: `http`)
+- `methods` - list of HTTP methods to match request method - higher priority than method (optional, default: [`GET`], should be only be specified on `http` type routes)
+- \*kwargs - other arguments - can be accessed by midlleware in states `routed` and `end` 
+- `content-type`
+
+#### Using
+Route is used as a decorator callable object you want to use as router method.
+Router method takes two mandatory arguments `Request` and `Response` (explained below in a separate section).
+Router method can also take variables from router regex match (if used).
+
+#### HTTP Examples
+
+```py
+import re
+from weepy import Route
+
+
+@Route("/endpoint", method="GET")  # simple route
+def routed_method_1(request, response):  # simple route method
+	return "Response from route 1" # response return without status code & mime type
+
+# re package import needed
+@Route(re.compile(r"/endpoint/(\d+)$"), methods=["GET", "POST"]) # regex route, with multiple methods
+def routed_method_2(request, response, number):
+	return "Response from route - urlnumber is: %s" % number, "200 OK", "text/html" # full response return
+
+@Route("/endpoint3", methods=["GET", "POST"]) #simple route, with multiple methods
+def routed_method_2(request, response):
+	response.set("Response by set") # alternatively can be called reponse method set to set response
+
+```
+
+### Raise HTTP status
+
+Raise HTTPStatus f with parameters (status, message)
+
+```py
+from weepy import Route, HTTPStatus
+
+@Route("/raise_endpoint", methods=["POST"])
+def routed_method_2(request, response):
+	if not request.data:
+		raise HTTPStatus("400 BAD REQUEST", "400 BAD REQUEST")
+	return "data sent"
+```
+
+### Request & Response objects
+
+Instances of these object are given to every function that is called with `@Route` decorator
+
+```py
+from weepy import Route
+
+@Route("/endpoint", method="GET")
+def endpoint(Request, Response):  # instances of Request and Response objects
+	pass
+```
+
+#### Request items and methods (HTTP)
+- `method` - request method (GET, POST etc.) : read only
+- `path` - request path: read only
+- `query_params` - `dict` of query_string parameters
+- `data` - request parsed data (json, -www-form-urlencoded, multipart/form-data) : read only
+- `headers` - HTTP headers : read only (may contain `content_length` and `content_type` in post requests)
+- `cookies` - dict contains `SimpleCookie` object of every cookie loaded
+- `scope` - raw asgi scope obeject
+- `event` - raw asgi event object
+
+
+#### Response  items and methods (HTTP)
+`content_type` - response content-type : read only - can be specified in route
+- `charset` - response encoding; default: `UTF-8`
+- `headers` - `list` of response headers
+<br><br>
+- `redirect(location, status)` - redirects response to (`location`, `status` if not providet is set to `302`)
+- `set_cookie(name, value, expires=None, maxAge=None, **kwargs)` - adds cookie to response with obvious parameres, you can alwo add additional arguments (`kwargs`) such as `Domain`, `Path`, `Secure`, `HttpOnly`
+- `add_header(name, value)` - adds header to response
+- `process(data, status=200)` - allow to manual process response
+
+## Example
+
+Save this file as main.py
+```py
+from weepy import ASGI, Route
+
+application = ASGI(content_type="text/html")
+
+
+@Route("/endpoint", methods=["GET", "POST"])
+def endpoint(Request, Response):
+	Response.add_header("X-header", "blahblah")  # set response header
+	Response.set_cookie("cookie_from_server", "384")  # set reponse cookie
+	return "Response BODY"
+```
+
+Now you should run weef_server
+```sh
+$ weepy --host 127.0.0.1 --port 8080 --app main:application
+```
+
+App should run on [localhost:8080](http://localhost:8080/).<br>
+http://localhost:8080/endpoint should now returns "Response BODY"
+
+
