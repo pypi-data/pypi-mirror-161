@@ -1,0 +1,96 @@
+[tool.black]
+line-length = 100
+include = '(istub)/.*\.pyi?$'
+target-version = [
+    'py37',
+    'py38',
+    'py39',
+    'py310',
+]
+preview = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = []
+
+[tool.poetry]
+name = "istub"
+version = "0.2.0"
+description = "Validator for type annotations"
+authors = ["Vlad Emelianov <vlad.emelianov.nz@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://youtype.github.io/istub/"
+repository = "https://github.com/youtype/istub"
+documentation = "https://youtype.github.io/istub/"
+keywords = ["stubs", "type-annotations", "pyright", "mypy"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Typing :: Typed",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+    { include = "istub" },
+]
+include = [
+    "istub/py.typed",
+]
+
+[tool.poetry.scripts]
+istub = 'istub.main:main'
+
+[tool.poetry.urls]
+"Documentation" = "https://youtype.github.io/istub/"
+"Source" = "https://github.com/youtype/istub"
+"Bug Tracker" = "https://github.com/youtype/istub/issues"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pip = "*"
+pyyaml = "*"
+
+[tool.poetry.dev-dependencies]
+isort = "*"
+mypy = "*"
+black = "*"
+flake8 = "*"
+vulture = "*"
+twine = "*"
+types-pyyaml = "*"
+botocore = "*"
+botocore-stubs = "*"
+types-requests = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = [
+    "istub",
+]
+exclude = [
+    "**/__pycache__",
+    "tests",
+    "typestubs",
+]
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+reportMissingTypeArgument = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportUnknownParameterType = "error"
+pythonVersion = "3.7"
