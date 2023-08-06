@@ -1,0 +1,292 @@
+<h2>3. Notebooks</h2>
+<h3>3.1. Get Notebooks</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notebooks/notebooks</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get the list of notebooks of the user that makes the request</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>list of objects</div>
+            <div>- id: string</div>
+            <div>- name: string</div>
+            <div>- tag_colors: object (optional)</div>
+            <div class="tab1">- tag1: string</div>
+            <div class="tab1">- ...</div>
+            <div class="tab1">- tagN: string</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}notebooks/notebooks' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
+
+<h3>3.2. Get Notebook</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notebooks/notebook/&lt;notebook_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get a notebook</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object</div>
+            <div>- id: string</div>
+            <div>- name: string</div>
+            <div>- tag_colors: object (optional)</div>
+            <div class="tab1">- tag1: string</div>
+            <div class="tab1">- ...</div>
+            <div class="tab1">- tagN: string</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}notebooks/notebook/&lt;notebook_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
+
+<h3>3.3. Create Notebook</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notebooks/notebook</td>
+    </tr>
+    <tr>
+        <th>Methods:</th>
+        <td>POST, PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Create a notebook</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>tag_colors</td>
+        <td>
+            <div>object</div>
+            <div>- tag1: string</div>
+            <div>- ...</div>
+            <div>- tagN: string</div>
+        </td>
+        <td>No</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object</div>
+            <div>- notebook_id: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'POST' '{{ host_url }}notebooks/notebook' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"name": "Example Notebook", "tag_colors": {"tag1": "#00ff00", "tag2": "#0000ff"}}'
+</div>
+
+<h3>3.4. Update Notebook</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notebooks/notebook/&lt;notebook_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Update some or all fields of a notebook</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>tag_colors</td>
+        <td>
+            <div>object</div>
+            <div>- tag1: string</div>
+            <div>- ...</div>
+            <div>- tagN: string</div>
+        </td>
+        <td>No</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'PUT' '{{ host_url }}notebooks/notebook/&lt;notebook_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"name": "Example Notebook", "tag_colors": {"tag1": "#00ff00", "tag2": "#0000ff"}}'
+</div>
+
+<h3>3.5. Delete Notebook</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notebooks/notebook/&lt;notebook_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>DELETE</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Delete a notebook</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'DELETE' '{{ host_url }}notebooks/notebook/&lt;notebook_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>

@@ -1,0 +1,159 @@
+<h2>1. Authentication</h2>
+<h3>1.1. Login</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/auth/login</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>POST</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get a fresh access token and a refresh token</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+    </tr>
+    <tr>
+        <td>username</td>
+        <td>string</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>string</td>
+        <td>Yes</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>Object</div>
+            <div>- user_id: string</div>
+            <div>- access_token: string</div>
+            <div>- access_token_expiration: string</div>
+            <div>- refresh_token: string</div>
+            <div>- refresh_token_expiration: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'POST' '{{ host_url }}auth/login' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -d '{"username": "exampleusername", "password": "examplepassword"}'
+</div>
+
+<h3>1.2. Refresh</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/auth/refresh</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;refresh_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get a new, not fresh, access token</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>Object</div>
+            <div>- access_token: string</div>
+            <div>- access_token_expiration: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}auth/refresh' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;refresh_token&gt;'
+</div>
+
+<h3>1.3. Logout</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/auth/logout</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Revoke an access token</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}auth/logout' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
