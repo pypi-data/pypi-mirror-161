@@ -1,0 +1,25 @@
+parameters:
+  p360_interface_bundle:
+    featurestore:
+      post_actions:
+        metadata_adjustment:
+          export_path:
+          mapping:
+            general:
+            category:
+
+services:
+  p360_interface_bundle.featurestore.post_actions.metadata_adjustment.FolderContentRemover:
+
+  p360_interface_bundle.featurestore.post_actions.metadata_adjustment.MetadataJsonGetter:
+    arguments:
+      general_mapping: "%p360_interface_bundle.featurestore.post_actions.metadata_adjustment.mapping.general%"
+      category_mapping: "%p360_interface_bundle.featurestore.post_actions.metadata_adjustment.mapping.category%"
+
+  p360_interface_bundle.featurestore.post_actions.metadata_adjustment.MetadataDatetimeToStringConverter:
+
+  p360_interface_bundle.featurestore.post_actions.metadata_adjustment.MetadataWriter:
+
+  p360_interface_bundle.featurestore.post_actions.metadata_adjustment.CreateMetadataJsonFiles:
+    arguments:
+      export_path: "%p360_interface_bundle.featurestore.post_actions.metadata_adjustment.export_path%"

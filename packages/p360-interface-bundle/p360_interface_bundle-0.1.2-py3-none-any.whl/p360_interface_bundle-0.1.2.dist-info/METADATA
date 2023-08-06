@@ -1,0 +1,93 @@
+Metadata-Version: 2.1
+Name: p360-interface-bundle
+Version: 0.1.2
+Summary: Persona360 interface bundle
+License: Proprietary
+Author: Datasentics
+Author-email: jiri.koutny@datasentics.com
+Requires-Python: >=3.8.10,<4.0.0
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: daipe-core (>=1.4.2,<2.0.0)
+Requires-Dist: databricks-bundle (>=1.4.5,<2.0.0)
+Requires-Dist: feature-store-bundle (>=2.5,<3.0)
+Requires-Dist: pyfony-bundles (>=0.4.4,<0.5.0)
+Description-Content-Type: text/markdown
+
+# p360-interface-bundle
+
+Interface between Persona360 app instance and a project with Daipe Feature store.
+
+Many operations need to be done between a feature store is populated and an app is working properly based on it. We may want to adjust some nomenclature in metadata for the app, we surely need to ensure the latest snapshot of the feature store is propagated to the app's underlying Clickhouse database. For these operational services, `p360-interface-bundle` comes to hand.
+
+## Setup
+
+Nothing more to do then to add `p360-interface-bundle` to your project:
+```bash
+poetry add p360-interface-bundle
+```
+
+## Tools
+
+### Feature store post-actions
+
+---
+
+### `metadata_adjustment`.`CreateMetadataJsonFiles`
+
+* Get feature store metadata
+* Rename some of their columns
+* Introduce subcategory mapping
+* Save the resulting metadata JSONs for an app to ADLS
+
+**Configuration**
+
+Add the following configuration to your project's `config.yaml`:
+```yaml
+parameters:
+  p360_interface_bundle:
+    featurestore:
+      post_actions:
+        metadata_adjustment:
+          export_path: "abfss://<container>@<adls domain>/<path to folder>"
+          mapping:
+            general:
+              <original column name in FS metadata>: <replacement value>
+              <another original column name in FS metadata>: <another replacement value>
+            category:
+              <category name>:
+                - <first subcategory of this category>
+                - <second subcategory of this category>
+              <another category name>:
+                - <first subcategory of this category>
+                - <second subcategory of this category>
+```
+
+---
+
+### Latest Changes
+
+* Add Pycharm files. PR [#29](https://github.com/DataSentics/p360-interface-bundle/pull/29) by [@ds-lukaslangr](https://github.com/ds-lukaslangr).
+* Update feature store. PR [#28](https://github.com/DataSentics/p360-interface-bundle/pull/28) by [@ds-lukaslangr](https://github.com/ds-lukaslangr).
+* :bug: Extras conversion to strings suppressed. PR [#26](https://github.com/DataSentics/p360-interface-bundle/pull/26) by [@matejoravec](https://github.com/matejoravec).
+* :memo: Post-version-bump README update. PR [#24](https://github.com/DataSentics/p360-interface-bundle/pull/24) by [@matejoravec](https://github.com/matejoravec).
+
+### 0.1.1
+
+* :bookmark: Bump version to 0.1.1. PR [#23](https://github.com/DataSentics/p360-interface-bundle/pull/23) by [@matejoravec](https://github.com/matejoravec).
+* :memo: Documentation in README. PR [#22](https://github.com/DataSentics/p360-interface-bundle/pull/22) by [@matejoravec](https://github.com/matejoravec).
+* :building_construction: Default configuration removed. PR [#21](https://github.com/DataSentics/p360-interface-bundle/pull/21) by [@matejoravec](https://github.com/matejoravec).
+* :white_check_mark: `MetadataJsonGetter` test added. PR [#20](https://github.com/DataSentics/p360-interface-bundle/pull/20) by [@matejoravec](https://github.com/matejoravec).
+
+### 0.1.0
+
+* :bug: Metadata adjustment fix. PR [#16](https://github.com/DataSentics/p360-interface-bundle/pull/16) by [@matejoravec](https://github.com/matejoravec).
+* :arrow_up: `feature-store-bundle` upgraded to 2.5.0. PR [#12](https://github.com/DataSentics/p360-interface-bundle/pull/12) by [@matejoravec](https://github.com/matejoravec).
+* :page_facing_up: License fix. PR [#7](https://github.com/DataSentics/p360-interface-bundle/pull/7) by [@matejoravec](https://github.com/matejoravec).
+* :construction_worker: Release pipeline. PR [#5](https://github.com/DataSentics/p360-interface-bundle/pull/5) by [@matejoravec](https://github.com/matejoravec).
+* :sparkles: Metadata adjustment post-action. PR [#4](https://github.com/DataSentics/p360-interface-bundle/pull/4) by [@matejoravec](https://github.com/matejoravec).
+* :bricks: Basic bundle infrastructure. PR [#3](https://github.com/DataSentics/p360-interface-bundle/pull/3) by [@matejoravec](https://github.com/matejoravec).
+* :construction_worker: Wrong main branch name fixed. PR [#2](https://github.com/DataSentics/p360-interface-bundle/pull/2) by [@matejoravec](https://github.com/matejoravec).
+
