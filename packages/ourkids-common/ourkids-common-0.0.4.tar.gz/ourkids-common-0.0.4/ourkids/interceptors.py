@@ -1,0 +1,1 @@
+INTERCEPTORS = {'error': 'Exception', 'notFound': 'NotFoundException', 'notAuth': 'NotAuthException'}
