@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "frantic"
+version = "0.1.0"
+description = "Firestore with Pydantic models integration"
+authors = ["Tomas Votava <info@tomasvotava.eu>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/tomasvotava/frantic"
+repository = "https://github.com/tomasvotava/frantic"
+documentation = "https://tomasvotava.github.io/frantic"
+packages = [{include = "frantic/"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^1.9.1"
+google-cloud-firestore = "^2.6.0"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+pylint = "^2.14.5"
+poethepoet = "^0.16.0"
+black = "^22.6.0"
+pytest = "^7.1.2"
+pytest-cov = "^3.0.0"
+bandit = "^1.7.4"
+pdoc3 = "^0.10.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=frantic --cov-report xml:cov.xml"
+
+
+[tool.pyright]
+ignore = ["**/tests"]
+
+[tool.poe.tasks]
+mypy = "mypy --config-file mypy.ini frantic"
+pylint = "pylint frantic"
+format = "black frantic"
+test = "python -m pytest"
+coverage = "coverage report"
+bandit = "bandit -r frantic/"
+docs = "pdoc3 --html --output-dir ./.public frantic"
+
+lint = ["mypy", "pylint", ]
+
