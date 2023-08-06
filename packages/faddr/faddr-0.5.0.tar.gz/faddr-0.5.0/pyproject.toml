@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "faddr"
+version = "0.5.0"
+description = "Tool to parse configuration of network devices such as Juniper routers and store gathered data in database"
+license = "MIT"
+authors = ["Fedor Suchkov <f.suchkov@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/kido5217/faddr"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Telecommunications Industry"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6,<3.10"
+
+loguru = "^0.6"
+PyYAML = "^6.0"
+pydantic = {version = "^1.8", python = "^3.6.1"}
+ttp = "^0.9"
+rich = {version = "^11.1.0", python = ">=3.6.2,<4.0"}
+SQLAlchemy = "^1.4"
+ray = "^1.11.0"
+fastapi = {extras = ["all"], version = "^0.75.2", python = ">=3.6.2,<3.10"}
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+black = {version = "^21.5b2", python = "^3.6.2"}
+mypy = "^0.812"
+pylint = "^2.8.3"
+pre-commit = {version = "^2.15", python = "^3.6.1"}
+tox = "^3.24.4"
+poetry = "^1.1.12"
+tox-poetry = "^0.4.1"
+prospector = {extras = ["with_bandit", "with_mypy"], version = "^1.6.0", python = ">=3.6.2,<4.0"}
+coverage = "^6"
+pytest-cov = "^3.0.0"
+numpy = "^1.19"
+
+[tool.poetry.scripts]
+faddr-db = 'faddr.faddr_db:main'
+faddr-rest = 'faddr.faddr_rest:main'
+faddr = 'faddr.faddr:main'
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-vvv"
+testpaths = [
+    "tests",
+]
+
+[tool.pylint.'MESSAGES CONTROL']
+extension-pkg-whitelist = "pydantic"
