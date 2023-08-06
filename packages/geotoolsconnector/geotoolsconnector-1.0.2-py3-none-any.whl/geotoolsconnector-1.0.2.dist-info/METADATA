@@ -1,0 +1,317 @@
+Metadata-Version: 2.1
+Name: geotoolsconnector
+Version: 1.0.2
+Summary: Fast and reliable way to analize geospatial data.
+Author: Sanil Safić
+Author-email: <safic.sanil@gmail.com>
+Keywords: python,GeoTools,Geospatial analysis,Web Service,Geospatial data,Pipe request,GeoPandas,QGIS,PostGIS
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Description-Content-Type: text/markdown
+Requires-Dist: flask
+Requires-Dist: requests
+Requires-Dist: asyncio
+
+# GeoTools  Connector
+
+Fast and reliable way to analize geospatial data.
+
+This connector is used for easier access to [GeoTools web service](https://geotools-dev.lgb.si/api).
+
+## Installation
+
+```
+pip install geotoolsconnector
+```
+
+## Features
+
+-   Geospatial analysis
+	- Dissolve
+	- Intersection
+	- Centroid
+	- Difference
+	- Polygonize
+	- Contours
+	- Simplify
+	- Multipart to singleparts
+-   Pipe reqests
+-   GUI for testing
+
+## Quick Start
+After you have installed GeoTools Connector to your project, you have access to its features.
+
+**Simple example:**
+```
+import geotoolsconnector
+
+GeoTools =  new  geotoolsconnector(enableGUI=True); // setting enableGUI to true 
+
+centroid = GeoTools.centroid(myData); // myData needs to be formatted correctly
+```
+A simple GUI will become avaliable at http://localhost:4444 if you enable the enableGUI option when initializing GeoTools Connector.
+
+More on how the data should look like and how API works on [GeoTools API Docs](https://geotools-dev.lgb.si/api) or see the examples down below.
+
+## Example of geospatial analysis
+
+### Dissolve
+```
+myData = {
+  "BY": [
+    "SIFKO",
+    "RANG"
+  ],
+  "DATA": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "SIFKO": "2391",
+          "PARCELA": "2765/14",
+          "RANG": "30"
+        },
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  412315.79,
+                  83594.22
+                ],
+                [
+                  412316.46,
+                  83598.8
+                ],
+                [
+                  412319.57,
+                  83598.16
+                ],
+                [
+                  412318.8,
+                  83593.5
+                ],
+                [
+                  412315.79,
+                  83594.22
+                ]
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  }
+}
+
+dissolved = GeoTools.dissolved(myData);
+
+console.log(dissolved);
+```
+Output:
+```
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              412315.79,
+              83594.22
+            ],
+            [
+              412316.46,
+              83598.8
+            ],
+            [
+              412319.57,
+              83598.16
+            ],
+            [
+              412318.8,
+              83593.5
+            ],
+            [
+              412315.79,
+              83594.22
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "0",
+      "properties": {
+        "PARCELA": "2765/14",
+        "RANG": "30",
+        "SIFKO": "2391"
+      },
+      "type": "Feature"
+    }
+  ],
+  "type": "FeatureCollection"
+}
+```
+
+In the same manner all the avaliable geospatial analysis can be done. For more details about format of the request body check out the [API documentation](https://geotools-dev.lgb.si/api).
+
+## Example of pipe request
+
+Pipe request is a special way to send multiple requests in a row and use results of previous analysis without storing any data in between requests.
+
+```
+myPipeData = {
+    "Data":
+        [
+            {
+                "Tag": "A",
+                "Value": {
+                    "type": "FeatureCollection",
+                    "name": "poly1",
+                    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                    "features": [
+                        { 
+                            "type": "Feature", 
+                            "properties": {}, 
+                            "geometry": { 
+                                "type": "Polygon", 
+                                "coordinates": [
+                                    [
+                                        [-1.64941176470587, 0.672941176470587], 
+                                        [-2.284705882352929, -0.625882352941178], 
+                                        [-1.148235294117635, -1.225882352941178], 
+                                        [0.34823529411766, -0.477647058823531], 
+                                        [-1.64941176470587, 0.672941176470587]
+                                    ]
+                                ] 
+                            } 
+                        }
+                    ]
+                }
+            },
+            {
+                "Tag": "B",
+                "Value": {
+                    "type": "FeatureCollection",
+                    "name": "poly2",
+                    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                    "features": [
+                        { 
+                            "type": "Feature", 
+                            "properties": {}, 
+                            "geometry": { 
+                                "type": "Polygon", 
+                                "coordinates": [
+                                    [
+                                        [-0.44941176470587, 0.658823529411763], 
+                                        [-1.021176470588223, -0.484705882352943], 
+                                        [-0.230588235294105, -1.776470588235295], 
+                                        [1.95058823529413, -1.684705882352942], 
+                                        [-0.44941176470587, 0.658823529411763]
+                                    ]
+                                ] 
+                            } 
+                        }
+                    ]
+                }
+
+            }
+        ],
+    "Process":
+        [
+            { "Type": "Intersection", "Input1": "A", "Input2": "B", "Result": "C" },
+            { "Type": "Centroid", "Input": "C", "Result": "D" }
+        ],
+    "Result":
+        [
+            "C", "D"
+        ]
+}
+
+pipeResults = GeoTools.pipe(myPipeData);
+
+console.log(pipeResults);
+```
+output:
+```
+[
+    {
+        "Tag": "C",
+        "Value": {
+            "features": [
+                {
+                    "geometry": {
+                        "coordinates": [
+                            [
+                                [
+                                    0.34823529411766,
+                                    -0.477647058823531
+                                ],
+                                [
+                                    -0.7036180162441421,
+                                    -1.0035737140044316
+                                ],
+                                [
+                                    -1.021176470588223,
+                                    -0.484705882352943
+                                ],
+                                [
+                                    -0.7122440087145844,
+                                    0.13315904139433424
+                                ],
+                                [
+                                    0.34823529411766,
+                                    -0.477647058823531
+                                ]
+                            ]
+                        ],
+                        "type": "Polygon"
+                    },
+                    "id": "0",
+                    "properties": {},
+                    "type": "Feature"
+                }
+            ],
+            "type": "FeatureCollection"
+        }
+    },
+    {
+        "Tag": "D",
+        "Value": {
+            "bbox": [
+                -0.4604118457228069,
+                -0.4498927572241431,
+                -0.4604118457228069,
+                -0.4498927572241431
+            ],
+            "features": [
+                {
+                    "bbox": [
+                        -0.4604118457228069,
+                        -0.4498927572241431,
+                        -0.4604118457228069,
+                        -0.4498927572241431
+                    ],
+                    "geometry": {
+                        "coordinates": [
+                            -0.4604118457228069,
+                            -0.4498927572241431
+                        ],
+                        "type": "Point"
+                    },
+                    "id": "0",
+                    "properties": {},
+                    "type": "Feature"
+                }
+            ],
+            "type": "FeatureCollection"
+        }
+    }
+]
+```
