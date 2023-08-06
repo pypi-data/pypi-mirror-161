@@ -1,0 +1,196 @@
+[tool.poetry]
+name = "mappr"
+version = "0.3.3"
+description = ""
+authors = ["Mateusz Klos <novopl@gmail.com>"]
+repository = "https://github.com/novopl/mappr"
+homepage = "https://novopl.github.io/mappr"
+documentation = "https://novopl.github.io/mappr"
+license = "Proprietary"
+packages = [
+    { include = "mappr", from = "src" },
+]
+include = ["LICENSE", "AUTHORS", "README.rst", "**/py.typed"]
+exclude = ["tests/**", "ops/**", ".venv/**"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+coverage = "~=5.3"
+mypy = ">=0.790"
+peltak = "~=0.27.1"
+psutil = "~=5.7.3"
+pycodestyle = "~=2.6.0"
+pylint = "~=2.6.0"
+pytest = "~=6.1.2"
+pytest-cov = "~=2.10.1"
+pytest-sugar = "~=0.9.4"
+pydantic = "^1.7.3"
+sphinx-material = "^0.0.32"
+flake8 = "^3.8.4"
+Sphinx = "^3.4.3"
+sphinx-autodoc-typehints = "^1.11.1"
+codecov = "^2.1.11"
+SQLAlchemy = "^1.3.22"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+##################
+#     PYTEST     #
+##################
+
+
+[tool.pytest.ini_options]
+addopts = "--durations=3"
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL ELLIPSIS"
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+exclude_lines = ["nocov"]
+
+
+##################
+#     PYLINT     #
+##################
+
+[tool.pylint.MASTER]
+jobs = 1
+ignore = 'migrations'
+ignore-patterns = []
+
+[tool.pylint.REPORTS]
+output-format = 'colorized'
+reports = 'no'
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = 'all'
+enable = [
+    # 'missing-docstring',
+    'redefined-builtin',
+    'wrong-import-order',
+]
+
+
+##################
+#     PELTAK     #
+##################
+
+[tool.peltak]
+pelconf_version = "0"
+commands = [
+  "peltak.extra.changelog",
+  "peltak.extra.git",
+  "peltak.extra.gitflow",
+  "peltak.extra.version"
+]
+python_paths = ["src"]
+build_dir = ".build"
+
+[tool.peltak.changelog]
+tag_format = '{tag}:'
+
+    [[tool.peltak.changelog.tags]]
+    tag = 'feature'
+    header = 'Features'
+
+    [[tool.peltak.changelog.tags]]
+    tag = 'fix'
+    header = 'Fixes'
+
+    [[tool.peltak.changelog.tags]]
+    tag = 'change'
+    header = 'Changes'
+
+    [[tool.peltak.changelog.tags]]
+    tag = 'dev'
+    header = 'Dev tasks'
+
+    [[tool.peltak.changelog.tags]]
+    tag = 'refactor'
+    header = 'Refactored'
+
+
+[tool.peltak.version]
+files = [
+    "pyproject.toml",
+    "src/mappr/__init__.py"
+]
+
+[tool.peltak.clean]
+patterns = ["*.mypy_cache", "*.pytest_cache", "*.build", "*__pycache__"]
+exclude = [".venv"]
+
+[tool.peltak.scripts.test]
+root_cli = true
+about = "Run tests"
+command_file = "ops/scripts/test.sh.j2"
+
+  [[tool.peltak.scripts.test.options]]
+  name = ["-k", '--kind']
+  type = 'str'
+  default = 'all'
+  about = "Kind of tests to run: all/unit/doctest. Defaults to all."
+
+  [[tool.peltak.scripts.test.options]]
+  name = ["--no-sugar"]
+  is_flag = true
+  about = "Disable pytest-sugar. Might be useful for CI runs."
+
+  [[tool.peltak.scripts.test.options]]
+  name = ["--cov-xml"]
+  is_flag = true
+  about = "Generate junit XML coverage report. Useful for 3rd party integrations"
+
+[tool.peltak.scripts.check]
+root_cli = true
+about = "Run all checks (types, pep8, code style)"
+command_file = "ops/scripts/check.sh.j2"
+
+  [tool.peltak.scripts.check.files]
+  paths = ["src/mappr", "tests"]
+  include = "*.py"
+  use_gitignore = true
+
+[tool.peltak.scripts.check-commit]
+about = "Perform all checks on files staged for commit"
+command_file = "ops/scripts/check.sh.j2"
+
+  [tool.peltak.scripts.check-commit.files]
+  paths = [ "src/mappr", "tests" ]
+  only_staged = true
+  include = "*.py"
+  use_gitignore = true
+
+
+[tool.peltak.scripts.docs]
+root_cli = true
+about = "Generate sphinx documentation"
+command_file = "ops/scripts/docs.sh.j2"
+
+    [[tool.peltak.scripts.docs.options]]
+    name = [ "--recreate" ]
+    about = "Delete build and out directories before running."
+    is_flag = true
+
+    [[tool.peltak.scripts.docs.options]]
+    name = [ "--run-doctests" ]
+    about = "Also run all doctests."
+    is_flag = true
+
+
+[tool.peltak.scripts.pr-release]
+root_cli = true
+about = "Create PR for the current release branch"
+command = """
+gh pr create \
+    --repo novopl/mappr \
+    --title "Release: v$(peltak version --porcelain)" \
+    --body "$(peltak changelog)"
+"""
