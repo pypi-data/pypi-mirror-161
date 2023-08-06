@@ -1,0 +1,80 @@
+Metadata-Version: 2.1
+Name: forecast_tool
+Version: 0.0.3
+Summary: To easy plot forecasting through ARIMA model
+Home-page: https://github.com/k-w-lee/forecast_vis
+Author: Morris_Lee
+Author-email: info.leekahwin@gmail.com
+Project-URL: Bug Tracker, https://github.com/k-w-lee/forecast_vis/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# A package to make forecast visualisation easier
+
+**Objective**: To make forecast visualisation easier and more expressive.
+
+To install the package
+
+```
+pip install forecast-tool
+```
+
+Let me show you how the package works
+
+
+## (1) Make a simple forecast using ARIMA model
+**Input [1]**:
+
+```python
+from forecast_tool import forecast_plot as fp
+df = fp.get_data()
+
+period = 'y' #[y, m, d] 
+date='Date'
+newtarget='Volume'
+
+fp.overall_vis(df, date, newtarget, period)
+
+```
+
+**Output [1]**:
+
+![alt text](https://github.com/k-w-lee/forecast_vis/blob/main/vis-forecast.png?raw=true)
+
+
+## (1) You can also customise it to create your own plot
+**Input [2]**:
+
+```python
+show_model_name=True
+suggested_n_forcast=True
+my_title = True
+y_label_name = True
+x_label_name = True
+color_past='dodgerblue'
+color_forecast='crimson'
+linestyle_past = 'solid'
+linestyle_forecast='--'
+show_confidence=True
+numElems=10
+matplotlib_style = 'seaborn'
+legend_position=2
+fig_length=13.5
+fig_height=6.5
+legend_font_size=14
+scientific_annotation=True
+zoom_last_n = 3  # to zoom last n values in a plot
+
+fp.overall_vis(df, date, newtarget, period, \
+               zoom_last_n=zoom_last_n, matplotlib_style=matplotlib_style, scientific_annotation=False)
+```
+
+**Output [2]**:
+
+![alt text](https://github.com/k-w-lee/forecast_vis/blob/main/vis-forecast2.png?raw=true)
+
+This is contributed by [Morris Lee](http://www.morris-lee.com/).
