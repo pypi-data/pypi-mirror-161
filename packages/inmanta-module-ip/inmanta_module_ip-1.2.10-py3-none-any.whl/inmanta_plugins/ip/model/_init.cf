@@ -1,0 +1,131 @@
+"""
+    Copyright 2017 Inmanta
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: code@inmanta.com
+"""
+import std
+import ip::services
+
+typedef ip as string matching ip::is_valid_ip(self) == true
+typedef cidr as string matching ip::is_valid_cidr(self) == true
+
+typedef protocol as string matching
+    self == "tcp" or self == "udp" or self == "icmp" or self == "sctp" or self == "all"
+typedef port as number matching self >= 0 and self < 65536
+
+typedef cidr_v6 as string matching ip::is_valid_cidr_v6(self) == true
+typedef ip_v6 as string matching ip::is_valid_ip_v6(self) == true
+
+typedef cidr_v10 as string matching ip::is_valid_cidr_v10(self) == true
+"""
+    A string type that matches both v4 and v6 cidr (hence the v10)
+"""
+typedef ip_v10 as string matching ip::is_valid_ip_v10(self) == true
+"""
+    A string type that matches both v4 and v6 cidraddresses (hence the v10)
+"""
+
+typedef mask as string matching ip::is_valid_netmask(self)
+"""
+    A string type that matches a netmask
+"""
+
+entity Host extends std::Host:
+    """
+        A host that has an ip attribute for easy ip address access in the configuration
+        model.
+
+        :attr ip: The ipaddress of this node
+        :attr remote_agent: Start the mgmt agent for this node on the server and use remote io (ssh)
+        :attr remote_user: The remote user for the remote agent to login with
+        :attr remote_port: The remote port for this remote agent to use.
+    """
+    ip::ip ip
+    bool remote_agent=false
+    string remote_user="root"
+    port remote_port=22
+end
+implement Host using std::hostDefaults
+
+implementation agentConfig for std::HostConfig:
+    std::AgentConfig(
+        autostart=true,
+        agentname=host.name,
+        uri=std::template("ip/host_uri.j2"),
+        provides=host,
+    )
+end
+
+implement std::HostConfig using agentConfig when host.ip is defined and host.remote_agent
+
+entity IP:
+    """
+        Base class for all ip addresses
+    """
+    ip v4="0.0.0.0"
+end
+
+implement IP using std::none
+
+entity Alias extends IP:
+    ip      netmask="0.0.0.0"
+    number alias=0
+    bool   dhcp=false
+end
+
+entity Address extends Alias:
+end
+
+entity Network:
+    """
+        A network in this infrastructure.
+    """
+    string  network
+    string  netmask
+    string  name
+    bool    dhcp
+end
+
+entity PortRange:
+    port    low
+    port    high
+end
+
+implement PortRange using std::none
+
+entity Port extends PortRange:
+    port    high=0
+end
+
+implement Port using std::none
+
+Service.dst_range [0:] -- PortRange
+Service.src_range [0:] -- PortRange
+
+entity Service:
+    """
+        Define a service as a protocol and a source and destination port range
+    """
+    protocol    proto
+end
+
+entity DstService extends Service:
+end
+
+implement Service using std::none
+implement DstService using std::none
+implement Alias using std::none
+implement Address using std::none
+implement Network using std::none

@@ -1,0 +1,171 @@
+"""
+    Copyright 2017 Inmanta
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: code@inmanta.com
+"""
+import net
+import std
+import ip
+
+entity BaseClient:
+    """
+        Base client class that connects to a server
+    """
+end
+
+entity Client extends BaseClient:
+    """
+        This interface models a client that is linked to a host
+    """
+end
+
+implement Client using std::none
+
+entity BaseServer:
+    """
+        Base class for servers that accept connections from clients
+    """
+end
+
+entity Server extends BaseServer:
+    """
+        This interface models a server that accepts connections from a client
+    """
+end
+
+implement Server using std::none
+
+# server provides one ore more services
+BaseServer.services [0:] -- ip::Service.listening_servers [0:]
+
+# clients can to connect to a server
+BaseClient.servers [0:] -- BaseServer.clients [0:]
+
+# A server and a client are always assigned to a host
+ip::Host.servers [0:] -- Server.host [1]
+ip::Host.clients [0:] -- Client.host [1]
+
+# A server listens on one or more ipaddresses
+Server.ips [0:] -- ip::Alias.server [0:]
+
+# Virtual client or servers
+entity VirtualSide:
+    """
+        A base class for a virtual server or client
+    """
+end
+
+entity VirtualClient extends BaseClient, VirtualSide:
+    """
+        This interface models a virtual client. It can for example represent
+        all clients that exist on the internet.
+    """
+    string name
+end
+
+implement VirtualClient using std::none
+
+entity VirtualServer extends BaseServer, VirtualSide:
+    """
+        Same as VirtualClient but then for a server
+    """
+    string name
+end
+
+entity VirtualScope:
+    """
+        This interface represents a scope to determine what a virtual client
+        or server is.
+    """
+end
+
+VirtualSide.scope [0:] -- VirtualScope.side [0:]
+
+entity VirtualIp extends VirtualScope:
+    """
+        Only one ip
+    """
+    ip::ip address
+end
+
+entity VirtualRange extends VirtualScope:
+    """
+        A range defined by from/to
+    """
+    ip::ip from
+    ip::ip to
+end
+
+implement VirtualRange using std::none
+
+entity VirtualNetwork extends VirtualScope:
+    """
+        Define a virtual network segment
+    """
+    ip::ip network
+    ip::ip netmask
+end
+
+entity VirtualHost extends VirtualScope:
+    """
+        An address represented by a hostname
+    """
+    std::hoststring hostname
+end
+
+implement VirtualHost using std::none
+
+# some pre defined services
+all_range = ip::PortRange(low = 1, high = 65535)
+ssh_range = ip::Port(low = 22)
+ping_range = ip::Port(low = 8)
+pong_range = ip::Port(low = 0)
+smtp_range = ip::Port(low = 25)
+http_range = ip::Port(low = 80)
+https_range = ip::Port(low = 443)
+dns_range = ip::Port(low = 53)
+ftp_range = ip::Port(low = 21)
+dhcp_range = ip::PortRange(low = 67, high = 68)
+proxy_range = ip::Port(low = 8080)
+
+ping_req = ip::Service(
+    proto = "icmp",
+    dst_range = ping_range,
+    src_range = all_range
+)
+ping_res = ip::Service(
+    proto = "icmp",
+    dst_range = pong_range,
+    src_range = all_range
+)
+ping = [ping_req, ping_res]
+
+ssh       = DstService(proto = "tcp", dst_range = ssh_range)
+smtp      = DstService(proto = "tcp", dst_range = smtp_range)
+proxy     = DstService(proto = "tcp", dst_range = proxy_range)
+
+http      = DstService(proto = "tcp", dst_range = http_range)
+https     = DstService(proto = "tcp", dst_range = https_range)
+http_all  = [http, https]
+
+dns_udp   = DstService(proto = "udp", dst_range = dns_range)
+dns_tcp   = DstService(proto = "tcp", dst_range = dns_range)
+dns       = [dns_udp, dns_tcp]
+
+udp_all   = DstService(proto = "udp", dst_range = all_range)
+tcp_all   = DstService(proto = "tcp", dst_range = all_range)
+all       = [udp_all, tcp_all]
+ftp       = DstService(proto = "tcp", dst_range = ftp_range)
+dhcp      = Service(proto = "udp", src_range = dhcp_range, dst_range = dhcp_range)
