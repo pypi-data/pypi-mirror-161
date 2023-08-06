@@ -1,0 +1,111 @@
+# FlowMePy - a Python API for FlowMe
+Load FCS 2.0/3.0/3.1 files with super fast C++ code. The FCS processing includes compensation and logicle transform. If FacsDiva projects (XMLs) or Kaluza projects (analysis) are provided, the FlowMePy will label events according to the gates contained. 
+
+[Read the Docs](https://kwc.pages.cvl.tuwien.ac.at/dev/flowme-python-api/)
+
+## Install
+We provide a pre-compiled package (currently Windows only) which can be installed using:
+````console
+pip install flowmepy
+````
+
+
+### Dependencies
+- `python` (>= 3.6)
+- `CMake` (>= 3.14.1)
+- `Qt` SDK or the compiled sources (>= 5.11.0)
+- `OpenCV` (>= 4.0.0)
+- Visual Studio (>= 2015) or gcc
+
+### Configure FlowMe using CMake (Windows only)
+- dir to ./flowme
+- copy `CMakeUserPathsGit.cmake` and rename it to `CMakeUserPaths.cmake`
+- add your library paths to the `${CMAKE_PREFIX_PATH}` in `CMakeUserPaths.cmake`
+
+## Clone
+
+We use submodules for `flowme` and `pybind11` if you clone using
+````console
+$ git clone --recursive git@smithers.cvl.tuwien.ac.at:kwc/dev/flowme-python-api.git
+````
+everything should be fine. In case the repository's `flowme` or `pybind11` folders are empty, check if the pull worked as expected:
+- don't forget `--recursive`
+- windows users: it's easiest if you do not password protect the ssh key
+
+
+## Build
+
+````console
+$ virtualenv env
+$ source /env/bin/activate
+$ python setup.py install
+````
+
+If anything did not work as expected, try building FlowMe as standalone package (see [README](./flowme/README.md)). Then run the above command again.
+
+You can remove old versions using pip:
+````console
+$ pip uninstall FlowMePy
+Successfully uninstalled flowmepy-0.0.3
+````
+
+## Packaging FlowMePy
+Update pip (on Windows & Linux), then create the wheel:
+````console
+python -m pip install --upgrade setuptools wheel
+python setup.py sdist bdist_wheel
+````
+where `sdist` creates the source archive (without C++ files) and bdist_wheel creates the build package.
+
+Then, upload the package:
+
+````console
+python -m twine upload dist/*
+````
+
+in case you want to test your package, use this for uploading:
+````console
+python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+````
+Unfortunately, test.pypi.org rejects linux binary wheels - so linux users must build packages on their own.
+You can install this package using:
+````console
+pip install -i https://test.pypi.org/simple/ flowmepy --extra-index-url https://pypi.org/simple
+````
+
+## Test
+Test flowmepy using:
+````console
+$ python -m unittest discover -v test
+````
+
+## build the docs
+````console
+$ cd docs
+$ make html
+````
+
+The compiled docs are here: [`docs/_build/index.html`](docs/_build/index.html)
+
+## FlowMePy in 2 minutes
+load an FCS using
+````python
+import flowme
+
+filepath = "./flowme/src/data/samples/FacsDiva.xml"
+sample = flowme.fcs(filepath)
+events = sample.events()       # get the event data (pandas.DataFrame)
+gates = sample.gate_labels()   # get gating (GT) information (pandas.DataFrame)
+````
+
+Per default events are **not** filtered by any Gate. However, it is possible to pass the name of a filtering gate:
+
+````python
+import flowme
+
+filepath = "./flowme/src/data/samples/FacsDiva.xml"
+filter_gatename = "viable"
+sample = flowme.fcs(filepath, filter_gatename)
+````
+
+![mascot](https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Tweety.svg/133px-Tweety.svg.png)
