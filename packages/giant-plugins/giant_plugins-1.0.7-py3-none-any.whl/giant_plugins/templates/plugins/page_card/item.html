@@ -1,0 +1,16 @@
+{% load thumbnail thumbnail_position %}
+
+{% thumbnail instance.image 150x150 crop upscale quality=50 as thumb %}
+
+<a href="{{ instance.get_absolute_url }}" title="{{ instance.cta_text }}" class="card-block__cards__card card-block__cards__card--short three-col__col {{ instance.colour }}">
+    <div class="image" style="background-image: url('{{ thumb.url }}'); background-position: {% thumbnail_bg_position instance.image.subject_location instance.image.width instance.image.height %};"></div>
+    <div class="text">
+        {% if instance.category %}
+            <p class="category">{{ instance.category }}</p>
+        {% endif %}
+        <h3>{{ instance.title }}</h3>
+        {% if instance.summary %}
+            <p>{{ instance.summary }}</p>
+        {% endif %}
+    </div>
+</a>

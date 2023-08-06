@@ -1,0 +1,42 @@
+{% load cms_tags %}
+<section class="donate-block">
+    <div class="wrapper wrapper--thin">
+        {% if instance.title or instance.text %}
+            <div class="donate-block__text">
+                {% if instance.title %}
+                    <h2>{{ instance.title }}</h2>
+                {% endif %}
+                {% if instance.text %}
+                    <p>{{ instance.text }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{{ instance.url }}" class="donate-block__form">
+            {% csrf_token %}
+            <div class="slider">
+                <div class="slider__info">
+                    <p><span class="slider__total">£200</span><span class="slider__message">Cataract surgery is now a one day surgery thanks to eye research.</span>
+                    </p>
+                </div>
+                <div class="slider__slider">
+                    <p>Drag the slider to select the amount, or enter your own amount.</p>
+                    <div class="slider__form">
+                        <span class="slider__value" data-min="10" data-max="250" data-step="10" data-start="60"
+                              data-end="250" value="60"></span>
+                        <div class="slider__container">
+                            <div class="slider__replace"></div>
+                        </div>
+                        <input type="number" name="amount" class="slider__custom" min="1" step=".01" required>
+                    </div>
+                </div>
+            </div>
+            <div class="field field--checkboxinput">
+                <label><input type="checkbox" name="is_recurring"> <span>I want to make a recurring donation</span></label>
+            </div>
+            <div class="donate-block__submit">
+                <button type="submit" class="btn" title="Donate">Donate</button>
+            </div>
+        </form>
+    </div>
+</section>

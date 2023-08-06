@@ -1,0 +1,28 @@
+{% load cms_tags thumbnail thumbnail_position %}
+
+{% if instance.display == 'carousel' %}
+    <section class="content-image">
+        <div class="wrapper wrapper--thin">
+            <div class="content-image__slides">
+                {% for plugin in instance.child_plugin_instances %}
+                    <div class="content-image__slide">
+                        {% render_plugin plugin %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="content-image__controls content-image__prev" title="Previous"></div>
+            <div class="content-image__controls content-image__next" title="Next"></div>
+        </div>
+    </section>
+{% else %}
+    <section class="gallery">
+        <div class="wrapper wrapper--thin">
+            <div class="gallery__container">
+                {% for plugin in instance.child_plugin_instances %}
+                    <div class="gallery__item" style="background-image: url('{% thumbnail plugin.image 'plugins:carousel' subject_location=plugin.image.subject_location %}'); background-position: {% thumbnail_bg_position plugin.image.subject_location plugin.image.width plugin.image.height %};" data-image="{{ plugin.image.url }}"{% if plugin.caption %} title="{{ plugin.caption }}"{% endif %}></div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}

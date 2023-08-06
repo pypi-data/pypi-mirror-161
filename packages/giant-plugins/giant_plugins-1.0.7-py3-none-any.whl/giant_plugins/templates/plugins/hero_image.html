@@ -1,0 +1,19 @@
+{% load thumbnail cms_tags thumbnail_position %}
+{% thumbnail instance.image 'plugins:image_hero' subject_location=instance.image.subject_location as thumb %}
+
+<section class="hero" style="background-image: url('{{ thumb.url }}'); background-position: {% thumbnail_bg_position instance.image.subject_location instance.image.width instance.image.height %};">
+    <div class="overlay"></div>
+    <div class="wrapper">
+        <div class="hero__text">
+            {% if instance.title %}
+                <h1>{{ instance.title }}</h1>
+            {% endif %}
+            {% if instance.strapline %}
+                <p>{{ instance.strapline }}</p>
+            {% endif %}
+            {% if instance.internal_link or instance.external_url %}
+                <a href="{{ instance.get_absolute_url }}" title="{{ instance.cta_text }}" class="btn"{% if instance.external_url %} target="_blank" rel="noreferrer noopener"{% endif %}>{{ instance.cta_text }}</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
