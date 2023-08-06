@@ -1,0 +1,73 @@
+%YAML 1.2
+---
+
+aliases:
+  - &stp_edge model_templates.neural_mass_models.synaptic_plasticity.tsodyks_edge
+
+# operator templates
+####################
+
+se_op:
+  base: OperatorTemplate
+  equations: "m = sigmoid(s*(r_in+r_ext-theta)) - sigmoid(-s*theta)"
+  variables:
+    m: output(0.0)
+    s: 1.0
+    theta: 2.0
+    r_in: input(0.0)
+    r_ext: input(0.0)
+
+si_op:
+  base: se_op
+  variables:
+    theta: 2.5
+    s: 2.0
+
+rate_op:
+  base: OperatorTemplate
+  equations: "r' = (-r + (1.0-k*r)*m)/tau"
+  variables:
+    r: output(0.0)
+    k: 1.0
+    tau: 10.0
+    m: input
+
+# node templates
+################
+
+exc_pop:
+  base: NodeTemplate
+  operators:
+    - rate_op
+    - se_op
+
+inh_pop:
+  base: NodeTemplate
+  operators:
+    - rate_op
+    - si_op
+
+# circuit templates
+###################
+
+WC:
+  base: CircuitTemplate
+  nodes:
+    e: exc_pop
+    i: inh_pop
+  edges:
+    - [e/rate_op/r, e/se_op/r_in, null, {weight: 15.0}]
+    - [e/rate_op/r, i/si_op/r_in, null, {weight: 15.0}]
+    - [i/rate_op/r, e/se_op/r_in, null, {weight: -15.0}]
+    - [i/rate_op/r, i/si_op/r_in, null, {weight: -4.0}]
+
+WC_stp:
+  base: CircuitTemplate
+  nodes:
+    e: exc_pop
+    i: inh_pop
+  edges:
+    - [ e/rate_op/r, e/se_op/r_in, *stp_edge, { weight: 5.0 } ]
+    - [ e/rate_op/r, i/si_op/r_in, *stp_edge, { weight: 10.0 } ]
+    - [ i/rate_op/r, e/se_op/r_in, *stp_edge, { weight: -5.0 } ]
+    - [ i/rate_op/r, i/si_op/r_in, *stp_edge, { weight: -5.0 } ]

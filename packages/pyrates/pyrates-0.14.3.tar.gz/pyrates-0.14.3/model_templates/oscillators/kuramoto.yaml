@@ -1,0 +1,115 @@
+%YAML 1.2
+---
+
+# operator templates
+####################
+
+# phase evolution operator
+phase_op:
+  base: OperatorTemplate
+  equations:
+    - "d/dt * theta = omega + K*s_in + s_ext"
+  variables:
+    theta: output
+    omega: 10.0
+    K: 1.0
+    s_in: input
+    s_ext: input
+
+# sinusoidal phase coupling operator
+coupling_op:
+  base: OperatorTemplate
+  equations:
+    - "s = sin(theta_s-theta_t)"
+  variables:
+    theta_s: input
+    theta_t: input
+    s: output
+
+# sinusoidal wrapper
+sin_op:
+  base: OperatorTemplate
+  equations:
+    - "s = sin(2*pi*theta)"
+  variables:
+    theta: input
+    s: output
+
+# kuramoto order parameter evolution
+kmo_op:
+  base: OperatorTemplate
+  equations:
+    - "s = s_in + s_ext"
+    - "z' = (i*omega - Delta)*z + (s - conj(s)*z^2) / 2"
+  variables:
+    z: output(0.5+0.1j)
+    s: variable(complex)
+    omega: 10.0
+    Delta: 1.0
+    i: 0.0+1.0j
+    s_in: input(0.0+0.0j)
+    s_ext: input(0.0+0.0j)
+
+# node templates
+################
+
+phase_pop:
+  base: NodeTemplate
+  operators:
+    - phase_op
+
+sin_pop:
+  base: NodeTemplate
+  operators:
+    - phase_op
+    - sin_op
+
+kmo_pop:
+  base: NodeTemplate
+  operators:
+    - kmo_op
+
+# edge templates
+################
+
+sin_edge:
+  base: EdgeTemplate
+  operators:
+    - coupling_op
+
+# circuit templates
+###################
+
+kmo:
+  base: CircuitTemplate
+  nodes:
+    p: phase_pop
+
+kmo_2coupled:
+  base: CircuitTemplate
+  nodes:
+    p1: phase_pop
+    p2: phase_pop
+  edges:
+    - [ p1/phase_op/theta, p2/phase_op/s_in, sin_edge, { weight: -4.0, sin_edge/coupling_op/theta_s: source,
+                                                           sin_edge/coupling_op/theta_t: p2/phase_op/theta } ]
+    - [ p2/phase_op/theta, p1/phase_op/s_in, sin_edge, { weight: -4.0, sin_edge/coupling_op/theta_s: source,
+                                                           sin_edge/coupling_op/theta_t: p1/phase_op/theta } ]
+
+kmo_mf:
+  base: CircuitTemplate
+  nodes:
+    p: kmo_pop
+  edges:
+    - [ p/kmo_op/z, p/kmo_op/s_in, null, {weight: 1.0}]
+
+kmo_mf_2coupled:
+  base: CircuitTemplate
+  nodes:
+    p1: kmo_pop
+    p2: kmo_pop
+  edges:
+    - [ p1/kmo_op/z, p1/kmo_op/s_in, null, {weight: 2.0} ]
+    - [ p1/kmo_op/z, p2/kmo_op/s_in, null, {weight: -2.0} ]
+    - [ p2/kmo_op/z, p2/kmo_op/s_in, null, {weight: 2.0} ]
+    - [ p2/kmo_op/z, p1/kmo_op/s_in, null, {weight: -2.0} ]

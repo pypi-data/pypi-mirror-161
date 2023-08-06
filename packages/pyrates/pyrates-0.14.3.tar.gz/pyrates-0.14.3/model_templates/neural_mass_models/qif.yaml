@@ -1,0 +1,156 @@
+%YAML 1.2
+---
+
+aliases:
+  - &depression_edge model_templates.neural_mass_models.synaptic_plasticity.depression_edge
+  - &tsodyks_edge model_templates.neural_mass_models.synaptic_plasticity.tsodyks_edge
+
+# operator templates
+####################
+
+# firing rate equations of a population of QIF neurons
+qif_op:
+  base: OperatorTemplate
+  equations:
+    - "r' = (Delta/(pi*tau) + 2.0*r*v) / tau"
+    - "v' = (v^2 + eta + I_ext + tau*r_in - (pi*tau*r)^2) / tau"
+  variables:
+    r: output(0.01)
+    v: variable(-2.0)
+    Delta: 1.0
+    tau: 1.0
+    eta: -5.0
+    I_ext: input(0.0)
+    r_in: input(0.0)
+
+# qif neurons with spike-frequency adaptation
+qif_sfa_op:
+  base: qif_op
+  equations:
+    replace:
+      eta: eta - a
+    add:
+      - "a' = x/tau_a"
+      - "x' = alpha*r - 2.*x/tau_a - a/tau_a"
+  variables:
+    a: variable(0.0)
+    x: variable(0.0)
+    alpha: 0.5
+    tau_a: 10.0
+
+# qif neurons with gap junctions
+qif_gap_op:
+  base: qif_op
+  equations:
+    replace:
+      2.0*r*v: r*(2.0*v-g)
+  variables:
+    g: 0.0
+
+# qif neuron with conductance-based synapses
+qif_conduct_op:
+  base: OperatorTemplate
+  equations:
+    - "r' = (Delta/(pi*tau) + r*(2.0*v - g*s*tau)) / tau"
+    - "v' = (v^2 + eta + I_ext + g*s*tau*(e_r - v) - (pi*tau*r)^2) / tau"
+    - "s' = -s/tau_s + r_in"
+  variables:
+    r: output(0.0)
+    v: variable(0.0)
+    s: variable(0.0)
+    Delta: 1.0
+    tau: 1.0
+    eta: -5.0
+    g: 5.0
+    e_r: 1.0
+    tau_s: 2.0
+    I_ext: input(0.0)
+    r_in: input(0.0)
+
+
+# node templates
+################
+
+# population of QIF neurons
+qif_pop:
+  base: NodeTemplate
+  operators:
+    - qif_op
+
+# population of QIF neurons with SFA
+qif_sfa_pop:
+  base: NodeTemplate
+  operators:
+    - qif_sfa_op
+
+# population of qif neurons with gap junctions
+qif_gap_pop:
+  base: NodeTemplate
+  operators:
+    - qif_gap_op
+
+# population of qif neurons with conductance-based synapses
+qif_conduct_pop:
+  base: NodeTemplate
+  operators:
+    - qif_conduct_op
+
+
+# circuit templates
+###################
+
+# single QIF population
+qif:
+  base: CircuitTemplate
+  nodes:
+    p: qif_pop
+  edges:
+    - [p/qif_op/r, p/qif_op/r_in, null, {weight: 15.0}]
+
+# single QIF population with SFA
+qif_sfa:
+  base: CircuitTemplate
+  nodes:
+    p: qif_sfa_pop
+  edges:
+    - [p/qif_sfa_op/r, p/qif_sfa_op/r_in, null, {weight: 15.0}]
+
+# single QIF population with gap junction coupling
+qif_gap:
+  base: CircuitTemplate
+  nodes:
+    p: qif_gap_pop
+  edges:
+    - [p/qif_op/r, p/qif_op/r_in, null, {weight: 15.0}]
+
+# qif population with alpha-kernel synapse
+qif_alpha_syn:
+  base: CircuitTemplate
+  nodes:
+    p: qif_pop
+  edges:
+    - [p/qif_op/r, p/qif_op/r_in, alpha_edge, {weight: 15.0}]
+
+# QIF population with conductance-based synapse
+qif_conduct:
+  base: CircuitTemplate
+  nodes:
+    p: qif_conduct_pop
+  edges:
+    - [p/qif_conduct_op/r, p/qif_conduct_op/r_in, null, {weight: 1.0}]
+
+# qif population with synaptic depression
+qif_sd:
+  base: CircuitTemplate
+  nodes:
+    p: qif_pop
+  edges:
+    - [p/qif_op/r, p/qif_op/r_in, *depression_edge, {weight: 15.0, delay: 0.75, spread: 0.3}]
+
+# qif population with synaptic plasticity
+qif_tsodyks:
+  base: CircuitTemplate
+  nodes:
+    p: qif_pop
+  edges:
+    - [p/qif_op/r, p/qif_op/r_in, *tsodyks_edge, {weight: 15.0}]
