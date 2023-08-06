@@ -1,0 +1,62 @@
+# Determine exact image name and version from the manifest
+image: !image-from-ivy-manifest
+  # Default search path
+  manifest: ${CFGDIR}/dependency_manifest.xml
+  # Docker repository name
+  repository: hub.docker.com
+  # Sub-directory to pull from
+  path: tomtom
+
+# Docker volume mapping based on docker-compose
+volumes:
+  - source: ${CT_DEVENV_HOME}
+    target: /tools/devenv
+    read-only: true
+  - ~/.ccache:~/.ccache:rw
+  - ~/.ivy2:~/.ivy2:rw
+  - .:/code/ci-config:ro
+
+# When building execute these phases in order
+# And within each phase, execute the variants in parallel
+# In subsequent phases variants with the same name get executed on the same node as in the previous phase.
+# The next phases will only be executed if the previous phase was completely succesfully finished.
+phases:
+  build:
+    Linux-x86_64-Release:
+      # Ensures this variant will get scheduled on a node with the specified labels.
+      # New label specifications for the same variant in a later phase get ignored.
+      - node-label: Linux && Docker
+      - Build/build.py -f Build/Linux-x86_64.yaml -m Release
+    Linux-x86_64-Debug:
+      - node-label: Linux && Docker
+      - Build/build.py -f Build/Linux-x86_64.yaml -m Debug
+    Linux_AGL-aarch64-Release:
+      - node-label: Linux && Docker && SDK
+      - Build/build.py -f Build/Linux_AGL-aarch64.yaml -m Release
+    Linux_AGL-aarch64-Debug:
+      - node-label: Linux && Docker && SDK
+      - Build/build.py -f Build/Linux_AGL-aarch64.yaml -m Debug
+
+  test:
+    Linux-x86_64-Release:
+      - description: Run unit tests
+      - Build/build.py -f Build/Linux-x86_64.yaml -m Release DBusTests_Run_SmokeTests
+      - clazy-standalone.sh Components Build/Output/Linux-x86_64/Release
+    Linux-x86_64-Debug:
+      - description: Run unit tests
+      - Build/build.py -f Build/Linux-x86_64.yaml -m Debug test-v
+      - clazy-standalone.sh Components Build/Output/Linux-x86_64/Debug
+
+  quality:
+    Coverity:
+      - description: Coverity run
+      - volumes-from:
+        - image-name: hub.docker.com/tomtom/coverity
+          image-version: 2.4.6
+      - echo -e "Run Coverity here, eg.:\n  cov-configure --template --compiler gcc --comptype gcc\n  cov-configure -co /tools/devenv/Linux/Linux/gcc-4.8.2/bin/c++ -- -msse -mfpmath=sse\netc.."
+
+  publish:
+    Linux_AGL-aarch64-Release:
+      - Build/build.py -f Build/Linux_AGL-aarch64.yaml -m Release publish-rc
+    Linux-x86_64-Release:
+      - Build/build.py -f Build/Linux-x86_64.yaml -m Release publish-rc

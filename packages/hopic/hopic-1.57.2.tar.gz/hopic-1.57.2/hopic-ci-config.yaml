@@ -1,0 +1,204 @@
+version:
+  tag:    'v{version.major}.{version.minor}.{version.patch}'
+  format: semver
+  bump:
+    policy: conventional-commits
+    strict: yes
+    on-every-change: no
+
+project-name: PIPE
+
+scm:
+  git:
+    worktrees:
+      doc/build/html: pages
+
+ci-locks:
+  - branch: "pages"
+    repo-name: "PIPE/hopic"
+
+pass-through-environment-vars:
+  - GIT_COMMITTER_NAME
+  - GIT_COMMITTER_EMAIL
+
+modality-source-preparation:
+  AUTO_MERGE:
+    - git fetch origin release/0
+    - sh: git merge --no-commit --no-ff FETCH_HEAD
+      changed-files: []
+      commit-message: "Merge branch 'release/0'"
+
+volumes:
+  - source: null
+    target: /etc/passwd
+  - source: null
+    target: /etc/group
+
+pip:
+  - commisery>=0.3,<1
+
+phases:
+  style:
+    commit-messages:
+      - timeout: 10
+      - !template "commisery"
+    flake8:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.9 -t hopic-python:3.9-slim-git hopic/test/docker-images/python
+      - junit: flake8.xml
+        image: hopic-python:3.9-slim-git
+        sh: tox -e flake8
+        timeout: 30
+    black:
+      - timeout: 60
+      - rm -rf venv3
+      - python3 -m virtualenv --clear venv3
+      - venv3/bin/python -m pip install --upgrade darker>=1.2.5.dev6,<2
+      - mkdir -p build/output/darker
+      - foreach: AUTOSQUASHED_COMMIT
+        sh: sh -c "venv3/bin/python -m darker --diff --revision '${AUTOSQUASHED_COMMIT}^1..${AUTOSQUASHED_COMMIT}' | tee build/output/darker/${AUTOSQUASHED_COMMIT}.diff"
+        timeout: 10
+      - foreach: AUTOSQUASHED_COMMIT
+        sh: "test ! -s build/output/darker/${AUTOSQUASHED_COMMIT}.diff"
+        timeout: 1
+
+  docker:
+    python3.6:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.6 -t hopic-python:3.6-slim-git hopic/test/docker-images/python
+
+    python3.7:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.7 -t hopic-python:3.7-slim-git hopic/test/docker-images/python
+
+    python3.8:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.8 -t hopic-python:3.8-slim-git hopic/test/docker-images/python
+
+    python3.9:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.9.10 -t hopic-python:3.9-slim-git hopic/test/docker-images/python
+
+    python3.10:
+      - timeout: 300
+      - docker build --network=host --build-arg=PYTHON_VERSION=3.10.0rc1 -t hopic-python:3.10-slim-git hopic/test/docker-images/python
+
+  static:
+    python3.6:
+      - timeout: 90
+      - junit:
+          test-results: mypy-test.xml
+          allow-failures: yes # TODO: remove when GitPython annotations are correct
+        image: hopic-python:3.6-slim-git
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py36-types
+
+    python3.7:
+      - timeout: 90
+      - junit:
+          test-results: mypy-test.xml
+          allow-failures: yes # TODO: remove when GitPython annotations are correct
+        image: hopic-python:3.7-slim-git
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py37-types
+
+    python3.8:
+      - timeout: 90
+      - junit:
+          test-results: mypy-test.xml
+          allow-failures: yes # TODO: remove when GitPython annotations are correct
+        image: hopic-python:3.8-slim-git
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py38-types
+
+    python3.9:
+      - timeout: 90
+      - junit:
+          test-results: mypy-test.xml
+          allow-failures: yes # TODO: remove when GitPython annotations are correct
+        image: hopic-python:3.9-slim-git
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py39-types
+
+    python3.10:
+      - timeout: 90
+      - junit:
+          test-results: mypy-test.xml
+          allow-failures: yes # TODO: remove when GitPython annotations are correct
+        image: hopic-python:3.10-slim-git
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py310-types
+
+  test:
+    python3.6:
+      - timeout: 300
+      - junit: junit-test.xml
+        image: hopic-python:3.6-slim-git
+        docker-in-docker: yes
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py36
+
+    python3.7:
+      - timeout: 300
+      - junit: junit-test.xml
+        image: hopic-python:3.7-slim-git
+        docker-in-docker: yes
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py37
+
+    python3.8:
+      - timeout: 300
+      - junit: junit-test.xml
+        image: hopic-python:3.8-slim-git
+        docker-in-docker: yes
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py38
+
+    python3.9:
+      - timeout: 300
+      - junit: junit-test.xml
+        image: hopic-python:3.9-slim-git
+        docker-in-docker: yes
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py39
+
+    python3.10:
+      - timeout: 300
+      - junit: junit-test.xml
+        image: hopic-python:3.10-slim-git
+        docker-in-docker: yes
+        wait-on-full-previous-phase: no
+        sh: tox -r -e py310
+
+  build:
+    sphinx-doc:
+      - timeout: 180
+      - rm -rf doc/build/venv
+      - python3 -m venv --clear doc/build/venv
+      - doc/build/venv/bin/python -m pip install --upgrade setuptools setuptools_scm setuptools_scm_git_archive . -r doc-requirements.txt
+      - archive:
+          artifacts: doc/build/html/**
+        worktrees:
+          doc/build/html:
+            commit-message: "Update documentation for ${VERSION}"
+        with-credentials:
+          id: ssh_svc_bitbucket_access
+          type: ssh-key
+          ssh-command-variable: GIT_SSH
+        sh: >
+          sh -x -c ':
+          && find doc/build/html -maxdepth 1 -not -path doc/build/html -not -name .git\* -exec rm -v -r "{}" +
+          && doc/build/venv/bin/python -m sphinxcontrib.versioning build --override-branch=${GIT_BRANCH}=${GIT_COMMIT} doc/source doc/build/html
+          && find doc/build/html \( -name .doctrees -o -name objects.inv -o -name jquery-\*.js \) -exec rm -v -r "{}" +
+          && touch doc/build/html/.nojekyll'
+
+post-submit:
+  publish:
+    - run-on-change: new-version-only
+      timeout: 300 # should be done much quicker (~ 30s avg), but we're giving post-submit a big grace period
+      with-credentials:
+        id: hopic-pypi
+        type: username-password
+    - python3 -m venv --clear venv3
+    - venv3/bin/python -m pip install --upgrade tox
+    - venv3/bin/python -m tox -e publish
