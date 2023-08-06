@@ -1,0 +1,680 @@
+from multiprocessing import Pool
+import argparse
+import os
+import sys
+import uuid
+from glob import glob
+from errno import ENOENT as FILENOTFOUNDCODE
+
+import numpy as np
+import pysam
+import pyBigWig
+import SharedArray as sha
+
+
+def accept_as_input(bamfp):
+    """Test proposed input bam file paths for some things."""
+    pathto, name = os.path.split(bamfp)
+    if pathto == "": pathto = "."
+    assert os.path.exists(pathto), "This path [{}] doesn't exist".format(pathto)
+
+    bamfp = os.path.join(pathto, name)
+    if not os.path.isfile(bamfp):
+        return False, "Designated input file {} doesn't seem to exist".format(bamfp)
+
+    if not os.path.exists(bamfp + ".bai"):
+        return False, "Input file {} doesn't seem to be indexed (I can't find the relevant .bai file), please index it with 'samtools index'".format(
+            bamfp)
+
+    return True, None
+
+
+class FlagFilter():
+    """This class instantiates a filter based on the args.
+    The idea is to only ever expose one filtering fuction for the reads and
+    not to have unnecessary elifs and clutter. It is a bit hacky but fun.
+    """
+
+    def __init__(self, args):
+        """Set self.filter_function based on the arguments."""
+        if args.filter_lc and args.filter_uc:
+            self.filter_func = self.both(args)
+        elif args.filter_lc:
+            self.filter_func = self.lc(args)
+        elif args.filter_uc:
+            self.filter_func = self.uc(args)
+        else:
+            self.filter_func = lambda x: True
+
+    def both(self, args):
+        """If both filters exists."""
+        flc = args.filter_lc
+        fuc = args.filter_uc
+        return lambda x: ((x & flc) == flc) and ((x & fuc) == 0)
+
+    def lc(self, args):
+        """Only lowercase filter is set."""
+        flc = args.filter_lc
+        return lambda x: (x & flc) == flc
+
+    def uc(self, args):
+        """Only uppercase filter is set."""
+        fuc = args.filter_uc
+        return lambda x: ((x & fuc) == 0)
+
+
+class FragFilter():
+    """This class instantiates a filter based on the args.
+    The idea is to only ever expose one filtering fuction for the reads and
+    not to have unnecessary elifs and clutter.
+    """
+
+    def __init__(self, args):
+        """Set self.filter_function based on the arguments."""
+        if args.t_len_lower and args.t_len_upper:
+            self.filter_func = self.both(args)
+        elif args.t_len_lower:
+            self.filter_func = self.lc(args)
+        elif args.t_len_upper:
+            self.filter_func = self.uc(args)
+        else:
+            self.filter_func = lambda x: True
+
+    def both(self, args):
+        """If both filters exists."""
+        tll = args.t_len_lower
+        tlu = args.t_len_upper
+        return lambda x: (x >= tll) and (x <= tlu)
+
+    def lc(self, args):
+        """Only lower filter is set."""
+        tll = args.t_len_lower
+        return lambda x: (x >= tll)
+
+    def uc(self, args):
+        """Only upper filter is set."""
+        tlu = args.t_len_upper
+        return lambda x: (x <= tlu)
+
+
+def get_extension_sites(args, chrom):
+    """Get reads for one chromosome into dp and dn.
+    Returns dp for reads in the + strand and dn for reads in the - strand
+    If extsize is a digit, dn reads are shifted 5-->3 by extsize.
+    That way we can just extend every read in one direction in the next steps.
+    """
+    chromsize = args.chrom_size.get(chrom)
+    _extend = args.extsize
+
+    bams = [pysam.AlignmentFile(bamfp) for bamfp in args.bam]
+    # ff is a function that gets instantiated based on
+    # the arguments. It returns True for acceptable reads
+    f = FlagFilter(args)
+    # the flag filter
+    ff = f.filter_func
+
+    fr = FragFilter(args)
+    # the fragment length filter
+    ffr = fr.filter_func
+
+    # the quality filter
+    if args.q:
+        fq = lambda x: x >= args.q
+    else:
+        fq = lambda x: True
+
+    # p strand constant
+    ps_const = args.shift + args.shift_p
+    # n strand constant
+    if 'fragment' == _extend:
+        ns_const = -args.shift - args.shift_n
+    else:
+        ns_const = -args.shift - args.shift_n - _extend
+
+        # This will go through all the reads,
+    # and with the reads that pass the various filters
+    # it will create a dictionary
+    # where d = { position: NumberofExtentionSites }
+    dp = {}
+    dn = {}
+    for enum, bam in enumerate(bams):
+        try:
+            for read in bam.fetch(chrom, 0, chromsize, multiple_iterators=True):
+                if ff(read.flag) and ffr(abs(read.template_length)) and fq(read.mapping_quality):
+                    if read.is_reverse:
+                        # http://pysam.readthedocs.io/en/latest/api.html
+                        # reference_end points to one past the last aligned residue.
+                        # Returns None if not available (read is unmapped or no cigar alignment present).
+                        dpos = read.reference_end + ns_const
+                        dn[dpos] = dn.get(dpos, 0) + 1
+                    else:
+                        dpos = read.reference_start + ps_const
+                        dp[dpos] = dp.get(dpos, 0) + 1
+        except ValueError:
+            args.vprint(
+                "{} (found in the chrom-info file) doesn't exist in the bam file {} ".format(chrom, args.bam[enum]),
+                file=sys.stderr)
+        bam.close()
+    args.vprint(
+        "Finished reading from {}. Found {} reads in the + strand and {} in the -".format(chrom, sum(dp.values()),
+                                                                                          sum(dn.values())),
+        file=sys.stdout)
+    return dp, dn
+
+
+def cuts_d_extend(d, extend):
+    """Convert d into dee."""
+    ed = {k + extend + 1: v * -1 for k, v in d.items()}
+    dee = {k: d.get(k, 0) + ed.get(k, 0) for k in set(d.keys()).union(set(ed.keys()))}
+    return dee
+
+
+def yield_bedgraph_fields(dee):
+    """From dictionary of position:signalchange to bedgraph fields.
+    Takes dee which stores positions and increase/decrease in signal
+    and outputs (start, end, value) of signal. The core of the "algorithm"
+    """
+    ipoints = iter(sorted(dee.keys()))
+    start = next(ipoints)
+    val = dee.get(start, 0)
+
+    for nextpoint in ipoints:
+        valchange = dee.get(nextpoint, 0)
+        if valchange == 0:
+            continue
+        else:
+            if val > 0 and nextpoint > 0:
+                yield (max([0, start]), nextpoint, val)
+            elif val < 0:
+                vprint("value under zeros shouldnt happen", file=sys.stderr)
+            start = nextpoint
+            val += valchange
+
+
+def poolinit(arguments):
+    """Initialize the pool and make globals among all the processes.
+    http://stackoverflow.com/questions/25557686/python-sharing-a-lock-between-processes
+    """
+    global gargs
+    gargs = arguments
+
+
+def to_shm(dee, schmeckle):
+    """Convert dee to bedgraph fields and write to shared memory."""
+    try:
+        starts, ends, values = zip(*yield_bedgraph_fields(dee))
+        size = len(starts)
+
+        sha_starts = sha.create(schmeckle.format("starts"), size, dtype=np.int64)
+        sha_ends = sha.create(schmeckle.format("ends"), size, dtype=np.int64)
+        sha_values = sha.create(schmeckle.format("values"), size, dtype=np.float64)
+
+        sha_starts[:] = starts
+        sha_ends[:] = ends
+        sha_values[:] = values
+
+        del starts, ends, values
+    except:
+        return 1
+    return 0
+
+
+def worker(chrom):
+    """A pool worker that handles one chromosome.
+    Gets the reads with get_extension_sites
+    makes a unique schmeckle string in /dev/shm with the SharedArray library
+    Then gets bedgraph fields and stores them in the shared memory,
+    in the unique schmeckle filename.
+    Returns the chrom and schmeckle so that the parent process
+    knows which data to retrieve for this chrom.
+    Precisely returns [chrom, smek1, smek2], smek1 and 2 cant be None
+    """
+    dp, dn = get_extension_sites(gargs, chrom)
+    myuuid = uuid.uuid1()
+    _extend = gargs.extsize
+
+    schmeckle = "{}bam2bw_{}_{}_{}_{}".format(gargs.shm_backend, myuuid, "{}", chrom, "{}")
+    ret = [chrom, None, None]
+    if "fragment" == _extend:
+        if not {} == dp:
+            schmeckle1 = schmeckle.format("c", "{}")
+            assert sum(dp.values()), sum(dn.values())
+            ed = {k: v * -1 for k, v in dn.items()}
+            dee = {k: dp.get(k, 0) + ed.get(k, 0) for k in set(dp.keys()).union(set(ed.keys()))}
+
+            err = to_shm(dee, schmeckle1)
+            if not err:
+                ret[1] = schmeckle1
+    else:
+        if gargs.split_strands:
+            schmeckle1 = schmeckle.format("p", "{}")
+            schmeckle2 = schmeckle.format("n", "{}")
+            if not {} == dp:
+                err = to_shm(cuts_d_extend(dp, _extend), schmeckle1)
+                if not err:
+                    ret[1] = schmeckle1
+
+            if not {} == dn:
+                err = to_shm(cuts_d_extend(dn, _extend), schmeckle2)
+                if not err:
+                    ret[2] = schmeckle2
+        else:
+            dc = {k: dp.get(k, 0) + dn.get(k, 0) for k in set(dp.keys()).union(dn.keys())}
+            schmeckle1 = schmeckle.format("c", "{}")
+            # del dp, dn
+
+            if not {} == dc:
+                err = to_shm(cuts_d_extend(dc, _extend), schmeckle1)
+                if not err:
+                    ret[1] = schmeckle1
+
+    gargs.vprint("Wrote {} to shared mem".format(chrom), file=sys.stdout)
+    return ret
+
+
+def shm_to_pybw_manager(chrom, schmeckle, bwl, args):
+    """Organize the sharedMemory to bigwig.
+
+    This is called by the 'manager' process, the one that makes the pool
+    and handles the results.
+    """
+    smek1, smek2 = schmeckle
+    if args.split_strands and len(bwl) == 2:
+        if smek1:
+            shm_to_pybw(chrom, smek1, bwl[0], args)
+        if smek2:
+            shm_to_pybw(chrom, smek2, bwl[1], args)
+
+    elif (not args.split_strands) and len(bwl) == 1:
+        if smek1:
+            shm_to_pybw(chrom, smek1, bwl[0], args)
+    else:
+        sys.exit("CATASTROPHIC FAILURE.")
+
+    return 0
+
+
+def shm_to_pybw(chrom, schmeckle, bw, largs):
+    """Read data from the shared memorry and put them in the pybw object."""
+    try:
+        sha_starts = sha.attach(schmeckle.format("starts"))
+        sha_ends = sha.attach(schmeckle.format("ends"))
+        sha_values = sha.attach(schmeckle.format("values"))
+        mysize = len(sha_starts)
+        bw.addEntries([chrom] * mysize, sha_starts, ends=sha_ends, values=sha_values)
+        largs.vprint("Wrote {} entries in chromosome {}".format(mysize, chrom), file=sys.stdout)
+
+        sha.delete(schmeckle.format("starts"))
+        sha.delete(schmeckle.format("ends"))
+        sha.delete(schmeckle.format("values"))
+    except OSError as e:
+        if e.errno == FILENOTFOUNDCODE:
+            # do your FileNotFoundError code here
+            largs.vprint("I expected to find this but couldn't: {}".format(schmeckle.format("{}")), file=sys.stderr)
+            pass
+        else:
+            raise
+
+
+def bamtobw(args):
+    """The master process.
+    Handles the pybiwwig object, makes the pool,
+    reads the results from the shared memory, puts them in the pybw object,
+    then closes it.
+    """
+    if args.split_strands:
+        bw_p = pyBigWig.open(args.bw_p_path, "w")
+        bw_p.addHeader(sorted(list(args.chrom_size.items())), maxZooms=args.maxzooms)
+        bw_n = pyBigWig.open(args.bw_n_path, "w")
+        bw_n.addHeader(sorted(list(args.chrom_size.items())), maxZooms=args.maxzooms)
+        bwl = [bw_p, bw_n]
+
+    else:
+        bw = pyBigWig.open(args.bw_path, "w")
+        bw.addHeader(sorted(list(args.chrom_size.items())), maxZooms=args.maxzooms)
+        bwl = [bw]
+
+    chromosomelist = iter(sorted(args.chrom_size.keys()))
+    iterabull = iter(sorted(args.chrom_size.keys()))
+
+    pool = Pool(max(args.procs - 1, 1), initializer=poolinit, initargs=(args,))
+
+    cache = {}
+    next_chrom = next(chromosomelist)
+    for justdonechrom, smek1, smek2 in pool.imap_unordered(worker, iterabull, chunksize=1):
+        if justdonechrom == next_chrom:
+            # get results for chrom from shm and put in bw file
+            shm_to_pybw_manager(justdonechrom, (smek1, smek2), bwl, args)
+            try:
+                next_chrom = next(chromosomelist)
+                while next_chrom in cache:
+                    # get results for chrom from shm and put in bw file
+                    shm_to_pybw_manager(next_chrom, cache[next_chrom], bwl, args)
+                    next_chrom = next(chromosomelist)
+
+            except StopIteration:
+                pass
+        else:
+            cache[justdonechrom] = smek1, smek2
+
+    pool.close()
+    pool.join()
+
+    for bwfh in bwl:
+        bwfh.close()
+
+
+def main():
+    """The main function.
+
+    Handles arguments, then calls bam2bigwig with them.
+    """
+    parser = argparse.ArgumentParser(description="""
+        Create a bigwig file with signal derived from a sorted and indexed bam file.  \
+        Use the options to shape the signal according to what you are visualizing.    \
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+        Reads can be filtered with -f and/or -F which work like in "samtools view".   \
+        Try the option --explain_flags for more help with this.                       \
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+        The reads can be shifted by --shift towards 5'->3' before being expanded by   \
+        --extsize to expand their coverage. Try --coverage_examples for more help. You\
+        can set strand specific shifting with --shift_p and --shift_n or use --atac   \
+        to automatically correct the reads from ATACseq experiments.                  \
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+        Use -p to parallelize (at the very least 2 cores are recommended).            \
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+        Please report any issues/requests at github.com/PanosFirmpas/bamToBigWig      \
+        """, add_help=False)
+    req = parser.add_argument_group('rRequired arguments')
+
+    req.add_argument('-b', '--bam', nargs='+', type=str, metavar='', help="""
+                       The input .bam file. Must be sorted and indexed.
+                       You can give more than one input files, separated by space, or even 
+                       a wilcard expression, encased in quotation marks(e.g.,"./replicate*.bam"). """)
+
+    req.add_argument('-chr', '--chrominfo', type=str, metavar='', help="""
+                       A two column |<chromosome name> <total_length>| txt file.
+                       The chromosome names must match those on the bam file. bamToBigWig only 
+                       works on the chromosomes found in this file, so if you want to create a bigwig with only 
+                       some chromosomes included, edit this input file accordingly.""")
+
+    flt = parser.add_argument_group('Optional arguments - Filtering')
+
+    flt.add_argument('-q', '--q', type=int, default=None, metavar='', help="""
+                        Only include reads with mapping quality >= this option. Default is None, no q filter is applied.""")
+
+    flt.add_argument('-f', '--filter_lc', type=int, default=2, metavar='', help="""
+                       Only include reads with all bits of this argument set in their flag. Default is 2,
+                       only reads mapped as "proper pair" are used. See --explain_flags""")
+
+    flt.add_argument('-F', '--filter_uc', type=int, default=4, metavar='', help="""
+                       Only include reads with none of the bits of this argument set in their flag. Default is 4, which 
+                       filters out unmapped reads. If you don't want ANY such filter, you can set this option to 0 but this 
+                       will likely cause the program to crash and burn since unmapped reads don't have some needed parameters like 
+                       an alignment position. See --explain_flags for some more information.""")
+
+    flt.add_argument('-tlu', '--t_len_upper', type=int, default=None, metavar='', help="""
+                       Sets filtering so that only reads with absolute(tlen) lower than this are accepted.
+                       This field is set by the mapper, but for paired-end sequencing it will typically refer to the
+                       distance from the start of the + strand mapped read to the end of its - strand mapped mate. 
+                       For ATAC experiments, setting this to approximately 120, will visualize
+                       the "nucleosome free" reads. Default is "None", no fragment size filter is applied.""")
+
+    flt.add_argument('-tll', '--t_len_lower', type=int, default=None, metavar='', help="""
+                       Sets filtering so that only reads with absolute(tlen) greater than this are accepted.
+                       See also --t_len_upper""")
+
+    shi = parser.add_argument_group('Optional arguments - Shifting/Extending')
+
+    shi.add_argument('-sh', '--shift', type=int, default=-35, metavar='', help="""
+                        Arbitrary shift in bp. This value is used to move cutting ends (5') towards 5'->3'.
+                        When this value is negative, ends will be moved toward 3'->5' direction.
+                        If you want to extend the signal downstream of the original cutting end,
+                        for example to visualize CHIPseq experiments, you will want to set this value to 0
+                        and --extsize to how much you want to extend. If on the other hand you want to
+                        extend the signal to both sides of the cutting end, for example if you are visualizing
+                        ATACseq or DNAse-seq, you will want to set this to some negative value.
+                        The default value -35 in combination with the default value of --extsize 70
+                        will extend the signal by 35bp around the cutting end.
+                        NOTE: this is different than the --atac option, or the --shift_p/shift_n options, and is applied on top of them.""")
+
+    shi.add_argument('-exts', '--extsize', type=str, default='70', metavar='', help="""
+                        Arbitrary extension size in bp. 
+                        This value is used to extend each read towards the 3' end.  
+                        Can be usefully combined with --shift. The default value is 70 
+                        which in combination with the default --shift -35 extends the signal 
+                        by 35bp upstream and downstream of the original cutting end.
+                        If this is set to 'fragment', reads will be extended until their mate.""")
+
+    shi.add_argument('-sh_p', '--shift_p', type=int, default=0, metavar='',
+                     help="Like --shift (and applied on top of it), but only applied to reads that map on the positive strand.")
+
+    shi.add_argument('-sh_n', '--shift_n', type=int, default=0, metavar='',
+                     help="Like --shift (and applied on top of it), but only applied to reads that map on the negative strand.")
+
+    shi.add_argument('-atac', '--atac', action='store_true', default=False, help="""
+                        Shift reads mapping to the plus strand by +4 (5'->3') and reads that map
+                        on the minus strand by +5 (5'-> 3'). This centers the cutting ends on the center of the
+                        transposase 'event'. Overwrites --shift_p to 4 and --shift_n to 5""")
+
+    opt = parser.add_argument_group('Optional arguments - Others')
+
+    opt.add_argument('-p', '--procs', type=int, default=4, help="""
+                       The number of processors to use. Defaults to 4. Workload is balanced by chromosomes.""")
+
+    opt.add_argument('-o', '--out', type=str, metavar='', help="""
+                        The output .bw file. If not given, it will be /path/to/input(.bam).bw""")
+
+    opt.add_argument('-split', '--split_strands', action='store_true', default=False, help="""
+                        Output separate files for + strand and - strand. They will automatically 
+                        be named based on the output.bw (output_pstrand.bw / output_nstrand.bw)""")
+    opt.add_argument('-vv', '--verbose', action='store_true', default=False,
+                     help="""Prints out some helpful/debugging messages.""")
+
+    opt.add_argument('-maxZ', '--maxzooms', type=int, default=10, metavar='', help=argparse.SUPPRESS)
+    opt.add_argument('-shmb', '--shm_backend', type=str, default="shm://", metavar='', help=argparse.SUPPRESS)
+    opt.add_argument('-n', '--dryrun', action='store_true', default=False, help=argparse.SUPPRESS)
+
+    opt.add_argument('-h', '--help', action='store_true', default=False,
+                     help=argparse.SUPPRESS)
+
+    ht = parser.add_argument_group('Extra Help', "")
+
+    ht.add_argument('-exfl', '--explain_flags', action='store_true',
+                    help="Show some extra help about filtering reads with their flags.")
+    # ht.add_argument('-exfi','--filter_examples', action='store_true',
+    #                     help="Show some examples of filtering reads with their flags and exit.")
+    ht.add_argument('-exco', '--coverage_examples', action='store_true',
+                    help="Show some examples of filtering reads with their flags and exit.")
+
+    # No arguments given
+    if len(sys.argv[1:]) == 0:
+        parser.print_help()
+        parser.exit()
+
+    # parse the arguments
+    args = parser.parse_args()
+
+    if args.help:
+        parser.print_help()
+        parser.exit()
+
+    # Ok, we parsed our arguments, let's deal with them:
+    if args.explain_flags:
+        print(
+            """
+    Theory:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    Sequencing reads in sam/bam files contain a binary flag, which is a       \n\
+    combination of 12 bit-wise flags (i.e. 12 bits that can be 0 or 1).       \n\
+    They are set by the aligner/mapper. This allows fast and efficient        \n\
+    filtering of the reads.\n\n\
+    If a read, for example, has its flag set to 2, we can see the bitwise flags\n\
+    by converting 2 to its binary representation which is 000000000010 . The  \n\
+    second bit/flag is set to 1, so it is True. This means that this imaginary\n\
+    read belongs to a 'proper pair', meaning that both it and its mate were   \n\
+    properly aligned by the aligner.\n\n\
+    If you set the -f option to 2, you are making sure that only reads which  \n\
+    have their second bitwise flag set to 1 will be used. By setting the -F   \n\
+    option to 2, you are making sure that such reads are excluded.
+    Some Examples:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    # Only use 'proper pair' reads (usually implies more filters)\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -f 2 \n\n\
+    # EXCLUDE 'proper pair' reads \n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -F 2 \n\n\
+    # Only use reads that mapped on the '-' strand:\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -f 16 \n\n\
+    # Only use 'proper pair' reads that mapped on the '-' strand:\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -f 18 \n\n\
+    # Only use reads that mapped on the '+' strand (we exclude the '-' reads):\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -F 16 \n\n\
+    # Only use 'proper pair' reads that mapped on the '+' strand:\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt -f 2 -F 16 \n\n\
+    More:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    An amazing resource to help you set your filters can be found here:  \n\
+    https://broadinstitute.github.io/picard/explain-flags.html                \n\
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    """)
+        parser.exit()
+
+    if args.coverage_examples:
+        print(
+            """
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    # To visualize an ATACseq experiment, we use -atac to shift the reads \n\
+    # appropriatelly, the --shift the reads upstream by 10 and expand the \n\
+    # signal downstream of the cutting-site by 21. This expands the signal by \n\
+    # 10bp each side of the cutting site.
+    >> bamToBigWig -b in.bam -chr chrm.txt --shift -10 --extsize 21 \n\n\
+    # To visualize a CHIPseq experiment, we expand the signal dowbstream of \n\
+    # the cutting site by the experiment's fragment size, in this example: 300\n\
+    >> bamToBigWig -b in.bam -chr chrm.txt --extsize 300 \n\n\
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\
+    """)
+        parser.exit()
+
+    # chrominfo
+    assert args.chrominfo is not None, "You need to specify an chrom_info file !"
+    assert os.path.isfile(args.chrominfo), "Could not find {}".format(args.chrominfo)
+    # get the chromosomes sorted by size, from the chrominfo file
+    try:
+        loc = []
+        with open(args.chrominfo, "r") as fi:
+            for line in fi:
+                c, v = line.rstrip().split("\t")[:2]
+                loc.append((c, int(v)))
+        args.chrom_size = dict(loc)
+    except:
+        sys.exit("Couldn't properly parse the chromInfo file.")
+
+    # bam input
+    assert args.bam is not None, "You need to specify an input bam file !"
+    args.bam = [x for y in args.bam for x in glob(os.path.expandvars(os.path.expanduser(y)))]
+    for bamfp in args.bam:
+        accepted, err = accept_as_input(bamfp)
+        if not accepted:
+            sys.exit(err)
+
+    # handle output path
+    if not args.out:
+        if len(args.bam) > 1:
+            sys.exit("""\n\n    You have specified more than one input files but no output name (the -o option ).
+    Because of this I cannot decide what to call the output, please specify a name for it with -o.\n\n""")
+        else:
+            args.out = args.bam[0][:-4] + ".bw"
+            # vrb
+            print("Set output name to ", args.out)
+
+    args.pathto, args.name = os.path.split(args.out)
+    if args.pathto == "": args.pathto = "."
+    assert os.path.exists(args.pathto), "This path [{}] doesn't exist".format(args.pathto)
+    if args.name.endswith(".bw"):
+        args.name = args.name[:-3]
+
+    bwpl = []
+    # split strands
+    if args.split_strands:
+        args.bw_p_path = os.path.join(args.pathto, args.name + "_pstrand.bw")
+        args.bw_n_path = os.path.join(args.pathto, args.name + "_nstrand.bw")
+        assert ~os.path.isfile(args.bw_p_path), "Output file [{}] already exists.".format(args.bw_p_path)
+        assert ~os.path.isfile(args.bw_n_path), "Output file [{}] already exists.".format(args.bw_n_path)
+        bwpl.append(args.bw_p_path)
+        bwpl.append(args.bw_n_path)
+    else:
+        args.bw_path = os.path.join(args.pathto, args.name + ".bw")
+        assert ~os.path.isfile(args.bw_path), "Output file [{}] already exists.".format(args.bw_path)
+        bwpl.append(args.bw_path)
+
+    # extsize
+    if "fragment" == args.extsize:
+        if args.split_strands:
+            print("""\n\n   You have set both "fragment" type extension and "split_strands". \n\n""")
+            sys.exit()
+        pass
+    else:
+        try:
+            args.extsize = int(args.extsize)
+        except:
+            sys.exit("extsize needs to be >= 0 ")
+        assert args.extsize >= 0, "extsize needs to be >= 0 "
+
+    # shifting
+    if args.atac:
+        if (args.shift_p != 0) or (args.shift_n != 0):
+            print("""\n\n   You seem to have set both a specific value for --shift_p or --shift_n
+   AND the -atac flag. The atac flag overrides the other two values so please
+   use either shift_n/shift_p OR -atac/ \n\n""")
+            sys.exit()
+
+        args.shift_p = 4
+        args.shift_n = 5
+    # this used to default to None so the code was built around that
+    # Now that it sensibly defaults to 4, the user would set it to 0
+    # to get the same behaviour as None
+    # so instead of changing the code ill just change this here
+    if args.filter_uc == 0:
+        args.filter_uc = None
+
+    # verbose print
+    args.vprint = print if args.verbose else lambda *a, **k: None
+
+    args.vprint("Arguments: ", file=sys.stdout)
+    args.vprint("", file=sys.stdout)
+    args.vprint("chromInfo file: \t {}".format(args.chrominfo), file=sys.stdout)
+    args.vprint("ATAC mode: \t {}".format("True" if args.atac else "False"),
+                file=sys.stdout)
+    args.vprint(("Split strands: \t {}"
+                 .format("True" if args.split_strands else "False")), file=sys.stdout)
+    args.vprint("Processors to use: \t {}".format(args.procs), file=sys.stdout)
+    args.vprint("BigWig maxZooms: \t {}".format(args.maxzooms), file=sys.stdout)
+    args.vprint("", file=sys.stdout)
+    # args.vprint("{} ".format(args.shm_backend), file=sys.stdout)
+    args.vprint("Mapping Quality lower limit: \t {}".format(args.q),
+                file=sys.stdout)
+    args.vprint("Fragment Length uper limit: \t {}".format(args.t_len_upper),
+                file=sys.stdout)
+    args.vprint("Fragment Length lower limit: \t {}".format(args.t_len_lower),
+                file=sys.stdout)
+    args.vprint("-f flag: \t {}".format(args.filter_lc), file=sys.stdout)
+    args.vprint("-F flag: \t {}".format(args.filter_uc), file=sys.stdout)
+    args.vprint("", file=sys.stdout)
+    args.vprint("Extend by: \t {}".format(args.extsize), file=sys.stdout)
+    args.vprint("Shift all reads by: \t {}".format(args.shift), file=sys.stdout)
+    args.vprint("Shift + reads by: \t {}".format(args.shift_p), file=sys.stdout)
+    args.vprint("Shift - reads by: \t {}".format(args.shift_n), file=sys.stdout)
+    args.vprint("", file=sys.stdout)
+
+    args.vprint("", file=sys.stdout)
+    for enum, fp in enumerate(args.bam):
+        args.vprint("Bam input file[{}]: {} ".format(enum, fp), file=sys.stdout)
+    for enum, fp in enumerate(bwpl):
+        args.vprint("Output file[{}]: {} ".format(enum, fp), file=sys.stdout)
+
+    if not args.dryrun:
+        bamtobw(args)
+
+
+if __name__ == "__main__":
+    main()
