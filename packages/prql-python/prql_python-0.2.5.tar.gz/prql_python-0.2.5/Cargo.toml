@@ -1,0 +1,24 @@
+[package]
+build = "build.rs"
+edition = "2021"
+name = "prql-python"
+publish = false
+version = "0.2.5"
+
+[lib]
+crate-type = ["cdylib"]
+name = "prql_python"
+
+[target.'cfg(not(target_family="wasm"))'.dependencies]
+pyo3 = {version = "0.16.5", features = ["abi3-py37"]}
+
+[dependencies]
+prql-compiler = {path = "local_dependencies/prql-compiler" }
+
+[build-dependencies]
+pyo3-build-config = "0.16.5"
+
+[package.metadata.release]
+shared-version = true
+tag-name = "{{version}}"
+tag-prefix = ""
