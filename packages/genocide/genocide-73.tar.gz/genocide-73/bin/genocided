@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain.
+
+
+"Prosecutor. Court. Reconsider OTP-CR-117/19."
+
+
+__version__ = "73"
+
+
+from obj import Config
+from obr import wait
+
+
+Config.name = "genocide"
+Config.threaded = False
+Config.version = __version__
+Config.workdir = "/var/lib/genocide/"
+
+
+from genocide.irc import IRC
+from genocide.model import init
+from genocide.rss import Fetcher
+
+
+def main():
+    irc = IRC()
+    irc.start()
+    f = Fetcher()
+    f.start()
+    init()
+    wait()
+
+main()

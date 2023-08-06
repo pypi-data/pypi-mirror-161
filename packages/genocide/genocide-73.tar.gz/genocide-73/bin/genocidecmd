@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain.
+
+
+"Prosecutor. Court. Reconsider OTP-CR-117/19."
+
+
+__version__ = "73"
+
+
+import os
+import sys
+
+
+from obj import Config
+
+
+Config.name = "genocide"
+Config.threaded = False
+Config.version = __version__
+Config.workdir = "/var/lib/genocide/"
+
+
+from obj import cdir, spl
+from obh import CLI, Table
+from obr import init
+
+
+import genocide.basic
+import genocide.model
+import genocide.irc
+import genocide.rss
+
+
+Table.add(genocide.basic)
+Table.add(genocide.model)
+Table.add(genocide.irc)
+Table.add(genocide.rss)
+
+
+
+class CLI(CLI):
+
+    def raw(self, txt):
+        print(txt)
+        sys.stdout.flush()
+
+
+def main():
+    cdir(Config.workdir)
+    init("basic,irc,rss,model", "genocide", "reg")
+    c = CLI()
+    return c.cmd(" ".join(sys.argv[1:]))
+
+
+main()
