@@ -1,0 +1,85 @@
+from typing import (
+    List,
+    Optional,
+    Type,
+)
+
+from {{ strategy.function_class_module }} import (
+    {{ strategy.function_class_name }},
+)
+
+from {{ function_python_path }}.helpers import (
+    {{ camel_case_function_name }}FunctionHelper,
+)
+from {{ function_python_path }}.results import (
+    {{ camel_case_function_name }}FunctionResult,
+)
+from {{ function_python_path }}.validators import (
+    {{ camel_case_function_name }}FunctionValidator,
+)
+
+
+class {{ camel_case_function_name }}Function({{ strategy.function_class_name }}):
+    """
+    Функция "{{ function_verbose_name }}".
+    """
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        # Ключ результата работы функции, используется в презентере
+        # self.result.key =
+        # Сообщение об успешном выполнении функции
+        # self.result.message =
+
+    @classmethod
+    def _prepare_uuid(cls) -> Optional[str]:
+        """
+        Получение UUID класса. Используется при регистрации сущности в базе данных.
+
+        Если ничего не возвращает, то регистрация в БД не будет произведена.
+        """
+        return
+
+    @classmethod
+    def _prepare_verbose_name(cls) -> str:
+        """
+        Полное наименование для дальнейшей регистрации и отображения пользователю.
+        """
+        return 'Функция "{{ function_verbose_name }}"'
+
+    @classmethod
+    def _prepare_tags(cls) -> List[str]:
+        """
+        Список тегов, по которым сущность можно будет осуществлять поиск.
+        """
+        return []
+
+    def _prepare_helper_class(self) -> Type[{{ camel_case_function_name }}FunctionHelper]:
+        """
+        Возвращает класс помощника функции.
+        """
+        return {{ camel_case_function_name }}FunctionHelper
+
+    def _prepare_validator_class(self) -> Type[{{ camel_case_function_name }}FunctionValidator]:
+        """
+        Возвращает класс валидатора функции.
+        """
+        return {{ camel_case_function_name }}FunctionValidator
+
+    def _prepare_result_class(self) -> Type[{{ camel_case_function_name }}FunctionResult]:
+        """
+        Возвращает класс результата функции.
+        """
+        return {{ camel_case_function_name }}FunctionResult
+
+    def _prepare(self):
+        """
+        Выполнение действий функции.
+        """
+        if self.result.has_not_errors:
+            pass
