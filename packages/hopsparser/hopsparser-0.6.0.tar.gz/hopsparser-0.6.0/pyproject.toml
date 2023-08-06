@@ -1,0 +1,59 @@
+[project]
+authors = [
+    {name = "Benoît Crabbé", email = "benoit.crabbe@univ-paris-diderot.fr"},
+    {name = "Loïc Grobol", email = "lgrobol@parisnanterre.fr"},
+]
+dependencies = [
+    "bidict",
+    "boltons",
+    "click >= 8.0.4, < 9.0.0",
+    "fastapi",
+    "fasttext ~= 0.9",
+    "loguru",
+    "pooch",
+    "protobuf",
+    "pydantic",
+    "pyyaml",
+    "rich",
+    "sacremoses",
+    "sentencepiece",
+    "torch >= 1.9.0, < 1.13.0, != 1.10.0",
+    "transformers >= 4.19.0, < 5.0.0",
+    "uvicorn",
+]
+description = "A graph dependency parser to tinker with"
+keywords = [
+    "nlp",
+    "parsing",
+]
+license = {text = "MIT"}
+name = "hopsparser"
+readme = "README.md"
+requires-python = ">=3.8"
+urls = {repository = "https://github.com/hopsparser/hopsparser"}
+version = "0.6.0"
+
+[options.optional_dependencies]
+traintools = [
+    "httpx[http2]",
+    "pandas",
+]
+tests = [
+    "hypothesis",
+    "pytest",
+    "pytest-assert-utils",
+    "pytest-console-scripts",
+    "pytest-lazy-fixture",
+]
+
+[project.scripts]
+hopsparser = "hopsparser.main:cli"
+eval_parse = "hopsparser.conll2018_eval:main"
+
+[build-system]
+requires = ["setuptools>=54", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
