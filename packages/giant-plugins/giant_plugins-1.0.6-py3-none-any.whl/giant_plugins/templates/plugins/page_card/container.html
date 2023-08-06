@@ -1,0 +1,14 @@
+{% load cms_tags %}
+
+<section class="card-block card-block--{{ instance.theme }} card-block--{{ instance.background_colour }}">
+    <div class="wrapper">
+        {% if instance.title %}
+            {{ instance.title|safe }}
+        {% endif %}
+        <div class="card-block__cards three-col">
+            {% for plugin in instance.child_plugin_instances %}
+                {% render_plugin plugin %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
