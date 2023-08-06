@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+from bson.objectid import ObjectId
+from base import BaseSchema, utils
+import time, datetime
+
+{% for resource in resources[:1] %}
+class {{resource.schema_name}}(BaseSchema):
+    """
+    {{resource.api_title or resource.description or resource.model}}
+    """
+
+    collection = "{{resource.name}}"
+
+    def __init__(self):
+        self._id = ObjectId()
+
+{% endfor -%}

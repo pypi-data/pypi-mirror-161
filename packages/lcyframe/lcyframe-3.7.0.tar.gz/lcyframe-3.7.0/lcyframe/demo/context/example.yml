@@ -1,0 +1,220 @@
+---
+project_name: "项目名"           # 必须
+wsgi:
+  host: 0.0.0.0
+  port: 6673
+  debug: True                   # 生产环境务必设置为False，其他设置为True，重启进程
+  cookie_secret: "a1b2c3d4e5f6" # XSRF保护，防止cookie的跨站访问攻击
+  max_buffer_size: 10737418240
+  slow_request_time: 1000        # 响应时间超过该值的请求，视为慢请求，警告提示。默认1000ms
+  #  agent_host: www.domain.com   # nginx代理地址
+  product: dev                # dev 开发环境 test 测试环境 product 线上环境
+
+# Api token校验
+token_config:
+  debug: true                  # true 启用debug模式，放行所有请求。False对请求进行token合法校验，默认False
+  secret: f465ca164f0e
+  expire: 60
+
+# 目录配置
+errors_dir: "utils"           # 异常码文件`errors.py`所在目录,请确保你的项目下存在该目录
+
+# API文档
+api_docs:
+  docs_dir: "docs"            # 目录名
+  auto_generate: True         # 自动生成文档, 仅在wsgi.debug=True时有效
+
+# 数据保存目录
+data_config:
+  base: data                  # 存放数据 root/data
+  images: images              # 图片目录 root/data/images
+
+# 跨域配置
+#cors_config:
+#  allow: True                # 是否允许跨域访问
+#  origin: ["*"]              # 允许访问的地址
+#  headers: ["*"]             #
+#  content-type: "text/html"  # multipart/form-data
+#                             # application/json
+#                             # text/plain
+#                             # text/html
+#  method: ["GET, POST, PUT, DELETE"]
+#  max-age: 60
+
+###############################################
+# 日志配置
+###############################################
+#logging_config:
+#  # 日志输出类型：none、info、debug(包含info)、warn
+#  level: warn
+#  save: True  # 是否保存至文件，设置False时，只在控制台显示
+#  #日志保存地址, 非必填，留空则不保存到文件
+#  file: "logs/"
+#  #日志文件名字,不提供时，采用端口号作为名称。port.log
+#  name: app.log         # 默认格式.log
+#  #循环日志的个数，默认10；app.log,app.log1,app.log2
+#  nums: 10
+#  #日志文件的大小，默认，500M
+#  size: 524288000
+
+########################################### MongoDB ################################################
+#
+# 支持单例、副本集自动部署
+# 1、在服务器上配置节点之间的免密通讯，确保防火墙不拦截
+# 2、指定mongo的数据、日记、执行文件路径
+# 3、指定各节点名称；副本集模式下，使用真实IP或者内网IP作为host，禁止使用127.0.0.1、localhost
+# 4、指定节点角色
+# 5、auto为true时，集群会随着服务启动部署与启动
+#
+
+mongo_config:
+  host: 127.0.0.1                                                          # 副本或者mongos下：["127.0.0.1:21000", "127.0.0.1:22000", "127.0.0.1:20000"]
+  port: 27017
+  database: "demo"
+
+#  # 如果mongo服务没有设置账户，请勿配置
+#  username: admin                                                         # 默认采用admin库授权
+#  password: unispace!@#                                                   #
+#
+#  maxPoolSize: 512                                                        # 最大并发链接，超过将阻塞，默认100
+#  minPoolSize: 100                                                        # 池内保持最小链接数，默认0
+#
+#  # 以下配置只作用于以集群模式部署的mongo实例
+#  model: "shard"                                                          # 模式 single（默认）|repliset|shard
+#  replicaSet: "rs0"                                                       # 副本集名称，以副本集模式启动时有效，非必填。副本集模式下有效；
+#  read_preference: "primary"                                              # 读写分离模式 primary|primaryPreferred|secondary|secondaryPreferred|nearest。副本集模式下有效；
+
+
+mysql_config:
+  host: 127.0.0.1
+  port: 3306
+  database: lcylln
+  user: root
+  password: 123456
+  charset: utf8mb4
+  cursorclass: 1  # 1 返回字典格式 2 返回列表格式
+  mode: 3   # 3 共享线程池，链接可复用 4 适用多线程编程,每个线程单独开启一个链接
+#
+#redis_config:
+#  host: "127.0.0.1"
+#  port: "6379"
+#  password: "123456"
+#  db: 0
+#
+#
+#ssdb_config:
+#  host: "127.0.0.1"
+#  port: "8888"
+#
+#mq_config:      # 消息队列配置
+#  host: "127.0.0.1"
+#  port: 6379
+#  password: "123456"
+#  name: "mq"    # key 名称
+#  db: 9         # redis 数据库顺序
+#
+#nsq_config:     # 发布订阅队列配置
+#  lookupd_http_addresses: "127.0.0.1:4161"
+#  nsqd_tcp_addresses: ["127.0.0.1:4150"]
+
+#mqtt_config:
+#  host: 127.0.0.1
+#  port: 1883
+#  client_id_prefix: prefix_
+##  client_id_name: "001"  # 不设置使用随机名称（建议)，不能与其他连接同名，否则互踢
+#  transport: tcp  # tcp/websockets,必须与本地的配置文件protocol设定的协议一致
+##  username: test
+##  password: 123456
+#  msg_pwd:  "ODQJmzxHP83YTV5aysc90bUMon1GqhKF"   # 消息体加密串
+#  keepalive: 60
+#
+#  # 授权模式
+#  authorization:  #
+#    use: False
+#    username: user
+#    password: $6$Co81qfBUUZ64d71GGgaYZv92rQyTQ4d7A==
+#  certificate: #
+#    use: False
+#    cafile: /usr/local/etc/mosquitto/ca.crt
+#    certfile: /usr/local/etc/mosquitto/client.crt
+#    keyfile: /usr/local/etc/mosquitto/client.key
+
+#celery_config:
+#  project: project_name              # worker进程的默认名称 -A name
+#  config_dir: context.celeryconfig   # 相对于项目根目录的位置。推荐和项目配置文件同级。写：context/celeryconfig.py 或 context.celeryconfig 后面不加py
+#  loglevel: DEBUG
+#  work_name_prefix: celery_name      # 进程名前缀
+#  concurrency: 10                    # 单worker并发数
+#  pool: eventlet                     # prefork (default), eventlet, gevent, solo or threads.
+#  queue: default                     # 指定监听队列名称，多个用逗号隔开；可在启动命令里通过-Q指定或者在config_dir配置路由规则
+
+#beanstalk_config:
+#  host: localhost
+#  port: 11300
+#  watch: [tube1, tube2]             # 指定需要监听的通道（tube）。默认监听所有work里设定的tube。ref: topic
+
+#emchat_config:  # 环信
+#  host: "https://a1.easb.com"
+#  app: "45rtgfv"
+#  org: "456789524768"
+#  client_id: "YXA6RH-Eei_yUsxZTY_yA"
+#  client_secret: "YXA456yujhnbfDvz1g"
+#  username: "56ythg@qq.com"
+#  password: "56ywert"
+#  push_user_id: "54tyhgf"
+#  pwd_secret: "kiutyrdf"
+#
+#sms_config:   # 短信
+#  debug:  False
+#  app_key: "87iukjbvr679"
+#  app_secret: "67yuro987t"
+#  send_url: "https://******/sms/sendmsg"
+#  client_verify_url: "https://sms.mob.com/sms/verify"
+#  server_verfiy_url: "https://sms.mob.com/sms/verify"
+#  salt: "7ytre4567"
+
+## 邮件发送
+#smtp_config:
+#  # SMTP服务器地址
+#  smtp_host: "smtp.qq.com"
+#  # SMTP服务端口
+#  smtp_post: 465  # SMTP端口25, SMTP_SSL安全连接端口号465或587
+#  # 是否使用ssl
+#  smtp_ssl: True
+#  # 登录SMTP服务器的账号
+#  username: "123220663@qq.com"
+#  # SMTP客户端授权密码
+#  password: "ujzrzohozvcybggd"
+#  # 发件人邮箱
+#  smtp_email: "发件人的昵称<123220663@qq.com>"
+
+# 日志收集系统
+#graylog_config:
+#  host: 127.0.0.1
+#  port: 12201
+
+# supervisor
+#supervisor_config:
+#  auto: True    # ******
+#  exepath: "/usr/bin/supervisord"    # ******
+#  confpath: "/etc/supervisor/supervisord.conf"
+#  pidpath: "/home/centos/run/supervisord.pid"
+#  lockpath: "///tmp/supervisor.sock"
+#
+## nginx
+#nginx_config:
+#  exepath: "/usr/local/nginx/sbin/nginx"
+#  confpath: "/usr/local/nginx/conf/nginx.conf"
+#  pidpath: "/home/centos/run/nginx.pid"
+
+
+# websocket
+websocket_config:
+  host: 0.0.0.0
+  port: 8765
+  path: /websocket?uid=&token=b819b00a18f282c2dfc4850a154078c5  # 匿名
+  salt: b7f3AeD0    # uid、salt拼接后加密，然后转为十六进制，赋值给token。md5(uid + salt).hexdigest()，匿名游客token=b819b00a18f282c2dfc4850a154078c5
+#  workers_dir: works/websocket
+#  encryption: md5
+#  protocol: ws  # ws|wss 系统连接选择协议，默认ws ws://127.0.0.1:8765/websocket?uid=&token=b819b00a18f282c2dfc4850a154078c5
+#  system_uid: system  # 系统连接的uid标识，默认system

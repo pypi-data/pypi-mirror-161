@@ -1,0 +1,44 @@
+version: '3'
+services:
+    mongo:
+        image: mongo:5.0
+        container_name: mongo
+        ports:
+            - 27017:27017
+        volumes:
+            - /etc/localtime:/etc/localtime
+            - ./mongo/data:/data/db
+#            - /mongo/mongo-entrypoint/:/docker-entrypoint-initdb.d/
+        environment:
+            - TZ=Asia/Shanghai
+            - MONGO_INITDB_DATABASE=test
+            - MONGO_INITDB_ROOT_USERNAME=admin
+            - MONGO_INITDB_ROOT_PASSWORD=123456
+        restart: unless-stopped
+    #    redis:
+    #        image: lcylln/redis:6.0.10
+    #        container_name: redis
+    #        volumes:
+    #            - ./redis/data:/data
+    #        ports:
+    #            - 6379:6379    #            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    #        restart: unless-stopped
+    app:
+        image: lcylln/lcyframe3:3.3.9
+        container_name: app
+        hostname: app
+        command: python3 app_start.py  # tail -f /dev/null
+        # entrypoint: python3 app_start.py example.yml   # 容器入口
+        environment:
+            debug: "True"
+            product: "test"
+            PYTHONPATH: "/code"
+            FAKETIME: "+0d"     # 可以使得容器内的时间向前N天，方便测试
+        volumes:
+            - ../:/code/
+        ports:
+            - 6678:6678
+        restart: unless-stopped
+        depends_on:
+            - mongo
+#            - redis
