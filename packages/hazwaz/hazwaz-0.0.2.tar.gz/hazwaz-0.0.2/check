@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+if [ $# -lt 1 ]
+then
+    $0 coverage
+    $0 typecheck
+    $0 qa
+    exit 0
+fi
+
+if which nose2-3 > /dev/null
+then
+    NOSE2=nose2-3
+else
+    NOSE2=nose2
+fi
+
+export PYTHONDEVMODE=1
+
+SUBCMD=$1
+shift 1
+
+case $SUBCMD in
+    "tests")
+        $NOSE2 $COVER_OPT --log-level=ERROR -B --log-capture $*
+        ;;
+    "coverage")
+        $NOSE2 --with-coverage --coverage-report=term-missing \
+            --log-level=ERROR -B --log-capture $*
+        ;;
+    "qa")
+        flake8 --select=E,F,W,C90,E123 --ignore=W503 .
+        isort --check-only --diff .
+        if which doc8
+        then
+            doc8 .
+        fi
+        ;;
+    "typecheck")
+        mypy hazwaz
+        ;;
+    "static")
+        bandit --recursive --number=3 -lll -iii .
+        ;;
+    *)
+        echo "No such subcommand $SUBCMD"
+        ;;
+esac
