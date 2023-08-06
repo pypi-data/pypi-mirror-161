@@ -1,0 +1,62 @@
+Metadata-Version: 2.1
+Name: fw-http-testserver
+Version: 1.1.5
+Summary: HTTP test server for mocking services
+Home-page: https://gitlab.com/flywheel-io/tools/lib/fw-http-testserver
+License: MIT
+Keywords: Flywheel,HTTP,server,test,testing
+Author: Flywheel
+Author-email: support@flywheel.io
+Requires-Python: >=3.7,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: flask (>=2.0.0,<2.2)
+Requires-Dist: fw-utils (>=3,<5)
+Requires-Dist: pytest (>=6,<8)
+Requires-Dist: requests (>=2.25,<3.0)
+Project-URL: Documentation, https://gitlab.com/flywheel-io/tools/lib/fw-http-testserver
+Project-URL: Repository, https://gitlab.com/flywheel-io/tools/lib/fw-http-testserver
+Description-Content-Type: text/markdown
+
+# fw-http-testserver
+
+HTTP test server for stubbing / mocking 3rd party services.
+
+## Installation
+
+Add as a `poetry` dev dependency to your project:
+
+```bash
+poetry add --dev fw-http-testserver
+```
+
+## Usage
+
+```python
+import requests
+pytest_plugins = "fw_http_testserver"
+
+def test_my_app(http_testserver):
+    http_testserver.add_response("/path", {"foo": "bar"})
+    resp = requests.get(f"{http_testserver.url}/path")
+    assert resp.json() == {"foo": "bar"}
+```
+
+## Development
+
+Install the project using `poetry` and enable `pre-commit`:
+
+```bash
+poetry install
+pre-commit install
+```
+
+## License
+
+[![MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
