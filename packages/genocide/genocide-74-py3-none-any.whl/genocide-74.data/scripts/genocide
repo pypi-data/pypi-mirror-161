@@ -1,0 +1,107 @@
+#!python
+# This file is placed in the Public Domain.
+
+
+"Prosecutor. Court. Reconsider OTP-CR-117/19."
+
+
+__version__ = "74"
+
+
+import os
+import readline
+import sys
+import termios
+import time
+import traceback
+
+
+sys.path.insert(0, os.getcwd())
+
+
+from genocide.obj import Config
+
+
+Config.name = "genocide"
+Config.threaded = False
+Config.version = __version__
+Config.workdir = os.path.expanduser("~/.genocide")
+
+
+from genocide.irc import Config as IConfig
+
+
+IConfig.nick = "genocide"
+IConfig.channel = "#genocide"
+IConfig.realname = "Prosecutor. Court. Reconsider OTP-CR-117/19."
+IConfig.username = "genocide"
+
+
+from genocide.com import Commands
+from genocide.evt import Event
+from genocide.dbs import Class, Db, find, fntime
+from genocide.obj import Object,  cdir, format, get, items
+from genocide.obj import  keys, save, spl, update
+from genocide.hdl import Callbacks, Handler
+from genocide.run import Console, CLI, Table, boot, init, isopt, starttime
+from genocide.thr import getname
+
+
+from genocide import bsc,irc, mdl, rss
+
+
+Table.add(bsc)
+Table.add(irc)
+Table.add(mdl)
+Table.add(rss)
+
+
+allmod =  ",".join(keys(Table.mod))
+
+
+class CLI(CLI):
+
+    def raw(self, txt):
+        print(txt)
+
+
+class Console(Console):
+
+    def announce(self, txt):
+        if Config.verbose:
+            print(txt)
+
+    def raw(self, txt):
+        print(txt)
+
+
+def wrap(func):
+    fd = sys.stdin.fileno()
+    gotterm = True
+    try:
+        old = termios.tcgetattr(fd)
+    except termios.error:
+        gotterm = False
+    try:
+        func()
+    except (EOFError, KeyboardInterrupt):
+        print("")
+    finally:
+        if gotterm:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+def main():
+    cdir(Config.workdir)
+    boot(" ".join(sys.argv[1:]), allmod)
+    if not Config.console:
+        c = CLI()
+        return c.cmd(" ".join(sys.argv[1:]))
+    print("%s shell started at %s" % (Config.name.upper(), time.ctime(starttime).replace("  ", " ")))
+    print(format(Config, skip="password,type"))
+    c = Console()
+    c.start()
+    c.forever()
+
+
+wrap(main)
