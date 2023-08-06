@@ -1,0 +1,129 @@
+Metadata-Version: 2.1
+Name: fapyc
+Version: 0.2.0
+Summary: A Python wrapper for the FAPEC data compressor.
+Home-page: https://www.dapcom.es
+Author: DAPCOM Data Services
+Author-email: fapec@dapcom.es
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# FaPyc
+
+A Python wrapper for the FAPEC data compressor.
+(C) DAPCOM Data Services S.L. - https://www.dapcom.es
+
+The free decompression-only library is included, which has some limitations such as the maximum number of threads and the recovery of corrupted files.
+Only a 'dummy' compression library is provided: You can get free evaluation licenses at https://www.dapcom.es/get-fapec/ to test the compressor.
+For full licenses, please contact us at fapec@dapcom.es
+
+## Usage
+
+There are 3 main execution modes:
+* File: When invoking Fapyc or Unfapyc on a filename, it will (de)compress it directly into another file.
+* Buffer: You can load the whole file to (de)compress on e.g. a byte array, and then invoke Fapyc/Unfapyc which will leave the result in the output buffer. Obviously, you should be careful with large/huge files!
+* File-to-buffer decompression: You can directly decompress a file (without having to load it beforehand) and leave its decompressed output in a buffer, which you can use afterwards.
+* Chunk: FAPEC internally works in 'chunks' of data, of up to 384MB each, which allows to progressively (de)compress a huge file while keeping memory usage under control. For now, this feature is only available in the FAPEC CLI and C API, not in Fapyc/Unfapyc yet.
+
+## Examples
+
+### Compress and decompress a file
+
+In this example we use the `kmall` option of FAPEC, suitable for this kind of geomaritime data files from Kongsberg Maritime:
+
+    from fapyc import Fapyc, Unfapyc
+    
+    filename = input("Path to KMALL file: ")
+    
+    print("Preparing to compress %s" % (filename))
+    # Here we invoke FAPEC to directly run on files,
+    # so the memory usage will be much smaller (just 5MB or so)
+    # although it won't allow us to directly access the
+    # (de)compressed buffers.
+    f = Fapyc(filename, chunksize = 2048576, blen = 512)
+    f.compress_kmall()
+    
+    print("Preparing to decompress %s" % (filename + ".fapec"))
+    uf = Unfapyc(filename + ".fapec")
+    uf.decompress(output=filename+".dec")
+
+
+### Compress and decompress a buffer
+
+In this example we use the `tab` option of FAPEC, which typically outperforms `gzip` and `bzip2` on tabulated text data:
+
+    from fapyc import Fapyc, Unfapyc
+    
+    filename = input("Path to file: ")
+    file = open(filename, "rb")
+    # Beware - Load the whole file to memory
+    data = file.read()
+    f = Fapyc(buffer = data)
+    # Invoke our tabulated-text compression algorithm
+    # indicating a comma separator
+    f.compress_tabtxt(sep1=',')
+    print("Ratio =", round(float(len(data))/len(f.outputBuffer), 4))
+    
+    # Now we decompress the buffer
+    uf = Unfapyc(buffer = f.outputBuffer)
+    uf.decompress()
+
+
+### Decompress a file into a buffer, and do some operations on it
+
+Here we provide a quite specific use case, based on the Gaia (E)DR3 bulk catalogue (which is publicly available as FAPEC-compressed CSVs).
+In this example, we decompress one of the files, get its CSV-formatted contents with Pandas, apply some filtering conditions, and generate a histogram.
+
+    from fapyc import Unfapyc
+    from io import BytesIO
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    # Read the FAPEC file into a buffer
+    filename = input("Path to CSV-FAPEC file: ")
+    file = open(filename, "rb")
+    # Beware - we load the whole file to memory
+    data = file.read()
+
+    # Decompress the buffer
+    uf = Unfapyc(buffer = data)
+    uf.decompress()
+
+    # Regenerate the CSV from the bytes buffer
+    df = pd.read_csv(BytesIO(uf.outputBuffer), comment="#")
+    print("Info from the full CSV:")
+    print(df.info())
+    # Prepare some nice histograms for all data
+    plt.subplot(2,2,1)
+    plt.title("Full CSV: skymap (%d sources)" % df.shape[0])
+    plt.xlabel("RA")
+    plt.ylabel("DEC")
+    plt.hist2d(df.ra, df.dec, bins=(100, 100), cmap=plt.cm.jet)
+    plt.colorbar()
+    plt.subplot(2,2,2)
+    plt.title("Full CSV: G dist")
+    plt.xlabel("G magnitude")
+    plt.ylabel("Counts")
+    plt.yscale("log")
+    plt.hist(df.phot_g_mean_mag, bins=(50))
+
+    # Now let's repeat, but doing the histogram from only the values that fulfil
+    # some conditions on some of the CSV fields
+    iter_csv = pd.read_csv(BytesIO(uf.outputBuffer), comment="#", iterator=True, chunksize=1000)
+    df = pd.concat((x.query("ra_error < 0.1 & dec_error < 0.1 & ruwe > 0 & ruwe < 5") for x in iter_csv))
+    print("Info from the filtered CSV:")
+    print(df.info())
+    plt.subplot(2,2,3)
+    plt.title("Filtered CSV: skymap (%d sources)" % df.shape[0])
+    plt.xlabel("RA")
+    plt.ylabel("DEC")
+    plt.hist2d(df.ra, df.dec, bins=(100, 100), cmap=plt.cm.jet)
+    plt.colorbar()
+    plt.subplot(2,2,4)
+    plt.title("Filtered CSV: G dist")
+    plt.xlabel("G magnitude")
+    plt.ylabel("Counts")
+    plt.yscale("log")
+    plt.hist(df.phot_g_mean_mag, bins=(50))
+
+    plt.show()
