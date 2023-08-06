@@ -1,0 +1,208 @@
+# proto-file: tfx/orchestration/kubeflow/v2/proto/pipeline.proto
+# proto-message: PipelineSpec
+
+pipeline_info {
+  name: "pipeline-with-container"
+}
+tasks {
+  task_info {
+    name: "Importer.my_importer"
+  }
+  inputs {
+    parameters {
+      key: "artifact_uri"
+      value {
+        runtime_value {
+          constant_value {
+            string_value: "some-uri"
+          }
+        }
+      }
+    }
+    parameters {
+      key: "custom_properties"
+      value {
+        runtime_value {
+          constant_value {
+            string_value: "{}"
+          }
+        }
+      }
+    }
+    parameters {
+      key: "properties"
+      value {
+        runtime_value {
+          constant_value {
+            string_value: "{}"
+          }
+        }
+      }
+    }
+    parameters {
+      key: "reimport"
+      value {
+        runtime_value {
+          constant_value {
+            int_value: 0
+          }
+        }
+      }
+    }
+  }
+  outputs {
+    artifacts {
+      key: "result"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.Model\ntype: object\nproperties:\n"
+        }
+      }
+    }
+  }
+  executor_label: "Importer.my_importer_executor"
+  caching_options {
+  }
+}
+tasks {
+  task_info {
+    name: "DummyContainerSpecComponent"
+  }
+  inputs {
+    parameters {
+      key: "param1"
+      value {
+        runtime_value {
+          constant_value {
+            string_value: "value1"
+          }
+        }
+      }
+    }
+    artifacts {
+      key: "input1"
+      value {
+        producer_task: "Importer.my_importer"
+        output_artifact_key: "result"
+      }
+    }
+  }
+  outputs {
+    artifacts {
+      key: "output1"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.Model\ntype: object\nproperties:\n"
+        }
+      }
+    }
+  }
+  executor_label: "DummyContainerSpecComponent_executor"
+  dependent_tasks: "Importer.my_importer"
+  caching_options {
+  }
+}
+deployment_spec {
+  fields {
+    key: "executors"
+    value {
+      struct_value {
+        fields {
+          key: "DummyContainerSpecComponent_executor"
+          value {
+            struct_value {
+              fields {
+                key: "container"
+                value {
+                  struct_value {
+                    fields {
+                      key: "command"
+                      value {
+                        list_value {
+                          values {
+                            string_value: "transformer"
+                          }
+                          values {
+                            string_value: "--input1"
+                          }
+                          values {
+                            string_value: "{{$.inputs.artifacts[\'input1\'].uri}}"
+                          }
+                          values {
+                            string_value: "--output1"
+                          }
+                          values {
+                            string_value: "{{$.outputs.artifacts[\'output1\'].uri}}"
+                          }
+                          values {
+                            string_value: "--param1"
+                          }
+                          values {
+                            string_value: "{{$.inputs.parameters[\'param1\']}}"
+                          }
+                        }
+                      }
+                    }
+                    fields {
+                      key: "image"
+                      value {
+                        string_value: "dummy/transformer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        fields {
+          key: "Importer.my_importer_executor"
+          value {
+            struct_value {
+              fields {
+                key: "importer"
+                value {
+                  struct_value {
+                    fields {
+                      key: "artifactUri"
+                      value {
+                        struct_value {
+                          fields {
+                            key: "constantValue"
+                            value {
+                              struct_value {
+                                fields {
+                                  key: "stringValue"
+                                  value {
+                                    string_value: "some-uri"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    fields {
+                      key: "typeSchema"
+                      value {
+                        struct_value {
+                          fields {
+                            key: "instanceSchema"
+                            value {
+                              string_value: "title: tfx.Model\ntype: object\nproperties:\n"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
