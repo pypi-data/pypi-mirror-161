@@ -1,0 +1,3943 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PKGCHECK" "1" "Jul 30, 2022" "0.10.12" "pkgcheck"
+.SH NAME
+pkgcheck \- pkgcore-based QA utility for ebuild repos
+.SH SYNOPSIS
+.sp
+pkgcheck [\-h] [\-\-version] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] {cache,ci,replay,scan,show} ...
+.SH BASE OPTIONS
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-version
+show this program\(aqs version info and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SH SUBCOMMANDS
+.SS pkgcheck cache \- perform cache operations
+.SS Synopsis
+.sp
+pkgcheck cache [\-r REPO] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-\-cache\-dir CACHE_DIR] [\-l | \-u | \-R] [\-f] [\-n] [\-t CACHE] [\-a ARCH] [\-p PROFILE] [\-\-commits [tree\-ish] | \-\-staged [tree\-ish]]
+.SS Description
+.sp
+Various types of caches are used by pkgcheck. This command supports
+running operations on them including updates and removals.
+.SS Optional Arguments
+.INDENT 0.0
+.TP
+.BI \-\-cache\-dir \ CACHE_DIR
+directory to use for storing cache files
+.TP
+.B  \-l\fP,\fB  \-\-list
+list available caches
+.TP
+.B  \-u\fP,\fB  \-\-update
+update caches
+.TP
+.B  \-R\fP,\fB  \-\-remove
+forcibly remove caches
+.TP
+.B  \-f\fP,\fB  \-\-force
+forcibly update/remove caches
+.TP
+.B  \-n\fP,\fB  \-\-dry\-run
+dry run without performing any changes
+.TP
+.BI \-t \ CACHE\fR,\fB \ \-\-type \ CACHE
+target cache types
+.UNINDENT
+.SS Repo Options
+.INDENT 0.0
+.TP
+.BI \-r \ REPO\fR,\fB \ \-\-repo \ REPO
+target repo
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+Show this help message and exit. To get more
+information see the related man page.
+.TP
+.B  \-\-debug
+Enable debug checks and show verbose debug output.
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+Suppress non\-error, informational messages.
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+Increase the verbosity of various output.
+.TP
+.BI \-\-color \ BOOLEAN
+Toggle colored output support. This can be used to forcibly
+enable color support when piping output or other sitations
+where stdout is not a tty.
+.UNINDENT
+.SS Arches
+.INDENT 0.0
+.TP
+.BI \-a \ ARCH\fR,\fB \ \-\-arches \ ARCH
+Comma separated list of arches to enable and disable.
+.sp
+To specify disabled arches prefix them with \(aq\-\(aq. Note that when
+starting the argument list with a disabled arch an equals sign
+must be used, e.g. \-a=\-arch, otherwise the disabled arch
+argument is treated as an option.
+.sp
+By default all repo defined arches are used; however,
+stable\-related checks (e.g. UnstableOnly) default to the set of
+arches having stable profiles in the target repo.
+.UNINDENT
+.SS Profiles
+.INDENT 0.0
+.TP
+.BI \-p \ PROFILE\fR,\fB \ \-\-profiles \ PROFILE
+Comma separated list of profiles to enable and disable for
+scanning. Any profiles specified in this fashion will be the
+only profiles that get scanned, skipping any disabled profiles.
+In addition, if no profiles are explicitly enabled, all
+profiles defined in the target repo\(aqs profiles.desc file will be
+scanned except those marked as experimental (exp).
+.sp
+To specify disabled profiles prefix them with \fB\-\fP which
+removes the from the list of profiles to be considered. Note
+that when starting the argument list with a disabled profile an
+equals sign must be used, e.g.  \fB\-p=\-path/to/profile\fP,
+otherwise the disabled profile argument is treated as an
+option.
+.sp
+The special keywords of \fBstable\fP, \fBdev\fP, \fBexp\fP, and
+\fBdeprecated\fP correspond to the lists of stable, development,
+experimental, and deprecated profiles, respectively. Therefore,
+to only scan all stable profiles pass the \fBstable\fP argument
+to \-\-profiles. Additionally the keyword \fBall\fP can be used to
+scan all defined profiles in the target repo.
+.UNINDENT
+.SS Git
+.sp
+Git repo support for various checks.
+.sp
+Pkgcheck can create virtual package repos from a given git repo\(aqs history
+in order to provide more info for checks relating to stable requests,
+outdated blockers, or local commits. These virtual repos are cached and
+updated every run if new commits are detected.
+.sp
+Git repos must have a supported config in order to work properly.
+Specifically, pkgcheck assumes that the origin branch exists and tracks
+upstream.
+.sp
+Additionally, the origin/HEAD ref must exist. If it doesn\(aqt, running \fBgit
+remote set\-head origin master\fP or similar for other branches will create
+it.
+.INDENT 0.0
+.TP
+.B \-\-commits [tree\-ish]
+Targets are determined from the committed changes compared to a
+given reference that defaults to the repo\(aqs origin.
+.sp
+For example, to scan all the packages that have been changed in
+the current branch compared to the branch named \(aqold\(aq use
+\fBpkgcheck scan \-\-commits old\fP\&. For two separate branches
+named \(aqold\(aq and \(aqnew\(aq use \fBpkgcheck scan \-\-commits old..new\fP\&.
+.TP
+.B \-\-staged [tree\-ish]
+Targets are determined using all staged changes for the git
+repo. Unstaged changes and untracked files are ignored by
+temporarily stashing them during the scanning process.
+.UNINDENT
+.SS pkgcheck ci \- scan repo for CI
+.SS Synopsis
+.sp
+pkgcheck ci [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-\-failures FAILURES]
+.SS Optional Arguments
+.INDENT 0.0
+.TP
+.BI \-\-failures \ FAILURES
+file path for storing failure results
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+Show this help message and exit. To get more
+information see the related man page.
+.TP
+.B  \-\-debug
+Enable debug checks and show verbose debug output.
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+Suppress non\-error, informational messages.
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+Increase the verbosity of various output.
+.TP
+.BI \-\-color \ BOOLEAN
+Toggle colored output support. This can be used to forcibly
+enable color support when piping output or other sitations
+where stdout is not a tty.
+.UNINDENT
+.SS pkgcheck replay \- replay result streams
+.SS Synopsis
+.sp
+pkgcheck replay [\-R REPORTER] [\-\-format FORMAT_STR] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] FILE
+.SS Description
+.sp
+Replay previous json result streams, feeding the results into a reporter.
+.sp
+Useful if you need to delay acting on results until it can be done in
+one minimal window, e.g. updating a database, or want to generate
+several different reports.
+.SS Positional Arguments
+.INDENT 0.0
+.TP
+.B FILE
+path to serialized results file
+.UNINDENT
+.SS Reporter Options
+.INDENT 0.0
+.TP
+.BI \-R \ REPORTER\fR,\fB \ \-\-reporter \ REPORTER
+Select a reporter to use for output.
+.sp
+Use \fBpkgcheck show \-\-reporters\fP to see available options.
+.TP
+.BI \-\-format \ FORMAT_STR
+Custom format string used to format output by FormatReporter.
+.sp
+Supports python format string syntax where result object attribute names
+surrounded by curly braces are replaced with their values (if they exist).
+.sp
+For example, \fB\-\-format \(aq{category}/{package}/{package}\-{version}.ebuild\fP
+will output ebuild paths in the target repo for results relating to
+specific ebuild versions. If a result is for the generic package (or a
+higher scope), no output will be produced for that result.
+.sp
+Furthermore, no output will be produced if a result object is missing any
+requested attribute expansion in the format string. In other words,
+\fB\-\-format {foo}\fP will never produce any output because no result has the
+\fBfoo\fP attribute.
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+Show this help message and exit. To get more
+information see the related man page.
+.TP
+.B  \-\-debug
+Enable debug checks and show verbose debug output.
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+Suppress non\-error, informational messages.
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+Increase the verbosity of various output.
+.TP
+.BI \-\-color \ BOOLEAN
+Toggle colored output support. This can be used to forcibly
+enable color support when piping output or other sitations
+where stdout is not a tty.
+.UNINDENT
+.SS pkgcheck scan \- scan targets for QA issues
+.SS Synopsis
+.sp
+pkgcheck scan [\-\-config CONFIG_FILE] [\-r REPO] [\-R REPORTER] [\-\-format FORMAT_STR] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-f FILTER] [\-j JOBS] [\-t TASKS] [\-\-cache CACHE] [\-\-cache\-dir CACHE_DIR] [\-\-exit [ITEM]] [\-\-net] [\-C CHECKSET] [\-s SCOPE] [\-c CHECK] [\-k KEYWORD] [\-a ARCH] [\-\-commits [tree\-ish] | \-\-staged [tree\-ish]] [\-\-glsa\-dir GLSA_DIR] [\-\-source\-arches ARCH] [\-p PROFILE] [\-\-timeout TIMEOUT] [\-\-user\-agent USER_AGENT] [\-\-reset\-caching\-per {version,package,category}] [TARGET ...]
+.SS Positional Arguments
+.INDENT 0.0
+.TP
+.B TARGET
+optional targets
+.UNINDENT
+.SS Config Options
+.INDENT 0.0
+.TP
+.BI \-\-config \ CONFIG_FILE
+Load custom pkgcheck scan settings from a given file.
+.sp
+Note that custom user settings override all other system and repo\-level
+settings.
+.sp
+It\(aqs also possible to disable all types of settings loading by
+specifying an argument of \(aqfalse\(aq or \(aqno\(aq.
+.UNINDENT
+.SS Repo Options
+.INDENT 0.0
+.TP
+.BI \-r \ REPO\fR,\fB \ \-\-repo \ REPO
+target repo
+.UNINDENT
+.SS Reporter Options
+.INDENT 0.0
+.TP
+.BI \-R \ REPORTER\fR,\fB \ \-\-reporter \ REPORTER
+Select a reporter to use for output.
+.sp
+Use \fBpkgcheck show \-\-reporters\fP to see available options.
+.TP
+.BI \-\-format \ FORMAT_STR
+Custom format string used to format output by FormatReporter.
+.sp
+Supports python format string syntax where result object attribute names
+surrounded by curly braces are replaced with their values (if they exist).
+.sp
+For example, \fB\-\-format \(aq{category}/{package}/{package}\-{version}.ebuild\fP
+will output ebuild paths in the target repo for results relating to
+specific ebuild versions. If a result is for the generic package (or a
+higher scope), no output will be produced for that result.
+.sp
+Furthermore, no output will be produced if a result object is missing any
+requested attribute expansion in the format string. In other words,
+\fB\-\-format {foo}\fP will never produce any output because no result has the
+\fBfoo\fP attribute.
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+Show this help message and exit. To get more
+information see the related man page.
+.TP
+.B  \-\-debug
+Enable debug checks and show verbose debug output.
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+Suppress non\-error, informational messages.
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+Increase the verbosity of various output.
+.TP
+.BI \-\-color \ BOOLEAN
+Toggle colored output support. This can be used to forcibly
+enable color support when piping output or other sitations
+where stdout is not a tty.
+.UNINDENT
+.SS Main Options
+.INDENT 0.0
+.TP
+.BI \-f \ FILTER\fR,\fB \ \-\-filter \ FILTER
+Support limiting targeted packages for scanning using a chosen filter.
+.sp
+If the \(aqlatest\(aq argument is used, only the latest package per slot of
+both VCS and non\-VCS types will be scanned. This can either be
+specified individually in which case the filter will be applied
+globally to all checks or it can be applied to specific checksets,
+checks, or keywords using the syntax \(aqlatest:ObjName\(aq which would apply
+the filter to the keyword, check, or checkset named ObjName (in that
+order of precedence).
+.sp
+By default, some checks have filtering enabled, e.g. various
+network\-related checks are filtered to avoid redundant or unnecessary
+server requests. In order to forcibly disable all filtering use the
+\(aqno\(aq argument.
+.TP
+.BI \-j \ JOBS\fR,\fB \ \-\-jobs \ JOBS
+Number of checks to run in parallel, defaults to using all available
+processors.
+.TP
+.BI \-t \ TASKS\fR,\fB \ \-\-tasks \ TASKS
+Number of asynchronous tasks to run concurrently (defaults to 5 * CPU count).
+.TP
+.BI \-\-cache \ CACHE
+All cache types are enabled by default, this option explicitly sets
+which caches will be generated and used during scanning.
+.sp
+To enable only certain cache types, specify them in a comma\-separated
+list, e.g. \fB\-\-cache git,profiles\fP will enable both the git and
+profiles caches.
+.sp
+To disable specific cache types prefix them with \fB\-\fP\&. Note
+that when starting the argument list with a disabled value an equals
+sign must be used, e.g. \fB\-\-cache=\-git\fP, otherwise the disabled
+argument is treated as an option.
+.sp
+In order to disable all cache usage, it\(aqs easiest to use \fB\-\-cache no\fP
+instead of explicitly listing all disabled cache types.
+.sp
+When disabled, no caches will be saved to disk and results requiring
+caches (e.g. git\-related checks) will be skipped.
+.TP
+.BI \-\-cache\-dir \ CACHE_DIR
+directory to use for storing cache files
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-exit [ITEM]
+Comma\-separated list of checksets, checks, or keywords to enable and
+disable that trigger an exit status failure. Checkset and check
+arguments expand into their respective keyword sets.
+.sp
+If no arguments or only disabled arguments are passed, enabled
+arguments are the set of error level keywords.
+.sp
+To specify disabled keywords prefix them with \fB\-\fP\&. Also, the special
+arguments of \fBerror\fP, \fBwarning\fP, \fBstyle\fP, and \fBinfo\fP correspond
+to the related keyword groups.
+.UNINDENT
+.SS Check Selection
+.INDENT 0.0
+.TP
+.B  \-\-net
+enable checks that require network access
+.TP
+.BI \-C \ CHECKSET\fR,\fB \ \-\-checksets \ CHECKSET
+Comma\-separated list of checksets to enable and disable for
+scanning.
+.sp
+The special argument of \fBall\fP corresponds to the list of all checks.
+Therefore, to forcibly enable all checks use \fB\-C all\fP\&.
+.sp
+All network\-related checks (which are disabled by default)
+can be enabled using \fB\-C net\fP\&. This allows for easily running only
+network checks without having to explicitly list them.
+.TP
+.BI \-s \ SCOPE\fR,\fB \ \-\-scopes \ SCOPE
+Comma\-separated list of scopes to enable and disable for scanning. Any
+scopes specified in this fashion will affect the checks that get
+run. For example, running pkgcheck with only the repo scope
+enabled will cause only repo\-level checks to run.
+.sp
+Available scopes: git, profiles, eclass, repo, cat, pkg, ver
+.TP
+.BI \-c \ CHECK\fR,\fB \ \-\-checks \ CHECK
+Comma\-separated list of checks to enable and disable for
+scanning. Any checks specified in this fashion will be the
+only checks that get run, skipping any disabled checks.
+.sp
+To disable checks prefix them with \fB\-\fP\&. Note that when starting the
+argument list with a disabled check an equals sign must be used, e.g.
+\fB\-c=\-check\fP, otherwise the disabled check argument is treated as an
+option.
+.sp
+Additive arguments are also supported using the prefix \fB+\fP that adds
+to the default set of enabled checks. This is useful in order to enable
+optional checks in addition to the default set.
+.sp
+Use \fBpkgcheck show \-\-checks\fP see all available checks.
+.TP
+.BI \-k \ KEYWORD\fR,\fB \ \-\-keywords \ KEYWORD
+Comma\-separated list of keywords to enable and disable for
+scanning. Any keywords specified in this fashion will be the
+only keywords that get reported, skipping any disabled keywords.
+.sp
+To specify disabled keywords prefix them with \fB\-\fP\&. Note that when
+starting the argument list with a disabled keyword an equals sign must
+be used, e.g. \fB\-k=\-keyword\fP, otherwise the disabled keyword argument is
+treated as an option.
+.sp
+The special arguments of \fBerror\fP, \fBwarning\fP, \fBstyle\fP, and
+\fBinfo\fP correspond to the related keyword groups. For example, to only
+scan for errors use \fB\-k error\fP\&.
+.sp
+Use \fBpkgcheck show \-\-keywords\fP to see available options.
+.UNINDENT
+.SS Plugin Options
+.INDENT 0.0
+.TP
+.BI \-\-glsa\-dir \ GLSA_DIR
+custom glsa directory
+.TP
+.BI \-\-source\-arches \ ARCH
+Comma separated list of arches to compare against for
+lagging stabilization.
+.sp
+The default arches are all stable arches (unless \-\-arches is specified).
+.UNINDENT
+.SS Arches
+.INDENT 0.0
+.TP
+.BI \-a \ ARCH\fR,\fB \ \-\-arches \ ARCH
+Comma separated list of arches to enable and disable.
+.sp
+To specify disabled arches prefix them with \(aq\-\(aq. Note that when
+starting the argument list with a disabled arch an equals sign
+must be used, e.g. \-a=\-arch, otherwise the disabled arch
+argument is treated as an option.
+.sp
+By default all repo defined arches are used; however,
+stable\-related checks (e.g. UnstableOnly) default to the set of
+arches having stable profiles in the target repo.
+.UNINDENT
+.SS Git
+.sp
+Git repo support for various checks.
+.sp
+Pkgcheck can create virtual package repos from a given git repo\(aqs history
+in order to provide more info for checks relating to stable requests,
+outdated blockers, or local commits. These virtual repos are cached and
+updated every run if new commits are detected.
+.sp
+Git repos must have a supported config in order to work properly.
+Specifically, pkgcheck assumes that the origin branch exists and tracks
+upstream.
+.sp
+Additionally, the origin/HEAD ref must exist. If it doesn\(aqt, running \fBgit
+remote set\-head origin master\fP or similar for other branches will create
+it.
+.INDENT 0.0
+.TP
+.B \-\-commits [tree\-ish]
+Targets are determined from the committed changes compared to a
+given reference that defaults to the repo\(aqs origin.
+.sp
+For example, to scan all the packages that have been changed in
+the current branch compared to the branch named \(aqold\(aq use
+\fBpkgcheck scan \-\-commits old\fP\&. For two separate branches
+named \(aqold\(aq and \(aqnew\(aq use \fBpkgcheck scan \-\-commits old..new\fP\&.
+.TP
+.B \-\-staged [tree\-ish]
+Targets are determined using all staged changes for the git
+repo. Unstaged changes and untracked files are ignored by
+temporarily stashing them during the scanning process.
+.UNINDENT
+.SS Profiles
+.INDENT 0.0
+.TP
+.BI \-p \ PROFILE\fR,\fB \ \-\-profiles \ PROFILE
+Comma separated list of profiles to enable and disable for
+scanning. Any profiles specified in this fashion will be the
+only profiles that get scanned, skipping any disabled profiles.
+In addition, if no profiles are explicitly enabled, all
+profiles defined in the target repo\(aqs profiles.desc file will be
+scanned except those marked as experimental (exp).
+.sp
+To specify disabled profiles prefix them with \fB\-\fP which
+removes the from the list of profiles to be considered. Note
+that when starting the argument list with a disabled profile an
+equals sign must be used, e.g.  \fB\-p=\-path/to/profile\fP,
+otherwise the disabled profile argument is treated as an
+option.
+.sp
+The special keywords of \fBstable\fP, \fBdev\fP, \fBexp\fP, and
+\fBdeprecated\fP correspond to the lists of stable, development,
+experimental, and deprecated profiles, respectively. Therefore,
+to only scan all stable profiles pass the \fBstable\fP argument
+to \-\-profiles. Additionally the keyword \fBall\fP can be used to
+scan all defined profiles in the target repo.
+.UNINDENT
+.SS Network
+.INDENT 0.0
+.TP
+.BI \-\-timeout \ TIMEOUT
+timeout used for network checks
+.TP
+.BI \-\-user\-agent \ USER_AGENT
+custom user agent spoofing
+.UNINDENT
+.SS Query Caching
+.INDENT 0.0
+.TP
+.B \-\-reset\-caching\-per {version,package,category}
+control how often the cache is cleared (version, package or category)
+.UNINDENT
+.SS pkgcheck show \- show various pkgcheck info
+.SS Synopsis
+.sp
+pkgcheck show [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-k | \-c | \-s | \-r | \-C]
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+Show this help message and exit. To get more
+information see the related man page.
+.TP
+.B  \-\-debug
+Enable debug checks and show verbose debug output.
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+Suppress non\-error, informational messages.
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+Increase the verbosity of various output.
+.TP
+.BI \-\-color \ BOOLEAN
+Toggle colored output support. This can be used to forcibly
+enable color support when piping output or other sitations
+where stdout is not a tty.
+.UNINDENT
+.SS List Options
+.INDENT 0.0
+.TP
+.B  \-k\fP,\fB  \-\-keywords
+List all available keywords.
+.sp
+Use \-v/\-\-verbose to show keywords sorted into the scope they run at
+(repository, category, package, or version) along with their
+descriptions.
+.TP
+.B  \-c\fP,\fB  \-\-checks
+List all available checks.
+.sp
+Use \-v/\-\-verbose to show descriptions and possible keyword results for
+each check.
+.TP
+.B  \-s\fP,\fB  \-\-scopes
+List all available keyword and check scopes.
+.sp
+Use \-v/\-\-verbose to show scope descriptions.
+.TP
+.B  \-r\fP,\fB  \-\-reporters
+List all available reporters.
+.sp
+Use \-v/\-\-verbose to show reporter descriptions.
+.TP
+.B  \-C\fP,\fB  \-\-caches
+List all available cache types.
+.sp
+Use \-v/\-\-verbose to show more cache information.
+.UNINDENT
+.SH KEYWORDS
+.sp
+List of result keywords that can be produced by pkgcheck.
+.SS Commit scope
+.SS BadCommitSummary
+.sp
+Local package commit with poorly formatted or unmatching commit summary.
+.sp
+Git commit messages for packages should be formatted in the standardized
+fashion described in the devmanual [1]\&. Specifically, a
+\fB${CATEGORY}/${PN}:\fP or \fB${CATEGORY}/${P}:\fP prefix should be used in
+the summary relating to the modified package.
+.IP [1] 5
+\fI\%https://devmanual.gentoo.org/ebuild\-maintenance/git/#git\-commit\-message\-format\fP
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%GitCommitMessageCheck\fP
+.UNINDENT
+.SS InvalidCommitMessage
+.sp
+Local commit has issues with its commit message.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%GitCommitMessageCheck\fP
+.UNINDENT
+.SS InvalidCommitTag
+.sp
+Local commit has a tag that is incompliant.
+.sp
+Commit tags have restrictions as to the allowed format and data
+used per GLEP 66 [2]\&.
+.IP [2] 5
+\fI\%https://www.gentoo.org/glep/glep\-0066.html#commit\-messages\fP
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%GitCommitMessageCheck\fP
+.UNINDENT
+.SS MissingSignOff
+.sp
+Local commit with missing sign offs.
+.sp
+Sign offs are required for commits as specified by GLEP 76 [3]\&. Note that
+sign off tags will be flagged if the name or email address doesn\(aqt match
+the values used by the commit author.
+.IP [3] 5
+\fI\%https://www.gentoo.org/glep/glep\-0076.html#certificate\-of\-origin\fP
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitCommitMessageCheck\fP
+.UNINDENT
+.SS Profiles scope
+.SS ArchesWithoutProfiles
+.sp
+Arches without corresponding profile listings.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS BannedProfileEapi
+.sp
+Profile has an EAPI that is banned in the repository.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS DeprecatedProfileEapi
+.sp
+Profile has an EAPI that is deprecated in the repository.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS LaggingProfileEapi
+.sp
+Profile has an EAPI that is older than one of its parents.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS NonexistentCategories
+.sp
+Category entries in profiles/categories that don\(aqt exist in the repo.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS NonexistentProfilePath
+.sp
+Specified profile path in profiles.desc doesn\(aqt exist.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS ProfileError
+.sp
+Erroneously formatted data in various profile files.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+, \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS ProfileWarning
+.sp
+Badly formatted data in various profile files.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+, \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS UnknownCategoryDirs
+.sp
+Category directories that aren\(aqt listed in a repo\(aqs categories.
+.sp
+Or the categories of the repo\(aqs masters as well.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS UnknownProfilePackage
+.sp
+Profile files includes package entry that doesn\(aqt exist in the repo.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+
+.UNINDENT
+.SS UnknownProfilePackageKeywords
+.sp
+Profile files include package keywords that don\(aqt exist.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+
+.UNINDENT
+.SS UnknownProfilePackageUse
+.sp
+Profile files include entries with USE flags that aren\(aqt used on any matching packages.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+
+.UNINDENT
+.SS UnknownProfileUse
+.sp
+Profile files include USE flags that don\(aqt exist.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+
+.UNINDENT
+.SS UnknownProfileUseExpand
+.sp
+Profile includes nonexistent USE_EXPAND group(s).
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: 
+.nf
+\(gaProfilesCheck\(ga_
+.fi
+
+.UNINDENT
+.SS UnusedProfileDirs
+.sp
+Unused profile directories detected.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RepoProfilesCheck\fP
+.UNINDENT
+.SS BadPackageUpdate
+.sp
+Badly formatted package update in profiles/updates files.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS MovedPackageUpdate
+.sp
+Entry for package already moved in profiles/updates files.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS MultiMovePackageUpdate
+.sp
+Entry for package moved multiple times in profiles/updates files.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS OldMultiMovePackageUpdate
+.sp
+Old entry for removed package moved multiple times in profiles/updates files.
+.sp
+This means that the reported pkg has been moved at least three times and
+finally removed from the tree. All the related lines should be removed from
+the update files.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS OldPackageUpdate
+.sp
+Old entry for removed package in profiles/updates files.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS RedundantPackageUpdate
+.sp
+Move entry to the same package/slot (source == target).
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageUpdatesCheck\fP
+.UNINDENT
+.SS Eclass scope
+.SS EclassUnquotedVariable
+.sp
+Variable is used unquoted in a context where it should be quoted.
+.sp
+Variables like D, FILESDIR, etc may not be safe to use unquoted in some
+contexts.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassUnquotedVariablesCheck\fP
+.UNINDENT
+.SS EclassBashSyntaxError
+.sp
+Bash syntax error in the related eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassCheck\fP
+.UNINDENT
+.SS EclassDocError
+.sp
+Error when parsing docs for the related eclass.
+.sp
+Eclass docs are parsed as specified by the devmanual [4]\&.
+.IP [4] 5
+\fI\%https://devmanual.gentoo.org/eclass\-writing/#documenting\-eclasses\fP
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassCheck\fP
+.UNINDENT
+.SS EclassDocMissingFunc
+.sp
+Undocumented function(s) in the related eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassCheck\fP
+.UNINDENT
+.SS EclassDocMissingVar
+.sp
+Undocumented variable(s) in the related eclass.
+.sp
+All exported variables in an eclass should be documented using eclass doc
+tags. Temporary variables should be unset after use so they aren\(aqt
+exported.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassCheck\fP
+.UNINDENT
+.SS EclassExportFuncsBeforeInherit
+.sp
+EXPORT_FUNCTIONS called before inherit.
+.sp
+The EXPORT_FUNCTIONS call should occur after all inherits are done in order
+to guarantee consistent behavior across all package managers.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassParseCheck\fP
+.UNINDENT
+.SS EclassVariableScope
+.sp
+Eclass using variable outside its defined scope.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassParseCheck\fP
+.UNINDENT
+.SS EclassIncorrectCopyright
+.sp
+Changed eclass with incorrect copyright date.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%GitEclassCommitsCheck\fP
+.UNINDENT
+.SS EclassInvalidCopyright
+.sp
+File with invalid copyright.
+.sp
+The file does not start with a valid copyright line. Each ebuild or eclass
+file must start with a copyright line of the form:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS MAIN\-CONTRIBUTOR [OTHER\-CONTRIBUTOR]... [and others]
+.UNINDENT
+.UNINDENT
+.sp
+Files in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS Gentoo Authors
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassHeaderCheck\fP
+.UNINDENT
+.SS EclassInvalidLicenseHeader
+.sp
+File with invalid license header.
+.sp
+The file does not have with a valid license header.
+.sp
+Ebuilds and eclasses in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Distributed under the terms of the GNU General Public License v2
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassHeaderCheck\fP
+.UNINDENT
+.SS EclassNonGentooAuthorsCopyright
+.sp
+File with copyright stating owner other than \(dqGentoo Authors\(dq.
+.sp
+The file specifies explicit copyright owner, while the Gentoo repository
+policy specifies that all ebuilds and eclasses must use \(dqGentoo Authors\(dq.
+If the owner is not listed in metadata/AUTHORS, addition can be requested
+via bugs.gentoo.org.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassHeaderCheck\fP
+.UNINDENT
+.SS EclassOldGentooCopyright
+.sp
+File with old Gentoo Foundation copyright.
+.sp
+The file still assigns copyright to the Gentoo Foundation even though
+it has been committed after the new copyright policy was approved
+(2018\-10\-21).
+.sp
+Ebuilds and eclasses in Gentoo repository must use \(aqGentoo Authors\(aq
+instead. Files in other repositories may specify an explicit copyright
+holder instead.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassHeaderCheck\fP
+.UNINDENT
+.SS EclassReservedName
+.sp
+Eclass uses reserved variable or function name for package manager.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassReservedCheck\fP
+.UNINDENT
+.SS Repo scope
+.SS ConflictingAccountIdentifiers
+.sp
+Same UID/GID is used by multiple packages.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%AcctCheck\fP
+.UNINDENT
+.SS UnquotedVariable
+.sp
+Variable is used unquoted in a context where it should be quoted.
+.sp
+Variables like D, FILESDIR, etc may not be safe to use unquoted in some
+contexts.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS VariableScope
+.sp
+Variable used outside its defined scope.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS IncorrectCopyright
+.sp
+Changed file with incorrect copyright date.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS InvalidCopyright
+.sp
+File with invalid copyright.
+.sp
+The file does not start with a valid copyright line. Each ebuild or eclass
+file must start with a copyright line of the form:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS MAIN\-CONTRIBUTOR [OTHER\-CONTRIBUTOR]... [and others]
+.UNINDENT
+.UNINDENT
+.sp
+Files in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS Gentoo Authors
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS InvalidLicenseHeader
+.sp
+File with invalid license header.
+.sp
+The file does not have with a valid license header.
+.sp
+Ebuilds and eclasses in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Distributed under the terms of the GNU General Public License v2
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS NonGentooAuthorsCopyright
+.sp
+File with copyright stating owner other than \(dqGentoo Authors\(dq.
+.sp
+The file specifies explicit copyright owner, while the Gentoo repository
+policy specifies that all ebuilds and eclasses must use \(dqGentoo Authors\(dq.
+If the owner is not listed in metadata/AUTHORS, addition can be requested
+via bugs.gentoo.org.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS OldGentooCopyright
+.sp
+File with old Gentoo Foundation copyright.
+.sp
+The file still assigns copyright to the Gentoo Foundation even though
+it has been committed after the new copyright policy was approved
+(2018\-10\-21).
+.sp
+Ebuilds and eclasses in Gentoo repository must use \(aqGentoo Authors\(aq
+instead. Files in other repositories may specify an explicit copyright
+holder instead.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS BinaryFile
+.sp
+Binary file found in the repository.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%RepoDirCheck\fP
+.UNINDENT
+.SS EmptyCategoryDir
+.sp
+Empty category directory in the repository.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EmptyDirsCheck\fP
+.UNINDENT
+.SS EmptyPackageDir
+.sp
+Empty package directory in the repository.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EmptyDirsCheck\fP
+.UNINDENT
+.SS EmptyProject
+.sp
+A project has no developers.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ProjectMetadataCheck\fP
+.UNINDENT
+.SS PotentialGlobalUse
+.sp
+Local USE flag is a potential global USE flag.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%GlobalUseCheck\fP
+.UNINDENT
+.SS PotentialLocalUse
+.sp
+Global USE flag is a potential local USE flag.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%GlobalUseCheck\fP
+.UNINDENT
+.SS UnknownLicenses
+.sp
+License(s) listed in license group(s) that don\(aqt exist.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LicenseGroupsCheck\fP
+.UNINDENT
+.SS UnusedEclasses
+.sp
+Unused eclasses detected.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedEclassesCheck\fP
+.UNINDENT
+.SS UnusedGlobalUse
+.sp
+Unused use.desc flag(s).
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%GlobalUseCheck\fP
+.UNINDENT
+.SS UnusedGlobalUseExpand
+.sp
+Unused global USE_EXPAND flag(s).
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%GlobalUseCheck\fP
+.UNINDENT
+.SS UnusedLicenses
+.sp
+Unused license(s) detected.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedLicensesCheck\fP
+.UNINDENT
+.SS UnusedMirrors
+.sp
+Unused mirrors detected.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedMirrorsCheck\fP
+.UNINDENT
+.SS Category scope
+.SS CatBadlyFormedXml
+.sp
+Badly formed category metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatInvalidXml
+.sp
+Invalid category metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatMetadataXmlEmptyElement
+.sp
+Empty element in category metadata.xml file.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatMetadataXmlIndentation
+.sp
+Inconsistent indentation in category metadata.xml file.
+.sp
+Either all tabs or all spaces should be used, not a mixture of both.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatMetadataXmlInvalidCatRef
+.sp
+Invalid category reference in category metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatMetadataXmlInvalidPkgRef
+.sp
+Invalid package reference in category metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS CatMissingMetadataXml
+.sp
+Category is missing metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%CategoryMetadataXmlCheck\fP
+.UNINDENT
+.SS Package scope
+.SS DirectNoMaintainer
+.sp
+Directly added, new package with no specified maintainer.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS DroppedStableKeywords
+.sp
+Stable keywords dropped from package.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS DroppedUnstableKeywords
+.sp
+Unstable keywords dropped from package.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS MissingMove
+.sp
+Package was renamed without adding a move package update.
+.sp
+When moving/renaming a package, a new entry must be created in
+profiles/updates. See the devmanual [5] for more info.
+.IP [5] 5
+\fI\%https://devmanual.gentoo.org/ebuild\-maintenance/package\-moves/\fP
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS MatchingGlobalUse
+.sp
+Local USE flag description matches a global USE flag.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS MissingLocalUseDesc
+.sp
+Local USE flag(s) missing descriptions.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS ProbableGlobalUse
+.sp
+Local USE flag description closely matches a global USE flag.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS ProbableUseExpand
+.sp
+Local USE flag that isn\(aqt overridden matches a USE_EXPAND group.
+.sp
+The local USE flag starts with a prefix reserved to USE_EXPAND group,
+yet it is not a globally defined member of this group. According
+to the standing policy [6], all possible values for each USE_EXPAND
+must be defined and documented globally.
+.sp
+This warning can be fixed via moving the local flag description
+into appropriate profiles/desc file.
+.IP [6] 5
+\fI\%https://devmanual.gentoo.org/general\-concepts/use\-flags/\fP
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS UnderscoreInUseFlag
+.sp
+USE flag uses underscore that is reserved for USE_EXPAND.
+.sp
+The USE flag name uses underscore. However, according to PMS
+underscores are reserved for USE_EXPAND flags [7]\&. The recommended
+replacement is hyphen (\(aq\-\(aq).
+.IP [7] 5
+\fI\%https://projects.gentoo.org/pms/7/pms.html#x1\-200003.1.4\fP
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS UnusedLocalUse
+.sp
+Unused local USE flag(s).
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LocalUseCheck\fP
+.UNINDENT
+.SS InvalidRemoteID
+.sp
+Package\(aqs remote\-id value incorrect for the specified type.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS MaintainerNeeded
+.sp
+Package with missing or invalid maintainer\-needed comment in metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS MaintainerWithoutProxy
+.sp
+Package has a proxied maintainer without a proxy.
+.sp
+All package maintainers have \fI\%non\-@gentoo.org\fP e\-mail addresses. Most likely,
+this means that the package is maintained by a proxied maintainer but there
+is no explicit proxy (developer or project) listed. This means no Gentoo
+developer will be CC\-ed on bug reports, and most likely no developer
+oversees the proxied maintainer\(aqs activity.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS NonexistentProjectMaintainer
+.sp
+Package specifying nonexistent project as a maintainer.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgBadlyFormedXml
+.sp
+Badly formed package metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgInvalidXml
+.sp
+Invalid package metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgMetadataXmlEmptyElement
+.sp
+Empty element in package metadata.xml file.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgMetadataXmlIndentation
+.sp
+Inconsistent indentation in package metadata.xml file.
+.sp
+Either all tabs or all spaces should be used, not a mixture of both.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgMetadataXmlInvalidCatRef
+.sp
+Invalid category reference in package metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgMetadataXmlInvalidPkgRef
+.sp
+Invalid package reference in package metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS PkgMissingMetadataXml
+.sp
+Package is missing metadata.xml.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS ProxyWithoutProxied
+.sp
+Package lists a proxy with no proxied maintainers.
+.sp
+The package explicitly lists a proxy with no proxied maintainers.
+Most likely, this means that the proxied maintainer has been removed
+but the proxy was accidentally left.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS RedundantLongDescription
+.sp
+Package\(aqs longdescription element in metadata.xml and DESCRIPTION are interchangeable.
+.sp
+The longdescription element is for providing extended information that
+doesn\(aqt fit in DESCRIPTION.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS WrongMaintainerType
+.sp
+A person\-type maintainer matches an existing project.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PackageMetadataXmlCheck\fP
+.UNINDENT
+.SS BannedCharacter
+.sp
+File or directory name doesn\(aqt abide by GLEP 31 requirements.
+.sp
+See the official GLEP 31 documentation [8] for details.
+.IP [8] 5
+\fI\%https://www.gentoo.org/glep/glep\-0031.html\fP
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS DuplicateFiles
+.sp
+Two or more identical files in FILESDIR.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS EmptyFile
+.sp
+File in FILESDIR is empty.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS EqualVersions
+.sp
+Ebuilds that have equal versions.
+.sp
+For example, cat/pn\-1.0.2, cat/pn\-1.0.2\-r0, cat/pn\-1.0.2\-r00 and
+cat/pn\-1.000.2 all have equal versions according to PMS and therefore
+shouldn\(aqt exist in the same repository.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EqualVersionsCheck\fP
+.UNINDENT
+.SS ExecutableFile
+.sp
+File has executable bit, but doesn\(aqt need it.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS InvalidPN
+.sp
+Ebuilds that have invalid package names.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS InvalidUTF8
+.sp
+File isn\(aqt UTF\-8 compliant.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS LiveOnlyPackage
+.sp
+Package has only had VCS\-based ebuilds.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LiveOnlyCheck\fP
+.UNINDENT
+.SS MismatchedPN
+.sp
+Ebuilds that have different names than their parent directory.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS SizeViolation
+.sp
+File in $FILESDIR is too large.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS TotalSizeViolation
+.sp
+The total size of $FILESDIR is too large.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS UnknownPkgDirEntry
+.sp
+Unknown files or directories in package directory.
+.sp
+Relevant for the gentoo repo only since the spec states that a package
+directory may contain other files or directories.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PkgDirCheck\fP
+.UNINDENT
+.SS InvalidManifest
+.sp
+Package\(aqs Manifest file is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS UnknownManifest
+.sp
+Manifest entries not matching any SRC_URI targets.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS UnnecessaryManifest
+.sp
+Manifest entries for non\-DIST targets on a repo with thin manifests enabled.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS UnstableOnly
+.sp
+Package/keywords that are strictly unstable.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%UnstableOnlyCheck\fP
+.UNINDENT
+.SS Version scope
+.SS MissingAccountIdentifier
+.sp
+UID/GID can not be found in account package.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%AcctCheck\fP
+.UNINDENT
+.SS OutsideRangeAccountIdentifier
+.sp
+UID/GID outside allowed allocation range.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%AcctCheck\fP
+.UNINDENT
+.SS RedundantVersion
+.sp
+Redundant version(s) of a package in a specific slot.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%RedundantVersionCheck\fP
+.UNINDENT
+.SS AbsoluteSymlink
+.sp
+Ebuild uses dosym with absolute paths instead of relative.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%AbsoluteSymlinkCheck\fP
+.UNINDENT
+.SS BannedEapiCommand
+.sp
+Ebuild uses a banned EAPI command.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%BadCommandsCheck\fP
+.UNINDENT
+.SS DeprecatedEapiCommand
+.sp
+Ebuild uses a deprecated EAPI command.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%BadCommandsCheck\fP
+.UNINDENT
+.SS DeprecatedInsinto
+.sp
+Ebuild uses insinto where more compact commands exist.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%InsintoCheck\fP
+.UNINDENT
+.SS DoublePrefixInPath
+.sp
+Ebuild uses two consecutive paths including EPREFIX.
+.sp
+Ebuild combines two path variables (or a variable and a getter), both
+of which include EPREFIX, resulting in double prefixing. This is the case
+when combining many pkg\-config\-based or alike getters with ED or EROOT.
+.sp
+For example, \fB${ED}$(python_get_sitedir)\fP should be replaced
+with \fB${D}$(python_get_sitedir)\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PathVariablesCheck\fP
+.UNINDENT
+.SS EbuildUnquotedVariable
+.sp
+Variable is used unquoted in a context where it should be quoted.
+.sp
+Variables like D, FILESDIR, etc may not be safe to use unquoted in some
+contexts.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EbuildUnquotedVariablesCheck\fP
+.UNINDENT
+.SS EbuildVariableScope
+.sp
+Ebuild using variable outside its defined scope.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%VariableScopeCheck\fP
+.UNINDENT
+.SS EendMissingArg
+.sp
+Ebuild calls eend with no arguments.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EendMissingArgCheck\fP
+.UNINDENT
+.SS HomepageInSrcUri
+.sp
+${HOMEPAGE} is referenced in SRC_URI.
+.sp
+SRC_URI is built on top of ${HOMEPAGE}. This is discouraged since HOMEPAGE
+is multi\-valued by design, and is subject to potential changes that should
+not accidentally affect SRC_URI.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%MetadataVarCheck\fP
+.UNINDENT
+.SS IndirectInherits
+.sp
+Ebuild uses function from indirectly inherited eclass.
+.sp
+That doesn\(aqt allow indirect inherit usage via the @INDIRECT_INHERITS eclass
+doc tag in a parent eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%InheritsCheck\fP
+.UNINDENT
+.SS InternalEclassUsage
+.sp
+Ebuild uses internal functions or variables from eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%InheritsCheck\fP
+.UNINDENT
+.SS MissingInherits
+.sp
+Ebuild uses function from eclass that isn\(aqt inherited.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%InheritsCheck\fP
+.UNINDENT
+.SS MissingSlash
+.sp
+Ebuild uses a path variable missing a trailing slash.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PathVariablesCheck\fP
+.UNINDENT
+.SS MultipleKeywordsLines
+.sp
+KEYWORDS is specified across multiple lines in global scope.
+.sp
+Due to limitations of ekeyword it\(aqs advised to specify KEYWORDS once on a
+single line in global scope [9]\&.
+.IP [9] 5
+\fI\%https://projects.gentoo.org/qa/policy\-guide/ebuild\-format.html#pg0105\fP
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%MetadataVarCheck\fP
+.UNINDENT
+.SS ObsoleteUri
+.sp
+URI used is obsolete.
+.sp
+The URI used to fetch distfile is obsolete and can be replaced
+by something more modern. Note that the modern replacement usually
+results in different file contents, so you need to rename it (to
+avoid mirror collisions with the old file) and update the ebuild
+(for example, by removing no longer necessary vcs\-snapshot.eclass).
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%ObsoleteUriCheck\fP
+.UNINDENT
+.SS ReadonlyVariable
+.sp
+Ebuild globally assigning value to a readonly variable.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ReadonlyVariableCheck\fP
+.UNINDENT
+.SS RedundantDodir
+.sp
+Ebuild using a redundant dodir call.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%RedundantDodirCheck\fP
+.UNINDENT
+.SS ReferenceInMetadataVar
+.sp
+Metadata variable limited to raw text includes variable reference.
+.sp
+The HOMEPAGE ebuild variable entry in the devmanual [10] states only raw
+text should be used.
+.sp
+KEYWORDS must be a simple string with literal content as stated by the QA
+policy guide [11]\&.
+.sp
+LICENSE must specify all license names verbatim, without referring to any
+variables. The only exception is the LICENSE variable itself, ie appending
+is allowed [12]\&.
+.IP [10] 5
+\fI\%https://devmanual.gentoo.org/ebuild\-writing/variables/#ebuild\-defined\-variables\fP
+.IP [11] 5
+\fI\%https://projects.gentoo.org/qa/policy\-guide/ebuild\-format.html#pg0105\fP
+.IP [12] 5
+\fI\%https://projects.gentoo.org/qa/policy\-guide/ebuild\-format.html#pg0106\fP
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%MetadataVarCheck\fP
+.UNINDENT
+.SS StaticSrcUri
+.sp
+SRC_URI contains static value instead of the dynamic equivalent.
+.sp
+For example, using static text to relate to the package version in SRC_URI
+instead of ${P} or ${PV} where relevant.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%MetadataVarCheck\fP
+.UNINDENT
+.SS UnnecessarySlashStrip
+.sp
+Ebuild uses a path variable that strips a nonexistent slash.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%PathVariablesCheck\fP
+.UNINDENT
+.SS UnusedInherits
+.sp
+Ebuild inherits eclasses that are unused.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%InheritsCheck\fP
+.UNINDENT
+.SS DroppedKeywords
+.sp
+Arch keywords dropped during version bumping.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%DroppedKeywordsCheck\fP
+.UNINDENT
+.SS DeprecatedEclass
+.sp
+Package uses an eclass that is deprecated/abandoned.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassUsageCheck\fP
+.UNINDENT
+.SS DeprecatedEclassFunction
+.sp
+Package uses a deprecated function from an eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassUsageCheck\fP
+.UNINDENT
+.SS DeprecatedEclassVariable
+.sp
+Package uses a deprecated variable from an eclass.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EclassUsageCheck\fP
+.UNINDENT
+.SS DuplicateEclassInherit
+.sp
+An ebuild directly inherits the same eclass multiple times.
+.sp
+Note that this will flag ebuilds that conditionalize global metadata by
+package version (or some other fashion) while inheriting the same eclass
+under both branches, e.g. conditional live ebuilds. In this case, shared
+eclasses should be loaded in a separate, unconditional inherit call.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%EclassUsageCheck\fP
+.UNINDENT
+.SS MisplacedEclassVar
+.sp
+Invalid placement of pre\-inherit eclass variable in an ebuild.
+.sp
+All eclass variables tagged with @PRE_INHERIT must be set
+before the first inherit call in an ebuild.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EclassUsageCheck\fP
+.UNINDENT
+.SS DirectStableKeywords
+.sp
+Newly committed ebuild with stable keywords.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS EbuildIncorrectCopyright
+.sp
+Changed ebuild with incorrect copyright date.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS MissingSlotmove
+.sp
+Package SLOT was changed without adding a slotmove package update.
+.sp
+When changing an existing ebuild\(aqs SLOT, a new entry must be
+created in profiles/updates. See the devmanual [13] for more info.
+.IP [13] 5
+\fI\%https://devmanual.gentoo.org/ebuild\-maintenance/package\-moves/\fP
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS RdependChange
+.sp
+Package RDEPEND was modified without adding a new ebuild revision.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%GitPkgCommitsCheck\fP
+.UNINDENT
+.SS VulnerablePackage
+.sp
+Packages marked as vulnerable by GLSAs.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%GlsaCheck\fP
+.UNINDENT
+.SS EbuildInvalidCopyright
+.sp
+File with invalid copyright.
+.sp
+The file does not start with a valid copyright line. Each ebuild or eclass
+file must start with a copyright line of the form:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS MAIN\-CONTRIBUTOR [OTHER\-CONTRIBUTOR]... [and others]
+.UNINDENT
+.UNINDENT
+.sp
+Files in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Copyright YEARS Gentoo Authors
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EbuildHeaderCheck\fP
+.UNINDENT
+.SS EbuildInvalidLicenseHeader
+.sp
+File with invalid license header.
+.sp
+The file does not have with a valid license header.
+.sp
+Ebuilds and eclasses in the Gentoo repository must use:
+.INDENT 0.0
+.INDENT 3.5
+# Distributed under the terms of the GNU General Public License v2
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EbuildHeaderCheck\fP
+.UNINDENT
+.SS EbuildNonGentooAuthorsCopyright
+.sp
+File with copyright stating owner other than \(dqGentoo Authors\(dq.
+.sp
+The file specifies explicit copyright owner, while the Gentoo repository
+policy specifies that all ebuilds and eclasses must use \(dqGentoo Authors\(dq.
+If the owner is not listed in metadata/AUTHORS, addition can be requested
+via bugs.gentoo.org.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EbuildHeaderCheck\fP
+.UNINDENT
+.SS EbuildOldGentooCopyright
+.sp
+File with old Gentoo Foundation copyright.
+.sp
+The file still assigns copyright to the Gentoo Foundation even though
+it has been committed after the new copyright policy was approved
+(2018\-10\-21).
+.sp
+Ebuilds and eclasses in Gentoo repository must use \(aqGentoo Authors\(aq
+instead. Files in other repositories may specify an explicit copyright
+holder instead.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EbuildHeaderCheck\fP
+.UNINDENT
+.SS LaggingStable
+.sp
+Stable arches for stabilized package that are lagging from a stabling standpoint.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%ImlateCheck\fP
+.UNINDENT
+.SS PotentialStable
+.sp
+Stable arches with potential stable package candidates.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%ImlateCheck\fP
+.UNINDENT
+.SS BadDefaultUseFlags
+.sp
+Package IUSE contains bad default USE flags.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%IuseCheck\fP
+.UNINDENT
+.SS BadDependency
+.sp
+Package dependency is bad for some reason.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS BadDescription
+.sp
+Package\(aqs description is bad for some reason.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%DescriptionCheck\fP
+.UNINDENT
+.SS BadFilename
+.sp
+URI uses unspecific or poor filename(s).
+.sp
+Archive filenames should be disambiguated using \fB\->\fP to rename them.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS BadHomepage
+.sp
+A package\(aqs HOMEPAGE is bad for some reason.
+.sp
+See the HOMEPAGE ebuild variable entry in the devmanual [14] for more
+information.
+.IP [14] 5
+\fI\%https://devmanual.gentoo.org/ebuild\-writing/variables/#ebuild\-defined\-variables\fP
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%HomepageCheck\fP
+.UNINDENT
+.SS BadKeywords
+.sp
+Packages using \fB\-*\fP should use package.mask instead.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS BadProtocol
+.sp
+URI uses an unsupported protocol.
+.sp
+Valid protocols are currently: http, https, and ftp
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS BannedEapi
+.sp
+Package\(aqs EAPI is banned according to repo metadata.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EapiCheck\fP
+.UNINDENT
+.SS DeprecatedDep
+.sp
+Package dependencies matching deprecated packages flagged in profiles/package.deprecated.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS DeprecatedEapi
+.sp
+Package\(aqs EAPI is deprecated according to repo metadata.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EapiCheck\fP
+.UNINDENT
+.SS DeprecatedLicense
+.sp
+Deprecated license usage.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS DuplicateKeywords
+.sp
+Packages having duplicate KEYWORDS.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS InvalidBdepend
+.sp
+Package has invalid BDEPEND.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS InvalidDepend
+.sp
+Package has invalid DEPEND.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS InvalidEapi
+.sp
+Package\(aqs EAPI is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SourcingCheck\fP
+.UNINDENT
+.SS InvalidIdepend
+.sp
+Package has invalid IDEPEND.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS InvalidLicense
+.sp
+Package\(aqs LICENSE is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS InvalidPdepend
+.sp
+Package has invalid PDEPEND.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS InvalidProperties
+.sp
+Package\(aqs PROPERTIES is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PropertiesCheck\fP
+.UNINDENT
+.SS InvalidRdepend
+.sp
+Package has invalid RDEPEND.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS InvalidRequiredUse
+.sp
+Package\(aqs REQUIRED_USE is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%RequiredUseCheck\fP
+.UNINDENT
+.SS InvalidRestrict
+.sp
+Package\(aqs RESTRICT is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%RestrictCheck\fP
+.UNINDENT
+.SS InvalidSlot
+.sp
+Package\(aqs SLOT is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SourcingCheck\fP
+.UNINDENT
+.SS InvalidSrcUri
+.sp
+Package\(aqs SRC_URI is invalid.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS InvalidUseFlags
+.sp
+Package IUSE contains invalid USE flags.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%IuseCheck\fP
+.UNINDENT
+.SS MissingLicense
+.sp
+Package has no LICENSE defined.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS MissingLicenseRestricts
+.sp
+Restrictive license used without matching RESTRICT.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS MissingPackageRevision
+.sp
+Missing package revision in =cat/pkg dependencies.
+.sp
+The dependency string uses the \fB=\fP operator without specifying a revision.
+This means that only \fB\-r0\fP of the dependency will be matched, and newer
+revisions of the same ebuild will not be accepted.
+.sp
+If any revision of the package is acceptable, the \fB~\fP operator should be
+used instead of \fB=\fP\&. If only the initial revision of the dependency is
+allowed, \fB\-r0\fP should be appended in order to make the intent explicit.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS MissingSlotDep
+.sp
+Missing slot value in dependencies.
+.sp
+The package dependency does not specify a slot but the target package
+has multiple slots. The behavior for satisfying this kind of dependency
+is not strictly defined, and may result in either any or the newest package
+slot being accepted.
+.sp
+Please verify whether the package works with all the dependency slots.
+If only one slot is actually acceptable, specify it explicitly. If multiple
+slots are acceptable, please use either \fB:=\fP or explicit \fB:*\fP slot operator.
+The operators are described in detail in the devmanual [15]\&.
+.IP [15] 5
+\fI\%https://devmanual.gentoo.org/general\-concepts/dependencies/#slot\-dependencies\fP
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%MissingSlotDepCheck\fP
+.UNINDENT
+.SS MissingTestRestrict
+.sp
+Missing \fBRESTRICT=\(dq!test? ( test )\(dq\fP\&.
+.sp
+Traditionally, it was assumed that \fBIUSE=test\fP is a special flag that is
+implicitly enabled when running \fBsrc_test()\fP is enabled. However, this is
+not standarized and packages need to explicitly specify
+\fBRESTRICT=\(dq!test? ( test )\(dq\fP in order to guarantee that test phase will
+be skipped when the flag is disabled and therefore test dependencies may
+not be installed.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RestrictTestCheck\fP
+.UNINDENT
+.SS MissingUnpackerDep
+.sp
+Missing dependency on a required unpacker package.
+.sp
+Package uses an archive format for which an unpacker is not provided by the
+system set, and lacks an explicit dependency on the unpacker package.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%MissingUnpackerDepCheck\fP
+.UNINDENT
+.SS MissingUri
+.sp
+RESTRICT=fetch isn\(aqt set, yet no full URI exists.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS MissingUseDepDefault
+.sp
+Package dependencies with USE dependencies missing defaults.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%DependencyCheck\fP
+.UNINDENT
+.SS NonexistentBlocker
+.sp
+No matches for blocker dependency in repo history.
+.sp
+For the gentoo repo this means it was either removed before the CVS \-> git
+transition (which occurred around 2015\-08\-08) or it never existed at all.
+.sp
+Note that this ignores slot/subslot deps and USE deps in blocker atoms.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%OutdatedBlockersCheck\fP
+.UNINDENT
+.SS OutdatedBlocker
+.sp
+Blocker dependency removed at least two years ago from the tree.
+.sp
+Note that this ignores slot/subslot deps and USE deps in blocker atoms.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%OutdatedBlockersCheck\fP
+.UNINDENT
+.SS OverlappingKeywords
+.sp
+Packages having overlapping arch and ~arch KEYWORDS.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS RedundantUriRename
+.sp
+URI uses a redundant rename that doesn\(aqt change the filename.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS RequiredUseDefaults
+.sp
+Default USE flag settings don\(aqt satisfy REQUIRED_USE.
+.sp
+The REQUIRED_USE constraints specified in the ebuild are not satisfied
+by the default USE flags used in one or more profiles. This means that
+users on those profiles may be unable to install the package out of the box,
+without having to modify package.use.
+.sp
+This warning is usually fixed via using IUSE defaults to enable one
+of the needed flags, modifying package.use in the most relevant profiles
+or modifying REQUIRED_USE.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RequiredUseCheck\fP
+.UNINDENT
+.SS SourcingError
+.sp
+Failed sourcing ebuild.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SourcingCheck\fP
+.UNINDENT
+.SS StableKeywordsOnTestingEapi
+.sp
+Package has stable keywords on EAPI marked as testing\-only.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%EapiCheck\fP
+.UNINDENT
+.SS TarballAvailable
+.sp
+URI uses .zip archive when .tar* is available.
+.sp
+Tarballs should be preferred over zip archives due to better compression
+and no extra unpack dependencies.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS UnknownKeywords
+.sp
+Packages using unknown KEYWORDS.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS UnknownLicense
+.sp
+License usage with no matching license file.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS UnknownMirror
+.sp
+URI uses an unknown mirror.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS UnknownProperties
+.sp
+Package\(aqs PROPERTIES metadata has unknown entries.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PropertiesCheck\fP
+.UNINDENT
+.SS UnknownRestrict
+.sp
+Package\(aqs RESTRICT metadata has unknown entries.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%RestrictCheck\fP
+.UNINDENT
+.SS UnknownUseFlags
+.sp
+Package IUSE contains unknown USE flags.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%IuseCheck\fP
+.UNINDENT
+.SS UnnecessaryLicense
+.sp
+LICENSE defined for package that is license\-less.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%LicenseCheck\fP
+.UNINDENT
+.SS UnsortedKeywords
+.sp
+Packages with unsorted KEYWORDS.
+.sp
+KEYWORDS should be sorted in alphabetical order with prefix keywords (those
+with hyphens in them, e.g. amd64\-fbsd) after regular arches and globs (e.g. \fB\-*\fP)
+before them.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS UnstatedIuse
+.sp
+Package is reliant on conditionals that aren\(aqt in IUSE.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks: \fI\%DependencyCheck\fP, \fI\%LicenseCheck\fP, \fI\%LocalUseCheck\fP, \fI\%PropertiesCheck\fP, \fI\%RequiredUseCheck\fP, \fI\%RestrictCheck\fP, \fI\%SrcUriCheck\fP
+.UNINDENT
+.SS UnsupportedEclassEapi
+.sp
+Ebuild inherits an eclass with outdated @SUPPORTED_EAPIS.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EapiCheck\fP
+.UNINDENT
+.SS VirtualKeywordsUpdate
+.sp
+Virtual packages with keywords that can be updated to match dependencies.
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%KeywordsCheck\fP
+.UNINDENT
+.SS DeadUrl
+.sp
+Package with a dead URL of some type.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks: \fI\%FetchablesUrlCheck\fP, \fI\%HomepageUrlCheck\fP, \fI\%MetadataUrlCheck\fP
+.UNINDENT
+.SS HttpsUrlAvailable
+.sp
+URL uses \fI\%http://\fP when \fI\%https://\fP is available.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks: \fI\%FetchablesUrlCheck\fP, \fI\%HomepageUrlCheck\fP, \fI\%MetadataUrlCheck\fP
+.UNINDENT
+.SS RedirectedUrl
+.sp
+Package with a URL that permanently redirects to a different site.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks: \fI\%FetchablesUrlCheck\fP, \fI\%HomepageUrlCheck\fP, \fI\%MetadataUrlCheck\fP
+.UNINDENT
+.SS SSLCertificateError
+.sp
+Package with \fI\%https://\fP HOMEPAGE with an invalid SSL cert.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related checks: \fI\%FetchablesUrlCheck\fP, \fI\%HomepageUrlCheck\fP, \fI\%MetadataUrlCheck\fP
+.UNINDENT
+.SS UnusedInMastersEclasses
+.sp
+Eclasses detected that are unused in the master repo(s).
+.sp
+In other words, they\(aqre likely to be removed so should be copied to the overlay.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedInMastersCheck\fP
+.UNINDENT
+.SS UnusedInMastersGlobalUse
+.sp
+Global USE flags detected that are unused in the master repo(s).
+.sp
+In other words, they\(aqre likely to be removed so should be copied to the overlay.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedInMastersCheck\fP
+.UNINDENT
+.SS UnusedInMastersLicenses
+.sp
+Licenses detected that are unused in the master repo(s).
+.sp
+In other words, they\(aqre likely to be removed so should be copied to the overlay.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedInMastersCheck\fP
+.UNINDENT
+.SS UnusedInMastersMirrors
+.sp
+Mirrors detected that are unused in the master repo(s).
+.sp
+In other words, they\(aqre likely to be removed so should be copied to the overlay.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%UnusedInMastersCheck\fP
+.UNINDENT
+.SS MismatchedPerlVersion
+.sp
+A package\(aqs normalized perl module version doesn\(aqt match its $PV.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PerlCheck\fP
+.UNINDENT
+.SS MissingPythonEclass
+.sp
+Package depends on Python but does not use the eclasses.
+.sp
+All packages depending on Python are required to use one of the following
+python eclasses: python\-r1, python\-single\-r1, or python\-any\-r1. For
+documentation on choosing the correct eclass, please see the Python project
+wiki page on eclasses [16]\&.
+.IP [16] 5
+\fI\%https://wiki.gentoo.org/wiki/Project:Python/Eclasses\fP
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PythonCheck\fP
+.UNINDENT
+.SS PythonCompatUpdate
+.sp
+PYTHON_COMPAT can be updated to support newer python version(s).
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%PythonCompatCheck\fP
+.UNINDENT
+.SS PythonEclassError
+.sp
+Generic python eclass error.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%PythonCheck\fP
+.UNINDENT
+.SS PythonGHDistfileSuffix
+.sp
+Distfile from GitHub is missing \(dq.gh.tar.gz\(dq suffix.
+.sp
+Python ebuilds frequently prefer GitHub archives over sdist tarballs
+published on PyPI.  Since both kinds of distfiles often have the same name,
+\(dq.gh.tar.gz\(dq suffix is often used for the former to avoid filename
+collisions with official archives published upstream.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PythonGHDistfileSuffixCheck\fP
+.UNINDENT
+.SS PythonMissingDeps
+.sp
+Package is missing PYTHON_DEPS.
+.sp
+The python\-r1 and python\-single\-r1 eclasses require the packages
+to explicitly reference \fI${PYTHON_DEPS}\fP in RDEPEND (and DEPEND,
+if necessary); python\-any\-r1 requires it in DEPEND.
+.sp
+If Python is used conditionally, the dependency can be wrapped
+in appropriate USE conditionals.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PythonCheck\fP
+.UNINDENT
+.SS PythonMissingRequiredUse
+.sp
+Package is missing PYTHON_REQUIRED_USE.
+.sp
+The python\-r1 and python\-single\-r1 eclasses require the packages to
+explicitly specify \fIREQUIRED_USE=${PYTHON_REQUIRED_USE}\fP\&. If Python is used
+conditionally, it can be wrapped in appropriate USE conditionals.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PythonCheck\fP
+.UNINDENT
+.SS PythonRuntimeDepInAnyR1
+.sp
+Package depends on Python at runtime but uses any\-r1 eclass.
+.sp
+The python\-any\-r1 eclass is meant to be used purely for build\-time
+dependencies on Python. However, this package lists Python as a runtime
+dependency. If this is intentional, the package needs to switch to
+python\-r1 or python\-single\-r1 eclass, otherwise the runtime dependency
+should be removed.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%PythonCheck\fP
+.UNINDENT
+.SS ConflictingChksums
+.sp
+Checksum conflict detected between two files.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%ManifestCollisionCheck\fP
+.UNINDENT
+.SS DeprecatedChksum
+.sp
+A file in the chksum data does not use modern checksum set.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS MatchingChksums
+.sp
+Two distfiles share the same checksums but use different names.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ManifestCollisionCheck\fP
+.UNINDENT
+.SS MissingChksum
+.sp
+A file in the chksum data lacks required checksums.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS MissingManifest
+.sp
+SRC_URI targets missing from Manifest file.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%ManifestCheck\fP
+.UNINDENT
+.SS EbuildReservedName
+.sp
+Ebuild uses reserved variable or function name for package manager.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%EbuildReservedCheck\fP
+.UNINDENT
+.SS StableRequest
+.sp
+Unstable ebuild with no changes for over 30 days.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: info
+.IP \(bu 2
+related check: \fI\%StableRequestCheck\fP
+.UNINDENT
+.SS NonexistentDeps
+.sp
+No matches exist for a package dependency.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS NonsolvableDeps
+.sp
+No potential solution for a depset attribute.
+\- Gentoo repo specific
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related checks:
+.UNINDENT
+.SS NonsolvableDepsInDev
+.sp
+No potential solution for dependency on dev profile.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS NonsolvableDepsInExp
+.sp
+No potential solution for dependency on exp profile.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS NonsolvableDepsInStable
+.sp
+No potential solution for dependency on stable profile.
+.INDENT 0.0
+.IP \(bu 2
+level: error
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS UncheckableDep
+.sp
+Given dependency cannot be checked due to the number of transitive use deps in it.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS VisibleVcsPkg
+.sp
+Package is VCS\-based, but visible.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%VisibilityCheck\fP
+.UNINDENT
+.SS BadWhitespaceCharacter
+.sp
+Ebuild uses whitespace that isn\(aqt a tab, newline, or single space.
+.sp
+Bash does not treat unicode whitespace characters as regular whitespace so
+commands or operators separated by such characters will be treated as one
+string. This usually causes execution errors if the characters are used for
+separation purposes outside of comments or regular strings.
+.INDENT 0.0
+.IP \(bu 2
+level: warning
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SS DoubleEmptyLine
+.sp
+Unneeded blank lines found.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SS NoFinalNewline
+.sp
+Ebuild\(aqs last line does not have a final newline.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SS TrailingEmptyLine
+.sp
+Unneeded trailing blank lines found.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SS WhitespaceFound
+.sp
+Leading or trailing whitespace found.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SS WrongIndentFound
+.sp
+Incorrect indentation whitespace found.
+.INDENT 0.0
+.IP \(bu 2
+level: style
+.IP \(bu 2
+related check: \fI\%WhitespaceCheck\fP
+.UNINDENT
+.SH CHECKS
+.sp
+List of checks that can be selected to run.
+.sp
+By default, all checks that operate at the current scope or below will be run.
+In other words, if running inside a package directory in a repo, only checks
+that operate at a package or version scope will be run. On the other hand, when
+running against an entire repo, all defined checks will be run.
+.SS Commit scope
+.SS GitCommitMessageCheck
+.sp
+Check unpushed git commit messages for various issues.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%BadCommitSummary\fP, \fI\%InvalidCommitMessage\fP, \fI\%InvalidCommitTag\fP,
+\fI\%MissingSignOff\fP)
+.SS Profiles scope
+.SS RepoProfilesCheck
+.sp
+Scan repo for various profiles directory issues.
+.sp
+Including unknown arches in profiles, arches without profiles, and unknown
+categories.
+.sp
+(known results: \fI\%ArchesWithoutProfiles\fP, \fI\%BannedProfileEapi\fP,
+\fI\%DeprecatedProfileEapi\fP, \fI\%LaggingProfileEapi\fP, \fI\%NonexistentCategories\fP,
+\fI\%NonexistentProfilePath\fP, \fI\%ProfileError\fP, \fI\%ProfileWarning\fP,
+\fI\%UnknownCategoryDirs\fP, \fI\%UnusedProfileDirs\fP)
+.SS PackageUpdatesCheck
+.sp
+Scan profiles/updates/* for outdated entries and other issues.
+.sp
+(known results: \fI\%BadPackageUpdate\fP, \fI\%MovedPackageUpdate\fP,
+\fI\%MultiMovePackageUpdate\fP, \fI\%OldMultiMovePackageUpdate\fP, \fI\%OldPackageUpdate\fP,
+\fI\%RedundantPackageUpdate\fP)
+.SS Eclass scope
+.SS EclassUnquotedVariablesCheck
+.sp
+Scan eclass for variables that should be quoted like D, FILESDIR, etc.
+.sp
+(known result: \fI\%EclassUnquotedVariable\fP)
+.SS EclassCheck
+.sp
+Scan eclasses for various issues.
+.sp
+(known results: \fI\%EclassBashSyntaxError\fP, \fI\%EclassDocError\fP, \fI\%EclassDocMissingFunc\fP,
+\fI\%EclassDocMissingVar\fP)
+.SS EclassParseCheck
+.sp
+Scan eclasses variables that are only allowed in certain scopes.
+.sp
+(known results: \fI\%EclassExportFuncsBeforeInherit\fP, \fI\%EclassVariableScope\fP)
+.SS GitEclassCommitsCheck
+.sp
+Check unpushed git eclass commits for various issues.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%EclassIncorrectCopyright\fP)
+.SS EclassHeaderCheck
+.sp
+Scan eclasses for incorrect copyright/license headers.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%EclassInvalidCopyright\fP, \fI\%EclassInvalidLicenseHeader\fP,
+\fI\%EclassNonGentooAuthorsCopyright\fP, \fI\%EclassOldGentooCopyright\fP)
+.SS EclassReservedCheck
+.sp
+Scan eclasses for reserved function or variable names.
+.sp
+(known result: \fI\%EclassReservedName\fP)
+.SS Repo scope
+.SS AcctCheck
+.sp
+Various checks for acct\-* packages.
+.sp
+Verify that acct\-* packages do not use conflicting, invalid or out\-of\-range
+UIDs/GIDs.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%ConflictingAccountIdentifiers\fP, \fI\%MissingAccountIdentifier\fP,
+\fI\%OutsideRangeAccountIdentifier\fP)
+.SS UnusedInMastersCheck
+.sp
+Check for various metadata that may be removed from master repos.
+.sp
+(known results: \fI\%UnusedInMastersEclasses\fP, \fI\%UnusedInMastersGlobalUse\fP,
+\fI\%UnusedInMastersLicenses\fP, \fI\%UnusedInMastersMirrors\fP)
+.SS EmptyDirsCheck
+.sp
+Scan for empty category or package directories.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%EmptyCategoryDir\fP, \fI\%EmptyPackageDir\fP)
+.SS RepoDirCheck
+.sp
+Scan all files in the repository for issues.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%BinaryFile\fP)
+.SS GlobalUseCheck
+.sp
+Check global USE and USE_EXPAND flags for various issues.
+.sp
+(known results: \fI\%PotentialGlobalUse\fP, \fI\%PotentialLocalUse\fP, \fI\%UnusedGlobalUse\fP,
+\fI\%UnusedGlobalUseExpand\fP)
+.SS LicenseGroupsCheck
+.sp
+Scan license groups for unknown licenses.
+.sp
+(known result: \fI\%UnknownLicenses\fP)
+.SS ManifestCollisionCheck
+.sp
+Search Manifest entries for different types of distfile collisions.
+.sp
+In particular, search for matching filenames with different checksums and
+different filenames with matching checksums.
+.sp
+(known results: \fI\%ConflictingChksums\fP, \fI\%MatchingChksums\fP)
+.SS ProjectMetadataCheck
+.sp
+Check projects.xml for issues.
+.sp
+(known result: \fI\%EmptyProject\fP)
+.SS UnusedEclassesCheck
+.sp
+Check for unused eclasses.
+.sp
+(known result: \fI\%UnusedEclasses\fP)
+.SS UnusedLicensesCheck
+.sp
+Check for unused license files.
+.sp
+(known result: \fI\%UnusedLicenses\fP)
+.SS UnusedMirrorsCheck
+.sp
+Check for unused mirrors.
+.sp
+(known result: \fI\%UnusedMirrors\fP)
+.SS Category scope
+.SS CategoryMetadataXmlCheck
+.sp
+Category level metadata.xml scans.
+.sp
+(known results: \fI\%CatBadlyFormedXml\fP, \fI\%CatInvalidXml\fP,
+\fI\%CatMetadataXmlEmptyElement\fP, \fI\%CatMetadataXmlIndentation\fP,
+\fI\%CatMetadataXmlInvalidCatRef\fP, \fI\%CatMetadataXmlInvalidPkgRef\fP,
+\fI\%CatMissingMetadataXml\fP)
+.SS Package scope
+.SS RedundantVersionCheck
+.sp
+Scan for overshadowed package versions.
+.sp
+Scan for versions that are likely shadowed by later versions from a
+keywords standpoint (ignoring live packages that erroneously have
+keywords).
+.sp
+Example: pkga\-1 is keyworded amd64, pkga\-2 is amd64.
+pkga\-1 can potentially be removed.
+.sp
+(known result: \fI\%RedundantVersion\fP)
+.SS DroppedKeywordsCheck
+.sp
+Scan packages for keyword dropping across versions.
+.sp
+(known result: \fI\%DroppedKeywords\fP)
+.SS GitPkgCommitsCheck
+.sp
+Check unpushed git package commits for various issues.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%DirectNoMaintainer\fP, \fI\%DirectStableKeywords\fP,
+\fI\%DroppedStableKeywords\fP, \fI\%DroppedUnstableKeywords\fP, \fI\%EbuildIncorrectCopyright\fP,
+\fI\%MissingMove\fP, \fI\%MissingSlotmove\fP, \fI\%RdependChange\fP)
+.SS ImlateCheck
+.sp
+Scan for ebuilds that are lagging in stabilization.
+.sp
+(known results: \fI\%LaggingStable\fP, \fI\%PotentialStable\fP)
+.SS LocalUseCheck
+.sp
+Check local USE flags in metadata.xml for various issues.
+.sp
+(known results: \fI\%MatchingGlobalUse\fP, \fI\%MissingLocalUseDesc\fP, \fI\%ProbableGlobalUse\fP,
+\fI\%ProbableUseExpand\fP, \fI\%UnderscoreInUseFlag\fP, \fI\%UnstatedIuse\fP, \fI\%UnusedLocalUse\fP)
+.SS PackageMetadataXmlCheck
+.sp
+Package level metadata.xml scans.
+.sp
+(known results: \fI\%InvalidRemoteID\fP, \fI\%MaintainerNeeded\fP, \fI\%MaintainerWithoutProxy\fP,
+\fI\%NonexistentProjectMaintainer\fP, \fI\%PkgBadlyFormedXml\fP, \fI\%PkgInvalidXml\fP,
+\fI\%PkgMetadataXmlEmptyElement\fP, \fI\%PkgMetadataXmlIndentation\fP,
+\fI\%PkgMetadataXmlInvalidCatRef\fP, \fI\%PkgMetadataXmlInvalidPkgRef\fP,
+\fI\%PkgMissingMetadataXml\fP, \fI\%ProxyWithoutProxied\fP, \fI\%RedundantLongDescription\fP,
+\fI\%WrongMaintainerType\fP)
+.SS MetadataUrlCheck
+.sp
+Verify metadata.xml URLs.
+.sp
+(known results: \fI\%DeadUrl\fP, \fI\%HttpsUrlAvailable\fP, \fI\%RedirectedUrl\fP,
+\fI\%SSLCertificateError\fP)
+.SS EqualVersionsCheck
+.sp
+Scan package ebuilds for semantically equal versions.
+.sp
+(known result: \fI\%EqualVersions\fP)
+.SS LiveOnlyCheck
+.sp
+Scan for packages with only live versions.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%LiveOnlyPackage\fP)
+.SS PkgDirCheck
+.sp
+Scan ebuild directory for various file\-related issues.
+.sp
+(known results: \fI\%BannedCharacter\fP, \fI\%DuplicateFiles\fP, \fI\%EmptyFile\fP,
+\fI\%ExecutableFile\fP, \fI\%InvalidPN\fP, \fI\%InvalidUTF8\fP, \fI\%MismatchedPN\fP, \fI\%SizeViolation\fP,
+\fI\%TotalSizeViolation\fP, \fI\%UnknownPkgDirEntry\fP)
+.SS ManifestCheck
+.sp
+Manifest related checks.
+.sp
+Verify that the Manifest file exists, doesn\(aqt have missing or
+extraneous entries, and that the required hashes are in use.
+.sp
+(known results: \fI\%DeprecatedChksum\fP, \fI\%InvalidManifest\fP, \fI\%MissingChksum\fP,
+\fI\%MissingManifest\fP, \fI\%UnknownManifest\fP, \fI\%UnnecessaryManifest\fP)
+.SS StableRequestCheck
+.sp
+Scan for unstable ebuilds with no changes for over 30 days.
+.sp
+By default, only triggered for arches with stable profiles. To check
+additional arches outside the stable set specify them manually using the
+\-a/\-\-arches option.
+.sp
+Note that packages with no stable keywords won\(aqt trigger this at all.
+Instead they\(aqll be caught by the UnstableOnly check.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%StableRequest\fP)
+.SS UnstableOnlyCheck
+.sp
+Scan for packages that have just unstable keywords.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%UnstableOnly\fP)
+.SS Version scope
+.SS AbsoluteSymlinkCheck
+.sp
+Scan ebuild for dosym absolute path usage instead of relative.
+.sp
+(known result: \fI\%AbsoluteSymlink\fP)
+.SS BadCommandsCheck
+.sp
+Scan ebuild for various deprecated and banned command usage.
+.sp
+(known results: \fI\%BannedEapiCommand\fP, \fI\%DeprecatedEapiCommand\fP)
+.SS EbuildUnquotedVariablesCheck
+.sp
+Scan ebuild for variables that should be quoted like D, FILESDIR, etc.
+.sp
+(known result: \fI\%EbuildUnquotedVariable\fP)
+.SS EendMissingArgCheck
+.sp
+Scan an ebuild for calls to eend with no arguments.
+.sp
+(known result: \fI\%EendMissingArg\fP)
+.SS InheritsCheck
+.sp
+Scan for ebuilds with missing or unused eclass inherits.
+.sp
+Note that this requires using \fBpmaint regen\fP to generate repo metadata in
+order for direct inherits to be correct.
+.sp
+(known results: \fI\%IndirectInherits\fP, \fI\%InternalEclassUsage\fP, \fI\%MissingInherits\fP,
+\fI\%UnusedInherits\fP)
+.SS InsintoCheck
+.sp
+Scan ebuild for deprecated insinto usage.
+.sp
+(known result: \fI\%DeprecatedInsinto\fP)
+.SS MetadataVarCheck
+.sp
+Scan various globally assigned metadata variables for issues.
+.sp
+(known results: \fI\%HomepageInSrcUri\fP, \fI\%MultipleKeywordsLines\fP,
+\fI\%ReferenceInMetadataVar\fP, \fI\%StaticSrcUri\fP)
+.SS ObsoleteUriCheck
+.sp
+Scan ebuild for obsolete URIs.
+.sp
+(known result: \fI\%ObsoleteUri\fP)
+.SS PathVariablesCheck
+.sp
+Scan ebuild for path variables with various issues.
+.sp
+(known results: \fI\%DoublePrefixInPath\fP, \fI\%MissingSlash\fP, \fI\%UnnecessarySlashStrip\fP)
+.SS ReadonlyVariableCheck
+.sp
+Scan for read\-only variables that are globally assigned in an ebuild.
+.sp
+(known result: \fI\%ReadonlyVariable\fP)
+.SS RedundantDodirCheck
+.sp
+Scan ebuild for redundant dodir usage.
+.sp
+(known result: \fI\%RedundantDodir\fP)
+.SS VariableScopeCheck
+.sp
+Scan ebuilds for variables that are only allowed in certain scopes.
+.sp
+(known result: \fI\%EbuildVariableScope\fP)
+.SS EclassUsageCheck
+.sp
+Scan packages for various eclass\-related issues.
+.sp
+(known results: \fI\%DeprecatedEclass\fP, \fI\%DeprecatedEclassFunction\fP,
+\fI\%DeprecatedEclassVariable\fP, \fI\%DuplicateEclassInherit\fP, \fI\%MisplacedEclassVar\fP)
+.SS GlsaCheck
+.sp
+Scan for vulnerable ebuilds in the tree.
+.sp
+Requires a GLSA directory for vulnerability info.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known result: \fI\%VulnerablePackage\fP)
+.SS EbuildHeaderCheck
+.sp
+Scan ebuild for incorrect copyright/license headers.
+.INDENT 0.0
+.IP \(bu 2
+Gentoo repo specific
+.UNINDENT
+.sp
+(known results: \fI\%EbuildInvalidCopyright\fP, \fI\%EbuildInvalidLicenseHeader\fP,
+\fI\%EbuildNonGentooAuthorsCopyright\fP, \fI\%EbuildOldGentooCopyright\fP)
+.SS DependencyCheck
+.sp
+Verify dependency attributes (e.g. RDEPEND).
+.sp
+(known results: \fI\%BadDependency\fP, \fI\%DeprecatedDep\fP, \fI\%InvalidBdepend\fP,
+\fI\%InvalidDepend\fP, \fI\%InvalidIdepend\fP, \fI\%InvalidPdepend\fP, \fI\%InvalidRdepend\fP,
+\fI\%MissingPackageRevision\fP, \fI\%MissingUseDepDefault\fP, \fI\%UnstatedIuse\fP)
+.SS DescriptionCheck
+.sp
+DESCRIPTION checks.
+.sp
+Check on length (<=150), too short (<10), or generic (lifted from eclass or
+just using the package\(aqs name.
+.sp
+(known result: \fI\%BadDescription\fP)
+.SS EapiCheck
+.sp
+Scan for packages with banned or deprecated EAPIs.
+.sp
+(known results: \fI\%BannedEapi\fP, \fI\%DeprecatedEapi\fP, \fI\%StableKeywordsOnTestingEapi\fP,
+\fI\%UnsupportedEclassEapi\fP)
+.SS HomepageCheck
+.sp
+HOMEPAGE checks.
+.sp
+(known result: \fI\%BadHomepage\fP)
+.SS IuseCheck
+.sp
+IUSE validity checks.
+.sp
+(known results: \fI\%BadDefaultUseFlags\fP, \fI\%InvalidUseFlags\fP, \fI\%UnknownUseFlags\fP)
+.SS KeywordsCheck
+.sp
+Check package keywords for sanity; empty keywords, and \-* are flagged.
+.sp
+(known results: \fI\%BadKeywords\fP, \fI\%DuplicateKeywords\fP, \fI\%OverlappingKeywords\fP,
+\fI\%UnknownKeywords\fP, \fI\%UnsortedKeywords\fP, \fI\%VirtualKeywordsUpdate\fP)
+.SS LicenseCheck
+.sp
+LICENSE validity checks.
+.sp
+(known results: \fI\%DeprecatedLicense\fP, \fI\%InvalidLicense\fP, \fI\%MissingLicense\fP,
+\fI\%MissingLicenseRestricts\fP, \fI\%UnknownLicense\fP, \fI\%UnnecessaryLicense\fP,
+\fI\%UnstatedIuse\fP)
+.SS MissingSlotDepCheck
+.sp
+Check for missing slot dependencies.
+.sp
+(known result: \fI\%MissingSlotDep\fP)
+.SS MissingUnpackerDepCheck
+.sp
+Check whether package is missing unpacker dependencies.
+.sp
+(known result: \fI\%MissingUnpackerDep\fP)
+.SS OutdatedBlockersCheck
+.sp
+Check for outdated and nonexistent blocker dependencies.
+.sp
+(known results: \fI\%NonexistentBlocker\fP, \fI\%OutdatedBlocker\fP)
+.SS PropertiesCheck
+.sp
+PROPERTIES related checks.
+.sp
+(known results: \fI\%InvalidProperties\fP, \fI\%UnknownProperties\fP, \fI\%UnstatedIuse\fP)
+.SS RequiredUseCheck
+.sp
+REQUIRED_USE validity checks.
+.sp
+(known results: \fI\%InvalidRequiredUse\fP, \fI\%RequiredUseDefaults\fP, \fI\%UnstatedIuse\fP)
+.SS RestrictCheck
+.sp
+RESTRICT related checks.
+.sp
+(known results: \fI\%InvalidRestrict\fP, \fI\%UnknownRestrict\fP, \fI\%UnstatedIuse\fP)
+.SS RestrictTestCheck
+.sp
+Check whether packages specify RESTRICT=\(dq!test? ( test )\(dq.
+.sp
+(known result: \fI\%MissingTestRestrict\fP)
+.SS SourcingCheck
+.sp
+Scan for packages with sourcing errors or invalid, sourced metadata variables.
+.sp
+(known results: \fI\%InvalidEapi\fP, \fI\%InvalidSlot\fP, \fI\%SourcingError\fP)
+.SS SrcUriCheck
+.sp
+SRC_URI related checks.
+.sp
+Verify that URIs are valid, fetchable, using a supported protocol, and
+don\(aqt use unspecific filenames.
+.sp
+(known results: \fI\%BadFilename\fP, \fI\%BadProtocol\fP, \fI\%InvalidSrcUri\fP, \fI\%MissingUri\fP,
+\fI\%RedundantUriRename\fP, \fI\%TarballAvailable\fP, \fI\%UnknownMirror\fP, \fI\%UnstatedIuse\fP)
+.SS FetchablesUrlCheck
+.sp
+Verify SRC_URI URLs.
+.sp
+(known results: \fI\%DeadUrl\fP, \fI\%HttpsUrlAvailable\fP, \fI\%RedirectedUrl\fP,
+\fI\%SSLCertificateError\fP)
+.SS HomepageUrlCheck
+.sp
+Verify HOMEPAGE URLs.
+.sp
+(known results: \fI\%DeadUrl\fP, \fI\%HttpsUrlAvailable\fP, \fI\%RedirectedUrl\fP,
+\fI\%SSLCertificateError\fP)
+.SS PerlCheck
+.sp
+Perl ebuild related checks.
+.sp
+(known result: \fI\%MismatchedPerlVersion\fP)
+.SS PythonCheck
+.sp
+Python eclass checks.
+.sp
+Check whether Python eclasses are used for Python packages, and whether
+they don\(aqt suffer from common mistakes.
+.sp
+(known results: \fI\%MissingPythonEclass\fP, \fI\%PythonEclassError\fP, \fI\%PythonMissingDeps\fP,
+\fI\%PythonMissingRequiredUse\fP, \fI\%PythonRuntimeDepInAnyR1\fP)
+.SS PythonCompatCheck
+.sp
+Check python ebuilds for possible PYTHON_COMPAT updates.
+.sp
+Supports ebuilds inheriting python\-r1, python\-single\-r1, and python\-any\-r1.
+.sp
+(known result: \fI\%PythonCompatUpdate\fP)
+.SS PythonGHDistfileSuffixCheck
+.sp
+Check ebuilds with PyPI remotes for missing \(dq.gh.tar.gz\(dq suffixes.
+.sp
+(known result: \fI\%PythonGHDistfileSuffix\fP)
+.SS EbuildReservedCheck
+.sp
+Scan ebuilds for reserved function or variable names.
+.sp
+(known result: \fI\%EbuildReservedName\fP)
+.SS VisibilityCheck
+.sp
+Visibility dependency scans.
+.sp
+Check that at least one solution is possible for a pkg, checking all
+profiles (defined by arch.list) visibility modifiers per stable/unstable
+keyword.
+.sp
+(known results: \fI\%NonexistentDeps\fP, \fI\%NonsolvableDepsInDev\fP, \fI\%NonsolvableDepsInExp\fP,
+\fI\%NonsolvableDepsInStable\fP, \fI\%UncheckableDep\fP, \fI\%VisibleVcsPkg\fP)
+.SS WhitespaceCheck
+.sp
+Scan ebuild for useless whitespace.
+.sp
+(known results: \fI\%BadWhitespaceCharacter\fP, \fI\%DoubleEmptyLine\fP, \fI\%NoFinalNewline\fP,
+\fI\%TrailingEmptyLine\fP, \fI\%WhitespaceFound\fP, \fI\%WrongIndentFound\fP)
+.SH REPORTERS
+.SS CsvReporter
+.sp
+Comma\-separated value reporter, convenient for shell processing.
+.sp
+Example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+,,,\(dqglobal USE flag \(aqbig\-endian\(aq is a potential local, used by 1 package: dev\-java/icedtea\-bin\(dq
+sys\-apps,portage,2.1\-r2,sys\-apps/portage\-2.1\-r2.ebuild has whitespace in indentation on line 169
+sys\-apps,portage,2.1\-r2,\(dqrdepend  ppc\-macos: unsolvable default\-darwin/macos/10.4, solutions: [ >=app\-misc/pax\-utils\-0.1.13 ]\(dq
+sys\-apps,portage,2.1\-r2,\(dqno change in 75 days, keywords [ ~x86\-fbsd ]\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS FancyReporter
+.sp
+Colored output grouped by result scope.
+.sp
+Example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sys\-apps/portage
+  WrongIndentFound: sys\-apps/portage\-2.1\-r2.ebuild has whitespace in indentation on line 169
+  NonsolvableDeps: sys\-apps/portage\-2.1\-r2: rdepend  ppc\-macos: unsolvable default\-darwin/macos/10.4, solutions: [ >=app\-misc/pax\-utils\-0.1.13 ]
+  StableRequest: sys\-apps/portage\-2.1\-r2: no change in 75 days, keywords [ ~x86 ]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS FormatReporter
+.sp
+Custom format string reporter.
+.SS JsonReporter
+.sp
+Feed of newline\-delimited JSON records.
+.sp
+Note that the format is newline\-delimited JSON with each line being related
+to a separate report. To merge the objects together a tool such as jq can
+be leveraged similar to the following:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+jq \-c \-s \(aqreduce.[]as$x({};.*$x)\(aq orig.json > new.json
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS JsonStream
+.sp
+Generate a stream of result objects serialized in JSON.
+.SS StrReporter
+.sp
+Simple string reporter, pkgcheck\-0.1 behaviour.
+.sp
+Example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sys\-apps/portage\-2.1\-r2: sys\-apps/portage\-2.1\-r2.ebuild has whitespace in indentation on line 169
+sys\-apps/portage\-2.1\-r2: rdepend  ppc\-macos: unsolvable default\-darwin/macos/10.4, solutions: [ >=app\-misc/pax\-utils\-0.1.13 ]
+sys\-apps/portage\-2.1\-r2: no change in 75 days, keywords [ ~x86\-fbsd ]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS XmlReporter
+.sp
+Feed of newline\-delimited XML reports.
+.SH CONFIG FILE SUPPORT
+.sp
+Config files are supported by \fBpkgcheck scan\fP from any of four locations.
+Listed in order of increasing precedence these include the following:
+.INDENT 0.0
+.IP \(bu 2
+system config \-\- /etc/pkgcheck/pkgcheck.conf
+.IP \(bu 2
+user config \-\- ~/.config/pkgcheck/pkgcheck.conf
+.IP \(bu 2
+repo config \-\- metadata/pkgcheck.conf inside an ebuild repo
+.IP \(bu 2
+custom config \-\- specified via the \-\-config option
+.UNINDENT
+.sp
+Any settings from a config file with higher precedence will override matching
+settings from a config file with a lower precedence, e.g. repo settings
+override both user and system settings. Note that command line options override
+any matching config file setting.
+.sp
+In terms of file structure, basic INI formatting is required and allows
+creating a default section (DEFAULT) for system\-wide settings or repo\-specific
+sections. The INI key\-value pairs directly relate to the available
+long\-options supported by \fBpkgcheck scan\fP and their related values. See the
+following examples for how certain config settings affect scanning:
+.INDENT 0.0
+.IP \(bu 2
+Disable selected checks by default:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[DEFAULT]
+checks = \-UnstableOnlyCheck,\-RedundantVersionCheck
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Disable showing info level results for the gentoo repo:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[gentoo]
+keywords = \-info
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Restrict scanning to the amd64 and x86 arches/profiles for the gentoo repo:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[gentoo]
+arches = amd64,x86
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Enable network checks that require Internet access for the gentoo repo using
+a custom timeout of 15 seconds:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[gentoo]
+net =
+timeout = 15
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Use the JSON reporter by default and disable all cache usage:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[DEFAULT]
+reporter = JsonReporter
+cache = no
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Set the default repo to target:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[DEFAULT]
+repo = my_overlay
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Custom checksets can also be configured via the CHECKSETS section. In essence,
+a checkset is an alias for a group of checks or keywords which can either be
+enabled or disabled. Configured checkset names can then be used with the
+\fBpkgcheck scan \-C/\-\-checkset\fP option enabling scanning for configured, custom
+sets of results. See the following examples for how to configure them:
+.INDENT 0.0
+.IP \(bu 2
+Assign all python\-related checks to the \fBpython\fP checkset:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[CHECKSETS]
+python = PythonCheck,PythonCompatCheck
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Checksets also support disabling, e.g. assign all results related to
+ManifestCheck except DeprecatedChksum to the \fBmanifests\fP checkset:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[CHECKSETS]
+manifests = ManifestCheck,\-DeprecatedChksum
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH REPORTING BUGS
+.sp
+Please submit an issue via github:
+.sp
+\fI\%https://github.com/pkgcore/pkgcheck/issues\fP
+.SH SEE ALSO
+.sp
+\fBpkgcore\fP(5)
+.SH COPYRIGHT
+2006-2021, pkgcheck contributors
+.\" Generated by docutils manpage writer.
+.

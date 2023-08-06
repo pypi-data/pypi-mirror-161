@@ -1,0 +1,241 @@
+#compdef pkgcheck
+
+SHELL_LIB=$(python -c 'from pkgcore import const; print(const.LIBDIR_PATH)')/shell/zsh/pkgcore.zsh
+source "${SHELL_LIB}" || print "$0: failed to load '${SHELL_LIB}'" >&2
+unset SHELL_LIB
+
+# keywords provided by pkgcheck
+#
+# optional args
+#  -p       print the output instead of using completion
+_keywords() {
+  typeset -A opts
+  zparseopts -E -A opts p
+
+  if [[ -f /usr/share/pkgcheck/keywords ]]; then
+    _keywords=(${(f)"$(</usr/share/pkgcheck/keywords)"})
+  elif ( [[ ${+_keywords} -eq 0 ]] || _cache_invalid pkgcheck_keywords ) && ! _retrieve_cache pkgcheck_keywords; then
+    _keywords=(${${(f)"$(pkgcheck show --keywords)"}})
+    _store_cache pkgcheck_keywords _keywords
+  fi
+
+  if [[ -n ${compstate} ]] && [[ -z ${opts[(I)-p]} ]]; then
+    _describe -t keywords 'keywords' _keywords
+  else
+    print ${_keywords}
+  fi
+}
+
+# checks provided by pkgcheck
+#
+# optional args
+#  -p       print the output instead of using completion
+_checks() {
+  typeset -A opts
+  zparseopts -E -A opts p
+
+  if [[ -f /usr/share/pkgcheck/checks ]]; then
+    _checks=(${(f)"$(</usr/share/pkgcheck/checks)"})
+  elif ( [[ ${+_checks} -eq 0 ]] || _cache_invalid pkgcheck_checks ) && ! _retrieve_cache pkgcheck_checks; then
+    _checks=(${${(f)"$(pkgcheck show --checks)"}})
+    _store_cache pkgcheck_checks _checks
+  fi
+
+  if [[ -n ${compstate} ]] && [[ -z ${opts[(I)-p]} ]]; then
+    _describe -t checks 'checks' _checks
+  else
+    print ${_checks}
+  fi
+}
+
+# reporters provided by pkgcheck
+#
+# optional args
+#  -p       print the output instead of using completion
+_reporters() {
+  typeset -A opts
+  zparseopts -E -A opts p
+
+  if [[ -f /usr/share/pkgcheck/reporters ]]; then
+    _reporters=(${(f)"$(</usr/share/pkgcheck/reporters)"})
+  elif ( [[ ${+_reporters} -eq 0 ]] || _cache_invalid pkgcheck_reporters ) && ! _retrieve_cache pkgcheck_reporters; then
+    _reporters=(${${(f)"$(pkgcheck show --reporters)"}})
+    _store_cache pkgcheck_reporters _reporters
+  fi
+
+  if [[ -n ${compstate} ]] && [[ -z ${opts[(I)-p]} ]]; then
+    _describe -t reporters 'reporters' _reporters
+  else
+    print ${_reporters}
+  fi
+}
+
+# scopes provided by pkgcheck
+#
+# optional args
+#  -p       print the output instead of using completion
+_scopes() {
+  typeset -A opts
+  zparseopts -E -A opts p
+
+  if [[ -f /usr/share/pkgcheck/scopes ]]; then
+    _scopes=(${(f)"$(</usr/share/pkgcheck/scopes)"})
+  elif ( [[ ${+_scopes} -eq 0 ]] || _cache_invalid pkgcheck_scopes ) && ! _retrieve_cache pkgcheck_scopes; then
+    _scopes=(${${(f)"$(pkgcheck show --scopes)"}})
+    _store_cache pkgcheck_scopes _scopes
+  fi
+
+  if [[ -n ${compstate} ]] && [[ -z ${opts[(I)-p]} ]]; then
+    _describe -t scopes 'scopes' _scopes
+  else
+    print ${_scopes}
+  fi
+}
+
+# caches provided by pkgcheck
+#
+# optional args
+#  -p       print the output instead of using completion
+_caches() {
+  typeset -A opts
+  zparseopts -E -A opts p
+
+  if [[ -f /usr/share/pkgcheck/caches ]]; then
+    _caches=(${(f)"$(</usr/share/pkgcheck/caches)"})
+  elif ( [[ ${+_caches} -eq 0 ]] || _cache_invalid pkgcheck_caches ) && ! _retrieve_cache pkgcheck_caches; then
+    _caches=(${${(f)"$(pkgcheck show --caches)"}})
+    _store_cache pkgcheck_caches _caches
+  fi
+
+  if [[ -n ${compstate} ]] && [[ -z ${opts[(I)-p]} ]]; then
+    _describe -t caches 'caches' _caches
+  else
+    print ${_caches}
+  fi
+}
+
+typeset -a common_pkgcore_args common_output_args
+local curcontext=$curcontext state state_descr line ret=1
+
+common_pkgcore_args=(
+  '(- :)'--version'[show version information and exit]'
+  '--config[use custom config or skip loading system config]:config path:_files'
+)
+
+common_output_args=(
+  '(- :)'{-h,--help}'[show help information and exit]'
+  '(--debug --help -h)--debug[enable debugging output]'
+  '(--quiet -q --verbose -v)'{-q,--quiet}'[suppress non-error output]'
+  '(--verbose -v --quiet -q)'{-v,--verbose}'[show verbose output]'
+  "--color[Color output]:yes/no:((y\:'yes' n\:'no'))"
+)
+
+_arguments -C \
+  $common_pkgcore_args \
+  $common_output_args \
+  '(-): :->command' \
+  '(-)*:: :->subcommand' \
+  && ret=0
+
+case $state in
+  (command)
+    typeset -a subcommands
+
+    subcommands=(
+      scan:'scan targets for QA issues'
+      cache:'perform cache operations'
+      replay:'replay results streams'
+      show:'show various pkgcheck info'
+    )
+
+    _describe -t subcommands subcommand subcommands && ret=0
+
+    ;;
+  (subcommand)
+    curcontext=${curcontext%:*}-$line[1]:
+
+    case $line[1] in
+      (scan)
+        typeset -a scan_opts check_opts arch_opts profile_opts plugin_opts
+
+        scan_opts=(
+          '--config[use custom pkgcheck scan settings file]:config path:_files'
+          {'(--repo)-r','(-r)--repo'}'[repo to pull packages from]:repo:_repos'
+          {'(--reporter)-R','(-R)--reporter'}"[use a non-default reporter]:reporters:_reporters"
+          {'(--filter)-f','(-f)--filter'}"[limit targeted packages for scanning]:filter:(latest repo)"
+          {'(--jobs)-j','(-j)--jobs'}'[number of checks to run in parallel]:jobs'
+          {'(--tasks)-t','(-t)--tasks'}'[number of asynchronous tasks to run concurrently]:tasks'
+          '--cache[forcibly enable/disable caches]:caches:{_values -s , caches $(_caches -p)}'
+          '--exit[comma separated list of keywords that trigger an error exit status]:keywords:{_values -s , keywords $(_keywords -p)}'
+        )
+
+        check_opts=(
+          {'(--checksets)-C','(-C)--checksets'}'[comma separated list of checksets to enable/disable]'
+          {'(--checks)-c','(-c)--checks'}'[comma separated list of checks to enable/disable]:checks:{_values -s , checks $(_checks -p)}'
+          {'(--keywords)-k','(-k)--keywords'}'[comma separated list of keywords to enable/disable]:keywords:{_values -s , keywords $(_keywords -p)}'
+          {'(--scopes)-s','(-s)--scopes'}'[comma separated list of keyword scopes to enable/disable]:scopes:{_values -s . scopes $(_scopes -p)}'
+          '--net[run checks that require internet access]'
+          '--timeout[timeout used for network checks (in seconds)]:timeout'
+        )
+
+        arch_opts=(
+          {'(--arches)-a','(-a)--arches'}'[comma separated list of arches to enable/disable]:arches:{_values -s , arches $(_arches -p)}'
+        )
+
+        git_opts=(
+          '--commits[determine scan targets from local git repo commits]'
+        )
+
+        profile_opts=(
+          {'(--profiles)-p','(-p)--profiles'}'[comma separated list of profiles to enable/disable]:profiles:{_values -s , profiles stable dev exp deprecated}'
+        )
+
+        plugin_opts=(
+          $arch_opts
+          $git_opts
+          $profile_opts
+        )
+
+        _arguments -C -A '-*' \
+          $common_output_args \
+          $scan_opts \
+          $check_opts \
+          $plugin_opts \
+          '*:target:_files' \
+          && ret=0
+        ;;
+      (cache)
+        _arguments -C -A '-*' \
+          $common_output_args \
+          {'(--update)-u','(-u)--update'}'[update caches]' \
+          {'(--force)-f','(-f)--force'}'[forcibly update caches]' \
+          {'(--remove)-R','(-R)--remove'}'[forcibly remove caches]' \
+          {'(--type)-t','(-t)--type'}'[target cache types]:caches:{_values -s , caches $(_caches -p)}' \
+          && ret=0
+        ;;
+      (replay)
+        _arguments -C -A '-*' \
+          $common_output_args \
+          '*:pickled results:_files' \
+          && ret=0
+        ;;
+      (show)
+        _arguments -C -A '-*' \
+          $common_output_args \
+          {'(--keywords)-k','(-k)--keywords'}'[how available warning/error keywords]' \
+          {'(--checks)-c','(-c)--checks'}'[show available checks]' \
+          {'(--scopes)-s','(-s)--scopes'}'[show available keyword/check scopes]' \
+          {'(--reporters)-r','(-r)--reporters'}'[show available reporters]' \
+          {'(--caches)-C','(-C)--caches'}'[show available caches]' \
+          && ret=0
+        ;;
+      (*)
+        _nothing
+        ;;
+    esac
+    ;;
+esac
+
+return ret
+
+# vim: set et sw=2 ts=2 ft=zsh:
