@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE inLOAN_BUILDER SYSTEM "inLOAN_BUILDER.dtd" >
+<inLOAN_BUILDER>
+
+  <Advance Date="{LoanDate}" Amount="{Proceeds}" />
+  <PmtStream Begin="{PmtDate}" Term="{Term}" />
+
+  <!-- Multi Term Payments
+    Interest rate starts at 5% and then increases to 6% on the 12th payment.
+    To increase the payment to reflect this rate increase,
+    set the NewPmt attribute to "true"; otherwise, the payment will
+    remain the same.
+  -->
+  <EditInterest Date="{LoanDate}" IntRate="{FirstTermRate}" AccrualCode="{AccrualCode}"/>
+  <EditInterest Date="{RateChangeDate}"  IntRate="{SecondTermRate}" NewPmt="true" />
+
+
+
+</inLOAN_BUILDER>
