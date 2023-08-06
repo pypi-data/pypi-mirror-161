@@ -1,0 +1,36 @@
+    <!-- Begin Top Navigation Bar -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark {{ topnav_padding }}">
+
+        <!-- Bav Bar Brand -->
+        <a class="navbar-brand" href="/">
+            <img class="bg-light" src="/images/logo.svg" width="28" height="30" class="d-inline-block align-top" alt="">
+            &nbsp;{{ app_name }}{{ " - DEV" if is_dev }}
+        </a>
+
+        <!-- Nav Bar Toggler -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Nav Bar Collapse -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav mr-auto">
+            {% for link in links -%}
+                {% if ((not link.get("admin") and not link.get("user"))
+                    or (link.get("admin") and user.admin)
+                    or (link.get("user") and user.stored_user)) -%}
+                <li class="nav-item{{ " active" if link.url == request.path }}">
+                    <a class="nav-link" href="{{ link.url.replace('[[USER_ID]]', user.id) }}">
+                        {{ link.name }}</a>
+                </li>
+                {%- endif %}
+            {%- endfor %}
+            </ul>
+            <div>
+                <a href="https://people-cloud.broadinstitute.org/people/{{ user.id }}"
+                    class="text-light" target="_people">{{ user.email }}</a>
+            </div>
+        </div>
+
+    </nav>
+    <!-- End Top Navigation Bar -->

@@ -1,0 +1,21 @@
+<h2>{{ "Add " if type == 'add' else "Edit " }}User: {{ google_id }}</h2>
+
+<form class="mt-3" method="POST" action="/admin/users/{{ google_id if google_id else "add" }}">
+    <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}"{{ " readonly" if type == 'edit' }}>
+    </div>
+
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="admin" name="admin" value="True"
+            {{ " checked" if user.admin }}>
+        <label class="form-check-label" for="admin">Admin</label>
+    </div>
+
+    {% if type == 'edit' -%}
+    <input type="hidden" name="user" value="{{ google_id }}:{{ user.email }}">
+    {%- endif %}
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a class="btn btn-danger" href="/admin/users/{{ google_id }}/delete" role="button">Delete</a>
+</form>
