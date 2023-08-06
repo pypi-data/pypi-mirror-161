@@ -1,0 +1,1678 @@
+{
+  "actions": {
+    "CreateEngine": {
+      "document": "创建引擎实例",
+      "input": "CreateEngineRequest",
+      "name": "创建引擎实例",
+      "output": "CreateEngineResponse"
+    },
+    "DeleteEngine": {
+      "document": "删除引擎实例",
+      "input": "DeleteEngineRequest",
+      "name": "删除引擎实例",
+      "output": "DeleteEngineResponse"
+    },
+    "DescribeNacosReplicas": {
+      "document": "查询Nacos类型引擎实例副本信息",
+      "input": "DescribeNacosReplicasRequest",
+      "name": "查询Nacos类型引擎实例副本信息",
+      "output": "DescribeNacosReplicasResponse"
+    },
+    "DescribeNacosServerInterfaces": {
+      "document": "查询nacos服务接口列表",
+      "input": "DescribeNacosServerInterfacesRequest",
+      "name": "查询nacos服务接口列表",
+      "output": "DescribeNacosServerInterfacesResponse"
+    },
+    "DescribeSREInstanceAccessAddress": {
+      "document": "查询引擎实例访问地址",
+      "input": "DescribeSREInstanceAccessAddressRequest",
+      "name": "查询引擎实例访问地址",
+      "output": "DescribeSREInstanceAccessAddressResponse"
+    },
+    "DescribeSREInstances": {
+      "document": "用于查询引擎实例列表",
+      "input": "DescribeSREInstancesRequest",
+      "name": "查询引擎实例列表",
+      "output": "DescribeSREInstancesResponse"
+    },
+    "DescribeZookeeperReplicas": {
+      "document": "查询Zookeeper类型注册引擎实例副本信息",
+      "input": "DescribeZookeeperReplicasRequest",
+      "name": "查询Zookeeper类型注册引擎实例副本信息",
+      "output": "DescribeZookeeperReplicasResponse"
+    },
+    "DescribeZookeeperServerInterfaces": {
+      "document": "查询zookeeper服务接口列表",
+      "input": "DescribeZookeeperServerInterfacesRequest",
+      "name": "查询zookeeper服务接口列表",
+      "output": "DescribeZookeeperServerInterfacesResponse"
+    }
+  },
+  "metadata": {
+    "apiVersion": "2020-12-07",
+    "api_brief": "介绍如何使用 API 对腾讯云微服务引擎进行操作，包括创建托管服务集群、查询集群信息等。",
+    "serviceNameCN": "腾讯云微服务引擎",
+    "serviceShortName": "tse"
+  },
+  "objects": {
+    "ApolloEnvParam": {
+      "document": "Apollo 环境配置参数",
+      "members": [
+        {
+          "default": "",
+          "document": "环境名称",
+          "example": "prod",
+          "member": "string",
+          "name": "Name",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境内引擎的节点规格 ID",
+          "example": "spec-xxxxxx",
+          "member": "string",
+          "name": "EngineResourceSpec",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境内引擎的节点数量",
+          "example": "3",
+          "member": "int64",
+          "name": "EngineNodeNum",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "配置存储空间大小，以GB为单位",
+          "example": "50",
+          "member": "int64",
+          "name": "StorageCapacity",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "VPC ID。在 VPC 的子网内分配一个 IP 作为 ConfigServer 的访问地址",
+          "example": "vpc-xxxxxx",
+          "member": "string",
+          "name": "VpcId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "子网 ID。在 VPC 的子网内分配一个 IP 作为 ConfigServer 的访问地址",
+          "example": "subnet-xxxxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "in"
+    },
+    "BoundK8SInfo": {
+      "document": "服务治理引擎绑定的kubernetes信息",
+      "members": [
+        {
+          "default": "",
+          "document": "绑定的kubernetes集群ID",
+          "example": "cls-xxxxxx",
+          "member": "string",
+          "name": "BoundClusterId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "绑定的kubernetes的集群类型，分tke和eks两种\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "eks",
+          "member": "string",
+          "name": "BoundClusterType",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "服务同步模式，all为全量同步，demand为按需同步\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "demand",
+          "member": "string",
+          "name": "SyncMode",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "both"
+    },
+    "CreateEngineRequest": {
+      "document": "CreateEngine请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "引擎类型。参考值：\n- zookeeper\n- nacos\n- consul\n- apollo\n- eureka\n- polaris",
+          "example": "zookeeper",
+          "member": "string",
+          "name": "EngineType",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎的开源版本。每种引擎支持的开源版本不同，请参考产品文档或者控制台购买页",
+          "example": "3.4.14",
+          "member": "string",
+          "name": "EngineVersion",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎的产品版本。参考值：\n- STANDARD： 标准版\n\n引擎各版本及可选择的规格、节点数说明：\napollo - STANDARD版本\n规格列表：spec-qcr53kf1t（1C2G）,spec-qdr53kf2w（2C4G）\n节点数：1，2，3，4，5\n\neureka - STANDARD版本\n规格列表：spec-qvj6k7t4q（1C2G）,spec-qcr53kfjt（2C4G）,spec-qvj6k7t4m（4G8G）,spec-qcr54kfjt（8C16G）,spec-qcr55kfjt（16C32G）\n节点数：3，4，5",
+          "example": "STANDARD",
+          "member": "string",
+          "name": "EngineProductVersion",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎所在地域。参考值说明：\n中国区 参考值：\n- ap-guangzhou：广州\n- ap-beijing：北京\n- ap-chengdu：成都\n- ap-chongqing：重庆\n- ap-nanjing：南京\n- ap-shanghai：上海\n- ap-hongkong：香港\n- ap-taipei：台北\n亚太区 参考值：\n- ap-jakarta：雅加达\n- ap-singapore：新加坡\n北美区 参考值\n- na-toronto：多伦多\n金融专区 参考值\n- ap-beijing-fsi：北京金融\n- ap-shanghai-fsi：上海金融\n- ap-shenzhen-fsi：深圳金融",
+          "example": "ap-beijing",
+          "member": "string",
+          "name": "EngineRegion",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎名称。参考值：\n- eurek-test",
+          "example": "qzone-photo-prod",
+          "member": "string",
+          "name": "EngineName",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "付费类型。参考值：\n- 0：后付费\n- 1：预付费",
+          "example": "0",
+          "member": "int64",
+          "name": "TradeType",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "引擎的节点规格 ID。参见EngineProductVersion字段说明",
+          "example": "spec-xxxxxx",
+          "member": "string",
+          "name": "EngineResourceSpec",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎的节点数量。参见EngineProductVersion字段说明",
+          "example": "3",
+          "member": "int64",
+          "name": "EngineNodeNum",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "VPC ID。在 VPC 的子网内分配一个 IP 作为引擎的访问地址。参考值：\n- vpc-conz6aix",
+          "example": "vpc-xxxxxx",
+          "member": "string",
+          "name": "VpcId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "子网 ID。在 VPC 的子网内分配一个 IP 作为引擎的访问地址。参考值：\n- subnet-ahde9me9",
+          "example": "subnet-xxxxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "Apollo 环境配置参数列表。参数说明：\n如果创建Apollo类型，此参数为必填的环境信息列表，最多可选4个环境。环境信息参数说明：\n- Name：环境名。参考值：prod, dev, fat, uat\n- EngineResourceSpec：环境内引擎的节点规格ID。参见EngineProductVersion参数说明\n- EngineNodeNum：环境内引擎的节点数量。参见EngineProductVersion参数说明，其中prod环境支持的节点数为2，3，4，5\n- StorageCapacity：配置存储空间大小，以GB为单位，步长为5.参考值：35\n- VpcId：VPC ID。参考值：vpc-conz6aix\n- SubnetId：子网 ID。参考值：subnet-ahde9me9",
+          "example": "[{\"EnvName\":\"pro\",\"StorageCapacity\":50,\"Status\":\"running\",\"Admin",
+          "member": "ApolloEnvParam",
+          "name": "ApolloEnvParams",
+          "required": false,
+          "type": "list"
+        },
+        {
+          "default": "",
+          "document": "引擎的标签列表。用户自定义的key/value形式，无参考值",
+          "example": "[{\"key\":\"value\"}]",
+          "member": "InstanceTagInfo",
+          "name": "EngineTags",
+          "required": false,
+          "type": "list"
+        },
+        {
+          "default": "",
+          "document": "引擎的初始帐号信息。可设置参数：\n- Name：控制台初始用户名\n- Password：控制台初始密码\n- Token：引擎接口的管理员 Token",
+          "example": "{\"Name\":\"nacos\",\"Password\":\"xxxxxx\",\"Token\":\"xxxxxx\"}",
+          "member": "EngineAdmin",
+          "name": "EngineAdmin",
+          "required": false,
+          "type": "object"
+        },
+        {
+          "default": "",
+          "document": "预付费时长，以月为单位",
+          "example": "1",
+          "member": "int64",
+          "name": "PrepaidPeriod",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "自动续费标记，仅预付费使用。参考值：\n- 0：不自动续费\n- 1：自动续费",
+          "example": "0",
+          "member": "int64",
+          "name": "PrepaidRenewFlag",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "type": "object"
+    },
+    "CreateEngineResponse": {
+      "document": "CreateEngine返回参数结构体",
+      "members": [
+        {
+          "document": "引擎实例 ID",
+          "example": "ins-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DeleteEngineRequest": {
+      "document": "DeleteEngine请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "引擎实例 ID",
+          "example": "ins-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DeleteEngineResponse": {
+      "document": "DeleteEngine返回参数结构体",
+      "members": [
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeNacosReplicasRequest": {
+      "document": "DescribeNacosReplicas请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "引擎实例ID",
+          "example": "ins-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "副本列表Limit",
+          "example": "1",
+          "member": "uint64",
+          "name": "Limit",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "副本列表Offset",
+          "example": "1",
+          "member": "uint64",
+          "name": "Offset",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeNacosReplicasResponse": {
+      "document": "DescribeNacosReplicas返回参数结构体",
+      "members": [
+        {
+          "document": "引擎实例副本信息",
+          "example": "无",
+          "member": "NacosReplica",
+          "name": "Replicas",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "副本个数\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "1",
+          "member": "uint64",
+          "name": "TotalCount",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeNacosServerInterfacesRequest": {
+      "document": "DescribeNacosServerInterfaces请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "实例id",
+          "example": "ins-df344df5",
+          "member": "string",
+          "name": "InstanceId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "返回的列表个数",
+          "example": "20",
+          "member": "uint64",
+          "name": "Limit",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "返回的列表起始偏移量",
+          "example": "1",
+          "member": "uint64",
+          "name": "Offset",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeNacosServerInterfacesResponse": {
+      "document": "DescribeNacosServerInterfaces返回参数结构体",
+      "members": [
+        {
+          "document": "接口总个数",
+          "example": "20",
+          "member": "uint64",
+          "name": "TotalCount",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "document": "接口列表",
+          "example": "无",
+          "member": "NacosServerInterface",
+          "name": "Content",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeSREInstanceAccessAddressRequest": {
+      "document": "DescribeSREInstanceAccessAddress请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "注册引擎实例Id",
+          "example": "sre-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "VPC ID",
+          "example": "vpc-xxxxxxxx",
+          "member": "string",
+          "name": "VpcId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "子网ID",
+          "example": "subnet-xxxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "引擎其他组件名称（pushgateway）",
+          "example": "pushgateway",
+          "member": "string",
+          "name": "Workload",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeSREInstanceAccessAddressResponse": {
+      "document": "DescribeSREInstanceAccessAddress返回参数结构体",
+      "members": [
+        {
+          "document": "内网访问地址",
+          "example": "10.1.8.15",
+          "member": "string",
+          "name": "IntranetAddress",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "document": "公网访问地址",
+          "example": "10.0.0.1",
+          "member": "string",
+          "name": "InternetAddress",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "document": "apollo多环境公网ip",
+          "example": "无",
+          "member": "EnvAddressInfo",
+          "name": "EnvAddressInfos",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "控制台公网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10.0.0.1",
+          "member": "string",
+          "name": "ConsoleInternetAddress",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "document": "控制台内网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10.0.0.1",
+          "member": "string",
+          "name": "ConsoleIntranetAddress",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "document": "客户端公网带宽\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10",
+          "member": "int64",
+          "name": "InternetBandWidth",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "document": "控制台公网带宽\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10",
+          "member": "int64",
+          "name": "ConsoleInternetBandWidth",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeSREInstancesRequest": {
+      "document": "DescribeSREInstances请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "请求过滤参数",
+          "example": "无",
+          "member": "Filter",
+          "name": "Filters",
+          "required": false,
+          "type": "list"
+        },
+        {
+          "default": "",
+          "document": "翻页单页查询限制数量[0,1000], 默认值0",
+          "example": "10",
+          "member": "int64",
+          "name": "Limit",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "翻页单页偏移量，默认值0",
+          "example": "0",
+          "member": "int64",
+          "name": "Offset",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "查询类型",
+          "example": "config",
+          "member": "string",
+          "name": "QueryType",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "调用方来源",
+          "example": "无",
+          "member": "string",
+          "name": "QuerySource",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeSREInstancesResponse": {
+      "document": "DescribeSREInstances返回参数结构体",
+      "members": [
+        {
+          "document": "总数量",
+          "example": "0",
+          "member": "int64",
+          "name": "TotalCount",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "document": "实例记录",
+          "example": "无",
+          "member": "SREInstance",
+          "name": "Content",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeZookeeperReplicasRequest": {
+      "document": "DescribeZookeeperReplicas请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "注册引擎实例ID",
+          "example": "ers-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "副本列表Limit",
+          "example": "1",
+          "member": "uint64",
+          "name": "Limit",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "副本列表Offset",
+          "example": "1",
+          "member": "uint64",
+          "name": "Offset",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeZookeeperReplicasResponse": {
+      "document": "DescribeZookeeperReplicas返回参数结构体",
+      "members": [
+        {
+          "document": "注册引擎实例副本信息",
+          "example": "无",
+          "member": "ZookeeperReplica",
+          "name": "Replicas",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "副本个数\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "1",
+          "member": "uint64",
+          "name": "TotalCount",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeZookeeperServerInterfacesRequest": {
+      "document": "DescribeZookeeperServerInterfaces请求参数结构体",
+      "members": [
+        {
+          "default": "",
+          "document": "实例id",
+          "example": "ins-df344df5",
+          "member": "string",
+          "name": "InstanceId",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "",
+          "document": "返回的列表个数",
+          "example": "20",
+          "member": "uint64",
+          "name": "Limit",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "",
+          "document": "返回的列表起始偏移量",
+          "example": "1",
+          "member": "uint64",
+          "name": "Offset",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "type": "object"
+    },
+    "DescribeZookeeperServerInterfacesResponse": {
+      "document": "DescribeZookeeperServerInterfaces返回参数结构体",
+      "members": [
+        {
+          "document": "接口总个数",
+          "example": "20",
+          "member": "uint64",
+          "name": "TotalCount",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "document": "接口列表",
+          "example": "无",
+          "member": "ZookeeperServerInterface",
+          "name": "Content",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "document": "唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。",
+          "member": "string",
+          "name": "RequestId",
+          "type": "string"
+        }
+      ],
+      "type": "object"
+    },
+    "EngineAdmin": {
+      "document": "引擎的初始管理帐号",
+      "members": [
+        {
+          "default": "",
+          "document": "控制台初始用户名",
+          "example": "nacos",
+          "member": "string",
+          "name": "Name",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "控制台初始密码",
+          "example": "xxxxxx",
+          "member": "string",
+          "name": "Password",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "引擎接口的管理员 Token",
+          "example": "xxxxxx",
+          "member": "string",
+          "name": "Token",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "both"
+    },
+    "EnvAddressInfo": {
+      "document": "多环境网络信息",
+      "members": [
+        {
+          "default": "",
+          "document": "环境名",
+          "example": "dev",
+          "member": "string",
+          "name": "EnvName",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "是否开启config公网",
+          "example": "true",
+          "member": "bool",
+          "name": "EnableConfigInternet",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "config公网ip",
+          "example": "10.0.0.1",
+          "member": "string",
+          "name": "ConfigInternetServiceIp",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "config内网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10.0.0.1:8080",
+          "member": "string",
+          "name": "ConfigIntranetAddress",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    },
+    "EnvInfo": {
+      "document": "环境具体信息",
+      "members": [
+        {
+          "default": "",
+          "document": "环境名称",
+          "example": "pro",
+          "member": "string",
+          "name": "EnvName",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境对应的网络信息",
+          "example": "[{\"VpcId\":\"vpc-xxxxxxx\",\"SubnetId\":\"subnet-xxxxxxxx\"}]",
+          "member": "VpcInfo",
+          "name": "VpcInfos",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "云硬盘容量",
+          "example": "50",
+          "member": "int64",
+          "name": "StorageCapacity",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "运行状态",
+          "example": "running",
+          "member": "string",
+          "name": "Status",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "Admin service 访问地址",
+          "example": "xxxx.xx.xx.xx",
+          "member": "string",
+          "name": "AdminServiceIp",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "Config service访问地址",
+          "example": "xxxx.xx.xx.xx",
+          "member": "string",
+          "name": "ConfigServiceIp",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "是否开启config-server公网",
+          "example": "false",
+          "member": "bool",
+          "name": "EnableConfigInternet",
+          "required": false,
+          "type": "bool",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "config-server公网访问地址",
+          "example": "xx.xx.xx.xx",
+          "member": "string",
+          "name": "ConfigInternetServiceIp",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "规格ID",
+          "example": "spec-xx",
+          "member": "string",
+          "name": "SpecId",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境的节点数",
+          "example": "3",
+          "member": "int64",
+          "name": "EnvReplica",
+          "required": false,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境运行的节点数",
+          "example": "3",
+          "member": "int64",
+          "name": "RunningCount",
+          "required": false,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境别名",
+          "example": "pro",
+          "member": "string",
+          "name": "AliasEnvName",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "环境描述",
+          "example": "test",
+          "member": "string",
+          "name": "EnvDesc",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "客户端带宽",
+          "example": "5",
+          "member": "uint64",
+          "name": "ClientBandWidth",
+          "required": false,
+          "type": "int",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "both"
+    },
+    "Filter": {
+      "document": "查询过滤通用对象",
+      "members": [
+        {
+          "default": "",
+          "document": "过滤参数名",
+          "member": "string",
+          "name": "Name",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "过滤参数值",
+          "member": "string",
+          "name": "Values",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "in"
+    },
+    "InstanceTagInfo": {
+      "document": "引擎实例的标签信息",
+      "members": [
+        {
+          "default": "",
+          "document": "标签键",
+          "example": "key",
+          "member": "string",
+          "name": "TagKey",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "标签值",
+          "example": "value",
+          "member": "string",
+          "name": "TagValue",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "both"
+    },
+    "KVPair": {
+      "document": "键值对",
+      "members": [
+        {
+          "default": "",
+          "document": "键",
+          "example": "type",
+          "member": "string",
+          "name": "Key",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "值",
+          "example": "dev",
+          "member": "string",
+          "name": "Value",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "out"
+    },
+    "NacosReplica": {
+      "document": "Nacos副本信息",
+      "members": [
+        {
+          "default": "",
+          "document": "名称",
+          "example": "xxxx",
+          "member": "string",
+          "name": "Name",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "角色",
+          "example": "leader",
+          "member": "string",
+          "name": "Role",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "状态",
+          "example": "running",
+          "member": "string",
+          "name": "Status",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "子网ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "subnet-xxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "可用区ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "xxxx",
+          "member": "string",
+          "name": "Zone",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "可用区ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "xx",
+          "member": "string",
+          "name": "ZoneId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    },
+    "NacosServerInterface": {
+      "document": "nacos服务端接口列表，用于云监控",
+      "members": [
+        {
+          "default": "",
+          "document": "接口名\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "GET:/nacos/v1/config",
+          "member": "string",
+          "name": "Interface",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    },
+    "SREInstance": {
+      "document": "微服务注册引擎实例",
+      "members": [
+        {
+          "default": "",
+          "document": "实例ID",
+          "example": "inst-12345678",
+          "member": "string",
+          "name": "InstanceId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "名称",
+          "example": "test",
+          "member": "string",
+          "name": "Name",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "版本号",
+          "example": "1.8.6",
+          "member": "string",
+          "name": "Edition",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "状态, 枚举值:creating/create_fail/running/updating/update_fail/restarting/restart_fail/destroying/destroy_fail",
+          "example": "creating",
+          "member": "string",
+          "name": "Status",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "规格ID",
+          "example": "spec-12345678",
+          "member": "string",
+          "name": "SpecId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "副本数",
+          "example": "3",
+          "member": "int64",
+          "name": "Replica",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "类型",
+          "example": "consul",
+          "member": "string",
+          "name": "Type",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "Vpc iD",
+          "example": "vpc-12345678",
+          "member": "string",
+          "name": "VpcId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "子网ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "[\"subnet-12345678\"]",
+          "member": "string",
+          "name": "SubnetIds",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "是否开启持久化存储\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "true",
+          "member": "bool",
+          "name": "EnableStorage",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "数据存储方式\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "CLOUD_PREMIUM",
+          "member": "string",
+          "name": "StorageType",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "云硬盘容量\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "10",
+          "member": "int64",
+          "name": "StorageCapacity",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "计费方式\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "POSTPAID",
+          "member": "string",
+          "name": "Paymode",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "EKS集群的ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "cls-1234567",
+          "member": "string",
+          "name": "EKSClusterID",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "集群创建时间\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "2021-04-08 16:20:58",
+          "member": "string",
+          "name": "CreateTime",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "环境配置信息列表\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "[{\"EnvName\":\"pro\",\"StorageCapacity\":50,\"Status\":\"running\",\"Admin",
+          "member": "EnvInfo",
+          "name": "EnvInfos",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "引擎所在的区域\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "ap-beijing",
+          "member": "string",
+          "name": "EngineRegion",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "注册引擎是否开启公网\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "true",
+          "member": "bool",
+          "name": "EnableInternet",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "私有网络列表信息\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "[]",
+          "member": "VpcInfo",
+          "name": "VpcInfos",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "服务治理相关信息列表\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "无",
+          "member": "ServiceGovernanceInfo",
+          "name": "ServiceGovernanceInfos",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "实例的标签信息\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "[{\"Key\":\"type\",\"Value\":\"nacos\"}]",
+          "member": "KVPair",
+          "name": "Tags",
+          "required": true,
+          "type": "list",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "引擎实例是否开启控制台公网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "true",
+          "member": "bool",
+          "name": "EnableConsoleInternet",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "引擎实例是否开启控制台内网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "true",
+          "member": "bool",
+          "name": "EnableConsoleIntranet",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "引擎实例是否展示参数配置页面\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "true",
+          "member": "bool",
+          "name": "ConfigInfoVisible",
+          "required": true,
+          "type": "bool",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "引擎实例控制台默认密码\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "nacosxx",
+          "member": "string",
+          "name": "ConsoleDefaultPwd",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "交易付费类型，0后付费/1预付费\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "1",
+          "member": "int64",
+          "name": "TradeType",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "自动续费标记：0表示默认状态(用户未设置，即初始状态)， 1表示自动续费，2表示明确不自动续费\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "0",
+          "member": "int64",
+          "name": "AutoRenewFlag",
+          "required": true,
+          "type": "int",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "预付费到期时间\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "2021-04-08 16:20:58",
+          "member": "string",
+          "name": "CurDeadline",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "隔离开始时间\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "2021-04-08 16:20:58",
+          "member": "string",
+          "name": "IsolateTime",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    },
+    "ServiceGovernanceInfo": {
+      "document": "服务治理相关的信息",
+      "members": [
+        {
+          "default": "",
+          "document": "引擎所在的地域",
+          "example": "ap-beijing",
+          "member": "string",
+          "name": "EngineRegion",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "服务治理引擎绑定的kubernetes集群信息",
+          "example": "无",
+          "member": "BoundK8SInfo",
+          "name": "BoundK8SInfos",
+          "required": false,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "服务治理引擎绑定的网络信息",
+          "example": "无",
+          "member": "VpcInfo",
+          "name": "VpcInfos",
+          "required": false,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "当前实例鉴权是否开启",
+          "example": "true",
+          "member": "bool",
+          "name": "AuthOpen",
+          "required": false,
+          "type": "bool",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "该实例支持的功能，鉴权就是 Auth",
+          "example": "[\"Auth\"]",
+          "member": "string",
+          "name": "Features",
+          "required": false,
+          "type": "list",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "主账户名默认为 polaris，该值为主账户的默认密码",
+          "example": "主账户密码",
+          "member": "string",
+          "name": "MainPassword",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "服务治理pushgateway引擎绑定的网络信息",
+          "example": "无",
+          "member": "VpcInfo",
+          "name": "PgwVpcInfos",
+          "required": false,
+          "type": "list",
+          "value_allowed_null": false
+        }
+      ],
+      "usage": "both"
+    },
+    "VpcInfo": {
+      "document": "私有网络信息",
+      "members": [
+        {
+          "default": "",
+          "document": "Vpc Id",
+          "example": "vpc-xxxxxxxx",
+          "member": "string",
+          "name": "VpcId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "子网ID",
+          "example": "subnet-xxxxxxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "内网访问地址\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "xxxx.xx.xx.xx",
+          "member": "string",
+          "name": "IntranetAddress",
+          "required": false,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "both"
+    },
+    "ZookeeperReplica": {
+      "document": "Zookeeper副本信息",
+      "members": [
+        {
+          "default": "",
+          "document": "名称",
+          "example": "zk-xxxxx",
+          "member": "string",
+          "name": "Name",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "角色",
+          "example": "leading",
+          "member": "string",
+          "name": "Role",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "状态",
+          "example": "Running",
+          "member": "string",
+          "name": "Status",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": false
+        },
+        {
+          "default": "",
+          "document": "子网ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "subnet-xxxx",
+          "member": "string",
+          "name": "SubnetId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "可用区ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "gz",
+          "member": "string",
+          "name": "Zone",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        },
+        {
+          "default": "",
+          "document": "可用区ID\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "300001",
+          "member": "string",
+          "name": "ZoneId",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    },
+    "ZookeeperServerInterface": {
+      "document": "Zookeeper服务端接口列表，用于云监控",
+      "members": [
+        {
+          "default": "",
+          "document": "接口名\n注意：此字段可能返回 null，表示取不到有效值。",
+          "example": "getChildren",
+          "member": "string",
+          "name": "Interface",
+          "required": true,
+          "type": "string",
+          "value_allowed_null": true
+        }
+      ],
+      "usage": "out"
+    }
+  },
+  "version": "1.0"
+}
