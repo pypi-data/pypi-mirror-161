@@ -1,0 +1,81 @@
+{
+   "schedulername": "Open Lava",
+   "submitcmd": [ "bsub" ],
+   "statcmd": [ "bjobs", "-ostat", "-noheader" ],
+   "submitre": ".*<([0-9]+)>.*",
+   "statre": "(.+)",
+
+   "jobname": "#BSUB -J '{}'",
+   "jobinfo": "#BSUB -P '{}'",
+
+   "logfiles": [
+      "#BSUB -o '{}/%J.out'",
+      "#BSUB -e '{}/%J.err'"
+   ],
+
+   "serial": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -n '1'"
+   ],
+
+   "serialat": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -m '{nodelist}'",
+      "#BSUB -n '1'"
+   ],
+
+   "singlehost": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -n '{nproc}'",
+      "#BSUB -R 'span[hosts=1]'"
+   ],
+
+   "singlehostat": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -n '{nproc}'",
+      "#BSUB -m '{nodelist}'"
+   ],
+
+   "multihost": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -n '{nproc}'",
+      "#BSUB -R 'span[hosts={nhost}]'"
+   ],
+
+   "multihostat": [
+      "#BSUB -q '{queue}'",
+      "#BSUB -n '{nproc}'",
+      "#BSUB -m '{hostlist}'"
+   ],
+
+   "envars": {
+      "jobid": "$LSB_JOBID",
+      "nproc": "$(echo $LSB_HOSTS | wc -w)",
+      "hostlist": "$(printf '%s\\n' $LSB_HOSTS | uniq)"
+   },
+    
+   "mpilauncher": {
+      "openmpi": "openmpi-mpirun",
+      "intelmpi": "impi-mpirun",
+      "mpich": "mpich-mpirun"
+   },
+
+   "queued_states": [
+      "PEND",
+      "RUN",
+      "PSUSP",
+      "USUSP",
+      "SSUSP"
+   ],
+
+   "ready_states": [
+      "DONE",
+      "EXIT"
+   ],
+
+   "warn_errors": [
+      "Job <[0-9]+> is not found"
+   ]
+
+}
+
