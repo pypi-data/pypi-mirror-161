@@ -1,0 +1,323 @@
+params:
+  reads_layout: "pe"
+  interleaved: False
+  have_long: False
+  fq_encoding: "sanger"
+  begin: "trimming"
+  samples: "samples.tsv"
+
+  simulate:
+    do: False
+    threads: 8
+
+  raw:
+    do: True
+    threads: 8
+    save_reads: True
+
+    fastqc:
+      do: False
+
+  trimming:
+    save_reads: False
+
+    oas1:
+      do: False
+      quality_system: 33
+      min_length: 30
+      seed_oa: 0.9
+      fragment_oa: 0.8
+
+    sickle:
+      do: False
+      quality_type: "sanger"
+      sickle_pe: ""
+      length_cutoff: 51
+      quality_cutoff: 20
+
+    fastp: # recommand
+      do: True
+      threads: 4
+      use_slide_window: False # strict when using slide window
+      disable_adapter_trimming: False
+      detect_adapter_for_se: True # If activated, adapter_sequence will not used
+      detect_adapter_for_pe: True # If activated, adapter_sequence and adapter_sequence_r2 will not used
+      adapter_sequence: "AAGTCGGAGGCCAAGCGGTCTTAGGAAGACAA" # MGI adapter 3
+      adapter_sequence_r2: "AAGTCGGATCGTAGCCATGTCGTTCTGTGAGCCAAGGAGTTG" # MGI adapter 5
+      # "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"         # eg: Illumina TruSeq adapter 3
+      # "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"         # eg: Illumina TruSeq adapter 5
+      compression: 6
+      cut_front_window_size: 4
+      cut_front_mean_quality: 20
+      cut_tail_window_size: 4
+      cut_tail_mean_quality: 20
+      cut_right_window_size: 4
+      cut_right_mean_quality: 20
+      length_required: 51
+      n_base_limit: 5
+
+  rmhost:
+    host_fasta: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+    threads: 8
+    save_reads: True
+    save_bam: False
+    compression: 6
+
+    soap:
+      do: False
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      match_model: 4
+      align_seed: 30
+      report_repeat_hits: 1
+      max_mismatch_num: 7
+      identity: 0.9
+
+    bwa:
+      do: False
+      algorithms: "mem" # "mem2"
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/bwa_index/chm13v2.0.fa"
+      minimum_seed_length: 23
+
+    bowtie2: # recommand
+      do: True
+      index_prefix: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+      presets: "--very-sensitive"
+
+    minimap2:
+      do: False
+      split_size: "4G"
+      preset: "sr"
+      index: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/minimap_index/chm13v2.0.fa"
+
+    kraken2:
+      do: False
+      database: "/home/jiezhu/databases/kraken/minikraken2_v2_8GB_201904_UPDATE"
+      host_taxid: 9606
+      # must include human reference genome
+      confidence: 0
+      min_base_quality: 0
+      min_hit_groups: 2
+
+    kneaddata:
+      do: False
+      do_trf: False
+      do_trimmomatic: False
+      trimmomatic_options: 'MINLEN:50 ILLUMINACLIP:/-PE.fa:2:40:15 SLIDINGWINDOW:4:20'
+      sequencer_source: "TruSeq3" # ["NexteraPE", "TruSeq2", "TruSeq3", "none"]
+      do_bmtagger: False
+      do_bowtie2: True
+      decontaminate_pairs: "strict" # ["strict", "lenient", "unpaired"]
+      bowtie2_options: "--very-sensitive --dovetail"
+      bowtie2_database: "/home/jiezhu/databases/genomics/human/CHM13/chm13v2.0_plusY/chm13v2.0.fa"
+ 
+
+  qcreport:
+    do: True
+    seqkit:
+      threads: 4
+
+
+  profiling:
+    threads: 8
+
+    # DNA-to-DNA
+    kraken2:
+      do: True
+      database: "/home/jiezhu/databases/ecogenomics/Struo2/GTDB_release202/kraken2"
+      quick: False
+      memory_mapping: False
+      use_names: True
+      use_mpa_style: False
+      report_zero_counts: False
+      confidence: 0
+      min_base_quality: 0
+      min_hit_groups: 2
+      unclassified_out: False
+      classified_out: False
+      save_table: False
+
+    bracken:
+      do: True
+      reads_len: 100
+      level: ["G", "S"]
+
+    # DNA-to-DNA
+    kmcp:
+      do:
+        bacteriome: True
+        mycobiome: True
+        virome: True
+      database:
+        bacteriome: /home/jiezhu/databases/ecogenomics/KMCP/bacteriome/GTDB_r202/gtdb.kmcp 
+        mycobiome: /home/jiezhu/databases/ecogenomics/KMCP/mycobiome/RefSeq_r208/refseq-fungi.kmcp
+        virome: /home/jiezhu/databases/ecogenomics/KMCP/virome/GenBank_246/genbank-viral.kmcp
+        taxdump: /home/jiezhu/.taxonkit
+      search:
+        threads: 24
+        reads_mode: "Single-end" # "Paired-end" # Recommended Single-end
+        min_query_len: 30
+        min_query_cov: 0.55
+        external_opts: ""
+      profile:
+        threads: 4 # recommand
+        mode: [0, 1, 2, 3, 4, 5]
+        level: "strain" # ["species", "strain", "assembly"]
+        # reference: https://bioinf.shenwei.me/kmcp/tutorial/profiling/
+        # kmcp profile mode details
+        # 0: for pathogen detection
+        # 1: higher recall
+        # 2: high recall
+        # 3: default
+        # 4: high precision
+        # 5: higher precision
+        # options                       m=0    m=1   m=2   m=3    m=4   m=5
+        # ---------------------------   ----   ---   ---   ----   ---   ----
+        # -r/--min-chunks-reads         1      5     10    50     100   100
+        # -p/--min-chunks-fraction      0.2    0.6   0.7   0.8    1     1
+        # -d/--max-chunks-depth-stdev   10     2     2     2      2     1.5
+        # -u/--min-uniq-reads           1      2     5     20     50    50
+        # -U/--min-hic-ureads           1      1     2     5      10    10
+        # -H/--min-hic-ureads-qcov      0.55   0.7   0.7   0.75   0.8   0.8
+        # -P/--min-hic-ureads-prop      0.01   0.1   0.2   0.1    0.1   0.15
+        # --keep-main-matches           true                            
+        # --max-qcov-gap                0.4
+        # If you want to overide some parameter setted by preset mode, just add it to external_opts below.
+        metaphlan_report_version: 3
+        disable_two_stage_taxonomy_assignment: True # --no-amb-corr
+        external_opts: ""
+
+    # DNA-to-marker 
+    metaphlan:
+      do_v2: False
+      do_v3: True
+      do_v3_one_way: False
+      bowtie2db: "/home/jiezhu/databases/ecogenomics/MetaPhlAn"
+      index_v2: "v20_m200"
+      index_v3: "mpa_v30_CHOCOPhlAn_201901"
+      bowtie2_presets: "very-sensitive"
+      taxonomic_level: "a"
+      min_cu_len: 2000
+      ignore_markers: "/path/to/ignore_markers.txt"
+      avoid_disqm: True
+      analysis_type: "rel_ab_w_read_stats"
+      #  [
+      #    "rel_ab",
+      #    "rel_ab_w_read_stats",
+      #    "reads_map",
+      #    "clade_profiles",
+      #    "marker_ab_table",
+      #    "marker_counts",
+      #    "marker_pres_table",
+      #  ]
+      stat_q_v2: "0.1"
+      stat_q_v3: "0.2"
+      stat: "tavg_g"
+      unknown_estimation: True
+      add_viruses: True
+      read_min_len: 70
+      legacy_output: False
+      cami_format_output: False
+      no_map: True
+      biom: False
+
+    # Functional profiling
+    humann:
+      do_v2: False
+      do_v3: True
+      evalue: 1.0
+      prescreen_threshold: 0.01
+      identity_threshold: 50.0
+      nucleotide_identity_threshold: 0.0 # nucleotide: 0
+      translated_identity_threshold: 80.0 # uniref90: 80.0; uniref50: 50.0
+      nucleotide_subject_coverage_threshold: 50.0
+      translated_subject_coverage_threshold: 50.0
+      nucleotide_query_coverage_threshold: 90.0
+      translated_query_coverage_threshold: 90.0
+      translated-alignment: "diamond" # ["diamond", "usearch", "rapsearch"]
+      xipe: False
+      minpath: True
+      pick_frames: False
+      gap_fill: True
+      pathways: "metacyc" # ["metacyc", "unipathway"]
+      remove_temp_output: True
+      memory_use: "minimum"
+      normalize_method: "relab"
+      regroup_method: "sum"
+      map_database:
+        ["uniref90_go", "uniref90_ko", "uniref90_eggnog", "uniref90_pfam"]
+      #  "uniref90_level4ec",
+      #  "uniref90_infogo1000",
+      #  "uniref90_rxn",
+      update_config: False # humann save config to humann install dir
+      database_utility_mapping: "/home/jiezhu/databases/funcgenomics/humann2/utility_mapping"
+      database_utility_mapping_v3: "/home/jiezhu/databases/funcgenomics/humann/utility_mapping"
+      database_protein: "/home/jiezhu/databases/funcgenomics/humann2/uniref"
+      database_protein_v3: "/home/jiezhu/databases/funcgenomics/humann/uniref"
+      database_nucleotide: "/home/jiezhu/databases/funcgenomics/humann2/chocophlan"
+      database_nucleotide_v3: "/home/jiezhu/databases/funcgenomics/humann/chocophlan"
+
+    # alignment method
+    genomecov:
+      do: True
+      bowtie2_db_prefix: "/home/jiezhu/databases/ecogenomics/virome/virome.fasta"
+      bowtie2_db_fasta: "/home/jiezhu/databases/ecogenomics/virome/virome.fasta"
+      gen_contig_cov_script: /home/jiezhu/toolkit/metassemble/scripts/validate/map/gen_contig_cov_per_bam_table.py
+
+    # alignment method
+    coverm:
+      do: True
+      genome_dir: "/home/jiezhu/databases/ecogenomics/virome/genomes" 
+      genome_fasta_extension: "fna"
+      methods: ["relative_abundance", "mean", "trimmed_mean", "covered_fraction", "covered_bases", "variance", "rpkm", "tpm"]
+      min_covered_fraction: 10
+      contig_end_exclusion: 75
+      trim_min: 5
+      trim_max: 95
+
+    # custom method
+    bgi_soap: # for learning and test
+      do: False
+      taxonomy: "/path/to/mag_taxonomy"
+      index_prefix: "/path/to/mag_soap_index"
+      minimal_insert_size: 0
+      maximal_insert_size: 1000
+      report_repeat_hits: 1
+      match_model: 4
+      align_seed: 30
+      max_mismatch_num: 5
+      identity: 0.95
+
+    bowtie2: # for learning and test
+      do: False
+      taxonomy: "/path/to/mag_taxonomy"
+      index_prefix: "/path/to/mag_bowtie2_index"
+
+    jgi: # for learning and test
+      do: false
+      metadata: "/path/to/mag_metadata"
+      taxonomy: "/path/to/mag_taxonomy"
+      index_prefix: "/path/to/mag_bowtie2_index"
+      fragment: 1200
+      memory_limit: "8G"
+      compression_level: 6
+ 
+
+output:
+  simulate: "results/00.simulate"
+  raw: "results/00.raw"
+  trimming: "results/01.trimming"
+  rmhost: "results/02.rmhost"
+  qcreport: "results/03.qcreport"
+  profiling: "results/04.profiling"
+
+
+envs:
+  general: "envs/general.yaml"
+  simulate: "envs/simulate.yaml"
+  soap: "envs/soap.yaml"
+  kraken2: "envs/kraken2.yaml"
+  kmcp: "envs/kmcp.yaml"
+  metaphlan2: "envs/biobakery2.yaml"
+  metaphlan3: "envs/biobakery3.yaml"
+  humann2: "envs/biobakery2.yaml"
+  humann3: "envs/biobakery3.yaml"
