@@ -1,0 +1,731 @@
+--------------------------------------------------------------------
+INSTALLATION
+
+SPLUSCALIB PACKAGE
+
+option1: Using pip
+# Install python package with pip
+pip3 install spluscalib
+
+option2: Using github
+https://github.com/felipefer42/spluscalib
+
+Preparing to run
+# Edit bashrc to make it easier to run
+Find the path to the spluscalib installation
+in python >>> import spluscalib
+          >>> spluscalib.__file__
+/home/felipe/.local/lib/python3.8/site-packages/spluscalib/__init__.py'
+
+$ sudo gedit ~/.bashrc
+
+then add following line to the file, after third line, and save:
+alias spluscalib="python3 path/to/spluscalib/pipeline.py"
+
+from now on it’s possible to run the calibration pipeline using:
+$ spluscalib /path/to/field/list.txt path/to/config/file.conf
+
+DOWNLOAD EXTRA FILES
+
+stellar templates
+https://drive.google.com/file/d/1v847n1V3I9eTzNLnBRp2kesnOZxIPjw5/view?usp=sharing
+
+stellar locus reference
+https://drive.google.com/file/d/1X8NLXHPXOmDsrSYcq2tYn39y9yuBBLrk/view?usp=sharing
+
+Extinction maps
+https://drive.google.com/drive/folders/1yJ6GxD6l8P8R_hG3mz4tCoksnrqIE-T-?usp=sharing
+
+
+INSTALL EXTERNAL PACKAGES
+
+Stilts (only need to download stilts.jar)
+http://www.star.bristol.ac.uk/~mbt/stilts/
+
+SWARP
+https://www.astromatic.net/software/swarp/
+
+Source Extractor
+https://www.astromatic.net/software/sextractor/
+
+Dophot-splus
+private communication: felipefer42@gmail.com
+
+--------------------------------------------------------------------
+RUNNING
+
+Open the terminal from the directory where you want the outputs to be saved.
+
+Create a field list file in this directory:
+example: https://drive.google.com/file/d/1_aKCP4_F1X8jWRRqlPtoWavjODYddM99/view?usp=sharing
+
+Create a configuration file in this directory:
+example: https://drive.google.com/file/d/1rZ3mM0uTuJgDGpTqYSG4iAQ8cPyV4jsf/view?usp=sharing
+
+This file must specify the paths to external packages, to stellar models, reference stellar locus, etc.
+
+run the pipeline
+$ spluscalib field_list.txt example.conf
+
+options:
+--nofits: will not copy the fits to the field output directory
+--onefield: instead of a field_list.txt file, first argument is the field name.
+
+All non-given configurations are taken from the default configuration file, which can be found in:
+path/to/spluscalib/steps/resources/default_config.conf
+
+You also may want to use different .sex and .param files when running SExtractor. Examples are given below. Values between {} should not be edited.
+sex: https://drive.google.com/file/d/1ENjJWOnVQUoa56m11rtAy8-tx2gux_Gi/view?usp=sharing
+param: https://drive.google.com/file/d/1IhGQtzX2Th6NNX3G5dEJJfvhEy4Ndbo1/view?usp=sharing
+
+--------------------------------------------------------------------
+CONFIGURATION FILE
+
+#parameter_name    parameter_value
+
+# which steps to run in the pipeline (separated by comma)
+run_steps    photometry_single, aper_correction, crossmatch
+
+# Possible steps are:
+#
+# photometry_single
+#    runs SExtractor in single mode to measure aperture photometry
+#
+# photometry_dual
+#    runs SExtractor in dual mode to measure aperture photometry
+#    using a detection image (see param detection_image)
+#
+# photometry_psf
+#    runs dophot to measure psf photometry
+#
+# correction_xy
+#    applies xy zero-point offsets correction
+#
+# correction_aper
+#    obtain aperture corrections from growth curves
+#
+# crossmatch
+#    obtain aperture corrections from growth curves
+#
+# calibration_external
+#    obtain the external calibration zero-points
+#
+# calibration_stloc
+#    obtain the stellar locus calibration zero-points
+#
+# calibration_internal
+#    obtain the internal calibration zero-points
+#
+# calibration_catalog
+#    produces the final calibrated catalogs
+
+#######################
+# GENERAL CONFIGURATION
+
+# Directory where outputs will be saved
+save_path    /directory/to/save/the/output/of/calibration/
+
+# Path to the calibration pipeline files
+path_to_pipeline    /path/to/spluscalib/directory/
+
+# List of filters as they appear on the fits files names
+filters    U, F378, F395, F410, F430, G, F515, R, F660, I, F861, Z
+
+
+###########################
+# PATH TO EXTERNAL PROGRAMS
+
+# Path to SExtractor installation
+path_to_sex    /path/to/SExtractor/installation/
+
+# Path to Stitls .jar file
+path_to_stilts    /path/to/Stilts.jar
+
+# Path to Dophot files
+path_to_dophot    /path/to/dophot/files/
+
+
+##########################
+# PHOTOMETRY CONFIGURATION
+
+# Path to S-PLUS images
+path_to_images    /path/to/splus/images/
+
+# Directory and file names must follow the structure:
+# path/to/splus/images/
+# ├── {field}/
+#     ├── {field}_{filter}_swp.fz
+#     ├── {field}_{filter}_swpweight.fz  <- when using weight images
+#     ├── ⋮
+
+# Path to SExtractor general config file
+sex_config    /path/to/sexconfig/file.sex
+
+# Path to SExtractor general param file
+sex_param    /path/to/sexparam/file.param
+
+# Path to swarp general config file
+swarp_config    /path/to/swarp/file.swarp
+
+# Filters to compose detection image in dual mode photometry
+daetection_image    G, R, I, Z
+
+# Instrumental zero-point for SExtractor (dophot-splus uses 20)
+inst_zp    20
+
+# Choose if weight images are to be used for aperture photometry
+use_weight    False
+
+# Choose if fits images will be removed in the end of the pipeline
+remove_fits   True
+
+##########################
+# XY correction
+
+# Choose if XY corrections are to be applied to photometric catalogs
+sex_XY_correction    True
+
+# Applied only to SExtractor photometry, since dophot already has an
+# internal implementation for this
+
+# Path to directory containing npy arrays with the correction maps
+XY_correction_maps_path    /path/to/XY/correction/maps
+
+# initial value, final value, number of bins
+XY_correction_xbins    0, 9200, 16
+
+XY_correction_ybins    0, 9200, 16
+
+##########################
+# Aperture Correction
+
+# aperture diameter in pixels to be corrected for total flux in the # aperture correction step. Must be listed in sexconfig apertures.
+apercorr_diameter    5.4545
+
+# Max aperture to consider in aperture correction step [in pixels]
+apercorr_max_aperture    36.363636
+
+# signal to noise cut for the selection of stars for the growth
+# curve, given as min, max
+apercorr_s2ncut    30, 1000
+
+# SExtractor’s CLASS_STAR cut for the selection of stars for the
+# growth curve
+apercorr_starcut   0.9
+
+###########################
+# CROSSMATCH WITH REFERENCE
+
+# Indicate which photometry to use for the calibration
+# single, dual or psf
+calibration_photometry    dual
+
+# Name given to the reference catalog. Currently supported
+# references are GALEX, REFCAT2, IVEZIC, SDSS, GAIA.
+# Multiple references can be given, separated by comma
+reference_catalog   GALEX, REFCAT2
+
+# Possible values are:
+# GALEX   # (Vizier_id: II/335/galex_ais)
+# REFCAT2 # (Vizier_id: J/ApJ/867/105/refcat2)
+# IVEZIC  # (Vizier_id: J/AJ/134/973/stdcat)
+# SDSS    # (Vizier_id: V/147/sdss12)
+# GAIA    # (Vizier_id: I/350/gaiaedr3)
+
+#######################
+# EXTINCTION CORRECTION
+
+extinction_correction  SCHLEGEL
+
+# Possible values are:
+# NONE     # No correction is applied
+# SCHLEGEL # Schlegel, Finkbeiner, &  Davis, 1998, ApJ 500, 525
+# GORSKI   # Gorski et al., 2020, ApJ 889, 179
+
+extinction_maps_path   /path/to/Extinction
+
+######################
+# CALIBRATION
+
+# Path to models file produced using the stellalibrary package
+path_to_models    /path/to/models_file.cat
+
+# Set the magnitude range used to characterize the zero-points
+# values must be given as min, max
+zp_fitting_mag_cut    14,19
+
+# EXTERNAL CALIBRATION
+
+# List the external reference magnitudes fitted by the models
+external_sed_fit    PS_G, PS_R, PS_I, PS_Z
+
+# List the splus magnitudes predicted in the external step external_sed_pred    G, F515, R, F660, I, F861, Z
+
+# List the splus magnitudes predicted in the external step
+offset_to_splus_refcalib    /path/to/reference/offset/file.offset
+
+# Stellar Locus step
+
+# Path to reference stellar locus catalog
+stellar_locus_reference    /path/to/stellar/locus/reference.cat
+
+# List of magnitudes calibrated using reference stellar locus
+stellar_locus_fit    U, F410, F430
+
+# Stellar locus reference color mag1-mag2 given as mag1, mag2
+stellar_locus_color_ref   G, I
+
+# Stellar locus reference magnitude maginst-magref (y axis)
+stellar_locus_filt_ref   G
+
+# Range of stellar locus color used in the fitting given as min, max
+stellar_locus_color_range   0.4, 1.2
+
+# Number of bins used to estimate the stellar locus
+stellar_locus_N_bins   8
+
+# INTERNAL CALIBRATION
+
+# List the internal splus magnitudes fitted by the models
+internal_sed_fit    U, F410, F430, G, F515, R, F660, I, F861, Z
+
+# List the splus magnitudes predicted in the external step
+internal_sed_pred    U, F378, F395, F410, F430, G, F515, R, F660, I, F861, Z
+
+# GAIA SCALE CALIBRATION
+
+# List the predicted Gaia filters
+gaia_sed_pred    GAIA_BP, GAIA_G, GAIA_RP
+
+# Set the magnitude range used to characterize the gaia scale
+# calibration zero-points. Values must be given as min, max
+gaia_zp_fitting_mag_cut    14,18
+
+# Path to reference gaia catalogs
+path_to_gaia    /path/to/gaia/catalogs/
+
+# Directory and file names must follow the structure:
+# /path/to/gaia/catalogs/
+# ├── GAIA_{field}.cat
+# ├── ⋮
+
+# If the Gaia catalog is not present in this directory, the pipeline
+# is able to download it. (But it slows down the process)
+
+--------------------------------------------------------------------
+PACKAGE-STRUCTURE (not up-to-date)
+
+spluscalib-git
+├── LICENSE.md
+├── spluscalib
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── steps
+│   │   ├── __init__.py
+│   │   ├── 🌕 photometry_single.py [NEW]
+│   │   ├── 🌕 photometry_dual.py
+│   │   ├── 🌕 photometry_psf.py [NEW]
+│   │   ├── 🌕 correction_xy.py [NEW - X,Y alignment]
+│   │   ├── 🌕 correction_aper.py
+│   │   ├── 🌕 photometry_master.py [NEW - single/psf master]
+│   │   ├── 🌕 crossmatch.py [NEW - extinction correction]
+│   │   ├── 🌕 calibration_external.py
+│   │   ├── 🌕 calibration_internal.py
+│   │   ├── 🌑 calibration_gaiascale.py
+│   │   ├── 🌕 final_zp.py
+│   │   ├── 🌕 catalog.py
+│   │   ├── resources
+│   │   │   ├── xy_correction_maps
+│   │   │   │   ├── SPLUS_F378_offsets_grid.npy
+│   │   │   │   ├── ⋮
+│   │   │   ├── reference_offsets
+│   │   │   │   ├── ATLAS_GALEX_to_SDSS.cat
+│   │   │   │   ├── ⋮
+│   │   │   ├── extinction [NEW]
+│   │   │   │   ├── SFD_dust_4096_ngp.fits
+│   │   │   │   ├── ⋮
+│   │   │   ├── synthetic_library.cat
+│   │   │   ├── reference_calibration.cat
+│   │   │   ├── SExsplus.sex
+│   │   │   ├── SExsplus.param
+│   │   │   ├── swarpsplus.swarp
+│   │   │   ├── default_config.conf
+│   ├── vacs [NEW]
+|   |   ├── __init__.py
+│   │   ├── splusid
+│   │   |   ├── __init__.py
+│   │   |   ├── vac_splusid.py
+│   │   |   ├── utils_splusid.py
+│   │   |   ├── splusID.catalog
+│   │   ├── mask
+│   │   |   ├── __init__.py
+│   │   |   ├── vac_mask.py
+│   │   |   ├── utils_mask.py
+│   │   |   ├── stars_GSC.fits
+│   │   │   ├── resources
+│   │   ├── sgq
+│   │   |   ├── __init__.py
+│   │   │   ├── resources
+│   │   ├── photoz
+│   │   |   ├── __init__.py
+│   │   │   ├── resources
+│   ├── additionalsteps
+|   |   ├── __init__.py
+│   │   ├── getoffsets.py
+│   │   ├── getxycorrection.py
+├── getreference
+│   ├── __init__.py
+│   ├── getatlas.py
+│   ├── getgalex.py
+│   ├── queries
+│   ├── casjobs.jar
+│   ├── CasJobs_atlas.config
+│   ├── CasJobs_galex.config
+├── stellarlibrary
+│   ├── __init__.py
+│   ├── create_library.py
+│   ├── utils.py
+│   ├── dust_laws.py
+│   ├── resources
+│   │   ├── coelhor14
+│   │   |   ├── t03000_g-0.5_m01p04_sed.fits
+│   │   |   ├── ⋮
+│   │   ├── stis_ngsl_v2
+│   │   |   ├── h_stis_ngsl_bd092860_v2.fits
+│   │   |   ├── ⋮
+│   │   ├── castellikurucz03
+│   │   |   ├── ckm05_3500.fits
+│   │   |   ├── ⋮
+│   │   ├── filters
+│   │   |   ├── SPLUS_F378.dat
+│   │   |   ├── ⋮
+├── external_programs
+│   ├── sextractor_2.25.0
+│   |   ├── src
+│   |   |   ├── sex
+│   |   |   ├── ⋮
+│   |   ├── ⋮
+│   ├── dophot_splus [NEW]
+│   |   ├── dophot_splus
+│   |   ├── ⋮
+│   ├── swarp-2.41.5
+│   ├── stilts.jar
+├── README.md [NEW]
+├── DOCUMENTATION.txt [NEW]
+├── .gitignore
+
+
+
+
+--------------------------------------------------------------------
+FIELD_CALIBRATION_OUTPUT_STRUCTURE (not up-to-date)
+
+{savepath}
+├── {fieldname}/ [Re-structured in version 3]
+│   ├── yyyy-mm-dd-hhmm.log
+│   ├── images/
+│   │   ├── {field}_F378_swp.fz
+│   │   ├── ⋮
+│   ├── photometry/
+│   │   ├── logs/ [NEW]
+│   │   │   ├── photometry_single.log
+│   │   │   ├── photometry_dual.log
+│   │   │   ├── photometry_psf.log
+│   │   │   ├── correction_xy.log
+│   │   │   ├── correction_aper.log
+│   │   ├── single/ [NEW]
+│   │   │   ├── sexconf/
+│   │   │   │   ├── {field}_F378_single.sex
+│   │   │   │   ├── ⋮
+│   │   │   ├── individual_catalogs/
+│   │   │   │   ├── {field}_F378_single_phot.fits
+│   │   │   │   ├── ⋮
+│   │   │   ├── xy_corrected/
+│   │   │   │   ├── {field}_F378_single_xycorr_phot.fits
+│   │   │   │   ├── ⋮
+│   │   │   ├── aper_correction/
+│   │   │   │   ├── {field}_aper_correction.zp
+│   │   │   │   ├── growth_curves/
+│   │   │   │   |   ├── growth_curve_F378.png
+│   │   │   │   |   ├── ⋮
+│   │   │   ├── stars_instrumental_magnitudes.cat
+│   │   ├── dual/
+│   │   │   ├── photometry_dual.log
+│   │   │   ├── xy_correction.log
+│   │   │   ├── detection/
+│   │   │   │   ├── {field}_det_phot.fits
+│   │   │   │   ├── {field}_det_scimas.fz
+│   │   │   │   ├── {field}_det_scimas.segm.fz
+│   │   │   │   ├── {field}_det_scimas.aper.fz
+│   │   │   ├── sexconf/
+│   │   │   │   ├── {field}_F378_dual.sex
+│   │   │   │   ├── ⋮
+│   │   │   ├── individual_catalogs/
+│   │   │   │   ├── {field}_F378_dual_phot.fits
+│   │   │   │   ├── ⋮
+│   │   │   ├── xy_corrected/
+│   │   │   │   ├── {field}_F378_single_xycorr_phot.fits
+│   │   │   │   ├── ⋮
+│   │   │   ├── aper_correction/
+│   │   │   │   ├── {field}_aper_correction.zp
+│   │   │   │   ├── growth_curves/
+│   │   │   │   |   ├── growth_curve_F378.png
+│   │   │   │   |   ├── ⋮
+│   │   │   ├── stars_instrumental_magnitudes.cat
+│   │   ├── psf/ [NEW]
+│   │   │   ├── dophotconf/
+│   │   │   │   ├── {fieldname}_F378_dophot.tuneup
+│   │   │   │   ├── ⋮
+│   │   │   ├── individual_catalogs/
+│   │   │   │   ├── {fieldname}_F378_psf_phot.sum
+│   │   │   │   ├── ⋮
+│   │   │   ├── xy_corrected/
+│   │   │   │   ├── {fieldname}_F378_psf_xycorr_phot.sum
+│   │   │   │   ├── ⋮
+│   │   │   ├── stars_instrumental_magnitudes.cat
+│   ├── {refname}/
+│   │   ├── logs/ [NEW]
+│   │   │   ├── crossmatch.log
+│   │   │   ├── correction_extinction.log
+│   │   │   ├── calibration_external.log
+│   │   │   ├── calibration_internal.log
+│   │   │   ├── calibration_gaiascale.log
+│   │   │   ├── calibration_gaiascale.log
+│   │   ├── crossmatch/
+│   │   ├── extinction_correction/ [NEW]
+│   │   ├── calibration/
+│   │   │   ├── external/
+│   │   │   ├── internal/
+│   │   │   ├── gaiascale/
+│   │   ├── catalog/
+│   │   ├── vacs/ [NEW]
+│   │   ├── diagnostics/
+
+
+--------------------------------------------------------------------
+FILE FORMATS
+
+.fits
+    s-plus co-added filter image,
+    or
+    s-plus detection image,
+    or
+    data table <- only for large catalogs.
+
+    see https://fits.gsfc.nasa.gov/fits_documentation.html
+
+
+.fz
+    compressed fits image.
+
+    see https://heasarc.gsfc.nasa.gov/fitsio/fpack/
+
+.sex
+    SExtractor configuration file.
+
+.param
+    SExtractor parameters file.
+
+    see https://sextractor.readthedocs.io/en/latest/index.html
+
+.swarp
+    swarp configuration file.
+
+    see https://www.astromatic.net/software/swarp/
+
+.tuneup
+    DoPhot configuration file.
+
+    see "DoPHOT, A CCD Photometry Program: Description and Tests",
+        1993 PASP, 105, 1345
+
+    and external_programs/dophot_splus/README for specific
+        information about the DoPHOT_splus distribution
+
+.sum
+    DoPHOT output catalog.
+
+    an ascii file with unnamed columns that correspond to:
+    0: Star number
+    1: xpos
+    2: ypos
+    3: fitmag
+    4: err_fitmag
+    5: fitsky
+    6: objtype
+    7: chi
+    8: diff_fit_ap(apcorr)
+
+.png
+    plotted figures.
+
+.log
+    ascii file generated during the runs using the logging package.
+
+.cat
+    ascii data table.
+
+.offset
+    offset zero-point applied to the external calibration step when
+    using a catalog other than the SDSS.
+
+    Correction is of the form: offset = alpha EB-V + C
+    In the file, alpha is given in col2 and C in col3
+
+    e.g.:
+    SPLUS_U     0.000   0.049
+    SPLUS_F378  0.000  -0.029
+    SPLUS_F395  0.000  -0.114
+    ⋮
+
+
+.zp
+    ascii magnitude zero point file for a single field,
+    also used for aperture corrections.
+
+    each line of the file indicates the filter, the zero point, its
+    error and the number of stars used in the estimation.
+
+    e.g.:
+    SPLUS_U     23.500  0.002  750
+    SPLUS_F378  23.500  0.002  750
+    SPLUS_F395  22.490  0.005  860
+    ⋮
+
+.zp_row
+    ascii magnitude zero-points table formatted in rows, including
+    field name, zero-points for all filters and respective errors.
+
+    e.g.
+    # NAME           SPLUS_U  SPLUS_U_err  SPLUS_F378 ...
+      STRIPE82-0001   20.981        0.052      20.193 ...
+      STRIPE82-0002   20.981        0.058      20.193 ...
+      ⋮
+
+.field
+    ascii table listing S-PLUS fields. One field per line.
+
+    e.g.:
+    # NAME
+    STRIPE82-0001
+    STRIPE82-0002
+    ⋮
+
+.fieldcoord
+    ascii table listing S-PLUS fields and coordinates RA and DEC.
+
+    e.g.:
+    # NAME          RA             DEC
+      SPLUS-s24s32  48.7333333333  -30.9022222222
+      SPLUS-s24s33  50.3041666667  -30.9022222222
+      ⋮
+
+.fieldref
+    ascii table listing S-PLUS fields and the reference name
+    assigned to the calibration.
+
+    e.g.:
+    # NAME          REF
+      SPLUS-s24s32  ATLAS_GALEX
+      SPLUS-s24s33  ATLAS
+
+
+--------------------------------------------------------------------
+DEPENDENCIES
+
+Follow these instructions to install all necessary external programs
+
+SExtractor
+    Installing SExtractor in UBUNTU 20.04
+
+    # Install autoconf
+    $ sudo apt install autoconf
+
+    # Install fftw3
+    $ sudo apt install fftw3-dev
+
+    # Install atlas
+    $ sudo apt install libblas-doc libblas3gf libblas-dev libblas-test gfortran
+
+    # Download SExtractor from github and extract
+    https://github.com/astromatic/sextractor/releases/tag/2.25.0
+
+
+    # Go to directory and run:
+    .../sextractor-2.25.0$ sh autogen.sh
+
+    # Install SExtractor
+    $ ./configure
+    $ make
+
+    # To run this installation
+    $ path/to/sextractor-2.25.0/src/sex
+
+    # Optional system-wide installation
+    $ sudo make install
+    # In this case, you can run SExtractor just by
+    $ sex
+
+swarp
+    Installing swarp in UBUNTU 20.04
+
+    # Install Anaconda
+    htps://www.digitalocean.com/community/tutorials/how-to-install-the-anaconda-python-distribution-on-ubuntu-20-04-pt
+
+    # Install swarp through conda
+    conda install -c conda-forge astromatic-swarp .
+
+
+dophot-splus
+    Installing dophot-splus in UBUNTU 20.04
+
+    # Install cfitsio
+        # Download from .tar.gz from source
+           https://heasarc.gsfc.nasa.gov/fitsio/
+
+        # Extract source files and open terminal in the directory
+        # Then, install cfitsio
+        $ ./configure
+        $ make
+
+    # Installing dophot-splus
+        # dophot-splus .tar file is provided with the pipeline.
+        # You can find it in the folder “external_programs”.
+        # 1) unpack dophot_splus.tar and enter the directory
+        # 2) edit line ../cfitsio/libcfitsio.a in the MAKEFILE
+             to point to your installation of cfitsio
+        # 3) inside dophot-splus directory, run:
+           $ make
+
+fpack
+    Installing fpack in UBUNTU 20.04
+
+    # Just run
+    sudo apt-get install libcfitsio-bin
+
+
+--------------------------------------------------------------------
+LIST OF CHANGES FROM iDR3 to iDR4
+
+Detection image
+    now generated using SWARP instead of our own code
+
+Weight images
+    used in iDR4
+
+Single mode photometry
+    additional single mode catalogs are produced
+
+PSF photometry
+    in addition to SExtractor aperture photometry, we now also
+    produce DOPHOT PSF photometry
+
+Changes in SExtractor parameters
+    BACK_FILTERSIZE from 7 to 3
+
+Changes in aperture correction
+    Aperture to measure total light changed from 40-arcsec diameter
+    to 20-arcsec diameter (better results in comparison to PSF
+    photometry)
+
+
