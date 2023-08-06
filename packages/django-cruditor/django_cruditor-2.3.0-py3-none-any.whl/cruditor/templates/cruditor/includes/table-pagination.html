@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load django_tables2 %}
+
+
+{% with table.page.paginator.count as total %}
+{% with table.page.object_list|length as count %}
+{% block pagination %}
+	<nav aria-label="Pagination">
+		<ul class="pagination">
+			{% block pagination.previous %}
+				{% if table.page.has_previous %}
+					<li class="page-item">
+						<a class="page-link" href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" title="{% trans 'Previous page' %}">{% trans 'Previous' %}</a>
+					</li>
+				{% else %}
+					<li class="page-item disabled">
+						<a class="page-link" href="#" tabindex="-1" title="{% trans 'Previous page' %}">{% trans 'Previous' %}</a>
+					</li>
+				{% endif %}
+			{% endblock %}
+
+			{% block pagination.cardinality %}
+				<li class="page-item disabled">
+					<a class="page-link" href="#" tabindex="-1">{% blocktrans with table.page.number as current and table.paginator.num_pages as total %}Page {{ current }} of {{ total }}{% endblocktrans %}</a>
+				</li>
+			{% endblock %}
+
+			{% block pagination.next %}
+				{% if table.page.has_next %}
+					<li class="page-item">
+						<a class="page-link" href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" title="{% trans 'Next page' %}">{% trans 'Next' %}</a>
+					</li>
+				{% else %}
+					<li class="page-item disabled">
+						<a class="page-link" href="#" tabindex="-1" title="{% trans 'Next page' %}">{% trans 'Next' %}</a>
+					</li>
+				{% endif %}
+			{% endblock %}
+		</ul>
+	</nav>
+{% endblock %}
+{% endwith %}
+{% endwith %}

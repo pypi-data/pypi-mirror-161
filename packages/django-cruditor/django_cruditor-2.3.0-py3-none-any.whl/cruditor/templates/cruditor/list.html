@@ -1,0 +1,18 @@
+{% extends 'cruditor/base.html' %}
+{% load render_table from django_tables2 %}
+
+
+{% block content %}
+	{% if filter_form %}
+		<div class="row d-flex">
+			<div class="col-lg-3 order-lg-1">
+				{% include 'cruditor/includes/filter-form.html' %}
+			</div>
+			<div class="col-lg-9 order-lg-0">
+				{% render_table table 'cruditor/includes/table.html' %}
+			</div>
+		</div>
+	{% else %}
+		{% render_table table 'cruditor/includes/table.html' %}
+	{% endif %}
+{% endblock %}
