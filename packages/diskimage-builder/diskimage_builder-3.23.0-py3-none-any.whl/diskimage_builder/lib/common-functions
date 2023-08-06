@@ -1,0 +1,543 @@
+#!/bin/bash
+# Copyright 2012 Hewlett-Packard Development Company, L.P.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# This is the "internal" verison of dib-run-parts.  If you modify
+# this, be aware that it needs to run both inside and outside the
+# chroot environment, so it needs to be very generic.
+DIB_RUN_PARTS=${_LIB}/dib-run-parts
+
+function tmpfs_check() {
+  local echo_message=${1:-1}
+  [ "$DIB_NO_TMPFS" == "0" ] || return 1
+  [ -r /proc/meminfo ] || return 1
+  total_kB=$(awk '/^MemTotal/ { print $2 }' /proc/meminfo)
+  # tmpfs uses by default 50% of the available RAM, so the RAM should be at least
+  # the double of the minimum tmpfs size required
+  RAM_NEEDED=$(($DIB_MIN_TMPFS * 2))
+  [ $total_kB -lt $(($RAM_NEEDED*1024*1024)) ] || return 0
+  if [ $echo_message == '1' ]; then
+    echo "WARNING: Not enough RAM to use tmpfs for build. Using ${TMP_DIR:-/tmp}. ($total_kB < ${RAM_NEEDED}G)"
+  fi
+  return 1
+}
+
+function mk_build_dir () {
+  TMP_BUILD_DIR=$(mktemp -t -d --tmpdir=${TMP_DIR:-/tmp} dib_build.XXXXXXXX)
+  TMP_IMAGE_DIR=$(mktemp -t -d --tmpdir=${TMP_DIR:-/tmp} dib_image.XXXXXXXX)
+  [ $? -eq 0 ] || die "Failed to create tmp directory"
+  export TMP_BUILD_DIR
+  if tmpfs_check ; then
+    sudo mount -t tmpfs tmpfs $TMP_BUILD_DIR
+    sudo mount -t tmpfs tmpfs $TMP_IMAGE_DIR
+    sudo chown $(id -u):$(id -g) $TMP_BUILD_DIR $TMP_IMAGE_DIR
+  fi
+  trap trap_cleanup EXIT
+  echo Building in $TMP_BUILD_DIR
+  export TMP_IMAGE_DIR
+  export OUT_IMAGE_PATH=$TMP_IMAGE_PATH
+  export TMP_HOOKS_PATH=$TMP_BUILD_DIR/hooks
+}
+
+function finish_image () {
+    if [ -f $1 -a ${OVERWRITE_OLD_IMAGE:-0} -eq 0 ]; then
+      old_image="${1%.*}"-$(date +%Y.%m.%d-%H.%M.%S).${1##*.}
+      echo "Old image found. Renaming it to $old_image"
+      mv "$1" "$old_image"
+      if [ -f "$1.md5" ]; then
+        mv "$1.md5" "$old_image.md5"
+      fi
+      if [ -f "$1.sha256" ]; then
+        mv "$1.sha256" "$old_image.sha256"
+      fi
+    fi
+
+    mv $OUT_IMAGE_PATH $1
+    if [ "$DIB_CHECKSUM" == "1" ]; then
+
+      # NOTE(pabelanger): Read image into memory once and generate
+      # both checksum files.
+      # NOTE(ianw): we've seen issues with this waiting for
+      # our outfilter.py wrapper when containerised (probably due to
+      # no tty).  Waiting for just these processes is a bit of hacky
+      # workaround ...
+      declare -a wait_for
+      md5sum $1 > $1.md5 & wait_for+=($!)
+      sha256sum $1 > $1.sha256 & wait_for+=($!)
+      wait "${wait_for[@]}"
+    fi
+    echo "Image file $1 created..."
+}
+
+function save_image () {
+    finish_image $1
+}
+
+function copy_hooks_not_overwrite () {
+    _DIR=$(basename $1)
+    test -d $TMP_HOOKS_PATH/$_DIR || mkdir $TMP_HOOKS_PATH/$_DIR
+    for _HOOK in $(ls $1); do
+      if [ ! -f $TMP_HOOKS_PATH/$_DIR/$_HOOK ]; then
+        echo "Copying hooks $1/$_HOOK"
+        cp -t $TMP_HOOKS_PATH/$_DIR -a $1/$_HOOK
+      else
+        echo "There is a duplicated hook in your elements: $_ELEMENT/$_DIR/$_HOOK"
+        exit 1
+      fi
+    done
+}
+
+function generate_hooks () {
+    local xtrace
+    xtrace=$(set +o | grep xtrace)
+    set +o xtrace
+
+    local dir
+    local file
+
+    eval declare -A image_elements=($(get_image_element_array))
+
+    mkdir -p $TMP_HOOKS_PATH
+
+    for i in "${!image_elements[@]}"; do
+        local element=$i
+        local element_dir=${image_elements[$i]}
+
+        echo "Copying hooks for ${element}"
+
+        for dir in $(find $element_dir \
+                          -follow -mindepth 1 -maxdepth 1 \
+                          -type d \
+                          -not -name tests \
+                          -not -name __pycache__); do
+            copy_hooks_not_overwrite $dir
+        done
+        for file in $(find $element_dir \
+                           -follow -maxdepth 1 \
+                           -type f \
+                           -not -name '*.pyc'); do
+            cp -t $TMP_HOOKS_PATH -a $file
+        done
+    done
+
+    $xtrace
+}
+
+# Call the supplied break-in routine if the named point is listed in the break
+# list.
+# $1 the break point.
+# $2.. what to call if a break is needed
+function check_break () {
+  if echo "${break:-}" | egrep -e "(,|^)$1(,|$)" -q; then
+    echo "Starting debug shell. Exit to resume building." >&2
+    echo At stage $1 >&2
+    shift
+    "$@"
+    echo "Resuming" >&2
+  fi
+}
+
+# Check that a real element has been chosen (prevents foot-guns)
+function check_element () {
+  [ -d $TMP_HOOKS_PATH ] || generate_hooks
+}
+
+# Run a hook, looking for a regex in its stdout, and eval the matched lines.
+# $1 is the hook to run
+# $2 is the regex to look for
+function eval_run_d () {
+    local run_output=$(mktemp)
+    trap "rm -f $run_output; check_break after-error ${break_cmd:-bash}" ERR
+    run_d $1 $run_output
+    if grep -q "$2" $run_output; then
+        local temp=$(grep "$2" $run_output)
+        eval "$temp"
+    fi
+    rm $run_output
+    trap - ERR
+}
+
+# Get any process that appears to be running in $TMP_BUILD_DIR
+function _get_chroot_processes () {
+    # Deselect kernel threads, and use a python script to avoid
+    # forking lots and lots of readlink / grep processes on a busy
+    # system.
+    ps --ppid 2 -p 2 --deselect -o pid= | xargs ${DIB_PYTHON_EXEC:-python} -c '
+import os
+import sys
+
+for pid in sys.argv[2:]:
+    try:
+        root = os.readlink("/proc/%s/root" % pid)
+    except:
+        continue
+    if sys.argv[1] in root:
+        print("%s" % pid)
+' $TMP_BUILD_DIR
+}
+
+
+function kill_chroot_processes () {
+    local xtrace
+    xtrace=$(set +o | grep xtrace)
+    set +o xtrace
+
+    local pidname
+
+    if [ -z "${1}" ]; then
+        echo "ERROR: no chroot directory specified"
+        exit 1
+    fi
+
+    for pid in $(_get_chroot_processes); do
+        # If there are open files from the chroot, just kill the process using
+        # these files.  This is racy, but good enough
+        pidname=$(cat $piddir/comm 2>/dev/null || echo "unknown")
+        echo "Killing chroot process: '${pidname}($pid)'"
+        sudo kill $pid
+    done
+
+    $xtrace
+}
+
+function cleanup_build_dir () {
+    if ! timeout 10  sh -c " while ! sudo rm -rf $TMP_BUILD_DIR/built; do sleep 1; done"; then
+        echo "ERROR: unable to cleanly remove $TMP_BUILD_DIR/built"
+        exit 1
+    fi
+    sudo rm -rf $TMP_BUILD_DIR/mnt
+    kill_chroot_processes $TMP_BUILD_DIR
+    if tmpfs_check 0; then
+        # If kill_chroot_processes did not succeed then we have to wait for
+        # init to reap the orphaned chroot processes
+        if ! timeout 120 sh -c "while ! sudo umount -f $TMP_BUILD_DIR; do sleep 1; done"; then
+            echo "ERROR: failed to umount the $TMP_BUILD_DIR tmpfs mount point"
+            exit 1
+        fi
+    fi
+    rm -rf --one-file-system $TMP_BUILD_DIR
+}
+
+function cleanup_image_dir () {
+    kill_chroot_processes $TMP_IMAGE_DIR
+    if tmpfs_check 0; then
+        if ! timeout 120 sh -c "while ! sudo umount -f $TMP_IMAGE_DIR; do sleep 1; done"; then
+            echo "ERROR: failed to umount the $TMP_IMAGE_DIR tmpfs mount point"
+            exit 1
+        fi
+    fi
+    rm -rf --one-file-system $TMP_IMAGE_DIR
+}
+
+# Run a directory of hooks outside the target (that is, no chrooting).
+function run_d() {
+    check_element
+    check_break before-$1 ${break_cmd:-bash}
+    if [ -d ${TMP_HOOKS_PATH}/$1.d ] ; then
+        echo "Running hooks from ${TMP_HOOKS_PATH}/$1.d"
+        if [ -n "$2" ]; then
+            ${DIB_RUN_PARTS} ${TMP_HOOKS_PATH}/$1.d | tee $2
+            if [[ ${PIPESTATUS[0]} != 0 ]]; then
+                return 1
+            fi
+        else
+            ${DIB_RUN_PARTS} ${TMP_HOOKS_PATH}/$1.d
+        fi
+    fi
+    check_break after-$1 bash
+}
+
+function _arg_defaults_hack() {
+    # The block-device configuration looks in all elements for a
+    # "block-device-default.yaml" file.  The "vm" element used to
+    # provide the default block-device, which was fine when there was
+    # only one option; but now we have mbr, gpt & efi versions.
+    #
+    # So now the vm element has a dependency on the block-device
+    # element, which several different elements can provide.  However,
+    # for backwards compatability we need to ensure you can still
+    # build without specifying it.  Thus if we see the vm element, but
+    # no block-device-* element, we will automatically add the old
+    # default MBR.
+    #
+    # Note that you can still override this by setting
+    # DIB_BLOCK_DEVICE_CONFIG; any value there will be taken over the
+    # element defaults.  In this case you'd have "block-device-mbr" as
+    # an element, but it wouldn't actually be used for configuration.
+    #
+    # XXX: if this is becoming a common problem, we could have some
+    # sort of "element-defaults" that maps a "element-deps" entry to a
+    # default.
+    local vm_seen
+    local blockdev_seen
+    local elements
+
+    for arg do
+        if [[ $arg = vm ]]; then
+            vm_seen=1
+        elif [[ $arg = block-device-* ]]; then
+            blockdev_seen=1
+        fi
+        elements="$elements $arg"
+    done
+
+    if [[ -n "${vm_seen}" && -z "${blockdev_seen}" ]]; then
+        if [[ "arm64 aarch64" =~ $ARCH ]] ; then
+            elements="$elements block-device-efi"
+        else
+            elements="$elements block-device-mbr"
+        fi
+    fi
+
+    echo $elements
+}
+
+function arg_to_elements() {
+  for arg do IMAGE_ELEMENT="$IMAGE_ELEMENT $arg" ; done
+
+  IMAGE_ELEMENT="$(_arg_defaults_hack $IMAGE_ELEMENT)"
+
+  if [ "$SKIP_BASE" != "1" ]; then
+    IMAGE_ELEMENT="base $IMAGE_ELEMENT"
+  fi
+  if [ "$IS_RAMDISK" == "1" ]; then
+    IMAGE_ELEMENT="$RAMDISK_ELEMENT $IMAGE_ELEMENT"
+  fi
+  echo "Building elements: $IMAGE_ELEMENT"
+  export IMAGE_ELEMENT
+
+  # element-info will output bash code to create
+  #  * IMAGE_ELEMENT
+  #     legacy list of elements
+  #
+  #  * IMAGE_ELEMENT_YAML
+  #     YAML dictionary with key=element, value=path
+  #
+  #      import os
+  #      import yaml
+  #      yaml.load(os.getenv('IMAGE_ELEMENT_YAML')
+  #
+  #  * function get_image_element_array
+  #     Function to create Bash associative-array.  Since bash can not
+  #     export array variables, we provide a function to populate the
+  #     variables.
+  #
+  #      # we need the eval, it expands the string for the array create
+  #      eval declare -A image_elements=($(get_image_element_array))
+  #      for i in ${!image_elements[@]}; do
+  #        element=$i
+  #        path=${image_elements[$i]
+  #      done
+  elinfo_out="$(${DIB_PYTHON_EXEC} ${_LIB}/element-info.py --env ${IMAGE_ELEMENT})"
+  if [ $? -ne 0 ]; then
+      echo "ERROR: element-info failed to expand elements."
+      exit 1
+  fi
+  eval "$elinfo_out"
+  echo "Expanded element dependencies to: $IMAGE_ELEMENT"
+}
+
+function create_base () {
+    mkdir $TMP_BUILD_DIR/mnt
+    # Make sure the / inside the chroot is owned by root
+    # If it is not owned by root, some Ubuntu bionic packages will fail
+    # path validation at install time.
+    sudo chown root.root $TMP_BUILD_DIR/mnt
+    export TMP_MOUNT_PATH=$TMP_BUILD_DIR/mnt
+    # Copy data in to the root.
+    TARGET_ROOT=$TMP_MOUNT_PATH run_d root
+    if [ -z "$(ls $TMP_MOUNT_PATH | grep -v '^lost+found\|tmp$')" ] ; then
+        # No root element copied in. Note the test above allows
+        # root.d elements to put things in /tmp
+        echo "Failed to deploy the root element."
+        exit 1
+    fi
+
+    # Configure Image
+
+    # Save resolv.conf as created by the initial install.  Note the
+    # .ORIG file is an exported interface -- it may be modified and we
+    # will copy it back in during finalisation of the image.
+    # Note that we use -L and -f to test here as test (and bash [[)
+    # return false with -e if the link target does not exist.
+    if [ -L $TMP_MOUNT_PATH/etc/resolv.conf ] || [ -f $TMP_MOUNT_PATH/etc/resolv.conf ] ; then
+        sudo mv $TMP_MOUNT_PATH/etc/resolv.conf $TMP_MOUNT_PATH/etc/resolv.conf.ORIG
+    fi
+
+    # Recreate resolv.conf
+    sudo touch $TMP_MOUNT_PATH/etc/resolv.conf
+    sudo chmod 777 $TMP_MOUNT_PATH/etc/resolv.conf
+    # use system configured resolv.conf if available to support internal proxy resolving
+    if [ -e /etc/resolv.conf ]; then
+        cat /etc/resolv.conf > $TMP_MOUNT_PATH/etc/resolv.conf
+    else
+        echo nameserver 8.8.8.8 > $TMP_MOUNT_PATH/etc/resolv.conf
+    fi
+    mount_proc_dev_sys
+}
+
+# Get mount options for mounting /dev/pts
+# Kernel commit https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=eedf265aa003b4781de24cfed40a655a664457e6
+# introduced in v4.7 allows multiple instances of devpts. However,
+# some distributions are running older kernels so we need to take
+# care on what options we use to mount a new instance of devpts
+# filesystem since it's not completely independent. The best thing
+# to do is to simply use the existing mount options.
+function mount_dev_pts_options() {
+    echo "-o $(findmnt --first-only /dev/pts --noheadings --output OPTIONS)"
+}
+
+function mount_proc_dev_sys () {
+    # supporting kernel file systems
+    sudo mount -t proc none $TMP_MOUNT_PATH/proc
+    sudo mount --bind /dev $TMP_MOUNT_PATH/dev
+    sudo mount -t devpts $(mount_dev_pts_options) devpts $TMP_MOUNT_PATH/dev/pts
+    # /sys is mounted RO inside non-privledged containers, thus
+    # mounting this RO in the chroot here is an indication to
+    # systemd/udev and other things that you are inside a container.
+    # This is generically safe and can help avoid issues where things
+    # we don't control like pre/post scripts try to do things that
+    # don't work when building inside a dib container like udevadm
+    # --settle calls, etc.
+    sudo mount -o ro -t sysfs none $TMP_MOUNT_PATH/sys
+}
+
+# Recursively unmount directories under a given directory DIR
+# usage:
+#  unmount_dir DIR
+function unmount_dir {
+    local dir="$1"
+    local real_dir
+    local mnts
+    local split_mounts
+    local found_mountpoint
+
+    if [ ! -d $dir ]; then
+        echo "*** $dir is not a directory"
+        return 0
+    fi
+
+    # get rid of any symlink elements in the incoming path, because
+    # /proc/mounts is the real path
+    real_dir=$(readlink -e $dir)
+
+    # populate the exported mountpoints
+    IFS='|' read -ra split_mounts <<< "$DIB_MOUNTPOINTS"
+
+
+    # note the "/" on real_dir ... we are just looking for things
+    # mounted *underneath* this directory.
+    mnts=$(awk '{print $2}' < /proc/mounts | grep "^$real_dir/" | sort -r)
+    for m in $mnts; do
+        # check if suffix is in array
+        found_mountpoint=false
+        for mountpoint in "${split_mounts[@]}"; do
+            if [[ "$mountpoint" != "/" ]]; then
+                if [[ "$m" == *$mountpoint ]]; then
+                    echo "Mountpoint $m managed by block device; skipping"
+                    found_mountpoint=true
+                    break
+                fi
+            fi
+        done
+        if [ $found_mountpoint == false ]; then
+            # unmount the directory as it is not managed by block device
+            echo "Unmount $m"
+            sudo umount -fl $m || true
+        fi
+    done
+}
+
+# Create YAML config file for the block device layer
+# The order here is: use the one the user provides - if there is
+# none provided, fall back to the possible one element which
+# defines a fallback configuration.
+# Parameters:
+#   - name of the to be created config file
+function block_device_create_config_file {
+    # nosiy; we manually trace
+    local xtrace
+    xtrace=$(set +o | grep xtrace)
+    set +o xtrace
+
+    local config_yaml="$1"
+
+    if [[ ${DIB_BLOCK_DEVICE_CONFIG:-} == file://* ]]; then
+        cp $(echo ${DIB_BLOCK_DEVICE_CONFIG} | cut -c 8-) ${config_yaml}
+        echo "Using file-based block-device config: ${DIB_BLOCK_DEVICE_CONFIG}"
+        $xtrace
+        return
+    fi
+    if [ -n "${DIB_BLOCK_DEVICE_CONFIG:-}" ]; then
+        printf "%s" "${DIB_BLOCK_DEVICE_CONFIG}" >${config_yaml}
+        echo "User specified block-device config from DIB_BLOCK_DEVICE_CONFIG"
+        $xtrace
+        return
+    fi
+
+    # Search the elements for a matching block-device config.
+    # XXX: first match wins?
+    echo "Searching elements for block-device[-${ARCH}].yaml ..."
+    eval declare -A image_elements=($(get_image_element_array))
+    for i in ${!image_elements[@]}; do
+        local cfg
+        # look for arch specific version first, then default
+        if [[ "ppc64le ppc64el" =~ $ARCH ]] ; then
+            # NOTE(tonyb): ppc64el and ppc64le are the same archttechture, it's
+            # just different distro's have different names.  So if we're either
+            # of them pick the block-device-ppc64el.yaml file
+            cfg=${image_elements[$i]}/block-device-ppc64el.yaml
+        else
+            cfg=${image_elements[$i]}/block-device-${ARCH}.yaml
+        fi
+        if [ -e ${cfg} ]; then
+            cp ${cfg} ${config_yaml}
+            echo "Using block-device config: ${cfg}"
+            $xtrace
+            return
+        else
+            cfg=${image_elements[$i]}/block-device-default.yaml
+            if [ -e ${cfg} ]; then
+                cp ${cfg} ${config_yaml}
+                echo "Using block-device config: ${cfg}"
+                $xtrace
+                return
+            fi
+        fi
+    done
+    echo "... done"
+
+    # how did this get here?
+    if [ -e ${config_yaml} ]; then
+        die "${config_yaml} exists?"
+    fi
+
+    echo "Using default block-device fallback config"
+    # If no config is there (until now) use the default config
+
+    cat >${config_yaml} <<EOF
+- local_loop:
+    name: image0
+    mkfs:
+      name: mkfs_root
+      mount:
+        mount_point: /
+        fstab:
+          options: "defaults"
+          fsck-passno: 1
+EOF
+
+    $xtrace
+}

@@ -1,0 +1,16 @@
+[console_scripts]
+disk-image-create = diskimage_builder.disk_image_create:main
+ramdisk-image-create = diskimage_builder.disk_image_create:main
+
+[diskimage_builder.block_device.plugin]
+fstab = diskimage_builder.block_device.level4.fstab:Fstab
+local_loop = diskimage_builder.block_device.level0.localloop:LocalLoop
+lvm = diskimage_builder.block_device.level1.lvm:LVMPlugin
+mkfs = diskimage_builder.block_device.level2.mkfs:Mkfs
+mount = diskimage_builder.block_device.level3.mount:Mount
+partitioning = diskimage_builder.block_device.level1.partitioning:Partitioning
+
+[diskimage_builder.block_device.plugin_test]
+test_a = diskimage_builder.block_device.tests.plugin.test_a:TestA
+test_b = diskimage_builder.block_device.tests.plugin.test_b:TestB
+
