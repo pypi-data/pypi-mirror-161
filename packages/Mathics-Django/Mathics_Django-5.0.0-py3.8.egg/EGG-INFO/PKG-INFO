@@ -1,0 +1,121 @@
+Metadata-Version: 2.1
+Name: Mathics-Django
+Version: 5.0.0
+Summary: A Django front end for Mathics.
+Home-page: https://mathics.org/
+Maintainer: Mathics Group
+Maintainer-email: mathics-devel@googlegroups.com
+License: GPL
+Keywords: Mathematica,Wolfram,Interpreter,Shell,Math,CAS
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Software Development :: Interpreters
+Description-Content-Type: text/x-rst
+Provides-Extra: full
+License-File: COPYING.txt
+License-File: AUTHORS.txt
+
+Welcome to Mathics-Django
+=========================
+
+|CI Status| |Pypi Installs| |Latest Version| |Supported Python Versions|
+
+|Packaging status|
+
+This is the Django front-end to `Mathics <https://mathics.org>`_.
+
+Features:
+---------
+
+* Extensive online documentation
+* Integrated graphics, via `three.js <https://threejs.org>`_, and MathML mathematics output
+* Notebook-like sessions
+
+Note: in the future we intend to also proved a Jupyter-like interface.
+
+ScreenShot
+----------
+
+mathicsserver: a Django-based Web interface
++++++++++++++++++++++++++++++++++++++++++++
+
+|mathicssserver|
+
+
+Running
+-------
+
+This is a Django project so Dango's `manage.py <https://docs.djangoproject.com/en/3.2/ref/django-admin/>`_ script used.
+
+A simple way to start Mathics Django when GNU make is installed (which is the case on most POSIX systems):
+
+::
+
+   make runserver
+
+Underneath this runs the Python program ``manage.py`` in ``mathics_django`` directory.
+
+To get a list of the available commands, type ``python
+mathics_django/manage.py help``. To get help on a specific command
+give that command at the end. For example two commands that are useful
+are the ``runserver`` and ``testserver`` commands. ``python
+mathics_django/manage.py help runserver`` will show options in running
+the Django server.
+
+
+Environment Variables
++++++++++++++++++++++
+
+There are two special environment variables of note which controls
+where the Mathics database is located. This database is saves
+authentication and worksheet information.
+
+By default the database used is ``DATADIR + mathics.sqlite`` where
+``DATADIR`` is under ``AppData/Python/Mathics/`` for MS-Windows and
+``~/.local/var/mathics/`` for all others. If you want to specify your own database file set
+environment variable ``MATHICS_DJANGO_DB_PATH``.
+
+If you just want to set the ``mathics.sqlite`` portion, you can use
+the environment variable ``MATHICS_DJANGO_DB``.
+
+Information for the onine-documentation comes from one of two places,
+``DOC_USER_HTML_DATA_PATH`` if that exists and
+``DOC_SYSTEM_HTML_DATA_PATH`` as fallback if that doesn't exist. The
+latter is created when the package is built. The former allows for the
+user or developer to update this information. In the future it will
+take into account plugins that have been added.
+
+
+Contributing
+------------
+
+Please feel encouraged to contribute to Mathics! Create your own fork, make the desired changes, commit, and make a pull request.
+
+
+License
+-------
+
+Mathics-Django is released under the GNU General Public License Version 3 (GPL3).
+
+.. |mathicssserver| image:: https://mathics.org/images/mathicsserver.png
+.. |Latest Version| image:: https://badge.fury.io/py/Mathics-Django.svg
+		 :target: https://badge.fury.io/py/Mathics-Django
+.. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/Mathics-Django.svg
+.. |CI status| image:: https://github.com/Mathics3/mathics-django/workflows/Mathics-Django%20(ubuntu)/badge.svg
+		       :target: https://github.com/Mathics3/mathics-django/actions
+.. |Packaging status| image:: https://repology.org/badge/vertical-allrepos/mathics-django.svg
+			    :target: https://repology.org/project/mathics-django/versions
+.. |Pypi Installs| image:: https://pepy.tech/badge/mathics-django
+
