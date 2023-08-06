@@ -1,0 +1,49 @@
+
+/***********************************************************************
+ * NAME : getModelObjPointer(Model)
+ *
+ * DESCRIPTION : Function to return a pointer to a model object.
+ *		
+ * INPUTS : 
+ *		std::string Model	Model name (use lower case!).
+ *
+ * RETURNS :
+ *		InternalFunc *ptr		Function pointer to model object.
+ *
+ **********************************************************************/
+InternalFunc getModelObjPointer(std::string Model) {
+    std::map<std::string,InternalFunc> modelPtrMap = getModelPtrMap();
+	return modelPtrMap[Model];
+}
+
+/***********************************************************************
+ * NAME : getModelObjPointer(Model)
+ *
+ * DESCRIPTION : Function to return a pointer to a model object.
+ *		
+ * INPUTS : 
+ *		std::string Model	Model name (use lower case!).
+ *
+ * RETURNS :
+ *		InternalFunc *ptr		Function pointer to model object.
+ *
+ **********************************************************************/
+InternalFunc getModelObjPointer(const char *Model) {
+    std::map<std::string,InternalFunc> modelPtrMap = getModelPtrMap();
+	return modelPtrMap[Model];
+}
+
+/***********************************************************************
+ * NAME : listAvailableModels()
+ *
+ * DESCRIPTION : Function to return a list of model names available.
+ *		
+ * RETURNS :
+ *		vector<string> Models	Model list.
+ *
+ **********************************************************************/
+std::vector<std::string> listAvailableModels() {
+	return listMapKeys(getModelPtrMap());
+}
+
+/* map of strings to direct field model function pointers */
