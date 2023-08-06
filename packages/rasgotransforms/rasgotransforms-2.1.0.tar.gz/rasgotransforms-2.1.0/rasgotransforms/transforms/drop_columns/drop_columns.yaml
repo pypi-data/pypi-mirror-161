@@ -1,0 +1,26 @@
+name: drop_columns
+tags:
+  - column
+  - data_cleaning
+description: |
+  Drop columns by passing either an include_cols list of columns to include or an exclude_cols list of columns to exclude.
+  
+  Passing both include_cols and exclude_cols will result in an error.
+
+arguments:
+  include_cols:
+    type: column_list
+    description: A list of the columns from the dataset you want to keep.
+    is_optional: true
+  exclude_cols:
+    type: column_list
+    description: A list of the columns from the dataset you want to drop. Any columns not in the exclude_cols list will be kept.
+    is_optional: true
+example_code: |
+  ds = rasgo.get.dataset(id)
+
+  ds2a = ds.drop_columns(include_cols=["DS_WEATHER_ICON", "DS_DAILY_HIGH_TEMP"])
+  ds2a.preview()
+
+  ds2b = ds.drop_columns(exclude_cols=["DS_CLOUD_COVER", "DS_TOTAL_RAINFALL"])
+  ds2b.preview()
