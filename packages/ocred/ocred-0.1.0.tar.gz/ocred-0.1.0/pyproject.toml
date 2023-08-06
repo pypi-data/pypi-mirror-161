@@ -1,0 +1,118 @@
+[build-system]
+requires = [
+    "hatchling",
+    "hatch-vcs"
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "OCRed"
+description = "OCR wrapper library for direct users (not researchers)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "Saransh Chopra", email = "saransh0701@gmail.com" },
+]
+keywords = [
+    "Computer Vision",
+    "Intended for direct users",
+    "OCR",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Customer Service",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+dependencies = [
+    "easyocr>=1.4.1",
+    "gTTS>=2.2.3",
+    "nltk>=3.5",
+    "numpy>=1.19.4",
+    "opencv-python==4.5.3.56",
+    "pytesseract>=0.3.8",
+    "scikit-image>=0.18.3",
+    "scipy>=1.5.4",
+]
+dynamic = [
+    "version",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-cov>=3.0.0",
+    "pytest>=6",
+    "xdoctest>=1.0.0",
+    "mkdocs-material>=8.3.9",
+    "mkdocstrings-python>=0.7.1",
+    "mkdocs>=1.3.1",
+    "mkdocs-jupyter>=0.21.0",
+]
+docs = [
+    "mkdocstrings-python-legacy>=0.2.3",
+    "mkdocs-material>=8.3.9",
+    "mkdocstrings-python>=0.7.1",
+    "mkdocs>=1.3.1",
+    "mkdocs-jupyter>=0.21.0",
+]
+test = [
+    "pytest-cov>=3.0.0",
+    "pytest>=6",
+    "xdoctest>=1.0.0",
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/Saransh-cpp/OCRed/issues"
+Discussions = "https://github.com/Saransh-cpp/OCRed/discussions"
+Homepage = "https://github.com/Saransh-cpp/OCRed"
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "ocred/version.py"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+xfail_strict = true
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+]
+testpaths = [
+    "tests",
+]
+log_cli_level = "DEBUG"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+files = [
+    "./ocred/",
+]
+python_version = "3.8"
+strict = true
+warn_return_any = false
+show_error_codes = true
+warn_unreachable = true
+enable_error_code = [
+    "ignore-without-code",
+    "truthy-bool",
+    "redundant-expr",
+]
+ignore_missing_imports = true
