@@ -1,0 +1,1 @@
+This is a very simple game engine that focuses on creating games in a very short amount of time and very short amount of code, that is very viable to use and easy to learn.
