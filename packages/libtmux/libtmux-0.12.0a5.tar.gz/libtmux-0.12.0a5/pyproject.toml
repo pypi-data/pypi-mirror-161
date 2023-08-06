@@ -1,0 +1,103 @@
+[tool.poetry]
+name = "libtmux"
+version = "0.12.0a5"
+description = "Scripting library / ORM / API wrapper for tmux"
+license = "MIT"
+authors = ["Tony Narlock <tony@git-pull.com>"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS :: MacOS X",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Utilities",
+  "Topic :: System :: Shells",
+]
+
+keywords = ["tmux", "session manager", "terminal", "ncurses"]
+homepage = "http://github.com/tmux-python/libtmux/"
+readme = "README.md"
+packages = [
+  { include = "libtmux" },
+]
+include = [
+  { path = "CHANGES", format = "sdist" },
+  { path = ".tmuxp.yaml", format = "sdist" },
+  { path = "tests", format = "sdist" },
+  { path = "docs", format = "sdist" },
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/tmux-python/libtmux/issues"
+Documentation = "https://libtmux.git-pull.com"
+Repository = "https://github.com/tmux-python/libtmux"
+Changes = "https://github.com/tmux-python/libtmux/blob/master/CHANGES"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+### Docs ###
+sphinx = "*"
+furo = "*"
+sphinx-autobuild = "*"
+sphinx-autodoc-typehints = "*"
+sphinx-click = "*"
+sphinx-issues = "*"
+sphinx-inline-tabs = { version = "*", python = "^3.7" }
+sphinxext-opengraph = "*"
+sphinx-copybutton = "*"
+sphinxext-rediraffe = "*"
+sphinx-autoapi = "*"
+myst_parser = "*"
+docutils = "~0.18.0"
+
+### Testing ###
+pytest = "*"
+pytest-rerunfailures = "*"
+pytest-mock = "*"
+pytest-watcher = "^0.2.3"
+
+### Coverage ###
+codecov = "*"
+coverage = "*"
+pytest-cov = "*"
+
+### Format ###
+black = "*"
+isort = "*"
+
+### Lint ###
+flake8 = "*"
+mypy = "*"
+
+[tool.poetry.extras]
+docs = [
+  "docutils",
+  "sphinx",
+  "sphinx-issues",
+  "sphinx-autoapi",
+  "sphinx-autodoc-typehints",
+  "sphinx-autobuild",
+  "sphinx-copybutton",
+  "sphinxext-opengraph",
+  "sphinx-inline-tabs",
+  "sphinxext-rediraffe",
+  "myst_parser",
+  "furo",
+]
+test = ["pytest", "pytest-rerunfailures", "pytest-mock", "pytest-watcher"]
+coverage = ["codecov", "coverage", "pytest-cov"]
+format = ["black", "isort"]
+lint = ["flake8", "mypy"]
+
+[build-system]
+requires = ["poetry_core>=1.0.0", "setuptools>50"]
+build-backend = "poetry.core.masonry.api"
