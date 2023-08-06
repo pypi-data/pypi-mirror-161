@@ -1,0 +1,173 @@
+Metadata-Version: 2.1
+Name: azureml-inference-server-http
+Version: 0.7.4
+Summary: Azure Machine Learning inferencing server.
+Home-page: UNKNOWN
+Author: Microsoft Corp
+Author-email: amlInferenceImages@microsoft.com
+License: https://aka.ms/azureml-sdk-license
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.6
+Description-Content-Type: text/x-rst
+Requires-Dist: flask (<2.2.0)
+Requires-Dist: inference-schema (~=1.4.0)
+Requires-Dist: opencensus-ext-azure (~=1.1.0)
+Requires-Dist: flask-cors (~=3.0.1)
+Requires-Dist: gunicorn (==20.1.0) ; platform_system != "Windows"
+Requires-Dist: psutil (==5.8.0) ; platform_system == "Windows"
+Requires-Dist: waitress (==2.1.2) ; platform_system == "Windows"
+Provides-Extra: all
+Requires-Dist: aiohttp (~=3.7.4.post0) ; extra == 'all'
+Requires-Dist: aiotask-context (~=0.6.1) ; extra == 'all'
+Requires-Dist: grpcio-tools (~=1.38.1) ; extra == 'all'
+Requires-Dist: protobuf (~=3.17.3) ; extra == 'all'
+Requires-Dist: tritonclient[all] (~=2.11.0) ; extra == 'all'
+Requires-Dist: sanic (~=21.6.0) ; (python_version >= "3.7") and extra == 'all'
+Requires-Dist: sanic-cors (~=1.0.1) ; (python_version >= "3.7") and extra == 'all'
+Provides-Extra: dev
+Requires-Dist: aiohttp (~=3.7.4.post0) ; extra == 'dev'
+Requires-Dist: aiotask-context (~=0.6.1) ; extra == 'dev'
+Requires-Dist: grpcio-tools (~=1.38.1) ; extra == 'dev'
+Requires-Dist: protobuf (~=3.17.3) ; extra == 'dev'
+Requires-Dist: tritonclient[all] (~=2.11.0) ; extra == 'dev'
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: coverage (==6.2) ; extra == 'dev'
+Requires-Dist: debugpy ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: flake8-comprehensions ; extra == 'dev'
+Requires-Dist: flake8-import-order ; extra == 'dev'
+Requires-Dist: junitparser (==2.0.0) ; extra == 'dev'
+Requires-Dist: numpy ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-asyncio ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: requests ; extra == 'dev'
+Requires-Dist: sanic-testing ; extra == 'dev'
+Requires-Dist: towncrier (==21.9.0) ; extra == 'dev'
+Requires-Dist: wheel ; extra == 'dev'
+Requires-Dist: sanic (~=21.6.0) ; (python_version >= "3.7") and extra == 'dev'
+Requires-Dist: sanic-cors (~=1.0.1) ; (python_version >= "3.7") and extra == 'dev'
+Requires-Dist: Pillow (~=9.0.1) ; (python_version >= "3.7") and extra == 'dev'
+
+============================================================================
+Azure Machine Learning Inference HTTP Server (azureml-inference-server-http)
+============================================================================
+
+Check our official documentation `here <https://docs.microsoft.com/en-us/azure/machine-learning/how-to-inference-server-http>`__.
+
+
+Python 3.6 Deprecation
+======================
+
+- Python 3.6 support on Windows is dropped from `azureml-inference-server-http` v0.4.12 to pick up `waitress v2.1.1 <https://pypi.org/project/waitress/2.1.1/>`__ with the security bugfix of `CVE-2022-24761 <https://nvd.nist.gov/vuln/detail/CVE-2022-24761>`__.
+- Python 3.6 support on Mac, Linux and WSL2 will not be impacted by above change for now.
+- Python 3.6 support on all platforms will be dropped in **December, 2022** (previously: 6/15/2022)
+
+CORS support
+=============
+
+Cross-origin resource sharing is a way to allow resources on a webpage to be requested from another domain. CORS works
+via HTTP headers sent with the client request and returned with the service response. For more information on CORS and
+valid headers, see `Cross-origin resource sharing <https://en.wikipedia.org/wiki/Cross-origin_resource_sharing>`__ in
+Wikipedia.
+
+Users can specify the domains allowed for access through the ``AML_CORS_ORIGINS`` environment variable, as a comma
+separated list of domains, such as ``www.microsoft.com, www.bing.com``. While discouraged, users can also set it to
+``*`` to allow access from all domains. CORS is disabled if this environment variable is not set.
+
+Existing usage to employ ``@rawhttp`` as a way to specify CORS header is not affected, and can be used if you need more
+granular control of CORS (such as the need to specify other CORS headers). See `here
+<https://docs.microsoft.com/en-us/azure/machine-learning/how-to-deploy-advanced-entry-script#cross-origin-resource-sharing-cors>`__
+for an example.
+
+
+Changelog
+=========
+
+0.7.4 (2022-07-29)
+~~~~~~~~~~~~~~~~~~
+
+Fixes
+-----
+
+- Fix an issue where the server would require arguments that have default values in run().
+
+
+0.7.3 (2022-07-18)
+~~~~~~~~~~~~~~~~~~
+
+Features
+--------
+
+- CORS can be enabled with the environment variable ``AML_CORS_ORIGINS``. Refer to README for detailed usage.
+- Server can now be started with ``python -m azureml_inference_server_http`` in additional to ``azmlinfsrv``.
+- OPTIONS calls are modified to return ``200 OK`` instead of the previous ``405 Method not allowed``.
+- Users can bring their own swaggers by placing ``swagger2.json`` and ``swagger3.json`` in ``AML_APP_ROOT``.
+
+Enhancements
+------------
+
+- Swaggers are always generated now, regardless whether the user's run() function is decorated with inference-schema. 
+- The x-request-id and x-client-request-id headers are now limited to 100 characters.
+
+Fixes
+-----
+
+- Fixed an issue that prevents the server from cleanly exiting when the scoring script cannot be initialized. If
+  AppInsights is not enabled, users may see ``AttributeError: 'AppInsightsClient' object has no attribute 'logger'``.
+
+
+0.7.2 (2022-06-06)
+~~~~~~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added support for Flask 2.1.
+
+- The server now responds with a 400 Bad Request when it finds invalid inputs.
+
+
+0.7.1 (2022-05-10)
+~~~~~~~~~~~~~~~~~~
+
+Deprecation
+-----------
+
+- The "x-ms-request-id" header is deprecated and is being replaced by "x-request-id". Until "x-ms-request-id" is
+  removed, the server will accept either header and respond with both headers set to the same request id. Providing two
+  request ids through the headers is not allowed and will be responded with a Bad Request.
+
+
+Enhancements
+------------
+
+- Added support for Flask 2.0. A compatibility layer is introduced to ensure this upgrade doesn't break users who use
+  ``@rawhttp`` as the methods on the Flask request object have slightly changed. Specifically,
+
+  * ``request.headers.has_keys()`` was removed
+  * ``request.json`` throws an exception if the content-type is not "application/json". Previously it returns ``None``.
+
+  The compatibility layer restores these functionalities to their previous behaviors. However, this compatibility layer
+  will be removed in a future date and users are encouraged to audit their score scripts today. To see if your score
+  script is ready for Flask 2, run the server with the environment variable ``AML_FLASK_ONE_COMPATIBILITY`` set to
+  ``false``.
+
+  Flask's full changelog can be found here: https://flask.palletsprojects.com/en/2.1.x/changes/
+
+- Added support for the "x-request-id" and "x-client-request-id" headers. A new GUID is generated for "x-request-id" if
+  one is not provided. These values are echoed back to the client in the response headers. 
+
+
