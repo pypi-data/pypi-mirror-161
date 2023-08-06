@@ -1,0 +1,26 @@
+# UPDATE
+NODE = 'node'
+FORM = 'form'
+
+# `GET` EXPIRATION DATE CONST
+EXPIRE = 'expire_date'
+
+# ENCRIPTION POLY CONST
+ENCRYPT = 'enc'
+
+# METAX DB FILE ENCRIPTION
+ENCRYPTED = 1
+NO_ENCRYPTED = 0
+
+# METAX SECURE STATE
+SECURE = True
+NO_SECURE = False
+
+# REQUEST
+GET = 0
+POST = 1
+
+# LISTENERS
+UPDATE = 'updated'
+DELETE = 'deleted'
+ANY = 'any'
