@@ -1,0 +1,22 @@
+            - Name: {{ action }}
+              ActionTypeId:
+                Category: Test
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: {% if action == "Validate" %}ServiceCatalog-Factory-SharedValidate{% else %}!Ref {{ action }}Project{% endif %}
+                EnvironmentVariables: '[{"name":"TEMPLATE_FORMAT","value":"{{ template_format }}","type":"PLAINTEXT"},{"name":"SOURCE_PATH","value":"{{ Source.Path }}","type":"PLAINTEXT"}]'
+              RunOrder: 1
+              InputArtifacts:
+              {% if ShouldParseAsJinja2Template %}
+                - Name: Parse
+              {% else %}
+                {% if Stages.get("Build", {}).get("BuildSpec") %}
+                - Name: Build
+                {% else %}
+                - Name: Source
+                {% endif %}
+              {% endif %}
+              OutputArtifacts:
+                - Name: Test{{ action }}

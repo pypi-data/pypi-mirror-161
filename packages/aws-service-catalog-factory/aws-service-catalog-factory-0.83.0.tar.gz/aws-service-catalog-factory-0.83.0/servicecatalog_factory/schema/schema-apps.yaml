@@ -1,0 +1,124 @@
+schema: include('schema', required=False)
+Schema: include('schema', required=False)
+
+Apps: list(include('app'))
+
+---
+version:
+  Name: str()
+  Tags: list(include('tag'), required=False)
+  Active: include('active', required=False)
+  Status: include('status', required=False)
+  Options: include('options', required=False)
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source', required=False)
+
+version_with_source:
+  Name: str()
+  Tags: list(include('tag'), required=False)
+  Active: include('active', required=False)
+  Status: include('status', required=False)
+  Options: include('options', required=False)
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source')
+
+app: any(include("app_without_source"), include("app_with_source"))
+
+app_without_source:
+  Name: str()
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source', required=False)
+  Options: include('options', required=False)
+  Tags: list(include('tag'), required=False)
+  Versions: list(include('version_with_source'), required=False)
+
+app_with_source:
+  Name: str()
+  BuildSpecImage: str(required=False)
+  BuildSpec: str(required=False)
+  Source: include('source')
+  Options: include('options', required=False)
+  Tags: list(include('tag'), required=False)
+  Versions: list(include('version'), required=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+schema: enum("factory-2019-04-01", "Factory-2019-04-01")
+
+tag:
+  Key: str()
+  Value: str()
+
+configuration_codecommit:
+  RepositoryName: str(required=False)
+  BranchName: str(required=False)
+
+configuration_github:
+  Branch: str(required=False)
+  Owner: str(required=False)
+  Repo: str(required=False)
+
+configuration_codestarsourceconnection:
+  ConnectionArn: str(required=True)
+  BranchName: str(required=True)
+  FullRepositoryId: str(required=True)
+
+configuration_s3:
+  BucketName: str(required=False)
+  S3ObjectKey: str(required=False)
+
+source: any(include("source_codecommit"), include("source_github"), include("source_s3"), include("source_codestarsourceconnection"))
+
+source_s3:
+  Provider: enum("S3")
+  Path: str(required=False)
+  Configuration: include('configuration_s3')
+
+source_github:
+  Provider: enum("Github", "GitHub")
+  Path: str(required=False)
+  Configuration: include('configuration_github')
+
+source_codestarsourceconnection:
+  Provider: enum("CodeStarSourceConnection")
+  Path: str(required=False)
+  Configuration: include('configuration_codestarsourceconnection')
+
+source_codecommit:
+  Provider: enum("CodeCommit")
+  Path: str(required=False)
+  Configuration: include('configuration_codecommit')
+
+code_s3_bucket:
+  Bucket: str()
+  Key: str(required=False)
+
+code_s3_key:
+  Bucket: str(required=False)
+  Key: str()
+
+code_s3: any(include('code_s3_bucket'), include('code_s3_key'))
+
+code:
+  S3: include('code_s3')
+
+active: any(bool(required=False), enum("terminated"))
+status: enum("active", "terminated")
