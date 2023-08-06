@@ -1,0 +1,451 @@
+{#
+  Copyright (c) Ansible Project
+  GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+  SPDX-License-Identifier: GPL-3.0-or-later
+#}
+
+{% from 'macros/attributes.rst.j2' import in_rst as attributes_rst with context %}
+{% from 'macros/parameters.rst.j2' import in_rst as parameters_rst with context %}
+{% from 'macros/parameters.rst.j2' import in_html as parameters_html with context %}
+{% from 'macros/returnvalues.rst.j2' import in_rst as return_docs_rst with context %}
+{% from 'macros/returnvalues.rst.j2' import in_html as return_docs_html with context %}
+.. Document meta
+
+:orphan:
+{% if edit_on_github_url %}
+:github_url: @{ edit_on_github_url }@?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr
+{% endif %}
+
+.. |antsibull-internal-nbsp| unicode:: 0xA0
+    :trim:
+
+.. role:: ansible-attribute-support-label
+.. role:: ansible-attribute-support-property
+.. role:: ansible-attribute-support-full
+.. role:: ansible-attribute-support-partial
+.. role:: ansible-attribute-support-none
+.. role:: ansible-attribute-support-na
+.. role:: ansible-option-type
+.. role:: ansible-option-elements
+.. role:: ansible-option-required
+.. role:: ansible-option-versionadded
+.. role:: ansible-option-aliases
+.. role:: ansible-option-choices
+.. role:: ansible-option-choices-entry
+.. role:: ansible-option-default
+.. role:: ansible-option-default-bold
+.. role:: ansible-option-configuration
+.. role:: ansible-option-returned-bold
+.. role:: ansible-option-sample-bold
+
+{# If we can put together source and github repo, we could make the Edit me of github button work.
+   See meta.get("source") in Ansible's docs/docsite/_themes/sphinx_rtd_theme/breadcrumbs.html
+   for more information
+:source: @{ source }@
+-#}
+
+.. Anchors
+
+.. _ansible_collections.@{plugin_name}@_@{plugin_type}@:
+
+.. Anchors: short name for ansible.builtin
+
+{% if collection == 'ansible.builtin' -%}
+{# ansible.builtins get shortname anchors as well #}
+.. _@{ doc['name'] }@_@{ plugin_type }@:
+{% endif -%}
+
+.. Anchors: aliases
+
+{# TODO: This assumes that aliases will be short names.
+   If they're FQCN, then we need to change this
+#}
+
+{% for alias in doc['aliases'] -%}
+.. _ansible_collections.@{collection}@.@{ alias }@_@{ plugin_type }@:
+{% endfor %}
+
+.. Title
+
+{% if doc['short_description'] -%}
+{%   set title = plugin_name ~ ' ' ~ plugin_type ~ ' -- ' ~ doc['short_description'] | rst_ify -%}
+{% else -%}
+{%   set title = plugin_name ~ ' ' ~ plugin_type -%}
+{% endif -%}
+
+@{ title }@
+@{ '+' * title|length }@
+
+.. Collection note
+
+{% if collection == 'ansible.builtin' -%}
+.. note::
+    This {% if plugin_type == 'module' %}module{% else %}@{ plugin_type }@ plugin{% endif %}
+    is part of ``ansible-core`` and included in all Ansible
+    installations. In most cases, you can use the short
+    {% if plugin_type == 'module' %}module{% else %}plugin{% endif %} name
+    ``@{ plugin_name.rsplit('.', 1)[-1] }@`` even without specifying the ``collections:`` keyword.
+    However, we recommend you use the FQCN for easy linking to the
+    {% if plugin_type == 'module' %}module{% else %}plugin{% endif %}
+    documentation and to avoid conflicting with other collections that may have
+    the same {% if plugin_type == 'module' %}module{% else %}@{ plugin_type }@ plugin{% endif %} name.
+{% else %}
+.. note::
+    This {% if plugin_type == 'module' %}module{% else %}@{ plugin_type }@ plugin{% endif %} is part of the `@{collection}@ collection <https://galaxy.ansible.com/@{collection | replace('.', '/', 1)}@>`_{% if collection_version %} (version @{ collection_version }@){% endif %}.
+
+    You might already have this collection installed if you are using the ``ansible`` package.
+    It is not included in ``ansible-core``.
+    To check whether it is installed, run :code:`ansible-galaxy collection list`.
+
+    To install it, use: :code:`ansible-galaxy collection install @{collection}@`.
+
+    To use it in a playbook, specify: :code:`@{plugin_name}@`.
+{% endif %}
+
+.. version_added
+
+{% if doc['version_added'] is still_relevant(collection=doc['version_added_collection']) -%}
+.. versionadded:: @{ doc['version_added'] }@ of @{ doc['version_added_collection'] | rst_ify }@
+{% endif %}
+
+.. contents::
+   :local:
+   :depth: 1
+
+.. Deprecated
+
+{% if doc['deprecated'] -%}
+DEPRECATED
+----------
+{% if doc['deprecated']['removed_at_date'] %}
+:Removed in: major release after @{ doc['deprecated']['removed_at_date'] | rst_ify }@
+{% elif doc['deprecated']['removed_in'] %}
+:Removed in: version @{ doc['deprecated']['removed_in'] | rst_ify }@
+{% else %}
+:Removed in: a future release
+{% endif %}
+{% if doc['deprecated']['removed_from_collection'] and doc['deprecated']['removed_from_collection'] != collection %}
+             of @{ doc['deprecated']['removed_from_collection'] | rst_ify }@
+{% endif %}
+:Why: @{ doc['deprecated']['why'] | rst_ify }@
+:Alternative: @{ doc['deprecated']['alternative'] | rst_ify }@
+{% endif %}
+
+Synopsis
+--------
+
+.. Description
+
+{%   for desc in doc['description'] -%}
+- @{ desc | rst_ify | indent(width=2) }@
+{%   endfor %}
+
+{% if doc['has_action'] %}
+.. note::
+    This module has a corresponding :ref:`action plugin <action_plugins>`.
+{% endif %}
+
+.. Aliases
+
+{% if doc['aliases'] -%}
+Aliases: @{ ','.join(aliases) }@
+{% endif %}
+
+.. Requirements
+
+{% if doc['requirements'] -%}
+Requirements
+------------
+{%   if plugin_type in ('module', 'module_util') %}
+The below requirements are needed on the host that executes this @{ plugin_type }@.
+{%   else %}
+The below requirements are needed on the local controller node that executes this @{ plugin_type }@.
+{%   endif %}
+
+{%   for req in doc['requirements'] %}
+- @{ req | rst_ify | indent(width=2) }@
+{%   endfor %}
+
+{% endif %}
+
+{% set options_to_skip = [] %}
+
+{% if doc['options']['_terms'] and plugin_type in ['lookup'] %}
+{%   set options_to_skip = options_to_skip + ['_terms'] %}
+
+.. Terms
+
+Terms
+-----
+
+{%   if use_html_blobs %}
+@{     parameters_html([['Terms', doc['options']['_terms']]], suboption_key='suboptions') }@
+{%   else %}
+@{     parameters_rst([['Terms', doc['options']['_terms']]], suboption_key='suboptions') }@
+{%   endif %}
+
+{% endif %}
+
+{% if doc['options']['_input'] and plugin_type in ['filter', 'test'] %}
+{%   set options_to_skip = options_to_skip + ['_input'] %}
+
+.. Input
+
+Input
+-----
+
+{%   if plugin_type == 'filter' %}
+This describes the input of the filter, the value before ``| @{plugin_name}@``.
+{%   else %}
+This describes the input of the test, the value before ``is @{plugin_name}@`` or ``is not @{plugin_name}@``.
+{%   endif %}
+
+{%   if use_html_blobs %}
+@{     parameters_html([['Input', doc['options']['_input']]], suboption_key='suboptions') }@
+{%   else %}
+@{     parameters_rst([['Input', doc['options']['_input']]], suboption_key='suboptions') }@
+{%   endif %}
+
+{% endif %}
+
+{% if doc['positional'] and plugin_type in ['lookup', 'filter', 'test'] and doc['positional'] != ['_input'] %}
+{%   set options_to_skip = options_to_skip + doc['positional'] %}
+
+.. Positional
+
+Positional parameters
+---------------------
+
+{%   if plugin_type == 'filter' %}
+This describes positional parameters of the filter. These are the values ``positional1``, ``positional2`` and so on in the following example: ``input | @{plugin_name}@(positional1, positional2, ...)``.
+{%   elif plugin_type == 'test' %}
+This describes positional parameters of the test. These are the values ``positional1``, ``positional2`` and so on in the following examples: ``input is @{plugin_name}@(positional1, positional2, ...)`` and ``input is not @{plugin_name}@(positional1, positional2, ...)``.
+{%   endif %}
+
+{%   if use_html_blobs %}
+@{     parameters_html(doc['options'] | extract_options_from_list(doc['positional'], options_to_ignore=['_input']), suboption_key='suboptions') }@
+{%   else %}
+@{     parameters_rst(doc['options'] | extract_options_from_list(doc['positional'], options_to_ignore=['_input']), suboption_key='suboptions') }@
+{%   endif %}
+
+{% endif %}
+
+.. Options
+
+{% if doc['options'] | remove_options_from_list(options_to_skip) -%}
+
+{%   if plugin_type in ['filter', 'test'] %}
+Keyword parameters
+------------------
+{%   else %}
+Parameters
+----------
+{%   endif %}
+
+{%   if plugin_type == 'filter' %}
+This describes keyword parameters of the filter. These are the values ``key1=value1``, ``key2=value2`` and so on in the following example: ``input | @{plugin_name}@(key1=value1, key2=value2, ...)``.
+{%   elif plugin_type == 'test' %}
+This describes keyword parameters of the test. These are the values ``key1=value1``, ``key2=value2`` and so on in the following examples: ``input is @{plugin_name}@(key1=value1, key2=value2, ...)`` and ``input is not @{plugin_name}@(key1=value1, key2=value2, ...)``.
+{%   endif %}
+
+{%   if use_html_blobs %}
+@{     parameters_html(doc['options'] | remove_options_from_list(options_to_skip) | dictsort, suboption_key='suboptions') }@
+{%   else %}
+@{     parameters_rst(doc['options'] | remove_options_from_list(options_to_skip) | dictsort, suboption_key='suboptions') }@
+{%   endif %}
+{% endif %}
+
+.. Attributes
+
+{% if doc['attributes'] %}
+
+Attributes
+----------
+
+@{   attributes_rst(doc['attributes']) }@
+{% endif %}
+
+.. Notes
+
+{% if doc['notes'] -%}
+Notes
+-----
+
+.. note::
+{%   for note in doc['notes'] %}
+   - @{ note | rst_ify | indent(width=5) }@
+{%   endfor %}
+{% endif %}
+
+.. Seealso
+
+{% if doc['seealso'] -%}
+See Also
+--------
+
+.. seealso::
+
+{% for item in doc['seealso'] %}
+{%   if item.module is defined and item.description %}
+   @{ reference_plugin_rst(item['module'], 'module') }@
+       @{ item['description'] | rst_ify }@
+{%   elif item.module is defined %}
+   @{ reference_plugin_rst(item['module'], 'module') }@
+      The official documentation on the **@{ item['module'] }@** module.
+{%   elif item.plugin is defined and item.plugin_type is defined and item.description %}
+   @{ reference_plugin_rst(item['plugin'], item['plugin_type']) }@ @{ item['plugin_type'] }@ plugin
+       @{ item['description'] | rst_ify }@
+{%   elif item.plugin is defined and item.plugin_type is defined %}
+   @{ reference_plugin_rst(item['plugin'], item['plugin_type']) }@ @{ item['plugin_type'] }@ plugin
+      The official documentation on the **@{ item['plugin'] }@** @{ item['plugin_type'] }@ plugin.
+{%   elif item.name is defined and item.link is defined and item.description %}
+   `@{ item['name'] }@ <@{ item['link'] }@>`_
+       @{ item['description'] | rst_ify }@
+{%   elif item.ref is defined and item.description %}
+   :ref:`@{ item['ref'] }@`
+       @{ item['description'] | rst_ify }@
+{%   endif %}
+{% endfor %}
+{% endif %}
+
+.. Examples
+
+{% if examples -%}
+Examples
+--------
+
+.. code-block:: yaml+jinja
+
+@{ examples | indent(4, True) }@
+
+{% endif %}
+
+{% if 'ansible_facts' in returndocs and plugin_type == 'module' %}
+{%   set returnfacts = returndocs['ansible_facts']['contains'] %}
+{%   set _x = returndocs.pop('ansible_facts', None) %}
+{% endif %}
+
+.. Facts
+
+{% if returnfacts -%}
+Returned Facts
+--------------
+Facts returned by this module are added/updated in the ``hostvars`` host facts and can be referenced by name just like any other host fact. They do not need to be registered in order to use them.
+
+{%   if use_html_blobs %}
+@{     return_docs_html(returnfacts | dictsort) }@
+{%   else %}
+@{     return_docs_rst(returnfacts | dictsort) }@
+{%   endif %}
+{% endif %}
+
+.. Return values
+
+{% if returndocs -%}
+{%   if plugin_type not in ['lookup', 'filter', 'test'] %}
+{#     This only makes sense for plugins which can return more than one value. #}
+Return Values
+-------------
+Common return values are documented :ref:`here <common_return_values>`, the following are the fields unique to this @{ plugin_type }@:
+{%   else %}
+Return Value
+------------
+{%   endif %}
+
+{%   if plugin_type in ['lookup', 'filter', 'test'] and returndocs | length == 1 and (returndocs | first).startswith('_') %}
+{%     if use_html_blobs %}
+@{       return_docs_html([['Return value', returndocs.values() | first]]) }@
+{%     else %}
+@{       return_docs_rst([['Return value', returndocs.values() | first]]) }@
+{%     endif %}
+{%   else %}
+{%     if use_html_blobs %}
+@{       return_docs_html(returndocs | dictsort) }@
+{%     else %}
+@{       return_docs_rst(returndocs | dictsort) }@
+{%     endif %}
+{%   endif %}
+{% endif %}
+
+..  Status (Presently only deprecated)
+
+{% if doc['deprecated'] %}
+Status
+------
+
+.. Deprecated note
+
+{% if doc['deprecated']['removed_from_collection'] and doc['deprecated']['removed_from_collection'] != collection %}
+{%   if doc['deprecated']['removed_at_date'] %}
+- This @{ plugin_type }@ will be removed in a major release after @{ doc['deprecated']['removed_at_date'] | rst_ify }@
+  of @{ doc['deprecated']['removed_from_collection'] | rst_ify }@.
+{%   elif doc['deprecated']['removed_in'] %}
+- This @{ plugin_type }@ will be removed in version @{ doc['deprecated']['removed_in'] | string | rst_ify }@
+  of @{ doc['deprecated']['removed_from_collection'] | rst_ify }@.
+{%   else %}
+- This @{ plugin_type }@ will be removed in a future release of @{ doc['deprecated']['removed_from_collection'] | rst_ify }@.
+{%   endif %}
+{% else %}
+{%   if doc['deprecated']['removed_at_date'] %}
+- This @{ plugin_type }@ will be removed in a major release after @{ doc['deprecated']['removed_at_date'] | rst_ify }@.
+{%   elif doc['deprecated']['removed_in'] %}
+- This @{ plugin_type }@ will be removed in version @{ doc['deprecated']['removed_in'] | string | rst_ify }@.
+{%   else %}
+- This @{ plugin_type }@ will be removed in a future release.
+{%   endif %}
+{% endif %}
+  *[deprecated]*
+- For more information see `DEPRECATED`_.
+
+{% endif %}
+
+.. Authors
+
+{% if doc['author'] -%}
+Authors
+~~~~~~~
+
+{%   for author_name in doc['author'] %}
+- @{ author_name | massage_author_name }@
+{%   endfor %}
+
+{% endif %}
+
+{% if plugin_type != 'module' %}
+.. hint::
+    Configuration entries for each entry type have a low to high priority order. For example, a variable that is lower in the list will override a variable that is higher up.
+{% endif %}
+
+.. Extra links
+
+{% if collection_links or not collection_communication.empty %}
+Collection links
+~~~~~~~~~~~~~~~~
+
+.. raw:: html
+
+  <p class="ansible-links">
+{%   for link in collection_links %}
+    <a href="@{ link.url | escape }@" aria-role="button" target="_blank" rel="noopener external">@{ link.description | escape }@</a>
+{%   endfor %}
+{%   if not collection_communication.empty %}
+{#     WARNING: the anchor is created from Sphinx from the label and might change #}
+    <a href="./#communication-for-@{ collection | replace('.', '-') | escape }@" aria-role="button" target="_blank">Communication</a>
+{%   endif %}
+  </p>
+{% endif %}
+
+.. Parsing errors
+
+{% if nonfatal_errors %}
+There were some errors parsing the documentation for this plugin.  Please file a bug with the collection.
+
+The errors were:
+
+{% for error in nonfatal_errors %}
+* ::
+
+@{ error | indent(width=8, first=True) }@
+
+{% endfor %}
+{% endif %}
