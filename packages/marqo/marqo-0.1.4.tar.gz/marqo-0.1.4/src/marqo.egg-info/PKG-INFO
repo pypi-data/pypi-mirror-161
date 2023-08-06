@@ -1,0 +1,153 @@
+Metadata-Version: 2.1
+Name: marqo
+Version: 0.1.4
+Summary: Neural search for humans
+Home-page: UNKNOWN
+Author: marqo org
+Author-email: org@marqo.io
+License: UNKNOWN
+Description: <p align="center">
+          <img src="assets/logo.svg" alt="Marqo" width="150" height="150" />
+        </p>
+        
+        <h1 align="center">Marqo</h1>
+        
+        <p align="center">
+          <b>Neural search for humans.</b>
+        </p>
+        
+        <p align="center">
+          <a align="center" href="https://join.slack.com/t/marqo-community/shared_invite/zt-1d737l76e-u~b3Rvey2IN2nGM4wyr44w"><img src="https://img.shields.io/badge/Slack-blueviolet?logo=slack&amp;logoColor=white&style=flat-square"></a>
+        </p>
+        
+        A deep-learning powered, open-source search engine which seamlessly integrates with your applications, websites, and workflow. Applications built with Marqo enjoy the following features out-of-the-box:
+        
+        ⚡ **Performance**
+          - Intuitive design pattern for high-performance microservices.
+          - Run Marqo at scale - horizontal scalability by design.
+          - Duplex streaming between client and server.
+          - Async and non-blocking data processing over dynamic flows.
+        
+        🍳 **Ease of use**
+          - Setup in three lines.
+          - Plug and play functionality with machine learning models and parsers.
+          
+        ☁️ Cloud-native
+          - Use Marqo in high availability with Opensearch backend.
+          - Serverless deployment with Marqo cloud (coming soon!).
+        
+        
+        <!-- end marqo-description -->
+        
+        ## Get started
+        
+        1. Marqo requires docker. To install docker go to https://docs.docker.com/get-docker/
+        2. Use docker to run Opensearch.
+        ```bash
+        docker run -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" opensearchproject/opensearch:2.0.0
+        ```
+        3. Start indexing and searching! Let's look at a simple example below:
+        
+        ```python
+        import marqo
+        
+        mq = marqo.Client(url='https://localhost:9200', main_user="admin", main_password="admin")
+        
+        mq.index("my-first-index").add_documents([
+            {
+                "Title": "The Travels of Marco Polo",
+                "Description": "A 13th-century travelogue describing Polo's travels"
+            }, 
+            {
+                "Title": "Extravehicular Mobility Unit (EMU)",
+                "Description": "The EMU is a spacesuit that provides environmental protection, "
+                               "mobility, life support, and communications for astronauts",
+                "_id": "article_591"
+            }]
+        )
+        
+        results = mq.index("my-first-index").search(
+            q="What is the best outfit to wear on the moon?"
+        )
+        ```
+        
+        - `mq` is the client that wraps the`marqo` API
+        - `add_documents()` takes a list of documents, represented as python dicts, for indexing
+        - `add_documents()` creates an index with default settings, if one does not already exist
+        - You can optionally set a document's ID with the special `_id` field. Otherwise, marqo will generate one.
+        
+        Pretty printing `results` outputs a dict like this:
+        
+        
+        ```python
+        {
+            'hits': [
+                {   
+                    'Title': 'Extravehicular Mobility Unit (EMU)',
+                    'Description': 'The EMU is a spacesuit that provides environmental protection, mobility, life support, and' 
+                                   'communications for astronauts',
+                    '_highlights': {
+                        'Description': 'The EMU is a spacesuit that provides environmental protection, '
+                                       'mobility, life support, and communications for astronauts'
+                    },
+                    '_id': 'article_591',
+                    '_score': 1.2387788
+                }, 
+                {   
+                    'Title': 'The Travels of Marco Polo',
+                    'Description': "A 13th-century travelogue describing Polo's travels",
+                    '_highlights': {'Title': 'The Travels of Marco Polo'},
+                    '_id': 'e00d1a8d-894c-41a1-8e3b-d8b2a8fce12a',
+                    '_score': 1.2047464
+                }
+            ],
+            'limit': 10,
+            'processingTimeMs': 49,
+            'query': 'What is the best outfit to wear on the moon?'
+        }
+        ```
+        
+        - Each hit corresponds to a document that matched the search query
+        - They are ordered from most to least matching
+        - `limit` is the maximum number of hits to be returned. This can be set as a parameter during search
+        - Each hit has a `_highlights` field. This was the part of the document that matched the query the best
+        
+        ## Warning
+        
+        Note that you should not run other applications on the Opensearch cluster as Marqo automatically changes and adapts the settings on the cluster.
+        
+        ## Contributors
+        Marqo is a community project with the goal of making neural search accessible to the wider developer community. We are glad that you are interested in helping out! Please read [this](./CONTRIBUTING.md) to get started
+        
+        ## Dev set up
+        1. Create a virtual env ```python -m venv ./venv```
+        2. Activate the virtual environment ```source ./venv/bin/activate```
+        3. Install requirements from the requirements file: ```pip install -r requirements.txt```
+        4. Run tests by running the tox file. CD into this dir and then run "tox"
+        5. If you update dependencies, make sure to delete the .tox dir and rerun
+        
+        ## Merge instructions:
+        1. Run the full test suite (by using the command `tox` in this dir)
+        2. Merge to main
+        3. If you think that the change is significant, run the large data test. 
+        The large data test will 
+        build Marqo from the main branch and fill indices with data. Go through and test queries 
+        against this data. https://github.com/S2Search/NeuralSearchLargeDataTest
+        
+        <!-- start support-pitch -->
+        
+        
+        ## Support
+        
+        - Join our [Slack community](https://join.slack.com/t/marqo-community/shared_invite/zt-1d737l76e-u~b3Rvey2IN2nGM4wyr44w) and chat with other community members about ideas.
+        - Marqo community meetings (coming soon!
+        
+        <!-- end support-pitch -->
+        
+Keywords: search python marqo opensearch neural semantic vector embedding
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3
+Description-Content-Type: text/markdown
