@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""
+ NOTIFATOR contains several modules:
+ - notify - basic, sends messages over DBUS
+          - prepares for RPiHAT <== from rpihat...
+          - myservice2
+          - audio
+ - telegram - THE useful part.
+          - needs ~/.telegram.token with sections like [Backups]
+            and items : token=  and chatid=
+"""
+from fire import Fire
+from notifator import telegram
+from notifator import notify
+from notifator import notihat
+from notifator.version import __version__
+
+
+if __name__=="__main__":
+    print("D... notifator script; version:",__version__)
+    Fire( {"a": notify.issueall,
+           "t": telegram.bot_send,
+           "b": notify.issue_dbus,
+           "s": notify.issue_sound,
+           "h": notihat.main,
+    } )
