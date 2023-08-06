@@ -1,0 +1,165 @@
+syntax = "proto3";
+import "sarus_data_spec/protobuf/type.proto";
+import "sarus_data_spec/protobuf/path.proto";
+import "sarus_data_spec/protobuf/statistics.proto";
+
+message Transform {
+  // A dataset transform
+  string uuid = 1; // e.g. RFC 4122 id used to refer to the transform
+  string name = 2;
+  string doc = 3;
+  Spec spec = 4;
+  map<string, string> properties = 5; // Other properties
+  bool inversible = 6;
+  bool schema_preserving = 7;
+
+  // Definitions
+  message Spec {
+    oneof spec {
+      Identity identity = 1;
+      Variable variable = 2;
+      Composed composed = 3;
+      Project project = 4;
+      Filter filter = 5;
+      Shuffle shuffle = 6;
+      Join join = 7;
+      Cast cast = 8;
+      Sample sample = 9;
+      UserSettings user_settings = 10;
+      Protect protect_dataset=11;
+      External external = 12; // np transforms, pd transforms,...
+      Synthetic synthetic = 13;
+      Transcode transcode=14;
+      InverseTranscode inverse_transcode=15;
+    }
+  }
+
+  message External {
+    bytes arguments = 1;
+    bytes named_arguments = 2;
+    OpIdentifier op_identifier = 3;
+
+    message OpIdentifier{
+      oneof op {
+        Std std = 1;
+        Pandas pandas = 2;
+        Numpy numpy = 3;
+        Tensorflow tensorflow = 4;
+        Sklearn sklearn = 5;
+        PandasProfiling pandas_profiling = 6;
+        XGBoost xgboost = 7;
+        Skopt skopt = 8;
+      }
+    };
+
+    message Std {
+      string name = 1;
+    }
+
+    message Pandas {
+      string name = 1;
+    }
+
+    message Numpy {
+      string name = 1;
+    }
+
+    message Tensorflow {
+      string name = 1;
+    }
+
+    message Sklearn {
+      string name = 1;
+    }
+
+    message PandasProfiling {
+      string name = 1;
+    }
+
+    message XGBoost {
+      string name = 1;
+    }
+
+    message Skopt {
+      string name = 1;
+    }
+  }
+
+  message Identity {} // Does nothing
+
+  message Variable {
+    int32 position = 1;
+    string name = 2;
+  } // Numbered or named identity to use as input of the composed transform
+
+  message Composed {
+    string transform = 1; // Transform
+    repeated string arguments = 2; // Arguments of the current transform are transforms
+    map<string, string> named_arguments = 3;
+  }
+
+  message Project {
+     sarus_data_spec.Type projection = 1; // This should be a 'supertype' the type the data can project into.
+    // For product types (struct or tuple), this is a type with a subset of the fields
+    // For map types, this is a map type with subset (subtype) of key and superset (supertype) of value
+    // For union types, this is a type with more terms in the union
+    // To start wit let's simply use this with structs
+  }
+
+  message Filter {
+    sarus_data_spec.Type filter = 1; // This should be a 'subtype' the type the data can be retricted to.
+    // For union types, this is a type with less terms in the union.
+    // Optional types can for instance be filtered to non-optional
+    // Value type and Predicate types can be used to restrict values
+  }
+
+  message Shuffle {}
+
+  message Join {
+    sarus_data_spec.Type on = 1; // This should be a common 'supertype' between tables.
+  }
+
+  message Cast {
+    sarus_data_spec.Type type = 1; // Type to cast into.
+  }
+
+  message Sample {
+    // Sample a dataset
+    oneof proportion {
+      float fraction = 1;
+      int64 size = 2;
+    }
+  }
+
+  message SchemaInference {
+    CastPolicy cast_policy = 1;
+    enum CastPolicy {
+      NONE = 0;
+      MOST_LIKELY = 1;
+    }
+  }
+
+  message GroupBy {
+    string key = 1;
+  }
+
+  message Synthetic {}
+
+  message UserSettings {
+    sarus_data_spec.Type type = 1;
+  }
+  message Protect{
+    repeated sarus_data_spec.Path protected_entities=1;
+    repeated sarus_data_spec.Path public_entities=2;
+  }
+
+  message Transcode{
+    sarus_data_spec.Statistics statistics=1;
+    sarus_data_spec.Type data_type = 2;
+    sarus_data_spec.Path protected_path = 3;
+  }
+
+  message InverseTranscode{
+    Transcode transcode=1;
+  }
+}
