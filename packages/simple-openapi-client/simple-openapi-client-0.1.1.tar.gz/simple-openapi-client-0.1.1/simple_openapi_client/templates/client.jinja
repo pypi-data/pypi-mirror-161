@@ -1,0 +1,194 @@
+import warnings
+from typing import Any, Dict, Optional, List, Union
+
+import httpx
+from httpx._types import (
+    CookieTypes,
+    HeaderTypes,
+    QueryParamTypes,
+    RequestContent,
+    RequestData,
+    RequestFiles,
+)
+
+
+class {{ CLIENT }}(httpx.Client):
+    """{{ document.info.title }}
+
+    version {{ document.info.version }}
+    {% if document.info.description %}{{ document.info.description }}{% endif %}
+    {% if document.info.termsOfService -%}
+    Terms of services
+    {{ document.info.termsOfService }}
+    {%- endif %}
+    {% if document.info.contact -%}
+    Contact
+    -------
+    {{ document.info.contact.name }} {{ document.info.contact.email }}
+    {{ document.info.contact.url }}
+    {%- endif -%}
+    {% if document.info.license -%}
+    License
+    -------
+    {{ document.info.license.name }}
+    {{ document.info.license.url }}
+    {%- endif -%}
+    """
+
+    def __init__(self, url: str, username: Optional[str] = None, password: Optional[str] = None):
+        """
+        Parameters
+        ----------
+        url
+            server's URL
+        """
+        super().__init__()
+        self.url = url
+        self.version = '{{ document.info.version }}'
+
+        if username and password:
+            self.setup_credentials(username, password)
+
+    def setup_credentials(self, username: str, password: str) -> None:
+        """Set credentials needed for HTTP requests"""
+        self._auth = httpx.BasicAuth(username, password)
+
+    def _get(self,
+             route: str,
+             params: Optional[QueryParamTypes] = None,
+             headers: Optional[HeaderTypes] = None,
+             cookies: Optional[CookieTypes] = None) -> Union[Dict, List, str, bytes, int]:
+        """GET request with specified route
+
+        Parameters
+        ----------
+        route
+            HTTP route.
+        params
+            Parameters for the HTTP request.
+        headers
+            Headers for the HTTP request.
+        cookies
+
+        Returns
+        -------
+        Union[Dict, List, str, bytes, int]
+            Serialized response of the HTTP GET request.
+        """
+        response = self.get(url=route, params=params, headers=headers, cookies=cookies)
+
+        if 200 <= response.status_code < 300:
+            if 'application/json' in response.headers['content-type']:
+                return response.json()
+            elif 'text/plain' in response.headers['content-type']:
+                return response.text
+            else:
+                return response.content
+
+        raise httpx.HTTPError(f'HTTP code: {response.status_code}, with content: {response.text}')
+
+    def _delete(self,
+                route: str,
+                params: Optional[QueryParamTypes] = None,
+                headers: Optional[HeaderTypes] = None,
+                cookies: Optional[CookieTypes] = None) -> None:
+        """DELETE to specified route
+
+        Parameters
+        ----------
+        route
+            HTTP route.
+        params
+            Parameters for the HTTP request.
+        headers
+            Headers for the HTTP request.
+        cookies
+
+        Returns
+        -------
+        None
+            If the HTTP DELETE request fails, HTTPError is raised.
+        """
+        response = self.delete(route, params=params, headers=headers, cookies=cookies)
+
+        if 200 <= response.status_code < 300:
+            return
+
+        raise httpx.HTTPError(f'HTTP code: {response.status_code}, with content: {response.text}')
+
+    def _post(self,
+              route: str,
+              content: Optional[RequestContent] = None,
+              data: Optional[RequestData] = None,
+              files: Optional[RequestFiles] = None,
+              json: Optional[Any] = None,
+              params: Optional[QueryParamTypes] = None,
+              headers: Optional[HeaderTypes] = None,
+              cookies: Optional[CookieTypes] = None) -> Union[Dict, List, str, bytes, int]:
+        """POST to specified route
+
+        Parameters
+        ----------
+        route
+            HTTP route.
+        content
+        data
+            Dictionary to send in the body of request.
+        files
+        json
+        params
+        headers
+        cookies
+
+        Returns
+        -------
+        Union[Dict, List, str, bytes, int]
+            Serialized response of the HTTP POST request.
+        """
+        response = self.post(route, content=content, data=data, files=files, json=json, params=params, headers=headers, cookies=cookies)
+
+        if 200 <= response.status_code < 300:
+            if 'application/json' in response.headers['content-type']:
+                return response.json()
+            elif 'text/plain' in response.headers['content-type']:
+                return response.text
+            else:
+                return response.content
+
+        raise httpx.HTTPError(f'HTTP code: {response.status_code}, with text: {response.text}')
+
+    def _put(self,
+             route: str,
+             content: RequestContent = None,
+             data: RequestData = None,
+             files: Optional[RequestFiles] = None,
+             json: Optional[Any] = None,
+             params: Optional[QueryParamTypes] = None,
+             headers: Optional[HeaderTypes] = None,
+             cookies: Optional[CookieTypes] = None) -> None:
+        """PUT to specified route
+
+        Parameters
+        ----------
+        route
+            HTTP route.
+        content
+        data
+            Dictionary to send in the body of request.
+        files
+        json
+        params
+        headers
+        cookies
+
+        Returns
+        -------
+        None
+            If the HTTP PUT request fails, HTTPError is raised.
+        """
+        response = self.put(route, content=content, data=data, files=files, json=json, params=params, headers=headers, cookies=cookies)
+
+        if 200 <= response.status_code < 300:
+            return
+
+        raise httpx.HTTPError(f'HTTP code: {response.status_code}, with text: {response.text}')
