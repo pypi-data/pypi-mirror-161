@@ -1,0 +1,128 @@
+Metadata-Version: 2.1
+Name: prefect-vault
+Version: 0.1.2
+Summary: Prefect HashiCorp Vault blocks.
+Home-page: https://github.com/pbchekin/prefect-vault
+Author: Pavel Chekin
+Author-email: pbchekin@gmail.com
+License: Apache License 2.0
+Keywords: prefect
+Classifier: Natural Language :: English
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: prefect (>=2.0.0)
+Requires-Dist: hvac (>=0.11.2)
+Provides-Extra: dev
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: mypy ; extra == 'dev'
+Requires-Dist: mkdocs ; extra == 'dev'
+Requires-Dist: mkdocs-material ; extra == 'dev'
+Requires-Dist: mkdocstrings[python] ; extra == 'dev'
+Requires-Dist: isort ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: pytest-asyncio ; extra == 'dev'
+Requires-Dist: mkdocs-gen-files ; extra == 'dev'
+Requires-Dist: interrogate ; extra == 'dev'
+Requires-Dist: coverage ; extra == 'dev'
+Requires-Dist: mock ; (python_version < "3.8") and extra == 'dev'
+
+# prefect-vault
+
+## Welcome!
+
+Prefect blocks for HashiCorp Vault.
+
+## Getting Started
+
+### Python setup
+
+Requires an installation of Python 3.7+.
+
+We recommend using a Python virtual environment manager such as pipenv, conda or virtualenv.
+
+These tasks are designed to work with Prefect 2.0. For more information about how to use Prefect, please refer to the [Prefect documentation](https://orion-docs.prefect.io/).
+
+### Installation
+
+Install `prefect-vault` with `pip`:
+
+```bash
+pip install prefect-vault
+```
+
+### Create and use VaultSecret block with token authentication
+
+```python
+from prefect import flow
+from prefect_vault import VaultSecret, VaultToken 
+
+
+@flow
+def use_vault_secret():
+    vault_secret = VaultSecret(
+        vault_auth=VaultToken(
+            vault_url='http://myvault:8200',
+            token='my_secret_token',
+        ),
+    )
+    secret_value = vault_secret.get_secret('path/to/my/secret')['secret_key']
+
+
+use_vault_secret()
+```
+
+### Create and use VaultSecret block with approle authentication
+
+```python
+from prefect import flow
+from prefect_vault import VaultAppRole, VaultSecret 
+
+
+@flow
+def use_vault_secret():
+    vault_secret = VaultSecret(
+        vault_auth=VaultAppRole(
+            vault_url='http://myvault:8200',
+            role_id='my_role_id',
+            secret_id='my_secret_id',
+        ),
+    )
+    secret_value = vault_secret.get_secret('path/to/my/secret')['secret_key']
+
+
+use_vault_secret()
+```
+
+
+## Resources
+
+If you encounter any bugs while using `prefect-vault`, feel free to open an issue in the [prefect-vault](https://github.com/pbchekin/prefect-vault) repository.
+
+If you have any questions or issues while using `prefect-vault`, you can find help in either the [Prefect Discourse forum](https://discourse.prefect.io/) or the [Prefect Slack community](https://prefect.io/slack).
+
+## Development
+
+If you'd like to install a version of `prefect-vault` for development, clone the repository and perform an editable install with `pip`:
+
+```bash
+git clone https://github.com/pbchekin/prefect-vault.git
+
+cd prefect-vault/
+
+pip install -e ".[dev]"
+
+# Install linting pre-commit hooks
+pre-commit install
+```
