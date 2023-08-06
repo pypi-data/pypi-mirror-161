@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [master, nextgen/**]
+  pull_request:
+    branches: master
+  workflow_dispatch:
+
+env:
+  NB_KERNEL: python
+  MPLBACKEND: Agg
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install seaborn
+        run: |
+          pip install --upgrade pip
+          pip install .[all] -r ci/utils.txt
+
+      - name: Install doc tools
+        run: |
+          pip install -r doc/requirements.txt
+          sudo apt-get install pandoc
+
+      - name: Build docs
+        run: |
+          make -C doc -j `nproc` notebooks
+          make -C doc html
+
+
+  run-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python: ["3.7", "3.8", "3.9", "3.10"]
+        target: [test]
+        install: [all]
+        deps: [latest]
+        backend: [agg]
+
+        include:
+          - python: "3.7"
+            target: unittests
+            install: all
+            deps: pinned
+            backend: agg
+          - python: "3.10"
+            target: unittests
+            install: light
+            deps: latest
+            backend: agg
+          - python: "3.10"
+            target: test
+            install: all
+            deps: latest
+            backend: tkagg
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+          cache: "pip"
+
+      - name: Install seaborn
+        run: |
+          pip install --upgrade pip wheel
+          if [[ ${{matrix.install}} == 'all' ]]; then EXTRAS='[all]'; fi
+          if [[ ${{matrix.deps }} == 'pinned' ]]; then DEPS='-r ci/deps_pinned.txt'; fi
+          pip install .$EXTRAS $DEPS -r ci/utils.txt
+
+      - name: Cache datastes
+        run: python ci/cache_test_datasets.py
+
+      - name: Run tests
+        env:
+          MPLBACKEND: ${{ matrix.backend }}
+        run: |
+          if [[ ${{ matrix.backend }} == 'tkagg' ]]; then PREFIX='xvfb-run -a'; fi
+          $PREFIX make ${{ matrix.target }}
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        if: ${{ success() }}
+
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Install tools
+        run: pip install mypy flake8
+
+      - name: Flake8
+        run: make lint
+
+      - name: Type checking
+        run: make typecheck
