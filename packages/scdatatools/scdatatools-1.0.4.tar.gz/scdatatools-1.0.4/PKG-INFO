@@ -1,0 +1,176 @@
+Metadata-Version: 1.1
+Name: scdatatools
+Version: 1.0.4
+Summary: Python tools for working with Star Citizen data files.
+Home-page: https://gitlab.com/scmodding/frameworks/scdatatools
+Author: ventorvar
+Author-email: ventorvar@gmail.com
+License: MIT license
+Description: scdatatools
+        ===========
+        
+        Python API for interactive with the data files in Star Citizen.
+        
+        .. warning:: This tool suite is in it's very early stages and will change often.
+        
+        * Free software: MIT license
+        * Documentation: https://scdatatools.readthedocs.io.
+        
+        Hey! Listen!
+        ------------
+        
+        This tool is in **very** early development. The CLI is a WIP and may not be completely plumbed up yet.
+        If you'd like to help out and know Python, try out the API a little bit and see if you run into errors parsing
+        files! We're also at the stage that feature/usability feedback would be much appreciated.
+        
+        
+        Features
+        --------
+        
+        * cli interface
+        * TODO
+        
+        
+        CLI Examples
+        ------------
+        
+        .. code-block:: bash
+        
+            usage: scdt [-h] [--verbose] [--stderr] [--command-timeout COMMAND_TIMEOUT] [command] ...
+        
+            positional arguments:
+              [command]             Subcommand to run, if missing the interactive mode is started instead.
+                cryxml-to-json      Convert a CryXML file to JSON
+                cryxml-to-xml       Convert a CryXML file to xml
+                unforge             Convert a DataForge file to a readable format
+                unp4k               Extract files from a P4K file
+                actionmap           Dumps the default profile action map (keybinds) as JSON
+        
+        
+        API Examples
+        ------------
+        
+        Read a DataForge database (.dcb)
+        
+        .. code-block:: python
+        
+            from scdatatools.forge import DataCoreBinary
+            dcb = DataCoreBinary('research/Game.dcb.3.9.1-ptu.5229583')
+            jav_records = dcb.search_filename('*javelin.xml')
+            print(dcb.dump_record_json(jav_records[-1]))
+        
+        
+        Use the `StarCitizen` class:
+        
+        .. code-block:: python
+        
+            from scdatatools.sc import StarCitizen
+            sc = StarCitizen('D:/Path/To/LIVE')
+            sc.p4k.search('idris')
+            sc.datacore.records[0]
+        
+        
+        .. image:: https://gitlab.com/scmodding/frameworks/scdatatools/-/raw/devel/docs/assets/MadeByTheCommunity_Black.png
+          :width: 128
+          :alt: Made By the Star Citizen Community
+        
+        This project is not endorsed by or affiliated with the Cloud Imperium or Roberts Space Industries group of companies.
+        All game content and materials are copyright Cloud Imperium Rights LLC and Cloud Imperium Rights Ltd..  Star CitizenÂ®,
+        Squadron 42Â®, Roberts Space IndustriesÂ®, and Cloud ImperiumÂ® are registered trademarks of Cloud Imperium Rights LLC.
+        All rights reserved.
+        
+        
+        =======
+        History
+        =======
+        
+        1.0.3 (2022-04-09)
+        ------------------
+        
+        * Export converter options naming standardization
+        * New material name normalization. All material names in `mtl` have spaces converted to underscores as the Blender
+          DAE importer does not handle material names with spaces. This happens during any export as long as cryxml 
+          conversion is enabled
+        * Fix cdf/chr files that have attachment points without geometry
+        * Improvements and fixes to the hardsurface normals and emissions
+        * Improved action map exports
+        * 3.17 lighting fixes
+        
+        1.0.2 (2022-03-23)
+        ------------------
+        
+        * Many shader, texture and material enhancements and fixes in Blender importer
+        * Added sentry error reporting context generation. This is used by StarFab, scdatatools does not do sentry reporting
+          directly on it's own
+        * Added `Model Asset Extractor` "converter" that will automatically select the associated `mtl` and textures for each
+          model in the extraction task. Not recommended while extracting the entire p4k as this will just increase the overhead
+        
+        
+        1.0.1 (2022-02-02)
+        ------------------
+        
+        * Fixed issue when the primary part of a model was missing (cgam, but no cga)
+        * Fixed an issue in texture extraction when _not_ converting or un-splitting textures
+        * Improved Blender compatability checking and Blender version handling
+        * Support for Blender 3.0
+        
+        
+        1.0.0 (2022-01-18)
+        ------------------
+        
+        * First major version
+        * Texture conversion utilities
+        * Improved CLI commands
+        * Refactored and improved Star Engine format handling
+        * Star Citizen Blueprint (scbp) system
+        * Plugin framework
+        * Blender add-on supporting scbp imports
+        * Audio (wwise) system handling
+        * P4K converters to enable auto-conversion of proprietary formats during export (textures, models, etc.)
+        * Prefab Library Manager
+        * Object Container Manager
+        * Material Library processor (mtl)
+        * Launcher utilities to auto-discover installed SC versions
+        
+        
+        0.1.7 (2021-04-02)
+        ------------------
+        
+        * Added Datacore v5 support
+        
+        
+        0.1.6 (2020-12-30)
+        ------------------
+        
+        * Moved to GitLab
+        * Updated docs
+        * Improved filename searches in P4Ks
+        * Dataforge records can now be outputed to xml as well
+        * Improved pretty printing of XML output
+        
+        0.1.5 (2020-12-9)
+        -----------------
+        
+        * Improved path and error handling
+        
+        0.1.3 (2020-12-06)
+        ------------------
+        
+        * Added SC profile dumping (actionmaps)
+        * New `StarCitizen` class convenience wrapper around the installation dir
+        * Support for looking up localization strings
+        * Dataforge fixes
+        
+        0.1.2 (2020-05-20)
+        ------------------
+        
+        * Initial commit
+        
+Keywords: scdatatools
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
