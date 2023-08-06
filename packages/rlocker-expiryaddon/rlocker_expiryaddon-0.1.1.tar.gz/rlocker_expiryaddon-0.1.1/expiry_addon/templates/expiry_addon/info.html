@@ -1,0 +1,10 @@
+<span style="color: #ff4500; font-weight: bold">
+    {% if lockable_resource.resourceexpirypolicy and lockable_resource.resourceexpirypolicy.is_expired %}
+        RESOURCE EXPIRED!
+    {% else %}
+        {% if lockable_resource.is_locked and lockable_resource.resourceexpirypolicy %}
+            Resource expires in
+            {{ lockable_resource.resourceexpirypolicy.current_expiry_date }}
+        {% endif %}
+    {% endif %}
+</span>
