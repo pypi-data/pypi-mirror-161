@@ -1,0 +1,11 @@
+Value MODULE (\w+\s\d+)
+Value ONLINE (\S+)
+Value STATE (\S+(?:\s\w+)?)
+Value NAME (\S+)
+Value SN (\S+)
+
+Start
+  ^Module\s+Online\s+State\s+Name\s+SN
+  ^-+$$
+  ^\s*${MODULE}\s+${ONLINE}\s+${STATE}\s+${NAME}(?:(?<=\))|\s+)${SN} -> Record
+  ^\s*${MODULE}\s+${ONLINE}\s+${STATE}\s+${NAME} -> Record

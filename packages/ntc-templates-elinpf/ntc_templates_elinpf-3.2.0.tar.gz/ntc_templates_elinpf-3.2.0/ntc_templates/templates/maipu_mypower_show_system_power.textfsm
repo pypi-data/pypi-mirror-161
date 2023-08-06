@@ -1,0 +1,31 @@
+Value POWER_ID (\d+)
+Value POWER_NAME (\S+)
+Value STATUS (\S+)
+Value DESCRIPTION (\S+)
+Value SN (\S+)
+Value WORK_STATUS (\S+)
+Value POWER_IN (\S+)
+Value Fillup STATISTICS_IN (\d+)
+Value Fillup STATISTICS_OUT (\d+)
+Value Fillup STATISTICS_IERR (\d+)
+Value Fillup STATISTICS_OERR (\d+)
+
+Start
+  ^System\s+Power\s+Information\s+\(Power\s+${POWER_ID}.* -> Long_Power_Info
+  ^\s+System\s+Power\s+Information\(Power\s+${POWER_ID}.* -> Short_Power_Info
+
+Long_Power_Info
+  ^\s+Power\s+Name:\s+${POWER_NAME}
+  ^\s+Status:\s+${STATUS}
+  ^\s+Description:\s+${DESCRIPTION}
+  ^\s+Serial\s+No:\s+${SN}
+  ^\s+Work\s+Status:\s+${WORK_STATUS}
+  ^\s+Power\s+in:\s+${POWER_IN}
+  ^STATISTICS:\s+${STATISTICS_IN}\s+IN,\s+${STATISTICS_IERR}\s+IERR,\s+${STATISTICS_OUT}\s+OUT,\s+${STATISTICS_OERR}\s+OERR
+  ^$$ -> Record Start
+
+Short_Power_Info
+  ^\s+Status:\s+${STATUS}
+  ^\s+Description:\s+${DESCRIPTION}
+  ^\s+STATISTICS:\s+${STATISTICS_IN}\s+IN,\s+${STATISTICS_OUT}\s+OUT,\s+${STATISTICS_IERR}\s+IERR,\s+${STATISTICS_OERR}\s+OERR
+  ^$$ -> Record Start
