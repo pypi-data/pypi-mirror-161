@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "volume-segmantics"
+version = "0.2.6"
+description = "A toolkit for semantic segmentation of volumetric data using pyTorch deep learning models"
+authors = ["Oliver King <olly.king@diamond.ac.uk>"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/DiamondLightSource/volume-segmantics"
+keywords = ["segmentation", "deep-learning", "volumetric", "3d"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+albumentations = "<=1.1.0"
+h5py = "^3.0.0"
+numpy = "^1.18.0"
+matplotlib = "^3.3.0"
+torch = ">=1.7.1"
+segmentation-models-pytorch = "^0.2.1"
+termplotlib = "^0.3.6"
+imagecodecs = "*"
+
+[tool.poetry.dev-dependencies]
+black = ">=22.1.0"
+pdoc = ">=10"
+pylint = ">=2.4.0"
+pytest = ">=6"
+pytest-cov = "*"
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=volume_segmantics --cov-report term-missing"
+testpaths = [
+    "tests",
+]
+markers = [
+    "gpu: marks tests that require a GPU (deselect with '-m \"not gpu\"')",
+    "slow: marks tests that are particularly slow (deselect with '-m \"not slow\"')"
+    ]
+filterwarnings = [
+    "ignore:.*Downcasting*:UserWarning",
+    "ignore:.*removed in Pillow 10*:DeprecationWarning"
+    ]
+
+[tool.poetry.scripts]
+model-train-2d = 'volume_segmantics.scripts.train_2d_model:main'
+model-predict-2d = 'volume_segmantics.scripts.predict_2d_model:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
