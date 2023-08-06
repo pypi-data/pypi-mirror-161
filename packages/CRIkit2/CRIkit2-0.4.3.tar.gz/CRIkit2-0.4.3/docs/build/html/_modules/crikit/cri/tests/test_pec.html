@@ -1,0 +1,455 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.cri.tests.test_pec &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nature.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.cri.tests.test_pec</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.cri.tests.test_pec</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Testing Phase error correction</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span>
+
+<span class="kn">from</span> <span class="nn">crikit.cri.error_correction</span> <span class="kn">import</span> <span class="n">PhaseErrCorrectALS</span>
+
+<div class="viewcode-block" id="test_basic"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_basic">[docs]</a><span class="k">def</span> <span class="nf">test_basic</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">265.0</span>
+    
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                             <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">4.7</span></div>
+
+<div class="viewcode-block" id="test_basic2D"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_basic2D">[docs]</a><span class="k">def</span> <span class="nf">test_basic2D</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">y</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span>
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">265.0</span>
+    
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_prev</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="c1"># RSS</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_less</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mf">4.7</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_basic3D"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_basic3D">[docs]</a><span class="k">def</span> <span class="nf">test_basic3D</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">9</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">y</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">265.0</span>
+    
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_prev</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="c1"># RSS</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_less</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mf">4.7</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_fix_ends"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_fix_ends">[docs]</a><span class="k">def</span> <span class="nf">test_fix_ends</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">265.0</span>
+    
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">3.3</span></div>
+
+<div class="viewcode-block" id="test_rng"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_rng">[docs]</a><span class="k">def</span> <span class="nf">test_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">[:</span><span class="mi">200</span><span class="p">]),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">3.1</span></div>
+
+<div class="viewcode-block" id="test_transform_rng"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_transform_rng">[docs]</a><span class="k">def</span> <span class="nf">test_transform_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">pec</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">[:</span><span class="mi">200</span><span class="p">]),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">3.1</span></div>
+    
+<div class="viewcode-block" id="test_fix_rng"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_fix_rng">[docs]</a><span class="k">def</span> <span class="nf">test_fix_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">fix_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
+                                <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="n">fix_rng</span><span class="p">,</span> 
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.015</span></div>
+
+<div class="viewcode-block" id="test_rng_redux"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_rng_redux">[docs]</a><span class="k">def</span> <span class="nf">test_rng_redux</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> 
+                             <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> 
+                             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">[:</span><span class="mi">200</span><span class="p">]),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># RSS</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">3.1</span></div>
+
+<div class="viewcode-block" id="test_rng_redux2D"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_rng_redux2D">[docs]</a><span class="k">def</span> <span class="nf">test_rng_redux2D</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">y</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span>
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> 
+                             <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> 
+                             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">200</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># RSS</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_less</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mf">3.1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_rng_redux3D"><a class="viewcode-back" href="../../../../crikit.cri.tests.html#crikit.cri.tests.test_pec.test_rng_redux3D">[docs]</a><span class="k">def</span> <span class="nf">test_rng_redux3D</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">phi_peak</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">25</span><span class="o">-</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi_bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">30</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">phi</span> <span class="o">=</span>  <span class="n">phi_peak</span> <span class="o">+</span> <span class="n">phi_bg</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">9</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">y</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># RSS</span>
+    <span class="c1"># assert np.sum((phi_peak-phi)**2) &gt; 265.0</span>
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">pec</span> <span class="o">=</span> <span class="n">PhaseErrCorrectALS</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> 
+                             <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> 
+                             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_pec</span> <span class="o">=</span> <span class="n">pec</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">phi_pec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">y_pec</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi_pec</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">200</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># RSS</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_less</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_peak</span><span class="o">-</span><span class="n">phi_pec</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mf">3.1</span><span class="p">)</span></div>
+    
+<span class="c1"># def test_fix_rng():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+<span class="c1">#     fix_rng = np.arange(200,800)</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e3, asym_param=1e-5, </span>
+<span class="c1">#                     redux=1, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max((y - y_als)[200:800]) &gt; 0.002</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e3, asym_param=1e-5, </span>
+<span class="c1">#                     redux=1, fix_end_points=False, fix_rng=fix_rng, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+<span class="c1">#     assert np.max((y - y_als)[200:800]) &lt; 0.002</span>
+
+<span class="c1"># def test_vec_asym_param():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     asym_param = 1e-6*np.ones((x.size))</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e3, asym_param=asym_param, </span>
+<span class="c1">#                     redux=1, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max((y - y_als)[250:750]) &gt; 7 </span>
+
+<span class="c1">#     asym_param[200:800] = 1e-2</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e3, asym_param=asym_param, </span>
+<span class="c1">#                     redux=1, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max((y - y_als)[250:750]) &lt; 0.03</span>
+
+<span class="c1"># def test_basic_rng():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     rng = np.arange(200,800)</span>
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1, asym_param=1e-3, rng=rng,</span>
+<span class="c1">#                     redux=1, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     np.testing.assert_almost_equal(y[...,rng], y_als[...,rng], decimal=2)</span>
+<span class="c1">#     np.testing.assert_allclose(y_als[:200],0)</span>
+<span class="c1">#     np.testing.assert_allclose(y_als[800:],0)</span>
+
+<span class="c1"># def test_basic_redux():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e-2, asym_param=1e-1, </span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     np.testing.assert_almost_equal(y, y_als, decimal=3)</span>
+
+<span class="c1"># def test_basic_redux_rng():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     rng = np.arange(200,800)</span>
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e-2, asym_param=1e-1, rng=rng,</span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     np.testing.assert_allclose(y_als[:200],0)</span>
+<span class="c1">#     np.testing.assert_allclose(y_als[800:],0)</span>
+<span class="c1">#     np.testing.assert_almost_equal(y[...,rng], y_als[...,rng], decimal=3)</span>
+
+<span class="c1"># def test_2Dbasic_redux_rng():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+<span class="c1">#     y = np.dot(np.ones((10,1)), y[None,:])</span>
+
+<span class="c1">#     rng = np.arange(200,800)</span>
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1e-2, asym_param=1e-1, rng=rng,</span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     np.testing.assert_allclose(y_als[..., :200],0)</span>
+<span class="c1">#     np.testing.assert_allclose(y_als[..., 800:],0)</span>
+<span class="c1">#     np.testing.assert_almost_equal(y[...,rng], y_als[...,rng], decimal=3)</span>
+
+
+<span class="c1"># def test_vec_asym_param_rng_redux():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     asym_param = 1e-7*np.ones((x.size))</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1, asym_param=asym_param, </span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max((y - y_als)[250:750]) &gt; 7 </span>
+
+<span class="c1">#     asym_param[200:800] = 1e-1</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1, asym_param=asym_param, </span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max((y - y_als)[250:750]) &lt; 0.03</span>
+
+<span class="c1"># def test_rng_redux_fix_rng():</span>
+<span class="c1">#     x = np.linspace(-100, 100, 1000)</span>
+<span class="c1">#     y = 10*np.exp(-(x**2/(2*20**2)))</span>
+
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1, asym_param=1e-7, </span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=None, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+
+<span class="c1">#     assert np.max(y[250:750] - y_als[250:750]) &gt; 9</span>
+
+<span class="c1">#     fix_rng = np.arange(200,800)</span>
+    
+<span class="c1">#     als = AlsCvxopt(smoothness_param=1, asym_param=1e-7, </span>
+<span class="c1">#                     redux=10, fix_end_points=False, fix_rng=fix_rng, </span>
+<span class="c1">#                     verbose=True)</span>
+<span class="c1">#     y_als = als.calculate(y)</span>
+<span class="c1">#     assert np.max(y[250:750] - y_als[250:750]) &lt; 0.004</span>
+    
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.cri.tests.test_pec</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>

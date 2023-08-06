@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.cri.algorithms.kk &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nature.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.cri.algorithms.kk</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.cri.algorithms.kk</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Kramers-Kronig Relation Phase Retrieval (crikit.process.maths.kk)</span>
+<span class="sd">=================================================================</span>
+
+<span class="sd">    kkrelation : Retrieve real and imaginary components from a</span>
+<span class="sd">    spectrum that is the modulus of a function</span>
+
+<span class="sd">    hilbertfft : Fourier-domain Hilbert transform</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">[1] C H Camp Jr, Y J Lee, and M T Cicerone, &quot;Quantitative, Comparable Coherent </span>
+<span class="sd">    Anti-Stokes Raman Scattering (CARS) Spectroscopy: Correcting Errors in Phase </span>
+<span class="sd">    Retrieval,&quot; Journal of Raman Spectroscopy (2016). arXiv:1507.06543.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">_np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">fftpack</span> <span class="k">as</span> <span class="n">_fftpack</span>
+<span class="kn">from</span> <span class="nn">crikit.utils.general</span> <span class="kn">import</span> <span class="n">pad_edge_mean</span> <span class="k">as</span> <span class="n">_pad_edge_mean</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;kkrelation&#39;</span><span class="p">,</span> <span class="s1">&#39;hilbertfft&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="kkrelation"><a class="viewcode-back" href="../../../../crikit.cri.algorithms.html#crikit.cri.algorithms.kk.kkrelation">[docs]</a><span class="k">def</span> <span class="nf">kkrelation</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="n">cri</span><span class="p">,</span> <span class="n">conjugate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">phase_offset</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">norm_to_nrb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pad_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_edge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+               <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_iter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bad_value</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hilb_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve the real and imaginary components of a CRI spectra(um) via</span>
+<span class="sd">    the Kramers-Kronig (KK) relation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bg : ndarray</span>
+<span class="sd">        Coherent background (bg) spectra(um) array that can be one-, two-, \</span>
+<span class="sd">        or three-dimensional</span>
+<span class="sd">    cri : ndarray</span>
+<span class="sd">        CRI spectra(um) array that can be one-,two-,or three-dimensional \</span>
+<span class="sd">    conjugate : bool</span>
+<span class="sd">        If spectra go from high-to-low-wavenumber (left-to-right), you should</span>
+<span class="sd">        conjugate the KK output.</span>
+<span class="sd">    phase_offset : float or ndarray, optional</span>
+<span class="sd">        Global phase offset applied to the KK, which effecively controls \</span>
+<span class="sd">        the real-to-imaginary components relationship</span>
+<span class="sd">    norm_to_nrb : bool</span>
+<span class="sd">        Should the output be normalized by the square-root of the \</span>
+<span class="sd">        background/NRB spectrum(a)</span>
+<span class="sd">    pad_factor : int</span>
+<span class="sd">        The multiple number of spectra-length pads that will be</span>
+<span class="sd">        applied before and after the original spectra</span>
+<span class="sd">    n_edge : int, optional</span>
+<span class="sd">        For edge values, take a mean of n_edge neighbors</span>
+<span class="sd">    axis : int, optional</span>
+<span class="sd">        Axis to perform over</span>
+<span class="sd">    no_iter : bool</span>
+<span class="sd">        (3D matrices with f-axis=-1) Force full matrix calculation in-memory, as</span>
+<span class="sd">        opposed to column-by-column (default).</span>
+<span class="sd">    min_value : float, optional</span>
+<span class="sd">        Applies to cri/bg (the ratio). Values below min_value set to min_value</span>
+<span class="sd">    bad_value : float, optional</span>
+<span class="sd">        Applies to cri/bg (the ratio). Inf&#39;s and NaN&#39;s set to bad_value</span>
+<span class="sd">    hilb_kwargs : dict</span>
+<span class="sd">        kwargs sent to the hilbert transform. Only pad_factor, n_edge, and axis</span>
+<span class="sd">        are automatically sent -- these will overwrite anything in hilb_kwargs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : complex ndarray</span>
+<span class="sd">        The real and imaginary components of KK.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    (1) The imaginary components provides the sponatenous Raman-like \</span>
+<span class="sd">    spectra(um).</span>
+
+<span class="sd">    (2) This module assumes the spectra are oriented as such that the \</span>
+<span class="sd">    frequency (wavenumber) increases with increasing index.  If this is \</span>
+<span class="sd">    not the case for your spectra(um), apply a phase_offset of _np.pi</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Y Liu, Y J Lee, and M T Cicerone, &quot;Broadband CARS spectral phase \</span>
+<span class="sd">    retrieval using a time-domain Kramers-Kronig transform,&quot; Opt. Lett. 34, \</span>
+<span class="sd">    1363-1365 (2009).</span>
+
+<span class="sd">    C H Camp Jr, Y J Lee, and M T Cicerone, &quot;Quantitative, Comparable \</span>
+<span class="sd">    Coherent Anti-Stokes Raman Scattering (CARS) Spectroscopy: Correcting \</span>
+<span class="sd">    Errors in Phase Retrieval,&quot; Journal of Raman Spectroscopy (2016). \</span>
+<span class="sd">    arXiv:1507.06543.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">hilb_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;pad_factor&#39;</span><span class="p">:</span><span class="n">pad_factor</span><span class="p">,</span> <span class="s1">&#39;n_edge&#39;</span><span class="p">:</span><span class="n">n_edge</span><span class="p">,</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span><span class="n">axis</span><span class="p">})</span>
+    
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">cri</span> <span class="o">/</span> <span class="n">bg</span>
+    <span class="k">if</span> <span class="n">bad_value</span><span class="p">:</span>
+        <span class="n">ratio</span><span class="p">[</span><span class="n">_np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ratio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">bad_value</span>
+        <span class="n">ratio</span><span class="p">[</span><span class="n">_np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">ratio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">bad_value</span>
+        <span class="n">ratio</span><span class="p">[</span><span class="n">ratio</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">bad_value</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">ratio</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">axis</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">axis</span> <span class="o">==</span> <span class="mi">2</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="ow">not</span> <span class="n">no_iter</span><span class="p">):</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ratio</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ratio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">ph</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="n">hilbertfft</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">_np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="o">...</span><span class="p">]),</span> <span class="o">**</span><span class="n">hilb_kwargs</span><span class="p">)</span> <span class="o">+</span> <span class="n">phase_offset</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="n">hilbertfft</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">_np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">),</span> <span class="o">**</span><span class="n">hilb_kwargs</span><span class="p">)</span> <span class="o">+</span> <span class="n">phase_offset</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">conjugate</span><span class="p">:</span>
+        <span class="n">_np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">ph</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">ph</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">norm_to_nrb</span><span class="p">:</span>
+        <span class="n">ph</span> <span class="o">*=</span> <span class="n">_np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ph</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ph</span> <span class="o">*=</span> <span class="n">_np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cri</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ph</span></div>
+
+
+<div class="viewcode-block" id="hilbertfft"><a class="viewcode-back" href="../../../../crikit.cri.algorithms.html#crikit.cri.algorithms.kk.hilbertfft">[docs]</a><span class="k">def</span> <span class="nf">hilbertfft</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pad_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_edge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bad_value</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_pad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the one-dimensional Hilbert Transform.</span>
+
+<span class="sd">    This function computes the one-dimentional Hilbert transform</span>
+<span class="sd">    using the Fourier-domain implementation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : ndarray</span>
+<span class="sd">        Input numpy array</span>
+<span class="sd">    pad_factor : int, optional</span>
+<span class="sd">        The multiple number of spectra-length pads that will be</span>
+<span class="sd">        applied before and after the original spectra</span>
+<span class="sd">    n_edge : int, optional</span>
+<span class="sd">        For edge values, take a mean of n_edge neighbors</span>
+<span class="sd">    axis : int, optional</span>
+<span class="sd">        Axis to perform over</span>
+<span class="sd">    copy : bool, optional</span>
+<span class="sd">        Copy or over-write input data</span>
+<span class="sd">    min_value : float, optional</span>
+<span class="sd">        Values below min_value set to min_value</span>
+<span class="sd">    bad_value : float, optional</span>
+<span class="sd">        Inf&#39;s and NaN&#39;s set to bad_value</span>
+<span class="sd">    return_pad: bool, optional</span>
+<span class="sd">        Return the full padded signal.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Hilbert transformed data</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    -    Camp Jr, C. H., Lee, Y. J., &amp; Cicerone, M. T. (2016). Quantitative, comparable </span>
+<span class="sd">         coherent anti-Stokes Raman scattering (CARS) spectroscopy: correcting errors in </span>
+<span class="sd">         phase retrieval. Journal of Raman Spectroscopy, 47(4), 408–415. </span>
+<span class="sd">         https://doi.org/10.1002/jrs.4824 https://arxiv.org/abs/1507.06543</span>
+<span class="sd">    -    C H Camp Jr, Y J Lee, and M T Cicerone, &quot;Quantitative, Comparable</span>
+<span class="sd">          Coherent Anti-Stokes Raman Scattering (CARS) Spectroscopy: Correcting</span>
+<span class="sd">          Errors in Phase Retrieval,&quot; Journal of Raman Spectroscopy (2016).</span>
+<span class="sd">          arXiv:1507.06543.</span>
+<span class="sd">    -    A D Poularikas, &quot;The Hilbert Transform,&quot; in The Handbook of</span>
+<span class="sd">          Formulas and Tables for Signal Processing (ed., A. D. Poularikas),</span>
+<span class="sd">          Boca Raton, CRC Press LLC (1999).</span>
+<span class="sd">          </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_pad</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="n">_pad_edge_mean</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pad_factor</span><span class="o">*</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">],</span> <span class="n">n_edge</span><span class="o">=</span><span class="n">n_edge</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">len_axis</span> <span class="o">=</span> <span class="n">y_pad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+    <span class="n">time_vec</span> <span class="o">=</span> <span class="n">_fftpack</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">len_axis</span><span class="p">)</span>
+    
+    <span class="n">slice_add_dims</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span><span class="o">*</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="n">slice_add_dims</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">slice_add_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slice_add_dims</span><span class="p">)</span>
+
+    <span class="n">y_pad</span> <span class="o">=</span> <span class="n">_fftpack</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">y_pad</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">overwrite_x</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   
+    <span class="n">y_pad</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">_np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">time_vec</span><span class="p">[</span><span class="n">slice_add_dims</span><span class="p">])</span>
+    <span class="n">y_pad</span> <span class="o">=</span> <span class="n">_fftpack</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">y_pad</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">overwrite_x</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">bad_value</span><span class="p">:</span>
+        <span class="n">y_pad</span><span class="p">[</span><span class="n">_np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y_pad</span><span class="p">)]</span> <span class="o">=</span> <span class="n">bad_value</span>
+        <span class="n">y_pad</span><span class="p">[</span><span class="n">_np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">y_pad</span><span class="p">)]</span> <span class="o">=</span> <span class="n">bad_value</span>
+        
+    <span class="k">if</span> <span class="n">min_value</span><span class="p">:</span>
+        <span class="n">y_pad</span><span class="p">[</span><span class="n">y_pad</span> <span class="o">&lt;</span> <span class="n">min_value</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_value</span>
+
+    <span class="n">slice_vec_get_y_from_pad</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span><span class="o">*</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span>
+    <span class="n">slice_vec_get_y_from_pad</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">window</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">slice_vec_get_y_from_pad</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slice_vec_get_y_from_pad</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">return_pad</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y_pad</span><span class="o">.</span><span class="n">real</span>
+    
+    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">y_pad</span><span class="p">[</span><span class="n">slice_vec_get_y_from_pad</span><span class="p">]</span><span class="o">.</span><span class="n">real</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">*=</span> <span class="mi">0</span>
+        <span class="n">y</span> <span class="o">+=</span> <span class="n">y_pad</span><span class="p">[</span><span class="n">slice_vec_get_y_from_pad</span><span class="p">]</span><span class="o">.</span><span class="n">real</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="kn">import</span> <span class="nn">timeit</span> <span class="k">as</span> <span class="nn">_timeit</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">10e3</span><span class="o">*</span><span class="n">_np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">330</span><span class="p">,</span> <span class="mi">330</span><span class="p">,</span> <span class="mi">900</span><span class="p">))</span><span class="o">+</span><span class="mf">1.0</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">_timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">kkrelation</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="n">start</span> <span class="o">-=</span> <span class="n">_timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Scipy Time (Trial 1): </span><span class="si">{:.3g}</span><span class="s1"> sec&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.cri.algorithms.kk</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>

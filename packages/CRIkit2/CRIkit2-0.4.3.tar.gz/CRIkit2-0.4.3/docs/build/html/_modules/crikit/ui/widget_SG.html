@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.ui.widget_SG &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.ui.widget_SG</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.ui.widget_SG</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Widget for PlotEffect that adjusts the parameters appropriate for</span>
+<span class="sd">Savitky-Golay filtering</span>
+
+<span class="sd">Created on Thu Dec 22 11:18:36 2016</span>
+
+<span class="sd">@author: chc</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">savgol_filter</span> <span class="k">as</span> <span class="n">_sg</span>
+
+<span class="kn">from</span> <span class="nn">crikit.ui.dialog_AbstractPlotEffect</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AbstractPlotEffectPlugin</span>
+                                                 <span class="k">as</span> <span class="n">_AbstractPlotEffectPlugin</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">crikit.ui.qt_PlotEffect_SG</span> <span class="kn">import</span> <span class="n">Ui_Form</span> <span class="k">as</span> <span class="n">_Ui_Form</span>
+
+<div class="viewcode-block" id="widgetSG"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_SG.widgetSG">[docs]</a><span class="k">class</span> <span class="nc">widgetSG</span><span class="p">(</span><span class="n">_AbstractPlotEffectPlugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Widget for PlotEffect that adjusts the parameters appropriate for</span>
+<span class="sd">    Savitky-Golay filtering</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    window_length : int</span>
+<span class="sd">        Window length</span>
+
+<span class="sd">    polyorder : int</span>
+<span class="sd">        Polynomial order</span>
+<span class="sd">        </span>
+<span class="sd">    parent : QObject</span>
+<span class="sd">        Parent</span>
+<span class="sd">        </span>
+<span class="sd">    Methods</span>
+<span class="sd">    ---------</span>
+<span class="sd">    fcn : Performs the Savitky-Golay</span>
+
+<span class="sd">    Signals:</span>
+<span class="sd">        changed : a value in the UI has changed</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Parameter dict that will be returned from PlotEffect</span>
+    <span class="c1"># Will be updated later in program to contain all parameters</span>
+    <span class="c1"># to pass to underlying algorithm</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;SG&#39;</span><span class="p">,</span> 
+                  <span class="s1">&#39;long_name&#39;</span> <span class="p">:</span> <span class="s1">&#39;Savitky-Golay filtering&#39;</span><span class="p">}</span>
+    
+    <span class="c1"># Labeling options for original data plot</span>
+    <span class="n">labels_orig</span> <span class="o">=</span> <span class="p">{</span>
+                   <span class="s1">&#39;x_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Wavenumber (cm$^{-1}$)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;y_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Input Int (au)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;title&#39;</span> <span class="p">:</span> <span class="s1">&#39;Original&#39;</span>
+                   <span class="p">}</span>
+    
+    <span class="c1"># Labeling options for affected data plot              </span>
+    <span class="n">labels_affected</span> <span class="o">=</span> <span class="p">{</span>
+                       <span class="s1">&#39;x_label&#39;</span> <span class="p">:</span> <span class="n">labels_orig</span><span class="p">[</span><span class="s1">&#39;x_label&#39;</span><span class="p">],</span>
+                       <span class="s1">&#39;y_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Difference (au)&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;title&#39;</span> <span class="p">:</span> <span class="s1">&#39;Difference&#39;</span>
+                      <span class="p">}</span>
+                      
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="mi">601</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">widgetSG</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">_Ui_Form</span><span class="p">()</span> <span class="c1">### EDIT ###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>     <span class="c1">### EDIT ###</span>
+
+        <span class="c1"># Update parameter dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">window_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">polyorder</span>
+                
+        <span class="c1"># Window size must be &gt; polyorder</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            
+        <span class="c1"># Window size must be odd</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxWinSize</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxOrder</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">])</span>
+
+        <span class="c1"># SIGNALS &amp; SLOTS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxWinSize</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changeWinSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxOrder</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changeOrder</span><span class="p">)</span>
+
+<div class="viewcode-block" id="widgetSG.fcn"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_SG.widgetSG.fcn">[docs]</a>    <span class="k">def</span> <span class="nf">fcn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If return list, [0] goes to original, [1] goes to affected</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">baseline</span> <span class="o">=</span> <span class="n">_sg</span><span class="p">(</span><span class="n">data_in</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">],</span>
+                       <span class="n">polyorder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">data_in</span> <span class="o">-</span> <span class="n">baseline</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">baseline</span><span class="p">,</span> <span class="n">data_out</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="widgetSG.changeWinSize"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_SG.widgetSG.changeWinSize">[docs]</a>    <span class="k">def</span> <span class="nf">changeWinSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">temp_win_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxWinSize</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">temp_win_size</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_win_size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxWinSize</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">temp_win_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;window_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_win_size</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="widgetSG.changeOrder"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_SG.widgetSG.changeOrder">[docs]</a>    <span class="k">def</span> <span class="nf">changeOrder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;polyorder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxOrder</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div></div>
+        
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span> <span class="k">as</span> <span class="nn">_sys</span>
+    <span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QApplication</span> <span class="k">as</span> <span class="n">_QApplication</span><span class="p">)</span>
+    
+    
+    <span class="n">app</span> <span class="o">=</span> <span class="n">_QApplication</span><span class="p">(</span><span class="n">_sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="s1">&#39;Cleanlooks&#39;</span><span class="p">)</span>
+
+    <span class="n">win</span> <span class="o">=</span> <span class="n">widgetSG</span><span class="p">()</span>
+    
+    <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+    <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">win</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">_sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.ui.widget_SG</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>

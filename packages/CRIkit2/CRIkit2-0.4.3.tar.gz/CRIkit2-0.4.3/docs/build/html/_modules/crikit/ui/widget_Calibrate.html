@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.ui.widget_Calibrate &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.ui.widget_Calibrate</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.ui.widget_Calibrate</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Widget for PlotEffect that adjusts the parameters appropriate for</span>
+<span class="sd">calibration</span>
+
+<span class="sd">Created on Thu Dec 22 14:27:46 2016</span>
+
+<span class="sd">@author: chc</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">_copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">_np</span>
+
+<span class="kn">from</span> <span class="nn">crikit.ui.dialog_AbstractPlotEffect</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AbstractPlotEffectPlugin</span>
+                                                 <span class="k">as</span> <span class="n">_AbstractPlotEffectPlugin</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span> <span class="k">as</span> <span class="n">_UnivariateSpline</span>
+
+<span class="kn">from</span> <span class="nn">crikit.data.frequency</span> <span class="kn">import</span> <span class="p">(</span><span class="n">calib_pix_wn</span> <span class="k">as</span> <span class="n">_calib_pix_wn</span><span class="p">)</span>
+
+<span class="c1">#from crikit.utils.general import find_nearest as _find_nearest</span>
+
+<span class="kn">from</span> <span class="nn">crikit.ui.qt_PlotEffect_Calibrate</span> <span class="kn">import</span> <span class="n">Ui_Form</span> <span class="k">as</span> <span class="n">_Ui_Form</span>
+
+
+<div class="viewcode-block" id="widgetCalibrate"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_Calibrate.widgetCalibrate">[docs]</a><span class="k">class</span> <span class="nc">widgetCalibrate</span><span class="p">(</span><span class="n">_AbstractPlotEffectPlugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Widget for PlotEffect that adjusts the parameters appropriate for</span>
+<span class="sd">    calibration</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    calib_dict : dict</span>
+<span class="sd">        Calibration dictionary</span>
+<span class="sd">        </span>
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    fcn : Perform arPLS detrending</span>
+<span class="sd">    </span>
+<span class="sd">    Signals:</span>
+<span class="sd">        changed : a value in the UI has changed</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter dict that will be returned from PlotEffect</span>
+    <span class="c1"># Will be updated later in program to contain all parameters</span>
+    <span class="c1"># to pass to underlying algorithm</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="s1">&#39;Calibrate&#39;</span><span class="p">,</span> 
+                  <span class="s1">&#39;long_name&#39;</span> <span class="p">:</span> <span class="s1">&#39;Spectral Calibration&#39;</span><span class="p">}</span>
+    
+    <span class="c1"># Labeling options for original data plot</span>
+    <span class="n">labels_orig</span> <span class="o">=</span> <span class="p">{</span>
+                   <span class="s1">&#39;x_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Wavenumber (cm$^{-1}$)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;y_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Input Int (au)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;title&#39;</span> <span class="p">:</span> <span class="s1">&#39;Uncalibrated&#39;</span>
+                   <span class="p">}</span>
+    
+    <span class="c1"># Labeling options for affected data plot                             </span>
+    <span class="n">labels_affected</span> <span class="o">=</span> <span class="p">{</span>
+                       <span class="s1">&#39;x_label&#39;</span> <span class="p">:</span> <span class="n">labels_orig</span><span class="p">[</span><span class="s1">&#39;x_label&#39;</span><span class="p">],</span>
+                       <span class="s1">&#39;y_label&#39;</span> <span class="p">:</span> <span class="s1">&#39;Output Int (au)&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;title&#39;</span> <span class="p">:</span> <span class="s1">&#39;Calibrated&#39;</span>
+                      <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calib_dict</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">widgetCalibrate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="c1">### EDIT ###</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">_Ui_Form</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>    
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calib_dict</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">_copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_calib</span><span class="p">()</span>
+<span class="c1">#        self.orig_wn = _calib_pix_wn(self.parameters[&#39;orig_calib_dict&#39;])</span>
+<span class="c1">#        self.new_wn = _calib_pix_wn(self.parameters[&#39;new_calib_dict&#39;])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxMeas</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mf">1004.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCorrect</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mf">1004.0</span><span class="p">)</span>
+
+        <span class="c1"># SIGNALS &amp; SLOTS    </span>
+        <span class="c1"># New</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxNPix_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCenterWL_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxProbeWL_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxIntercept_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxSlope_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCalibWL_2</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinBoxChanged</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCorrect</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meas_vs_ideal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxMeas</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meas_vs_ideal</span><span class="p">)</span>
+
+<div class="viewcode-block" id="widgetCalibrate.spinBoxChanged"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_Calibrate.widgetCalibrate.spinBoxChanged">[docs]</a>    <span class="k">def</span> <span class="nf">spinBoxChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Controller for all spinBoxes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">sdr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span>
+        
+        <span class="c1"># Original</span>
+        <span class="k">if</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxNPix_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;n_pix&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxNPix_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        
+        <span class="k">elif</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCenterWL_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCenterWL_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            
+        <span class="k">elif</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCalibWL_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl0&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCalibWL_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+                
+        <span class="k">elif</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxSlope_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxSlope_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+                
+        <span class="k">elif</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxIntercept_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxIntercept_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+                
+        <span class="k">elif</span> <span class="n">sdr</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxProbeWL_2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;probe&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxProbeWL_2</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="widgetCalibrate.meas_vs_ideal"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_Calibrate.widgetCalibrate.meas_vs_ideal">[docs]</a>    <span class="k">def</span> <span class="nf">meas_vs_ideal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">meas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxMeas</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">ideal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCorrect</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="n">delta_lambda</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">((</span><span class="n">ideal</span> <span class="o">/</span> <span class="mf">1e7</span><span class="p">)</span> <span class="o">+</span> 
+                            <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;probe&#39;</span><span class="p">]))</span>
+                        <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">((</span><span class="n">meas</span><span class="o">/</span><span class="mf">1e7</span><span class="p">)</span> <span class="o">+</span> 
+                               <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;probe&#39;</span><span class="p">])))</span>
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_lambda</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_calib</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="widgetCalibrate.fcn"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_Calibrate.widgetCalibrate.fcn">[docs]</a>    <span class="k">def</span> <span class="nf">fcn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a shifted version of the input spectrum to mimic the effect</span>
+<span class="sd">        of calibration. (Real calibration doesn&#39;t shift the spectrum, but </span>
+<span class="sd">        rather the independent variable)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_wn</span> <span class="o">=</span> <span class="n">_calib_pix_wn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">new_wn</span> <span class="o">=</span> <span class="n">_calib_pix_wn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">data_in</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">spl</span> <span class="o">=</span> <span class="n">_UnivariateSpline</span><span class="p">(</span><span class="n">new_wn</span><span class="p">,</span> <span class="n">data_in</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">spl</span><span class="p">(</span><span class="n">orig_wn</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_in</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data_in</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">spect</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_in</span><span class="p">):</span>
+                <span class="n">spl</span> <span class="o">=</span> <span class="n">_UnivariateSpline</span><span class="p">(</span><span class="n">new_wn</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">num</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">spl</span><span class="p">(</span><span class="n">orig_wn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="widgetCalibrate.setup_calib"><a class="viewcode-back" href="../../../crikit.ui.html#crikit.ui.widget_Calibrate.widgetCalibrate.setup_calib">[docs]</a>    <span class="k">def</span> <span class="nf">setup_calib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># Original</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxNPix</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;n_pix&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCenterWL</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCalibWL</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl0&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxSlope</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxIntercept</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxProbeWL</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;orig_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;probe&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># New</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxNPix_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;n_pix&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCenterWL_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxProbeWL_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;probe&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxIntercept_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxSlope_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">spinBoxCalibWL_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;new_calib_dict&#39;</span><span class="p">][</span><span class="s1">&#39;ctr_wl0&#39;</span><span class="p">])</span></div></div>
+
+    
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span> <span class="k">as</span> <span class="nn">_sys</span>
+    <span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QApplication</span> <span class="k">as</span> <span class="n">_QApplication</span><span class="p">)</span>
+    
+    <span class="n">app</span> <span class="o">=</span> <span class="n">_QApplication</span><span class="p">(</span><span class="n">_sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="s1">&#39;Cleanlooks&#39;</span><span class="p">)</span>
+    
+    
+    <span class="n">calib_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_pix&#39;</span> <span class="p">:</span> <span class="mi">1600</span><span class="p">,</span>
+                  <span class="s1">&#39;ctr_wl&#39;</span> <span class="p">:</span> <span class="mi">730</span><span class="p">,</span>
+                  <span class="s1">&#39;ctr_wl0&#39;</span> <span class="p">:</span> <span class="mi">730</span><span class="p">,</span>
+                  <span class="s1">&#39;a_vec&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.167740721307557</span><span class="p">,</span> <span class="mf">863.8736708961577</span><span class="p">],</span>
+                  <span class="s1">&#39;probe&#39;</span><span class="p">:</span> <span class="mf">771.461</span><span class="p">}</span>
+                  
+    <span class="n">pix</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">calib_dict</span><span class="p">[</span><span class="s1">&#39;n_pix&#39;</span><span class="p">])</span>
+    <span class="n">wl</span> <span class="o">=</span> <span class="n">calib_dict</span><span class="p">[</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">pix</span> <span class="o">+</span> <span class="n">calib_dict</span><span class="p">[</span><span class="s1">&#39;a_vec&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">WN</span> <span class="o">=</span> <span class="mf">.01</span><span class="o">/</span><span class="p">(</span><span class="n">wl</span><span class="o">*</span><span class="mf">1e-9</span><span class="p">)</span> <span class="o">-</span> <span class="mf">.01</span><span class="o">/</span><span class="p">(</span><span class="n">calib_dict</span><span class="p">[</span><span class="s1">&#39;probe&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e-9</span><span class="p">)</span>
+    
+    <span class="n">CARS</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">-</span><span class="n">WN</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">3000</span><span class="o">-</span><span class="n">WN</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span> <span class="o">+</span> <span class="mf">.055</span><span class="p">)</span>
+    <span class="n">NRB</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="n">WN</span> <span class="o">+</span> <span class="mf">.055</span>
+    <span class="n">CARS</span> <span class="o">=</span> <span class="n">_np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">_np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">CARS</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span>
+
+        
+    <span class="n">winCalib</span> <span class="o">=</span> <span class="n">widgetCalibrate</span><span class="p">(</span><span class="n">calib_dict</span><span class="p">)</span>
+    <span class="n">winCalib</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    
+    <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="n">_sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.ui.widget_Calibrate</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>

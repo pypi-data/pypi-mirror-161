@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.preprocess.tests.test_als &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nature.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.preprocess.tests.test_als</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.preprocess.tests.test_als</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Testing the aysmmetric least-squares detrending algorithm</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span>
+
+<span class="kn">from</span> <span class="nn">crikit.preprocess.algorithms.als</span> <span class="kn">import</span> <span class="n">AlsCvxopt</span>
+
+<div class="viewcode-block" id="test_basic"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_basic">[docs]</a><span class="k">def</span> <span class="nf">test_basic</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_als</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fix_ends"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_fix_ends">[docs]</a><span class="k">def</span> <span class="nf">test_fix_ends</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="mi">200</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">99</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">1</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e2</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fix_rng"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_fix_rng">[docs]</a><span class="k">def</span> <span class="nf">test_fix_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+    <span class="n">fix_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">200</span><span class="p">:</span><span class="mi">800</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.002</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="n">fix_rng</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">200</span><span class="p">:</span><span class="mi">800</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.002</span></div>
+
+<div class="viewcode-block" id="test_vec_asym_param"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_vec_asym_param">[docs]</a><span class="k">def</span> <span class="nf">test_vec_asym_param</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">asym_param</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="n">asym_param</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">7</span> 
+
+    <span class="n">asym_param</span><span class="p">[</span><span class="mi">200</span><span class="p">:</span><span class="mi">800</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-2</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="n">asym_param</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.03</span></div>
+
+<div class="viewcode-block" id="test_basic_rng"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_basic_rng">[docs]</a><span class="k">def</span> <span class="nf">test_basic_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">y_als</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[:</span><span class="mi">200</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[</span><span class="mi">800</span><span class="p">:],</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_basic_redux"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_basic_redux">[docs]</a><span class="k">def</span> <span class="nf">test_basic_redux</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_als</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_basic_redux_rng"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_basic_redux_rng">[docs]</a><span class="k">def</span> <span class="nf">test_basic_redux_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[:</span><span class="mi">200</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[</span><span class="mi">800</span><span class="p">:],</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">y_als</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_2Dbasic_redux_rng"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_2Dbasic_redux_rng">[docs]</a><span class="k">def</span> <span class="nf">test_2Dbasic_redux_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">y</span><span class="p">[</span><span class="kc">None</span><span class="p">,:])</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">200</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">y_als</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">800</span><span class="p">:],</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">y_als</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">rng</span><span class="p">],</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_vec_asym_param_rng_redux"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_vec_asym_param_rng_redux">[docs]</a><span class="k">def</span> <span class="nf">test_vec_asym_param_rng_redux</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">asym_param</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="n">asym_param</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">7</span> 
+
+    <span class="n">asym_param</span><span class="p">[</span><span class="mi">200</span><span class="p">:</span><span class="mi">800</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-1</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="n">asym_param</span><span class="p">,</span> 
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">)[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.03</span></div>
+
+<div class="viewcode-block" id="test_rng_redux_fix_rng"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_rng_redux_fix_rng">[docs]</a><span class="k">def</span> <span class="nf">test_rng_redux_fix_rng</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">9</span>
+
+    <span class="n">fix_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span>
+    <span class="c1"># fix_rng = np.hstack((np.arange(100), np.arange(500,600)))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="n">fix_rng</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.004</span></div>
+        
+<div class="viewcode-block" id="test_rng_redux_fix_rng_vecasym"><a class="viewcode-back" href="../../../../crikit.preprocess.tests.html#crikit.preprocess.tests.test_als.test_rng_redux_fix_rng_vecasym">[docs]</a><span class="k">def</span> <span class="nf">test_rng_redux_fix_rng_vecasym</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">20</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span>
+
+    <span class="n">asym_vec</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mf">1e-7</span>
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="n">asym_vec</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">9</span>
+
+    <span class="n">fix_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span>
+    <span class="c1"># fix_rng = np.hstack((np.arange(100), np.arange(500,600)))</span>
+
+    <span class="n">als</span> <span class="o">=</span> <span class="n">AlsCvxopt</span><span class="p">(</span><span class="n">smoothness_param</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asym_param</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                    <span class="n">redux</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_end_points</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fix_rng</span><span class="o">=</span><span class="n">fix_rng</span><span class="p">,</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_als</span> <span class="o">=</span> <span class="n">als</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_als</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">750</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.004</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.preprocess.tests.test_als</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>

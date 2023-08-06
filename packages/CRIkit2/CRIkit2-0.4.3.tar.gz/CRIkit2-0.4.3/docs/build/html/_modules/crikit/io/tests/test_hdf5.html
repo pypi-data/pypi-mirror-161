@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>crikit.io.tests.test_hdf5 &#8212; CRIKit2 0.4.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nature.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.io.tests.test_hdf5</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for crikit.io.tests.test_hdf5</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">crikit.io.lazy5</span> <span class="k">as</span> <span class="nn">lazy5</span>
+
+<span class="kn">from</span> <span class="nn">crikit.io.hdf5</span> <span class="kn">import</span> <span class="n">hdf_import_data</span>
+<span class="kn">from</span> <span class="nn">crikit.data.spectra</span> <span class="kn">import</span> <span class="n">Spectrum</span>
+<span class="kn">from</span> <span class="nn">crikit.data.spectra</span> <span class="kn">import</span> <span class="n">Spectra</span>
+<span class="kn">from</span> <span class="nn">crikit.data.spectra</span> <span class="kn">import</span> <span class="n">Hsi</span>
+
+<div class="viewcode-block" id="hdf_dataset"><a class="viewcode-back" href="../../../../crikit.io.tests.html#crikit.io.tests.test_hdf5.hdf_dataset">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hdf_dataset</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Setups and tears down a sample HDF5 file &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;temp_test.h5&#39;</span>
+    <span class="n">fid</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+    <span class="n">data_m</span><span class="p">,</span> <span class="n">data_n</span><span class="p">,</span> <span class="n">data_p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
+    <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">data_p</span><span class="p">)</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">data_n</span><span class="p">,</span> <span class="n">data_p</span><span class="p">)</span>
+    <span class="n">hsi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">data_m</span><span class="p">,</span> <span class="n">data_n</span><span class="p">,</span> <span class="n">data_p</span><span class="p">)</span>
+
+    <span class="n">fid</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;hsi&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">hsi</span><span class="p">)</span>
+    <span class="n">fid</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;spectra&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">spectra</span><span class="p">)</span>
+    <span class="n">fid</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;spectrum&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">spectrum</span><span class="p">)</span>
+
+    <span class="k">yield</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="p">(</span><span class="n">data_m</span><span class="p">,</span> <span class="n">data_n</span><span class="p">,</span> <span class="n">data_p</span><span class="p">)</span>
+
+    <span class="c1"># Tear-down</span>
+    <span class="k">if</span> <span class="n">lazy5</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">hdf_is_open</span><span class="p">(</span><span class="n">fid</span><span class="p">):</span>
+        <span class="n">fid</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_hdf_import_spectrum_to_spectrum"><a class="viewcode-back" href="../../../../crikit.io.tests.html#crikit.io.tests.test_hdf5.test_hdf_import_spectrum_to_spectrum">[docs]</a><span class="k">def</span> <span class="nf">test_hdf_import_spectrum_to_spectrum</span><span class="p">(</span><span class="n">hdf_dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import a spectrum into a spectrum &quot;&quot;&quot;</span>
+
+    <span class="n">filename</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">hdf_dataset</span>
+    <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hdf_data_shape</span><span class="p">)</span>
+
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;spectrum&#39;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">()</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="test_hdf_import_spectra_to_spectra"><a class="viewcode-back" href="../../../../crikit.io.tests.html#crikit.io.tests.test_hdf5.test_hdf_import_spectra_to_spectra">[docs]</a><span class="k">def</span> <span class="nf">test_hdf_import_spectra_to_spectra</span><span class="p">(</span><span class="n">hdf_dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import a spectra into a spectra &quot;&quot;&quot;</span>
+
+    <span class="n">filename</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">hdf_dataset</span>
+    <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hdf_data_shape</span><span class="p">)</span>
+
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;spectra&#39;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Spectra</span><span class="p">()</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="test_hdf_import_hsi_to_hsi"><a class="viewcode-back" href="../../../../crikit.io.tests.html#crikit.io.tests.test_hdf5.test_hdf_import_hsi_to_hsi">[docs]</a><span class="k">def</span> <span class="nf">test_hdf_import_hsi_to_hsi</span><span class="p">(</span><span class="n">hdf_dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import an hsi into an hsi &quot;&quot;&quot;</span>
+
+    <span class="n">filename</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">hdf_dataset</span>
+    <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hdf_data_shape</span><span class="p">)</span>
+
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;hsi&#39;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Hsi</span><span class="p">()</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span></div>
+<div class="viewcode-block" id="test_hdf_import_no_output_cls_given"><a class="viewcode-back" href="../../../../crikit.io.tests.html#crikit.io.tests.test_hdf5.test_hdf_import_no_output_cls_given">[docs]</a><span class="k">def</span> <span class="nf">test_hdf_import_no_output_cls_given</span><span class="p">(</span><span class="n">hdf_dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import a spectrum, spectra, and hsi when no instantiated class is provided &quot;&quot;&quot;</span>
+
+    <span class="n">filename</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">hdf_dataset</span>
+    <span class="n">hdf_data_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hdf_data_shape</span><span class="p">)</span>
+
+    <span class="c1"># Spectrum</span>
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;spectrum&#39;</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">dset_meta</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span>
+
+    <span class="c1"># Spectra</span>
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;spectra&#39;</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">dset_meta</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span>
+
+    <span class="c1"># HSI</span>
+    <span class="n">dname</span> <span class="o">=</span> <span class="s1">&#39;hsi&#39;</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">dset_meta</span> <span class="o">=</span> <span class="n">hdf_import_data</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dname</span><span class="p">,</span> <span class="n">output_cls_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">hdf_data_shape</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">fid</span><span class="p">[</span><span class="n">dname</span><span class="p">][</span><span class="o">...</span><span class="p">])</span></div>
+    
+<span class="c1"># def test_hdf_import_spectra_to_spectrum(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import spectra into a spectrum &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;spectra&#39;</span>
+<span class="c1">#     dataset = Spectrum()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape[-1]</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...].mean(axis=0))</span>
+
+<span class="c1"># def test_hdf_import_hsi_to_spectrum(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import hsi into a spectrum &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;hsi&#39;</span>
+<span class="c1">#     dataset = Spectrum()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape[-1]</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...].mean(axis=(0,1)))</span>
+
+
+<span class="c1"># def test_hdf_import_spectrum_to_spectra(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import a spectrum into a spectra &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;spectrum&#39;</span>
+<span class="c1">#     dataset = Spectra()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape[-1]</span>
+<span class="c1">#     assert dataset.ndim == 2</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...])</span>
+
+<span class="c1"># def test_hdf_import_hsi_to_spectra(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import hsi into spectra &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;hsi&#39;</span>
+<span class="c1">#     dataset = Spectra()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape.prod()</span>
+<span class="c1">#     assert dataset.ndim == 2</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...].reshape((-1, hdf_data_shape[-1])))</span>
+
+<span class="c1"># def test_hdf_import_spectrum_to_hsi(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import a spectrum into an hsi &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;spectrum&#39;</span>
+<span class="c1">#     dataset = Hsi()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape[-1]</span>
+<span class="c1">#     assert dataset.ndim == 3</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...])</span>
+
+<span class="c1"># def test_hdf_import_spectra_to_hsi(hdf_dataset):</span>
+<span class="c1">#     &quot;&quot;&quot; Import spectra into an hsi &quot;&quot;&quot;</span>
+
+<span class="c1">#     filename, fid, hdf_data_shape = hdf_dataset</span>
+<span class="c1">#     hdf_data_shape = np.array(hdf_data_shape)</span>
+
+<span class="c1">#     dname = &#39;spectra&#39;</span>
+<span class="c1">#     dataset = Hsi()</span>
+
+<span class="c1">#     out = hdf_import_data(&#39;.&#39;, filename, dname, output_cls_instance=dataset)</span>
+<span class="c1">#     assert out is True</span>
+<span class="c1">#     assert dataset.size == hdf_data_shape[1:].prod()</span>
+<span class="c1">#     assert dataset.ndim == 3</span>
+<span class="c1">#     np.testing.assert_equal(dataset.data, fid[dname][...].reshape((0, -1, hdf_data_shape[-1])))</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CRIKit2 0.4.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">crikit.io.tests.test_hdf5</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+    </div>
+  </body>
+</html>
