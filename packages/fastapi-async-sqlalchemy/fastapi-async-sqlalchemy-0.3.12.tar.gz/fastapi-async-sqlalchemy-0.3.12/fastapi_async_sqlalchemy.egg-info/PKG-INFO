@@ -1,0 +1,91 @@
+Metadata-Version: 2.1
+Name: fastapi-async-sqlalchemy
+Version: 0.3.12
+Summary: SQLAlchemy middleware for FastAPI
+Home-page: https://github.com/h0rn3t/fastapi-async-sqlalchemy.git
+Author: Eugene Shershen
+Author-email: h0rn3t.null@gmail.com
+License: MIT
+Project-URL: Code, https://github.com/h0rn3t/fastapi-async-sqlalchemy
+Project-URL: Issue tracker, https://github.com/h0rn3t/fastapi-async-sqlalchemy/issues
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Internet :: WWW/HTTP :: HTTP Servers
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# SQLAlchemy FastAPI middleware
+
+[![ci](https://github.com/h0rn3t/fastapi-async-sqlalchemy/workflows/ci/badge.svg)](https://github.com/h0rn3t/fastapi-async-sqlalchemy/workflows/ci/badge.svg)
+[![codecov](https://codecov.io/gh/h0rn3t/fastapi-async-sqlalchemy/branch/main/graph/badge.svg?token=F4NJ34WKPY)](https://codecov.io/gh/h0rn3t/fastapi-async-sqlalchemy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![pip](https://img.shields.io/pypi/v/fastapi_async_sqlalchemy?color=blue)](https://pypi.org/project/fastapi-async-sqlalchemy/)
+[![Downloads](https://pepy.tech/badge/fastapi-async-sqlalchemy)](https://pepy.tech/project/fastapi-async-sqlalchemy)
+[![Updates](https://pyup.io/repos/github/h0rn3t/fastapi-async-sqlalchemy/shield.svg)](https://pyup.io/repos/github/h0rn3t/fastapi-async-sqlalchemy/)
+
+### Description
+
+Provides SQLAlchemy middleware for FastAPI using AsyncSession and async engine.
+
+### Install
+
+```bash
+  pip install fastapi-async-sqlalchemy
+```
+
+
+### Examples
+
+Note that the session object provided by ``db.session`` is based on the Python3.7+ ``ContextVar``. This means that
+each session is linked to the individual request context in which it was created.
+
+```python
+
+from fastapi import FastAPI
+from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
+from fastapi_async_sqlalchemy import db  # provide access to a database session
+from sqlalchemy import column
+from sqlalchemy import table
+
+app = FastAPI()
+app.add_middleware(
+    SQLAlchemyMiddleware,
+    db_url="postgresql+asyncpg://user:user@192.168.88.200:5432/primary_db"
+)
+
+foo = table("ms_files", column("id"))
+
+
+@app.get("/")
+async def get_files():
+    result = await db.session.execute(foo.select())
+    return result.fetchall()
+
+
+@app.get("/db_context")
+async def db_context():
+    async with db():
+        result = await db.session.execute(foo.select())
+        return result.fetchall()
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)
+
+```
+
+
