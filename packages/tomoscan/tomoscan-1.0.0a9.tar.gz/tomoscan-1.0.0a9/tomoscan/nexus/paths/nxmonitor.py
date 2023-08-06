@@ -1,0 +1,15 @@
+class NEXUS_MONITOR_PATH:
+
+    DATA_PATH = "data"
+
+
+class NEXUS_MONITOR_PATH_V_1_0(NEXUS_MONITOR_PATH):
+    pass
+
+
+class NEXUS_MONITOR_PATH_V_1_1(NEXUS_MONITOR_PATH_V_1_0):
+    pass
+
+
+class NEXUS_MONITOR_PATH_V_1_2(NEXUS_MONITOR_PATH_V_1_1):
+    pass
