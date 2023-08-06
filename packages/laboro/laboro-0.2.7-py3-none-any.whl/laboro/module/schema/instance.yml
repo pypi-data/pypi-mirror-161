@@ -1,0 +1,104 @@
+---
+$schema: https://json-schema.org/draft/2020-12/schema
+id: laboro.module.specification.module.object.schema
+title: Laboro module object specification schema
+description: Laboro module object specification schema
+type: object
+properties:
+  class:
+    type: string
+  args:
+    type: array
+    uniqueItems: True
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        required:
+          type: boolean
+        type:
+          type:
+            - string
+            - array
+          uniqueItems: True
+          items:
+            type: string
+        excluded:
+          type: array
+          uniqueItems: True
+          items:
+            type: string
+        implied:
+          type: array
+          uniqueItems: True
+          items:
+            type: string
+        secret:
+          type: boolean
+        placeholder:
+            type: string
+        doc:
+          type: string
+        default: True
+      required:
+        - name
+        - required
+        - type
+        - excluded
+        - implied
+        - secret
+      additionalProperties: False
+  methods:
+    type: array
+    uniqueItems: True
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        args:
+          type: array
+          uniqueItems: True
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              required:
+                type: boolean
+              type:
+                type:
+                  - string
+                  - array
+                uniqueItems: True
+                items:
+                  type: string
+              excluded:
+                type: array
+                uniqueItems: True
+                items:
+                  type: string
+              implied:
+                type: array
+                uniqueItems: True
+                items:
+                  type: string
+              secret:
+                type: boolean
+              default: True
+            required:
+              - name
+              - required
+              - type
+              - excluded
+              - implied
+              - secret
+            additionalProperties: False
+      required:
+        - name
+      additionalProperties: False
+required:
+  - class
+  - methods
+additionalProperties: False

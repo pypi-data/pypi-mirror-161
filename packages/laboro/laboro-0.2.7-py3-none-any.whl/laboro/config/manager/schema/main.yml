@@ -1,0 +1,41 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: laboro.config.main.schema
+title: Laboro main config schema
+description: Laboro main config schema
+type: object
+properties:
+  laboro:
+    type: object
+    properties:
+      histdir:
+        type: string
+      workspacedir:
+        type: string
+      workflowdir:
+        type: string
+      log:
+        type: object
+        properties:
+          dir:
+            type: string
+          level:
+            type: string
+            default: INFO
+            enum:
+              - DEBUG
+              - INFO
+              - WARNING
+              - ERROR
+              - CRITICAL
+        required:
+          - dir
+        additionalProperties: False
+    required:
+      - histdir
+      - workspacedir
+      - workflowdir
+      - log
+    additionalProperties: False
+required:
+  - laboro
+additionalProperties: False
