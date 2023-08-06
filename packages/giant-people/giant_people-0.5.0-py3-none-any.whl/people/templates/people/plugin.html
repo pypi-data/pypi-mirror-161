@@ -1,0 +1,42 @@
+{% load cms_tags static thumbnail show_pagination %}
+
+<section class="page-cards page-cards--white">
+    <div class="wrapper">
+        <div class="page-cards__cards page-cards__cards--tall-image">
+            {% for child in instance.people_cards.all %}
+                <div class="page-cards__card" title="Read more about {{ child.person.name }}">
+                    <div class="page-cards__card__visible">
+                        <div class="page-cards__image triangle-clip" style="background-image: url('{% thumbnail child.person.image 'people:card' subject_location=child.person.image.subject_location %}');"></div>
+                        <div class="page-cards__info">
+                            <h3>{{ child.person.name }}</h3>
+                            <div class="page-cards__secondary-info">
+                                <p>{{ child.person.job_role }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card__overlay">
+                        <div class="scroll-pane"></div>
+                        <div class="page-card__overlay__closer"><img src="{% static 'img/modal-closer--blue.svg' %}" alt="Close icon" /></div>
+                        <div class="page-card__overlay__upper">
+                            <div class="page-card__overlay__title">
+                                <h3>{{ child.person.name }}</h3>
+                                <p>{{ child.person.job_role }}<p>
+                            </div>
+                            {% if child.person.linkedin_url %}
+                                <div class="page-card__overlay__social">
+                                    <ul>
+                                        <li><a href="{{ child.person.linkedin_url }}" title="View {{ child.person.name }} on LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="page-card__overlay__lower">
+                            <p>{{ child.person.summary|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
