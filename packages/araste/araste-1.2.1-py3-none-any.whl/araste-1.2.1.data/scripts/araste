@@ -1,0 +1,69 @@
+#!python
+import os
+import argparse
+
+
+# message handling
+# levels ( Error, Warning, Info, Text )
+# note: levels and text with string types
+
+
+def message(level, text):
+    print(f"{level}:\n{text}")
+
+
+try:
+    from araste import araste
+except ImportError:
+    message("Error", "Araste is not installed")
+    exit(1)
+
+
+def main():
+    # read from flf font file
+
+    parser = argparse.ArgumentParser()
+    default_font_name = 'aipara'
+
+    parser.add_argument("-f", "--font", help="font path or font name",
+                        dest="font", default=default_font_name)
+    parser.add_argument("--list", help="list available fonts",
+                        dest="get_font_list", action="store_true")
+    parser.add_argument("--rainbow", help="print output in rainbow colors",
+                        dest="rainbow", action="store_true")
+    parser.add_argument("-a", "--alignment", help="alignment of output [l,r,c]", default='l')
+    parser.add_argument("text", help="Text", nargs='*')
+
+    args = parser.parse_args()
+
+    # default dir where fonts are stored
+    # there are 2 possible options. root directory or home directory
+    fonts_dir = araste.__file__.replace("araste.py", "") + "fonts"
+
+    if args.get_font_list:
+        fonts_list = os.listdir(fonts_dir)
+        for font_name in fonts_list:
+            print(font_name.rstrip('.flf'))
+        exit(0)
+
+    if len(args.text) > 0:
+        text = ' '.join(args.text)
+        try:
+            araste.render(text, args.font, ' ', rainbow=args.rainbow, alignment=args.alignment)
+        except FileNotFoundError:
+            message("Error", f"{args.font} is not found")
+            exit(1)
+    else:
+        while True:
+            try:
+                text = input()
+                araste.render(text, args.font, ' ', rainbow=args.rainbow, alignment=args.alignment)
+            except EOFError:
+                break
+            except FileNotFoundError:
+                message("Error", f"{args.font} is not found")
+                exit(1)
+
+
+if __name__ == "__main__":
+    main()
