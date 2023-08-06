@@ -1,0 +1,174 @@
+Metadata-Version: 2.1
+Name: datatap
+Version: 0.3.0
+Summary: Client library for dataTap
+Home-page: https://github.com/zensors/datatap-python
+Author: Zensors' Dev Team
+Author-email: dev-team@zensors.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: boto3 (>=1.15.14)
+Requires-Dist: fastjsonschema (==2.14.2)
+Requires-Dist: toolz (>=0.10.0)
+Requires-Dist: simplejson (>=3.17.0)
+Requires-Dist: jsonmerge (==1.7.0)
+Requires-Dist: neo4j (==4.0.1)
+Requires-Dist: Shapely
+Requires-Dist: requests (>=2.23.0)
+Requires-Dist: typing-extensions
+Provides-Extra: image
+Requires-Dist: palettable (>=3.3.0) ; extra == 'image'
+Requires-Dist: Flask (>=1.1.1) ; extra == 'image'
+Requires-Dist: Pillow (>=7.1.0) ; extra == 'image'
+Requires-Dist: Shapely (>=1.7.0) ; extra == 'image'
+Requires-Dist: scipy (>=1.4.1) ; extra == 'image'
+Requires-Dist: importlib-resources (>=1.4.0) ; extra == 'image'
+Requires-Dist: boto3 (>=1.15.14) ; extra == 'image'
+Provides-Extra: importers
+Requires-Dist: Shapely (==1.7.0) ; extra == 'importers'
+Requires-Dist: scikit-image (==0.17.2) ; extra == 'importers'
+Requires-Dist: Unidecode (==1.1.1) ; extra == 'importers'
+Provides-Extra: metrics
+Requires-Dist: numpy (>=1.19.2) ; extra == 'metrics'
+Requires-Dist: sortedcontainers (>=0.8.1) ; extra == 'metrics'
+Requires-Dist: matplotlib (>=3.3.2) ; extra == 'metrics'
+Requires-Dist: scipy (>=1.5.2) ; extra == 'metrics'
+Provides-Extra: tf
+Requires-Dist: tensorflow (>=2.0.0) ; extra == 'tf'
+Provides-Extra: torch
+Requires-Dist: torch (>=1.8.0+cpu) ; extra == 'torch'
+Requires-Dist: torchvision (>=0.9.0+cpu) ; extra == 'torch'
+
+<p align="center">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/datatap-logo-dark-on-light.png" width="400">
+</p>
+
+<p align="center">
+    <img src="https://badge.buildkite.com/8afb95fcb4f99547e2d7b8618171e1c7f21b89c2306c8d1f76.svg?branch=master">
+    <a href="https://docs.datatap.dev"><img src="https://img.shields.io/badge/docs-available-brightgreen"></a>
+    <a href="https://pypi.org/project/datatap/"><img src="https://img.shields.io/pypi/v/datatap"></a>
+</p>
+
+<p align="center">
+    The visual data management platform from <a href="https://zensors.com">Zensors</a>.
+</p>
+
+----------
+
+<p align="center">
+    Join for free at <a href="https://app.datatap.dev">app.datatap.dev</a>.
+</p>
+
+
+The dataTap Python library is the primary interface for using dataTap's rich data management tools. Create datasets, stream annotations, and analyze model performance all with one library.
+
+----------
+
+## Documentation
+
+Full documentation is available at [docs.datatap.dev](https://docs.datatap.dev/).
+
+## Features
+
+ - [x] ⚡ Begin training instantly
+ - [x] 🔥 Works with all major ML frameworks (Pytorch, TensorFlow, etc.)
+ - [x] 🛰️ Real-time streaming to avoid large dataset downloads
+ - [x] 🌐 Universal data format for simple data exchange
+ - [x] 🎨 Combine data from multiples sources into a single dataset easily
+ - [x] 🧮 Rich ML utilities to compute PR-curves, confusion matrices, and accuracy metrics.
+ - [x] 💽 Free access to a variety of open datasets.
+
+## Getting Started (Platform)
+
+To begin, select a dataset from the dataTap repository.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/getting_started.gif" width="600">
+</p>
+
+Then copy the starter code based on your library preference.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/copy-code.gif" width="600">
+</p>
+
+Paste the starter code and start training.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/start-training.gif" width="600">
+</p>
+
+## Getting Started (API)
+
+Install the client library.
+
+```bash
+pip install datatap
+```
+
+Register at [app.datatap.dev](https://app.datatap.dev). Then, go to `Settings > Api Keys` to find your personal API key.
+
+```bash
+export DATATAP_API_KEY="XXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX"
+```
+
+Start using open datasets instantly.
+
+```python
+from datatap import Api
+
+api = Api()
+coco = api.get_default_database().get_repository("_/coco")
+dataset = coco.get_dataset("latest")
+print("COCO: ", dataset)
+```
+
+
+
+## Data Streaming Example
+
+```python
+import itertools
+from datatap import Api
+
+api = Api()
+dataset = (api
+    .get_default_database()
+    .get_repository("_/wider-person")
+    .get_dataset("latest")
+)
+
+training_stream = dataset_version.stream_split("training")
+for annotation in itertools.islice(training_stream, 5):
+    print("Received annotation:", annotation)
+```
+
+## More Examples
+ - [Documented Sample](https://github.com/Zensors/datatap-python/tree/master/datatap/examples/streaming-sample.md)
+ - [Pytorch Jupyter Notebook](https://github.com/Zensors/datatap-python/tree/master/datatap/examples/torch.ipynb)
+
+
+## Support and FAQ
+
+**Q. How do I resolve a missing API Key?**
+
+If you see the error `Exception: No API key available. Either provide it or use the [DATATAP_API_KEY] environment variable`, then the dataTap library was not able to find your API key. You can find your API key on [app.datatap.dev](https://app.datatap.dev) under settings. You can either set it as an environment variable or as the first argument to the `Api` constructor.
+
+**Q. Can dataTap be used offline?**
+
+Some functionality can be used offline, such as the droplet utilities and metrics. However, repository access and dataset streaming require internet access, even for local databases.
+
+**Q. Is dataTap accepting contributions?**
+
+dataTap currently uses a separate code review system for managing contributions. The team is looking into switching that system to GitHub to allow public contributions. Until then, we will actively monitor the GitHub issue tracker to help accomodate the community's needs.
+
+**Q. How can I get help using dataTap?**
+
+You can post a question in the [issue tracker](https://github.com/zensors/datatap-python/issues). The dataTap team actively monitors the repository, and will try to get back to you as soon as possible.
+
+
