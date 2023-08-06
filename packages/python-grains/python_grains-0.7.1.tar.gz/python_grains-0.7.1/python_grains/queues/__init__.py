@@ -1,0 +1,1 @@
+from python_grains.queues.queues import Queue
