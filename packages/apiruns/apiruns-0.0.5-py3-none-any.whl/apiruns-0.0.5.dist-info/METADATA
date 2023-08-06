@@ -1,0 +1,98 @@
+Metadata-Version: 2.1
+Name: apiruns
+Version: 0.0.5
+Summary: Apiruns CLI is a tool to make self-configurable rest API.
+Home-page: https://github.com/apiruns/apiruns-cli
+License: MIT
+Keywords: Poetry,CLI,Apiruns,Packages,Packaging,Docker,No-code,Low-code
+Author: Jose Salas
+Author-email: jose.salas@apiruns.com
+Requires-Python: >=3.7,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: Cerberus (>=1.3.4,<2.0.0)
+Requires-Dist: PyYAML (>=6.0,<7.0)
+Requires-Dist: httpx (>=0.23.0,<0.24.0)
+Requires-Dist: requests (>=2.28.1,<3.0.0)
+Requires-Dist: typer[all] (>=0.6.1,<0.7.0)
+Project-URL: Documentation, https://github.com/apiruns/apiruns-cli
+Project-URL: Repository, https://github.com/apiruns/apiruns-cli
+Description-Content-Type: text/markdown
+
+# apiruns-cli
+
+Apiruns CLI is a tool to make self-configurable rest API. Create an API rest has never been so easy.
+
+## Requirements
+
+- Python 3.6+
+
+## Installation.
+
+```bash
+pip install apiruns
+```
+
+```bash
+poetry install
+```
+
+## Example
+
+```bash
+apiruns --help
+
+ Usage: apiruns [OPTIONS] COMMAND [ARGS]...
+ 
+╭─ Options───────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                │
+╰────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ─────────────────────────────────────────────────────────────────╮
+│ build                       Build images & validate schema.🔧              │
+│ down                        Stops containers and removes containers. 🌪    │
+│ up                          Make your API rest. 🚀                         │
+│ version                     Get current version. 💬                        │
+╰────────────────────────────────────────────────────────────────────────────╯
+```
+
+## file configuration
+
+Make YAML file to configure your application’s services. `api.yml`
+
+```yml
+# This is an example manifest to create microservices in apiruns.
+
+myapi: # Microservices name.
+
+  # first endpoint
+  - path: /users/ # Path name.
+    schema: # Schema of data structure.
+      username:
+        type: string
+        required: true
+      age:
+        type: integer
+        required: true
+      is_admin:
+        type: boolean
+        required: true
+      level:
+        type: string
+```
+
+## Crear a API Rest
+
+```bash
+apiruns up --file examples/api.yml 
+
+Building API
+Creating DB container.
+Creating API container.
+Starting services
+API listen on 8000
+```
+
