@@ -1,0 +1,132 @@
+variables:
+  TUXPKG: tuxpkg
+  PYTEST_ARGS: ""
+
+test:
+  stage: test
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  script:
+    - apt-get update -q
+    - apt-get build-dep -qy .
+    - make test
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+image: $CI_REGISTRY_IMAGE:ci-debian
+
+ci-image-debian:
+  stage: .pre
+  image: docker:20.10-dind
+  services:
+  - name: docker:20.10-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  script:
+  - 'docker build --build-arg=EXTRA_PACKAGES="dpkg-dev apt-utils createrepo-c rpm gpg gpg-agent python3" -t $CI_REGISTRY_IMAGE:ci-debian -f Dockerfile.ci-debian .'
+  - 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY'
+  - 'docker push $CI_REGISTRY_IMAGE:ci-debian'
+  only:
+    refs:
+    - master
+    - main
+    changes:
+    - Dockerfile.ci-debian
+    - debian/control
+    - debian/changelog
+
+ci-image-fedora:
+  stage: .pre
+  image: docker:20.10-dind
+  services:
+  - name: docker:20.10-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  script:
+  - 'docker build -t $CI_REGISTRY_IMAGE:ci-fedora -f Dockerfile.ci-fedora .'
+  - 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY'
+  - 'docker push $CI_REGISTRY_IMAGE:ci-fedora'
+  only:
+    refs:
+    - master
+    - main
+    changes:
+    - Dockerfile.ci-fedora
+    - '*.spec'
+
+rpm:
+  stage: build
+  image: $CI_REGISTRY_IMAGE:ci-fedora
+  variables:
+    FLIT_NO_NETWORK: 1
+  script:
+    - 'dnf builddep -y *.spec'
+    - make rpm
+    - rpm --query --info dist/*.rpm
+    - rpm --query --requires dist/*.rpm
+    - rpm --query --list dist/*.rpm
+  artifacts:
+    paths:
+      - dist/*.rpm
+
+rpm-sanity-test:
+  stage: test
+  image: fedora
+  needs:
+    - rpm
+  script:
+    - dnf install -y ./dist/*.rpm
+    - ${TUXPKG_PROJECT} --help
+
+deb:
+  stage: build
+  variables:
+    FLIT_NO_NETWORK: 1
+  script:
+    - apt-get update -q
+    - apt-get build-dep -qy .
+    - make deb
+    - dpkg --info dist/*.deb
+    - dpkg --contents dist/*.deb
+  artifacts:
+    paths:
+      - dist/*.deb
+
+deb-sanity-check:
+  stage: test
+  image: debian
+  needs:
+    - deb
+  script:
+    - apt-get update -q
+    - apt-get install -qy ./dist/*.deb
+    - ${TUXPKG_PROJECT} --help
+
+repository:
+  only:
+    - tags
+  needs:
+    - deb
+    - rpm
+  stage: deploy
+  script:
+    - ${TUXPKG} create-repository
+  artifacts:
+    paths:
+      - dist/repo
+
+pypi:
+  only:
+    - tags
+  stage: deploy
+  needs:
+    - test
+    - repository
+  variables:
+    FLIT_USERNAME: __token__
+  script:
+    - "echo I: FLIT_USERNAME: ${FLIT_USERNAME}"
+    - 'if [ -n "${FLIT_PASSWORD}" ]; then echo "I: FLIT_PASSWORD is set!"; else echo "E: FLIT_PASSWORD is NOT SET!"; fi'
+    - flit publish
