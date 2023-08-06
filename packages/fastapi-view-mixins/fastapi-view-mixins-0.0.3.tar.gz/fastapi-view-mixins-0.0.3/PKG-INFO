@@ -1,0 +1,272 @@
+Metadata-Version: 2.1
+Name: fastapi-view-mixins
+Version: 0.0.3
+Summary: Fastapi view mixins
+Home-page: UNKNOWN
+Author: Patryk Dąbrowski
+Author-email: tibiasportex@gmail.com
+License: UNKNOWN
+Keywords: python,paginator
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+
+## Package of mixins that helps build API.
+
+### List of available mixins:
+
+1. BaseAPIListMixin
+2. BaseAPIDetailMixin
+3. BaseAPIUpdateMixin
+4. BaseAPICreateMixin
+5. BaseAPIDestroyMixin
+
+### List of available pagination's:
+
+1. LimitOffsetPagination - default
+2. CursorPagination
+
+### Built on:
+
+1. fastapi==0.79.0
+2. pytest==7.1.2
+3. pytest-asyncio==0.19.0
+4. SQLAlchemy==1.4.39
+5. aiosqlite==0.17.0 # testing purpose
+
+### Base usage:
+
+#### List view:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIListMixin
+
+
+class FooListView(BaseAPIListMixin):
+    model = Foo
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+from fastapi_views import utils
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/all', response_model=list[SomePydanticModel])
+async def get_articles(
+        session: Session = Depends(db_session),
+):
+    return utils.scalars(FooApiListView().get_all(session=session))
+```
+
+You can also override mixin attrs to do it a bit shorter
+
+```python
+# urls.py
+from fastapi import (APIRouter, Depends)
+from fastapi_views import utils
+from fastapi_views.views.mixins import BaseAPIListMixin
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/all', response_model=list[SomePydanticModel])
+async def get_articles(
+        session: Session = Depends(db_session),
+):
+    return utils.scalars(BaseAPIListMixin(attrs={'model': Foo}).get_all(session=session))
+```
+
+
+#### List view using pagination:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIListMixin
+
+
+class FooListView(BaseAPIListMixin):
+    model = Foo
+    paginate_by = 15
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+from fastapi_views import utils
+from fastapi_views.pagination.annotations import PaginationParams
+from fastapi_views.pagination.schema import LimitOffsetPage
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/all', response_model=LimitOffsetPage.include(SomePydanticModel))
+async def get_articles(
+        params: PaginationParams = Depends(),  # put inside fun to return Session and Request
+):
+    return utils.scalars(FooApiListView().get_all_with_pagination(**params))  # session=, request=
+```
+
+#### List view cursor pagination example:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIListMixin
+from fastapi_views.pagination.core import PaginationCursor
+from sqlalchemy import select, and_
+from sqlalchemy.orm import joinedload, Load
+from sqlalchemy.sql import Select
+
+
+class FooListView(BaseAPIListMixin):
+    model = Foo
+    paginate_by = 10
+    pagination_strategy = PaginationCursor
+
+    def get_statement(self) -> Select:
+        """As default returns select(self.model)."""
+
+        statement = select(self.model).options(
+            Load(self.model).load_only(self.model.title, self.model.published),
+        ).options(
+            joinedload(self.model.fk_related, innerjoin=True).
+            load_only(Fk_related.username, Fk_related.email)
+        ).where(and_(self.model.id > 0, self.model.id < 100))
+
+        return statement
+
+    def get_pagination_kwargs(self):
+        """
+        As default returns {
+            'model': self.model,
+            'ordering': ['id'],
+            'cursor_prefixes': ['next__', 'prev__']
+        }
+        """
+        kw = super().get_pagination_kwargs()
+        kw['ordering'] = ['-created']
+        return kw
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+from fastapi_views import utils
+from fastapi_views.pagination.annotations import PaginationParams
+from fastapi_views.pagination.schema import CursorPage
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/all', response_model=CursorPage.include(SomePydanticModel))
+async def get_articles(
+        params: PaginationParams = Depends(),  # put inside fun to return Session and Request
+):
+    return utils.scalars(FooApiListView().get_all_with_pagination(**params))  # session=, request=
+```
+#### Detail/Update/Delete view:
+
+Default ***field_name*** for detail/update/delete view is set to ***id***. To override do as below
+
+```python
+# views.py
+class FooDetailUpdateDeleteView:
+    ...
+    pk_field = 'field_name'
+```
+
+#### Detail view:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIDetailMixin
+
+
+class FooDetailView(BaseAPIDetailMixin):
+    model = Foo
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/{pk}')
+async def get_foo(pk: int, session: Session = Depends(db_session)):
+    return FooDetailView().get_detail(field_value=pk, session=session)
+```
+
+#### Update view:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIUpdateMixin
+
+
+class FooUpdateView(BaseAPIUpdateMixin):
+    model = Foo
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/{pk}')
+async def get_foo(pk: int, session: Session = Depends(db_session)):
+    return FooUpdateView().update_single(field_value=pk, session=session, data={})
+```
+
+#### Delete view:
+
+```python
+# views.py
+from fastapi_views.views.mixins import BaseAPIDestroyMixin
+
+
+class FooDeleteView(BaseAPIDestroyMixin):
+    model = Foo
+
+
+# urls.py
+from fastapi import (APIRouter, Depends)
+
+foo_router = APIRouter(
+    prefix='/foo',
+    tags=['Foo']
+)
+
+
+@foo_router.get('/{slug}')
+async def get_foo(slug: str, session: Session = Depends(db_session)):
+    return FooDeleteView().delete(session=session, field_value=slug)
+```
+
+**To run tests install requirements and run pytest command**
+
+Download on https://pypi.org/project/fastapi-view-mixins/
+
