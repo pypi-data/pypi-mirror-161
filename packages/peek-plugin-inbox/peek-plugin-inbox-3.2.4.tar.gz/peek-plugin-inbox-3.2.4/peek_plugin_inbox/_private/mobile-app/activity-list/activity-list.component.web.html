@@ -1,0 +1,28 @@
+<div class="pl-inbox">
+    <div *ngIf="noItems()" class="title">There is no recent activity.</div>
+
+    <div
+        (click)="activityClicked(activity)"
+        *ngFor="let activity of activities; odd as odd; even as even"
+        [class.bg-even]="even"
+        [class.bg-odd]="odd"
+        class="pl-inbox-item bg-primary"
+    >
+        <div class="pl-inbox-info">
+            <div class="pl-inbox-title">{{activity.title}}</div>
+            <div class="pl-inbox-description">{{activity.description}}</div>
+            <i
+                *ngIf="hasRoute(activity)"
+                class="pl-inbox-read-more"
+                nz-icon
+                nzTheme="outline"
+                nzType="link"
+            ></i>
+            <div class="pl-inbox-date-time">
+                {{timePast(activity)}} ago {{dateTime(activity)}}
+            </div>
+        </div>
+
+        <img *ngIf="activity.imagePath" [src]="activity.imagePath" />
+    </div>
+</div>

@@ -1,0 +1,64 @@
+{
+    "plugin": {
+        "title": "Inbox",
+        "packageName": "peek_plugin_inbox",
+        "version": "3.2.4",
+        "buildNumber": "#PLUGIN_BUILD#",
+        "buildDate": "#BUILD_DATE#",
+        "creator": "Synerty Pty Ltd",
+        "website": "www.synerty.com"
+    },
+    "requiresServices": [
+        "logic",
+        "field",
+        "office",
+        "storage",
+        "admin-doc",
+        "office-doc",
+        "field-doc"
+    ],
+    "admin-doc": {
+        "docDir": "admin-doc",
+        "docRst": "index.rst",
+        "hasApi": true
+    },
+    "office-doc": {
+        "docDir": "both-doc",
+        "docRst": "index.rst"
+    },
+    "field-doc": {
+        "docDir": "both-doc",
+        "docRst": "index.rst"
+    },
+    "field": {
+        "showHomeLink": false,
+        "showInTitleBar": true,
+        "antIcon": "mail",
+        "titleBarText": "Inbox",
+        "appDir": "_private/mobile-app",
+        "moduleDir": "plugin-module",
+        "assetDir": "_private/mobile-assets",
+        "appModule": "plugin-inbox.module#PluginInboxClientModule",
+        "rootServices": [
+            {
+                "file": "_private/private-inbox-tuple-provider.service",
+                "class": "PrivateInboxTupleProviderService"
+            },
+            {
+                "file": "_private/plugin-inbox-root.service",
+                "class": "PluginInboxRootService",
+                "persistent": true
+            }
+        ],
+        "icon": null
+    },
+    "admin": {
+        "moduleDir": "plugin-module",
+        "appDir": "_private/admin-app",
+        "appModule": "plugin-inbox.module#PluginInboxAdminModule"
+    },
+    "logic": {},
+    "storage": {
+        "alembicDir": "_private/alembic"
+    }
+}

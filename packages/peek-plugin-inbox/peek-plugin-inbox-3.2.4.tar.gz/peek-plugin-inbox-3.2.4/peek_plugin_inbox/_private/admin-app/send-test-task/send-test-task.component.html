@@ -1,0 +1,225 @@
+<div class="panel panel-default">
+    <!--<div class="panel-heading">Send Test Task</div>-->
+    <div class="panel-body">
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="uniqueId">uniqueId</label>
+                <input
+                    [(ngModel)]="task.uniqueId"
+                    class="form-control"
+                    id="uniqueId"
+                    type="text"
+                />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="userId">userId</label>
+                <input
+                    [(ngModel)]="task.userId"
+                    class="form-control"
+                    id="userId"
+                    type="text"
+                />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="displayAs">displayAs</label>
+                <select
+                    [(ngModel)]="task.displayAs"
+                    class="form-control"
+                    id="displayAs"
+                >
+                    <option value="0">DISPLAY_AS_TASK</option>
+                    <option value="1">DISPLAY_AS_MESSAGE</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="displayPriority">displayPriority</label>
+                <select
+                    [(ngModel)]="task.displayPriority"
+                    class="form-control"
+                    id="displayPriority"
+                >
+                    <option value="1">PRIORITY_SUCCESS</option>
+                    <option value="2">PRIORITY_INFO</option>
+                    <option value="3">PRIORITY_WARNING</option>
+                    <option value="4">PRIORITY_DANGER</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="title">title</label>
+                <input
+                    [(ngModel)]="task.title"
+                    class="form-control"
+                    id="title"
+                    type="text"
+                />
+            </div>
+            <div class="form-group col-md-6">
+                <label for="iconPath">iconPath</label>
+                <input
+                    [(ngModel)]="task.iconPath"
+                    class="form-control"
+                    id="iconPath"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label for="description">description</label>
+                <input
+                    [(ngModel)]="task.description"
+                    class="form-control"
+                    id="description"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="routePath">routePath</label>
+                <input
+                    [(ngModel)]="task.routePath"
+                    class="form-control"
+                    id="routePath"
+                    type="text"
+                />
+            </div>
+            <div class="form-group col-md-6">
+                <label for="routeParamJson">routeParamJson</label>
+                <input
+                    [(ngModel)]="task.routeParamJson"
+                    class="form-control"
+                    id="routeParamJson"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="autoComplete">autoComplete</label>
+                <select
+                    [(ngModel)]="task.autoComplete"
+                    class="form-control"
+                    id="autoComplete"
+                >
+                    <option value="0">AUTO_COMPLETE_OFF</option>
+                    <option value="1">AUTO_COMPLETE_ON_DELIVER</option>
+                    <option value="2">AUTO_COMPLETE_ON_SELECT</option>
+                    <option value="4">AUTO_COMPLETE_ON_ACTION</option>
+                    <option value="16">AUTO_COMPLETE_ON_DIALOG</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="autoDelete">autoDelete</label>
+                <select
+                    [(ngModel)]="task.autoDelete"
+                    class="form-control"
+                    id="autoDelete"
+                >
+                    <option value="0">AUTO_DELETE_OFF</option>
+                    <option value="1">AUTO_DELETE_ON_DELIVER</option>
+                    <option value="2">AUTO_DELETE_ON_SELECT</option>
+                    <option value="4">AUTO_DELETE_ON_ACTION</option>
+                    <option value="8">AUTO_DELETE_ON_COMPLETE</option>
+                    <option value="16">AUTO_DELETE_ON_DIALOG</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="autoDeleteDateTime">autoDeleteDateTime</label>
+                <input
+                    [(ngModel)]="task.autoDeleteDateTime"
+                    class="form-control"
+                    id="autoDeleteDateTime"
+                    type="datetime-local"
+                />
+            </div>
+        </div>
+
+        <h4>Notification Methods</h4>
+        <div class="row">
+            <div class="form-group col-md-2">
+                <input
+                    #notifyByPopup
+                    (change)="task.notifyByPopup = notifyByPopup.checked"
+                    type="checkbox"
+                />
+                Popup
+            </div>
+            <div class="form-group col-md-2">
+                <input
+                    #notifyByDialog
+                    (change)="task.notifyByDialog = notifyByDialog.checked"
+                    type="checkbox"
+                />
+                Dialog
+            </div>
+            <div class="form-group col-md-2">
+                <input
+                    #notifyBySound
+                    (change)="task.notifyBySound = notifyBySound.checked"
+                    type="checkbox"
+                />
+                Sound
+            </div>
+            <div class="form-group col-md-3">
+                <input
+                    #notifyBySms
+                    (change)="task.notifyBySms = notifyBySms.checked"
+                    type="checkbox"
+                />
+                SMS
+            </div>
+            <div class="form-group col-md-3">
+                <input
+                    #notifyByEmail
+                    (change)="task.notifyByEmail = notifyByEmail.checked"
+                    type="checkbox"
+                />
+                Email
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <button (click)="addAction()" class="btn btn-default">
+                    Add Action
+                </button>
+                <table>
+                    <tr *ngFor="let action of task.actions; let i = index">
+                        <td>
+                            <h2>Action {{ i }}</h2>
+
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="actionTitle">actionTitle</label>
+                                    <input
+                                        [(ngModel)]="action.title"
+                                        class="form-control"
+                                        id="actionTitle"
+                                        type="text"
+                                    />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="actionConfirmMessage"
+                                        >actionConfirmMessage</label
+                                    >
+                                    <input
+                                        [(ngModel)]="action.confirmMessage"
+                                        class="form-control"
+                                        id="actionConfirmMessage"
+                                        type="text"
+                                    />
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <button (click)="send()" class="btn btn-default">Send</button>
+    </div>
+</div>
