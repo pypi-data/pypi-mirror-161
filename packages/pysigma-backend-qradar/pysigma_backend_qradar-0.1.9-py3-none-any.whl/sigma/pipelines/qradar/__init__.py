@@ -1,0 +1,1 @@
+from .qradar import qradar_windows, qradar_exetension
