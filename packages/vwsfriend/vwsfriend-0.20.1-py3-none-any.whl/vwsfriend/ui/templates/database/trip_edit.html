@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+
+{% endblock %}
+
+{% block header %}
+  <h1>{% block title %}{% if form and form.id.data %}Edit settings for {% else %}Add a new {% endif %}Trip{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if form %}
+<div class="form-wrapper">
+  <form method="POST">
+      {{ form.csrf_token }}
+
+      {{ form.id }}
+      {{ form.vehicle_vin }}
+
+      <fieldset class="form-field">
+        {{ form.startDate.label }}
+        {{ form.startDate }}
+        {% if form.startDate.errors %}
+          <ul class="errors">
+            {% for error in form.startDate.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.start_position_latitude.label }}
+        {{ form.start_position_latitude }}
+        {% if form.start_position_latitude.errors %}
+          <ul class="errors">
+            {% for error in form.start_position_latitude.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.start_position_longitude.label }}
+        {{ form.start_position_longitude }}
+        {% if form.start_position_longitude.errors %}
+          <ul class="errors">
+            {% for error in form.start_position_longitude.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.start_mileage_km.label }}
+        {{ form.start_mileage_km }}
+        {% if form.start_mileage_km.errors %}
+          <ul class="errors">
+            {% for error in form.start_mileage_km.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.endDate.label }}
+        {{ form.endDate }}
+        {% if form.endDate.errors %}
+          <ul class="errors">
+            {% for error in form.endDate.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.destination_position_latitude.label }}
+        {{ form.destination_position_latitude }}
+        {% if form.destination_position_latitude.errors %}
+          <ul class="errors">
+            {% for error in form.destination_position_latitude.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.destination_position_longitude.label }}
+        {{ form.destination_position_longitude }}
+        {% if form.destination_position_longitude.errors %}
+          <ul class="errors">
+            {% for error in form.destination_position_longitude.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.end_mileage_km.label }}
+        {{ form.end_mileage_km }}
+        {% if form.end_mileage_km.errors %}
+          <ul class="errors">
+            {% for error in form.end_mileage_km.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        {{ form.tags.label }}
+        {{ form.tags }}
+        {% if form.tags.errors %}
+          <ul class="errors">
+            {% for error in form.tags.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        Click to select, ctrl-click to unselect.
+      </fieldset>
+
+      <div id="positions" style="height:400px"></div>
+      <script>
+        var target = 'start'
+        const startlat = {{ form.start_position_latitude.data or '0' }}
+        const startlon = {{ form.start_position_longitude.data or '0'}}
+        const destinationlat = {{ form.destination_position_latitude.data or '0' }}
+        const destinationlon = {{ form.destination_position_longitude.data or '0'}}
+        var startzoomlevel = 0
+        var destinationzoomlevel = 0
+
+        if(startlat != 0 && startlon != 0){
+          startzoomlevel = 20
+        }
+
+        if(destinationlat != 0 && destinationlon != 0){
+          destinationzoomlevel = 20
+        }
+
+        var startposition = L.latLng([startlat, startlon]);
+        var map = L.map('positions').setView(startposition, startzoomlevel);
+        var destinationposition = L.latLng([destinationlat, destinationlon]);
+        
+        const osm = new L.TileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }
+          );
+
+        const hybrid = new L.TileLayer(
+            "http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
+            { maxZoom: 20, subdomains: ["mt0", "mt1", "mt2", "mt3"] }
+          );
+
+        new L.Control.Layers({ OSM: osm, Hybrid: hybrid }).addTo(map);
+        map.addLayer(osm);
+
+
+        var position = L.marker([startlat, startlon], {draggable:'false'}).addTo(map);
+
+        L.Control.geocoder({defaultMarkGeocode: false}).on('markgeocode', function(e) {
+          map.fitBounds(e.geocode.bbox);
+          position.setLatLng(e.geocode.center)
+        }).addTo(map);
+
+        
+        position.on('move', function(e){
+          if(e.latlng.lat != 0 && e.latlng.lng != 0){
+            element = document.getElementById(target+'_position_latitude');
+            element.value = e.latlng.lat;
+            element = document.getElementById(target+'_position_longitude');
+            element.value = e.latlng.lng;
+            if(target=='start'){
+              startposition = e.latlng
+              startzoomlevel = 20
+            }
+            else if(target=='destination'){
+              destinationposition = e.latlng
+              destinationzoomlevel = 20
+            }
+          }
+        });
+
+        map.on('click', function(e){
+          var coord = e.latlng;
+          position.setLatLng(coord); 
+          map.panTo(coord)
+        });
+
+        var legend = L.control({position: 'topright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML = '<select onchange="changeSelection(this)"><option value="start">Start</option><option value="destination">Destination</option></select>';
+            div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+            return div;
+        };
+        legend.addTo(map);
+
+
+
+        function changeSelection(selectObject) {
+          target = selectObject.value;
+          if(target=='start'){
+            map.setView(startposition, startzoomlevel);
+            position.setLatLng(startposition)
+          }
+          else if(target=='destination'){
+            map.setView(destinationposition, destinationzoomlevel);
+            position.setLatLng(destinationposition)
+          }
+          
+        }
+      </script>
+      {% if form.id.data %}
+      {{ form.save }}
+      {% else %}
+      {{ form.add }}
+      {% endif %}
+      {{ form.delete }}
+
+  </form>
+</div>
+{% endif %}
+{% endblock %}
