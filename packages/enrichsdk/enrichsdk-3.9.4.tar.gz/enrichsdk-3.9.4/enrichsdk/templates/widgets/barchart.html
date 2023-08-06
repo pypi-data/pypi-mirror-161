@@ -1,0 +1,94 @@
+<!--Render a barchart using chartjs-->
+<div class="col-sm-12 col-xs-6 col-md-6">
+  <div class="panel panel-primary">
+    <div class="panel-heading">{{title}}</div>
+    <div class="panel-body">
+      <canvas id="myChart{{id}}" width="800" height="400">
+      </canvas>
+      <script>
+	var ctx{{id}} = document.getElementById("myChart{{id}}");
+	
+        var config{{id}} = {
+            type: "bar",
+            data: {
+                labels: {{labels}},
+                datasets: [
+                 {% for d in datasets %} 
+                 {% if loop.index > 1 %} 
+                 , 
+                 {% endif %}
+	         {
+                    label: "{{d.label}}",
+                    backgroundColor: window.chartColors.{{d.color}},
+                    borderColor: window.chartColors.{{d.color}},
+                    data: {{d.data}},
+      	            notes: {{d.notes}}, 
+                    fill: false
+                }
+                {% endfor %} 
+              ]
+            },
+            options: {
+                responsive: true,
+                title:{
+                    display:true,
+                    text:"{{charttitle}}"
+                },
+                tooltips: {
+                    mode: "index",
+                    intersect: false
+                },
+                hover: {
+                    mode: "nearest",
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "{{xaxis}}"
+                        },
+                        ticks: { 
+                            autoSkip: false,
+                            maxRotation: 90,
+                            minRotation: 90
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "{{yaxis}}"
+                        }
+                    }]
+                },
+		animation: {
+                    duration: 1,
+		    onComplete () {
+			const chartInstance = this.chart;
+			const ctx = chartInstance.ctx;
+	                for(var i = 0; i < this.data.datasets.length; i++){ 
+                   	     const dataset = this.data.datasets[i];
+			        if (dataset['notes'].length > 0) { 
+			          const meta = chartInstance.controller.getDatasetMeta(i);
+   			          Chart.helpers.each(meta.data.forEach((bar, index) => {
+				      var centerPoint = bar.getCenterPoint();
+                                      var x = centerPoint.x - 40; 
+	                              var y = centerPoint.y - bar.height()/2 -20; 
+				      ctx.fillText(dataset['notes'][index], x, y); 
+				  }));
+				 break; 
+			     };
+			}
+		    }
+		}
+	    } /* options */ 
+        };
+
+        var myChart{{id}} = new Chart(ctx{{id}}, config{{id}}); 
+
+      </script>
+    </div>
+  </div>
+</div>

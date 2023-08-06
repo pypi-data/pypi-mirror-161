@@ -1,0 +1,154 @@
+{% extends 'gui2/base.html' %}
+{% load static %}
+{% load dashboard_tags %}
+{% load humanize %}
+{% load fontawesome %}
+
+<!-- ============================= Address Bar Start =============================== -->
+{% block breadcrumbs %}
+<div id="address_content" style="display: none">
+    <ol class="breadcrumb" aria-label="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Enrich</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Usecases</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:usecase_detail' usecase.org.name %}">{{usecase.org.name}}</a></li>
+      <li class="breadcrumb-item active">Complex Task</li>
+    </ol>
+</div>
+{% with knowledge="complex result" %}{{ block.super }}{% endwith %}
+{% endblock breadcrumbs %}
+<!-- ============================= Address Bar End =============================== -->
+{% block nav_index %}
+<!--Header tab name-->
+    {% with nav_data="usecases" %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block customhead %}
+<style>
+#timeline_result_content::-webkit-scrollbar {width: 5px;}
+#timeline_result_content::-webkit-scrollbar-thumb {background: #888;border-radius: 10px;}
+#timeline_result_content::-webkit-scrollbar-track {background: #f1f1f1;border-radius: 10px;}
+#timeline_result_content::-webkit-scrollbar-thumb:hover{background: rgb(110, 109, 109);}
+#timeline_result_content{max-height:10.688rem;max-width: 100%; overflow-y:auto;font-size: 14px;white-space: pre-wrap;}
+tr.critical td { background: #ccc !important; }
+
+</style>
+{% endblock %}
+<!--============================= Help Content =============================== -->
+
+{% block help %}
+<div id="page_help_content" style="visibility: hidden">
+</div>
+{{block.super}}
+{% endblock %}
+<!--============================= Help Content End =============================== -->
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-7">
+      <div class="ptaa-box mb-30">
+        <div class="ptaa-icon">
+          {% if task.status == 'SUCCESS' %}
+          <i class="icon-iconactioncheck_circle_24px"></i>
+          {% elif task.status == "FAILURE" %}
+          <i class="icon-iconactioninfo_24px" style="color: #c73d2d;"></i>
+          {% else %}
+          {% fontawesome_icon 'hourglass' %}
+          {% endif %}
+        </div>
+        <div class="ptaa-content">
+          <h1>Complex Task</h1>
+          <p>Job {{task.id}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="float-right">
+        {% if task.status == 'SUCCESS' %}
+          <a href="{% url 'APPNAME:complex_result' %}?task_id={{task.id|safe}}&a=b&referrer={{referrer}}&download=true" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="bottom" title="Download">Download</a>
+        {% endif %}
+        <a href="{{referrer|safe}}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="bottom" title="Workflow">Workflow</a>
+      </div>
+    </div>
+  </div>
+  <div class="row col-md-8">
+    <table class="table">
+      {% for k,v in task.args.0.items %}
+      <tr>
+	<th>{{k}}</th>
+	{% if v|slice:"4" == "http" %}
+	<td><a href="{{v}}">{{v}}</a></td>
+	{% else %}
+	<td>{{v}}</td>
+	{% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="row mt-5">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+      <!-- handle pending results -->
+      {% if task.status == "PENDING" %}
+      <div class="ptaa-box">
+        <div class="ptaa-icon">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">...</span>
+          </div>
+        </div>
+        <div class="ptaa-content">
+          <h1>Task is running. Please wait. This page will auto-refresh.</h1>
+        </div>
+      </div>
+      <script>
+        // reload every 15 seconds
+        setTimeout(function(){ location.reload(); }, 15000);
+      </script>
+      {% endif %}
+
+      <!-- handle failure -->
+      {% if task.status == "FAILURE" %}
+      <div class="ptaa-box">
+        <div class="ptaa-icon">
+          <i class="icon-iconactioninfo_24px" style="color: #c73d2d;"></i>
+        </div>
+        <div class="ptaa-content">
+          <h1>{{task.result}}</h1>
+          <p>Please contact Support Team for help</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="col-md-1"></div>
+  </div>
+  
+  {% if task.status == "SUCCESS" %}
+  <div class="row mb-30">
+    {% if task.result.records|length == 0 %}
+    <p>No records found</p>
+    {% else %}
+    <div class="row-col-10" style="overflow: auto; max-height: 500px">
+      {% if task.result.records|length > 20 %}
+      <p>Showing max 20 records of {{task.result.records|length}}. Download the complete set</p>
+      {% endif %}
+      <table class="table table-striped">
+	<tbody>
+	  {% for row in task.result.records|slice:"20" %}
+	  <tr>
+	    {% if forloop.counter == 1 %}
+	    {% for v in row %}<th>{{v}}</th>{% endfor %}
+	    {% else %}
+	    {% for v in row %}<td>{{v}}</td>{% endfor %}
+	    {% endif %}
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  
+</div>
+
+
+ {% endblock %}

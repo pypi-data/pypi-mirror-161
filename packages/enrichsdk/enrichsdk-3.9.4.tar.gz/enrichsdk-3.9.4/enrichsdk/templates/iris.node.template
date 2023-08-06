@@ -1,0 +1,41 @@
+import logging
+import pandas as pd
+from enrichsdk import Compute
+from enrichsdk.feature_compute import note
+import seaborn as sns
+
+logger = logging.getLogger("app")
+
+
+class IrisTransform(Compute):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = "Iris"
+        self.description = "Demonstrate Iris transformation"
+
+    def process(self, state):
+
+        irisdf = sns.load_dataset("iris")
+        logger.debug(
+            "IRIS dataframe",
+            extra={"transform": self.name, "data": note(irisdf, "IRIS Dataset")},
+        )
+
+        summarydf = irisdf.groupby("species").agg(["mean", "median"])
+        summarydf.columns = ["-".join(c) for c in summarydf.columns]
+        summarydf = summarydf.reset_index()
+
+        # => Gather the update parameters
+        updated_detail = {
+            "df": summarydf,
+            "description": "Species Summary",
+            "transform": self.name,
+            "frametype": "pandas",
+            "params": self.get_column_params("species", summarydf),
+        }
+        state.update_frame("species", updated_detail, create=True)
+
+        return state
+
+
+provider = IrisTransform

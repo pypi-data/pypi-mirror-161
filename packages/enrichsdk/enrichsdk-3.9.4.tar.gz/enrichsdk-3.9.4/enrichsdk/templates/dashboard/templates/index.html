@@ -1,0 +1,73 @@
+{% extends 'gui2/base.html' %}
+{% load static %}
+{% load dashboard_tags %}
+{% load humanize %}
+{% load fontawesome %}
+<!-- ============================= Address Bar Start =============================== -->
+{% block breadcrumbs %}
+<div id="address_content" style="display: none">
+    <ol class="breadcrumb" aria-label="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Enrich</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Usecases</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:usecase_detail' usecase.org.name %}">{{usecase.org.name}}</a></li>
+      <li class="breadcrumb-item active">APPNAME</li>
+    </ol>
+</div>
+{% with knowledge="APPNAME" %}{{ block.super }}{% endwith %}
+{% endblock breadcrumbs %}
+<!-- ============================= Address Bar End =============================== -->
+{% block nav_index %}
+<!--Header tab name-->
+    {% with nav_data="usecases" %}{{ block.super }}{% endwith %}
+{% endblock %}
+<!--============================= Help Content =============================== -->
+
+{% block help %}
+<div id="page_help_content" style="visibility: hidden">
+Help for this page
+</div>
+{{block.super}}
+{% endblock %}
+<!--============================= Help Content End =============================== -->
+{% block content %}
+
+<div class="container">
+  <div class="row mb-10">
+    <div class="col-md-8">
+      <div class="ptaa-box">
+        <div class="ptaa-content">
+          <h1>APPNAME</h1>
+          <p>Our Wonderful App</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="d-flex justify-content-end">
+	<a href="/" class="btn btn-primary btn-sm">
+	  Home
+	</a>	
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container pt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="grid-parents d-flex flex-wrap">
+                <div class="grid-box d-flex flex-column">
+                    <h3>Application1</h3>
+                    <p>Description</p>
+                    <div class="grid-footer d-flex align-items-center mt-auto">
+                        <a
+                            href="/" class="gb-arrow ml-auto">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

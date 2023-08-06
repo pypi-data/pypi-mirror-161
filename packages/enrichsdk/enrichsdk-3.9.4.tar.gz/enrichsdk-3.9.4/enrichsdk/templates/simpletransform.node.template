@@ -1,0 +1,140 @@
+import os
+import sys
+import json
+import hashlib
+import numpy as np
+import pandas as pd
+from enrichsdk import Compute, S3Mixin
+from datetime import datetime
+import logging
+
+logger = logging.getLogger("app")
+
+class My{{transform_name}}(Compute, S3Mixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = "{{transform_name}}"
+        self.description = "{{transform_description}}"
+        self.author = "{{author_name}}"
+
+        self.outputs = {
+            'customer': {
+                'email': {
+                    'description': "Customer email hashed",
+                    "security": {
+                        "pii": True
+                    }
+                },
+                "sales": "Sales over the past 1 year",
+                "City": "City of residence"
+            }
+        }
+        test_root = os.environ['ENRICH_TEST']
+        self.testdata = {
+            'data_root': os.path.join(test_root, self.name),
+            'inputdir': test_root,
+            'outputdir': os.path.join(test_root, self.name, 'output'),
+            'statedir': os.path.join(test_root, self.name, 'state'),
+            'conf': {
+                'args': {}
+            },
+            'data': {
+            }
+        }
+
+    def process(self, state):
+        """
+        Run the computation and update the state
+        """
+        logger.debug("Start execution",
+                     extra=self.config.get_extra({
+                         'transform': self.name
+                     }))
+
+
+        df = pd.DataFrame([
+            {
+                'email': hashlib.sha256(b"elpha@redtree.com").hexdigest(),
+                'sales': 20912,
+                'city': 'Sao Paulo',
+            }
+        ])
+                          
+        # => Gather the update parameters
+        updated_detail = {
+            'df': df,
+            'description': "Customer metadata",
+            'transform': self.name,
+            'frametype': 'pandas',
+            'params': self.get_column_params("customer", df) + [
+                {
+                    "type": "lineage",
+                    "dependencies": [
+                        {
+                            "type": "file",
+                            "nature": "input",
+                            "objects": ["/path/to/file.csv"]
+                        },
+                        {
+                            "type": "url",
+                            "nature": "input",
+                            "objects": ["https://longurl/data.json"]
+                        },
+                        {
+                            "type": "dataframe",
+                            "nature": "output",
+                            "objects": ["persona"]
+                        },
+                        {
+                            "type": "database",
+                            "nature": "output",
+                            "objects": ["TableName", "Persona"]
+                        }
+                    ]
+                }
+            ],
+            'history': [
+                # Add a log entry describing the change
+                {
+                    'transform': self.name,
+                    'log': 'Customer metadata'
+                }
+            ]
+        }
+
+        # Update the state.
+        # Do the same thing for the second update dataframe
+        state.update_frame('customer', updated_detail, create=True)
+
+        # Done
+        logger.debug("Complete execution",
+                     extra=self.config.get_extra({
+                         'transform': self.name
+                     }))
+
+        ###########################################
+        # => Return
+        ###########################################
+        return state
+
+    def validate_results(self, what, state):
+        """
+        Check to make sure that the execution completed correctly
+        """
+
+        ####################################################
+        # => Output Dataframe 1
+        ####################################################
+        name = 'customer'
+        if not state.reached_stage(name, self.name):
+            raise Exception("Could not find new frame created for {}".format(name))
+
+        detail = state.get_frame(name)
+        df = detail['df']
+
+        # => Make sure it is not empty
+        assert df.shape[0] > 0
+        
+
+provider = My{{transform_name}}

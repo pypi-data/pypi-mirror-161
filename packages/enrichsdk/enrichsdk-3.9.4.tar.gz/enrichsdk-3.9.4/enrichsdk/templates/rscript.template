@@ -1,0 +1,85 @@
+#!/usr/bin/env Rscript
+# ---------------------------
+##
+## Script name: {{script_name}}
+##
+## Purpose of script: {{description}}
+##
+## Author: {{author}}
+##
+## Date Created: {{today}}
+##
+## Email: {{author_email}}
+##
+## ---------------------------
+##
+## Notes:
+##   
+##
+## ---------------------------
+
+## set working directory for Mac and PC
+##
+##
+
+## ---------------------------
+## Install Dependent packages
+## ---------------------------
+options(warn=0)
+check.packages <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg))
+        suppressWarnings(suppressMessages(install.packages(new.pkg, dependencies = TRUE, repos="http://cran.us.r-project.org")))
+    suppressWarnings(suppressMessages(sapply(pkg, require, character.only = TRUE)))
+}
+packages<-c("argparse", "sqldf","rjson","dplyr","reshape","scales",
+            "zoo","data.table","RMySQL","lubridate","tidyr",
+            "stringr","matrixStats","formattable")
+null <- check.packages(packages)
+
+## -------------------------------------
+## Define your constants here
+## ---------------------------
+##-- const1 = "first"   --#
+##-- const2 = "second"  --#
+
+## -------------------------------------
+## Argument Parsing
+## ---------------------------
+# Please note: you can add 'required = TRUE' for parameters that are required
+DOC = "{{description}}"
+suppressPackageStartupMessages(library("argparse"))
+
+# Create parser object
+parser <- ArgumentParser(description = DOC)
+parser$add_argument("-c", "--count",
+                    type="integer",
+                    default=5,
+                    help="Number of random normals to generate [default %(default)s]",
+                    metavar="number")
+parser$add_argument("-v", "--verbose",
+                    action="store_true",
+                    default=TRUE,
+                    help="Print extra output [default]")
+parser$add_argument("-q", "--quietly",
+                    action="store_false",
+                    dest="verbose",
+                    help="Print little output")
+
+# Parse command line parameters
+args <- parser$parse_args()
+
+# Load your functions here
+#-- Example: source("main.functions.R") --#
+
+# Print inputs only if cmnd-line parameters correct and verbose 'true' (in case of errors, use 'sterr()')
+if (args$verbose) {
+	write("You have used the following arguments:", stdout())
+	write(paste("\t--count:  ", args$count), stdout())
+	write("other parameters: ...", stdout())
+	write("\nStart with analysis...\n", stdout())
+}
+
+## -------------------------------------
+## Your Code...
+## ---------------------------

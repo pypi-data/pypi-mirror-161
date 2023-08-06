@@ -1,0 +1,75 @@
+import os
+import sys 
+import json 
+import logging 
+import traceback 
+import pandas as pd
+import numpy as np
+from enrichsdk.tasks import Task 
+
+logger = logging.getLogger("app") 
+
+class {{name}}Task(Task): 
+    """
+    {{description}}
+    """
+    NAME = "{{name}}"
+
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs) 
+        self.name = "{{name}}" 
+
+    def initialize(self): 
+        """
+	Class-level initialization/modifications 
+        """
+        pass 
+
+    def validate_args(self, what, state): 
+        """
+        Validate args passed to this task
+        """
+        if len(self.args) == 0: 
+            raise Exception("Invalid args. Atleast siteid and credentials must be specified") 
+
+    def update_attributes(self, state): 
+        """
+        Open database connections, check diskspace, and other
+        initialization operations        
+        """
+        # First check what is in the s3 
+        cred = self.args['aws']['credentials'] 
+        self.aws_cred = self.get_credentials(cred) 
+
+        # Now check the 
+        self.s3 = s3fs.S3FileSystem(
+            key=self.aws_cred['access_key'],
+            secret=self.aws_cred['secret_key']
+        )
+
+        # Get the rest of the parameters 
+        self.bucket = self.args['aws']['bucket'] 
+        path = self.args['aws']['path'] 
+        if path.endswith("/"):
+            path = path[:-1] 
+        self.path = path 
+
+        logger.debug("Initialized", 
+                     extra=self.config.get_extra({
+                         'transform': self.NAME,
+                     }))
+        
+
+        
+    def run(self, state): 
+        """
+        Run this task step
+        """
+        # Initialize 
+        self.update_attributes(state) 
+
+        logger.debug("Completed run", 
+                     extra=self.config.get_extra({
+                         'transform': self.NAME,
+                     }))
+        

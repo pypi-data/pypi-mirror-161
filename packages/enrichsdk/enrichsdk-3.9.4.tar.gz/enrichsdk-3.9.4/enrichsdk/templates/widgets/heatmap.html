@@ -1,0 +1,65 @@
+<!-- 
+Heatmap implementation based on heatmap.js 
+
+Parameters:
+  
+    bg_image: URL of the image that must be rendered 
+
+-->
+<div>
+  <div id="heatmapContainerWrapper">
+    <!-- 
+	 <div id="heatmapLegend">
+	   <span id="min" class="pull-left"></span>
+	   <span id="max" class="pull-right"></span>
+	   <img id="gradient" src="" style="width:100%" />
+	 </div>	
+	  </br>
+	  --> 
+    <div id="heatmapContainer" />
+  </div>
+</div>
+
+<script>
+
+$(function(){
+
+    var conf = {{conf|safe}}; 
+    var bg_image = conf["bg_image"]; 
+    var dimensions = conf["dimensions"]; 
+
+    // boundaries for data generation
+    var width = dimensions.width; 
+    var height = dimensions.height; 
+
+    /* Set the heatmap container properties */ 
+    var heatmapcontainer = $('#heatmapContainer'); 
+    heatmapContainer.style.backgroundImage =  'url(' + bg_image + ')';
+    heatmapContainer.style.height = height + "px"; 
+    heatmapContainer.style.width = width + "px"; 
+    heatmapContainer.style.backgroundRepeat = 'no-repeat';
+    heatmapContainer.style.border = '1px solid'; 
+
+    // create a heatmap instance
+    var heatmap = h337.create({
+        container: document.getElementById('heatmapContainer'),
+        maxOpacity: 0.9,
+        radius: 10,
+        blur: .7
+    });
+
+    var canvas = $('.heatmap-canvas')[0];     
+    var ctx = canvas.getContext("2d");
+    var center = { 
+        y: canvas.height/2,
+        x: canvas.width/2
+    }; 
+    var area = { 
+        x: dimensions.width,
+        y: dimensions.height
+    }
+
+    heatmap.setData(conf['heatmap']);
+})
+
+</script> 

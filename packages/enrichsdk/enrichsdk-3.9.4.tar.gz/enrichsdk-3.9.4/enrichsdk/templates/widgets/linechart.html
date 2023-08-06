@@ -1,0 +1,58 @@
+<!--Linechart based on chartjs-->
+<div class="col-sm-12 col-xs-6 col-md-6">
+  <div class="panel panel-primary">
+    <div class="panel-heading">{{title}}</div>
+    <div class="panel-body">
+      <canvas id="myChart{{id}}" width="800" height="400">
+      </canvas>
+      <script>
+	var ctx{{id}} = document.getElementById("myChart{{id}}");
+        var config{{id}} = {
+            type: "line",
+            data: {
+                labels: {{labels}},
+                datasets: [{
+                    label: "{{name}}",
+                    backgroundColor: window.chartColors.red,
+                    borderColor: window.chartColors.red,
+                    data: {{data}},
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title:{
+                    display:true,
+                    text:"{{charttitle}}"
+                },
+                tooltips: {
+                    mode: "index",
+                    intersect: false
+                },
+                hover: {
+                    mode: "nearest",
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "{{xaxis}}"
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "{{yaxis}}"
+                        }
+                    }]
+                }
+            }
+        };
+        var myChart{{id}} = new Chart(ctx{{id}}, config{{id}}); 
+      </script>
+    </div>
+  </div>
+</div>
