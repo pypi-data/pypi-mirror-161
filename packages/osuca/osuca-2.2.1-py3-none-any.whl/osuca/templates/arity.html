@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Arity
+{% endblock %}
+
+
+{% block form %}
+<form action="{{ url_for('arity.arity') }}" method="POST">
+{% endblock %}
+
+
+{% block chart %}
+<div> <canvas id="myChart"></canvas> </div>
+<script src="{{ url_for('static', filename='js/chartjs/chart.js')}}"></script>
+
+<script>
+  const labels = []
+  function createLabels(labelData) {
+    console.log(labelData)
+    for (item in labelData) {
+      labels.push(labelData[item]);
+    }
+  }
+  createLabels({{ arity_json | safe }})
+
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        label: "Number of Evaluations",
+        backgroundColor: 'rgb(119, 136, 153)',
+        borderColor: 'rgb(119, 136, 153)',
+        data: [],
+        yAxisID: 'left-y-axis'
+      }, {
+        label: "Average Course Difficulty",
+        backgroundColor: 'rgb(70, 86, 102)',
+        borderColor: 'rgb(70, 86, 102)',
+        data: [],
+        yAxisID: 'right-y-axis'
+      }
+    ]
+  };
+
+  function updateDataSets(queryResult) {
+    for (item in queryResult) {
+      count = queryResult[item].aggregate.count
+      mean = queryResult[item].aggregate.mean
+      data.datasets[0].data[item] = count
+      data.datasets[1].data[item] = mean
+    }
+  }
+  updateDataSets({{ query_result_json | safe }})
+
+  const config = {
+    type: 'bar',
+    data: data,
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: 'title'
+        }
+      },
+      scales: {
+        'left-y-axis': {
+          type: 'linear',
+          position: 'left',
+          grid: {
+            display: false
+          },
+          ticks: {
+            display: true,
+            color: 'rgb(119, 136, 153)'
+          }
+        },
+        'right-y-axis': {
+          type: 'linear',
+          position: 'right',
+          grid: {
+            display: false
+          },
+          ticks: {
+            display: true,
+            color: 'rgb(70, 86, 102)'
+          }
+        }
+      }
+    }
+  };
+
+  function updateConfig(queryResult, title) {
+    minMean = Math.min(queryResult[0].aggregate.mean);
+    maxMean = Math.max(queryResult[0].aggregate.mean);
+    for (a in queryResult) {
+      if (queryResult[a].aggregate.mean < minMean)
+        minMean = queryResult[a].aggregate.mean
+      if (queryResult[a].aggregate.mean > maxMean)
+        maxMean = queryResult[a].aggregate.mean
+    }
+    config.options.plugins.title.text = title 
+    console.log(queryResult)
+    console.log(minMean);
+    console.log(maxMean);
+    config.options.scales['right-y-axis'].min = minMean * 0.95
+    config.options.scales['right-y-axis'].max = maxMean * 1.05
+  };
+  updateConfig({{ query_result_json | safe }}, "{{ selection_label | safe }}");
+</script>
+
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+{% endblock %}
