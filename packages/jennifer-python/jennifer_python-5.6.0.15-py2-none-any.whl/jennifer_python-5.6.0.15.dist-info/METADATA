@@ -1,0 +1,168 @@
+Metadata-Version: 2.1
+Name: jennifer-python
+Version: 5.6.0.15
+Summary: JENNIFER, JenniferSoft APM, python agent.
+Home-page: https://jennifersoft.com
+Author: JENNIFER
+Author-email: app@jennifersoft.com
+License: Proprietary
+Platform: UNKNOWN
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: POSIX :: Linux
+Classifier: License :: Other/Proprietary License
+Description-Content-Type: text/x-rst
+
+JENNIFER5 Python
+===================
+
+JENNIFER 5, JenniferSoft APM Python agent
+
+jennifer-python이란?
+
+jennifer-python은 Python 환경에서 운영 중인 시스템을 실시간 모니터링(Monitoring) 할 수 있는 APM 프로그램입니다.
+Python 환경에서의 모든 트랜잭션과 인프라 전반에 대한 정확하고 심층적인 상세 정보를 통해 운영 중인 시스템을 최소한의 부하로 모니터링해 보세요.
+
+제니퍼 Python agent 설치 방법
+--------------------------------
+
+JENNIFER Python 에이전트는 공개된 PyPI(pip)를 통해서 설치한다.
+
+1. 지원 범위
+
+   1. OS: Linux 배포판과 macOS를 지원한다
+   2. Python: CPython의 2.x 버전은 2.7 이상, 3.x 버전은 3.3 이상을 지원한다.
+   3. Web framework 지원 범위
+
+      1. `Flask >= v0.11`_
+      2. `django >= v1.5`_
+      3. `fastapi >= v0.78.0`_
+
+   4. DB driver
+
+      1. MySQL or MariaDB
+
+         1. `mysqlclient >= 2.0.3`_
+         2. `pymysql >= 1.0.2`_
+
+      2. sqlite3
+
+         1. `sqlite3`_
+
+      3. PostgreSQL
+
+         1. `psycopg2 >= 2.8`_
+         2. `psycopg2-binary >= 2.8`_
+
+      4. Oracle
+
+         1. `cx-Oracle >= 8.0.0`_
+
+      5. mongodb
+
+         1. `pymongo >= 3.10.1`_
+
+      6. redis
+
+         1. `redis >= 4.0.2`_
+
+2. 설치 방법
+
+   1. pip를 통해서 jennifer-python을 설치한다.
+
+      .. code:: sh
+
+         $ pip install jennifer-python
+
+   2. 설정 방법
+
+      위의 명령어를 수행하면 ``jennifer-admin``\ 이라는 도구가 함께 설치된다.
+      그리고 이 명령어를 통해 jennifer-python 모듈이 제니퍼 데이터 서버로 연결을 하기 위해
+      필요한 정보를 담은 설정 파일을 만들 수 있다.
+
+      .. code:: sh
+
+         $ jennifer-admin generate-config
+
+      해당 명령어를 실행하면 ``jennifer.ini``\ 파일이 생성된다. 생성된
+      파일의 각 필드는 다음의 의미를 갖는다.
+
+      +-----------------------------------+-----------------------------------+
+      | 필드                              | 설명                              |
+      +===================================+===================================+
+      | server_address                    | data server의 IP                  |
+      +-----------------------------------+-----------------------------------+
+      | server_port                       | data server의 port                |
+      +-----------------------------------+-----------------------------------+
+      | domain_id                         | 도메인 ID, 테스트를 신청하면      |
+      |                                   | 제니퍼에서 제공한다.              |
+      +-----------------------------------+-----------------------------------+
+      | inst_id                           | 인스턴스의 아이디                 |
+      +-----------------------------------+-----------------------------------+
+      | log_path                          | log 파일의 경로                   |
+      +-----------------------------------+-----------------------------------+
+
+
+   3. ``inst_id``\ 의 설정 방법
+
+      인스턴스 ID는 Data server가 agent를 식별하기 uint16 범위의 숫자 값이다.
+      만약 이 값을 -1로 설정하면 Data server 측에서 자동으로 생성한 고유 ID를 할당한다.
+
+
+   4. 실행
+
+      위 과정에서 생성한 설정 파일을 가지고 이제 JENNIFER를 실행할 수 있다.
+
+      .. code:: sh
+
+         $ JENNIFER_CONFIG_FILE=<설정 파일 경로> jennifer-admin run <python 실행 코드>
+         $ JENNIFER_CONFIG_FILE=<설정 파일 경로> jennifer-admin runasync <python 실행 코드>
+
+      ``<설정 파일 경로>``\ 는 위에서 생성한 설정 파일의 경로를 의미한다.
+      ``<python 실행 코드>``\ 는 기존에 파이썬 웹 애플리케이션 서버를 실행하던 커맨드(예: python manage.py runserver, uwsgi -i uwsgi.ini,
+      …)를 의미한다.
+
+      예를 들어, jennifer.ini 파일이 /home/user/jennifer 디렉터리에 위치하고, 기존에 파이썬 응용 프로그램을 "uwsgi -i uwsgi.ini"로 실행했다면 다음과 같이 실행한다.
+
+      .. code:: sh
+
+         $ JENNIFER_CONFIG_FILE=/home/user/jennifer/jennifer.ini jennifer-admin run uwsgi -i uwsgi.ini
+
+      반면, uvicorn과 같은 비동기 기반의 호스팅 환경이라면 "runasync" 옵션을 이용해 다음과 같이 실행한다.
+
+      .. code:: sh
+
+         $ JENNIFER_CONFIG_FILE=/home/user/jennifer/jennifer.ini jennifer-admin runasync uvicorn --loop asyncio main:app
+
+3. 유의 사항
+
+   일부 웹 애플리케이션 서버의 경우 jennifer-python의 적절한 데이터 수집을 위해 옵션을 아래와 같은 옵션을 추가해야 한다.
+
+   +-----------------------------------+-----------------------------------+
+   | 호스팅 서버                       | 옵션                              |
+   +===================================+===================================+
+   | uwsgi                             | --enable-threads                  |
+   +-----------------------------------+-----------------------------------+
+
+
+   uwsgi의 경우 jennifer-python의 적절한 데이터 수집을 위해 "--enable-threads" 옵션을 추가해야 한다.
+
+
+License
+--------
+
+© Copyright 2022 JenniferSoft, All right reserved.
+
+
+.. _Flask >= v0.11: http://flask.pocoo.org/
+.. _django >= v1.5: https://www.djangoproject.com/
+.. _fastapi >= v0.78.0: https://www.djangoproject.com/
+.. _mysqlclient >= 2.0.3: https://github.com/PyMySQL/mysqlclient-python
+.. _pymysql >= 1.0.2: https://github.com/PyMySQL/PyMySQL
+.. _sqlite3: https://docs.python.org/2/library/sqlite3.html
+.. _psycopg2 >= 2.8: https://www.psycopg.org/docs/
+.. _psycopg2-binary >= 2.8: https://www.psycopg.org/docs/
+.. _cx-Oracle >= 8.0.0: https://oracle.github.io/python-cx_Oracle/
+.. _pymongo >= 3.10.1: https://pymongo.readthedocs.io/en/stable/
+.. _redis >= 4.0.2: https://docs.redis.com/latest/rs/references/client_references/client_python/
+
+
