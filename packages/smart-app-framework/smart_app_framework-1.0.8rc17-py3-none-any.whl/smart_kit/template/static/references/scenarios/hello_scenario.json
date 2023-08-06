@@ -1,0 +1,115 @@
+{
+  "hello_scenario": {
+    "type": "form_filling",
+    "form": "hello_form",
+    "actions": [
+      {
+        "type": "else",
+        "requirement": {
+          "type": "template",
+          "template": "{{ main_form.tell_me_more }}"
+        },
+        "action": {
+          "type": "run_scenario",
+          "scenario": "tell_me_more_scenario"
+        },
+        "else_action": {
+          "type": "string",
+          "command": "ANSWER_TO_USER",
+          "nodes": {
+            "pronounceText": "Что ж, было приятно познакомиться!",
+            "items": [
+              {
+                "bubble": {
+                  "text": "Что ж, было приятно познакомиться!"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "tell_me_more_scenario": {
+    "actions": [
+      {
+        "type": "string",
+        "command": "ANSWER_TO_USER",
+        "nodes": {
+          "pronounceText": "Сейчас я тебе всё расскажу!",
+          "items": [
+            {
+              "bubble": {
+                "text": "Сейчас я тебе всё расскажу!"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "string",
+        "command": "ANSWER_TO_USER",
+        "nodes": {
+          "pronounceText": "Например я могу говорить и ничего не писать!"
+        }
+      },
+      {
+        "type": "string",
+        "command": "ANSWER_TO_USER",
+        "nodes": {
+          "items": [
+            {
+              "bubble": {
+                "text": "Или наоборот – могу отправлять тебе сообщения молча."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "string",
+        "command": "ANSWER_TO_USER",
+        "nodes": {
+          "pronounceTextType": "application/ssml",
+          "pronounceText": "С помощью <say-as interpret-as=\"spell-out\">SSML</say-as> разметки я умею делать <break time=\"2s\" /> паузы, <break /> произносить слова по <say-as interpret-as=\"characters\">буквам</say-as> и многое другое.",
+          "items": [
+            {
+              "bubble": {
+                "text": "С помощью SSML-разметки я умею делать... паузы, произносить слова по б-у-к-в-а-м и многое другое."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "run_scenario",
+        "scenario": "emotion_scenario"
+      }
+    ]
+  },
+  "emotion_scenario": {
+    "type": "form_filling",
+    "form": "emotion_form",
+    "actions": [
+      {
+        "type": "string",
+        "command": "ANSWER_TO_USER",
+        "nodes": {
+          "pronounceText": "Вот выбранная тобой эмоция!",
+          "items": [
+            {
+              "bubble": {
+                "text": "Вот выбранная тобой эмоция!"
+              }
+            }
+          ],
+          "auto_listening": false,
+          "emotion": {
+            "emotionId": "{{ main_form.emotion }}"
+          }
+        }
+      }
+    ],
+    "scenario_description": "hello_scenario"
+  }
+}

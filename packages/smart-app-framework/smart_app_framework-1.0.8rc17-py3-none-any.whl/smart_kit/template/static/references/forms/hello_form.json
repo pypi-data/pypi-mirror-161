@@ -1,0 +1,283 @@
+{
+  "hello_form": {
+    "fields": {
+      "person": {
+        "type": "question",
+        "required": true,
+        "available": false,
+        "questions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "Как тебя зовут?",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "Как тебя зовут?"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "filler": {
+          "type": "composite",
+          "fillers": [
+            {
+              "type": "get_first_person"
+            },
+            {
+              "_description": "Локальная предобработка текста не умеет выделять имена, поэтому испоьзуем регулярное выражение",
+              "type": "regexp",
+              "exp": ".*",
+              "delimiter": ""
+            }
+          ]
+        },
+        "on_filled_actions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "Привет, {% if main_form.person.name is defined %}{{main_form.person.name}}{% else %}{{main_form.person}}{% endif %}!  {{ gender_sensitive_text('bundle_hello_scenario', 'key_answer') }}",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "Привет, {% if main_form.person.name is defined %}{{main_form.person.name|title}}{% else %}{{main_form.person|title}}{% endif %}!  {{ gender_sensitive_text('bundle_hello_scenario', 'key_answer') }}"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "experience": {
+        "type": "question",
+        "required": true,
+        "questions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "Сколько лет ты программируешь на Python?",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "Сколько лет ты программируешь на Python?"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "filler": {
+          "type": "number_first"
+        },
+        "on_filled_actions": [
+          {
+            "type": "else",
+            "requirement": {
+              "type": "template",
+              "template": "{{main_form.experience >= 2}}"
+            },
+            "action": {
+              "type": "string",
+              "command": "ANSWER_TO_USER",
+              "nodes": {
+                "pronounceText": "Ах, приятно знать что ты в опытных руках!",
+                "items": [
+                  {
+                    "bubble": {
+                      "text": "Ах, приятно знать что ты в опытных руках!"
+                    }
+                  }
+                ]
+              }
+            },
+            "else_action": {
+              "type": "string",
+              "command": "ANSWER_TO_USER",
+              "nodes": {
+                "pronounceText": "Мне будет приятно учиться новому вместе с тобой!",
+                "items": [
+                  {
+                    "bubble": {
+                      "text": "Мне будет приятно учиться новому вместе с тобой!"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "book_is_read": {
+        "type": "question",
+        "required": true,
+        "available": false,
+        "questions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "А книгу Марка Лутца 'Изучаем Python' знаешь?",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "А книгу Марка Лутца 'Изучаем Python' знаешь?"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "filler": {
+          "type": "classifier",
+          "intents": [
+            "да",
+            "нет"
+          ],
+          "classifier": {
+            "type": "external",
+            "classifier": "hello_scenario_classifier"
+          }
+        },
+        "on_filled_actions": [
+          {
+            "type": "else",
+            "requirement": {
+              "type": "template",
+              "template": "{{main_form.book_is_read == 'да'}}"
+            },
+            "action": {
+              "type": "string",
+              "command": "ANSWER_TO_USER",
+              "nodes": {
+                "pronounceText": "Здорово, а я вот как раз по ней учусь!",
+                "items": [
+                  {
+                    "bubble": {
+                      "text": "Здорово, а я вот как раз по ней учусь!"
+                    }
+                  }
+                ]
+              }
+            },
+            "else_action": {
+              "type": "string",
+              "command": "ANSWER_TO_USER",
+              "nodes": {
+                "pronounceText": "Говорят, что эта книга полезна, посмотри если будет время.",
+                "items": [
+                  {
+                    "bubble": {
+                      "text": "Говорят, что эта книга полезна, посмотри если будет время."
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "tell_me_more": {
+        "type": "question",
+        "required": true,
+        "questions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "Хочешь я тебе расскажу о том, что умею?",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "Хочешь я тебе расскажу о том, что умею?"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "filler": {
+          "type": "external",
+          "filler": "yes_no_soft_filler"
+        }
+      }
+    }
+  },
+  "emotion_form": {
+    "fields": {
+      "emotion": {
+        "type": "question",
+        "required": true,
+        "questions": [
+          {
+            "type": "string",
+            "command": "ANSWER_TO_USER",
+            "nodes": {
+              "pronounceText": "Я могу предложить пользователю несколько готовых вариантов на выбор. Например, выбери эмоцию!",
+              "items": [
+                {
+                  "bubble": {
+                    "text": "Я могу предложить пользователю несколько готовых вариантов на выбор. Например, выбери эмоцию!"
+                  }
+                }
+              ],
+              "suggestions": {
+                "buttons": [
+                  {
+                    "title": "Беспокойство",
+                    "action": {
+                      "text": "Беспокойство",
+                      "type": "text"
+                    }
+                  },
+                  {
+                    "title": "Смущение",
+                    "action": {
+                      "text": "Смущение",
+                      "type": "text"
+                    }
+                  },
+                  {
+                    "title": "Одобрение",
+                    "action": {
+                      "text": "Одобрение",
+                      "type": "text"
+                    }
+                  },
+                  {
+                    "title": "Предвкушение",
+                    "action": {
+                      "text": "Предвкушение",
+                      "type": "text"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "filler": {
+          "type": "intersection",
+          "cases": {
+            "bespokoistvo": [
+              "беспокойство"
+            ],
+            "ok_prinyato": [
+              "одобрение"
+            ],
+            "smushchennaya_ulibka": [
+              "смущение"
+            ],
+            "predvkusheniye": [
+              "предвкушение"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
