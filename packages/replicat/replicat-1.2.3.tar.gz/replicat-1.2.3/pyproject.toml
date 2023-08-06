@@ -1,0 +1,29 @@
+[tool.black]
+skip-string-normalization = true
+line-length = 88
+target-version = ["py39"]
+exclude = '''
+(
+  /(
+      \.git
+    | \.venv
+  )/
+)
+'''
+
+[tool.isort]
+line_length = 88
+multi_line_output = 3
+indent = "    "
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+no_lines_before = "LOCALFOLDER"
+include_trailing_comma = true
+known_third_party=["tqdm", "pytest", "httpx", "cryptography", "backoff", "appdirs"]
+known_first_party=["_replicat_adapters"]
+
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "pybind11>=2.9.1",
+]
