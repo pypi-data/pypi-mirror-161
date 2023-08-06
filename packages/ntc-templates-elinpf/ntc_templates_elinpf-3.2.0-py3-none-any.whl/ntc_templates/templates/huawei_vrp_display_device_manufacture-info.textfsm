@@ -1,0 +1,13 @@
+Value Filldown SLOT (\S+)
+Value CARD (\S+)
+Value TYPE (\S+)
+Value Required SERIAL (\S+)
+Value DATE (\S+)
+
+Start
+  ^Slot.*Manu-date -> Next.NoRecord
+  # have TYPE
+  ^${SLOT}\s+${CARD}\s+${TYPE}\s+${SERIAL}\s+${DATE}\s*$$ -> Record
+  # NOT TYPE
+  ^${SLOT}\s+${CARD}\s+${SERIAL}\s+${DATE}\s*$$ -> Record
+  ^\s+${CARD}\s+${TYPE}\s+${SERIAL}\s+${DATE}\s*$$ -> Record

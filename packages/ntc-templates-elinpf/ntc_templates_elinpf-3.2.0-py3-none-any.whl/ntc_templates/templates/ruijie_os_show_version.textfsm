@@ -1,0 +1,29 @@
+Value MODEL (\S+)
+Value START_TIME (.+)
+Value UPTIME (.+)
+Value HARD_VERSION (.+)
+Value SOFT_VERSION (.+)
+Value PATCH (.+)
+Value SERIAL_NUMBER (.+)
+Value SLOT_NUMBER (\S+)
+Value SLOT_NAME (\S+)
+Value SLOT_HARD_VERSION (\S+)
+Value SLOT_SOFT_VERSION (\S+)
+Value SLOT_SERIAL_NUMBER (\S+)
+
+
+Start
+  ^System\s+description\s+:\s+.*?\(${MODEL}\)
+  ^System\s+start\s+time\s+:\s+${START_TIME}
+  ^System\s+uptime\s+:\s+${UPTIME}
+  ^System\s+hardware\s+version\s+:\s+${HARD_VERSION}
+  ^System\s+software\s+version\s+:\s+${SOFT_VERSION}
+  ^System\s+patch\s+number\s+:\s+${PATCH}
+  ^System\s+serial\s+number\s+:\s+${SERIAL_NUMBER} -> Record
+  ^Module\s+information: -> ModuleInfo
+
+ModuleInfo
+  ^\s+Slot[-|\s]${SLOT_NUMBER}\s+:\s+${SLOT_NAME}
+  ^.*[H|h]ardware\s+version\s+:\s+${SLOT_HARD_VERSION}
+  ^.*[S|s]oftware\s+version\s+:\s+${SLOT_SOFT_VERSION}
+  ^.*[S|s]erial\s+number\s+:\s+${SLOT_SERIAL_NUMBER} -> Record

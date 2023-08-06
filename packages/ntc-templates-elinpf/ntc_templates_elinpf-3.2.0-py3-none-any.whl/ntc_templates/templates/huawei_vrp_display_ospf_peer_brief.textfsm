@@ -1,0 +1,16 @@
+Value Filldown OSPF_ID (\d+)
+Value Filldown OSPF_ROUTER_ID (\S+)
+Value AREA (\S+)
+Value INTERFACE (\S+)
+Value Required NEIGHBOR (\d+\.\d+\.\d+\.\d+)
+Value STATE (\S+)
+
+Start
+  ^\s*OSPF\s+Process\s+${OSPF_ID}\s+with\s+Router\s+ID\s+${OSPF_ROUTER_ID} -> OSPF
+
+OSPF
+  ^\s*Area.*State
+  ^\s+${AREA}\s+${INTERFACE}\s+${NEIGHBOR}\s+${STATE} -> Record
+  ^\s+Total.* -> Start
+
+EOF

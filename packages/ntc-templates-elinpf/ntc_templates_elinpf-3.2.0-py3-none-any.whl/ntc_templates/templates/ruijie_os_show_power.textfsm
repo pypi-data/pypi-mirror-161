@@ -1,0 +1,25 @@
+Value POWER_ID (\d\S*)
+Value POWER_TYPE (\S+( \S+)*)
+Value SN (\S*)
+Value STATUS (\S+)
+
+Start
+  ^Name              Slot Status -> S62_65
+  ^Power-id Power-type           Status -> S69_57
+  ^power-id  power-type    supply\(W\) -> N18X
+
+S62_65
+  # for S6220H and S65 serials
+  ^Name              Slot Power\(W\) -> EOF
+  ^${POWER_TYPE}\s+${POWER_ID}\s+${STATUS}\s+\S+\s+\S+\s+\S+\s+${SN} -> Record
+
+S69_57
+  # for S6910-3C and 5750H serials
+  ^Power-id Power-type         Temperature -> EOF
+  ^Slot     Card-type -> EOF
+  ^${POWER_ID}\s+${POWER_TYPE}\s+${STATUS}\s+\S+\s+${SN} -> Record
+
+N18X
+  # for N18X and S8600 serials
+  ^slot    card_type -> EOF
+  ^${POWER_ID}\s+${POWER_TYPE}\s+\S+\s+${STATUS} -> Record

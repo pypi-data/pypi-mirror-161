@@ -1,0 +1,19 @@
+Value INTERFACE (\S+)
+Value STATUS (\S+)
+Value LINK (\S+)
+Value ACT_SPPED (\d+|Unknow)
+Value ACT_DUPLEX (\S+)
+Value VSL (\S+)
+Value TYPE (\S+)
+Value PRID (\S+)
+Value DESC (\S+)
+
+Start
+  # have all
+  ^\s+${INTERFACE}\s+${STATUS}\s+${LINK}\s+${ACT_SPPED}\s+${ACT_DUPLEX}\s+${VSL}\s+${TYPE}\s+${PRID}\s+${DESC} -> Record
+  # no description
+  ^\s+${INTERFACE}\s+${STATUS}\s+${LINK}\s+${ACT_SPPED}\s+${ACT_DUPLEX}\s{1,10}${VSL}\s+${TYPE}\s+${PRID} -> Record
+  # no vsl
+  ^\s+${INTERFACE}\s+${STATUS}\s+${LINK}\s+${ACT_SPPED}\s+${ACT_DUPLEX}\s{12,}${TYPE}\s+${PRID}\s+${DESC} -> Record
+  # no vsl and no description 
+  ^\s+${INTERFACE}\s+${STATUS}\s+${LINK}\s+${ACT_SPPED}\s+${ACT_DUPLEX}\s{12,}${TYPE}\s+${PRID} -> Record

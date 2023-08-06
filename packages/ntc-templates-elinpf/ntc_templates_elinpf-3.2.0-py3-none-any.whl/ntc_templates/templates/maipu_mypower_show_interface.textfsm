@@ -1,0 +1,57 @@
+Value Required INTERFACE (\S+)
+Value LINK_STATUS (\w+)
+Value TYPE (\S+)
+Value DESCRIPTION (.*)
+Value IPADDR (\d+\.\d+\.\d+\.\d+)
+Value MASK (\d+)
+Value BROADCAST_ADDR (\d+\.\d+\.\d+\.\d+)
+Value METRIC (\d+)
+Value MTU (\d+)
+Value BANDWIDTH (\d+)
+Value DELY (\d+)
+Value VRF (\S+)
+Value RELIABILITY (\S+)
+Value TX_LOAD (\S+)
+Value RX_LOAD (\S+)
+Value ETH_ADDR (\S+)
+Value INPUT_PEAK_RATE (\d+)
+Value INPUT_PEAK_RATE_TIME (.*)
+Value OUTPUT_PEAK_RATE (\d+)
+Value OUTPUT_PEAK_RATE_TIME (.*)
+Value INPUT_RATE (\d+)
+Value INPUT_RATE_PACKETS (\d+)
+Value INPUT_RATE_BW_USED (\d\.\d{2}|)
+Value OUTPUT_RATE (\d+)
+Value OUTPUT_RATE_PACKETS (\d+)
+Value OUTPUT_RATE_BW_USED (\d\.\d{2}|)
+Value INPUT_ERR (\d+)
+Value OUTPUT_ERR (\d+)
+Value COLLISION (\d+)
+Value DROP (\d+)
+Value SPEED (\w+)
+Value DUPLEX (\w+)
+Value MEDIA_TYPE (.*)
+Value CRC (\d+)
+
+Start
+  ^[^\s] -> Continue.Record
+  ^\s+line\s+protocol\s+is\s+${LINK_STATUS}
+  ^\s+Type:\s+${TYPE}
+  ^\s+Description:\s+${DESCRIPTION}
+  ^\s+Internet\s+address:\s+${IPADDR}/${MASK}
+  ^\s+Broadcast\s+address:\s+${BROADCAST_ADDR}
+  ^\s+Metric:\s+${METRIC},\s+MTU:\s+${MTU},\s+BW:\s+${BANDWIDTH}\s+Kbps,\s+DLY:\s+${DELY}\s+usec,\s+VRF:\s+${VRF}
+  ^\s+Reliability\s+${RELIABILITY},\s+Txload\s+${TX_LOAD},\s+Rxload\s+${RX_LOAD}
+  ^\s+Ethernet\s+address\s+is\s+${ETH_ADDR}
+  ^\s+input\s+peak\s+rate\s+${INPUT_PEAK_RATE}\s+bits/sec,\s+${INPUT_PEAK_RATE_TIME}
+  ^\s+output\s+peak\s+rate\s+${OUTPUT_PEAK_RATE}\s+bits/sec,\s+${OUTPUT_PEAK_RATE_TIME}
+  ^\s+5\s+minutes\s+input\s+rate\s+${INPUT_RATE}\s+bits/sec,\s+${INPUT_RATE_PACKETS}\s+packets/sec,\s+bandwidth\s+utilization\s+${INPUT_RATE_BW_USED}[%|-]
+  ^\s+5\s+minutes\s+output\s+rate\s+${OUTPUT_RATE}\s+bits/sec,\s+${OUTPUT_RATE_PACKETS}\s+packets/sec,\s+bandwidth\s+utilization\s+${OUTPUT_RATE_BW_USED}[%|-]
+  ^\s+${INPUT_ERR}\s+input\s+errors;\s+${OUTPUT_ERR}\s+output\s+errors
+  ^\s+${COLLISION}\s+collisions;\s+${DROP}\s+dropped
+  ^\s+line\s+status\s+up:\s+speed\s+${SPEED},\s+duplex\s+${DUPLEX},\s+media-type\s+${MEDIA_TYPE}
+  ^\s+rxCrcErr:${CRC},
+  ^${INTERFACE}$$
+
+
+    
