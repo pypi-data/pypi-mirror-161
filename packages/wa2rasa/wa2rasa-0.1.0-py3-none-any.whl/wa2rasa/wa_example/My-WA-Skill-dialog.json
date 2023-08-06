@@ -1,0 +1,199 @@
+{
+  "intents": [
+    {
+      "intent": "consult_price",
+      "examples": [
+        {
+          "text": "are french lessons expensive?"
+        },
+        {
+          "text": "Could you tell me the price of Portuguese lessons?"
+        },
+        {
+          "text": "how much do german lessons cost?"
+        },
+        {
+          "text": "how much is the hour of the italian class?"
+        }
+      ],
+      "description": ""
+    },
+    {
+      "intent": "ending_conversation",
+      "examples": [
+        {
+          "text": "bye bye"
+        },
+        {
+          "text": "See you"
+        },
+        {
+          "text": "tchau"
+        },
+        {
+          "text": "Thank you for your help"
+        }
+      ],
+      "description": ""
+    },
+    {
+      "intent": "greetings",
+      "examples": [
+        {
+          "text": "Good afternoon"
+        },
+        {
+          "text": "good evening"
+        },
+        {
+          "text": "Good Morning"
+        },
+        {
+          "text": "Hello how are you?"
+        },
+        {
+          "text": "Hi"
+        }
+      ],
+      "description": ""
+    }
+  ],
+  "entities": [
+    {
+      "entity": "contact",
+      "values": [
+        {
+          "type": "patterns",
+          "value": "email",
+          "patterns": [
+            "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+          ]
+        },
+        {
+          "type": "patterns",
+          "value": "phone_number",
+          "patterns": [
+            "^\\(?(?:[14689][1-9]|2[12478]|3[1234578]|5[1345]|7[134579])\\)? ?(?:[2-8]|9[1-9])[0-9]{3}\\-?[0-9]{4}$"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    },
+    {
+      "entity": "languages",
+      "values": [
+        {
+          "type": "synonyms",
+          "value": "French",
+          "synonyms": [
+            "fr"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "german",
+          "synonyms": [
+            "deutsch",
+            "dt",
+            "ger"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "italian",
+          "synonyms": [
+            "IT"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "portuguese",
+          "synonyms": [
+            "brazilian portuguese",
+            "pt"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    }
+  ],
+  "metadata": {
+    "api_version": {
+      "major_version": "v2",
+      "minor_version": "2018-11-08"
+    }
+  },
+  "dialog_nodes": [
+    {
+      "type": "standard",
+      "title": "Anything else",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "I didn't understand. You can try rephrasing."
+              },
+              {
+                "text": "Can you reword your statement? I'm not understanding."
+              },
+              {
+                "text": "I didn't get your meaning."
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          }
+        ]
+      },
+      "conditions": "anything_else",
+      "dialog_node": "Anything else",
+      "previous_sibling": "Welcome",
+      "disambiguation_opt_out": true
+    },
+    {
+      "type": "standard",
+      "title": "Welcome",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Hello. How can I help you?"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          }
+        ]
+      },
+      "conditions": "welcome",
+      "dialog_node": "Welcome"
+    }
+  ],
+  "counterexamples": [],
+  "system_settings": {
+    "off_topic": {
+      "enabled": true
+    },
+    "disambiguation": {
+      "prompt": "Did you mean:",
+      "enabled": true,
+      "randomize": true,
+      "max_suggestions": 5,
+      "suggestion_text_policy": "title",
+      "none_of_the_above_prompt": "None of the above"
+    },
+    "human_agent_assist": {
+      "prompt": "Did you mean:"
+    },
+    "intent_classification": {
+      "training_backend_version": "v2"
+    },
+    "spelling_auto_correct": true
+  },
+  "learning_opt_out": false,
+  "name": "My WA Skill",
+  "language": "en",
+  "description": ""
+}
