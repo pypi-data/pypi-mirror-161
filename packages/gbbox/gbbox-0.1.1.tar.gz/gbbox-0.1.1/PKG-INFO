@@ -1,0 +1,84 @@
+Metadata-Version: 2.1
+Name: gbbox
+Version: 0.1.1
+Summary: Simple Python module for calculating bounding box (bbox) from given GeoJSON object
+Home-page: https://github.com/luqqk/geojson-bbox
+License: MIT
+Keywords: python,gis,geojson,bbox
+Author: Łukasz Mikołajczak
+Author-email: mikolajczak.luq@gmail.com
+Requires-Python: >=3.9.5,<4.0.0
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering :: GIS
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: pydantic (==1.9.1)
+Project-URL: Repository, https://github.com/luqqk/geojson-bbox
+Description-Content-Type: text/markdown
+
+## 📐 geojson-bbox
+
+Simple Python module for calculating bounding box (bbox) from given GeoJSON object.
+
+Currently following GeoJSON objects are supported ([RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946)):
+
+1. [Point](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.2)
+2. [MultiPoint](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.3)
+3. [LineString](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.4)
+4. [MultiLineString](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.5)
+5. [Polygon](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6)
+6. [MultiPolygon](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.7)
+7. [GeometryCollection](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.8)
+
+### Installation
+
+```bash
+$ pip install gbbox
+```
+
+### Usage
+
+```python
+>>> from gbbox import LineString
+>>>
+>>> linestring_geojson = {
+>>>     "type": "LineString",
+>>>     "coordinates": [
+>>>         [1.0, 2.0],
+>>>         [3.0, 4.0]
+>>>     ]
+>>> }
+>>>
+>>> linestring = LineString(**linestring_geojson)
+>>> linestring_bbox = linestring.bbox()
+
+>>> print(linestring_bbox)
+>>> [1.0, 2.0, 3.0, 4.0]
+
+>>> print(linestring.min_lon)
+>>> 1.0
+```
+
+### Development
+
+```bash
+$ docker compose up -d
+# Start bash within container and enter it
+$ docker exec -it gbbox bash
+```
+
+Project will be automatically installed within docker container in an editable mode and
+any code changes will be immediately reflected. Keep in mind that if you have python shell
+running then you have to restart it.
+
+You can also use `make lint` and `make test` as shortcuts to run linters and tests.
+
+### Contributing
+
+I am open to, and grateful for, any contributions made by the community.
+
