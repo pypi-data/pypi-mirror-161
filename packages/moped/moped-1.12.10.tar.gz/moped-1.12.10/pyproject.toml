@@ -1,0 +1,124 @@
+[tool.poetry]
+name = "moped"
+version = "1.12.10"
+description = "Stoichiometric metabolic modelling"
+license = "GPL-3.0-or-later"
+authors = ["Marvin van Aalst <marvin.vanaalst@gmail.com>", "Nima Saadat <nima.saadat@hhu.de>"]
+maintainers = ["Marvin van Aalst <marvin.vanaalst@gmail.com>"]
+readme = "README.md"
+repository = "https://gitlab.com/marvin.vanaalst/moped"
+documentation = "https://moped.readthedocs.io/en/latest/"
+keywords = ["modelling", "stoichiometric", "metacyc", "blast"]
+classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Software Development",
+        "Topic :: Scientific/Engineering",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+        "Operating System :: OS Independent",
+    ]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+numpy = "^1.22.4"
+pandas = "^1.4.2"
+cobra = "^0.25.0"
+Meneco = "^2.0.2"
+modelbase = "^1.9.2"
+pipdeptree = "^2.2.1"
+tqdm = "^4.46.0"
+PyYAML = "^6.0"
+python-libsbml = "^5.19.5"
+cycparser = "^1.2.1"
+gitchangelog = "^3.0.4"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+coverage = "^6.4"
+isort = "^5.10.1"
+flake8 = "^4.0.1"
+mypy = "^0.910"
+types-PyYAML = "^6.0.7"
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 110
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+
+[tool.isort]
+profile = "black"
+src_paths = ["moped", "tests"]
+sections = ["FUTURE", "STDLIB", "FIRSTPARTY", "THIRDPARTY", "LOCALFOLDER"]
+import_heading_stdlib = ""
+import_heading_framework = ""
+import_heading_firstparty = ""
+import_heading_thirdparty = ""
+import_heading_localfolder = ""
+honor_noqa = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+exclude = "temp"
+
+[tool.pylint.messages_control]
+max-line-length = 120
+disable = [
+  "no-self-use",
+  "too-many-instance-attributes",
+  "too-many-arguments",
+  "too-many-locals",
+  "too-many-branches",
+  "too-many-public-methods",
+  "too-many-statements",
+  "too-many-ancestors",
+  "too-many-lines",
+  "super-init-not-called",
+  "non-parent-init-called",
+  "arguments-differ",
+  "invalid-name",
+  "import-outside-toplevel",
+  "unspecified-encoding",
+  "protected-access",
+  "wrong-import-order",
+  "inconsistent-return-statements",
+  "no-member",
+  "unused-argument",
+]
