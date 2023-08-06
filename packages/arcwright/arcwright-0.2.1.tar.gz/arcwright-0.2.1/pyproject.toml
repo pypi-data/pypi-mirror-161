@@ -1,0 +1,89 @@
+[build-system]
+requires = [
+    "hatchling>=1.6.0",
+    "hatch-vcs",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "arcwright"
+description = "Tools for integrating data from the XPDF-ARC detector on I15-1"
+readme = "README.rst"
+license = "MIT"
+authors = [
+  { name="Phil Chater", email="philip.chater@diamond.ac.uk" },
+]
+maintainers = [
+  { name="Dean Keeble", email="dean.keeble@diamond.ac.uk" },
+]
+keywords = [
+    "arcwright",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "pyfai",
+    "pyopencl",
+]
+dynamic = [
+    "version",
+]
+
+[project.scripts]
+arcwright = "arcwright.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/DiamondLightSource/arcwright"
+Issues = "https://github.com/DiamondLightSource/arcwright/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/arcwright/_version.py"
+
+[tool.hatch.build.targets.sdist]
+packages = ["src/arcwright"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arcwright"]
+
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs",
+  "mkdocstrings-python",
+  "mkdocs-material",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve"
+deploy = "mkdocs gh-deploy"
+
+[tool.hatch.envs.testing]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.testing.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=arcwright --cov=tests"
+no-cov = "cov --no-cov"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  "src/arcwright/__main__.py",
+  "src/arcwright/_version.py",
+  "tests/*",
+]
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+]
