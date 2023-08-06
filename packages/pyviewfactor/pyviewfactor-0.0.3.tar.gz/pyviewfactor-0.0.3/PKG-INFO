@@ -1,0 +1,75 @@
+Metadata-Version: 2.1
+Name: pyviewfactor
+Version: 0.0.3
+Summary: A python library to calculate numerically exact radiation view factors between planar faces.
+Home-page: https://gitlab.com/arep-dev/pyViewFactor/-/blob/main/README.md
+Author: Mateusz BOGDAN, Edouard WALTHER, Marc ALECIAN, Mina CHAPON
+Description-Content-Type: text/markdown
+
+# PyViewFactor
+
+A python library to calculate exact view factors between planar faces. 
+
+This code computes the radiation view factor between polygons using the double contour integral method.
+It uses the handy [Pyvista](https://docs.pyvista.org/) package to deal with geometrical aspects of such problems.
+
+##  Minimum working example
+
+Suppose we cant to compute the radiation view factor between a triangle and a rectangle.
+![Triangle and rectangle configuration](/img/mwe.png)
+
+```python
+pointa = [1, 0, 0]
+pointb = [1, 1, 0]
+pointc = [0, 1, 0]
+pointd = [0, 0, 0]
+rectangle = pv.Rectangle([pointa, pointb, pointc, pointd])
+
+pointa = [1, 0, 1]
+pointb = [1, 1, 1]
+pointc = [0, 1, 1]
+liste_pts=[pointa, pointb, pointc]
+liste_pts.reverse() # let'us put the normel the other way around
+triangle = pv.Triangle(liste_pts)
+
+# preliminary check for visibility
+if get_visibility(rectangle , triangle):
+    F=compute_viewfactor(rectangle, triangle)
+    print("View factor from triangle to rectangle = ", F)
+else:
+    print("Not facing each other")
+```
+
+## Example using a VTK
+
+## Installation
+Copy the ```code/pyviewfactor.py``` file to your working directory, import relevant functions. 
+
+Requirements: 
+```
+numpy==1.17.4
+pandas==1.4.2
+pyvista==0.35.2
+scipy==1.8.1
+```
+The code will probably work with lower versions of the required packages, but has not been tested. 
+
+## Authors and acknowledgment
+Mateusz BOGDAN, Edouard WALTHER, Marc ALECIAN, Mina CHAPON
+
+## Citation
+There is a [conference paper](https://www.researchgate.net/publication/360835982_Calcul_des_facteurs_de_forme_entre_polygones_-Application_a_la_thermique_urbaine_et_aux_etudes_de_confort): 
+```
+@Conference{pyViewFactor,
+  authors      = "Mateusz BOGDAN, Edouard WALTHER, Marc ALECIAN, Mina CHAPON",
+  title        = "Calcul des facteurs de forme entre polygones - Application à la thermique urbaine et aux études de confort",
+  year         = "2022",
+  organization = "IBPSA 2022",
+  note         = "IBPSA France 2022 : Châlons-en-Champagne",
+}
+```
+
+## License
+MIT License - Copyright (c) AREP 2022
+
+
