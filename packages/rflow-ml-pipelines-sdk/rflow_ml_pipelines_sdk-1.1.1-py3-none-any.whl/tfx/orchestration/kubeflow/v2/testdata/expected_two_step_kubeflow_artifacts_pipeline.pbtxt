@@ -1,0 +1,169 @@
+# Pipeline spec generated for a 2-step Pipeline using Kubeflow V2 simple
+# artifact types.
+# proto-file: tfx/orchestration/kubeflow/v2/proto/pipeline.proto
+# proto-message: PipelineSpec
+pipeline_info {
+  name: "two-step-kubeflow-artifacts-pipeline"
+}
+tasks {
+  task_info {
+    name: "ProducerComponent"
+  }
+  outputs {
+    artifacts {
+      key: "examples"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.Dataset\ntype: object\nproperties:\n"
+        }
+      }
+    }
+    artifacts {
+      key: "external_data"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.File\ntype: object\nproperties:\n"
+        }
+      }
+    }
+  }
+  executor_label: "ProducerComponent_executor"
+  caching_options {
+  }
+}
+tasks {
+  task_info {
+    name: "ConsumerComponent"
+  }
+  inputs {
+    artifacts {
+      key: "examples"
+      value {
+        producer_task: "ProducerComponent"
+        output_artifact_key: "examples"
+      }
+    }
+    artifacts {
+      key: "external_data"
+      value {
+        producer_task: "ProducerComponent"
+        output_artifact_key: "external_data"
+      }
+    }
+  }
+  outputs {
+    artifacts {
+      key: "metrics"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.Metrics\ntype: object\nproperties:\n"
+        }
+      }
+    }
+    artifacts {
+      key: "stats"
+      value {
+        artifact_type {
+          instance_schema: "title: tfx.Statistics\ntype: object\nproperties:\n"
+        }
+      }
+    }
+  }
+  executor_label: "ConsumerComponent_executor"
+  dependent_tasks: "ProducerComponent"
+  caching_options {
+  }
+}
+deployment_spec {
+  fields {
+    key: "executors"
+    value {
+      struct_value {
+        fields {
+          key: "ConsumerComponent_executor"
+          value {
+            struct_value {
+              fields {
+                key: "container"
+                value {
+                  struct_value {
+                    fields {
+                      key: "args"
+                      value {
+                        list_value {
+                          values {
+                            string_value: "--executor_class_path"
+                          }
+                          values {
+                            string_value: "tfx.dsl.components.base.base_executor.EmptyExecutor"
+                          }
+                          values {
+                            string_value: "--json_serialized_invocation_args"
+                          }
+                          values {
+                            string_value: "{{$}}"
+                          }
+                          values {
+                            string_value: "--project=my-gcp-project"
+                          }
+                        }
+                      }
+                    }
+                    fields {
+                      key: "image"
+                      value {
+                        string_value: "gcr.io/my-tfx:latest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        fields {
+          key: "ProducerComponent_executor"
+          value {
+            struct_value {
+              fields {
+                key: "container"
+                value {
+                  struct_value {
+                    fields {
+                      key: "args"
+                      value {
+                        list_value {
+                          values {
+                            string_value: "--executor_class_path"
+                          }
+                          values {
+                            string_value: "tfx.dsl.components.base.base_executor.EmptyExecutor"
+                          }
+                          values {
+                            string_value: "--json_serialized_invocation_args"
+                          }
+                          values {
+                            string_value: "{{$}}"
+                          }
+                          values {
+                            string_value: "--project=my-gcp-project"
+                          }
+                        }
+                      }
+                    }
+                    fields {
+                      key: "image"
+                      value {
+                        string_value: "gcr.io/my-tfx:latest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
