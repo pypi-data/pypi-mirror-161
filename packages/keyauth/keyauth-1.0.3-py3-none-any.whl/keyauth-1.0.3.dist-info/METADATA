@@ -1,0 +1,140 @@
+Metadata-Version: 2.1
+Name: keyauth
+Version: 1.0.3
+Summary: Keyauth.win API Wrapper for python3
+Home-page: https://github.com/dropout1337
+Author: dropout
+Author-email: dropout@fbi.ac
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
+Description-Content-Type: text/markdown
+Requires-Dist: requests
+Requires-Dist: pywin32
+Requires-Dist: pycryptodome
+
+
+
+
+---------------------------------------
+
+# Keyauth API Wrapper  
+
+- KeyAuth is an Open-source authentication system with cloud-hosted subscriptions available as well.
+
+
+
+---------------------------------------
+
+
+
+# Installation
+
+```bash
+
+pip3 install keyauth
+
+```
+
+
+
+# Usage
+
+```python
+
+import pwinput
+
+from keyauth import *
+
+
+
+client = Keyauth(
+
+    name="application name",
+
+    owner_id="your account id",
+
+    secret="application secret",
+
+    version="current version",
+
+    file_hash=misc.get_checksum()
+
+)
+
+
+
+print(client.application)
+
+print("Validation status: %s" % (client.check()))
+
+print("Blacklist status: %s" % (client.check_blacklist()))
+
+
+
+print()
+
+
+
+print("1=login; 2=register; 3=upgrade, 4=license key")
+
+option = int(input("Option: "))
+
+
+
+if option == 1:
+
+    reply = client.login(
+
+        username=input("Username: "),
+
+        password=pwinput.pwinput("Password: ")
+
+    )
+
+if option == 2:
+
+    reply = client.register(
+
+        username=input("Username: "),
+
+        password=pwinput.pwinput("Password: "),
+
+        license_key=pwinput.pwinput("License: ")
+
+    )
+
+if option == 3:
+
+    reply = client.upgrade(
+
+        username=input("Username: "),
+
+        license_key=pwinput.pwinput("License: ")
+
+    )
+
+if option == 4:
+
+    reply = client.license(
+
+        license_key=pwinput.pwinput("License: ")
+
+    )
+
+
+
+print(client.user)
+
+```
+
