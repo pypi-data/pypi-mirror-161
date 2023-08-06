@@ -1,0 +1,153 @@
+#!/bin/sh
+
+set -eu
+
+project=$(basename $(readlink -f .))
+repo=${1:-dist/repo}
+rm -rf ${repo}
+mkdir -p ${repo}
+cp dist/*.rpm ${repo}/
+cp dist/*.deb ${repo}/
+cd ${repo}
+
+if [ -n "${TUXPKG_RELEASE_KEY:-}" ]; then
+    gpg --batch --import ${TUXPKG_RELEASE_KEY}
+fi
+
+if [ -z "${TUXPKG_RELEASE_KEYID:-}" ]; then
+    if [ -n "${GNUPGID:-}" ]; then
+        TUXPKG_RELEASE_KEYID="${GNUPGID}"
+    else
+        TUXPKG_RELEASE_KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '{if ($1 == "fpr") { print($10); exit } }')
+    fi
+fi
+if [ -z "${TUXPKG_RELEASE_KEYID}" ]; then
+    echo "E: GPG key to sign the repositories with not found. Set \${TUXPKG_RELEASE_KEYID}, \${GNUPGID}, or ensure that you have a private key in your gpg keyring."
+    exit 1
+fi
+
+export GPG_TTY=
+gpg="gpg --local-user ${TUXPKG_RELEASE_KEYID} --batch --yes"
+
+# export signing key
+$gpg --armor --export --export-options export-minimal --output signing-key.asc ${TUXPKG_RELEASE_KEYID}
+$gpg         --export --export-options export-minimal --output signing-key.gpg ${TUXPKG_RELEASE_KEYID}
+
+# rpm
+rpmsign --define "__gpg /usr/bin/gpg" --define "_gpg_name ${TUXPKG_RELEASE_KEYID}" --addsign *.rpm
+createrepo_c .
+$gpg --armor --detach-sign --output repodata/repomd.xml.asc repodata/repomd.xml
+ln signing-key.asc  repodata/repomd.xml.key
+
+# deb
+dpkg-scanpackages . > Packages
+apt-ftparchive -o APT::FTPArchive::Release::Origin=${project} release . > Release
+$gpg --detach-sign --output Release.gpg Release
+$gpg --clearsign --output InRelease Release
+
+
+cat > index.html <<EOF
+<html>
+  <head>
+    <title>${project} - package repository</title>
+  </head>
+  <style type="text/css">
+    body {
+      max-width: 960px;
+      margin: auto;
+      font-family: Helvetica, sans-serif;
+    }
+    h1, h2 {
+      font-family: serif;
+    }
+    pre {
+      background: rgb(235, 235, 240);
+      color: rgb(54, 70, 78);
+      padding: 0.5em;
+    }
+  </style>
+<body>
+<h1>${project} - package repository</h1>
+
+<h2>Installing the Debian packages</h2>
+
+<p>
+1) Download the <a href="signing-key.gpg">repository signing key</a>
+to /etc/apt/trusted.gpg.d/:
+</p>
+
+<pre class='replace'>
+# wget -O /etc/apt/trusted.gpg.d/${project}.gpg {{REPOSITORY}}signing-key.gpg
+</pre>
+
+
+2) Create /etc/apt/sources.list.d/${project}.list with the following contents:
+
+<pre class='replace'>
+deb {{REPOSITORY}} ./
+</pre>
+
+3) Install ${project} as you would any other package:
+
+<pre>
+# apt update
+# apt install ${project}
+</pre>
+
+<p>
+Upgrading ${project} will work just like it would for any other package
+(apt update, apt upgrade).
+</p>
+
+<h2>Installing the RPM packages</h2>
+
+<p>
+1) Create /etc/yum.repos.d/${project}.repo with the following contents:
+</p>
+
+<pre class='replace'>
+[${project}]
+name=${project}
+type=rpm-md
+baseurl={{REPOSITORY}}
+gpgcheck=1
+gpgkey={{REPOSITORY}}repodata/repomd.xml.key
+enabled=1
+</pre>
+
+2) Install ${project} as you would any other package:
+
+<pre>
+# dnf install ${project}
+</pre>
+
+<p>
+Upgrades will be available in the same repository, so you can get them using
+the same procedure you already use to get other updates for your system.
+</pre>
+<script type="text/javascript">
+
+function replace() {
+  var uri = document.location.href.split('#')[0].replace(/\/[a-zA-Z0-9]+.html$/, '')
+  var uri_parts = uri.split('/')
+  var repo_name = ''
+  while (repo_name == '' && uri_parts.length > 0) {
+    repo_name = uri_parts.pop()
+  }
+
+  var elements = document.getElementsByClassName('replace')
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    var text = element.innerHTML
+    text = text.replaceAll('{{REPOSITORY}}', uri)
+    element.innerHTML = text
+  }
+}
+
+document.addEventListener("DOMContentLoaded",function() {
+  replace()
+})
+</script>
+</body>
+</html>
+EOF
