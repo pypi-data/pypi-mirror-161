@@ -1,0 +1,149 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>分析結果レポート</title>
+</head>
+
+<body>
+	<h1 id="top">分析結果</h1>
+
+	<table border="1" cellspacing="0" cellpadding="5">
+		<tr>
+			<th rowspan=2>アルゴリズム</th>
+			<th colspan=4>Estimated number of clusters</th>
+		</th>
+		<tr>
+			<th>Gap統計量</th>
+			<th>Silhouetteスコア</th>
+			<th>Davies-Bouldinスコア</th>
+			<th>Calinski and Harabaszスコア</th>
+		</tr>
+
+	{%- for algorithm in algorithms %}
+		<tr>
+			<td><a href="#{{ algorithm.name }}">{{ algorithm.name }}</a></td>
+			<td>{{ algorithm.results['gap_nc'] }}</td>
+			<td>{{ algorithm.results['silhouette_nc'] }}</td>
+			<td>{{ algorithm.results['davies_nc'] }}</td>
+			<td>{{ algorithm.results['calinski_nc'] }}</td>
+		</tr>
+	{%- endfor %}
+	</table>
+	<p>
+	多数決から推定されるクラスタ数は<strong>{{ nc }}</strong>です．
+	</p>
+	<br>
+
+	<h2>クラスタリング <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	<p>
+		<ul>
+			<li>クラスタリングとは，<strong>データをある共通の特徴をもつ部分集合（クラスタ）に分割する</strong>分析手法です．</li>
+			<li>クラスタリングは一般的に正解が与えられない（教師なし学習）ため，<strong>人が分析結果の妥当性を判断する必要があります</strong>．</li>
+			<li>多くのクラスタリングアルゴリズム（MALSSが採用するものも）は，想定されるクラスタ数を事前に人が設定してやる必要があります．
+			    しかし，真のクラスタ数は一般に未知です．</br>
+			    そこでMALSSでは，あらかじめ与えられた複数のクラスタ数候補に対して分析を行います．
+			</li>
+			<li>適切なクラスタ数を判断する様々な指標が提案されています．MALSSでは，<strong>複数の指標から多数決でクラスタ数を推定</strong>します．</li>
+			<li>MALSSがクラスタ数の判断に用いる指標は，
+			    <a href="https://statweb.stanford.edu/~gwalther/gap" target="new">Gap統計量</a>，
+				<a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html" target="new">Silhouetteスコア</a>，
+				<a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.davies_bouldin_score.html" target="new">Davies-Bouldinスコア</a>，
+				<a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.calinski_harabasz_score.html" target="new">Calinski and Harabaszスコア</a>
+				の４つです．
+			</li>
+		</ul>
+	</p>
+	<hr>
+
+	<h2>データ概要 <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	<ul>
+		<li>データ数（行数）: {{ data.shape_before[0] }}</li>
+		<li>特徴量数（列数）: {{ data.shape_before[1] }} (数値型: {{ data.shape_before[1] - data.del_columns|length }}, カテゴリ型: {{ data.del_columns|length }})</li>
+		{%- if data.del_columns|length > 0 %}
+		<ul>
+			<li>カテゴリ型の特徴量は<a href="http://www.weblio.jp/content/%E3%83%80%E3%83%9F%E3%83%BC%E5%A4%89%E6%95%B0">ダミー変数</a>をつかって数値型に変換しています．</li>
+		</ul>
+		{%- endif %}
+		{%- if data.col_was_null|length > 0 %}
+		<li>{% for col in data.col_was_null %}{{ col }}列 {% endfor %}は欠損値（NA）を含んでいました．</li>
+		<ul>
+			<li>欠損値は最頻値（カテゴリカル型），中央値（整数型），平均値（実数型）に置換されます．</li>
+			<li>参考）<a href="http://pandas.pydata.org/pandas-docs/stable/missing_data.html">様々な欠損値の処理方法</a></li>
+		</ul>
+		{%- endif %}
+	</ul>
+	<details>
+	<summary><font size="+1"><strong>解説（クリックして中身を確認してください）</strong></font></summary>
+	<ul>
+		<li>クラスタリングはサンプル間の距離をみることが多いため，<strong>特徴量ごとの桁数が大きく異なっていると桁数の小さい特徴量の影響が無視されてしまいます</strong>（例えば特徴量１は身長[m]で1桁のオーダー，特徴量２は体重[g]で5桁のオーダー）．</br>
+		    そこで，MALSSの初期設定では各特徴量を平均が0，分散が1になるように<strong>標準化</strong>しています．</br>
+			標準化が不要な場合は，コンストラクタの引数を <i>standardize=False</i> にしてください．
+		</li>
+		<li>数値データであってもカテゴリ型として扱わなければいけない変数（例えば市区町村コードなど）もあるので注意してください．この場合，<a href="http://www.weblio.jp/content/%E3%83%80%E3%83%9F%E3%83%BC%E5%A4%89%E6%95%B0">ダミー変数</a>を用いて事前にデータ変換をしておく必要があります．</li>
+		<li>クラスタリングは，<a href="https://ja.wikipedia.org/wiki/次元の呪い" target="new">次元の呪い</a>と呼ばれる問題により，<strong>特徴量の数が多くなるとよい結果が得られないことがあります</strong>．</br>
+			ダミー変数により特徴量の数が増えた場合は注意が必要です．</br>
+			このようなときは，<a href="https://ja.wikipedia.org/wiki/特徴選択" target="new">特徴量選択</a>や<a href="https://en.wikipedia.org/wiki/Dimensionality_reduction" target="new">次元削減</a>が有効なことがあります．
+		</li>
+	</ul>
+	</details>
+	<hr>
+
+	<h2 id="{{ algorithms[0].name }}"><a href="{{ algorithms[0].link }}">k-meansクラスタリング</a> <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	<p>
+		<ul>
+			<li><a href="https://ja.wikipedia.org/wiki/K%E5%B9%B3%E5%9D%87%E6%B3%95" target="new">k-meansクラスタリング</a>は最もポピュラーなクラスタリングアルゴリズムの１つです．</li>
+			<li>k-meansクラスタリングは，<strong>各クラスタが球形でサイズが同じである</strong>ことを仮定していることに注意が必要です．この仮定が妥当でないデータにk-meansクラスタリングを適用した場合，望ましいクラスタリング結果が得られない可能性があります（下図参照）．</li>
+			<img border="0" src="kmeans_mouse.png" height="300" alt="kmeans_mouse">
+		</ul>
+	</p>
+
+	<h3>クラスタ数推定結果</h3>
+	<h4>Gap統計量（Gap statistics）</h4>
+	<img border="0" src="gap_{{ algorithms[0].estimator.__class__.__name__ }}.png" height="300" alt="gap_statistics">
+
+	<h4>Silhouette score</h4>
+	<img border="0" src="silhouette_{{ algorithms[0].estimator.__class__.__name__ }}.png" height="300" alt="silhouette_score">
+    
+	<h4>Davies-Bouldin score</h4>
+	<img border="0" src="davies_{{ algorithms[0].estimator.__class__.__name__ }}.png" height="300" alt="davies_bouldin_score">
+    
+	<h4>Calinski and Harabasz score</h4>
+	<img border="0" src="calinski_{{ algorithms[0].estimator.__class__.__name__ }}.png" height="300" alt="calinski_harabasz_score">
+    
+	<h2 id="{{ algorithms[1].name }}"><a href="{{ algorithms[1].link }}">階層的クラスタリング (Hierarchical clustering)</a> <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	<p>
+		<ul>
+			<li><a href="https://en.wikipedia.org/wiki/Hierarchical_clustering" target="new">階層的クラスタリング</a>は，k-meansクラスタリングと並んで最もポピュラーなクラスタリングアルゴリズムの１つです．</li>
+			<li>階層的クラスタリング手法は，<strong>データ一つ一つを順次併合していく凝集型（agglomerative）</strong>と，<strong>データ全体を順次分割していく分割型（divisive）</strong>に大別されます．</br>
+			    MALSSでは凝集型階層的クラスタリングをサポートしています．
+            </li>
+			<li>階層的クラスタリングには，分析結果を<strong>デンドログラム（dendrogram）</strong>という樹形図で可視化できるという利点があります．</br>
+			    しかし，デンドログラムを見る際には，以下の点に注意する必要があります．
+				<ul>
+					<li>デンドログラムの縦軸はクラスタ間の距離を表すが，横軸の描画方法には任意性があり<strong>近くのデータと類似しているとは限らない</strong>．</li>
+					<li>デンドログラムは常に階層構造を示すが，<strong>データに本当にそのような階層構造が存在するとは限らない</strong>．</li>
+					<li>デンドログラムの形状はクラスタ間の距離の計算方法（<a href="https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html" target="new">linkage criteria</a>）に強く依存します．</br>MALSSではlinkage criteriaに完全連結法（complete linkage method）を採用しています．</li>
+				</ul>
+            </li>
+		</ul>
+	</p>
+
+	<h3>デンドログラム（Dendrogram）</h3>
+	<img border="0" src="dendrogram_{{ algorithms[1].estimator.__class__.__name__ }}.png" height="400" alt="dendrogram">
+
+	<h3>クラスタ数推定結果</h3>
+	<h4>Gap統計量（Gap statistics）</h4>
+	<img border="0" src="gap_{{ algorithms[1].estimator.__class__.__name__ }}.png" height="300" alt="gap_statistics">
+
+	<h4>Silhouette score</h4>
+	<img border="0" src="silhouette_{{ algorithms[1].estimator.__class__.__name__ }}.png" height="300" alt="silhouette_score">
+    
+	<h4>Davies-Bouldin score</h4>
+	<img border="0" src="davies_{{ algorithms[1].estimator.__class__.__name__ }}.png" height="300" alt="davies_bouldin_score">
+    
+	<h4>Calinski and Harabasz score</h4>
+	<img border="0" src="calinski_{{ algorithms[1].estimator.__class__.__name__ }}.png" height="300" alt="calinski_harabasz_score">
+    
+</body>
+</html>
