@@ -1,0 +1,241 @@
+dlrepo-config(5) "" "Configuration Manual"
+
+# NAME
+
+*dlrepo-config* -- artifact repository configuration
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes how to configure the server.
+
+# CONFIGURATION
+
+The server is configured via environment variables. They should be set in
+_/etc/default/dlrepo_ which is sourced by systemd in _dlrepo.service_ before
+running the daemon process.
+
+## core settings
+
+*DLREPO_ROOT_DIR* (default: _/var/lib/dlrepo_)
+	The root folder where the artifacts are stored. *dlrepo* does not use
+	an external database and will only store data in that folder.
+
+	The structure of that folder is described in detail in
+	*dlrepo-layout*(8).
+
+*DLREPO_CHUNK_SIZE* (default: _262144_)
+	The maximum size in bytes of data chunks that are read from the client
+	when receiving uploads.
+
+*DLREPO_ORPHAN_BLOB_LIFETIME* (default: _600_)
+	The minimum age in seconds after which an orphan blob may be deleted.
+
+	Orphan blobs are files in _DLREPO_ROOT_DIR/.blobs_ that only have one
+	hard link.
+
+	The blobs will be deleted immediately when a tag is manually deleted
+	via the *dlrepo-api*(7) if they are older than
+	*DLREPO_ORPHAN_BLOB_LIFETIME*.
+
+	Otherwise, *dlrepo-cleanup*(8) will delete them in a later time.
+
+*DLREPO_LOG_LEVEL* (default: _WARNING_)
+	Only events that are above that level are sent to the system logs.
+	Valid values are _DEBUG_, _INFO_, _WARNING_ and _ERROR_.
+
+*DLREPO_USER_QUOTA* (default: _10737418240_)
+	The maximum disk usage in bytes per user repository. When the user quota
+	is exceeded, new uploads are denied with an explicit error.
+
+*DLREPO_POST_PROCESS_CMD* (optional)
+	Command to execute when finalizing an artifact format. It may be used
+	to perform sensible operations such as packages signing without
+	exposing the private key to the build system.
+
+	The finalization is done automatically when running the *dlrepo-cli*(1)
+	*upload* command. Or, alternatively by performing a _PATCH_ request on
+	an artifact format (see *dlrepo-api*(7)).
+
+	This should be either the path to an executable or its name if it is in
+	the system _PATH_. The command will be executed by the user running the
+	dlrepo daemon process with the artifact format folder as its working
+	directory and no arguments. Any output produced by the command will be
+	sent to the system logs.
+
+	If the command exits with a non-zero code, an error will be returned to
+	the client.
+
+	Example: _/etc/dlrepo/post-process.sh_
+
+*DLREPO_PUBLIC_URL* (optional)
+	If set, it will replace the default URL in the script contents that are
+	returned from the _/cli_ URL.
+
+## customization
+
+*DLREPO_STATIC_DIR* (optional)
+	Files present in that directory will be served under the _/static_ URL.
+	The following special files may be added:
+
+	_{product_name}.svg_
+		When browsing the products tree, _/static/{product_name}.svg_
+		images will be referenced. You may use this to provide SVG
+		icons for products.
+
+	You can also override the default style by adding the following files:
+
+	_dlrepo.css_
+		CSS stylesheet.
+	_logo.svg_
+		The main logo on the banner.
+	_favicon.svg_
+		The site icon.
+	_locked.svg_
+		Icon used for locked tags and versions.
+	_released.svg_
+		Icon used for released tags and versions.
+
+	Example: _/etc/dlrepo/static_
+
+*DLREPO_TEMPLATES_DIR* (default: _/etc/dlrepo/templates_)
+	For extended customization, it is possible to override the builtin HTML
+	templates. These templates use the Jinja2 syntax. You have two options:
+
+	*1.* Completely redefine a template:
+		Copy it from the default templates in the sources and adjust it
+		to your needs.
+
+	*2.* Extend a builtin template:
+		Create an empty template with the same name than one of the
+		builtins and add an _extends_ directive on top with the
+		"templates/" prefix:
+
+		```
+		{% extends "templates/base.html" %}
+		```
+
+		Then, only redefine blocks that you want to change.
+
+	Example: _/etc/dlrepo/static_
+
+## authentication
+
+*DLREPO_LDAP_URL* (if set, *DLREPO_AUTH_FILE* is ignored)
+	URL to the LDAP server used to authenticate users and get their groups.
+
+	If the URL starts with _ldap://_, Start TLS is implied unless
+	*DLREPO_LDAP_START_TLS* is set to _0_.
+
+	Example: _"ldap://ldap.foobar.org"_
+
+*DLREPO_LDAP_START_TLS* (default: _1_)
+	By default, when *DLREPO_LDAP_URL* starts with _ldap://_, a Start TLS
+	request (RFC 2830) will be performed before attempting to authenticate
+	the user with the provided login and password.
+
+	Insecure connections can be allowed by setting this to _0_.
+
+*DLREPO_AUTH_FILE* (default: _/etc/dlrepo/auth_)
+	File containing user passwords and groups. If *DLREPO_LDAP_URL* is not
+	set, the username and password provided in the HTTP _Authorization_
+	header are checked to determine the user groups.
+
+	This file should have lines with the following format:
+
+	```
+	LOGIN:PASSWORD:GROUP1 GROUP2 GROUP3
+	```
+
+	This should only be used for small deployments or testing purposes. For
+	production servers, you should use LDAP.
+
+*DLREPO_LDAP_USER_DN* (mandatory if *DLREPO_LDAP_URL* is set)
+	This DN template will be used to perform a password bind to the LDAP
+	server. _%s_ is replaced by the username received in the HTTP
+	_Authorization_ header.
+
+	Example: _"uid=%s,ou=people,dc=foobar,dc=org"_
+
+*DLREPO_LDAP_BASE_DN* (mandatory if *DLREPO_LDAP_URL* is set)
+	The base DN used to lookup user groups.
+
+	Example: _"dc=foobar,dc=org"_
+
+*DLREPO_LDAP_GROUPS_FILTER* (mandatory if *DLREPO_LDAP_URL* is set)
+	The LDAP filter used to search for the user groups. _%s_ is replaced by
+	the username provided in the HTTP _Authorization_ header.
+
+	Example: _"(&(objectClass=posixGroup)(memberUid=%s))"_
+
+*DLREPO_LDAP_TIMEOUT* (default: _10_)
+	Timeout in seconds for the LDAP server connection/requests.
+
+*DLREPO_LDAP_MAX_CONNECTIONS* (default: _4_)
+	Maximum number of concurrent LDAP server connections.
+
+*DLREPO_AUTH_CACHE_SIZE* (default: _4096_)
+	Maximum number of entries in the authentication cache. The cache is used
+	to reduce the number of LDAP queries for repetitive connections with the
+	same user.
+
+*DLREPO_AUTH_CACHE_TTL* (default: _600_)
+	Maximum age in seconds for entries in the authentication cache.
+
+*DLREPO_ACLS_DIR* (default: _/etc/dlrepo/acls_)
+	Local folder containing ACL files. See *dlrepo-acls*(5) for more
+	details. If the file does not exist, a warning will be displayed on
+	startup.
+
+*DLREPO_AUTH_DISABLED* (default: _0_)
+	Set to _1_ to completely disable authentication and permission
+	checking. When authentication is disabled, anyone can read/write
+	anything anonymously. The HTTP _Authorization_ header is ignored.
+
+	_NEVER USE THIS ON A PRODUCTION SERVER! THIS IS ONLY FOR DEVELOPMENT._
+
+*DLREPO_IGNORE_PASSWORDS* (default: _0_)
+	Set to _1_ to disable password checking. When password check is
+	disabled, the username provided in the HTTP _Authorization_ header is
+	trusted without any verification/authentication. When *DLREPO_LDAP_URL*
+	is set, the user groups are fetched from the LDAP server with an
+	anonymous bind.
+
+	_NEVER USE THIS ON A PRODUCTION SERVER! THIS IS ONLY FOR DEVELOPMENT._
+
+## mirroring to another server
+
+*DLREPO_PUBLISH_URL* (optional)
+	URL to another dlrepo server on which to publish tags when they are
+	released on this server.
+
+	Example: _"https://dlrepo-public.foobar.org"_
+
+*DLREPO_PUBLISH_AUTH* (optional)
+	Path to a file containing the _LOGIN:PASSWORD_ to use for
+	authenticating against *DLREPO_PUBLISH_URL*. This file should have
+	restrictive permissions.
+
+	Example: _/etc/dlrepo/publish_auth_
+
+*DLREPO_PUBLISH_MAX_REQUESTS* (default: _1_)
+	Maximum number of concurrent requests made to *DLREPO_PUBLISH_URL* when
+	publishing tags.
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-acls*(5),
+*dlrepo-api*(1),
+*dlrepo-cleanup*(8),
+*dlrepo-cli*(1),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

@@ -1,0 +1,22 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{{breadcrumbs(['products', product, product_variant.name])}}
+{% endblock %}
+
+{% block page_content %}
+{% set width = product_variant.product_branches|map(attribute='name')|map('length')|max|default(80) %}
+{% set width = [width, 10]|max %}
+<section class="product-branches" style="column-width: {{width * 0.75}}em;">
+{% for product_branch in product_variant.product_branches|sort(attribute="name") %}
+  <div>
+    <a href="{{product_branch.name}}/" class="product-branch">
+      {{product_branch.name}}
+    </a>
+  </div>
+{% endfor %}
+</section>
+{% endblock %}

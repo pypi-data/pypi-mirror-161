@@ -1,0 +1,54 @@
+dlrepo(7) "" "Administration Manual"
+
+# NAME
+
+*dlrepo* -- artifact repository administration
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes how to administrate the server.
+
+# CONFIGURATION
+
+Before running the server, you must specify mandatory parameters in the
+configuration file. See *dlrepo-config*(5) for more details.
+
+The *dlrepo* daemon should be placed behind a proxy server. The recommended
+proxy is *nginx*. An example configuration for nginx is available in
+_/usr/share/doc/dlrepo/examples_. The default _dlrepo.socket_ unit should match
+this configuration.
+
+Be aware that user passwords are sent in clear text in HTTP request headers.
+Use HTTPS unless you absolutely do not care about security and user
+authentication.
+
+Communication between the proxy server and the *dlrepo* daemon should be done
+via UNIX sockets to minimize the risk of local eavesdropping.
+
+# STARTING ON BOOT
+
+By default, _dlrepo.socket_ should start on boot after installation. When
+*nginx* accesses the socket for the first time, systemd will start
+_dlrepo.service_ automatically and pass the socket to the python daemon.
+
+# GARBAGE COLLECTION
+
+Tags that exceed any branch cleanup policy will be automatically removed.
+
+# SEE ALSO
+
+*dlrepo-acls*(5),
+*dlrepo-api*(7),
+*dlrepo-cli*(1),
+*dlrepo-config*(5),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

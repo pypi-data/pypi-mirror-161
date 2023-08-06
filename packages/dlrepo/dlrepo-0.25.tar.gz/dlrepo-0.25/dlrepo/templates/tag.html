@@ -1,0 +1,37 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{{breadcrumbs(['branches', branch, tag.name])}}
+{% endblock %}
+
+{% block page_content %}
+{% if tag.released or tag.locked or tag.publish_status  %}
+<section class="tag-status">
+  {% if tag.released %}
+  <span class="badge released">released</span>
+  {% endif %}
+  {% if tag.locked %}
+  <span class="badge locked">locked</span>
+  {% endif %}
+  {% if tag.publish_status %}
+  <span class="badge publish-status">{{tag.publish_status}}</span>
+  {% endif %}
+</section>
+{% endif %}
+{% set width = tag.jobs|map(attribute='name')|map('length')|max|default(80) %}
+{% set width = [width, 10]|max %}
+<section class="jobs" style="column-width: {{width * 0.75}}em;">
+  {% for job in tag.jobs|sort(attribute="name") %}
+  <div>
+    <a href="{{job.name}}/"
+       class="job {{'released' if job.released}}"
+       title="{{'released' if job.released}}">
+      {{job.name}}
+    </a>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

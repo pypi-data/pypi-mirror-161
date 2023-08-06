@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{#
+  Copyright (c) 2021 Julien Floret
+  Copyright (c) 2021 Robin Jarry
+  SPDX-License-Identifier: BSD-3-Clause
+#}
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+{% block meta_css %}
+  <link rel="stylesheet" href="/static/dlrepo.css" />
+{% endblock %}
+{% block meta_icon %}
+  <link rel="icon" type="image/svg" href="/static/favicon.svg" />
+{% endblock %}
+{% block meta_title %}
+  <title>dlrepo</title>
+{% endblock %}
+</head>
+<body>
+
+<header>
+  <div>
+{% block banner %}
+    <img src="/static/logo.svg" alt="logo" />
+    <h1>dlrepo</h1>
+{% endblock %}
+{% if request.dlrepo_user and request.dlrepo_user != 'ANONYMOUS' %}
+{% block authenticated_user %}
+    <span class="user">
+      Authenticated as <b>{{request.dlrepo_user}}</b>
+    </span>
+{% endblock %}
+{% endif %}
+  </div>
+</header>
+
+{% macro breadcrumbs(crumbs) %}
+{% set tmp = [] %}
+{% if user %}
+{% do crumbs.insert(0, "~" + user) %}
+{% endif %}
+{% if crumbs %}
+<div class="crumb"><a href="/">home</a></div>
+{% else %}
+<div class="crumb"><span>home</span></div>
+{% endif %}
+{% for c in crumbs %}
+{% if loop.last %}
+<div class="crumb"><span>{{c}}</span></div>
+{% else %}
+{% do tmp.append(c) %}
+<div class="crumb"><a href="/{{tmp|join('/')}}/">{{c}}</a></div>
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
+<nav>
+  <div>
+{% block breadcrumbs %}
+{% endblock %}
+  </div>
+</nav>
+
+<main>
+{% block page_content %}
+{% endblock %}
+</main>
+
+<footer>
+  <div>
+{% block footer %}
+  <span>
+    Powered by <a href="https://sr.ht/~rjarry/dlrepo/">dlrepo</a>
+  </span>
+  {# the {{year}} variable is available #}
+{% endblock %}
+  </div>
+</footer>
+
+</body>
+</html>

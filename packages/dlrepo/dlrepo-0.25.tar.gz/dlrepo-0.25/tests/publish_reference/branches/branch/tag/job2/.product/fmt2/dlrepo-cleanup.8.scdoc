@@ -1,0 +1,56 @@
+dlrepo-cleanup(8) "" "Administration Manual"
+
+# NAME
+
+*dlrepo-cleanup* -- artifact repository automatic cleanup
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes the automatic cleanup process of _DLREPO_ROOT_DIR_.
+
+# CONFIGURATION
+
+A cleanup policy must be configured per branch. This is done by using the HTTP
+API (or alternatively, by manually creating a _.cleanup_policy_ JSON file in
+the branch folder). See *dlrepo-api*(7) for more details.
+
+By default, only orphan files are deleted from the _.blobs/_ folder. See
+*dlrepo-layout*(7) for more info.
+
+# WHAT IS DELETED?
+
+For all branches in the root repository, the cleanup policy is enforced. It
+implies ordering the released and non-released tags by date and only keeping
+the most recent _max_released_tags_ and _max_daily_tags_ accordingly. If there
+is no cleanup policy, nothing is deleted.
+
+After deleting tags, orphan files are deleted from the _.blobs/_ folder.
+
+User repositories are *not* subject to automatic cleanup.
+
+# EXECUTION
+
+The cleanup operation should be executed with the owner of the
+_DLREPO_ROOT_DIR_ folder.
+
+For convenience, a systemd _dlrepo-cleanup.timer_ unit is provided which
+executes the _dlrepo-cleanup.service_ every day.
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-acls*(5),
+*dlrepo-api*(7),
+*dlrepo-cli*(1),
+*dlrepo-config*(5),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

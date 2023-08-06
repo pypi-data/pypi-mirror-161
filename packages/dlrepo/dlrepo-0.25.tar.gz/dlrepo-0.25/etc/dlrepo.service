@@ -1,0 +1,28 @@
+# ex: ft=systemd
+[Unit]
+Description=Artifact Repository
+Documentation=man:dlrepo(7) man:dlrepo-config(5) man:dlrepo-acls(5)
+After=network.target nss-user-lookup.target
+Requires=dlrepo.socket
+
+[Service]
+EnvironmentFile=-/etc/default/dlrepo
+ExecStart=/usr/bin/dlrepo
+ExecReload=/bin/kill -HUP $MAINPID
+NonBlocking=true
+Type=simple
+User=dlrepo
+Group=www-data
+SyslogIdentifier=dlrepo
+ProtectSystem=strict
+ProtectHome=tmpfs
+ReadWritePaths=/var/lib/dlrepo
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+CapabilityBoundingSet=~CAP_SYS_ADMIN
+
+[Install]
+Also=dlrepo.socket

@@ -1,0 +1,34 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{% set path = [artifact_format.name] %}
+{% if artifact_format.relpath %}
+  {% do path.extend(artifact_format.relpath.split("/")) %}
+{% endif %}
+{% if branch %}
+{{breadcrumbs(["branches", branch, tag, job] + path )}}
+{% else %}
+{{breadcrumbs(["products", product, variant, product_branch, version] + path )}}
+{% endif %}
+{% endblock %}
+
+{% block page_content %}
+{% set width = (artifact_format.dirs + artifact_format.files)|map('length')|max|default(80) %}
+{% set width = [width, 10]|max %}
+<section class="autoindex" style="column-width: {{width * 0.8}}em;">
+{% for d in artifact_format.dirs|sort(case_sensitive=true) %}
+  <div>
+    <a href="{{d}}/" class="directory">{{d}}/</a>
+  </div>
+{% endfor %}
+{% for f in artifact_format.files|sort(case_sensitive=true) %}
+  <div>
+    <a href="{{f}}" class="file">{{f}}</a>
+    <a href="{{f}}.sha256" class="digest">sha256</a>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

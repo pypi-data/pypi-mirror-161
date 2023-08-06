@@ -1,0 +1,220 @@
+dlrepo-layout(7) "" "Administration Manual"
+
+# NAME
+
+*dlrepo-layout* -- artifact repository file system layout
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+*dlrepo* does not use an external database. Instead it stores everything into
+a single folder: _DLREPO_ROOT_DIR_. This manual describes the structure of
+that folder.
+
+# FILE SYSTEM STRUCTURE
+
+The following folders can be found in _DLREPO_ROOT_DIR_.
+
+## .blobs/
+
+All uploaded files are stored in that folder named after their SHA-256 digest.
+Each file is stored in a sub directory named after the first two characters of
+the digest value. Here is an example:
+
+```
+.blobs/
+└── sha256/
+    ├── 02/
+    │   └── 02bffd2071ececa9144b14333822b37916ddd93dec89ac23fc84bd3b308bc8ee
+    ├── 05/
+    │   └── 05737a7010dec11a78ba66af14f66dbcd939a9e715d27d492dd6ee66abeb4f0c
+    ├── a9/
+    │   └── a92836d6a9005a399c87ba7a1947ac139ae20c749ae14407015043ccb5b4da93
+    └── be/
+        └── be5ae28257a587caee280193891be19ec2968401fcfa8573b6688c720e49a6a3
+```
+
+This layout is used for deduplication purposes. When the same file is uploaded
+multiple times in different _{branch}/{tag}/{job}/{format}_ combinations, only
+a hard link is created. When a file in _.blobs/_ only has one link and is older
+than _DLREPO_ORPHAN_BLOB_LIFETIME_ seconds, it is candidate for garbage
+collection.
+
+## .uploads/
+
+Temp directory where uploads are staged before moving them into _.blobs/_. This
+folder is subject to the same cleanup policy as _.blobs/_.
+
+## branches/
+
+Contains one folder per branch.
+
+## branches/{branch}/
+
+Contains one folder per tag in _{branch}_. For compatibility reasons with
+container images, all branch names are forced to lower case.
+
+Also contains the following reserved files:
+
+_.cleanup_policy_ (optional)
+	This file is in the JSON format and controls how many tags are
+	preserved by the cleanup policy. Here is an example of
+	_.cleanup_policy_ file:
+
+	```
+	{"max_daily_tags": 8, "max_released_tags": 20}
+	```
+
+## branches/{branch}/{tag}/
+
+Contains one folder per job in _{tag}_. For compatibility reasons with
+container images, all tag names are forced to lower case.
+
+Also contains the following reserved files:
+
+_.stamp_
+	Empty file created when the tag is first created. This is used as
+	a reference to order tags by age.
+_.released_ (optional)
+	Empty file created when a tag is marked as released. Released tags
+	follow the _max_released_tags_ cleanup policy. Other tags follow the
+	_max_daily_tags_ cleanup policy.
+_.locked_ (optional)
+	Empty file created when a tag is marked as locked. Locked tags are
+	never deleted by the cleanup policy.
+_.publish_status_ (optional)
+	Text file containing details about the tag publication status to
+	another dlrepo server.
+
+## branches/{branch}/{tag}/{job}/
+
+Contains one folder per artifact format in _{job}_.
+
+Also contains the following reserved files:
+
+_.metadata_ (optional)
+	Free-form metadata in the JSON format. Only the following metadata keys
+	are special and are used to maintain the _products/_ structure:
+	_product_, _version_, _product_branch_, _product_variant_. Here is an
+	example:
+
+	```
+	{
+		"product": "foo",
+		"product_variant": "x86_64",
+		"product_branch": "3.2",
+		"version": "3.2.7",
+		"foo": 2,
+		"baz": "bar"
+	}
+	```
+_.stamp_
+	Empty file created when the job is first created. This is used to
+	display the job creation time.
+_.locked_ (optional)
+	Empty file created when the job is locked to avoid further
+	modifications. A locked job cannot receive file uploads nor metadata
+	changes.
+_.job_ (optional)
+	Symbolic link to a _{version}_ in the _products/_ tree. This is only
+	present if the _product_, _version_, _product_branch_ and
+	_product_variant_ metadata have been set for this job.
+_.internal_ (optional)
+	Empty file created when the job is marked as "internal".
+
+## branches/{branch}/{tag}/{job}/{format}/
+
+Contains uploaded files for this artifact _{format}_.
+
+Also contains the following reserved files:
+
+_.digests_
+	JSON file mapping file names to their SHA-256 digest. Used to generate
+	the _Digest_ HTTP response headers. When receiving a new upload, the
+	file digest is computed, checked against the _Digest_ request header
+	and stored in this file. Here is an example (digests are truncated):
+
+	```
+	{
+		"foo": "sha256:cea02954c76c9…70107c26c6569fae2",
+		"bar": "sha256:80109520116bf1…1108a0f4e4cf64381",
+		"moo/baz.tgz": "sha256:edd02954f7ac3…901be92d16362aef5",
+	}
+	```
+
+	This file will be refreshed upon _PATCH_ requests on this artifact
+	format if *DLREPO_POST_PROCESS_CMD* is set (see *dlrepo-config*(5))
+	since the command may have modified files.
+_.dirty_
+	Empty file created when a new file is uploaded to this format. If this
+	file is exists, _HEAD_ requests to this artifact format will return
+	a _404 Not found_ error (see *dlrepo-api*(7)). This file is deleted
+	after a _PATCH_ request is made on this format.
+
+## products/
+
+Contains one folder per product.
+
+## products/{product}/
+
+Contains one folder per variant in _{product}_. For compatibility reasons with
+container images, all product names are forced to lower case.
+
+## products/{product}/{variant}/
+
+Contains one folder per product branch in _{variant}_. For compatibility
+reasons with container images, all product variant names are forced to lower
+case.
+
+## products/{product}/{variant}/{product_branch}/
+
+Contains one folder per version in _{product_branch}_. For compatibility
+reasons with container images, all product branch names are forced to lower
+case.
+
+## products/{product}/{variant}/{product_branch}/{version}/
+
+Contains symbolic links to _{format}_ folders in the _branches/_ tree. If more
+than one job have the same metadata, their artifact formats are combined in the
+same product _{version}_.
+
+Also contains the following reserved files:
+
+_.stamp_
+	Empty file created when the version is first created. This is used as
+	a reference to order versions by age.
+
+## users/
+
+Contains one folder per user repository.
+
+## users/{user}/
+
+User repository for _{user}_. This folder has the same structure as the root
+repository. It contains the _branches/_ and _products/_ folders. Files created
+here are also hard links to the _.blobs/_ folder.
+
+Also contains the following reserved files:
+
+_.disk_usage_
+	Text file containing the current disk usage of the user repository in
+	bytes. This file is updated after each upload. When the disk usage
+	exceeds _DLREPO_USER_QUOTA_, new uploads are denied with an explicit
+	error.
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-acls*(5),
+*dlrepo-api*(7),
+*dlrepo-cli*(1),
+*dlrepo-config*(5)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

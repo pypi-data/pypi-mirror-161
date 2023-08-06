@@ -1,0 +1,34 @@
+{# Copyright (c) 2022 Julien Floret #}
+{# Copyright (c) 2022 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+
+{% if not install_procedure %}
+{% macro install_procedure(name, formats) %}
+{% for f in formats %}
+  {% set repo_name = (product + "-" + variant + "-v" if product_branch else "") + name + "-" + f.name %}
+  {% if f.name == "container" %}
+<code class="command">
+  {% if product_branch %}
+  docker pull {{request.host}}/{{"u/" + user + "/" if user}}{{product}}/{{variant}}/{{product_branch}}:{{name}}
+  {% else %}
+  docker pull {{request.host}}/{{"u/" + user + "/" if user}}{{branch}}/{{name}}:{{tag}}
+  {% endif %}
+</code>
+  {% elif f.rpm %}
+<pre class="command">
+cat &gt; /etc/yum.repos.d/{{repo_name}}.repo &lt;&lt;EOF
+[{{repo_name}}]
+name = {{repo_name}}
+baseurl = {{request.scheme}}://{{request.host}}{{f.url}}
+EOF
+dnf makecache
+</pre>
+  {% elif f.deb %}
+<pre class="command">
+echo "deb {{request.scheme}}://{{request.host}}{{f.url}} /" &gt; /etc/apt/sources.list.d/{{repo_name}}.list
+apt update
+</pre>
+  {% endif %}
+{% endfor %}
+{% endmacro %}
+{% endif %}

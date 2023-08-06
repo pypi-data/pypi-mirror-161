@@ -1,0 +1,73 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{{breadcrumbs([])}}
+{% endblock %}
+
+{% block page_content %}
+<section class="base-links">
+  <div>
+    {% if access.branches %}
+    <a href="branches/" class="branches">Branches</a>
+    {% endif %}
+    {% if access.products %}
+    <a href="products/" class="products">Products</a>
+    {% endif %}
+  </div>
+</section>
+
+{% if disk_usage is defined %}
+{% set avail = (quota - disk_usage) / quota %}
+<section class="user-quotas">
+  <div class="quota">
+    <span class="label">Disk usage</span>
+    <span class="value {{'danger' if avail < 0.2}}">
+      ~ {{human_readable(disk_usage)}} / {{human_readable(quota)}}
+    </span>
+  </div>
+  <div class="quota">
+    <span class="label">Available</span>
+    <span class="value {{'danger' if avail < 0.2}}">
+      ~ {{human_readable(quota - disk_usage)}}
+    </span>
+  </div>
+</section>
+{% endif %}
+
+{% if users %}
+<section class="user-repos">
+  <h3>Users</h3>
+  <hr/>
+  {% set width = users|map('length')|max|default(80) %}
+  {% set width = [width, 8]|max %}
+  <div class="user-repos" style="column-width: {{width}}em;">
+    {% for u in users|sort %}
+    <div>
+      <a href="/~{{u}}/" class="user-repo">~{{u}}</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if latest_releases %}
+<section class="latest-releases">
+  <h3>Latest Releases</h3>
+  <hr/>
+  <div class="latest-releases">
+    {% for r in latest_releases %}
+      {% set product = r.parent.parent.parent %}
+      <div>
+        <a href="{{r.url()}}" class="product">
+          <img src="/static/{{product.name}}.svg" alt="icon"/>
+          <span>{{r.archive_name()}}</span>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

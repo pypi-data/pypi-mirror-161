@@ -1,0 +1,39 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+{{breadcrumbs(['products', product, variant, product_branch.name])}}
+{% endblock %}
+
+{% block page_content %}
+{% set versions = product_branch.versions|sort(attribute='name')|list %}
+{% set width = versions|map(attribute='name')|map('length')|max|default(80) %}
+{% set width = [width, 10]|max %}
+<section class="product-versions" style="column-width: {{width * 0.9}}em;">
+  {% if versions %}
+  <div>
+    <a href="latest/" class="version alias">latest</a>
+  </div>
+  {% endif %}
+  {% if versions|selectattr("released")|list %}
+  <div>
+    <a href="stable/" class="version alias">stable</a>
+  </div>
+  {% endif %}
+  {% for version in versions %}
+  <div>
+    <a href="{{version.name}}/"
+       class="version {{'released' if version.released}} {{'locked' if version.locked}}"
+       title="{{'released' if version.released}} {{'locked' if version.locked}}">
+      {{version.name}}
+    </a>
+  </div>
+  {% else %}
+  <div>
+    No versions for {{product}} {{variant}} {{product_branch.name}}.
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

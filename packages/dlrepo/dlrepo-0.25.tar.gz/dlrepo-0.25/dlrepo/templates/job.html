@@ -1,0 +1,69 @@
+{# Copyright (c) 2021 Julien Floret #}
+{# Copyright (c) 2021 Robin Jarry #}
+{# SPDX-License-Identifier: BSD-3-Clause #}
+{% extends "base.html" %}
+{% import "macros.html" as macros with context %}
+
+{% set job_name = job.pop("name") %}
+{% set formats = job.pop("artifact_formats", []) %}
+{% set timestamp = job.pop("timestamp") %}
+
+{% block breadcrumbs %}
+{{breadcrumbs(['branches', branch, tag, job_name])}}
+{% endblock %}
+
+{% block page_content %}
+<section class="files">
+  <h2>Files</h2>
+  <hr/>
+  <div class="artifact-formats">
+    {% for fmt in formats|sort(attribute="name") %}
+    <div class="artifact-format">
+      <a href="{{fmt.name}}" class="format">{{fmt.name}}/</a>
+      <a href="{{fmt.name}}.tar" class="archive" title="Whole archive">
+        {{fmt.name}}.tar
+      </a>
+      <a href="{{fmt.name}}.sha256" class="digest" title="SHA-256 digests">
+        {{fmt.name}}.sha256
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="whole-archive">
+    <a href="../{{job_name}}.tar" title="Whole archive (large file)">
+      {{job_name}}.tar
+    </a>
+  </div>
+
+  {{macros.install_procedure(job_name, formats)}}
+</section>
+
+<section class="job-metadata">
+  <h2>Metadata</h2>
+  <hr/>
+  {% for key, value in job|dictsort %}
+  <div class="metadata">
+    <span class="key">{{key}}</span>
+    <span class="value">{{value}}</span>
+  </div>
+  {% endfor %}
+  <div class="metadata">
+    <span class="key">upload_time</span>
+    <span class="value">{{timestamp|pretty_time}}</span>
+  </div>
+</section>
+
+{% if job.product and job.product_variant and job.product_branch and job.version %}
+<section class="product-link">
+  <h2>Product Link</h2>
+  <hr/>
+  <a href="/{{'~' + user + '/' if user}}products/{{job.product}}/{{job.product_variant}}/{{job.product_branch}}/{{job.version}}/"
+     title="Product link" class="product">
+    <img src="/static/{{job.product}}.svg" alt="icon" />
+    <span>{{job.product}}-{{job.product_variant}}-v{{job.version}}</span>
+  </a>
+</section>
+{% endif %}
+
+{% endblock %}

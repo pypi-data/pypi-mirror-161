@@ -1,0 +1,242 @@
+dlrepo-cli(1) "" "User Manual"
+
+# NAME
+
+*dlrepo-cli* -- artifact repository command line client
+
+# SYNOPSIS
+
+*dlrepo-cli* [*-h*] [*-U* _URL_] [*-p* _PREFIX_] [*-j*] _SUB_COMMAND_ ...
+
+# DESCRIPTION
+
+dlrepo is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes how to use the *dlrepo-cli* command line client. It
+allows managing content of a *dlrepo* server (upload, delete, metadata, etc.).
+The client makes use of the *dlrepo-api*(7).
+
+# OPTIONS
+
+*-h*, *--help*
+	Display the command line help.
+
+*-U* _URL_, *--url*=_URL_
+	The root URL of the dlrepo server. Default to _DLREPO_URL_ or
+	to _url_ in the configuration file or to http://127.0.0.1:1337.
+
+*-p* _PREFIX_, *--prefix*=_PREFIX_
+	_URL_ prefix. Use *--prefix*=_/_ to work at the repository root and not
+	in your own user prefix. Depending on the *dlrepo-acls*(5)
+	configuration, you may not have permissions to modify anything outside
+	of your own user space. Default to _DLREPO_PREFIX_ or to _prefix_ in
+	the configuration file or to _/~$USER/_.
+
+*-j*, *--raw-json*
+	Do not convert the returned JSON data to human readable text. Only
+	applies to non-binary data.
+
+# AUTHENTICATION
+
+If the server requires a password, it will be prompted unless the
+_DLREPO_PASSWORD_ environment variable is specified. By default the user is
+your own UNIX user or _DLREPO_USER_ if specified.
+
+# CONFIGURATION
+
+The default values for some options may be specified in _~/.config/dlrepo-cli_.
+This file is in the INI format and should have the following structure:
+
+```
+[dlrepo-cli]
+user = $USER
+password =
+url = http://127.0.0.1:1337
+prefix = /~%(user)s/
+```
+
+The default values are displayed here for reference. The _DLREPO\_\*_
+environment variables have precedence over the configuration file. Options
+specified on the command line always have precedence.
+
+# SUB-COMMANDS
+
+## dlrepo-cli get BRANCH TAG JOB FORMAT DIR
+
+Download files from the specified branch into a local directory.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+_FORMAT_
+	The artifact format name.
+_DIR_
+	Target directory where to store downloaded files.
+
+## dlrepo-cli upload BRANCH TAG JOB FORMAT FILE_OR_DIR [FILE_OR_DIR ...]
+
+Upload files and/or folders to the specified branch, tag and job under the
+specified artifact format.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+_FORMAT_
+	The artifact format name.
+_FILE_OR_DIR_
+	File/folder to upload on the server. May be specified multiple times.
+
+## dlrepo-cli get-info BRANCH TAG JOB
+
+Download metadata for the specified job.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+
+## dlrepo-cli set-info BRANCH TAG JOB PARAM=VALUE [PARAM=VALUE ...]
+
+Update metadata for the specified job.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+_PARAM=VALUE_
+	Set a metadata parameter for the specified job (_PARAM=_ to unset)
+	May be specified multiple times.
+
+## dlrepo-cli lock [-u] BRANCH TAG [JOB]
+
+Lock a job to prevent further modifications. Or lock a tag so that it is never
+deleted by the cleanup policy.
+
+*-u*, *--unlock*
+	Unlock instead of locking.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+
+## dlrepo-cli branches
+
+List the available branches on the repo.
+
+## dlrepo-cli tags [-r] BRANCH
+
+List the available tags in the specified branch.
+
+*-r*, *--released-only*
+	Only show released tags.
+
+_BRANCH_
+	The branch name.
+
+## dlrepo-cli jobs BRANCH TAG [PARAM=VALUE ...]
+
+List the available jobs in the specified branch and tag.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_PARAM=VALUE_
+	Only show jobs that have this metadata parameter value. May be
+	specified multiple times.
+
+## dlrepo-cli status BRANCH TAG
+
+Display the current status of a tag.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+
+## dlrepo-cli release [-u] BRANCH TAG
+
+Set or unset the _released_ status on a tag. If *DLREPO_PUBLISH_URL* (see
+*dlrepo-config*(5)) has been configured on the server, setting (or unsetting)
+the _released_ status will trigger an asynchronous modification of the remote
+server. The current publish status of a tag can be displayed with the *status*
+sub-command.
+
+*-u*, *--unset*
+	Unset the _released_ status from the tag instead of setting it.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+
+## dlrepo-cli internal [-u] BRANCH TAG JOB
+
+Set or unset the _internal_ status on a job. An internal job is never published
+to a remote server.
+
+*-u*, *--unset*
+	Unset the _internal_ status instead of setting it.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+
+## dlrepo-cli delete [-f] BRANCH [TAG] [JOB]
+
+Delete a job, a tag or a branch and all its tags recursively.
+
+*-f*, *--force*
+	Force the deletion of _released_ tags. _locked_ tags cannot be deleted.
+
+_BRANCH_
+	The branch name.
+_TAG_
+	The tag name.
+_JOB_
+	The job name.
+
+## dlrepo-cli cleanup-policy [-d MAX_DAILY] [-r MAX_RELEASED] BRANCH
+
+Get or set a branch cleanup policy.
+
+*-d* _NUM_, *--max-daily*=_NUM_
+	Maximum non-released tags to keep.
+
+*-r* _NUM_, *--max-released*=_NUM_
+	Maximum released tags to keep.
+
+_BRANCH_
+	The branch name.
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-acls*(5),
+*dlrepo-api*(7),
+*dlrepo-config*(5),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

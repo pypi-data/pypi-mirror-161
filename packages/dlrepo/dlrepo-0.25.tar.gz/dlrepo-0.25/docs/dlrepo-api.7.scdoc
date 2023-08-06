@@ -1,0 +1,845 @@
+dlrepo-api(7) "" "User's Manual"
+
+# NAME
+
+*dlrepo-api* -- artifact repository HTTP API
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes the HTTP API. To use the API, the *dlrepo-cli*(1) command
+line client is available.
+
+# OVERVIEW
+
+All API endpoints described below will be grouped by categories and will have
+the following structure:
+
+## <HTTP METHOD> <URL>?<OPTIONAL QUERY PARAMETERS>
+
+Description of the endpoint. The URL segments in _{braces}_ are variable and
+depend on files/folders present in the repository.
+
+*Access:*
+	Required ACLs to access this endpoint. _ro_ for read-only, _rw_ for
+	read-write.
+*Request:*
+	Description of the required arguments in the request body in JSON if
+	any.
+*Response:*
+	Description of the returned response body if any.
+*Errors:*
+	Specific errors to this endpoint if any.
+
+All endpoints may return these common errors:
+
+- _401_: no basic _Authorization_ header was provided and anonymous access is
+  not enabled.
+- _401_: the provided credentials in the _Authorization_ header are invalid.
+- _403_: the authenticated user does not have the required *Access* to the
+  endpoint URL.
+
+# BASE
+
+## GET /
+
+Show the home page of the base repository.
+
+*Access:*
+	_ro_
+*Response:*
+	_text/html_
+
+## GET /~{user}/
+
+Show the home page of the specified _{user}_ repository.
+
+*Access:*
+	_ro_
+*Response:*
+	_text/html_
+*Errors:*
+	- _404_: the specified _{user}_ repository does not exist.
+
+## GET /static/{file}
+
+Get the contents of a static file (CSS, SVG logo, etc.).
+
+*Access:*
+	This endpoint is not subject to access control. Anonymous access is
+	always granted.
+*Response:*
+	The contents of the file.
+*Errors:*
+	- _404_: the specified file does not exist.
+
+## GET /cli
+
+Get the client script source code. If *DLREPO_PUBLIC_URL* is set, the default
+URL is replaced from _http://127.0.0.1:1337_.
+
+*Access:*
+	_ro_
+*Response:*
+	The contents of the file.
+
+# BRANCHES
+
+## GET /branches/
+## GET /~{user}/branches/
+
+Get the list of branches present in the base repository or in the specified
+_{user}_ repository.
+
+*Access:*
+	_ro_
+
+	Only the branches that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"branches": [
+			{
+				"name": "foo",
+				"daily_tags": 5,
+				"released_tags": 0,
+				"max_daily_tags": 8,
+				"max_released_tags": 8
+			},
+			{
+				"name": "bar",
+				"daily_tags": 4,
+				"released_tags": 0,
+				"max_daily_tags": 4,
+				"max_released_tags": 8
+			}
+		]
+	}
+	```
+
+## GET /branches/{branch}/?released
+## GET /~{user}/branches/{branch}/?released
+
+Get the list of tags present in the specified _{branch}_. If _released_ is
+specified in the query parameters, only released tags are returned.
+
+*Access:*
+	_ro_
+
+	Only the tags that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"branch": {
+			"name": "baz",
+			"cleanup_policy": {
+				"max_daily_tags": 10,
+				"max_released_tags": 0
+			},
+			"tags": [
+				{
+					"name": "v2.2-dev1234",
+					"released": false,
+					"locked": false,
+					"publish_status": null,
+					"timestamp": 1637001613.5863628
+				},
+				{
+					"name": "v3.2.1",
+					"released": true,
+					"locked": false,
+					"publish_status": "published to https://repo2.foo.org",
+					"timestamp": 1637088073.7324917
+				},
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{branch}_ does not exist.
+
+## PUT /branches/{branch}/
+## PUT /~{user}/branches/{branch}/
+
+Change the cleanup policy of the specified _{branch}_.
+
+*Access:*
+	_rw_
+*Request:*
+	```
+	{
+		"max_daily_tags": 5,
+		"max_released_tags": 10
+	}
+	```
+
+	If only one of the parameters is specified, the other existing value is
+	preserved. _0_ means "unlimited".
+*Errors:*
+	- _400_: invalid parameters in the request body.
+	- _404_: the specified _{branch}_ does not exist.
+
+## DELETE /branches/{branch}/?force
+## DELETE /~{user}/branches/{branch}/?force
+
+Delete the specified _{branch}_ and all its tags.
+
+*Access:*
+	_rw_
+*Errors:*
+	- _400_: if one of the tags is released or locked and _force_ was not
+	  specified in the query parameters.
+	- _404_: the specified _{branch}_ does not exist.
+
+# TAGS
+
+## GET /branches/{branch}/{tag}/
+## GET /~{user}/branches/{branch}/{tag}/
+
+Get the list of jobs in the specified _{tag}_. Two special tag names may be
+used to get a _302_ redirect response to a tag URL.
+
+_latest_: the most recent tag in _{branch}_ to which the user has access.++
+_stable_: the most recent _released_ tag in _{branch}_ to which the user has
+access.
+
+*Access:*
+	_ro_
+
+	Only the jobs that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"tag": {
+			"name": "v2.1.7",
+			"released": true,
+			"locked": false,
+			"publish_status": "published to https://repo2.foo.org",
+			"jobs": [
+				{
+					"name": "moo-x86_64-sqlite",
+					"locked": true,
+					"metadata1": "foo",
+					"metadata2": "baz"
+				},
+				{
+					"name": "foobaz-arm64-debug",
+					"locked": true,
+					"product": "foobaz",
+					"product_variant": "arm64-debug",
+					"product_branch": "2.1",
+					"version": "2.1.7"
+				}
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{tag}_ does not exist.
+
+## PUT /branches/{branch}/{tag}/
+## PUT /~{user}/branches/{branch}/{tag}/
+
+Change the released and/or locked status of a _{tag}_.
+
+*Access:*
+	_rw_
+*Request:*
+	```
+	{
+		"tag": {
+			"released": true,
+			"locked": false
+		}
+	}
+	```
+
+	If one of the parameters is omitted, its current value is preserved.
+*Errors:*
+	- _400_: invalid parameters.
+	- _404_: the specified _{tag}_ does not exist.
+	- _405_: _{tag}_ is either _latest_ or _stable_.
+
+Changing the _released_ parameter will start an asynchronous publication (or
+un-publication) of the tag to/from another server if *DLREPO_PUBLISH_URL* and
+*DLREPO_PUBLISH_AUTH* have been configured.
+
+The publication status can be fetched with a *GET* request on the same tag.
+
+## DELETE /branches/{branch}/{tag}/?force
+## DELETE /~{user}/branches/{branch}/{tag}/?force
+
+Delete the specified _{tag}_ and all its jobs.
+
+*Access:*
+	_rw_
+*Errors:*
+	- _400_: the tag is locked or it is released and _force_ was not
+	  specified in the query parameters.
+	- _404_: the specified _{tag}_ does not exist.
+	- _405_: _{tag}_ is either _latest_ or _stable_.
+
+# JOBS
+
+## GET /branches/{branch}/{tag}/{job}/
+## GET /~{user}/branches/{branch}/{tag}/{job}/
+
+Get metadata and artifact formats for the specified _{job}_.
+
+*Access:*
+	_ro_
+
+	Only the artifact formats that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"job": {
+			"name": "foobaz-x86_64-postgresql",
+			"locked": true,
+			"internal": false,
+			"timestamp": 1637001613.5863628,
+			"product": "foobaz",
+			"product_variant": "x86_64-postgresql",
+			"product_branch": "3.2",
+			"version": "3.2.24",
+			"artifact_formats": [
+				"container",
+				"deb",
+				"docs"
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{job}_ does not exist.
+
+## GET /branches/{branch}/{tag}/{job}.tar
+## GET /~{user}/branches/{branch}/{tag}/{job}.tar
+
+Get a tar archive of files contained in all artifact formats of the specified
+_{job}_. An extra _SHA256SUMS.txt_ file is appended to allow verification of
+the archive contents after extraction.
+
+*Access:*
+	_ro_
+
+	Only files from the artifact formats that the user has access to are
+	returned.
+*Response:*
+	A POSIX tar archive (_application/x-tar_).
+*Errors:*
+	- _404_: the specified _{job}_ does not exist.
+
+## PUT /branches/{branch}/{tag}/{job}/
+## PUT /~{user}/branches/{branch}/{tag}/{job}/
+
+Change the internal and/or locked status of a _{job}_. An internal job can never
+be published to another server. A locked job can no longer receive new artifact
+uploads nor metadata change.
+
+*Access:*
+	_rw_
+*Request:*
+	```
+	{
+		"job": {
+			"internal": false,
+			"locked": true
+		}
+	}
+	```
+*Errors:*
+	- _400_: invalid parameters.
+	- _404_: the specified _{job}_ does not exist.
+	- _405_: _{tag}_ is either _latest_ or _stable_.
+
+## PATCH /branches/{branch}/{tag}/{job}/
+## PATCH /~{user}/branches/{branch}/{tag}/{job}/
+
+Set metadata of the specified _{job}_.
+
+*Access:*
+	_rw_
+*Request:*
+	```
+	{
+		"job": {
+			"product": "foobaz",
+			"product_variant": "diesel",
+			"product_branch": "1.0",
+			"version": "1.0.5"
+		}
+	}
+	```
+
+	If *all* of the _product_, _product_variant_, _product_branch_ and
+	_version_ metadata fields are specified, the products tree is updated
+	accordingly. This is the only way to modify the products tree.
+*Errors:*
+	- _400_: invalid parameters or _{job}_ is locked.
+	- _404_: the specified _{job}_ does not exist.
+	- _405_: _{tag}_ is either _latest_ or _stable_.
+
+## DELETE /branches/{branch}/{tag}/{job}/
+## DELETE /~{user}/branches/{branch}/{tag}/{job}/
+
+Delete the specified _{job}_ and all its artifact formats.
+
+*Access:*
+	_rw_
+*Errors:*
+	- _404_: the specified _{job}_ does not exist.
+	- _405_: _{tag}_ is either _latest_ or _stable_.
+
+# PRODUCTS
+
+## GET /products/
+## GET /~{user}/products/
+
+Get the list of products present in the base repository or in the specified
+_{user}_ repository.
+
+*Access:*
+	_ro_
+
+	Only the products that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"products": [
+			{"name": "foo"},
+			{"name": "bar"},
+			{"name": "baz"}
+		]
+	}
+	```
+
+## GET /products/{product}/
+## GET /~{user}/products/{product}/
+
+Get the variants of the specified _{product}_.
+
+*Access:*
+	_ro_
+
+	Only product variants that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"product": {
+			"name": "foo",
+			"variants": [
+				{"name": "x86"},
+				{"name": "arm64"},
+				{"name": "ppc64el"}
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{product}_ does not exist.
+
+## GET /products/{product}/{variant}/
+## GET /~{user}/products/{product}/{variant}/
+
+Get the branches of the specified product _{variant}_.
+
+*Access:*
+	_ro_
+
+	Only product branches that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"product_variant": {
+			"name": "arm64",
+			"product_branches": [
+				{"name": "3.x"},
+				{"name": "4.x"},
+				{"name": "5.x"}
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{variant}_ does not exist.
+
+## GET /products/{product}/{variant}/{product_branch}/
+## GET /~{user}/products/{product}/{variant}/{product_branch}/
+
+Get the versions of the specified _{product_branch}_.
+
+*Access:*
+	_ro_
+
+	Only product versions that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"product_branch": {
+			"name": "4.x",
+			"versions": [
+				{
+					"name": "4.2.5",
+					"released": true,
+					"locked": false,
+					"timestamp": 1637001613.5863628
+				},
+				{
+					"name": "4.7.2"
+					"released": true,
+					"locked": false,
+					"timestamp": 1637042503.4250088
+				}
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{product_branch}_ does not exist.
+
+## GET /products/{product}/{variant}/{product_branch}/{version}/
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/
+
+Get metadata and artifact formats for the specified product _{version}_. Two
+special version names may be used to get a _302_ redirect response to an actual
+version URL.
+
+_latest_: the most recent version in _{product_branch}_ to which the user has
+access.++
+_stable_: the most recent _released_ version in _{product_branch}_ to which the
+user has access.
+
+*Access:*
+	_ro_
+
+	Only the artifact formats that the user has access to are returned.
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"version": {
+			"name": "4.7.2",
+			"released": true,
+			"locked": false,
+			"artifact_formats": [
+				"container",
+				"deb",
+				"docs"
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{job}_ does not exist.
+
+## GET /products/{product}/{variant}/{product_branch}/{version}.tar
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}.tar
+
+Get a tar archive of files contained in all artifact formats of the specified
+_{version}_. An extra _SHA256SUMS.txt_ file is appended to allow verification
+of the archive contents after extraction.
+
+*Access:*
+	_ro_
+
+	Only files from the artifact formats that the user has access to are
+	returned.
+*Response:*
+	A POSIX tar archive (_application/x-tar_).
+*Errors:*
+	- _404_: the specified _{version}_ does not exist.
+
+# FORMATS
+
+## GET /branches/{branch}/{tag}/{job}/{format}/
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}/
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}/
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/
+
+Get the list of files present in the specified _{format}_.
+
+*Access:*
+	_ro_
+*Response:*
+	A _text/html_ page if the _Accept_ HTTP header contains _text/html_.
+	Otherwise a JSON response:
+
+	```
+	{
+		"artifact_format": {
+			"name": "docs",
+			"dirty": false,
+			"files": [
+				"config/index.html",
+				"index.html",
+				"install/index.html"
+			]
+		}
+	}
+	```
+*Errors:*
+	- _404_: the specified _{format}_ does not exist.
+
+## GET /branches/{branch}/{tag}/{job}/{format}
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}
+
+If there is only one file in _{format}_, redirect to its URL. Otherwise,
+redirect to _{format}/_.
+
+*Access:*
+	_ro_
+*Response:*
+	A _302_ redirect response.
+*Errors:*
+	- _404_: the specified _{format}_ does not exist.
+
+## GET /branches/{branch}/{tag}/{job}/{format}.tar
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}.tar
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}.tar
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}.tar
+
+Get a tar archive of files contained in the specified artifact _{format}_. An
+extra _SHA256SUMS.txt_ file is appended to allow verification of the archive
+contents after extraction.
+
+*Access:*
+	_ro_
+*Response:*
+	A POSIX tar archive (_application/x-tar_).
+*Errors:*
+	- _404_: the specified _{format}_ does not exist.
+
+## GET /branches/{branch}/{tag}/{job}/{format}.sha256
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}.sha256
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}.sha256
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}.sha256
+
+Get the SHA-256 digests of files in the specified artifact _{format}_.
+
+*Access:*
+	_ro_
+*Response:*
+	A plain text response with one line per file consisting of the SHA-256
+	digest of each file (64 hexadecimal characters) followed by two spaces
+	and the file name.
+*Errors:*
+	- _404_: the specified _{format}_ does not exist.
+
+## HEAD /branches/{branch}/{tag}/{job}/{format}
+## HEAD /branches/{branch}/{tag}/{job}/{format}/
+## HEAD /products/{product}/{variant}/{product_branch}/{version}/{format}
+## HEAD /products/{product}/{variant}/{product_branch}/{version}/{format}/
+## HEAD /~{user}/branches/{branch}/{tag}/{job}/{format}
+## HEAD /~{user}/branches/{branch}/{tag}/{job}/{format}/
+## HEAD /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}
+## HEAD /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/
+
+Check if the specified _{format}_ exists and is not _dirty_.
+
+*Access:*
+	_ro_
+*Errors:*
+	- _404_: the specified _{format}_ does not exist or has the _dirty_ flag
+	  set to _true_.
+
+## PATCH /branches/{branch}/{tag}/{job}/{format}/
+## PATCH /products/{product}/{variant}/{product_branch}/{version}/{format}/
+## PATCH /~{user}/branches/{branch}/{tag}/{job}/{format}/
+## PATCH /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/
+
+Clear the _dirty_ flag of the specified _{format}_. This flag is automatically
+set to _true_ when new files are uploaded. If a *DLREPO_POST_PROCESS_CMD* is
+configured, and if the format matches the optional *DLREPO_POST_PROCESS_FILTER*
+(see *dlrepo-config*(5)), the command will be executed synchronously with the
+artifact format folder as working directory before returning the response to the
+client.
+
+After the command is finished, all file digests in the _{format}_ will be
+refreshed since they may have been modified by the post process command. The
+_dirty_ flag will only be cleared if the command succeeds.
+
+*Access:*
+	_rw_
+*Errors:*
+	- _404_: the specified _{tag}_ or _{version}_ does not exist.
+	- _405_: _{tag}_ or _{version}_ is either _latest_ or _stable_.
+	- _500_: the post process command failed.
+
+# ARTIFACTS
+
+## GET /branches/{branch}/{tag}/{job}/{format}/{artifact}
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}/{artifact}
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}
+
+Get the contents of the specified _{artifact}_ file.
+
+*Access:*
+	_ro_
+*Response:*
+	Content-Type: application/octet-stream++
+Content-Length: 46676++
+Digest: sha256:5387a5f82442013ed24e0e3674fac3bdea9d2f85c88c9e5938ad6792f81d7799
+
+	<file binary data>
+*Errors:*
+	- _400_: the requested _{artifact}_ path is invalid.
+	- _404_: the requested _{artifact}_ does not exist.
+
+## GET /branches/{branch}/{tag}/{job}/{format}/{artifact}.sha256
+## GET /products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}.sha256
+## GET /~{user}/branches/{branch}/{tag}/{job}/{format}/{artifact}.sha256
+## GET /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}.sha256
+
+Get the SHA-256 digest of the specified _{artifact}_ file.
+
+*Access:*
+	_ro_
+*Response:*
+	The SHA-256 digest of the file (64 hexadecimal characters) followed by
+	two spaces and the file name.
+*Errors:*
+	- _400_: the requested _{artifact}_ path is invalid.
+	- _404_: the requested _{artifact}_ does not exist.
+
+## HEAD /branches/{branch}/{tag}/{job}/{format}/{artifact}
+## HEAD /products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}
+## HEAD /~{user}/branches/{branch}/{tag}/{job}/{format}/{artifact}
+## HEAD /~{user}/products/{product}/{variant}/{product_branch}/{version}/{format}/{artifact}
+
+Check if the specified _{artifact}_ file exists. Receive its size in bytes and
+its SHA-256 digest.
+
+If the _Digest_ header is specified in the request, the _{artifact}_ path is
+ignored and a success response is returned if a blob with the specified digest
+already exists on the server.
+
+*Access:*
+	_ro_
+*Response:*
+	Content-Type: application/octet-stream++
+Content-Length: 46676++
+Digest: sha256:5387a5f82442013ed24e0e3674fac3bdea9d2f85c88c9e5938ad6792f81d7799
+*Errors:*
+	- _400_: the requested _{artifact}_ path is invalid.
+	- _404_: the requested _{artifact}_ does not exist.
+
+## PUT /branches/{branch}/{tag}/{job}/{format}/{artifact}
+## PUT /~{user}/branches/{branch}/{tag}/{job}/{format}/{artifact}
+
+Upload a new file.
+
+To upload a file which has already been uploaded, the _X-Dlrepo-Link_ should be
+set to the same value than _Digest_, _Content-Length_ may be set to _0_ and the
+file content may be omitted.
+
+*Access:*
+	_rw_
+*Request:*
+	Content-Type: application/octet-stream++
+Content-Length: 46676++
+Digest: sha256:5387a5f82442013ed24e0e3674fac3bdea9d2f85c88c9e5938ad6792f81d7799
+
+	<file binary data>
+*Errors:*
+	- _400_: the specified _{artifact}_ path is invalid.
+	- _404_: the _X-Dlrepo-Link_ header does not match any existing file
+	  on the server.
+	- _422_: the received artifact binary data does not match the specified
+	  _Digest_.
+
+# CONTAINER REGISTRY
+
+*dlrepo* implements most of the container registry API.
+
+https://docs.docker.com/registry/spec/api/
+
+Pushing is only supported by using the _{branch}/{job}_ for image names. Before
+pushing, local images must be tagged with the following pattern:
+
+	_{hostname}_/_{branch}_/_{job}_:_{tag}_
+
+Where _{branch}_, _{job}_ and _{tag}_ are elements found in most URLs described
+in this manual. The pushed manifest and layers will be stored under the special
+_container_ artifact format. This artifact format is stored in the same place
+than others to ease cleanup procedures and to keep related artifacts together
+in the same subtree.
+
+When the _product_, _variant_, _product_branch_ and _version_ metadata are set
+on the _{job}_ *after* pushing the container image. The same image may be also
+available for pull only with the following pattern:
+
+	_{hostname}_/_{product}_/_{variant}_/_{product_branch}_:_{version}_
+
+Here is an example for pushing a local image identified by _36723fa99b2cc_ into
+a _dlrepo.foobaz.org_ server in the _master_ branch, _v3.2.3_ tag and
+_foo-x86-debug_ job.
+
+```
+docker login -u bofh dlrepo.foobaz.org
+docker tag 36723fa99b2cc dlrepo.foobaz.org/master/foo-x86-debug:v3.2.3
+docker push dlrepo.foobaz.org/master/foo-x86-debug:v3.2.3
+```
+
+You may also push images in an user repo by prefixing the tag names with
+_u/{user}/_. This gives the following pattern:
+
+	_{hostname}_/u/_{user}_/_{branch}_/_{job}_:_{tag}_
+
+And for pulling only, in the product view:
+
+	_{hostname}_/u/_{user}_/_{product}_/_{variant}_/_{product_branch}_:_{version}_
+
+The same example but pushing in a user repo:
+
+```
+docker login -u bofh dlrepo.foobaz.org
+docker tag 36723fa99b2cc dlrepo.foobaz.org/u/bofh/master/foo-x86-debug:v3.2.3
+docker push dlrepo.foobaz.org/u/bofh/master/foo-x86-debug:v3.2.3
+```
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-acls*(5),
+*dlrepo-cli*(1),
+*dlrepo-config*(5),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

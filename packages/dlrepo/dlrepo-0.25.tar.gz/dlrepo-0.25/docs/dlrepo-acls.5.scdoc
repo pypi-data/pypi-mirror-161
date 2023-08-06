@@ -1,0 +1,133 @@
+dlrepo-acls(5) "" "Access Control Configuration"
+
+# NAME
+
+*dlrepo-acls* -- artifact repository access control lists
+
+# DESCRIPTION
+
+*dlrepo* is an artifact repository. It supports storing build artifacts (binary
+packages, documentation, vm images, container images, etc.) in a structured
+file system tree. It exposes an HTTP API to upload files, delete them, add
+metadata, etc.
+
+This manual describes how to configure user access control.
+
+# ACCESS CONTROL LISTS
+
+User access control is handled after authentication on an external LDAP server.
+It is configured via text files in _DLREPO_ACLS_DIR_ (see *dlrepo-config*(5)).
+The text files must be named after LDAP group names. These files are parsed on
+server startup. They can be parsed again by sending the _SIGHUP_ signal to the
+daemon process (or by reloading the _dlrepo.service_ unit). There will
+typically be one LDAP group per customer and people (human beings) will be
+given accounts that are members of that group.
+
+A special *ANONYMOUS* ACL file can be added to give read-only access to
+non-authenticated users (read-write access is not supported for *ANONYMOUS*
+users).
+
+By default, no one can access anything outside of the _/static/\*\*_ and
+_/favicon.ico_ URLs.
+
+An ACL file must contain lines that begin with _ro_ for read-only access or
+_rw_ for read-write access, followed by one or more spaces/tabs and a pattern.
+The pattern should match URLs that the group has access to.
+
+It accepts very basic shell-like wild cards:
+
+_\*_
+	matches any number of characters except _/_
+_\*\*_
+	matches any number of characters including _/_
+_?_
+	matches any character except _/_
+_$user_
+	special token that matches the authenticated user name
+
+For finer control, you can use regular expressions instead of basic patterns.
+When a pattern starts with the _~_ character, it will be parsed as a python
+regular expression. The first _~_ will be removed before parsing the
+expression. All other special characters must be properly escaped.
+
+The pattern may be followed by optional exclusion patterns. An exclusion
+pattern is a pattern starting with the _!_ character. An ACL line will only
+grant access if its pattern matches and *none* of its exclusion patterns match.
+
+Anything after _#_ is considered a comment and is ignored. Empty lines are
+ignored as well.
+
+For more details about available URLs and what they give access to, see
+*dlrepo-api*(1).
+
+# CAVEATS
+
+An ACL line gives access *only* to the specified pattern. For example, the
+following ACL:
+
+```
+ro /products/foobar/x86/3.5/**
+```
+
+will give access *only* to _/products/foobar/x86/3.5/_ and all its sub folders.
+The parent URLs will *not* be accessible. These other URLs must be explicitly
+allowed in separate ACL lines:
+
+```
+ro /
+ro /products/
+ro /products/foobar/
+ro /products/foobar/x86/
+```
+
+# EXAMPLES
+
+Read-only access to everything:
+
+```
+ro /**
+```
+
+Read-write access to a specific branch:
+
+```
+rw /branches/2.x/**
+```
+
+Read-write access per user:
+
+```
+rw /~$user/branches/**
+```
+
+Read-only access for a specific product variant:
+
+```
+ro /products/foobaz/x86_64/**
+```
+
+Read-only access with an exclusion pattern:
+
+```
+ro /products/moo/ppc64el/1.0/** !/products/moo/ppc64el/1.0/*/debuginfo**
+```
+
+Read-only access to container images (via *docker pull*):
+
+```
+ro /v2/
+ro /v2/foomoo/arm64/3.0/**
+```
+
+# SEE ALSO
+
+*dlrepo*(7),
+*dlrepo-api*(1),
+*dlrepo-cli*(1),
+*dlrepo-config*(5),
+*dlrepo-layout*(7)
+
+# AUTHORS
+
+Created and maintained by Robin Jarry and Julien Floret. For more information,
+development and bug reports, see _https://sr.ht/~rjarry/dlrepo/_.

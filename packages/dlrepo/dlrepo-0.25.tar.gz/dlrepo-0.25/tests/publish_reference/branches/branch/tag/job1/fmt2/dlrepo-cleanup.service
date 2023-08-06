@@ -1,0 +1,20 @@
+# ex: ft=systemd
+[Unit]
+Description=Discard old tags according to each branch cleanup policy.
+Documentation=man:dlrepo-cleanup(8)
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/dlrepo
+ExecStart=/usr/bin/dlrepo-cleanup
+User=dlrepo
+SyslogIdentifier=dlrepo-cleanup
+ProtectSystem=strict
+ProtectHome=tmpfs
+ReadWritePaths=/var/lib/dlrepo
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+CapabilityBoundingSet=~CAP_SYS_ADMIN
