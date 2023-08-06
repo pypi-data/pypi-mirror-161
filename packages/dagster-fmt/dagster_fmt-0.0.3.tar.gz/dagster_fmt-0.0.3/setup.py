@@ -1,0 +1,34 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['dagster_fmt',
+ 'dagster_fmt.ops',
+ 'dagster_fmt.resources',
+ 'dagster_fmt.shared',
+ 'dagster_fmt.tool']
+
+package_data = \
+{'': ['*']}
+
+install_requires = \
+['toml>=0.10.2,<0.11.0']
+
+setup_kwargs = {
+    'name': 'dagster-fmt',
+    'version': '0.0.3',
+    'description': 'Dagster code gen tool',
+    'long_description': None,
+    'author': 'arudolph',
+    'author_email': 'alex3rudolph@gmail.com',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': None,
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'python_requires': '>=3.8,<4.0',
+}
+
+
+setup(**setup_kwargs)
