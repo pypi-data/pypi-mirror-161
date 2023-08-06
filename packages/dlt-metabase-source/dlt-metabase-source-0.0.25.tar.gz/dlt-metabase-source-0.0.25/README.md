@@ -1,0 +1,124 @@
+# dlt-metabase-source
+
+
+# Parent tables 
+
+
+Stateful tables: these get replaced on each load
+```
+'stats', 'cards', 'collections', 'dashboards', 'databases', 'metrics', 'pulses',
+'tables', 'segments', 'users', 'fields'
+  ```               
+Append (event) tables: these endpoints buffer a small event window, you need to merge it afterwards
+
+to do - add time filter parameters to only load filtered requested data.
+```
+'activity', 'logs'
+
+```
+some of these tables have sub-tables
+
+to join the parent table to the sub table, use the join `parent.dlt_id = child.parent_dlt_id`
+
+# Usage
+
+optionally Create a virtual environment
+```
+python3 -m venv ./dlt_metabase_env4
+source ./dlt_metabase_env4/bin/activate
+```
+
+install library
+
+```pip install dlt-metabase-source```
+
+If the library cannot be found, ensure you have the required python version as per the `pyproject.toml`file.
+(3.8+)
+
+You can run the snippet file below to load a sample data set. 
+You would need to add your target credentials first.
+
+```python run_load.py```
+
+First, import the loading method and add your credentials
+
+```
+from dlt_metabase_source import load
+
+
+# target credentials
+# example for bigquery
+creds = {
+  "type": "service_account",
+  "project_id": "zinc-mantra-353207",
+  "private_key_id": "example",
+  "private_key": "",
+  "client_email": "example@zinc-mantra-353207.iam.gserviceaccount.com",
+  "client_id": "100909481823688180493"}
+  
+# or example for redshift:
+# creds = ["redshift", "database_name", "schema_name", "user_name", "host", "password"]
+```
+Metabase credentials
+```
+
+url='http....com',
+user='example@ai',
+password='dolphins',
+
+
+```
+
+
+Now, you can use the code below to do a serial load:
+
+`mock_data=True` flag below will load sample data.
+
+Remove or set to False the `mock_data` flag to enable loading your data.
+
+```
+# remove some tables from this list of you only want some endpoints
+tables=['activity', 'logs', 'stats', 'cards', 'collections', 'dashboards', 'databases', 'metrics', 'pulses',
+                 'tables', 'segments', 'users', 'fields']
+                 
+load(url=url,
+         user=user',
+         password=password,
+         target_credentials=creds,
+         tables=tables,
+         schema_name='metabase',
+         mock_data=True)
+
+```
+or, for parallel load, create airflow tasks for each table like so:
+```
+
+for table in tables:
+    load(url=url,
+         user=user',
+         password=password,
+         target_credentials=creds,
+         tables=[table],
+         schema_name='metabase',
+         mock_data=True)
+
+```
+
+If you want to do your own pipeline or consume the source differently:
+```
+from dlt_metabase_source import MetabaseSource, MetabaseMockSource
+
+prod = MetabaseSource(url='http....com',
+         user='example@ai',
+         password='dolphins')
+              
+dummy = PersonioSourceDummy()
+
+sample_data = dummy.tasks() 
+
+for task in tasks:
+    print(task['table_name'])
+    for row in task['data']
+        print(row)
+
+```
