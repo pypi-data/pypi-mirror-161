@@ -1,0 +1,1 @@
+This is a python library for analysing input and output files for NERDSS simulator.
