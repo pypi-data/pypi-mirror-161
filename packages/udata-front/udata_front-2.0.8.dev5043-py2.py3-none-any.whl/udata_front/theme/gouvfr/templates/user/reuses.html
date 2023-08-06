@@ -1,0 +1,43 @@
+{% extends theme('user/base.html') %}
+
+
+{% block breadcrumb %}
+    {{ super() }}
+    <li class="active" aria-current="page">
+        <a href="{{ url_for('users.reuses', user=user) }}">
+        {{ _('Reuses') }}
+        </a>
+    </li>
+{% endblock %}
+
+{% set user_tab = 'reuses' %}
+
+
+{% block user_content %}
+
+{% if reuses %}
+
+	<div class="fr-grid-row">
+	    <div class="fr-col-sm-12">
+	        <ul class="card-list card-list--columned">
+	            {% for reuse in reuses %}
+	            <li class="fr-col-sm-6">{% include theme('reuse/card.html') %}</li>
+	            {% endfor %}
+	        </ul>
+	    </div>
+	</div>
+
+{% else %}
+
+	<div class="fr-grid-row">
+	    <div class="fr-col-12">
+            <p class="text-center lead">
+            {{ _('%(user)s has not yet published any reuse', user=user.fullname) }}
+            </p>
+	    </div>
+	</div>
+
+
+{% endif %}
+
+{% endblock %}
