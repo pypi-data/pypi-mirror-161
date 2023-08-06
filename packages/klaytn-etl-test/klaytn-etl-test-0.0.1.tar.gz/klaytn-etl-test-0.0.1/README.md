@@ -1,0 +1,591 @@
+# Klaytn ETL
+
+[![Join the chat at https://gitter.im/ethereum-eth](https://badges.gitter.im/ethereum-etl.svg)](https://gitter.im/ethereum-etl/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/blockchain-etl/ethereum-etl.png)](https://travis-ci.org/blockchain-etl/ethereum-etl)
+[Join Telegram Group](https://t.me/joinchat/GsMpbA3mv1OJ6YMp3T5ORQ)
+
+Install Klaytn ETL:
+
+```bash
+pip3 install klaytn-etl
+```
+
+Export blocks and transactions ([Schema](#block.json), [Reference](#export_blocks_and_transactions)):
+
+```bash
+> klaytnetl export_blocks_and_transactions --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --blocks-output blocks.json --transactions-output transactions.json
+```
+
+Export ERC20 and ERC721 transfers ([Schema](#token_transfer.json), [Reference](#export_token_transfers)):
+
+```bash
+> klaytnetl export_token_transfers --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --output token_transfers.json
+```
+
+Export traces ([Schema](#trace.json), [Reference](#export_traces)):
+
+```bash
+> klaytnetl export_traces --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --output traces.json
+```
+
+---
+
+Stream blocks, transactions, logs, token_transfers continually to console ([Reference](#stream)):
+
+```bash
+> pip3 install klaytn-etl[streaming]
+> klaytnetl stream --start-block 500000 -e block,transaction,log,token_transfer --log-file log.txt
+```
+
+Find other commands [here](#command-reference).
+
+For the latest version, check out the repo and call 
+```bash
+> pip3 install -e . 
+> python3 klaytnetl.py
+```
+
+[LIMITATIONS](#limitations)
+
+## Table of Contents
+
+- [Schema](#schema)
+  - [blocks.json](#block.json)
+  - [transactions.json](#transaction.json)
+  - [token_transfers.json](#token_transfer.json)
+  - [receipts.json](#receipt.json)
+  - [logs.json](#log.json)
+  - [contracts.json](#contract.json)
+  - [tokens.json](#token.json)
+  - [traces.json](#trace.json)
+- [Exporting the Blockchain](#exporting-the-blockchain)
+  - [Export in 2 Hours](#export-in-2-hours)
+  - [Command Reference](#command-reference)
+- [Querying in Amazon Athena](#querying-in-amazon-athena)
+
+- [Querying in Google BigQuery](#querying-in-google-bigquery)
+  - [Public Dataset](#public-dataset)
+  - [Useful Queries](#useful-queries)
+  - [How to Query Balances for all Ethereum Addresses](#how-to-query-balances-for-all-ethereum-addresses)
+  - [Building Token Recommender in Google Cloud Platform](#building-token-recommender-in-google-cloud-platform)
+- [Querying in Kaggle](#querying-in-kaggle)
+- [Blockchain ETL in Media](#blockchain-etl-in-media)
+
+
+## Schema
+
+### blocks.json
+
+Column            | Type               |
+------------------|--------------------|
+number            | bigint             |
+hash              | string             |
+parent_hash       | string             |
+logs_bloom        | string             |
+transactions_root | string             |
+state_root        | string             |
+receipts_root     | string             |
+block_score       | numeric(38,18)     |
+total_block_score | numeric(38,18)     |
+size              | bigint             |
+extra_data        | string             |
+gas_limit         | bigint             |
+gas_used          | bigint             |
+timestamp         | decimal(10,0)      |
+timestamp_fos     | smallint           |
+transaction_count | bigint             |
+governance_data   | string             |
+vote_data         | string             |
+proposer          | string             |
+committee         | array              |
+reward_address    | string             |
+
+### transactions.json
+
+Column               |    Type      |
+---------------------|--------------|
+hash                 | string       |
+nonce                | bigint       |
+block_hash           | string       |
+block_number         | bigint       |
+transaction_index    | bigint       |
+from_address         | string       |
+to_address           | string       |
+value                | numeric(38,0)|
+gas                  | bigint       |
+gas_price            | bigint       |
+input                | string       |
+block_timestamp      | bigint       |
+fee_payer            | string       |
+fee_payer_signatures | array        |
+fee_ratio            | tinyint      |
+sender_tx_hash       | string       |
+signatures           | array        |
+tx_type              | string       |
+tx_type_int          | tinyiny      |
+
+
+### token_transfers.json
+
+Column              |    Type     |
+--------------------|-------------|
+token_address       | string      |
+from_address        | string      |
+to_address          | string      |
+value               | string      |
+transaction_hash    | string      |
+log_index           | bigint      |
+block_number        | bigint      |
+
+### receipts.json
+
+Column                       |    Type     |
+-----------------------------|-------------|
+transaction_hash             | string      |
+transaction_index            | bigint      |
+block_hash                   | string      |
+block_number                 | bigint      |
+gas_used                     | bigint      |
+contract_address             | string      |
+status                       | bigint      |
+
+### logs.json
+
+Column                   |    Type      |
+-------------------------|--------------|
+log_index                | bigint       |
+transaction_hash         | string       |
+transaction_index        | bigint       |
+block_hash               | string       |
+block_number             | bigint       |
+address                  | addstringress|
+data                     | string       |
+topics                   | string       |
+
+### contracts.json
+
+Column                       |    Type     |
+-----------------------------|-------------|
+address                      | string      |
+bytecode                     | string      |
+function_sighashes           | string      |
+is_erc20                     | boolean     |
+is_erc721                    | boolean     |
+block_number                 | bigint      |
+
+### tokens.json
+
+Column                       |    Type     |
+-----------------------------|-------------|
+address                      | string      |
+symbol                       | string      |
+name                         | string      |
+decimals                     | string      |
+total_supply                 | string      |
+block_number                 | bigint      |
+
+### traces.json
+
+Column                       |    Type      |
+-----------------------------|--------------|
+block_number                 | bigint       |
+transaction_index            | bigint       |
+from_address                 | address      |
+to_address                   | address      |
+value                        | numeric(38,0)|
+input                        | hex_string   |
+output                       | hex_string   |
+trace_type                   | string       |
+call_type                    | string       |
+gas                          | bigint       |
+gas_used                     | bigint       |
+subtraces                    | bigint       |
+trace_address                | arraystring  |
+error                        | string       |
+status                       | bigint       |
+
+You can find column descriptions in [https://docs.klaytn.com/)
+
+Note: for the `address` type all hex characters are lower-cased.
+`boolean` type can have 2 values: `True` or `False`.
+
+## LIMITATIONS
+
+- In case the contract is a proxy, which forwards all calls to a delegate, interface detection doesn’t work,
+which means `is_erc20` and `is_erc721` will always be false for proxy contracts and they will be missing in the `tokens`
+table.
+- The metadata methods (`symbol`, `name`, `decimals`, `total_supply`) for ERC20 are optional, so around 10% of the
+contracts are missing this data. Also some contracts (EOS) implement these methods but with wrong return type,
+so the metadata columns are missing in this case as well.
+- `token_transfers.value`, `tokens.decimals` and `tokens.total_supply` have type `STRING` in BigQuery tables,
+because numeric types there can't handle 32-byte integers. You should use
+`cast(value as FLOAT64)` (possible loss of precision) or
+`safe_cast(value as NUMERIC)` (possible overflow) to convert to numbers.
+- The contracts that don't implement `decimals()` function but have the
+[fallback function](https://solidity.readthedocs.io/en/v0.4.21/contracts.html#fallback-function) that returns a `boolean`
+will have `0` or `1` in the `decimals` column in the CSVs.
+
+## Exporting the Blockchain
+
+If you'd like to have the blockchain data platform 
+set up and hosted for you in AWS or GCP, get in touch with us 
+[here](https://d5ai.typeform.com/to/cmOoLe).
+
+1. Install python 3.5.3+ https://www.python.org/downloads/
+
+2. You can use Infura if you don't need ERC20 transfers (Infura doesn't support eth_getFilterLogs JSON RPC method).
+For that use `-p https://mainnet.infura.io` option for the commands below. If you need ERC20 transfers or want to
+export the data ~40 times faster, you will need to set up a local Klaytn node:
+
+1. Install geth https://github.com/klaytn/go-klaytn/wiki/Installing-Geth
+
+1. Start geth.
+Make sure it downloaded the blocks that you need by executing `eth.syncing` in the JS console.
+You can export blocks below `currentBlock`,
+there is no need to wait until the full sync as the state is not needed (unless you also need contracts bytecode
+and token details; for those you need to wait until the full sync).
+
+1. Install Klaytn ETL:
+
+    ```bash
+    > pip3 install klaytn-etl
+    ```
+
+1. Export all:
+
+    ```bash
+    > klaytnetl export_all --help
+    > klaytnetl export_all -s 0 -e 5999999 -b 100000 -p file://$HOME/Library/Klaytn/geth.ipc -o output
+    ```
+    
+    In case `klaytnetl` command is not available in PATH, use `python3 -m klaytnetl` instead.
+
+    The result will be in the `output` subdirectory, partitioned in Hive style:
+
+    ```bash
+    output/blocks/start_block=00000000/end_block=00099999/blocks_00000000_00099999.json
+    output/blocks/start_block=00100000/end_block=00199999/blocks_00100000_00199999.json
+    ...
+    output/transactions/start_block=00000000/end_block=00099999/transactions_00000000_00099999.json
+    ...
+    output/token_transfers/start_block=00000000/end_block=00099999/token_transfers_00000000_00099999.json
+    ...
+    ```
+
+Should work with geth and parity, on Linux, Mac, Windows.
+If you use Parity you should disable warp mode with `--no-warp` option because warp mode
+does not place all of the block or receipt data into the database https://wiki.parity.io/Getting-Synced
+
+If you see weird behavior, e.g. wrong number of rows in the CSV files or corrupted files,
+check out this issue: https://github.com/medvedev1088/klaytn-etl/issues/28
+
+### Export in 2 Hours
+
+You can use AWS Auto Scaling and Data Pipeline to reduce the exporting time to a few hours.
+Read this article for details https://medium.com/@medvedev1088/how-to-export-the-entire-ethereum-blockchain-to.json-in-2-hours-for-10-69fef511e9a2
+
+### Running in Docker
+
+1. Install Docker https://docs.docker.com/install/
+
+1. Build a docker image
+    ```bash
+    > docker build -t klaytn-etl:latest .
+    > docker image ls
+    ```
+
+1. Run a container out of the image
+    ```bash
+    > docker run -v $HOME/output:/klaytn-etl/output klaytn-etl:latest export_all -s 0 -e 5499999 -b 100000 -p https://mainnet.infura.io
+    > docker run -v $HOME/output:/klaytn-etl/output klaytn-etl:latest export_all -s 2018-01-01 -e 2018-01-01 -p https://mainnet.infura.io
+    ```
+
+1. Run streaming to console or Pub/Sub
+    ```bash
+    > docker build -t klaytn-etl:latest-streaming -f Dockerfile_with_streaming .
+    > echo "Stream to console"
+    > docker run klaytn-etl:latest-streaming stream --start-block 500000 --log-file log.txt
+    > echo "Stream to Pub/Sub"
+    > docker run -v /path_to_credentials_file/:/klaytn-etl/ --env GOOGLE_APPLICATION_CREDENTIALS=/klaytn-etl/credentials_file.json klaytn-etl:latest-streaming stream --start-block 500000 --output projects/<your-project>/topics/crypto_klaytn
+    ```
+
+### Command Reference
+
+- [export_blocks_and_transactions](#export_blocks_and_transactions)
+- [export_token_transfers](#export_token_transfers)
+- [extract_token_transfers](#extract_token_transfers)
+- [export_receipts_and_logs](#export_receipts_and_logs)
+- [export_contracts](#export_contracts)
+- [export_tokens](#export_tokens)
+- [export_traces](#export_traces)
+- [export_geth_traces](#export_geth_traces)
+- [extract_geth_traces](#extract_geth_traces)
+- [get_block_range_for_date](#get_block_range_for_date)
+- [get_keccak_hash](#get_keccak_hash)
+- [stream](#stream)
+
+All the commands accept `-h` parameter for help, e.g.:
+
+```bash
+> klaytnetl export_blocks_and_transactions -h
+
+Usage: klaytnetl export_blocks_and_transactions [OPTIONS]
+
+  Export blocks and transactions.
+
+Options:
+  -s, --start-block INTEGER   Start block
+  -e, --end-block INTEGER     End block  [required]
+  -b, --batch-size INTEGER    The number of blocks to export at a time.
+  -p, --provider-uri TEXT     The URI of the web3 provider e.g.
+                              https://YOUR-EN-IP
+  -w, --max-workers INTEGER   The maximum number of workers.
+  --blocks-output TEXT        The output file for blocks. If not provided
+                              blocks will not be exported. Use "-" for stdout
+  --transactions-output TEXT  The output file for transactions. If not
+                              provided transactions will not be exported. Use
+                              "-" for stdout
+  -h, --help                  Show this message and exit.
+```
+
+For the `--output` parameters the supported types are.json and json. The format type is inferred from the output file name.
+
+#### export_blocks_and_transactions
+
+```bash
+> klaytnetl export_blocks_and_transactions --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP \
+--blocks-output blocks.json --transactions-output transactions.json
+```
+
+Omit `--blocks-output` or `--transactions-output` options if you want to export only transactions/blocks.
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+[Blocks and transactions schema](#block.json).
+
+#### export_token_transfers
+
+The API used in this command is not supported by Infura, so you will need a local node.
+If you want to use Infura for exporting ERC20 transfers refer to [extract_token_transfers](#extract_token_transfers)
+
+```bash
+> klaytnetl export_token_transfers --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --batch-size 100 --output token_transfers.json
+```
+
+Include `--tokens <token1> --tokens <token2>` to filter only certain tokens, e.g.
+
+```bash
+> klaytnetl export_token_transfers --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --output token_transfers.json \
+--tokens 0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0 --tokens 0x06012c8cf97bead5deae237070f9587f8e7a266d
+```
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+[Token transfers schema](#token_transfer.json).
+
+#### export_receipts_and_logs
+
+First extract transaction hashes from `transactions.json`
+(Exported with [export_blocks_and_transactions](#export_blocks_and_transactions)):
+
+```bash
+> klaytnetl extract.json_column --input transactions.json --column hash --output transaction_hashes.txt
+```
+
+Then export receipts and logs:
+
+```bash
+> klaytnetl export_receipts_and_logs --transaction-hashes transaction_hashes.txt \
+--provider-uri https://YOUR-EN-IP --receipts-output receipts.json --logs-output logs.json
+```
+
+Omit `--receipts-output` or `--logs-output` options if you want to export only logs/receipts.
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+[Receipts and logs schema](#receipt.json).
+
+#### extract_token_transfers
+
+First export receipt logs with [export_receipts_and_logs](#export_receipts_and_logs).
+
+Then extract transfers from the logs.json file:
+
+```bash
+> klaytnetl extract_token_transfers --logs logs.json --output token_transfers.json
+```
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+[Token transfers schema](#token_transfer.json).
+
+#### export_contracts
+
+First extract contract addresses from `receipts.json`
+(Exported with [export_receipts_and_logs](#export_receipts_and_logs)):
+
+```bash
+> klaytnetl extract.json_column --input receipts.json --column contract_address --output contract_addresses.txt
+```
+
+Then export contracts:
+
+```bash
+> klaytnetl export_contracts --contract-addresses contract_addresses.txt \
+--provider-uri https://YOUR-EN-IP --output contracts.json
+```
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+[Contracts schema](#contract.json).
+
+#### export_tokens
+
+First extract token addresses from `contracts.json`
+(Exported with [export_contracts](#export_contracts)):
+
+```bash
+> klaytnetl filter_items -i contracts.json -p "item['is_erc20'] or item['is_erc721']" | \
+klaytnetl extract_field -f address -o token_addresses.txt
+```
+
+Then export ERC20 / ERC721 tokens:
+
+```bash
+> klaytnetl export_tokens --token-addresses token_addresses.txt \
+--provider-uri https://YOUR-EN-IP --output tokens.json
+```
+
+You can tune `--max-workers` for performance.
+
+[Tokens schema](#token.json).
+
+[Traces schema](#trace.json).
+
+#### export_geth_traces
+
+Read [Differences between geth and parity traces.json](#differences-between-geth-and-parity-trace.json)
+
+The API used in this command is not supported by Infura, 
+so you will need a local Geth archive node (`geth --gcmode archive --syncmode full --ipcapi debug`).
+When using rpc, add `--rpc --rpcapi debug` options.
+
+```bash
+> klaytnetl export_geth_traces --start-block 0 --end-block 500000 \
+--provider-uri https://YOUR-EN-IP --batch-size 100 --output geth_traces.json
+```
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+#### extract_geth_traces
+
+```bash
+> klaytnetl extract_geth_traces --input geth_traces.json --output traces.json
+```
+
+You can tune `--batch-size`, `--max-workers` for performance.
+
+#### get_block_range_for_date
+
+```bash
+> klaytnetl get_block_range_for_date --provider-uri=https://YOUR-EN-IP --date 2018-01-01
+4832686,4838611
+```
+
+#### get_keccak_hash
+
+```bash
+> klaytnetl get_keccak_hash -i "transfer(address,uint256)"
+0xa9059cbb2ab09eb219583f4a59a5d0623ade346d962bcd4e46b11da047c9049b
+```
+
+### Differences between geth and parity traces.json
+
+- `to_address` field differs for `callcode` trace (geth seems to return correct value, as parity value of `to_address` is same as `to_address` of parent call);
+- geth output doesn't have `reward` traces;
+- geth output doesn't have `to_address`, `from_address`, `value` for `suicide` traces;
+- `error` field contains human readable error message, which might differ in geth/parity output;
+- geth output doesn't have `transaction_hash`;
+- `gas_used` is 0 on traces with error in geth, empty in parity;
+- zero output of subcalls is `0x000...` in geth, `0x` in parity;
+
+## Querying in Amazon Athena
+
+- Upload the files to S3:
+
+```bash
+> cd output
+> aws s3 sync . s3://<your_bucket>/klaytnetl/export --region ap-northeast-2
+```
+
+- Sign in to Athena https://console.aws.amazon.com/athena/home
+
+- Create a database:
+
+```sql
+CREATE DATABASE klaytnetl;
+```
+
+- Create the tables:
+  - blocks: [schemas/aws/blocks.sql](schemas/aws/blocks.sql)
+  - transactions: [schemas/aws/transactions.sql](schemas/aws/transactions.sql)
+  - token_transfers: [schemas/aws/token_transfers.sql](schemas/aws/token_transfers.sql)
+  - contracts: [schemas/aws/contracts.sql](schemas/aws/contracts.sql)
+  - receipts: [schemas/aws/receipts.sql](schemas/aws/receipts.sql)
+  - logs: [schemas/aws/logs.sql](schemas/aws/logs.sql)
+  - tokens: [schemas/aws/tokens.sql](schemas/aws/tokens.sql)
+
+### Airflow DAGs
+
+Refer to https://github.com/medvedev1088/ethereum-etl-airflow for the instructions.
+
+### Tables for Parquet Files
+
+Read this article on how to convert CSVs to Parquet https://medium.com/@medvedev1088/converting-klaytn-etl-files-to-parquet-399e048ddd30
+
+- Create the tables:
+  - parquet_blocks: [schemas/aws/parquet/parquet_blocks.sql](schemas/aws/parquet/parquet_blocks.sql)
+  - parquet_transactions: [schemas/aws/parquet/parquet_transactions.sql](schemas/aws/parquet/parquet_transactions.sql)
+  - parquet_token_transfers: [schemas/aws/parquet/parquet_token_transfers.sql](schemas/aws/parquet/parquet_token_transfers.sql)
+
+Note that DECIMAL type is limited to 38 digits in Hive https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types#LanguageManualTypes-decimal
+
+so values greater than 38 decimals will be null.
+
+## Querying in Google BigQuery
+
+### Public Dataset
+
+You can query the data that's updated daily in the public BigQuery dataset
+https://medium.com/@medvedev1088/ethereum-blockchain-on-google-bigquery-283fb300f579
+
+### Useful Queries
+
+https://github.com/blockchain-etl/awesome-bigquery-views
+
+### How to Query Balances for all Ethereum Addresses
+
+Read this article
+https://medium.com/google-cloud/how-to-query-balances-for-all-ethereum-addresses-in-bigquery-fb594e4034a7
+
+### Building Token Recommender in Google Cloud Platform
+
+Read this article
+https://medium.com/google-cloud/building-token-recommender-in-google-cloud-platform-1be5a54698eb
+
+### Querying in Kaggle
+
+You can access the Ethereum dataset in Kaggle https://www.kaggle.com/bigquery/ethereum-blockchain.
+
+## Blockchain ETL in Media
+
+- A Technical Breakdown Of Google's New Blockchain Search Tools: https://www.forbes.com/sites/michaeldelcastillo/2019/02/05/google-launches-search-for-bitcoin-ethereum-bitcoin-cash-dash-dogecoin-ethereum-classic-litecoin-and-zcash/#394fc868c789
+- Navigating Bitcoin, Ethereum, XRP: How Google Is Quietly Making Blockchains Searchable: https://www.forbes.com/sites/michaeldelcastillo/2019/02/04/navigating-bitcoin-ethereum-xrp-how-google-is-quietly-making-blockchains-searchable/?ss=crypto-blockchain#49e111da4248
+- Querying the Ethereum Blockchain in Snowflake: https://community.snowflake.com/s/article/Querying-the-Ethereum-Blockchain-in-Snowflake
+
