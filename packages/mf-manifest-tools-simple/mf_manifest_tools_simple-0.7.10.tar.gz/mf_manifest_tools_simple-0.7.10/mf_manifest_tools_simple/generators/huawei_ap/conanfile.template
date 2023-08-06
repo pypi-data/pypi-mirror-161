@@ -1,0 +1,20 @@
+from conans import ConanFile, tools
+import os
+  
+class PackageConan(ConanFile):
+    settings = 'os', 'compiler', 'build_type', 'arch'
+    description = 'maf_ap_application dependency conan file'
+    license = 'Momenta'
+    generators = 'cmake'
+    # 指定所需的 maf_ap_applications 版本
+    # maf_ap_applications/[maf_interface 版本]@mdc/[channel，如果没有特殊要求就用stable]
+    # 现在 mdc 各平台系统 conan 配置已经在交叉编译环境中默认配置完全，所有平台共用一个recipe,无需更改
+    build_requires = ('maf_ap_applications/v2.2_rc3@mdc/stable')
+  
+    def configure(self):
+        # 其中 plane 的默认值可以更改成自己想要的位面， 例如 os.getenv('plane', 'B')
+        # 如果需要可以在执行 cmake 的时候指定环境变量 i.e. env plane=B cmake ..
+        self.options['maf_ap_applications'].plane = os.getenv('plane', 'A')
+        # 其中 extraversion 的默认值为 None
+        # 如果需要可以在执行 cmake 的时候指定环境变量 i.e. env extraversion=BYD cmake ..
+        self.options['maf_ap_applications'].extraversion = os.getenv('extraversion', 'None')

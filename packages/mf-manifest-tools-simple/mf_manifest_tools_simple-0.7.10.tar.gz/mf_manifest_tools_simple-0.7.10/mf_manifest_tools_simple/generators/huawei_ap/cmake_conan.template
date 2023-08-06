@@ -1,0 +1,28 @@
+set(CMAKE_TOOLCHAIN_FILE /opt/mdc_sdk/dp_gea/toolchain.cmake)
+
+cmake_minimum_required(VERSION 3.0)
+
+project(${SWC_NAME})
+
+execute_process(
+    COMMAND conan install ${CMAKE_CURRENT_LIST_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    RESULT_VARIABLE ret
+)
+if (ret EQUAL "1")
+    message(FATAL_ERROR "Conan install failed")
+endif()
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+find_package(maf_ap_applications)
+
+#add_subdirectory(thirdparty/<core cmake>)
+
+add_ap_executable(${PROJECT_NAME} src/${SWC_NAME}.cc)
+
+#target_link_libraries(${PROJECT_NAME} PRIVATE <core lib>_basic)
+
+#install(FILES <SWC_basic_LIB> DESTINATION ${PROJECT_NAME}Root/lib)
+
+#install(FILES <config.json_path> DESTINATION <target_dir_path>)
+
