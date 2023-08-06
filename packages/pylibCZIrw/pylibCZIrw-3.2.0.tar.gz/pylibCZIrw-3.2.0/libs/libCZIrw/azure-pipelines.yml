@@ -1,0 +1,142 @@
+trigger:
+- master
+
+name: 1.$(Date:yy)$(DayOfYear)$(Rev:.r) # This goes into the $(Build.BuildNumber) variable
+#                                           cf. https://stackoverflow.com/questions/53934301/azure-devops-how-to-get-custom-build-number-format-to-yaml-build-pipelines
+#                                           and https://docs.microsoft.com/en-us/azure/devops/pipelines/process/run-number?view=azure-devops&tabs=yaml
+#                                           IMPORTANT: it MUST be of the form aa.bb.cc.dd (e.g. 1.0.19433.43), and each number must be between 0 and 65535
+
+
+jobs:
+- job: Windowsx64
+
+  # list of possible images -> https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops
+  pool:
+    vmImage: 'windows-latest'
+
+  variables:
+    solution: '**/*.sln'
+    buildPlatformx86: 'x86'
+    buildPlatformx64: 'x64'
+    buildConfiguration: 'Release'
+
+
+  steps:
+
+  # this is required - in order to enable Git-LFS
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    lfs: true       # !!!! needs to be enabled explicitely, default is "false" !!!
+
+  - task: NuGetToolInstaller@1
+
+  # use vcpkg (package manager) to get required dependencies -> xerces-c
+  # Note: we choose ""static libraries" here
+  - task: CmdLine@2
+    displayName: run vcpkg
+    inputs:
+      script: |
+          vcpkg install xerces-c --triplet x64-windows-static
+
+  - task: CmdLine@2
+    displayName: install doxygen
+    inputs:
+      script: |
+          choco install doxygen.install
+
+  - task: CMake@1
+    displayName: CMake configure
+    inputs:
+      cmakeArgs: '.. -DCMAKE_BUILD_TYPE=Release  -A x64 -DCMAKE_TOOLCHAIN_FILE=$(VCPKG_INSTALLATION_ROOT)/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static'
+
+  - task: CMake@1
+    displayName: CMake build
+    inputs:
+      cmakeArgs: '--build . --config Release'
+
+  - task: CmdLine@2
+    displayName: run unit-tests
+    inputs:
+      script: |
+        cd $(Build.SourcesDirectory)\build
+        cd Src\libCZI_UnitTests\Release\
+        .\libCZI_UnitTests.exe
+
+  - task: CmdLine@2
+    displayName: build doxygen-documentation
+    inputs:
+      script: |
+        cd Src
+        "C:\Program Files\doxygen\bin\doxygen.exe""
+        7z.exe a -r libCZI_documentation.zip Build\Doxygen\html\*
+
+  - task: CopyFiles@2
+    inputs:
+      contents: |
+        $(Build.SourcesDirectory)\build\Src\CZICheck\Release\*.exe
+        $(Build.SourcesDirectory)\build\Src\CZICmd\Release\*.exe
+        $(Build.SourcesDirectory)\Src\libCZI_documentation.zip
+      targetFolder: $(Build.ArtifactStagingDirectory)
+
+  - task: PowerShell@2
+    displayName: sync libCZIrw-documentation (https://libczirw.z13.web.core.windows.net/index.html)
+# !!! Only run this task ("sync documentation with azure-blob service") if we are building master
+#      OR the variable "FORCE_PUBLISH_DOCUMENTATION" is set to true (to be set from the UI when scheduling the build)
+    condition: and(succeeded(), or(eq('true', variables['FORCE_PUBLISH_DOCUMENTATION']),eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+    inputs:
+      targetType: 'inline'
+      script: |
+        az storage blob sync --container '$web' --source $(Build.SourcesDirectory)\Src\Build\Doxygen\html\ --account-name libCZIrw --connection-string $env:CONNECTIONSTRING --only-show-errors
+    env:
+       CONNECTIONSTRING: $(AZURE_LIBCZIDOCWEB_CONNECTIONSTRING)
+
+  - task: PublishBuildArtifacts@1
+    displayName: publish build artifacts
+# !!! Only run this task ("push to Nuget-repository") if we are building master !!! -> https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&tabs=yaml
+#      OR the variable "FORCE_PUBLISH_ARTIFACTS" is set to true (to be set from the UI when scheduling the build)
+    condition: and(succeeded(), or(eq('true', variables['FORCE_PUBLISH_ARTIFACTS']),eq(variables['Build.SourceBranch'], 'refs/heads/master'))) 
+    inputs:
+      pathToPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: Executables
+
+- job: Linuxx64
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  # switch to gcc10
+  # c.f. https://stackoverflow.com/questions/54747386/how-to-specify-gcc-version-in-azure-devops-linux-client and https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
+  variables:
+      CC: gcc-10
+      CXX: g++-10
+
+  steps:
+  # this is required - in order to enable Git-LFS
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    lfs: true       # !!!! needs to be enabled explicitely, default is "false" !!!
+
+  # use vcpkg (package manager) to get required dependencies -> xerces-c
+  - task: CmdLine@2
+    displayName: run vcpkg
+    inputs:
+      script: |
+          vcpkg install xerces-c --triplet x64-linux
+
+  - task: CMake@1
+    displayName: CMake configure
+    inputs:
+      cmakeArgs: '.. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$(VCPKG_INSTALLATION_ROOT)/scripts/buildsystems/vcpkg.cmake'
+
+  - task: CmdLine@2
+    displayName: CMake build
+    inputs:
+      script: |
+        pwd
+        cd build
+        cmake --build . --config Release
+
+  - task: CmdLine@2
+    displayName: run tests
+    inputs:
+      script: |
+        pwd
+        cd build/
+        ctest --verbose
