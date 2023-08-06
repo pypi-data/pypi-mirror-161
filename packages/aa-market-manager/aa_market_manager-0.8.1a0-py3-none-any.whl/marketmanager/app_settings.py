@@ -1,0 +1,33 @@
+import re
+
+from django.apps import apps
+from django.conf import settings
+
+
+def get_site_url():  # regex sso url
+    regex = r"^(.+)\/s.+"
+    matches = re.finditer(regex, settings.ESI_SSO_CALLBACK_URL, re.MULTILINE)
+    url = "http://"
+
+    for m in matches:
+        url = m.groups()[0]  # first match
+
+    return url
+
+def discord_bot_active() -> bool:
+    return apps.is_installed("aadiscordbot")
+
+def fittings_active():
+    return apps.is_installed('fittings')
+
+MARKETMANAGER_CLEANUP_DAYS_STRUCTURE = getattr(settings, "MARKETMANAGER_CLEANUP_DAYS_STRUCTURE", 7)
+MARKETMANAGER_CLEANUP_DAYS_ORDER = getattr(settings, "MARKETMANAGER_CLEANUP_DAYS_ORDER", 7)
+MARKETMANAGER_TASK_PRIORITY_ORDERS = getattr(settings, "MARKETMANAGER_TASK_PRIORITY_ORDERS", 5)
+MARKETMANAGER_TASK_PRIORITY_STRUCTURES = getattr(settings, "MARKETMANAGER_TASK_PRIORITY_STRUCTURES", 4)
+MARKETMANAGER_TASK_PRIORITY_BACKGROUND = getattr(settings, "MARKETMANAGER_TASK_PRIORITY_BACKGROUND", 7)
+MARKETMANAGER_TASK_PRIORITY_WATCH_CONFIGS = getattr(settings, "MARKETMANAGER_TASK_PRIORITY_WATCH_CONFIGS", 6)
+MARKETMANAGER_WEBHOOK_COLOUR_ERROR = getattr(settings, "MARKETMANAGER_WEBHOOK_COLOUR_ERROR", 16711710)
+MARKETMANAGER_WEBHOOK_COLOUR_WARNING = getattr(settings, "MARKETMANAGER_WEBHOOK_COLOUR_WARNING", 14177041)
+MARKETMANAGER_WEBHOOK_COLOUR_INFO = getattr(settings, "MARKETMANAGER_WEBHOOK_COLOUR_INFO", 42751)
+MARKETMANAGER_WEBHOOK_COLOUR_SUCCESS = getattr(settings, "MARKETMANAGER_WEBHOOK_COLOUR_SUCCESS", 6684416)
+MARKETMANAGER_TYPESTATISTICS_MINIMUM_ORDER_COUNT = getattr(settings, "MARKETMANAGER_TYPESTATISTICS_MINIMUM_ORDER_COUNT", 10)
