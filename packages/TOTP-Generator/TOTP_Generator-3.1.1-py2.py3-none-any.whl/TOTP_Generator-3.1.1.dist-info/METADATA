@@ -1,0 +1,67 @@
+Metadata-Version: 2.1
+Name: TOTP-Generator
+Version: 3.1.1
+Summary: Utility that generates TOTP codes and stores the TOTP secrets in your system keyring.
+Home-page: https://github.com/jjfalling/totp-generator
+Author: Jeremy Falling
+License: GPLv3
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: End Users/Desktop
+Requires-Python: >=3.7.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: keyring (<24.0.0,>=23.0.0)
+Requires-Dist: keyrings.alt (<5.0,>=4.1)
+Requires-Dist: pyotp (<2.7.0,>=2.6.0)
+Requires-Dist: pyclip (<1.0.0,>=0.5.4)
+Provides-Extra: dev
+Requires-Dist: setuptools ; extra == 'dev'
+Requires-Dist: twine ; extra == 'dev'
+Requires-Dist: wheel ; extra == 'dev'
+Provides-Extra: proctitle
+Requires-Dist: setproctitle (<1.4.0,>=1.2.2) ; extra == 'proctitle'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pytest-cov (>2.6) ; extra == 'test'
+Requires-Dist: mock ; extra == 'test'
+Requires-Dist: wheel ; extra == 'test'
+Requires-Dist: codecov ; extra == 'test'
+Requires-Dist: pylint ; extra == 'test'
+
+[![Python Tests](https://github.com/jjfalling/TOTP-Generator/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/jjfalling/TOTP-Generator/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/jjfalling/TOTP-Generator/branch/master/graph/badge.svg)](https://codecov.io/gh/jjfalling/TOTP-Generator)
+
+# TOTP Generator
+Simple Python TOTP code generator that stores TOTP secrets in your keyring.
+Install with `pip install totp-generator`
+
+As of version 3 this requires python 3.7+. Version 2.x is tested to run on python 2.7 - 3.8, however this major version
+will not receive any updates.
+
+Supported keyrings can be found [here](https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib). You can also
+specify the [keyring settings](https://pypi.python.org/pypi/keyring#customize-your-keyring-by-config-file) in a config
+file. Run `totp_generator` with the -d flag for the config root path and the current keyring service.
+
+setproctitle is an optional dependency due permission and dependency requirements on some systems. Install with
+`pip install totp-generator[proctitle]` to install this dependancy and enable setting the process name. This feature
+is useful for some uses with some keyrings such as the OSX Keychain.
+
+Run `totp_generator` with the --help flag for more information.
+
+
+#### Development
+This project uses semantic versioning (major.minor.patch).
+
+Install the test requirements with `pip install ".[test]"
+`. Run the tests with pytest (see https://github.com/jjfalling/TOTP-Generator/blob/master/.github/workflows/python-tests.yml for command).
+
+To create a new build:
+ * Bump the version in totp_generator/\_\_init__.py
+ * Run `python setup.py upload`
+ * Add a new Github release with the git tag that setup.py created (same as the new version number).
+
+
