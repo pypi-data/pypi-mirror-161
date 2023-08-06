@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+from lcyframe import route
+from lcyframe import funts
+from base import BaseHandler
+{% for resource in resources %}
+@route("{{resource.api}}")
+class {{resource.handler_name}}(BaseHandler):
+    {% if resource.api_title or resource.description %}
+        """
+        {{resource.api_title or resource.description}}
+        """
+    {% endif %}
+{% for method, m in resource.method.items() %}
+    {% if 'admin' in resource.api %}
+    @funts.admin
+    {% endif %}@funts.params()
+    def {{method}}(self):
+        """
+        {{m.summary}}
+        {{m.description or ''}}
+        {% if m.parameters %}
+        Request extra query params:
+        {% for p in m.parameters -%}
+           - {{p.name}} # {{p.description}} type: {{p.type}}
+        {% endfor -%}
+        {% endif %}
+
+        :return:
+        :rtype:
+        """
+        {% if method == "get" %}
+            {% if "list" in resource.api %}
+                {% if "admin" in resource.api %}
+        count = 10
+        page = self.params["page"]
+        data_list, pages, counts = self.model.{{resource.model_name}}.get_{{resource.name}}_list_by_page(page, count)
+        self.write_success(data={"data_list": data_list, "pages": pages, "counts": counts})
+                {% else %}
+        count = 10
+        last_id = self.params["last_id"]
+        data_list, last_id = self.model.{{resource.model_name}}.get_{{resource.name}}_list_by_last_id(last_id, count)
+        self.write_success(data={"data_list": data_list, "last_id": last_id})
+                {% endif %}
+            {% else %}
+        data = self.model.{{resource.model_name}}.get_{{resource.name}}(self.params.get("oid", ""))
+        self.write_success(data=data)
+            {% endif %}
+        {% elif method == "delete" %}
+        self.model.{{resource.model_name}}.delete(self.params["oid"])
+        self.write_success()
+        {% else %}
+        pass
+        {% endif %}
+{% endfor %}
+{% endfor -%}

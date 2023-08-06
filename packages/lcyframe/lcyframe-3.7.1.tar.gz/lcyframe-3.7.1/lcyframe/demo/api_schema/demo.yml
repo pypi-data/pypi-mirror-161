@@ -1,0 +1,160 @@
+- model: 模块名称
+  description: 模块简介
+  name: 接口名称
+  apis: "/demo"
+  handler: Demo
+  method:
+    post:
+        summary: 添加
+        description: 测试post
+        parameters:
+          - name: str
+            in: query
+            description: 描述
+            required: false
+            type: string
+            regex: ^.{0,30}$
+            message: 最多填写30字
+          - name: str
+            in: query
+            description: 手机号
+            required: false
+            type: string
+            regex: ^(0|86|17951)?(13[0-9]|15[012356789]|17[0-8]|18[0-9]|14[57])[0-9]{8}$
+          - name: int
+            in: query
+            description: 整形
+            required: true
+            type: integer
+            allow: [1,2]
+          - name: float
+            in: query
+            description: 浮点型
+            required: true
+            type: float
+            allowed: [1.0,2.0]
+          - name: json
+            in: query
+            description: json格式
+            required: true
+            type: json
+            allowed: []
+          - name: form-data
+            in: form-data
+            description: 位置：body_json，参数放在body内，以multipart/form-data方式，json格式。json类型的参数，设为非必须时，需提供默认值
+            required: false
+            type: json
+            default: []
+          - name: form-data2
+            in: form-data
+            description: 位置：body_json，参数放在body内，以multipart/form-data方式，json格式。json类型的参数，设为非必须时，需提供默认值
+            required: false
+            type: string
+          - name: www-form
+            in: www-form
+            description: 位置：body_form，参数放在body表单内，以multipart/x-www-form-urlencoded方式提交。手机号正则限定
+            required: false
+            type: string
+          - name: excel
+            in: form-data
+            description: 上传文件，参数放在body内，以multipart/form-data方式提交;excel=self.params["excel"]
+            required: false
+            type: file
+        responses:
+            name: 名称
+            sex: 姓名
+            bool_type: true|bool
+            num: 1.2|float
+            dict:     # 字典
+              a: [1,2]   #
+              b: [{"key": 1}]
+            list:     # 列表
+              - item_x:
+                - key_1: value_1  # 字典
+                  key_2: value_2
+                - key_3: value_3
+                  key_4: value_4
+              - item_y: value_y
+
+
+    get:
+        summary: 查看
+        description: 测试get
+        parameters:
+          - name: _id
+            in: query
+            description: id
+            required: false
+            type: str
+          - name: a
+            in: query
+            description: 角色id
+            required: true
+            type: integer
+          - name: b
+            in: query
+            description: 供应商id
+            required: false
+            type: string
+          - name: d
+            in: query
+            description: 城市全拼列表
+            required: false
+            type: int
+            allowed: [1,2]
+
+
+- handler: "DemoList"
+  apis: "/demo/list"
+  method:
+    get:
+      summary: 列表
+      description:
+      parameters:
+        - name: page
+          in: query
+          description: 翻页码
+          required: false
+          type: integer
+        - name: count
+          in: query
+          description: 每页显示条数
+          required: false
+          type: integer
+        - name: search
+          in: query
+          description: 搜索关键字
+          required: false
+          type: str
+        - name: search
+          in: query
+          description: 搜索关键字
+          required: false
+          type: str
+        - name: state
+          in: query
+          description: 申请状态
+          required: false
+          type: int
+          allow: [ -1, 0, 1 ]
+        - name: time_range
+          in: query
+          description: 申请时间范围，逗号隔开。2020-12-12 12:12:12,2022-12-12 12:12:12
+          required: false
+          type: str
+
+      responses:
+        {
+          'datas':
+            [
+              {
+
+              }
+            ],
+          pagination: {
+            pages: 10,        # 总页数
+            page: 1,        # 当前页
+            count: 10,        # 每页10条
+            counts: 10        # 总条数
+          }
+        }
