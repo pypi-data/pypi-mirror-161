@@ -1,0 +1,25 @@
+# btcprompt
+
+Customize your bash prompt, and show BTC price in the prompt.
+
+1. git clone to your local
+
+2. `cd` into project, run the server end in the background
+
+```shell
+nohup python3 btcprompt.run  > /dev/null 2>&1 &
+```
+
+2. activate your prompt config
+
+```shell
+source btcprompt/activate
+```
+
+deactivate it if you want
+
+```shell
+deactivate
+```
+
+Note: query BTC price from `https://www.coingecko.com/en/coins/bitcoin`, and set every 30 secs query once.
