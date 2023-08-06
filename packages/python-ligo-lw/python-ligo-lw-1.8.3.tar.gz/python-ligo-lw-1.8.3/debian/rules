@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+#
+# in the top-level directory of the source tree run
+#
+#	$ dpkg-buildpackage -rfakeroot --build=binary --no-sign
+#
+
+#export DH_VERBOSE=1
+
+% :
+	dh $@ --with=python2,python3 --buildsystem=pybuild
+
+# do not run tests, run /bin/true instead
+override_dh_auto_test :
+	true

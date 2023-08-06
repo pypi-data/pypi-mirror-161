@@ -1,0 +1,171 @@
+python-ligo-lw (1.8.3-1) unstable; urgency=medium
+
+  * ligolw_run_sqlite:  update for dbtables API changes
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Fri, 29 Jul 2022 18:30:00 +0900
+
+python-ligo-lw (1.8.2-1) unstable; urgency=medium
+
+  * ligolw_segments:  fix python 3 print statements
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Wed, 20 Jul 2022 17:15:00 +0900
+
+python-ligo-lw (1.8.1-1) unstable; urgency=medium
+
+  * ligolw_segments:  fix AttributeError
+  * remove ilwd from list of modules in __init__.py
+  * bump debian/compat to 10
+  * fix an invalid type in the demo document used for testing (real8 --> real_8)
+  * correct release date and time for 1.8.0
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Mon, 17 Jan 2022 20:45:00 +0900
+
+python-ligo-lw (1.8.0-1) unstable; urgency=medium
+
+  * adjust dbtables.workingcopy error path behaviour
+  * remove dbtables.workingcopy compatibility code
+  * remove gz= compatibility keyword argument from I/O functions
+  * remove ligo-common from python3 requirements
+  * update dependencies in .spec file for RPM systems
+  * ligo.LIGO_LW add .get_ligo_lw() class method
+  * expand test suite coverage
+  * lsctables.SimInspiral generalize SNR related methods to complex values
+  * switch test suite to python3 (python2 no longer covered by test suite)
+  * remove ilwd support code, use native strings for this type
+  * process.py remove set_process_end_time() function
+  * table.py remove get_table() function
+  * param.Param introduce .value
+  * param.Param introduce .get_param() class method
+  * array.Array introduce .get_array() class method
+  * ligolw_sqlite remove unused setup() function
+  * dbtables collect ID remapping code into a class
+  * tokenizer drop use in Py_UNICODE in favour of wchar_t
+  * tokenizer no longer allow quoted delimiters to be escaped
+  * load_url() expose context and timeout keyword arguments
+  * add ligolw_run_sqlite (migrated from lalapps)
+  * add support for .bz2 and .xz compression formats
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 9 Dec 2021 17:01:20 +0900
+
+python-ligo-lw (1.7.1-1) unstable; urgency=medium
+
+  * fix use of file() in ligolw_segments
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Tue, 16 Feb 2021 18:03:43 +0900
+
+python-ligo-lw (1.7.0-1) unstable; urgency=medium
+
+  * replace gz= keyword with compress= and expand auto format detection features
+  * implement ligolw_no_ilwdchar as a module for reuse
+  * move programs into separate -bin package on Debian
+  * expand SimInspiral row type:  add methods to compute effective distance instead of relying on columns with these numbers precomputed;  doing this to allow analysis codes to add support for KAGRA in a way that is uniform across detectors
+  * remove table.Table._end_of_rows() hook
+  * reimplement most of ligo.lw.utils.process as methods and feature improvements within Process and ProcessParams row types
+  * do the same for SearchSummary
+  * array.Array:  add .shape property
+  * add support for +/-inf to lsctables.gpsproperty_with_gmst
+  * convert C modules to native Python 2 & 3 versions and remove six.h from build
+  * switch test suite to Python 3.  adds xmllint build dependency because Python 3 can't be relied upon to produce consistent XML output
+  * add test of ligolw_sqlite's --tmp-space feature
+  * fix ligolw_sqlite's --tmp-space feature on Python 3 by converting working copy mechanism to a context handler which does its own clean-up, instead of hooking into the guts of NamedTemporaryFile
+  * various documentation improvements, including new documentation to expand doctest based test suite coverage
+  * replace glue.text_progress_bar with tqdm (new dependency)
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Wed, 27 Sep 2020 16:42:10 +0900
+
+python-ligo-lw (1.6.0-1) unstable; urgency=medium
+
+  * remove custom ProcessParamsTable from dbtables
+  * remove .update_column_info() method from table.Table
+  * remove abandoned experiment tables from lsctables
+  * remove unused "interning" feature from RowBuilder
+  * improve start/stop attribute handling in a variety of lsctables row and
+    table types
+  * (re-)fix printing null-valued table cells in ligolw_print
+  * update lalsuite dependencies on Debian
+  * some test suite and packaging updates from Leo and Duncan
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 13 Jun 2019 18:35:10 +0900
+
+python-ligo-lw (1.5.3-1) unstable; urgency=medium
+
+  * fix another offsetvector thinko in lsctables.py
+  * fix typo in TimeSlideTable.get_time_slide_id()
+  * add table.columnnamesreal
+  * bump glue conflict to "< 2.0"
+  * more reduction of reliance on "six" module
+  * ligolw_print:  use proper format functions to prevent loss of precision
+    in floating-point values
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 21 Feb 2019 13:53:33 +0900
+
+python-ligo-lw (1.5.2-1) unstable; urgency=low
+
+  * fix typo in lsctables.py
+  * disable unit tests during .deb build
+  * fix quoting of version string in .rpm
+  * don't omit python-ligo-lw.spec.in from tar ball
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Fri, 15 Feb 2019 03:43:56 +0900
+
+python-ligo-lw (1.5.1-1) unstable; urgency=low
+
+  * load_filename() load_url():  close files
+  * add missing python-dateutil dependency
+  * don't require lalburst, just recommend it
+  * add glue-ligolw-tools clean-up deps for python 3
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 14 Feb 2019 19:50:22 +0900
+
+python-ligo-lw (1.5.0-1) unstable; urgency=low
+
+  * port Leo's Python 3 doctest fixes from glue that had been left behind
+  * build script fixes
+  * restore ligolw_segments to this package
+  * update for offsetvector's move to lalburst (adds lalburst dependency)
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Mon, 26 Nov 2018 13:00:00 +0900
+
+python-ligo-lw (1.4.0-1) unstable; urgency=low
+
+  * fix ligolw_print
+  * temporariliy exclude ligolw_segments from installation
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Sun, 30 Sep 2018 19:18:51 +0900
+
+python-ligo-lw (1.3.0-1) unstable; urgency=low
+
+  * move ligolw_segments from pylal via glue
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Fri, 28 Sep 2018 16:50:00 +0900
+
+python-ligo-lw (1.2.0-1) unstable; urgency=low
+
+  * first production release
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Tue, 18 Sep 2018 11:23:45 +0900
+
+python-ligo-lw (1.1.1-1) unstable; urgency=low
+
+  * pypi dependencies from Leo
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 17 May 2018 12:47:00 +0900
+
+python-ligo-lw (1.1.0-1) unstable; urgency=low
+
+  * Fix bugs in ligolw_no_ilwdchar
+  * Adjust package metadata
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Wed, 16 May 2018 12:55:00 +0900
+
+python-ligo-lw (1.0.1-1) unstable; urgency=low
+
+  * Various packaging adjustments.
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Thu, 10 May 2018 13:55:00 +0900
+
+python-ligo-lw (1.0.0-1) unstable; urgency=low
+
+  * First release of stand-alone ligo.lw library from glue.ligolw
+
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Tue, 8 May 2018 15:58:00 +0900
