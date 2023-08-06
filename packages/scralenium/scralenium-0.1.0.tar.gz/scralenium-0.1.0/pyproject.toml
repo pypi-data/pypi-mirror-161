@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools >= 40.6.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scralenium"
+authors = [{name = "alexpdev", email = "alexpdev@pm.me"}]
+version = "0.1.0"
+dependencies = ["scrapy", "selenium"]
+description = "Middleware for scrapy using selenium webdriver."
+keywords = ["scrapy", "selenium", "web-scraping"]
+license = {text = "Apache Software License"}
+readme = "./README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[tool.setuptools]
+packages = ["scralenium"]
+
+[tool.bandit]
+skips = ["B101"]
+
+[tool.black]
+line-length = 79
+
+[tool.autopep8]
+max_line_length = 80
+ignore = "E266"
+in-place = true
+recursive = true
+aggressive = 3
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+    "scralenium",
+]
+console_output_style = "progress"
+addopts = "--maxfail=5"
+
+
+[tool.pylint. 'MESSAGES CONTROL']
+disable = [
+    "no-name-in-module",
+    "R1729",
+    "W0108",
+    "redefined-outer-name",
+    "attribute-defined-outside-init",
+    "invalid-name",
+    "not-callable",
+    "consider-using-with",
+    "protected-access"
+]
+
+[tool.pylint. 'FORMAT']
+max-line-length = 80
+single-line-if-stmt = true
+
+[tool.pylint.'SIMILARITIES']
+ignore-comments = true
+ignore-docstrings=true
+ignore-imports=true
+
+[tool.pylint. 'DESIGN']
+max-args=10
+min-public-methods=0
+max-attributes=50
+max-statements=50
+max-branches=20
+min-similarity-lines=4
+max-locals=25
+
+[tool.coverage.run]
+disable_warnings = ["couldnt-parse"]
