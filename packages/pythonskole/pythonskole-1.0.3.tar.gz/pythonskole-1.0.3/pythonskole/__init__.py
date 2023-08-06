@@ -1,0 +1,1 @@
+from astronomi import Tyngdekraft
