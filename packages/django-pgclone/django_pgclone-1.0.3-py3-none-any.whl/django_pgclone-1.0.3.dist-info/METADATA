@@ -1,0 +1,87 @@
+Metadata-Version: 2.1
+Name: django-pgclone
+Version: 1.0.3
+Summary: Dump and restore Postgres databases with Django.
+Home-page: https://github.com/Opus10/django-pgclone
+License: BSD-3-Clause
+Author: Wes Kendall
+Requires-Python: >=3.7.0,<4
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: boto3 (>=1.0.0,<2.0.0)
+Requires-Dist: django (>=2)
+Requires-Dist: django-pgconnection (>=1.0.0,<2.0.0)
+Requires-Dist: importlib_metadata (>=4); python_version >= "3.7" and python_version < "3.8"
+Project-URL: Documentation, https://django-pgclone.readthedocs.io
+Project-URL: Repository, https://github.com/Opus10/django-pgclone
+Description-Content-Type: text/x-rst
+
+django-pgclone
+##############
+
+``django-pgclone`` provides commands and utilities for doing Postgres dumps and
+restores. In contrast with other Django database copy/restore apps
+like `django-db-backup <https://github.com/django-dbbackup/django-dbbackup>`__,
+``django-pgclone`` has the following advantages:
+
+1. Defaults to streaming restores (when S3 is enabled) for larger databases
+   and limited instance memory.
+2. Provides hooks into the dump and restoration process, allowing users to
+   perform migrations and other user-specified management commands
+   *before* the restored database is swapped into the main one without
+   interfering with the application.
+3. Allows ``ls`` of database dumps and easily restoring the latest
+   dump of a particular database.
+
+Read the `docs <https://django-pgclone.readthedocs.io>`__ to get started
+using the core management commands and to learn about how to configure
+``django-pgclone`` for your use case.
+
+Documentation
+=============
+
+`View the django-pgclone docs here
+<https://django-pgclone.readthedocs.io/>`_.
+
+Installation
+============
+
+Install django-pgclone with::
+
+    pip3 install django-pgclone
+
+After this, add ``pgclone`` to the ``INSTALLED_APPS``
+setting of your Django project.
+
+``django-pgclone`` depends on ``django-pgconnection``. Although
+this dependency is automatically installed, one must add ``pgconnection``
+to ``settings.INSTALLED_APPS`` and also configure the
+``settings.DATABASES`` setting like so::
+
+    import pgconnection
+
+    DATABASES = pgconnection.configure({
+        'default': # normal database config goes here...
+    })
+
+Contributing Guide
+==================
+
+For information on setting up django-pgclone for development and
+contributing changes, view `CONTRIBUTING.rst <CONTRIBUTING.rst>`_.
+
+Primary Authors
+===============
+
+- @wesleykendall (Wes Kendall)
+- @ethanpobrien (Ethan O'Brien)
+
