@@ -1,0 +1,361 @@
+<h2>5. Notes</h2>
+<h3>5.1. Get Notes</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notes/notes/&lt;notebook_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>POST</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get the list of notes of a notebook by a filter</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Comments</th>
+    <tr>
+        <td>archived</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>If <i>false</i>, only active notes are returned. If <i>true</i>, only archived notes are returned. If this item is not present in the request data, then no filter by state is applied and all notes are returned regardless their state.</td>
+    </tr>
+    <tr>
+        <td>tags</td>
+        <td>list of strings</td>
+        <td>No</td>
+        <td>list of strings containing the tag names to filter the notes by. If this item is present in the request data, only notes than have any of these tags are returned in the result. If this item is not present in the request data, then no filter by tags is applied and all notes are returned regardless their tags.</td>
+    </tr>
+    <tr>
+        <td>no_tags</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>This item applies only if the <i>tags</i> item is present in the request data too. If <i>true</i>, notes with no tags are returned as well. If <i>false</i> or if this item is not present in the request data, notes with no tags are not returned.</td>
+    </tr>
+    <tr>
+        <td>last_mod</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>If <i>true</i>, returned notes are sorted by their Last Modified timestamp. If <i>false</i> or if this item is not present in the request data, the notes are sorted by their Created timestamp.</td>
+    </tr>
+    <tr>
+        <td>asc</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>If <i>true</i> or if this item is not present in the request data, the order of the returned notes is ascending. If <i>false</i>, the order is descending.</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>list of objects</div>
+            <div>- id: string</div>
+            <div>- archived: boolean</div>
+            <div>- title: string (optional)</div>
+            <div>- tags: list of strings (optional)</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'POST' '{{ host_url }}notes/notes/&lt;notebook_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"archived": false, "tags": ["tag_name_1", "tag_name_2"]}'
+</div>
+
+<h3>5.2. Get Note</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notes/note/&lt;note_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get a note</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object</div>
+            <div>- id: string</div>
+            <div>- notebook_id: string</div>
+            <div>- archived: boolean</div>
+            <div>- title: string (optional)</div>
+            <div>- body: string (optional)</div>
+            <div>- tags: list of strings (optional)</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}notes/note/&lt;note_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
+
+<h3>5.3. Create Note</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notes/note</td>
+    </tr>
+    <tr>
+        <th>Methods:</th>
+        <td>POST, PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Create a note</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default value</th>
+    <tr>
+        <td>notebook_id</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>archived</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>body</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>tags</td>
+        <td>list of strings</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object:</div>
+            <div>- note_id: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'POST' '{{ host_url }}notes/note' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"notebook_id": "&lt;notebook_id&gt;", "archived": false, "title": "Example Note", "body": "This is a test note", tags: ["tag1", "tag2"]}'
+</div>
+
+<h3>5.4. Update Note</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notes/note/&lt;note_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Update some or all fields of a note</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default value</th>
+    </tr>
+    <tr>
+        <td>notebook_id</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>archived</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>body</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>tags</td>
+        <td>list of string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'PUT' '{{ host_url }}notes/note/&lt;note_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"notebook_id": "&lt;notebook_id&gt;", "archived": false, "title": "Example Note", "body": "This is a test note", tags: ["tag1", "tag2"]}'
+</div>
+
+<h3>5.5. Delete Note</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/notes/note/&lt;note_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>DELETE</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Delete a note</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'DELETE' '{{ host_url }}notes/note/&lt;note_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>

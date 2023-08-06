@@ -1,0 +1,323 @@
+Metadata-Version: 2.1
+Name: notelist
+Version: 0.10.0
+Summary: Tag based note taking REST API
+Home-page: https://github.com/jajimenez/notelist
+Author: Jose A. Jimenez
+Author-email: jajimenezcarm@gmail.com
+License: MIT
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.9.0
+Description-Content-Type: text/markdown
+Requires-Dist: Flask (==2.2.0)
+Requires-Dist: Flask-JWT-Extended (==4.4.3)
+Requires-Dist: marshmallow (==3.17.0)
+Requires-Dist: pymongo (==4.2.0)
+Requires-Dist: redis (==4.3.4)
+
+# Notelist
+Notelist is a tag based note taking REST API written in Python and based on the
+Flask framework.
+
+Features:
+
+- Users, notebooks and notes management
+- Tags assigments to notes
+- Notes filtering by state (active/archived) and tags
+- Notebooks and notes search
+- JWT based authentication
+- Main data stored in MongoDB
+- Temporary data stored in Redis
+
+#### Project information:
+- Version: 0.10.0
+- Author: Jose A. Jimenez (jajimenezcarm@gmail.com)
+- License: MIT License
+- Repository: https://github.com/jajimenez/notelist
+- Notelist CLI repository: https://github.com/jajimenez/notelist-cli
+
+## How to install
+
+You can download and install Notelist from the **PyPI** repository with
+**PIP**:
+
+```bash
+pip install notelist
+```
+
+## How to run
+
+To run Notelist, you can set the following **environment variables**:
+
+- `NL_SECRET_KEY`:<br>
+The Secret Key is used for storing session information specific to a user from
+one request to the next. Its value must be a **long** and **random** sequence
+of characters and must be kept **secret**.
+
+- `NL_ALLOW_ORIG` (optional):<br>
+Value of the **Access-Control-Allow-Origin** response header. The value of this
+header determines which host is allow to make requests to the API from a
+front-end application (from JavaScript code).<br><br>
+If this API is used through a front-end application and the API and the
+front-end application are in the same host, then it's not needed to set this
+header. If the API and the front-end are in different hosts, then the header
+must be set to the host of the front-end application (starting with
+"https://").<br><br>
+The value `*` for the header allows a front-end from any host to make requests
+to the API but this is not recommended and is not supported by all browsers.
+
+- `NL_ROOT_DOC` (optional):<br>
+If its value is `1`, the root route (`/`) returns a documentation page. If its
+value is `0` (default), the root route returns a 404 error response.
+
+- `NL_MONGODB_URI`:<br>
+MongoDB URI (e.g. `mongodb://username:password@localhost:27017`).
+
+- `NL_MONGODB_DB`:<br>
+MongoDB database name (e.g. `notelist`).
+
+- `NL_MONGODB_US_COL`<br>
+MongoDB users collection name (e.g. `users`).
+
+- `NL_MONGODB_NB_COL`<br>
+MongoDB notebooks collection name (e.g. `notebooks`).
+
+- `NL_MONGODB_NO_COL`<br>
+MongoDB notes collection name (e.g. `notes`).
+
+- `NL_REDIS_HOST`<br>
+Redis host (e.g. `localhost`).
+
+- `NL_REDIS_PORT`<br>
+Redis port (usually `6379`).
+
+- `NL_REDIS_BL_DB`<br>
+Redis database for storing the Block List (revoked tokens) (e.g. `0`).
+
+- `NL_REDIS_PASSWORD` (optional)<br>
+Redis password.
+
+Once the environment variables are set, you have to create the MongoDB
+**database** and the **collections** (including their indexes) (if they don't
+already exist) before running the API. You can do this by running the following
+command:
+
+```bash
+notelist db create
+```
+
+Note: Run `notelist db --help` to see the database commands help information.
+
+Then you can create a **user** by running the following command:
+
+```bash
+notelist user create --username <string> --admin <boolean> --enabled <boolean> --name <string> --email <string> [--password <string>]
+```
+
+If you omit the `--password` option, the password will be prompted and hidden.
+
+- Example for an administrator user:<br>
+  `notelist user create --username example1 --admin y --enabled y`
+
+- Example for a regular user:<br>
+  `notelist user create --username example2 --enabled y`
+
+Note: Run `notelist user --help` to see the user commands help information.
+
+To run Notelist on a local **development** server (not for a production
+environment), run:
+
+```bash
+notelist run
+```
+
+Alternatively, if you want to run the API from the source code, without
+installing it, go to the `src` directory and run:
+
+```bash
+python -m notelist
+```
+
+To run Notelist in a **production** environment, you should do it through a
+**WSGI** server (e.g. Gunicorn). You can install **Gunicorn** through the
+`requirements_pro.txt` file by running the following command from the project
+directory:
+
+```bash
+pip install -r requirements_pro.txt
+```
+
+Once you have both Notelist and Gunicorn installed, you can run Notelist
+through Gunicorn by running the following command (in this example we set 1
+worker process listening to connections from outside our computer on port
+5000):
+
+```bash
+gunicorn -b 0.0.0.0:5000 notelist:app
+```
+
+## How to run with Docker
+
+You can run a Docker container with Notelist. For example, the following
+command downloads the Docker image from the Docker Hub repository and runs a
+container from the image connecting to a MongoDB and a Redis local servers:
+
+```bash
+docker container run --name notelist-api -d -p 5000:5000 \
+-e NL_SECRET_KEY=long_random_string \
+-e NL_ROOT_DOC=1 \
+-e NL_MONGODB_URI=mongodb://root:example@localhost:27017 \
+-e NL_MONGODB_DB=notelist \
+-e NL_MONGODB_US_COL=users \
+-e NL_MONGODB_NB_COL=notebooks \
+-e NL_MONGODB_NO_COL=notes \
+-e NL_REDIS_HOST=localhost \
+-e NL_REDIS_PORT=6379 \
+-e NL_REDIS_BL_DB=0 \
+-e NL_REDIS_PASSWORD=example2
+jajim/notelist:0.10.0
+```
+
+Where `NL_SECRET_KEY` must be a long random sequence of characters and must be
+kept secret.
+
+Once the container is running, you have to create the MongoDB database
+(including its collections and indexes) and a user. For example:
+
+```bash
+docker container exec -it notelist-api notelist db create
+docker container exec -it notelist-api notelist user create --username admin --admin y --enabled y
+```
+
+## How to run with Docker Compose
+
+You can run Notelist, MongoDB, Redis and Nginx with **Docker Compose**. In the
+`docker-compose` directory you can find a Docker Compose file as an example.
+
+Go to the `docker-compose` directory and change the value of `NL_SECRET_KEY` in
+the `docker-compose.yml` file to a long random sequence of characters and keep
+it secret.
+
+Run the following command from the `docker-compose` directory:
+
+```bash
+docker compose up -d
+```
+
+## How to build
+
+You can generate the **built package** and the **source archive** files to
+distribute and install the project. To generate the built package, you need to
+install the ***wheel*** Python package, which you can do through the
+`requirements_dev.txt` file by running the following command from the project
+directory:
+
+```bash
+pip install -r requirements_dev.txt
+```
+
+Then, run the following command, also from the project directory, to generate
+both packages:
+
+```bash
+python setup.py bdist_wheel sdist
+```
+
+A `dist` directory will be generated containing the packages.
+
+## How to run the unit tests
+
+To run the unit tests, you need to install all the Python packages listed in
+the `requirements.txt` file and the `mongomock` package. If you didn't install
+them yet, you can do it through the `requirements.txt` and the
+`requirements_dev.txt` files by running the following commands from the project
+directory:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+```
+
+Then, run the following command, also from the project directory:
+
+```bash
+python -m unittest discover test
+```
+
+## How to deploy in Amazon Web Services (AWS)
+
+See the `doc/aws.md` file for instructions on how to deploy Notelist in AWS.
+
+## Documentation
+
+You can find the documentation of all the operations of the API by running the
+API with the  `NL_ROOT_DOC` environment variable set to `1` and navigating to
+the root route (`/`) in a browser.
+
+## Request examples
+
+The following are some examples of requests to the Notelist API with the `curl`
+command assuming that the API is running on our local computer and listening on
+port 5000.
+
+Log in:
+
+```bash
+curl -X 'POST' 'http://localhost:5000/auth/login' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{"username": "<username>", "password": "<password>"}'
+```
+
+Create a notebook:
+
+```bash
+curl -X 'POST' 'http://localhost:5000/notebooks/notebook' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <access_token>' \
+-d '{"name": "Example Notebook"}'
+```
+
+Create a note:
+
+```bash
+curl -X 'POST' 'http://localhost:5000/notes/note' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <access_token>' \
+-d '{"notebook_id": "<notebook_id>", "archived": false, "title": "Example Note", "body": "This is a test note", tags: ["tag_name_1", "tag_name_2"]}'
+```
+
+Get the notes of a notebook by a filter:
+
+```bash
+curl -X 'POST' 'http://localhost:5000/notes/notes/<notebook_id>' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <access_token>' \
+-d '{"archived": false, "tags": ["tag_name_1", "tag_name_2"]}'
+```
+
+Search for notebooks and notes that match a given text:
+
+```bash
+curl -X 'GET' 'http://localhost:5000/search/<search>' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <access_token>'
+```
+
+Log out:
+
+```bash
+curl -X 'GET' 'http://localhost:5000/auth/logout' \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <access_token>'
+```
+
+

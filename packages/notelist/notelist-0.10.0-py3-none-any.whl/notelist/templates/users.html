@@ -1,0 +1,361 @@
+<h2>2. Users</h2>
+<h3>2.1. Get Users</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/users/users</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get the list of users</td>
+    </tr>
+    <tr>
+        <th>Permission required:</th>
+        <td>Administrator</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>list of objects:</div>
+            <div>- id: string</div>
+            <div>- username: string</div>
+            <div>- admin: boolean</div>
+            <div>- enabled: boolean</div>
+            <div>- name: string (optional)</div>
+            <div>- email: string (optional)</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}users/users' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
+
+<h3>2.2. Get User</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/users/user/&lt;user_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>GET</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Get a user</td>
+    </tr>
+    <tr>
+        <th>Permission required:</th>
+        <td>Administrator if the user to get is other than the user that makes the request</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object:</div>
+            <div>- id: string</div>
+            <div>- username: string</div>
+            <div>- admin: boolean</div>
+            <div>- enabled: boolean</div>
+            <div>- name: string (optional)</div>
+            <div>- email: string (optional)</div>
+            <div>- created: string</div>
+            <div>- last_modified: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'GET' '{{ host_url }}users/user/&lt;user_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
+
+<h3>2.3. Create User</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/users/user</td>
+    </tr>
+    <tr>
+        <th>Methods:</th>
+        <td>POST, PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Create a user</td>
+    </tr>
+    <tr>
+        <th>Permission required:</th>
+        <td>Administrator</td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default value</th>
+    </tr>
+    <tr>
+        <td>username</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>admin</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>enabled</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>result</td>
+        <td>
+            <div>object</div>
+            <div>- user_id: string</div>
+        </td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'POST' '{{ host_url }}users/user' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"username": "exampleusername", "password": "examplepassword", "admin": false, "enabled": true}'
+</div>
+
+<h3>2.4. Update User</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/users/user/&lt;user_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>PUT</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Update some or all fields of a user</td>
+    </tr>
+    <tr>
+        <th>Permission required:</th>
+        <td>Administrator if the user to update is other than the user that makes the request or if the fields to update include <i>username</i>, <i>admin</i> or <i>enabled</i></td>
+    </tr>
+</table>
+<div><b>Request data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default value</th>
+    </tr>
+    <tr>
+        <td>username</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>admin</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>enabled</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td>string</td>
+        <td>No</td>
+        <td></td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'PUT' '{{ host_url }}users/user/&lt;user_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;' \<br>
+    -d '{"username": "exampleusername", "password": "examplepassword", "admin": false, "enabled": true}'
+</div>
+
+<h3>2.5. Delete User</h3>
+<table class="endpointTable">
+    <tr>
+        <th>Endpoint:</th>
+        <td>/users/user/&lt;user_id&gt;</td>
+    </tr>
+    <tr>
+        <th>Method:</th>
+        <td>DELETE</td>
+    </tr>
+    <tr>
+        <th>Request header:</th>
+        <td>Authorization: Bearer &lt;access_token&gt;</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>Delete a user</td>
+    </tr>
+    <tr>
+        <th>Fresh access token required:</th>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <th>Permission required:</th>
+        <td>Administrator</td>
+    </tr>
+</table>
+<div><b>Response data:</b></div>
+<table class="dataTable">
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+    </tr>
+    <tr>
+        <td>message</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>message_type</td>
+        <td>string</td>
+    </tr>
+</table>
+<div><b>Request example:</b></div>
+<div class="code">
+    curl -X 'DELETE' '{{ host_url }}users/user/&lt;user_id&gt;' \<br>
+    -H 'Accept: application/json' \<br>
+    -H 'Content-Type: application/json' \<br>
+    -H 'Authorization: Bearer &lt;access_token&gt;'
+</div>
