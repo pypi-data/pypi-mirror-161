@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" 
+          href="{{ url_for('static', filename='site.css')}}" />
+    <script src="https://kit.fontawesome.com/df0fdbf8e7.js" crossorigin="anonymous"></script>
+  </head>
+
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  {% endwith %}
+
+  <body>
+    <div class="navbar">
+      <div class="tooltip">
+        <i class="fa-solid fa-circle-info fa-sm"></i>
+        <span class="tooltiptext">Click the link to see number of courses and course difficulty by term.</span>
+      </div>
+      <a href="{{ url_for('term.index') }}" class="navbar-item">Analysis by Term</a>
+      <div class="tooltip">
+        <i class="fa-solid fa-circle-info fa-sm"></i>
+        <span class="tooltiptext">Click the link to see number of courses and course difficulty by the number of courses taken simultaneously.</span>
+      </div>
+      <a href="{{ url_for('arity.arity') }}" class="navbar-item">Analysis by Number of Courses</a>
+      <div class="tooltip">
+        <i class="fa-solid fa-circle-info fa-sm"></i>
+        <span class="tooltiptext">Click the link to see popular course combinations and course difficulty reported with each combination.</span>
+      </div>
+      <a href="{{ url_for('combination.combination', key='count', reverse='True')}}" class="navbar-item">Combination Analysis</a>    
+      <div class="tooltip">
+        <i class="fa-solid fa-circle-info fa-sm"></i>
+        <span class="tooltiptext">Click the link to see summary statistics provided by external service.</span>
+      </div>
+      <a href="{{ url_for('summary.fetch')}}" class="navbar-item">Summary Statistics</a>    
+    </div>
+
+    <p>
+    {% block form %}{% endblock %}
+    <div class="form row">
+      <fieldset>
+        <legend>Choose all courses or a single course:</legend>
+        <select id="course" name="course" required>
+          <option value="All Courses">
+            All Courses
+          </option>
+          {% for c in course %}
+          {% set label = c.subject ~ ' ' ~ c.id ~ ' - ' ~ c.name %}
+          <option value="{{ label }}" {% if selection_label == label %} selected {% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      <div class="tooltip">
+        <input type="submit" value="Select Courses" />
+        <span class="tooltiptext">Select "All Courses" or a single course to analyze.</span>
+      </div>
+      {% block advanced %}{% endblock %}
+      </fieldset>
+    </div>
+    </p>
+
+    <hr />
+
+    <p>
+    <div class="chart row">
+      {% block chart %}{% endblock %}
+    </div>
+    </p>
+
+    </form>
+
+    <div class="body-content">
+      <hr />
+      <footer>
+        <p>Ozbakan | OSU Course Analytics | Summer 2022</p>
+      </footer>
+    </div>
+  </body>
+
+</html>
