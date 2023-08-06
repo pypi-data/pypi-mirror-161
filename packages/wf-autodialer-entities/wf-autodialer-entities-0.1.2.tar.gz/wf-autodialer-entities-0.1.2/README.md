@@ -1,0 +1,1 @@
+This package will used to manage available autodialer entities 
