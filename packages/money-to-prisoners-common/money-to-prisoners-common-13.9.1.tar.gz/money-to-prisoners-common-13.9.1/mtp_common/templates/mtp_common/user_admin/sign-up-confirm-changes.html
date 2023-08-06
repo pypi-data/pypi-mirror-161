@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block page_title %}{{ page_title }} – {{ block.super }}{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <header>
+        <h1 class="govuk-heading-xl">{{ page_title }}</h1>
+      </header>
+
+      {% block confirm_changes %}
+        <form action="." method="post" novalidate>
+          {% csrf_token %}
+
+          <input type="hidden" name="change-role" value="true" />
+          {% for field, value in form.cleaned_data.items %}
+            <input type="hidden" name="{{ field }}" value="{{ value }}" />
+          {% endfor %}
+
+          {% block sign_up_extras_fields %}{% endblock %}
+
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+              {% trans 'Submit request' %}
+            </button>
+          </div>
+        </form>
+      {% endblock %}
+
+    </div>
+  </div>
+{% endblock %}

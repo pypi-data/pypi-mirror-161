@@ -1,0 +1,37 @@
+{% load i18n %}
+
+<table class="govuk-table">
+  <caption class="govuk-visually-hidden">
+    {% trans 'Table of user’s details' %}
+  </caption>
+  <tbody>
+    <tr>
+      <th scope="row">{% trans 'Username' %}</th>
+      <td>{{ user.username }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans 'First name' %}</th>
+      <td>{{ user.first_name }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans 'Last name' %}</th>
+      <td>{{ user.last_name }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans 'Email' %}</th>
+      <td>{{ user.email }}</td>
+    </tr>
+    {% if 'user_admin' in user %}
+      <tr>
+        <th scope="row">{% trans 'Can manage other users' %}</th>
+        <td>{{ user.user_admin|yesno|capfirst }}</td>
+      </tr>
+    {% endif %}
+    {% if 'is_active' in user %}
+      <tr>
+        <th scope="row">{% trans 'Can log in' %}</th>
+        <td>{{ user.is_active|yesno|capfirst }}</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>

@@ -1,0 +1,80 @@
+{% extends 'mtp_common/user_admin/base.html' %}
+{% load i18n %}
+
+{% block page_title %}{% trans 'New user request' %} – {{ block.super }}{% endblock %}
+
+{% block admin_content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <header>
+        <h1 class="govuk-heading-xl">{% trans 'New user request' %}</h1>
+      </header>
+      <p>
+        <span class="govuk-label" id="id_created-label">{% trans 'Requested' %}</span>
+        <strong aria-labelledby="id_created-label">{{ account_request.created|date:'d/m/Y' }}</strong>
+      </p>
+
+      <table class="govuk-table">
+        <caption class="govuk-visually-hidden">
+          {% trans 'Summary of account request' %}
+        </caption>
+        <tbody>
+          <tr>
+            <th scope="row">
+              {% trans 'Name' %}
+            </th>
+            <td>
+              {{ account_request.full_name }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              {% trans 'Email' %}
+            </th>
+            <td>
+              {{ account_request.email }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              {% trans 'Username' %}
+            </th>
+            <td>
+              {{ account_request.username }}
+            </td>
+          </tr>
+          {% block sign_up_extras_fields %}{% endblock %}
+          {% if account_request.reason %}
+            <tr>
+              <th scope="row">
+                {% trans 'Reason for access' %}
+              </th>
+              <td>
+                {{ account_request.reason|linebreaksbr }}
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <br />
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% include 'mtp_common/forms/checkbox-field.html' with field=form.user_admin only %}
+
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">
+            {% trans 'Approve request' %}
+          </button>
+          <a href="{% url 'decline-request' account_request=account_request.id %}" class="govuk-link">
+            {% trans 'Decline request' %}
+          </a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

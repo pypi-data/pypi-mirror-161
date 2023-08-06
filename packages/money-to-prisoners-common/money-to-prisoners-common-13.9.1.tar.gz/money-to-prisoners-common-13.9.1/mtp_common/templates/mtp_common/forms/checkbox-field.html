@@ -1,0 +1,21 @@
+{% load i18n %}
+
+{% comment %}
+  USAGE:
+  Automatically chooses single or multiple checkboxes depending on if the field offers choices
+  {% include 'mtp_common/forms/checkbox-field.html' with field=<field variable> only %}
+  optional parameters:
+    input_classes - classes to add to the input element
+    label_classes - classes to add to the fieldset legend element
+    value - input element value override instead of default filtered field value (ignored if None)
+    inline - whether options should show in one row
+    small - whether smaller boxes should be used
+
+  TODO: the widget is not currently configurable
+{% endcomment %}
+
+{% if field.field.choices %}
+  {% include 'mtp_common/forms/checkbox-multiple-field.html' %}
+{% else %}
+  {% include 'mtp_common/forms/checkbox-single-field.html' %}
+{% endif %}
