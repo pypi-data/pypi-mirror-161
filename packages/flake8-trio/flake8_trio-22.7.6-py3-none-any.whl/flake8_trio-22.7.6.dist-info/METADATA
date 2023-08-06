@@ -1,0 +1,83 @@
+Metadata-Version: 2.1
+Name: flake8-trio
+Version: 22.7.6
+Summary: A highly opinionated flake8 plugin for Trio-related problems.
+Home-page: https://github.com/Zac-HD/flake8-trio
+Author: Zac Hatfield-Dodds and Contributors
+Author-email: me@cooperlees.com
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Framework :: Flake8
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: flake8
+
+# flake8-trio
+
+A highly opinionated flake8 plugin for Trio-related problems.
+
+This can include anything from outright bugs, to pointless/dead code,
+to likely performance issues, to minor points of idiom that might signal
+a misunderstanding.
+
+It may well be too noisy for anyone with different opinions, that's OK.
+
+Pairs well with flake8-async and flake8-bugbear.
+
+## Installation
+
+```console
+pip install flake8-trio
+```
+
+## List of warnings
+
+- **TRIO100**: a `with trio.fail_after(...):` or `with trio.move_on_after(...):`
+  context does not contain any `await` statements.  This makes it pointless, as
+  the timeout can only be triggered by a checkpoint.
+- **TRIO101**: `yield` inside a nursery or cancel scope is only safe when implementing a context manager - otherwise, it breaks exception handling.
+- **TRIO102**: it's unsafe to await inside `finally:` or `except BaseException/trio.Cancelled` unless you use a shielded
+  cancel scope with a timeout.
+- **TRIO103**: `except BaseException` and `except trio.Cancelled` with a code path that doesn't re-raise. Note that any `raise` statements in loops are ignored since it's tricky to parse loop flow with `break`, `continue` and/or the zero-iteration case.
+- **TRIO104**: `Cancelled` and `BaseException` must be re-raised - when a user tries to `return` or `raise` a different exception.
+- **TRIO105**: Calling a trio async function without immediately `await`ing it.
+- **TRIO106**: trio must be imported with `import trio` for the linter to work.
+- **TRIO107**: Async functions must have at least one checkpoint on every code path, unless an exception is raised.
+- **TRIO108**: Early return from async function must have at least one checkpoint on every code path before it, unless an exception is raised.
+  Checkpoints are `await`, `async with` `async for`.
+
+
+# Changelog
+*[CalVer, YY.month.patch](https://calver.org/)*
+
+## 22.7.6
+- Extend TRIO102 to also check inside `except BaseException` and `except trio.Cancelled`
+- Extend TRIO104 to also check for `yield`
+- Update error messages on TRIO102 and TRIO103
+
+## 22.7.5
+- Add TRIO103: `except BaseException` or `except trio.Cancelled` with a code path that doesn't re-raise
+- Add TRIO104: "Cancelled and BaseException must be re-raised" if user tries to return or raise a different exception.
+- Added TRIO107: Async functions must have at least one checkpoint on every code path, unless an exception is raised
+- Added TRIO108: Early return from async function must have at least one checkpoint on every code path before it.
+
+## 22.7.4
+- Added TRIO105 check for not immediately `await`ing async trio functions.
+- Added TRIO106 check that trio is imported in a form that the plugin can easily parse.
+
+## 22.7.3
+- Added TRIO102 check for unsafe checkpoints inside `finally:` blocks
+
+## 22.7.2
+- Avoid `TRIO100` false-alarms on cancel scopes containing `async for` or `async with`.
+
+## 22.7.1
+- Initial release with TRIO100 and TRIO101
