@@ -1,0 +1,441 @@
+{
+  "overwrite": true,
+  "dashboard": {
+    "id": null,
+    "uid": null,
+    "version": 0,
+    "schemaVersion": 16,
+    "title": "{{ dashboardTitle or 'Luftdaten-Viewer » ' + sensorNetwork.upper() + ' » Map' }}",
+    "tags": ["luftdaten-viewer", "map"],
+    "timezone": "browser",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "style": "light",
+    "time": {
+      "from": "now-{{ timeFromOffset or '30m' }}",
+      "to": "now"
+    },
+    "refresh": "{{ timeRefresh or '10m' }}",
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "links": [
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info",
+        "type": "link",
+        "url": "http://luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info map",
+        "type": "link",
+        "url": "http://deutschland.maps.luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "luftdaten.info archive",
+        "type": "link",
+        "url": "http://archive.luftdaten.info/"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "Luftdatenpumpe @ GitHub",
+        "type": "link",
+        "url": "https://github.com/earthobservations/luftdatenpumpe"
+      },
+      {
+        "icon": "external link",
+        "tags": [],
+        "targetBlank": true,
+        "title": "Luftdatenpumpe @ Hiveeyes",
+        "type": "link",
+        "url": "https://community.hiveeyes.org/t/ldi-dataplane-v2/1412"
+      }
+    ],
+    "panels": [
+      {
+        "autoPanLabels": {{ autoPanLabels or 'true' }},
+        "autoWidthLabels": {{ autoWidthLabels or 'true' }},
+        "circleMaxSize": "1",
+        "circleMinSize": "1",
+        "colors": [
+          "#508642",
+          "#7eb26d",
+          "#f2c96d",
+          "#e0752d",
+          "#bf1b00",
+          "#890f02"
+        ],
+        "datasource": "{{ tsdbDatasource }}",
+        "decimals": 0,
+        "description": "",
+        "esGeoPoint": "geohash",
+        "esLocationName": "",
+        "esMetric": "{{ fields['pm10'] }}",
+        "gridPos": {
+          "h": 13,
+          "w": 9,
+          "x": 0,
+          "y": 0
+        },
+        "height": "600px",
+        "hideEmpty": true,
+        "hideTimeOverride": true,
+        "hideZero": false,
+        "id": 12,
+        "initialZoom": "{{ initialZoom or '5' }}",
+        "interval": "",
+        "jsonUrl": "{{ jsonUrl }}",
+        "jsonpCallback": "",
+        "jsonpUrl": "",
+        "links": [],
+        "locationData": "table+json",
+        "mapFitData": true,
+        "mapCenter": "{{ mapCenter or 'custom' }}",
+        "mapCenterLatitude": "{{ mapCenterLatitude or '51.25' }}",
+        "mapCenterLongitude": "{{ mapCenterLongitude or '10.25' }}",
+        "maxDataPoints": 1,
+        "mouseWheelZoom": false,
+        "showAttribution": {{ showAttribution or 'true' }},
+        "showLegend": {{ showLegend or 'false' }},
+        "showZoomControl": {{ showZoomControl or 'true' }},
+        "stickyLabels": false,
+        "tableLabel": "location_id",
+        "tableQueryOptions": {
+          "queryType": "geohash",
+          "geohashField": "geohash",
+          "metricField": "metric",
+          "labelLocationKeyField": "station_id"
+        },
+        "targets": [
+          {
+            "groupBy": [
+              {
+                "params": [
+                  "geohash"
+                ],
+                "type": "tag"
+              },
+              {
+                "params": [
+                  "station_id"
+                ],
+                "type": "tag"
+              }
+            ],
+            "measurement": "{{ sensorNetwork }}_readings",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": null,
+            "rawQuery": false,
+            "refId": "B",
+            "resultFormat": "table",
+            "select": [
+              [
+                {
+                  "params": [
+                    "{{ fields['pm10'] }}"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "first"
+                },
+                {
+                  "params": [
+                    "metric"
+                  ],
+                  "type": "alias"
+                }
+              ]
+            ],
+            "tags": [
+              {
+                "key": "station_id",
+                "operator": "=~",
+                "value": "/^${{ sensorNetwork }}_station_id$/"
+              }
+            ]
+          }
+        ],
+        "thresholds": "10,20,35,50,100",
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "PM10 particulates",
+        "transparent": false,
+        "type": "panodata-map-panel",
+        "unitPlural": "μg/m³ (PM10)",
+        "unitSingle": "",
+        "unitSingular": "μg/m³ (PM10)",
+        "valueName": "current"
+      },
+      {
+        "columns": [],
+        "datasource": "weatherbase",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 13,
+          "w": 15,
+          "x": 9,
+          "y": 0
+        },
+        "id": 10,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": null,
+          "desc": false
+        },
+        "styles": [],
+        "targets": [
+          {
+            "format": "table",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": true,
+            "rawSql": "SELECT osm_country_code, state_and_city, name_and_id, sensor_type_name FROM {{ sensorNetwork }}_network WHERE station_id IN (${{ sensorNetwork }}_station_id) AND CAST (sensor_type_id AS VARCHAR) IN (${{ sensorNetwork }}_station_sensortype) ORDER BY osm_country_code, state_and_city, name_and_id, sensor_type_name;",
+            "refId": "A",
+            "select": [
+              [
+                {
+                  "params": [
+                    "value"
+                  ],
+                  "type": "column"
+                }
+              ]
+            ],
+            "timeColumn": "time",
+            "where": [
+              {
+                "name": "$__timeFilter",
+                "params": [],
+                "type": "macro"
+              }
+            ]
+          }
+        ],
+        "title": "",
+        "transform": "table",
+        "transparent": false,
+        "type": "table"
+      },
+      {
+        "content": "# Particulates\n\nAtmospheric particulate matter – also known as particulate matter (PM) or particulates – are microscopic solid or liquid matter suspended in the Earth's atmosphere. The term aerosol commonly refers to the particulate/air mixture, as opposed to the particulate matter alone. Sources of particulate matter can be man-made or natural. They have impacts on climate and precipitation that adversely affect human health.\n\nSubtypes of atmospheric particulate matter include suspended particulate matter (SPM), thoracic and respirable particles, inhalable coarse particles, which are particles with a diameter between 2.5 and 10 micrometres (μm), fine particles with a diameter of 2.5 μm or less PM2.5 , PM10 ultrafine particles, and soot\n\nThe IARC and WHO designate airborne particulates a Group 1 carcinogen. Particulates are the deadliest form of air pollution[citation needed] due to their ability to penetrate deep into the lungs and blood streams unfiltered, causing permanent DNA mutations, heart attacks, and premature death. In 2013, a study involving 312,944 people in nine European countries revealed that there was no safe level of particulates and that for every increase of 10 μg/m3 in PM10, the lung cancer rate rose 22%. The smaller PM2.5 were particularly deadly, with a 36% increase in lung cancer per 10 μg/m3 as it can penetrate deeper into the lungs.\n\nThe European Union has established these limits for particulates in air\n\n|                                        | **PM10 since 1 January 2005** | **PM2.5 since 1 January 2015** |\n|----------------------------------------|--------------------------|----------------------------|\n| **Yearly average**                         | 40 µg/m3                 | 25 µg/m3                   |\n| **Daily average (24-hour)**                | 50 µg/m3                 | None                       |\n| **Allowed number of exceedences per year** | 35                       | None                       |\n\n(*[Source: Wikipedia](https://en.wikipedia.org/wiki/Particulates)*)",
+        "gridPos": {
+          "h": 19,
+          "w": 12,
+          "x": 0,
+          "y": 82
+        },
+        "id": 6,
+        "links": [],
+        "mode": "markdown",
+        "title": "About Atmospheric particulate matter",
+        "type": "text"
+      },
+      {
+        "content": "## About Luftdatenpumpe\n\n#### Features\n- **Data sources**: [luftdaten.info] (LDI), [IRCELINE]\n- **Production**: [Luftdatenpumpe]\n- **Development**: [Erneuerung der Luftdatenpumpe], [LDI data plane v2]. All contributions welcome. \n- **Composition**: [The Hiveeyes Project]. Developing a flexible beehive monitoring infrastructure.\n\n#### Production process\n1. [Luftdatenpumpe] acquires the current window of measurement readings from the upstream data source.\n2. While iterating the readings, it collects information about all stations and sensors they are originating from.\n3. Then, each stations location information gets enhanced by \n   - attaching its geospatial position as a [Geohash].\n   - attaching a synthetic real-world address resolved using the reverse geocoding service [Nominatim] by [OpenStreetMap].\n4. Finally, station information is stored into a PostGIS database using the fine  \n   [dataset] package while observation/measurement data is stored into InfluxDB.\n5. Luftdatenpumpe also includes templates for the Grafana panels you are seeing here.\n\nEnjoy exploring and stay curious.\n\n[luftdaten.info]: http://luftdaten.info/\n[IRCELINE]: https://github.com/irceline/open_data\n[Luftdatenpumpe]: https://github.com/earthobservations/luftdatenpumpe\n[Erneuerung der Luftdatenpumpe]: https://community.hiveeyes.org/t/erneuerung-der-luftdatenpumpe/1199\n[LDI data plane v2]: https://community.hiveeyes.org/t/ldi-data-plane-v2/1412\n[The Hiveeyes Project]: https://hiveeyes.org/\n\n[OpenStreetMap]: https://en.wikipedia.org/wiki/OpenStreetMap\n[Nominatim]: https://wiki.openstreetmap.org/wiki/Nominatim\n[Geohash]: https://en.wikipedia.org/wiki/Geohash\n[dataset]: https://dataset.readthedocs.io/\n[SQLAlchemy]: https://www.sqlalchemy.org/\n[RDBMS]: https://en.wikipedia.org/wiki/Relational_database_management_system\n",
+        "gridPos": {
+          "h": 19,
+          "w": 12,
+          "x": 12,
+          "y": 82
+        },
+        "id": 8,
+        "links": [],
+        "mode": "markdown",
+        "title": "About Luftdatenpumpe",
+        "type": "text"
+      }
+
+    ],
+    "templating": {
+      "list": [
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "Country",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_countrycode",
+          "options": [],
+          "query": "SELECT osm_country_code AS __value, country_and_countrycode AS __text FROM {{ sensorNetwork }}_network ORDER BY osm_country_code",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "State",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_state",
+          "options": [],
+          "query": "SELECT osm_state AS __value, state_and_country AS __text FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) ORDER BY osm_country_code, osm_state",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "City",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_city",
+          "options": [],
+          "query": "SELECT osm_city AS __value, city_and_state_and_country AS __text FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) AND osm_state IN (${{ sensorNetwork }}_station_state) AND osm_city != '' ORDER BY osm_country_code, osm_state, osm_city",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": "Sensor type",
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_sensortype",
+          "options": [],
+          "query": "SELECT sensor_type_id AS __value, concat( sensor_type_name, '\u00A0\u00A0\u00A0\u00A0|', CAST(COUNT(sensor_type_id) AS text), '|' ) AS __text FROM {{ sensorNetwork }}_sensors WHERE sensor_type_id IS NOT NULL GROUP BY sensor_type_name, sensor_type_id ORDER BY sensor_type_name",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "weatherbase",
+          "definition": "",
+          "hide": 2,
+          "includeAll": true,
+          "label": null,
+          "multi": true,
+          "name": "{{ sensorNetwork }}_station_id",
+          "options": [],
+          "query": "SELECT station_id FROM {{ sensorNetwork }}_network WHERE osm_country_code IN (${{ sensorNetwork }}_station_countrycode) AND osm_state IN (${{ sensorNetwork }}_station_state) AND osm_city IN (${{ sensorNetwork }}_station_city) AND CAST (sensor_type_id AS VARCHAR) IN (${{ sensorNetwork }}_station_sensortype) ORDER BY osm_country_code, osm_state, osm_city, osm_road",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "timepicker": {
+      "type": "timepicker",
+      "enable": true,
+      "hidden": false,
+      "collapse": false,
+      "notice": false,
+      "now": true,
+      "status": "Stable",
+      "refresh_intervals": [
+        "5m",
+        "10m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    }
+  }
+}
