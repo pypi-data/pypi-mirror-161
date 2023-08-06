@@ -1,0 +1,33 @@
+{% extends "littlecms/base.html" %}
+{% load i18n static %}
+{% block title %}
+    {% trans article.title %}
+{% endblock title %}
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% include "littlecms/breadcrumb_item.html" with option=menu_option %}
+            {% if article %}
+                <li class="breadcrumb-item">
+                    <a href="{% url "base_cms" menu_option_slug=menu_option.slug %}">{{ menu_option.name }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ article.name }}</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">{{ menu_option.name }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+{% endblock breadcrumb %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-10 mx-auto">
+                {% if article.type.template %}
+                    {% include article.type.template with is_detail=True %}
+                {% else %}
+                    {% include "basic.html" with is_detail=True %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

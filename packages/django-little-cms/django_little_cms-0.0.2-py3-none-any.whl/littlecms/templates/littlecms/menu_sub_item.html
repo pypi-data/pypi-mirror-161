@@ -1,0 +1,18 @@
+{% load i18n %}
+{% if sub_option.type == "1" %}
+    <li>
+        <a class="dropdown-item{% if current_option.slug == sub_option.slug %} active{% endif %}"
+           href="{% url "base_cms" menu_option_slug=sub_option.slug %}">{% trans sub_option.name %}</a>
+    </li>
+{% elif option.type == "2" %}
+    <li>
+        <span class="dropdown-item" >{% trans sub_option.name %} &raquo;</span>
+        <ul class="submenu dropdown-menu">
+            {% for option in sub_option.list_children %}
+                {% include "littlecms/menu_sub_item.html" with sub_option=option %}
+            {% endfor %}
+        </ul>
+    </li>    
+{% else %}
+    <li class="nav-separator"></li>
+{% endif %}

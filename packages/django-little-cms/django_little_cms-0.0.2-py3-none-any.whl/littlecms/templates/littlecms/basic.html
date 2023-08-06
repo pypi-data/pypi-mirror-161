@@ -1,0 +1,15 @@
+<article class="my-3 col-md-{% if is_detail %}12{% else %}{{ article.grid_columns }}{% endif %}">
+    {% if article.show_titl %}<h2>{{ article.title }}</h2>{% endif %}
+    {% for image in article.images_list %}
+        <img class="my-2"
+             src="{{ image.image.url }}"
+             alt="{{ image.alt }}"
+             width="100%"
+             height="inherit"/>
+    {% endfor %}
+    {{ article.body|safe }}
+    {% if article.read_more %}
+        <a href="{% url "content_detail" option=current_option.slug slug=article.slug %}"
+           class="btn btn-primary">{% trans "Read more" %}...</a>
+    {% endif %}
+</article>

@@ -1,0 +1,31 @@
+<div class="col-md-{% if is_detail %}12{% else %}{{ article.grid_columns }}{% endif %} my-3">
+    <div class="{% if is_detail %}article{% else %}card{% endif %}">
+        <div class="row">
+            {% for image in article.images_list %}
+                <div class="{% if is_detail %}col-md-6 mx-auto{% endif %}">
+                    <img src="{{ image.file.url }}"
+                         class="card-img-top"
+                         alt="{{ image.alt }}"
+                         width="inherit"
+                         height="inherit"/>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="card-body"
+             {% if article.read_more and not is_detail %}style="max-height:360px;
+                                                                overflow-y: hidden;"{% endif %}>
+            {% if is_detail %}
+                <strong>{{ article.date_created }}</strong>
+                <hr/>
+            {% endif %}
+            {% if article.show_title %}<h5 class="card-title">{{ article.title }}</h5>{% endif %}
+            {{ article.body|safe }}
+        </div>
+        {% if article.read_more and not is_detail %}
+            <div class="card-body">
+                <a href="{% url "article_detail" menu_option_slug=menu_option.slug article_slug=article.slug %}"
+                   class="btn btn-primary">{% trans "Read more" %}...</a>
+            </div>
+        {% endif %}
+    </div>
+</div>

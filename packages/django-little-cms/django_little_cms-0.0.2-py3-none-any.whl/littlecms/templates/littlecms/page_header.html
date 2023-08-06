@@ -1,0 +1,60 @@
+{% load i18n %}
+<style>
+    .slide_page {
+        width: 100%;
+        height: {{ article.article_height }};
+        text-shadow: 1px 1px 3px rgb(0 0 0 / 30%);
+        text-shadow: -1px -1px 0 rgb(0 0 0 / 30%);
+      }
+      
+      .slide_page::before {
+        {% if article.background_image.file %}        background-image: url("{{ article.background_image.file.url }}");{% endif %}
+        content: " ";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 56px;
+        width: 100%;
+        height: {{ article.article_height }};
+        z-index: 0;
+        opacity: 0.9;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+      }
+      
+      .slide_page::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 56px;
+        left: 0;
+        width: 100%;
+        height: {{ article.article_height }};
+        z-index: 0;
+        opacity: 1;
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        background-size: cover;
+        background-image: linear-gradient(#ffffff00, #2c2c2c);
+      }
+      
+      .slide_page > .container {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .slide_page h1 {
+        font-weight: bolder !important;
+      }
+</style>
+<div class="slide_page text-white py-2 text-center">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-9 mx-auto banner">
+                <h1 class="text-white">{% trans article.title %}</h1>
+                {{ article.body|safe }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+{% load i18n %}
+{% if option.type == "1" %}
+    <li class="nav-item{% if current_option.slug == option.slug %} show{% endif %}">
+        <a class="nav-link"
+           href="{% url "base_cms" menu_option_slug=option.slug %}">{% trans option.name %}</a>
+    </li>
+{% elif option.type == "2" %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{% trans option.name %}</a>
+        <ul class="dropdown-menu">
+            {% for sub_option in option.list_children %}
+                {% include "littlecms/menu_sub_item.html" %}
+            {% endfor %}
+        </ul>
+    </li>
+{% else %}
+    <li class="nav-separator"></li>
+{% endif %}

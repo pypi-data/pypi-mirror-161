@@ -1,0 +1,62 @@
+{% load i18n %}
+<div class="col-md-{% if is_detail %}12{% else %}{{ article.grid_columns }}{% endif %} my-3">
+    <div class="{% if is_detail %}article{% else %}card{% endif %}">
+        {% if article.images_list %}
+            <div id="carouselSlideControls{{ article.pk }}"
+                 class="carousel slide{% if is_detail %} col-md-6 mx-auto{% endif %}"
+                 data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for image in article.images_list %}
+                        <button type="button"
+                                data-bs-target="#carouselExampleIndicators"
+                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                                aria-label="Slide {{ forloop.counter }}">
+                        </button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner">
+                    {% for image in article.images_list %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img class="d-block w-100"
+                                 src="{{ image.file.url }}"
+                                 alt="{{ image.alt }}"
+                                 width="inherit"
+                                 height="inherit"/>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#carouselSlideControls{{ article.pk }}"
+                        data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% trans "Previous" %}</span>
+                </button>
+                <button class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#carouselSlideControls{{ article.pk }}"
+                        data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% trans "Next" %}</span>
+                </button>
+            </div>
+        {% endif %}
+        <div class="card-body"
+             {% if article.read_more and not is_detail %}style="max-height:360px;
+                                                                overflow-y: hidden;"{% endif %}>
+            {% if is_detail %}
+                <strong>{{ article.date_created }}</strong>
+                <hr/>
+            {% endif %}
+            {% if article.show_title %}<h5 class="card-title">{{ article.title }}</h5>{% endif %}
+            {{ article.body|safe }}
+        </div>
+        {% if article.read_more and not is_detail %}
+            <div class="card-body">
+                <a href="{% url "content_detail" option=current_option.slug slug=article.slug %}"
+                   class="btn btn-primary">{% trans "Read more" %}...</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
