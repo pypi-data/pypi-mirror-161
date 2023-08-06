@@ -1,0 +1,65 @@
+\usepackage{xcolor}
+\usepackage[latin1]{inputenc}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+
+\usepackage{caption,subcaption}  %for tables andfigures
+\usetikzlibrary{matrix,positioning}
+\renewcommand\thesubfigure{(\alph{subfigure})}
+\usetikzlibrary{arrows.meta}
+\usepackage{mathptmx}
+
+% pgfplots options
+\pgfplotsset{compat=newest}
+\pgfplotsset{
+    /pgfplots/layers/MyLayer/.define layer set={
+        axis background,axis grid,main,axis ticks,axis lines,axis tick labels,
+        axis descriptions,axis foreground
+    }{/pgfplots/layers/standard},
+}
+
+\pgfplotsset{
+    default_axis_style/.style={
+        % Size figure
+        height=6cm,
+        width=8cm,
+        % Axis lines
+        axis lines = left,
+        axis line style={-{Stealth[length=2mm]}},
+        % Grid
+        grid style={line width=0.1pt, draw=gray!60, dashed},
+        xmajorgrids,
+        ymajorgrids,
+        xminorgrids,
+        yminorgrids,
+        % Ticks style
+        ticklabel style = {font=\scriptsize},
+        tick align = center,
+        tick style = {draw=black},
+        label style={font=\footnotesize},
+        %Legend
+        legend style={
+            cells={anchor=west, align={left}},
+            %draw=none,
+            %fill=none,
+            font=\footnotesize,
+            legend pos= north east,
+        },
+        % Position elements relatively to each other
+        %set layers=MyLayer
+    },
+    default_trace_style/.style={
+        line width=1pt,
+        solid,
+        mark=*,
+    },
+}
+
+\pgfkeys{/pgf/number format/.cd,1000 sep={}}
+
+% Fix imports
+\usepackage{import}
+\makeatletter
+\def\relativepath{\import@path}
+\makeatother
