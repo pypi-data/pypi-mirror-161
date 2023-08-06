@@ -1,0 +1,81 @@
+<div class="margin">
+    <div nz-row nzGutter="8">
+        <!-- Event Filter -->
+        <div nz-col nzSm="2">
+            <plugin-eventdb-event-filter
+                #eventFilter
+                (filterChange)="eventList.updateFilter($event);updateRoute()"
+                [modelSetKey]="modelSetKey"
+            ></plugin-eventdb-event-filter>
+        </div>
+
+        <!-- Event List -->
+        <div nz-col nzSm="2">
+            <plugin-eventdb-event-column
+                #eventColumns
+                (columnChange)="eventList.updateColumn($event);updateRoute()"
+                [modelSetKey]="modelSetKey"
+            ></plugin-eventdb-event-column>
+        </div>
+
+        <!-- Event List -->
+        <!-- TODO <i nz-icon nzType="download"></i> -->
+        <div nz-col nzSm="2">
+            <a
+                [href]="downloadUrl"
+                download="peek_events.csv"
+                nz-button
+                nzType="default"
+            >
+                Download
+            </a>
+        </div>
+
+        <!-- Color Switch -->
+        <div nz-col nzSm="2">
+            <nz-switch
+                (ngModelChange)="eventList.updateColors($event);updateRoute()"
+                [ngModel]="eventList.colorsEnabled"
+                nzCheckedChildren="Colors"
+                nzUnCheckedChildren="Colors"
+            ></nz-switch>
+        </div>
+
+        <!-- Alarms Only Switch -->
+        <div nz-col nzSm="2">
+            <nz-switch
+                (ngModelChange)="eventFilter.updateAlarmsOnly($event);updateRoute()"
+                [ngModel]="eventFilter.alarmsOnlyEnabled"
+                nzCheckedChildren="Alarms Only"
+                nzUnCheckedChildren="Alarms Only"
+            ></nz-switch>
+        </div>
+
+        <!-- Live Switch -->
+        <div nz-col nzSm="2">
+            <nz-switch
+                (ngModelChange)="eventFilter.updateLive($event);updateRoute()"
+                [ngModel]="eventFilter.liveEnabled"
+                nzCheckedChildren="Live"
+                nzUnCheckedChildren="Live"
+            ></nz-switch>
+        </div>
+
+        <!-- Notes -->
+        <div nz-col nzSm="6">
+            A maximum of 5000 Alarms and Events will be loaded.
+        </div>
+    </div>
+
+    <!-- The event list -->
+    <div nz-row nzGutter="8">
+        <div nz-col nzSpan="24">
+            <plugin-eventdb-event-list
+                #eventList
+                [modelSetKey]="modelSetKey"
+            ></plugin-eventdb-event-list>
+        </div>
+    </div>
+
+    <br />
+</div>

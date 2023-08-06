@@ -1,0 +1,43 @@
+<button (click)="showModal()" nz-button nzType="default">Columns</button>
+
+<nz-modal
+    (nzOnCancel)="onCancelClicked()"
+    [(nzVisible)]="isVisible"
+    [nzFooter]="modalFooter"
+    nzTitle="Events Columns"
+>
+    <nz-select
+        [(ngModel)]="selectedProps"
+        nzMode="tags"
+        nzPlaceHolder="Tag Mode"
+        style="width: 100%"
+    >
+        <nz-option
+            *ngFor="let prop of allProps"
+            [nzLabel]="prop.name"
+            [nzValue]="prop"
+        ></nz-option>
+    </nz-select>
+</nz-modal>
+
+<ng-template #modalFooter>
+    <button
+        (click)="resetDefaults()"
+        class="pull-left"
+        nz-button
+        nzType="warning"
+    >
+        Reset Defaults
+    </button>
+    <button (click)="onCancelClicked()" nz-button nzType="default">
+        Cancel
+    </button>
+    <button
+        (click)="onOkClicked()"
+        [nzLoading]="isConfirmLoading"
+        nz-button
+        nzType="primary"
+    >
+        Apply
+    </button>
+</ng-template>
