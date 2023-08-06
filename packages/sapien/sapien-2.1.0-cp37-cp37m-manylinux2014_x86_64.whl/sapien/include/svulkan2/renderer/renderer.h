@@ -1,0 +1,224 @@
+#pragma once
+#include "svulkan2/core/context.h"
+#include "svulkan2/core/descriptor_pool.h"
+#include "svulkan2/resource/cubemap.h"
+#include "svulkan2/resource/render_target.h"
+#include "svulkan2/scene/scene.h"
+#include "svulkan2/shader/shader_manager.h"
+#include <map>
+
+namespace svulkan2 {
+namespace core {
+class Context;
+class CommandPool;
+} // namespace core
+namespace renderer {
+
+class Renderer {
+  std::shared_ptr<core::Context> mContext;
+  std::shared_ptr<RendererConfig> mConfig;
+
+  vk::UniqueDescriptorPool mDescriptorPool;
+  std::unique_ptr<core::DynamicDescriptorPool> mObjectPool;
+
+  std::unique_ptr<shader::ShaderManager> mShaderManager;
+  std::unordered_map<std::string, std::shared_ptr<resource::SVRenderTarget>>
+      mRenderTargets;
+
+  // shadow targets ================================
+  std::vector<uint32_t> mPointLightShadowSizes{};
+  std::vector<uint32_t> mDirectionalLightShadowSizes{};
+  std::vector<uint32_t> mSpotLightShadowSizes{};
+  std::vector<uint32_t> mTexturedLightShadowSizes{};
+
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mDirectionalShadowReadTargets;
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mDirectionalShadowWriteTargets;
+
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mPointShadowWriteTargets;
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mPointShadowReadTargets;
+
+  std::vector<std::shared_ptr<resource::SVRenderTarget>> mSpotShadowReadTargets;
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mSpotShadowWriteTargets;
+
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mTexturedLightShadowReadTargets;
+  std::vector<std::shared_ptr<resource::SVRenderTarget>>
+      mTexturedLightShadowWriteTargets;
+
+  std::vector<vk::UniqueDescriptorSet> mLightSets;
+  std::vector<std::unique_ptr<core::Buffer>> mLightBuffers;
+
+  std::unique_ptr<core::Buffer> mShadowBuffer;
+  // ================================================
+
+  std::unordered_map<std::string, vk::ImageLayout> mRenderTargetFinalLayouts;
+
+  std::vector<vk::UniqueFramebuffer> mFramebuffers;
+  std::vector<vk::UniqueFramebuffer> mShadowFramebuffers;
+  std::vector<uint32_t> mShadowSizes;
+
+  std::map<std::string, std::shared_ptr<resource::SVTexture>> mCustomTextures;
+  std::map<std::string, std::shared_ptr<resource::SVCubemap>> mCustomCubemaps;
+
+  std::shared_ptr<resource::SVCubemap> mEnvironmentMap{};
+
+  int mWidth{};
+  int mHeight{};
+  bool mRequiresRebuild{true};
+
+  std::unique_ptr<core::Buffer> mSceneBuffer;
+  std::unique_ptr<core::Buffer> mCameraBuffer;
+  std::unique_ptr<core::Buffer> mObjectBuffer;
+
+  vk::UniqueDescriptorSet mSceneSet;
+  vk::UniqueDescriptorSet mCameraSet;
+  std::vector<vk::UniqueDescriptorSet> mObjectSet;
+
+  std::vector<vk::UniqueDescriptorSet> mInputTextureSets;
+
+  bool mSpecializationConstantsChanged = true;
+  std::map<std::string, shader::SpecializationConstantValue>
+      mSpecializationConstants;
+
+  bool mRequiresRecord{false};
+  uint64_t mLastVersion{0};
+  scene::Scene *mScene{nullptr};
+
+#ifdef CUDA_INTEROP
+  std::map<std::string, std::shared_ptr<core::Buffer>> mTransferBuffers;
+#endif
+public:
+  Renderer(std::shared_ptr<RendererConfig> config);
+
+  void setSpecializationConstantInt(std::string const &name, int value);
+  void setSpecializationConstantFloat(std::string const &name, float value);
+
+  void resize(int width, int height);
+
+  void render(
+      scene::Camera &camera,
+      vk::ArrayProxyNoTemporaries<vk::Semaphore const> const &waitSemaphores,
+      vk::ArrayProxyNoTemporaries<vk::PipelineStageFlags const> const
+          &waitStageMasks,
+      vk::ArrayProxyNoTemporaries<uint64_t const> const &waitValues,
+      vk::ArrayProxyNoTemporaries<vk::Semaphore const> const &signalSemaphores,
+      vk::ArrayProxyNoTemporaries<uint64_t const> const &signalValues);
+
+  /** render may be called on a thread. */
+  void render(scene::Camera &camera,
+              std::vector<vk::Semaphore> const &waitSemaphores,
+              std::vector<vk::PipelineStageFlags> const &waitStages,
+              std::vector<vk::Semaphore> const &signalSemaphores,
+              vk::Fence fence);
+
+  void display(std::string const &renderTargetName, vk::Image backBuffer,
+               vk::Format format, uint32_t width, uint32_t height,
+               std::vector<vk::Semaphore> const &waitSemaphores,
+               std::vector<vk::PipelineStageFlags> const &waitStages,
+               std::vector<vk::Semaphore> const &signalSemaphores,
+               vk::Fence fence);
+
+  void setScene(scene::Scene &scene) {
+    mScene = &scene;
+    mRequiresRebuild = true;
+    mRequiresRecord = true;
+  }
+
+  std::vector<std::string> getDisplayTargetNames() const;
+  std::vector<std::string> getRenderTargetNames() const;
+
+  template <typename T>
+  std::tuple<std::vector<T>, std::array<uint32_t, 3>>
+  download(std::string const &targetName) {
+    auto target = mRenderTargets.at(targetName);
+    uint32_t width = target->getWidth();
+    uint32_t height = target->getHeight();
+    std::vector<T> data = target->download<T>();
+    uint32_t channels = data.size() / (width * height);
+    if (width * height * channels != data.size()) {
+      throw std::runtime_error(
+          "download render target failed: internal format error");
+    }
+    return {data, std::array<uint32_t, 3>{height, width, channels}};
+  }
+
+  template <typename T>
+  std::tuple<std::vector<T>, std::array<uint32_t, 3>>
+  downloadRegion(std::string const &targetName, vk::Offset2D offset,
+                 vk::Extent2D extent) {
+    auto target = mRenderTargets.at(targetName);
+    uint32_t width = target->getWidth();
+    uint32_t height = target->getHeight();
+    if (offset.x < 0 || offset.y < 0 || offset.x + extent.width >= width ||
+        offset.y + extent.height >= height) {
+      throw std::runtime_error(
+          "failed to download region: offset or extent is out of bound");
+    }
+    std::vector<T> data = target->getImage().download<T>(
+        vk::Offset3D{offset.x, offset.y, 0},
+        vk::Extent3D{extent.width, extent.height, 1});
+    uint32_t channels = data.size() / (extent.width * extent.height);
+    if (extent.width * extent.height * channels != data.size()) {
+      throw std::runtime_error(
+          "failed to download region: internal format error");
+    }
+    return {data,
+            std::array<uint32_t, 3>{extent.height, extent.width, channels}};
+  }
+
+  std::shared_ptr<resource::SVRenderTarget>
+  getRenderTarget(std::string const &name) const;
+
+  void setCustomTexture(std::string const &name,
+                        std::shared_ptr<resource::SVTexture> texture);
+  void setCustomCubemap(std::string const &name,
+                        std::shared_ptr<resource::SVCubemap> cubemap);
+
+  Renderer(Renderer const &other) = delete;
+  Renderer &operator=(Renderer const &other) = delete;
+  Renderer(Renderer &&other) = default;
+  Renderer &operator=(Renderer &&other) = default;
+
+private:
+  void prepareRenderTargets(uint32_t width, uint32_t height);
+  void prepareShadowRenderTargets();
+  void preparePipelines();
+  void prepareFramebuffers(uint32_t width, uint32_t height);
+  void prepareShadowFramebuffers();
+
+  void prepareSceneBuffer();
+  void prepareObjectBuffers(uint32_t numObjects);
+  void prepareCameaBuffer();
+  void prepareLightBuffers();
+
+  void prepareInputTextureDescriptorSets();
+
+  std::unordered_set<std::shared_ptr<resource::SVModel>> mModelCache;
+  std::unordered_set<std::shared_ptr<resource::SVLineSet>> mLineSetCache;
+  std::unordered_set<std::shared_ptr<resource::SVPointSet>> mPointSetCache;
+
+  std::unique_ptr<core::CommandPool> mShadowCommandPool{};
+  std::unique_ptr<core::CommandPool> mRenderCommandPool{};
+  std::unique_ptr<core::CommandPool> mDisplayCommandPool{};
+
+  vk::UniqueCommandBuffer mShadowCommandBuffer{};
+  vk::UniqueCommandBuffer mRenderCommandBuffer{};
+  vk::UniqueCommandBuffer mDisplayCommandBuffer{};
+
+  void prepareObjects(scene::Scene &scene);
+  void recordShadows(scene::Scene &scene);
+  void recordRenderPasses(scene::Scene &scene);
+
+  uint32_t mLineObjectIndex{};  // starting object index for line objects
+  uint32_t mPointObjectIndex{}; // starting object index for point objects
+
+  void prepareRender(scene::Camera &camera);
+};
+
+} // namespace renderer
+} // namespace svulkan2
