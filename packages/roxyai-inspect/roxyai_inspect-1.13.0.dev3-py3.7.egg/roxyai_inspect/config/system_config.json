@@ -1,0 +1,58 @@
+// (c) Roxy Corp. 2020-
+// Roxy AI システム設定ファイル
+// ※ JSON 形式に行コメント'//'機能を拡張した形式で記述します。
+// ※ 文字列内の'//'には対応していません。
+// ※ jsonc 形式の他の拡張（/**/コメント、末尾カンマ）には対応していません。
+{
+    // 検査サーバの設定
+    "InspectServer": {
+        // 検査サーバの通信設定
+        "bind_ip": "0.0.0.0",       // TCP接続の待受けIPアドレス（0.0.0.0: 全アドレス許可）
+        "bind_port": 6945,          // TCP接続の待受けポート
+        // 検査結果出力設定
+        "result": {
+            // 結果出力有効（true: 有効、false: 無効＝以下の設定を無視）
+            "output_active": false
+        },
+        // 検査サーバのログ出力設定ファイル
+        "logging_conf": {
+            "console_level": "INFO",               // コンソール出力レベル DEBUG < INFO < WARNING < ERROR
+            "file_level": "INFO",                  // ファイル出力のレベル DEBUG < INFO < WARNING < ERROR
+            "file_path": "log/default_log.log",          // ログの出力ファイル名
+            "file_backup_folder": "log/oldLog",     // バックアップを保存するフォルダ
+            "file_backup_days": 90                 // バックアップを保持する日数
+        },
+        // 判定結果の領域毎の確信度の返却タイプ
+        //      "Simple" : OK / NOK / GRAY と確信度を返す（デフォルト）
+        //      "Labeled" : 上記に加えて領域の判定ラベル番号を返す
+        "probability_type": "Labeled",
+        "probability_choice": "NOK,GRAY, OK",
+        "tf_device": "GPU:0",       // 使用するGPU番号0-N "GPU:N" または "CPU:0"
+        "gpu_mem_limit": null       // GPUメモリの利用制限値[MB]（nullは制限なし）
+   },
+    // 分析サーバの設定（分析サーバを利用しない場合には項目を削除）
+    "AnalyzeServer": {
+        // 分析サーバの通信設定
+        "bind_ip": "0.0.0.0",       // TCP接続の待受けIPアドレス（0.0.0.0: 全アドレス許可）
+        "bind_port": 6947,          // TCP接続の待受けポート
+        // 分析サーバのログ出力設定ファイル
+        "logging_conf": {
+            "console_level": "INFO",               // コンソール出力レベル DEBUG < INFO < WARNING < ERROR
+            "file_level": "DEBUG",                  // ファイル出力のレベル DEBUG < INFO < WARNING < ERROR
+            "file_path": "log/inspect_server_log.log",          // ログの出力ファイル名
+            "file_backup_folder": "log/oldLog",     // バックアップを保存するフォルダ
+            "file_backup_days": 90                 // バックアップを保持する日数
+        },
+    },
+    // 共通のプロジェクトのトップフォルダ
+    //      "." : 実行時のカレントフォルダ
+    //      "~" : ユーザのホームフォルダ
+    //      "" : system_config.json の配置されたフォルダ
+    // 共通のプロジェクトのトップフォルダ
+    //      "." : 実行時のカレントフォルダ
+    //      "~" : ユーザのホームフォルダ
+    //      "" : system_config.json の配置されたフォルダ
+    // デフォルト： 実効時のカレントディレクトリ
+    // ランタイムプロジェクトの製品データ格納フォルダ
+    // デフォルト： C:\RoxyAI\roxy-runtime\fixed_model
+}
