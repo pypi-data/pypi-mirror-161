@@ -1,0 +1,12 @@
+<tal:item define="item python:view.item;
+                  title python:item['data']['show_title'] and item['title'] or None;
+                  description python:item['data']['show_description'] and item['description'] or None;"> 
+
+  <tal:img replace="structure python:item['img_tag']" />
+  <div class="carousel-caption d-none d-md-block" 
+      tal:condition="python:title or description">
+    <h5 tal:condition="python:title">${title}</h5>
+    <p tal:condition="python:description">${description}</p>
+  </div>
+
+</tal:item>

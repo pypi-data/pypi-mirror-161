@@ -1,0 +1,72 @@
+<html tal:define="items view/items | nothing;">
+<body>
+<tal:slider tal:condition="items">
+  <tal:def define="
+      portal context/@@plone_portal_state/portal;
+      show_title view/data/show_title | None;
+      show_description view/data/show_description | None;
+      fullscreen python: view.data.get('allow_fullscreen') and 'fullscreen' or '';
+      pager python:view.data.get('pager') and 'true' or 'false';
+      navigation python:view.data.get('navigation') and 'true' or 'false';
+      darkvariant python:view.data.get('darkvariant') and 'carousel-dark' or '';
+      crossfade python:view.data.get('crossfade') and 'carousel-fade' or '';
+      link_slides python:view.data.get('link_slides') != 'disabled';
+      items_per_slide python:view.data.get('items_per_slide') and view.data.get('items_per_slide') or 1;
+      items_responsive python: items_per_slide > 1 and 'row-cols-2' or 'row-cols-1';
+      items_responsive python: items_per_slide == 3 and 'row-cols-1' or items_responsive;
+    ">
+
+    <div class="tileHeader" tal:condition="python:view.data['title'] or view.data['description']">
+      <h2 class="" tal:condition="python:view.data['title']"
+       tal:content="python:view.data['title']">Title</h2>
+      <div class="tileDescription lead" tal:condition="python:view.data['description']"
+       tal:content="python:view.data['description']">Description</div>
+    </div>
+
+    <div id="carousel-${view/id}" class="carousel ${darkvariant} slide ${crossfade} mb-3 collective-tiles-carousel" data-bs-ride="carousel" data-bs-interval="${python:view.data.get('carousel_speed', False) or 'false'}">
+
+      <ol class="carousel-indicators" tal:condition="view/data/indicators">
+        <tal:indicators repeat="item items">
+          <li data-bs-target="#carousel-${view/id}" data-bs-slide-to="${python:repeat.item.index}"
+            class="${python:repeat.item.index == 0 and 'active' or None}"></li>
+        </tal:indicators>
+      </ol>
+
+      <div class="carousel-inner">
+        <tal:slides repeat="slide items">
+          <div class="carousel-item ${python:repeat.slide.index == 0 and 'active' or None}">
+            <div class="row g-3 ${items_responsive} row-cols-md-${items_per_slide}">
+              <tal:items repeat="item slide">
+                <div class="col position-relative" tal:condition="link_slides">
+                  <a href="${python:view.get_link(item)}">
+                    <div tal:replace="structure python:view.item_view(item, view.data)">Listing</div>
+                  </a>
+                </div>
+                <div class="col position-relative" tal:condition="python: not link_slides">
+                  <div tal:replace="structure python:view.item_view(item, view.data)">Listing</div>
+                </div>
+              </tal:items>
+            </div>
+          </div>
+        </tal:slides>
+      </div>
+
+      <a class="carousel-control-prev" tal:condition="view/data/controls"
+        href="#carousel-${view/id}" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </a>
+      <a class="carousel-control-next" tal:condition="view/data/controls"
+        href="#carousel-${view/id}" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </a>
+
+    </div>
+
+  </tal:def>
+</tal:slider>
+</body>
+</html>
+
+
