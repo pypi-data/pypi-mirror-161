@@ -1,0 +1,102 @@
+{% load i18n ash_tags %}
+{% if nav_menu %}
+  {% if app_list %}
+      <div class="navbar-content scroll-div">
+          <ul class="nav pcoded-inner-navbar">
+          {% for app in app_list %}
+              {% if app.models|length > 1 %}
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:" class="nav-link ">
+                    <span class="pcoded-micon">
+                        <i class="feather {% ash_get_model_icon app.app_label %} "></i>
+                    </span>
+                    <span title="{{app.name}}" class="pcoded-mtext">{% blocktrans with name=app.name|truncatechars:20 %}{{name}}{% endblocktrans %}</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                    {% for model in app.models %}
+                        <li class="position-relative">
+                          <a href="{{ model.admin_url }}" class="" title="{{model.name}}" >{% blocktrans with name=model.name|truncatechars:20 %}{{name}}{% endblocktrans %}</a>
+                          {% if model.add_url %}
+                            <div><a href="{{ model.add_url }}" class="sidebar-sub-addlink"><i class="feather icon-plus f-15"></i></a></div>
+                          {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </li>
+              {% else %}
+                  {% with app.models.0 as model %}
+                  <li class="nav-item">
+                    <a href="{{ model.admin_url }}" class="nav-link ">
+                    <span class="pcoded-micon">
+                        <i class="feather {% ash_get_model_icon app.app_label %} "></i>
+                    </span>
+                    <span title="{{model.name}}" class="pcoded-mtext">{% blocktrans with name=model.name|truncatechars:20 %}{{name}}{% endblocktrans %}</span>
+                    </a>
+                    {% if model.add_url %}
+                      <div><a href="{{ model.add_url }}" class="sidebar-main-addlink"><i class="feather icon-plus f-15"></i></a></div>
+                    {% endif %}
+                  </li>
+                  {% endwith %}
+              {% endif %}
+          {% endfor %}
+          </ul>
+      </div>
+  {% else %}
+      <p>{% trans 'You don’t have permission to view or edit anything.' %}</p>
+  {% endif %}
+{% else %}
+  {% if app_list %}
+    {% for app in app_list %}
+        <div class="card">
+          <div class="card-header">
+            <h5>{{ app.name }}</h5>
+            <div class="card-header-right">
+              <div class="btn-group card-option">
+                  <button type="button" class="btn dropdown-toggle btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-Expand="false">
+                      <i class="feather icon-more-horizontal"></i>
+                  </button>
+                  <ul class="list-unstyled card-option dropdown-menu dropdown-menu-right">
+                      {% if not LANGUAGE_BIDI %}
+                        <li class="dropdown-item full-card"><a href="javascript:"><span><i class="feather icon-maximize"></i> maximize</span><span style="display:none"><i class="feather icon-minimize"></i> Restore</span></a></li>
+                      {% endif %}
+                      <li class="dropdown-item minimize-card"><a href="javascript:"><span><i class="feather icon-minus"></i>Collapse</span><span style="display:none"><i class="feather icon-plus"></i> Expand</span></a></li>
+                  </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card-block p-3">
+            <div class="app-{{ app.app_label }} module{% if app.app_url in request.path %} current-app{% endif %}">
+              <table class="app-table table table-hover">
+                {% for model in app.models %}
+                  <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
+                    <td style="width:85%">
+                    {% if model.admin_url %}
+                      <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                    {% else %}
+                      {{ model.name }}
+                    {% endif %}
+                    </td>
+                    
+                    <td style="width:15%">
+                    {% if model.add_url %}
+                      <a href="{{ model.add_url }}" class="addlink label theme-bg text-white f-12">{% trans 'Add' %}</a>
+                    {% endif %}
+
+                    {% if model.view_only %}
+                      <a href="{{ model.admin_url }}" class="viewlink label theme-bg2 text-white f-12">{% trans 'View' %}</a>
+                    {% else %}
+                      <a href="{{ model.admin_url }}" class="changelink label theme-bg2 text-white f-12">{% trans 'Change' %}</a>
+                    {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+            <br class="clear">
+          </div>
+        </div>
+    {% endfor %}
+  {% else %}
+    <p>{% trans 'You don’t have permission to view or edit anything.' %}</p>
+  {% endif %}
+{% endif %}
