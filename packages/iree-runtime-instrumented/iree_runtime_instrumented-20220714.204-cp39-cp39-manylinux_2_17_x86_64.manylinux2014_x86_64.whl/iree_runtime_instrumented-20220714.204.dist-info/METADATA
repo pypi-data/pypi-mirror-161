@@ -1,0 +1,41 @@
+Metadata-Version: 2.1
+Name: iree-runtime-instrumented
+Version: 20220714.204
+Summary: IREE Python Runtime Components
+Home-page: https://github.com/iree-org/iree
+Author: IREE Authors
+Author-email: iree-discuss@googlegroups.com
+License: Apache-2.0
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: PyYAML
+
+# IREE Python Runtime Components
+
+This package provides an API for running compiled IREE binaries and interfacing with the hardware-abstraction-layer.
+
+## Tracing
+
+Execution of calls against binaries can be traced for later replay (i.e. via
+tools like `iree-run-module`). This can be set up either explicitly or
+via environment variables.
+
+To trace via environment variable, set `IREE_SAVE_CALLS` to a directory to dump
+traces into. Each created `SystemContext` will result in one `calls.yaml`
+file (with an index appended to the stem for multiples). Any referenced
+module binaries will be dumped into the same directory and referenced by the
+YAML file.
+
+### Explicit API
+
+```python
+tracer = iree.runtime.Tracer(some_dir)
+config = iree.runtime.Config(driver, tracer)
+...
+```
