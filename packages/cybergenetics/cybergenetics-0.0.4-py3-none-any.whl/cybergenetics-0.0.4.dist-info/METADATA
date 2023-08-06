@@ -1,0 +1,84 @@
+Metadata-Version: 2.1
+Name: cybergenetics
+Version: 0.0.4
+Summary: Cybergenetics is a controlled simulating environment for chemical reaction networks (CRNs) and co-cultures.
+Home-page: https://cybergenetics.readthedocs.io/en/latest/
+License: BSD-3-Clause
+Author: Yi Zhang, Quentin Badolle
+Requires-Python: >=3.7,<4.0
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: gym (>=0.21.0,<0.22.0)
+Requires-Dist: imageio (>=2.20.0,<3.0.0)
+Requires-Dist: seaborn (>=0.11.2,<0.12.0)
+Requires-Dist: torch (>=1.12.0,<2.0.0)
+Project-URL: Documentation, https://cybergenetics.readthedocs.io/en/latest/
+Project-URL: Repository, https://github.com/imyizhang/cybergenetics
+Description-Content-Type: text/markdown
+
+# Cybergenetics
+
+Cybergenetics is a controlled simulating environment for chemical reaction networks (CRNs) and co-cultures.
+
+
+
+Cybergenetics supports
+
+* OpenAI Gym API
+* `.py` configuration file
+
+
+
+## Installation
+
+```bash
+pip install cybergenetics
+```
+
+
+
+## Quick Start
+
+Write your own configuration file `config.py` under working directory.
+
+```python
+
+import cybergenetics
+
+from config import configs
+
+env = crn.make('CRN-v0', configs)
+env.seed(42)
+env.action_space.seed(42)
+
+observation = env.reset()
+
+while True:
+    action = env.action_space.sample()
+    observation, reward, terminated, info = env.step(action)
+    if terminated:
+        break
+
+env.close()
+```
+
+
+
+### Tutorial
+
+> * [Guide to Cybergenetics](https://colab.research.google.com/drive/1-tp5uV4ONEG8qzlEgtnrdxNNN_RLICSm?usp=sharing)
+
+
+
+## Contributing
+
+
+
+## License
+
+Cybergenetics has an BSD-3-Clause license, as found in the [LICENSE](https://github.com/imyizhang/cybergenetics/blob/main/LICENSE) file.
+
