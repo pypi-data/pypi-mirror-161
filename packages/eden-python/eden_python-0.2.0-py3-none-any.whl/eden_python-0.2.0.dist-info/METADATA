@@ -1,0 +1,211 @@
+Metadata-Version: 2.1
+Name: eden-python
+Version: 0.2.0
+Summary: Convert your python function into a hosted endpoint with minimal changes to your existing code
+Home-page: https://github.com/abraham-ai/eden
+Author: Mayukh Deb, Gene Kogan
+Author-email: mayukhmainak2000@gmail.com, kogan.gene@gmail.com
+License: UNKNOWN
+Keywords: hosting,machine learning,neural networks,generative art
+Platform: UNKNOWN
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.6
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: amqp (==5.1.1)
+Requires-Dist: async-timeout (==4.0.2)
+Requires-Dist: billiard (==3.6.4.0)
+Requires-Dist: celery (==5.2.7)
+Requires-Dist: certifi (==2022.6.15)
+Requires-Dist: charset-normalizer (==2.1.0)
+Requires-Dist: click (==8.1.3)
+Requires-Dist: click-didyoumean (==0.3.0)
+Requires-Dist: click-plugins (==1.1.1)
+Requires-Dist: click-repl (==0.2.0)
+Requires-Dist: deprecated (==1.2.13)
+Requires-Dist: fastapi (==0.68.1)
+Requires-Dist: gitdb (==4.0.9)
+Requires-Dist: gitpython (==3.1.27)
+Requires-Dist: h11 (==0.13.0)
+Requires-Dist: idna (==3.3)
+Requires-Dist: kombu (==5.2.4)
+Requires-Dist: numpy (==1.23.1)
+Requires-Dist: nvidia-ml-py3 (==7.352.0)
+Requires-Dist: opencv-python (==4.6.0.66)
+Requires-Dist: packaging (==21.3)
+Requires-Dist: pillow (==9.2.0)
+Requires-Dist: prometheus-client (==0.14.1)
+Requires-Dist: prompt-toolkit (==3.0.30)
+Requires-Dist: pydantic (==1.8.2)
+Requires-Dist: pyparsing (==3.0.9)
+Requires-Dist: pytz (==2022.1)
+Requires-Dist: redis (==4.3.4)
+Requires-Dist: requests (==2.28.1)
+Requires-Dist: six (==1.16.0)
+Requires-Dist: smmap (==5.0.0)
+Requires-Dist: starlette (==0.14.2)
+Requires-Dist: starlette-exporter (==0.13.0)
+Requires-Dist: tqdm (==4.64.0)
+Requires-Dist: typing-extensions (==3.10.0.2)
+Requires-Dist: urllib3 (==1.26.11)
+Requires-Dist: uvicorn (==0.18.2)
+Requires-Dist: vine (==5.0.0)
+Requires-Dist: wcwidth (==0.2.5)
+Requires-Dist: wrapt (==1.14.1)
+
+# Eden
+
+[![tests](https://github.com/abraham-ai/eden/actions/workflows/main.yml/badge.svg)](https://github.com/abraham-ai/eden/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/abraham-ai/eden/branch/master/graph/badge.svg?token=83QZRAE4XS)](https://codecov.io/gh/abraham-ai/eden)
+
+<img src = "https://raw.githubusercontent.com/abraham-ai/eden/master/images/cover.png">
+
+> You were in Eden, the garden of God. Every kind of precious stone adorned you: ruby, topaz, and diamond, beryl, onyx, and jasper, sapphire, turquoise, and emerald. Your mountings and settings were crafted in gold, prepared on the day of your creation.
+>
+> Ezekiel 28:13
+
+Eden helps you to deploy your AI art pipelines (or sometimes other stuff) as a hosted endpoint with support for multiple GPUs and scaling over multiple machines. If you're new here, check out the [examples](https://github.com/abraham-ai/eden#examples)
+
+```
+pip install eden-python
+```
+
+## Setting up a block
+
+Hosting with `eden` requires minimal changes to your existing code. Each unit within `eden` is called a `Block`, they're the units which take certain inputs and generate art accordingly.
+
+The first step is to configure `run()`.
+
+```python
+from eden.block import Block
+from eden.datatypes import Image
+
+eden_block = Block()
+```
+
+`run()` is supposed to be the function that runs every time someone wants to use this pipeline to generate art. For now it supports text, images, and numbers as inputs.
+
+```python
+my_args = {
+        'prompt': 'let there be light', ## text
+        'number': 12345,                ## numbers
+        'input_image': Image()          ## images require eden.datatypes.Image()
+    }
+
+@eden_block.run(args = my_args)
+def do_something(config):
+
+    pil_image = config['input_image']
+    some_number = config['number']
+
+    return {
+        'text': 'hello world',  ## returning text
+        'number': some_number,       ## returning numbers
+        'image': Image(pil_image)    ## Image() works on PIL.Image, numpy.array and on jpg an png files (str)
+    }
+```
+
+## Hosting a block
+
+```python
+from eden.hosting import host_block
+
+host_block(
+    block = eden_block,
+    port= 5656,
+    logfile= 'logs.log',
+    log_level= 'info',
+    max_num_workers = 5
+)
+```
+
+- `block` (`eden.block.Block`): The eden block you'd want to host.
+- `port` (`int, optional`): Localhost port where the block would be hosted. Defaults to `8080`.
+- `host` (`str`): specifies where the endpoint would be hosted. Defaults to `'0.0.0.0'`.
+- `max_num_workers` (`int, optional`): Maximum number of tasks to run in parallel. Defaults to `4`.
+- `redis_port` (`int, optional`): Port number for celery's redis server. Defaults to `6379`.
+- `redis_host` (`str, optional`): Place to host redis for `eden.queue.QueueData`. Defaults to `"localhost"`.
+- `requires_gpu` (`bool, optional`): Set this to `False` if your tasks dont necessarily need GPUs.
+- `log_level` (`str, optional`): Can be 'debug', 'info', or 'warning'. Defaults to `'warning'`
+- `exclude_gpu_ids` (`list, optional`): List of gpu ids to not use for hosting. Example: `[2,3]`. Defaults to `[]`
+- `logfile`(`str, optional`): Name of the file where the logs would be stored. If set to `None`, it will show all logs on stdout. Defaults to `'logs.log'`
+- `queue_name`(`str, optional`): Name of the celery queue used for the block. Useful when hosting multiple blocks with the same redis. (defaults on `celery`)
+
+## Client
+
+A `Client` is the unit that sends requests to a hosted block.
+
+```python
+from eden.client import Client
+from eden.datatypes import Image
+
+c = Client(url = 'http://127.0.0.1:5656', username= 'abraham')
+```
+
+After you start a task with `run()` as shown below, it returns a token as `run_response['token']`. This token should be used later on to check the task status or to obtain your results.
+
+> **Note**: `Image()` is compatible with following types: `PIL.Image`, `numpy.array` and filenames (`str`) ending with `.jpg` or `.png`
+
+```python
+config = {
+    'prompt': 'let there be light',
+    'number': 2233,
+    'input_image': Image('your_image.png')  ## Image() supports jpg, png filenames, np.array or PIL.Image
+}
+
+run_response = c.run(config)
+```
+
+Fetching results/checking task status using the token can be done using `fetch()`.
+
+```python
+results = c.fetch(token = run_response['token'])
+print(results)
+```
+
+## Examples
+
+- Hosting a Resnet18 inference endpoint with eden: [server](https://github.com/abraham-ai/eden/blob/master/examples/not_so_minimal/server.py) + [client](https://github.com/abraham-ai/eden/blob/master/examples/not_so_minimal/client.py)
+- A very (very) minimal example which is good for starting out on eden: [server](https://github.com/abraham-ai/eden/blob/master/examples/minimal/server.py) + [client](https://github.com/abraham-ai/eden/blob/master/examples/minimal/client.py)
+- Working with intermediate results: [server](https://github.com/abraham-ai/eden/blob/master/examples/writing_intermediate_outputs/server.py) + [client](https://github.com/abraham-ai/eden/blob/master/examples/writing_intermediate_outputs/client.py)
+
+## Prometheus metrics out of the box
+
+Eden supports the following internal metrics (`/metrics`) which have been exposed via prometheus:
+
+* `num_queued_jobs`: Specifies the number of queued jobs
+* `num_running_jobs`: Specifies the number of running jobs
+* `num_failed_jobs`: Specifies the number of failed jobs
+* `num_succeeded_jobs`: Specifies the number of succeeded jobs
+
+## Development
+
+Setup 
+```
+git clone git@github.com:abraham-ai/eden.git
+cd eden
+python3 setup.py develop
+```
+Compile dependencies with pip-compile (this generates a `requirements.txt` file). You will need `pip-tools` installed for this to work (`pip install pip-tools`)
+```
+pip-compile requirements.in
+```
+
+You also have to install redis on your machine
+```
+sudo apt-get install redis-server
+sudo service redis-server start
+```
+
+Optionally, if you want to stop redis after you're done then you can run:
+
+```
+sudo service redis-server stop
+```
+
+Runnning tests on your local machine can be done with:
+```
+sh test_local.sh
+```
+
