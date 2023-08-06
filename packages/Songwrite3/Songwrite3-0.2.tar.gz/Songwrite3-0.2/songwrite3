@@ -1,0 +1,131 @@
+#! /usr/bin/python3 -O
+# -*- python -*-
+
+# Songwrite 3
+# Copyright (C) 2001-2016 Jean-Baptiste LAMY -- jibalamy@free.fr
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys, os, os.path
+sys.path.insert(0, os.path.join(os.path.dirname(sys.argv[0]), "..", "share"))
+#if os.path.dirname(sys.argv[0]).endswith("bin"): # /usr/{local/}bin
+#  sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "share")))
+#else: # Raw source not installed
+#  sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..")))
+
+import editobj3
+editobj3.GUI = "Qt"
+
+
+import songwrite3.globdef
+import songwrite3.model as model
+import songwrite3.plugins
+songwrite3.plugins.load_all_plugins()
+import songwrite3.__editobj3__
+import songwrite3.main
+
+i          = 1
+create_new = 1
+mainloop   = 0
+task       = None
+output     = output_filename = None
+
+songs = []
+songbook = None
+
+while i < len(sys.argv):
+  arg = sys.argv[i]
+  
+  if   arg == "--version":
+    create_new = 0
+    
+    print("Songwrite 3 version %s" % model.VERSION)
+    
+  elif arg == "--help":
+    create_new = 0
+    
+    print("""Songwrite 3 -- A music, score, tablature, fingering and lyrics editor by Jiba (jiba""" + chr(64) + """lesfleursdunormal""" + chr(46) + """fr)
+
+Usage:
+songwrite3 <file>...
+           --version
+           --help
+           --import <format> <input-file>
+           --export <format> <output-file>
+           --script <python script>
+
+Supported import format: %s.
+Supported export format: %s.""" % (", ".join(songwrite3.plugins.IMPORT_FORMATS), ", ".join(songwrite3.plugins.EXPORT_FORMATS)))
+    
+  elif arg == "--import":
+    songs.append(songwrite3.plugins.get_importer(sys.argv[i + 1]).import_from(sys.argv[i + 2]))
+    i += 2
+    
+  elif arg == "--export":
+    for song in songs:
+      songwrite3.plugins.get_exporter(sys.argv[i + 1]).export_to(song, sys.argv[i + 2])
+    i += 2
+    songs = []
+    create_new = 0
+    
+  elif arg == "--script" :
+    script = sys.argv[i + 1]
+    song = songs[-1]
+    exec(script)
+    i += 1
+     
+  elif arg == "--config" :
+    songwrite3.globdef.CONFIGFILE = sys.argv[i + 1]
+    songwrite3.globdef.config.__init__()
+    i += 1
+    
+  else: # It's a filename
+    song = model.get_song(arg)
+    if isinstance(song, model.Songbook):
+      songbook = song
+    else:
+      create_new = 0
+      songs.append(song)
+      
+  i += 1
+
+
+if songs or create_new:
+  import songwrite3.pipe
+  piped = False
+  if songwrite3.pipe.is_already_running(): # Try the pipe !
+    commands = ["open %s" % song.filename for song in songs]
+    if not commands: commands = ["new song"]
+    for command in commands:
+      if not songwrite3.pipe.send(command):
+        break
+    else: piped = True
+    
+  if not piped:
+    songwrite3.pipe.create()
+    songwrite3.pipe.listen()
+    
+    if songs:
+      import songwrite3.main as main
+      for o in songs:
+        main.App(o)
+      main.mainloop()
+      
+    elif create_new:
+      import songwrite3.main as main
+      app  = main.App()
+      if songbook:
+        app.set_songbook(songbook)
+        app.on_songbook_prop()
+      main.mainloop()
