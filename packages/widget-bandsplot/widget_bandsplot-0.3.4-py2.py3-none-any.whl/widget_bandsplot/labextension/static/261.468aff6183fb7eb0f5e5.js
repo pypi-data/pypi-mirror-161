@@ -1,0 +1,1 @@
+(self.webpackChunkwidget_bandsplot=self.webpackChunkwidget_bandsplot||[]).push([[261],{6261:(e,t,i)=>{var s=i(1568),a=i(1337);e.exports={id:"widget-bandsplot:plugin",requires:[a.IJupyterWidgetRegistry],activate:function(e,t){t.registerWidget({name:"widget-bandsplot",version:s.version,exports:s})},autoStart:!0}}}]);
