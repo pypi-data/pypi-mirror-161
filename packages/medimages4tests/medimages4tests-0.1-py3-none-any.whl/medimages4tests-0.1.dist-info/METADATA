@@ -1,0 +1,69 @@
+Metadata-Version: 2.1
+Name: medimages4tests
+Version: 0.1
+Summary: Generates dummy medical image data with realistic headers to be used in image handling tests
+Home-page: https://github.com/australian-imaging-service/medimages4tests
+Author: Thomas G. Close
+Author-email: tom.g.close@gmail.com
+License: CC0
+Keywords: repository analysis medical-imaging neuroimaging workflows pipelines
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Healthcare Industry
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Scientific/Engineering :: Medical Science Apps.
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+License-File: LICENSE
+Requires-Dist: pydicom (>=1.0.2)
+Provides-Extra: test
+Requires-Dist: pytest (>=5.4.3) ; extra == 'test'
+Requires-Dist: pytest-env (>=0.6.2) ; extra == 'test'
+Requires-Dist: pytest-cov (>=2.12.1) ; extra == 'test'
+
+Medimages4tests
+===============
+
+.. image:: https://github.com/australian-imaging-service/medimages4tests/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/australian-imaging-service/medimages4tests/actions/workflows/test.yml
+.. image:: https://codecov.io/gh/australian-imaging-service/medimages4tests/branch/main/graph/badge.svg?token=UIS0OGPST7
+   :target: https://codecov.io/gh/australian-imaging-service/medimages4tests
+.. .. image:: https://img.shields.io/pypi/pyversions/medimages4tests.svg
+..    :target: https://pypi.python.org/pypi/medimages4tests/
+..    :alt: Supported Python versions
+.. .. image:: https://img.shields.io/pypi/v/medimages4tests.svg
+..    :target: https://pypi.python.org/pypi/medimages4tests/
+..    :alt: Latest Version
+
+Generates dummy medical images, with junk image data but realistic headers,
+to test imaging handling pipelines
+
+Installation
+------------
+
+Medimage4tests is available on PyPI so to install, simply use pip
+
+.. code-block:: bash
+
+    $ pip3 install medimages4tests
+    
+or include in your package's ``test_requires``.
+
+
+Usage
+-----
+
+.. code-block:: python
+
+    # Import medimages4tests generator functions
+    from medimages4tests.dicom.mri.fmap.ge.discovery_mr888.dv26_0_r05_2008a import sample_image
+
+    # Return generated images in pytest fixtures (or alternative test framework)
+    @pytest.fixture()
+    def ge_dicom_fmap():
+        return sample_image()
