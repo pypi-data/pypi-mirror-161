@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: main
+    tags:
+    - 'v*'
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+        - '2.7'
+        - '3.5'
+        - '3.7'
+        - '3.10'
+    name: Check Python ${{ matrix.python-version }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package
+      run: pip install .[test]
+
+    - name: Test regular package
+      run: pytest
+
+    - name: Uninstall package
+      run: pip uninstall -y scikit-hep-testdata
+
+    - name: Install package
+      run: pip install -e .[test]
+
+    - name: Install coverage
+      run: pip install coveralls pytest-cov
+
+    - name: Test editable package, with coverage
+      run: pytest --cov --cov-config=setup.cfg
+
+    - name: Upload coverage
+      if: matrix.python-version != '2.7'
+      run: coveralls --service=github
+      env:
+        COVERALLS_PARALLEL: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_FLAG_NAME: test-${{ matrix.python-version }}
+
+
+  coverage:
+    needs: [checks]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v2
+      with:
+        fetch-depth: 0
+    - name: Install coveralls
+      run: pip install coveralls
+    - name: Coveralls Finished
+      run: coveralls --finish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Build wheel and SDist
+      run: pipx run build
+
+    - name: Show sizes
+      run: ls -lh dist
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: DistPackage
+        path: dist
+
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
