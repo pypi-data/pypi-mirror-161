@@ -1,0 +1,165 @@
+[tool.poetry]
+name = "jrnl"
+version = "v3.1-beta"
+description = "Collect your thoughts and notes without leaving the command line."
+authors = [
+    "jrnl contributors <maintainers@jrnl.sh>",
+    "Manuel Ebert <manuel@1450.me>",
+    "Jonathan Wren <jonathan@nowandwren.com>",
+    "Micah Ellison <micahellison@gmail.com>"
+]
+maintainers = [
+    "Jonathan Wren and Micah Ellison <maintainers@jrnl.sh>",
+]
+license = "GPL-3.0-only"
+readme = "README.md"
+homepage = "https://jrnl.sh"
+repository = "https://github.com/jrnl-org/jrnl"
+classifiers = [
+    "Topic :: Office/Business :: News/Diary",
+    "Environment :: Console",
+    "Operating System :: OS Independent"
+]
+
+[tool.poetry.urls]
+"Documentation" = "https://jrnl.sh"
+"Issue Tracker" = "https://github.com/jrnl-org/jrnl/issues"
+"Funding" = "https://opencollective.com/jrnl"
+
+[tool.poetry.dependencies]
+python = ">=3.9.0, <3.12"
+
+ansiwrap = "^0.8.4"
+colorama = ">=0.4"       # https://github.com/tartley/colorama/blob/master/CHANGELOG.rst
+cryptography = ">=3.0"   # https://cryptography.io/en/latest/api-stability.html
+keyring = ">=21.0"       # https://github.com/jaraco/keyring#integration
+parsedatetime = ">=2.6"
+python-dateutil = "^2.8" # https://github.com/dateutil/dateutil/blob/master/RELEASING
+pyxdg = ">=0.27.0"
+"ruamel.yaml" = "^0.17.21"
+rich = "^12.2.0"
+
+# dayone-only deps
+tzlocal = ">=4.0"   # https://github.com/regebro/tzlocal/blob/master/CHANGES.txt
+
+[tool.poetry.dev-dependencies]
+black = { version = ">=21.5b2", allow-prereleases = true }
+ipdb = "*"
+isort = ">=5.10"
+mkdocs = ">=1.0,<1.3"
+poethepoet = "*"
+pyproject-flake8 = "*"
+pytest = ">=6.2"
+pytest-bdd = ">=4.0.1,<6.0"
+pytest-clarity = "*"
+pytest-xdist = ">=2.5.0"
+toml = ">=0.10"
+tox = "*"
+yq = "*"
+
+[tool.poetry.scripts]
+jrnl = 'jrnl.cli:cli'
+
+[tool.poe.tasks]
+format-run = [
+  {cmd = "black ."},
+]
+format-check = [
+  {cmd = "black --version"},
+  {cmd = "black --check --diff ."},
+]
+style-check = [
+  {cmd = "pflake8 --version"},
+  {cmd = "pflake8 jrnl tests"},
+]
+sort-run = [
+  {cmd = "isort ."},
+]
+sort-check = [
+  {cmd = "isort --version"},
+  {cmd = "isort --check ."},
+]
+# docs-check = ?
+docs-run = [
+  {cmd = "mkdocs serve"},
+]
+test-run =[
+  {cmd = "tox -q -e py --"},
+]
+
+installer-check = [
+  {cmd = "poetry --version"},
+  {cmd = "poetry check"},
+]
+
+# Groups of tasks
+format = [
+  "format-run",
+  "sort-run",
+]
+lint = [
+  "installer-check",
+  "style-check",
+  "sort-check",
+  "format-check",
+]
+test = [
+  "lint",
+  "test-run",
+]
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+known_first_party = ["jrnl", "tests"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+required_plugins = [
+  "pytest-bdd"
+]
+markers = [
+    "todo",
+    "skip_win",
+    "skip_posix",
+    "on_win",
+    "on_posix",
+]
+addopts = [
+  "--pdbcls=IPython.terminal.debugger:Pdb",
+  "--tb=native",
+  "-n=auto",
+]
+
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore:Flag style will be deprecated in.*",
+    "ignore:[WinError 32].*",
+    "ignore:[WinError 5].*"
+]
+
+[tool.flake8]
+# ignore formatting warnings and errors because we use Black to autoformat
+extend-ignore = "E101,E111,E114,E115,E116,E117,E12,E13,E2,E3,E401,E5,E70,W1,W2,W3,W5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.tox]
+# see: https://tox.wiki/en/latest/example/basic.html
+legacy_tox_ini = """
+[tox]
+envlist = py
+isolated_build = True
+
+[testenv]
+deps =
+  pytest >= 6.2
+  pytest-bdd >=4.0.1,<6.0
+  pytest-xdist >=2.5.0
+  toml >=0.10
+
+commands = pytest {posargs}
+passenv = HOME
+"""
