@@ -1,0 +1,12 @@
+import os
+from pathlib import Path
+# must happen before importing Album
+os.environ["ALBUM_CONDA_PATH"] = <conda>
+
+from album.api import Album
+import re
+
+album = Album.Builder().base_cache_path(str(Path.home().joinpath('.album'))).build()
+album.load_or_create_collection()
+album.uninstall('<solution>')
+input('Press return to exit.')

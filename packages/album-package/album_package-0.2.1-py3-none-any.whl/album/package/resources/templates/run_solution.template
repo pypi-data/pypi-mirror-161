@@ -1,0 +1,24 @@
+import os
+from pathlib import Path
+# must happen before importing Album
+os.environ["ALBUM_CONDA_PATH"] = <conda>
+
+from album.api import Album
+import re
+
+coords = '<solution>'
+album = Album.Builder().base_cache_path(str(Path.home().joinpath('.album'))).build()
+album.load_or_create_collection()
+res = "\nThe solution takes the following parameters:\n\n"
+args = album.resolve(coords).loaded_solution().setup().args
+if args:
+    for arg in args:
+        res += '  --%s: %s\n' % (arg["name"], arg["description"])
+print(res)
+commands = input('Please enter the parameters with which the solution should be called separated by spaces:')
+commands = re.split(r'\s', commands)
+params = ['']
+for p in commands:
+    params.append(str(p))
+album.run(coords, params)
+input('Press return to exit.')

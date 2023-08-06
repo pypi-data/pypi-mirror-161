@@ -1,0 +1,627 @@
+import os
+import platform
+import re
+import subprocess
+import sys
+import json
+from pathlib import Path
+
+
+def _call_album_help(conda, album):
+    if conda:
+        if album:
+            cmd = subprocess.run(["conda", "run", "-n", "album", "album", "-h"], capture_output=True)
+            return cmd.returncode
+        else:
+            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')),
+                                  "album", "-h"], capture_output=True)
+            return cmd.returncode
+    else:
+        if album:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n",
+                     "album", "album", "-h"], capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n",
+                     "album", "album", "-h"], capture_output=True)
+                return cmd.returncode
+        else:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"], capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "-h"], capture_output=True)
+                return cmd.returncode
+
+
+def _call_album_install(conda, album):
+    run_input = str(Path(os.path.realpath(__file__)).parent.joinpath('solution_files'))
+    if conda:
+        if album:
+            cmd = subprocess.run(["conda", "run", "-n", 'album', "album", "install", run_input],
+                                 capture_output=True)
+            return cmd.returncode
+        else:
+            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')),
+                                  "album", "install", run_input], capture_output=True)
+            return cmd.returncode
+    else:
+        if album:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n",
+                     "album", "album", "install", run_input], capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n",
+                     "album", "album", "install", run_input], capture_output=True)
+                return cmd.returncode
+        else:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install", run_input],
+                    capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "install", run_input],
+                    capture_output=True)
+                return cmd.returncode
+
+
+def _call_gui_help(conda, album):
+    if conda:
+        if album:
+            cmd = subprocess.run(["conda", "run", "-n", "album", "album", "gui", "-h"], capture_output=True)
+            return cmd.returncode
+        else:
+            cmd = subprocess.run(["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')),
+                                  "album", "gui", "-h"], capture_output=True)
+            return cmd.returncode
+    else:
+        if album:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n",
+                     "album", "album", "gui", "-h"], capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n",
+                     "album", "album", "gui", "-h"], capture_output=True)
+                return cmd.returncode
+        else:
+            if platform.system() == 'Windows':
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
+                    capture_output=True)
+                return cmd.returncode
+            else:
+                cmd = subprocess.run(
+                    [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
+                     str(Path.home().joinpath('.album', 'envs', 'album')), "album", "gui", "-h"],
+                    capture_output=True)
+                return cmd.returncode
+
+
+def _create_shortcut_conda_path_named_album(run_name, run_path, uninstall_name, uninstall_path, icon_path):
+    cmd = subprocess.run(['conda', 'run', '-n', 'album', 'conda', 'info'], capture_output=True)
+    out = cmd.stdout.decode()
+    tmp = out.split('\n')[2]
+    tmp = tmp.split('\r')[0]
+    tmp = tmp.split(': ')[1]
+    if platform.system() == 'Windows':
+        python_path = str(Path(tmp).joinpath('python.exe'))
+    else:
+        python_path = str(Path(tmp).joinpath('bin', 'python'))
+    cmd_run_shortcut = subprocess.run(
+        ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path,
+         run_path])
+    cmd_uninstall_shortcut = subprocess.run(
+        ['conda', 'run', '-n', 'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e',
+         python_path,
+         uninstall_path])
+
+
+def _create_shortcut_conda_path_prefixed_album(run_name, run_path, uninstall_name, uninstall_path, icon_path):
+    if platform.system() == 'Windows':
+        python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
+    else:
+        python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'bin', 'python'))
+    cmd_run_shortcut = subprocess.run(
+        ['conda', 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')), 'pyshortcut', '-n',
+         run_name, '-i', icon_path, '-e', python_path,
+         run_path])
+    cmd_uninstall_shortcut = subprocess.run(
+        ['conda', 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')), 'pyshortcut', '-n',
+         uninstall_name, '-i', icon_path, '-e',
+         python_path,
+         uninstall_path])
+
+
+def _create_shortcut_conda_exe_named_album_windows(run_name, run_path, uninstall_name, uninstall_path, icon_path):
+    # perform a conda info inside the album env to get the location of the album env and with that the
+    # location of the python of the album env
+    cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')),
+                          'run', '-n', 'album',
+                          str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')),
+                          'info'], capture_output=True)
+    out = cmd.stdout.decode()
+    tmp = out.split('\n')[2]
+    tmp = tmp.split('\r')[0]
+    tmp = tmp.split(': ')[1]
+    python_path = str(Path(tmp).joinpath('python.exe'))
+
+    cmd_run_shortcut = subprocess.run(
+        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), 'run', '-n',
+         'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path, run_path])
+    cmd_uninstall_shortcut = subprocess.run(
+        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), 'run', '-n',
+         'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e', python_path,
+         uninstall_path])
+
+
+def _create_shortcut_conda_exe_named_album_unix(run_name, run_path, uninstall_name, uninstall_path, icon_path):
+    cmd = subprocess.run([str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')),
+                          'run', '-n', 'album',
+                          str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')),
+                          'info'], capture_output=True)
+    out = cmd.stdout.decode()
+    tmp = out.split('\n')[2]
+    tmp = tmp.split('\r')[0]
+    tmp = tmp.split(': ')[1]
+    python_path = str(Path(tmp).joinpath('bin', 'python'))
+
+    cmd_run_shortcut = subprocess.run(
+        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), 'run', '-n',
+         'album', 'pyshortcut', '-n', run_name, '-i', icon_path, '-e', python_path, run_path])
+    cmd_uninstall_shortcut = subprocess.run(
+        [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), 'run', '-n',
+         'album', 'pyshortcut', '-n', uninstall_name, '-i', icon_path, '-e', python_path,
+         uninstall_path])
+
+
+def _create_shortcut_conda_exe_prefixed_album(run_name, run_path, uninstall_name, uninstall_path, icon_path):
+    if platform.system() == 'Windows':
+        python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'python.exe'))
+        conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat'))
+    else:
+        python_path = str(Path.home().joinpath('.album', 'envs', 'album', 'bin', 'python'))
+        conda_exe = str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda'))
+    cmd_run_shortcut = subprocess.run(
+        [conda_exe, 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')), 'pyshortcut', '-n',
+         run_name, '-i', icon_path, '-e', python_path,
+         run_path])
+    cmd_uninstall_shortcut = subprocess.run(
+        [conda_exe, 'run', '-p', str(Path.home().joinpath('.album', 'envs', 'album')), 'pyshortcut', '-n',
+         uninstall_name, '-i', icon_path, '-e',
+         python_path,
+         uninstall_path])
+
+
+def call_conda_run(conda, album, mode):
+    if mode == 'album -h':
+        return _call_album_help(conda, album)
+
+    elif mode == 'install':
+        return _call_album_install(conda, album)
+
+    elif mode == 'gui -h':
+        return _call_gui_help(conda, album)
+
+
+def run_gui_conda_path(coordinates):
+    # check if there is an env present with the name album containing album gui and a conda installation
+    # with path env var
+    returncode = call_conda_run(conda=True, album=True, mode='gui -h')
+    if returncode == 0:
+        install_return = 0
+        if not installed_check(conda=True, album=True):
+            print('Solution is not installed. Installing...')
+            install_return = call_conda_run(conda=True, album=True, mode='install')
+        if install_return != 0:
+            sys.exit("There was an error installing the solution!")
+        create_shortcut_script_gui(coordinates)
+        create_shortcut_gui(conda=True, album=True, coordinates=coordinates)
+    else:
+        # check if there is an env present with the script installed prefix containing album gui and a conda
+        # installation with path env var
+        returncode = call_conda_run(conda=True, album=False, mode='gui -h')
+        if returncode == 0:
+            install_return = 0
+            if not installed_check(conda=True, album=False):
+                print('Solution is not installed. Installing...')
+                install_return = call_conda_run(conda=True, album=False, mode='install')
+            if install_return != 0:
+                sys.exit("There was an error installing the solution!")
+            create_shortcut_script_gui(coordinates)
+            create_shortcut_gui(conda=True, album=False, coordinates=coordinates)
+        else:
+            sys.exit(
+                "Could not find album to run the solution. Please check your album installation.")
+
+
+def run_no_gui_conda_path(coordinates):
+    returncode = call_conda_run(conda=True, album=True, mode='album -h')
+    if returncode == 0:
+        install_return = 0
+        if not installed_check(conda=True, album=True):
+            print('Solution is not installed. Installing...')
+            install_return = call_conda_run(conda=True, album=True, mode='install')
+        if install_return != 0:
+            sys.exit("There was an error installing the solution!")
+        create_shortcut_script_no_gui(coordinates, conda=True)
+        create_shortcut_no_gui(conda=True, album=True, coordinates=coordinates)
+    else:
+        # check if there is an env present with the script installed prefix and a conda
+        # installation with path env var
+        returncode = call_conda_run(conda=True, album=False, mode='album -h')
+        if returncode == 0:
+            install_return = 0
+            if not installed_check(conda=True, album=False):
+                print('Solution is not installed. Installing...')
+                install_return = call_conda_run(conda=True, album=False, mode='install')
+            if install_return != 0:
+                sys.exit("There was an error installing the solution!")
+            create_shortcut_script_no_gui(coordinates, conda=True)
+            create_shortcut_no_gui(conda=True, album=False, coordinates=coordinates)
+        else:
+            sys.exit(
+                "Could not find album to run the solution. Please check your album installation.")
+
+
+def run_gui_conda_exe(coordinates):
+    # check if there is an env present with the name album containing album gui and a conda installed with the
+    # install script
+    returncode = call_conda_run(conda=False, album=True, mode='gui -h')
+    if returncode == 0:
+        install_return = 0
+        if not installed_check(conda=False, album=True):
+            print('Solution is not installed. Installing...')
+            install_return = call_conda_run(conda=False, album=True, mode='install')
+        if install_return != 0:
+            sys.exit("There was an error installing the solution!")
+        create_shortcut_script_gui(coordinates)
+        create_shortcut_gui(conda=False, album=True, coordinates=coordinates)
+    else:
+        returncode = call_conda_run(conda=False, album=False, mode='gui -h')
+        if returncode == 0:
+            install_return = 0
+            if not installed_check(conda=False, album=False):
+                print('Solution is not installed. Installing...')
+                install_return = call_conda_run(conda=False, album=False, mode='install')
+            if install_return != 0:
+                sys.exit("There was an error installing the solution!")
+            create_shortcut_script_gui(coordinates)
+            create_shortcut_gui(conda=False, album=False, coordinates=coordinates)
+        else:
+            sys.exit(
+                "Could not find album to run the solution. Please check your album installation.")
+
+
+def run_no_gui_conda_exe(coordinates):
+    # check if there is an env present with the name album and a conda installed with the install script
+    returncode = call_conda_run(conda=False, album=True, mode='album -h')
+    if returncode == 0:
+        install_return = 0
+        if not installed_check(conda=False, album=True):
+            print('Solution is not installed. Installing...')
+            install_return = call_conda_run(conda=False, album=True, mode='install')
+        if install_return != 0:
+            sys.exit("There was an error installing the solution!")
+        create_shortcut_script_no_gui(coordinates, conda=False)
+        create_shortcut_no_gui(conda=False, album=True, coordinates=coordinates)
+    else:
+        returncode = call_conda_run(conda=False, album=False, mode='album -h')
+        if returncode == 0:
+            install_return = 0
+            if not installed_check(conda=False, album=False):
+                print('Solution is not installed. Installing...')
+                install_return = call_conda_run(conda=False, album=False, mode='install')
+            if install_return != 0:
+                sys.exit("There was an error installing the solution!")
+            create_shortcut_script_no_gui(coordinates, conda=False)
+            create_shortcut_no_gui(conda=False, album=False, coordinates=coordinates)
+        else:
+            sys.exit(
+                "Could not find album to run the solution. Please check your album installation.")
+
+
+def get_solution_list_json(json_str):
+    json_str = json.loads(json_str.decode())
+    # list
+    catalog_list = json_str['catalogs']
+    # list of catalogs_list of solution_dicts
+    catalog_list_of_solution_lists = []
+    # list of dict containing dicts as values
+    solution_dicts_list = []
+
+    if isinstance(catalog_list, list):
+        for cat_dict in catalog_list:
+            catalog_list_of_solution_lists.append(cat_dict['solutions'])
+    for solution_list in catalog_list_of_solution_lists:
+        for solution in solution_list:
+            solution_dicts_list.append(solution)
+
+    return solution_dicts_list
+
+
+def check_solutions_dict(solution_dicts):
+    coordinates = '<coordinates>'
+    group = coordinates.split(':')[0]
+    name = coordinates.split(':')[1]
+    version = coordinates.split(':')[2]
+
+    # Go through the list of dictionaries and checking there setup method for the coordinates and then check the
+    # internal string for the installation status
+    for solution in solution_dicts:
+        internal = solution['internal']
+        setup = solution['setup']
+        installed = internal['installed']
+        tmp_group = setup['group']
+        tmp_name = setup['name']
+        tmp_version = setup['version']
+        if (group == tmp_group) and (name == tmp_name) and (version == tmp_version):
+            if installed == 1:
+                print("solution already installed")
+                return True
+            else:
+                return False
+
+    return False
+
+
+def installed_check(conda, album):
+    # conda = true if condas env path var is set
+    # album = true if there is an environment named album
+    if conda and album:
+        # returns json string containing info about all solutions in the local collection database
+        cmd = subprocess.run(["conda", "run", "-n", "album", "album", "index", "--json"],
+                             capture_output=True)
+        # filter json string and check for installation status of active solution
+        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif conda and not album:
+        cmd = subprocess.run(
+            ["conda", "run", "-p", str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"],
+            capture_output=True)
+        return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif (not conda) and album:
+        if platform.system() == 'Windows':
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-n", "album",
+                 "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+        else:
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-n", "album",
+                 "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+    elif (not conda) and (not album):
+        if platform.system() == 'Windows':
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda.bat')), "run", "-p",
+                 str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+
+        else:
+            cmd = subprocess.run(
+                [str(Path.home().joinpath('.album', 'Miniconda', 'condabin', 'conda')), "run", "-p",
+                 str(Path.home().joinpath('.album', 'envs', 'album')), "album", "index", "--json"], capture_output=True)
+            return check_solutions_dict(get_solution_list_json(cmd.stdout))
+    else:
+        sys.exit("Couldn't check if the solution is already installed. Please check your conda and album installation.")
+
+
+def create_shortcut_script_no_gui(coordinates, conda):
+    if not conda:
+        conda_exe = 'str(Path.home().joinpath(\'.album\', \'Miniconda\'))'
+    else:
+        conda_exe = "\'conda\'"
+    # make script which will be called by the shortcut and triggers the solution
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('run_solution.template'),
+              'r') as file:
+        template_str = file.read()
+    template_str = re.sub("<solution>", str(coordinates), template_str)
+    template_str = re.sub("<conda>", conda_exe, template_str)
+
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('uninstall_solution.template'),
+              'r') as file:
+        template_str_uninstall = file.read()
+    template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
+    template_str_uninstall = re.sub("<conda>", conda_exe, template_str_uninstall)
+
+    mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
+
+    if not Path.home().joinpath('.album', 'Solution_shortcuts').is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts').mkdir()
+
+    if not Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).mkdir()
+
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py').unlink()
+
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py').unlink()
+
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py'), 'w') as file:
+        file.write(template_str)
+
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py'), 'w') as file:
+        file.write(template_str_uninstall)
+
+
+def create_shortcut_script_gui(coordinates):
+    # make script which will be called by the shortcut and triggers the solution
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('run_solution_gui.template'),
+              'r') as file:
+        template_str = file.read()
+    template_str = re.sub("<solution>", str(coordinates), template_str)
+
+    with open(Path(os.path.realpath(__file__)).parent.joinpath('uninstall_solution_gui.template'),
+              'r') as file:
+        template_str_uninstall = file.read()
+    template_str_uninstall = re.sub("<solution>", str(coordinates), template_str_uninstall)
+
+    mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    # change the path here too to stay consistent
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
+
+    if not Path.home().joinpath('.album', 'Solution_shortcuts').is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts').mkdir()
+
+    if not Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).is_dir():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords).mkdir()
+
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py').unlink()
+
+    if Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py').is_file():
+        Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py').unlink()
+
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'), 'w') as file:
+        file.write(template_str)
+    with open(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'),
+              'w') as file:
+        file.write(template_str_uninstall)
+
+
+def create_shortcut_gui(coordinates, conda, album):
+    # from pyshortcuts import make_shortcut
+    mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
+    run_name = 'run_gui_%s' % mod_coords
+    run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution_gui.py'))
+    uninstall_name = 'uninstall_gui_%s' % mod_coords
+    uninstall_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution_gui.py'))
+
+    if platform.system() == 'Windows':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico'))
+    elif platform.system() == 'Darwin':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns'))
+    elif platform.system() == 'Linux':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png'))
+    else:
+        print("Your OS is currently not supported")
+        raise NotImplementedError
+
+    # get path of python interpreter of the album env
+    if album:
+        if conda:
+            _create_shortcut_conda_path_named_album(run_name=run_name, run_path=run_path, uninstall_name=uninstall_name,
+                                                    uninstall_path=uninstall_path, icon_path=icon_path)
+        else:
+            try:
+                if platform.system() == 'Windows':
+                    _create_shortcut_conda_exe_named_album_windows(run_name=run_name, run_path=run_path,
+                                                                   uninstall_name=uninstall_name,
+                                                                   uninstall_path=uninstall_path, icon_path=icon_path)
+                else:
+                    _create_shortcut_conda_exe_named_album_unix(run_name=run_name, run_path=run_path,
+                                                                uninstall_name=uninstall_name,
+                                                                uninstall_path=uninstall_path, icon_path=icon_path)
+
+            except Exception:
+                sys.exit(
+                    'There was a Problem with your Album env. There seams to be env called Album but no conda installation lists it.')
+    else:
+        if conda:
+            _create_shortcut_conda_path_prefixed_album(run_name=run_name, run_path=run_path,
+                                                       uninstall_name=uninstall_name, uninstall_path=uninstall_path,
+                                                       icon_path=icon_path)
+        else:
+            _create_shortcut_conda_exe_prefixed_album(run_name=run_name, run_path=run_path,
+                                                       uninstall_name=uninstall_name, uninstall_path=uninstall_path,
+                                                       icon_path=icon_path)
+
+
+def create_shortcut_no_gui(coordinates, conda, album):
+    # from pyshortcuts import make_shortcut
+    mod_coords = re.sub(':', '_', coordinates)
+    # on macos the coordniates must not contain .'s since the shortcut cannot get the album logo as icon
+    if platform.system() == 'Darwin':
+        mod_coords = re.sub('\.', '_', mod_coords)
+    run_name = 'run_%s' % mod_coords
+    run_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'run_solution.py'))
+    uninstall_name = 'uninstall_%s' % mod_coords
+    uninstall_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', mod_coords, 'uninstall_solution.py'))
+
+    if platform.system() == 'Windows':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_windows.ico'))
+    elif platform.system() == 'Darwin':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_macos.icns'))
+    elif platform.system() == 'Linux':
+        icon_path = str(Path.home().joinpath('.album', 'Solution_shortcuts', 'album_icon_linux.png'))
+    else:
+        print("Your OS is currently not supported")
+        raise NotImplementedError
+
+    if album:
+        if conda:
+            _create_shortcut_conda_path_named_album(run_name=run_name, run_path=run_path, uninstall_name=uninstall_name,
+                                                    uninstall_path=uninstall_path, icon_path=icon_path)
+        else:
+            try:
+                if platform.system() == 'Windows':
+                    _create_shortcut_conda_exe_named_album_windows(run_name=run_name, run_path=run_path,
+                                                                   uninstall_name=uninstall_name,
+                                                                   uninstall_path=uninstall_path, icon_path=icon_path)
+                else:
+                    _create_shortcut_conda_exe_named_album_unix(run_name=run_name, run_path=run_path,
+                                                                uninstall_name=uninstall_name,
+                                                                uninstall_path=uninstall_path, icon_path=icon_path)
+
+            except Exception:
+                sys.exit(
+                    'There was a Problem with your Album env. There seams to be env called Album but no conda installation lists it.')
+    else:
+        if conda:
+            _create_shortcut_conda_path_prefixed_album(run_name=run_name, run_path=run_path,
+                                                       uninstall_name=uninstall_name, uninstall_path=uninstall_path,
+                                                       icon_path=icon_path)
+        else:
+            _create_shortcut_conda_exe_prefixed_album(run_name=run_name, run_path=run_path,
+                                                      uninstall_name=uninstall_name, uninstall_path=uninstall_path,
+                                                      icon_path=icon_path)
+
+
+def main(gui):
+    # exception --> conda is missing, returncode != 0 --> album missing
+    coordinates = '<coordinates>'
+    try:
+        # check if there is an env present with the name album and a conda installation with path env var
+        if gui:
+            run_gui_conda_path(coordinates)
+        else:
+            run_no_gui_conda_path(coordinates)
+    except Exception:
+        try:
+            if gui:
+                run_gui_conda_exe(coordinates)
+            else:
+                run_no_gui_conda_exe(coordinates)
+        except Exception as e:
+            sys.exit(
+                "An unexpected Error occurred when running the solution. Please check your conda installation. %s" % e)
