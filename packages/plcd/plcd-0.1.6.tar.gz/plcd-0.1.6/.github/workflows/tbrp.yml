@@ -1,0 +1,141 @@
+
+name: Test Build Release Publish
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*
+  workflow_dispatch:
+
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Test with pytest
+        run: |
+          # pytest tests/test-sniff.py
+          # pytest tests/test-host.py
+          # pytest tests/test-port.py
+
+  build:
+    name: Build Test
+    needs: [lint, test]
+    strategy:
+      matrix:
+        python: ['3.7', '3.8', '3.9', '3.10']
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install pip
+      run: |
+        python3 -m pip install --upgrade pip
+    - name: Install build
+      run: |
+        python3 -m pip install --upgrade build
+    - name: Build package
+      run: |
+        python3 -m build
+
+  build-release:
+    name: Build and draft release
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install pip
+      run: |
+        python3 -m pip install --upgrade pip
+    - name: Install build
+      run: |
+        python3 -m pip install --upgrade build
+    - name: Build package
+      run: |
+        python3 -m build
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: |
+          Changes in release ${{ github.ref }}
+          - 
+          - 
+        draft: true
+        prerelease: false
+
+  build-publish:
+    name: Build and publish to pypi
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install pip
+      run: |
+        python3 -m pip install --upgrade pip
+    - name: Install build
+      run: |
+        python3 -m pip install --upgrade build
+    - name: Build package
+      run: |
+        python3 -m build
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_PASSWORD }}
+        
