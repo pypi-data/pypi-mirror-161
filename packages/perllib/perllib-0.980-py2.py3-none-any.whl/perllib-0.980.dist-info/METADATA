@@ -1,0 +1,207 @@
+Metadata-Version: 2.1
+Name: perllib
+Version: 0.980
+Summary: Library functions to support pythonizer
+Home-page: https://github.com/snoopyjc/pythonizer
+Author: Joe Cool
+Author-email: snoopyjc@gmail.com
+License: Artistic License 2.0 - The Perl Foundation
+Keywords: perllib
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Artistic License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.8
+License-File: LICENSE
+License-File: license.html
+License-File: AUTHORS.rst
+
+=======
+perllib
+=======
+
+
+.. image:: https://img.shields.io/pypi/v/perllib.svg
+        :target: https://pypi.python.org/pypi/perllib
+
+.. image:: https://img.shields.io/travis/snoopyjc/perllib.svg
+        :target: https://travis-ci.com/snoopyjc/perllib
+
+.. image:: https://readthedocs.org/projects/perllib/badge/?version=latest
+        :target: https://perllib.readthedocs.io/en/latest/?version=latest
+        :alt: Documentation Status
+
+
+
+
+Library functions to support pythonizer
+
+
+* Free software: GNU General Public License v3
+* Documentation: https://perllib.readthedocs.io.
+
+
+Features
+--------
+
+* Perl library functions typically return 1 on success and undef on failure, whereas python library functions raise exceptions on failure.  Also, perl automatically converts variables from strings to numbers and vice-versa when referenced in the appropriate context.  In perl, global variables are truly global across files and are organized by package name, where in python global variables have file scope.  In addition, perl has autovivification, which means that arrays and hash tables magically appear out of whole cloth when referenced.  This library supports all of those features and allows the "pythonizer" perl to python translator generate code that is fairly readable.
+
+Credits
+-------
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
+
+=======
+History
+=======
+
+0.980 (2022-07-28)
+------------------
+
+* (no library changes)
+
+0.979 (2022-07-02)
+------------------
+
+* issue s91 - open with a dynamic single argument that does not contain a mode returns None on error instead of a closed file.  Fix in _open_dynamic.
+
+0.978 (2022-05-12)
+------------------
+
+* _system, _run, and _run_s are now able to run perl and python scripts under windows
+
+0.977 (2022-04-29)
+------------------
+
+* (no library changes)
+
+0.976 (2022-04-28)
+------------------
+
+* Add _strftime
+
+0.975 (2022-04-28)
+------------------
+
+* (no library changes)
+
+0.974 (2022-04-21)
+------------------
+
+* _num(blessed object) shouldn't return 0, _bless needs to treat the result as a dict, not an object.  Change method name for IO_File.open to have a trailing underscore to match the name after escape_keywords.  Fix typo "fd" in _IOFile_open to "fh".  perllib.close renamed to have a trailing underscore so that fh.close() doesn't cause infinite recursion.
+
+0.973 (2022-04-16)
+------------------
+
+* (no library changes)
+
+0.972 (2022-04-15)
+------------------
+
+* add _set_breakpoint
+
+0.971 (2022-04-12)
+------------------
+
+* Add _split_s for split in a scalar context.  Add _splitdir, _splitpath, _curdir, and _updir from File::Spec.  Add _isa.  Add __contains__ in File_stat.  Add _chdir and _rmdir.
+
+0.970 (2022-04-10)
+------------------
+
+* (no library changes)
+
+0.969 (2022-04-05)
+------------------
+
+* Add _readdirs to handle readdir in list context, fix _each to handle arrays properly.  Fix _lstat so it actually works.
+
+0.968 (2022-04-01)
+------------------
+
+* Add _utime, fix _stat and friends to work on filehandles and dirhandles.  Add _abspath for Cwd::abs_path.
+
+0.967 (2022-03-31)
+------------------
+
+* (no library changes)
+
+0.966 (2022-03-20)
+------------------
+
+* Convert variable to string in _substitute_global, _substitute_element, _translate_global, and _translate_element.  Change _ref to handle object checks and add _refs to handle ref with \ to a scalar, array, or hash - not perfect but it's normally correct.  Add _bless and enable _init_package to handle classes.  Fix _list_of_n and _make_list if you pass it a single Hash().  Add _flt for specific conversions to float, like in math functions.  Implement select via _select.  Implement kill via _kill.
+
+0.965 (2022-03-14)
+------------------
+
+* Change Config.Config to Config.Config_h and all Dumper variables to include _v suffix to match new package var mappings in Pythonizer.  Add _map_int, _map_num, _map_str.  Fix _flatten to handle multiple levels. Change _longmess traceback to return '()' for args if they were changed to a list and all popped off instead of '[]'.  Handle OUTPUT_FIELD_SEPARATOR and OUTPUT_RECORD_SEPARATOR in _perl_print.  Fix charnames.viacode to handle 'U+' or '0x' prefix.
+
+0.964 (2022-03-10)
+------------------
+
+* Fix _init_package for package with dotted name, don't raise exceptions in -C, -A, -M, fix Array __setitem__ with slice
+
+0.963 (2022-03-09)
+------------------
+
+* Add _chop_global, _chomp_global, _chop_element, _chomp_element
+
+0.962 (2022-03-09)
+------------------
+
+* Hot fix for _fileinput_next - errors on Python older than v3.10
+
+0.961 (2022-03-02)
+------------------
+
+* Handle open layer pragmas, fix issue with translate and friends with squash option, add dclone, catfile, file_name_is_absolute, Dumper, don't raise exception on double close
+
+0.960 (2022-02-28)
+------------------
+
+* Speed up ArrayHash and Num. Have add_element and subtract_element handle non-numeric elements, turn subprocess shell=False on windows unless the command contains cmd shell chars or is a cmd built-in, fixup open of /tmp/... on windows to use the windows tempdir, don't pass effective_ids=True on windows.  Have concat_element auto-convert everything to strings.
+
+0.959 (2022-02-24)
+------------------
+
+* str(ArrayHash()) changed to give '' instead of [], add EVAL_ERROR global variable, have ArrayHash() + or += work on empty value
+
+0.958 (2022-02-23)
+------------------
+
+* Don't give a close failed error on a pipe which got automatically closed, give empty result for keys(), values(), and items() on a fresh ArrayHash instead of AttributeError
+
+0.957 (2022-02-22)
+------------------
+
+* Add list_to_hash function to process key/value pairs
+
+0.956 (2022-02-21)
+------------------
+
+* Implement all options of translate (tr///)
+
+0.955 (2022-02-19)
+------------------
+
+* Fix split: A zero-width match at the beginning of EXPR never produces an empty field, fix bootstrapping issues
+
+0.954 (2022-02-17)
+------------------
+
+* Add -n: trace run, fix issue of scalar being initialized as an array
+
+0.953 (2022-02-15)
+------------------
+
+* First release on PyPI.
+
+
