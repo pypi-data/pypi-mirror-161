@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Requirement Matrix</title>
+    <style>
+        .header-space {
+            margin-top: 10px;
+        }
+
+        .dataTables_info {
+            position: fixed;
+            bottom: 15px;
+        }
+
+        .dataTables_paginate {
+            position: fixed;
+            bottom: 15px;
+            right: 40px;
+        }
+
+        table.dataTable tbody th, table.dataTable tbody td {
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr {
+            /*height: 65px;*/
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="index.html">
+        Ticketlist
+      </a>
+      <a class="navbar-item" href="matrix.html">
+        Matrix
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+    <h3 class="title is-2 block header-space">Match Matrix</h3>
+    <table id="example" class="block table">
+        <thead>
+        <tr id="headrow">
+            <th>ID</th>
+            <th>Title</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        $.getJSON('matrix.json', function (jd) {
+            // add header columns
+            jd.title.forEach(elem => $('#headrow').append('<th>' + elem + '</th>'));
+            // generate target array
+            const offset = 2;  // 0 is ID, 1 is title..
+            var target_array = [...Array(jd.title.length)].map((item, index) => index + offset);
+
+            function get_column_header(col) {
+                return jd.title[col - offset];
+            }
+
+            // load and create datatable itself
+            $('#example').DataTable({
+                ajax: 'matrix.json',
+                order: [[0, 'asc']],
+                pagingType: 'full_numbers',
+                pageLength: 25,
+                columnDefs: [
+                    {
+                        // colorize all numbers
+                        targets: target_array,
+                        render: function (data, type, row, meta) {
+                            if (data < 1) {
+                                return '<span class="tag is-danger">' + data + '</span>';
+                            } else {
+                                return '<a title="show files" href="index.html?search=' + row[1] + ' '
+                                    + get_column_header(meta.col) + '" class="tag is-success">' + data + '</a>';
+                            }
+                        }
+                    },
+                    {
+                        targets: 0,
+                        render: function (data, type, row) {
+                            return '<a href="' + jd.issuelink + '/' + data + '">' + data + '</a>';
+                        }
+                    }
+                ]
+            });
+        });
+
+    });
+
+</script>
+
+</body>
+</html>
