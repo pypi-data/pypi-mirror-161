@@ -1,0 +1,442 @@
+#!python
+
+'''
+Usage:
+  mkcfg --list
+  mkcfg <target>
+  mkcfg <target> --edit <configfile>
+
+Options:
+  -l --list       show the available configuration targets
+'''
+
+import os, sys
+from os import system, name
+from contextlib import contextmanager
+import copy
+from cmd import Cmd
+import yaml
+from snap import common
+from snap import cli_tools as cli
+from mercury import configtemplates as templates
+from mercury import metaobjects as meta
+from mercury.uisequences import *
+from mercury.configtargets import *
+from mercury.utils import tab, clear
+import docopt
+from docopt import docopt as docopt_func
+from docopt import DocoptExit
+import jinja2
+
+
+BANNER = '''
+___________________________________________________________________________
+|::
+|:: mkcfg interactive configfile generator
+|:: issue "mkcfg <target>" to create a config file for a target utility.
+|::
+|::
+|:: available config targets:
+|:'''
+
+BANNER_CLOSE = '|__________________________________________________________________________\n'
+
+
+
+def docopt_cmd(func):
+    """
+    This decorator is used to simplify the try/except block and pass the result
+    of the docopt parsing to the called action.
+    """
+    def fn(self, arg):
+        try:
+            opt = docopt_func(fn.__doc__, arg)
+            #opt = docopt_func(usage_string, arg)
+
+        except DocoptExit as e:
+            # The DocoptExit is thrown when the args do not match.
+            # We print a message to the user and the usage block.
+
+            print('\nPlease specify one or more valid command parameters.')
+            print(e)
+            return
+
+        except SystemExit:
+            # The SystemExit exception prints the usage for --help
+            # We do not need to do the print here.
+            return
+
+        return func(self, opt)
+
+    fn.__name__ = func.__name__
+    fn.__doc__ = func.__doc__
+    fn.__dict__.update(func.__dict__)
+    return fn
+
+
+def docstring(docstr, sep="\n"):
+    """
+    Decorator: Append to a function's docstring.
+    """
+    def _decorator(func):
+        if func.__doc__ == None:
+            func.__doc__ = docstr
+        else:
+            func.__doc__ = sep.join([func.__doc__, docstr])
+        return func
+    return _decorator
+
+
+class ConfigCLI(Cmd):
+    def __init__(self,
+                 name,
+                 target_name,
+                 target_package,
+                 **kwargs):
+
+        Cmd.__init__(self)
+        self.name = name
+        self.prompt = '__%s [%s]> ' % (self.name, target_name)
+        self.target_package = target_package
+        self.configuration = {}
+
+        yaml_config = kwargs.get('config')
+        if yaml_config:
+          self.configuration = self.target_package['loader'](yaml_config)
+
+
+    def generate_yaml_config(self):      
+      config_template = self.target_package['template']
+      j2template = jinja2.Environment(loader=jinja2.BaseLoader).from_string(config_template)
+      yaml_conf = j2template.render(project=self.configuration)
+      return yaml_conf
+      
+
+    def find_config_package_by_plural_label(self, label):
+      for config_object_type in self.target_package['config_object_types']:
+        if config_object_type['plural_label'] == label:
+          return config_object_type
+
+
+    def find_config_package_by_singular_label(self, label):
+      for config_object_type in self.target_package['config_object_types']:
+        if config_object_type['singular_label'] == label:
+          return config_object_type
+      
+
+    def config_object_singular_labels(self):
+      return [conftype['singular_label'] for conftype in self.target_package['config_object_types']]
+
+
+    def config_object_plural_labels(self):
+      return [conftype['plural_label'] for conftype in self.target_package['config_object_types']]
+
+
+    def usage_string_for_new(self):
+      template = '''Usage:
+          new ({options})
+      '''
+      return template.format(options=' | '.join(self.config_object_singular_labels()))
+    
+
+    def usage_string_for_edit(self):
+      return self.usage_string_for_new()
+
+
+    def usage_string_for_find(self):
+      template = '''Usage:
+          find ({options})
+      '''      
+      return template.format(options=' | '.join(self.config_object_singular_labels()))
+
+
+    def usage_string_for_list(self):
+      template = '''Usage:
+          list ({options})
+      '''
+      return template.format(options=' | '.join(self.config_object_plural_labels()))
+
+    def usage_string_for_rm(self):
+      template = '''Usage:
+        rm ({options})
+      '''
+      return template.format(options=' | '.join(self.config_object_singular_labels()))
+
+    def get_selected_option(self, arg_dict, option_list):
+      for item in option_list:
+        if arg_dict.get(item) == True:
+          return item
+      return None
+
+
+    @contextmanager
+    def docopt_parse(self, usage_string, *cmd_args):
+      try:
+        args = docopt.docopt(usage_string, *cmd_args)
+        yield args, None            
+
+      except DocoptExit as e:
+        # The DocoptExit is thrown when the args do not match.
+        # We print a message to the user and the usage block.
+
+        error_msg = '\nPlease specify one or more valid command parameters.\n%s\n' % e
+        yield None, error_msg
+
+      except SystemExit:
+        # The SystemExit exception prints the usage for --help
+        # We do not need to do the print here.
+        raise
+
+
+    def do_list(self, *cmd_args):
+      with self.docopt_parse(self.usage_string_for_list(), *cmd_args) as (args, error):
+        if not error:
+          print('\n')
+          selection = self.get_selected_option(args, self.config_object_plural_labels())
+          pkg = self.find_config_package_by_plural_label(selection)
+          if not pkg:
+            print('!!! ERROR: No configuration package found with label "%s".' % selection)
+
+          list_function = pkg['list_func']
+          if not self.configuration.get(pkg['name']):
+            self.configuration[pkg['name']] = []
+
+          # usually, this is a list of metaobjects, but in some cases it
+          # is a single metaobject wrapping a collection of Parameters
+          objects_to_list = self.configuration[pkg['name']]
+          list_function(objects_to_list)
+          print('\n')        
+        else:
+          print(error)
+
+    do_ls = do_list
+
+
+    def do_new(self, *cmd_args):            
+      with self.docopt_parse(self.usage_string_for_new(), *cmd_args) as (args, error):
+        if not error:
+          
+          selection = self.get_selected_option(args, self.config_object_singular_labels())        
+          pkg = self.find_config_package_by_singular_label(selection)
+          if not pkg:
+            print('!!! ERROR: No configuration package found with label "%s".' % selection)
+            return
+          if pkg.get('singleton') == True and len(self.configuration.get(pkg['name'], [])) == pkg.get('unit_size'):
+            print('Cannot create more than one "%s" config section.' % selection)
+            return
+
+          if not self.configuration.get(pkg['name']):
+            self.configuration[pkg['name']] = []
+
+          config_objects = pkg['create_func'](self.configuration, pkg) 
+
+          for obj in config_objects:
+            self.configuration[pkg['name']].append(obj)
+          
+          self.do_pre()
+        else:
+          print(error)
+
+    do_n = do_new
+
+    def do_wizard(self, *cmd_args):
+      for config_object_type in self.target_package['config_object_types']:
+        self.do_new(config_object_type['singular_label'])
+        clear()
+
+      self.do_preview()
+
+    do_wiz = do_wizard
+
+    def find_config_data(self, config_obj_array, target):
+      print('names of config objects under edit:')
+      for config_object in config_obj_array:
+        if config_object.name == target:
+          return config_object
+    
+    def update_config_data(self, config_obj_array, name, value):
+      config_object = self.find_config_data(config_obj_array, name)
+      if config_object:
+        config_object.value = value
+
+
+    def globals_config_section_to_menu(self, config_section):
+      menudata = []
+      for name, setting in config_section.items():
+        menudata.append({
+          'label': '%s (current: %s)' % (name, setting),
+          'value': name
+        })
+        return menudata
+
+    def find_config_object(self, attrib, config_object_array, target_pkg):
+      for obj in config_object_array:
+        if getattr(obj, target_pkg['index_attribute']) == attrib:
+          return obj
+
+    def generate_menu_data(self, config_object_array, target_pkg):
+      menudata = []
+      for obj in config_object_array:
+        menudata.append({
+          'value': getattr(obj, target_pkg['index_attribute']),
+          'label': getattr(obj, target_pkg['index_attribute'])
+        })
+      return menudata
+
+
+    def do_rm(self, *cmd_args):
+      with self.docopt_parse(self.usage_string_for_rm(), *cmd_args) as (args, error):
+        if not error:
+          selection = self.get_selected_option(args, self.config_object_singular_labels())
+          target_pkg = self.find_config_package_by_singular_label(selection)
+          if not target_pkg:
+            print('!!! ERROR: No configuration package found with label "%s".' % selection)
+            return
+          if not self.configuration.get(target_pkg['name']):
+            print('No %s configured.' % target_pkg['name'])
+            return
+          else:
+            menudata = []            
+            key = target_pkg['plural_label']
+            
+            for config_object in self.configuration[key]:
+              object_label = getattr(config_object, target_pkg['index_attribute'])
+              menudata.append({'label': object_label, 'value': object_label})
+            
+            item_label = target_pkg['singular_label']
+            selected_item_name = cli.MenuPrompt('select %s to remove' % item_label, menudata).show()
+            if not selected_item_name:
+              return
+
+            selected_object = self.find_config_object(selected_item_name,
+                                                      self.configuration[key],
+                                                      target_pkg)
+
+            should_remove = cli.InputPrompt('Remove job "%s"? (y/N)' % selected_item_name, 'n').show()
+            if should_remove.lower() == 'y':
+              self.configuration[key].remove(selected_object)
+            
+            self.do_list(target_pkg['plural_label'])
+            
+        else:
+          print(error)
+
+
+    def do_edit(self, *cmd_args):
+      with self.docopt_parse(self.usage_string_for_edit(), *cmd_args) as (args, error):
+        if not error:
+          selection = self.get_selected_option(args, self.config_object_singular_labels())
+
+          pkg = self.find_config_package_by_singular_label(selection)
+          if not pkg:
+            print('!!! ERROR: No configuration package found with label "%s".' % selection)
+            return
+          if not self.configuration.get(pkg['name']):
+            print('No %s yet configured.' % pkg['name'])
+          else:
+            config_obj_array = self.configuration[pkg['name']]
+            object_menudata = self.generate_menu_data(config_obj_array, pkg)
+            object_name = cli.MenuPrompt('object to edit', object_menudata).show()
+            config_object = self.find_config_object(object_name, config_obj_array, pkg)
+
+            pkg['update_func'](self.configuration, config_object)            
+            self.do_list(pkg['plural_label'])      
+        else:
+          print(error)
+
+    do_ed = do_edit
+
+    def do_preview(self, *cmd_args):
+      '''Display the current configuration'''
+      print('\n__________________________________________________________________\n')
+      yconf = self.generate_yaml_config()
+      print(yconf)
+      print('\n__________________________________________________________________\n')
+
+
+    do_pre = do_preview
+
+
+    def do_validate(self, *cmd_args):
+      validate = self.target_package['validator_func']
+      yaml_config = self.generate_yaml_config()
+      is_ok, errors = validate(yaml_config, self.configuration)
+      if is_ok:
+        print('***')
+        print('*** Configuration is valid.')
+        print('***')
+        
+      else:
+        print('!!!')
+        print('!!! The current configuration contains errors:')
+        for err in errors:
+          print('!!! * %s%s' % (tab(1), err))
+        print('!!!')        
+
+    do_val = do_validate
+
+    def do_save(self, *cmd_args):
+      '''Save the current configuration to a YAML file'''
+      # TODO: validate config first
+      print('***')
+      print('*** Save %s configuration file' % self.name)
+      print('***')
+      
+      while True:
+        filename = cli.InputPrompt('output filename ').show()
+        if not filename:
+          return
+        if os.path.isfile(filename):
+          answer = cli.InputPrompt('filename "%s" already exists. Overwrite (y/N)?' % filename, 'n').show()
+          should_overwrite = answer.lower()
+          if should_overwrite == 'n':
+            print('\n')
+            continue
+
+        yaml_config = self.generate_yaml_config()
+        with open(filename, 'w') as f:
+          f.write(yaml_config)
+        break
+
+
+    def do_quit(self, *cmd_args):
+        print('%s CLI exiting.' % self.name)        
+        raise SystemExit
+
+    do_q = do_quit
+
+
+    def do_cls(self, *cmd_args):
+      '''clear the screen'''
+      clear()
+
+
+def main(args):
+    if args['--list']:
+      print(BANNER)
+      for name, target in targets.items():
+        print('|: %s (%s)' % (name, target['description']))
+        print('|:')      
+      print(BANNER_CLOSE)
+      return
+
+    edit_mode = args['--edit']
+    
+    config_target_name = args['<target>']
+    target_pkg = targets.get(config_target_name)
+    if not target_pkg:
+      print('Unsupported configuration target: %s' % config_target_name)
+      return
+    
+    start_params = {}
+    if edit_mode:
+      yaml_config = common.read_config_file(args['<configfile>'])
+      start_params['config'] = yaml_config
+    
+    clear()
+    config_cli = ConfigCLI('mkcfg', config_target_name, target_pkg, **start_params)
+    config_cli.cmdloop()
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)

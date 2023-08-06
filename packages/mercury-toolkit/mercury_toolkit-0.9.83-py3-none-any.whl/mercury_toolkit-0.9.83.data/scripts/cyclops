@@ -1,0 +1,358 @@
+#!python
+
+'''
+Usage:
+    cyclops [-d] [-p] --config <configfile> --trigger <trigger_name> [--params=<n:v>...]
+    cyclops [-d] [-p] --config <configfile> --triggers <t1>...  [--params=<n:v>...]
+    cyclops [-d] --config <configfile> --replay <trigger_name> <filename>  [--params=<n:v>...]
+    cyclops --config <configfile> --list [-v]
+
+Options:
+    -d --debug          emit debugging information
+    -p --preview        show filesystem events, but do not execute the trigger task
+    -v --verbose        show event trigger details
+'''
+
+'''
++mdoc+
+
+cyclops is a filesystem watcher. Based on the configuration file, it will run in an infinite loop
+and wait for a specified change to happen to a watched file or directory, then pass the
+change notification to a user-defined handler function.
+
++mdoc+
+'''
+
+
+import os
+import sys
+import re
+import threading
+import time
+import json
+from collections import namedtuple
+import datetime
+import docopt
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from mercury.utils import parse_cli_params
+from snap import snap, common
+
+
+FILESYSTEM_EVENT_TYPES = ['created', 'modified', 'deleted', 'closed']
+
+debug_mode = False
+
+
+EventHandlerContext = namedtuple('EventHandlerContext', 'name dispatcher directory')
+
+class Watcher:
+    def __init__(self, watch_interval_secs, debug=False):
+        
+        self.observer = Observer()
+        self.debug_mode = debug
+        self.event_handlers = []
+        if watch_interval_secs < 1: 
+            raise Exception('The minimum watch interval is 1 second.')
+
+        self.watch_interval = watch_interval_secs
+        self.observer.daemon = True
+       
+    def add_handler(self, name, dispatcher, target_directory, recursive=False):
+        self.event_handlers.append(EventHandlerContext(name=name, dispatcher=dispatcher, directory=target_directory))
+        self.observer.schedule(dispatcher, target_directory, recursive)
+
+    def run(self):        
+        #        
+        self.observer.start()
+        while True:
+            try:
+                if self.debug_mode:
+                    for handler_ctx in self.event_handlers:                        
+                        print(f'+++ event handler {handler_ctx.name} watching directory {handler_ctx.directory} for activity...')                        
+
+                time.sleep(self.watch_interval)
+            except Exception as err:
+                self.observer.stop()
+                print('Error handling filesystem evemt: %s' % err)
+       
+
+DispatchTarget = namedtuple('DispatchTarget', 'filter_regex handler_func')
+
+
+class EventDispatcher(FileSystemEventHandler):
+    def __init__(self, service_registry:common.ServiceObjectRegistry, trigger_params: dict, preview_mode=False, **kwargs):
+        self.services = service_registry
+        self.dispatch_table = {}
+        self.preview_mode = preview_mode
+        self.trigger_params = trigger_params
+        self.gate_function = None
+        self.debug_mode = kwargs.get('debug', False)
+
+
+    def set_gate(self, function_obj):
+        self.gate_function = function_obj
+
+
+    def register_event_type(self, event_type, regex, handler_function):
+        '''event_type may be one of: created, modified, ...
+        '''
+        if event_type not in FILESYSTEM_EVENT_TYPES:
+            raise Exception('Invalid event type: %s. Valid event types are: %s' % (event_type, FILESYSTEM_EVENT_TYPES))
+        self.dispatch_table[event_type] = DispatchTarget(filter_regex=regex, handler_func=handler_function)
+
+    def event_to_data(self, event):
+        if hasattr(event, 'dest_path'):
+            destpath = event.dest_path
+        else:
+            destpath = None
+        return {
+            'event_type': event.event_type,
+            'src_path': event.src_path,
+            'dest_path': destpath,
+            'is_directory': event.is_directory,
+            'time_received': datetime.datetime.now().isoformat()
+        }
+
+    def on_any_event(self, event):
+        event_data = self.event_to_data(event)
+        if self.debug_mode:
+            print('Detected filesystem event: %s' % event_data, file=sys.stderr)
+
+        dispatch_target = self.dispatch_table.get(event.event_type)
+        if not dispatch_target:
+            if self.debug_mode:
+                print('No dispatch target found matching inbound event type. Exiting.', file=sys.stderr)
+            return
+
+        filepath = event_data['src_path']        
+        match_result = dispatch_target.filter_regex.search(filepath)
+
+        if match_result is None:
+            if self.debug_mode:
+                print(f'No dispatch target found matching filter regex "{dispatch_target.filter_regex.pattern}". Exiting.', file=sys.stderr)
+            return 
+
+        if not self.preview_mode:            
+            should_run = True
+            if self.gate_function:
+                should_run = self.gate_function(event_data)
+            if should_run:
+                dispatch_target.handler_func(event_data, self.services, **self.trigger_params)
+
+
+def load_trigger_function(trigger_config, yaml_config):
+    trigger_funcname= trigger_config['function']
+    module_name = yaml_config['globals']['trigger_function_module']
+    trigger_module = __import__(module_name)
+    if not hasattr(trigger_module, trigger_funcname):
+        raise Exception('The trigger function module "%s" has no function "%s". Please check your configuration.' 
+                        % (module_name, trigger_funcname))
+    return common.load_class(trigger_funcname, module_name)
+
+
+def load_backcheck_function(trigger_config, yaml_config):
+
+    backcheck_funcname= trigger_config.get('backcheck_function')
+    if not backcheck_funcname:
+        return None
+
+    module_name = yaml_config['globals']['trigger_function_module']
+    trigger_module = __import__(module_name)
+    if not hasattr(trigger_module, backcheck_funcname):
+        raise Exception('The function module "%s" has no backcheck-function "%s". Please check your configuration.' 
+                        % (module_name, backcheck_funcname))
+    return common.load_class(backcheck_funcname, module_name)
+
+
+def load_trigger_params(trigger_config, yaml_config):
+    params = {}
+
+    param_list = trigger_config.get('params', [])
+    for param in param_list:
+        name = param['name']
+        value = param['value']
+
+        params[name] = value
+    return params
+
+
+def build_event_dispatcher(trigger_name, yaml_config, preview_mode, **cli_params):
+    
+    services = common.ServiceObjectRegistry(snap.initialize_services(yaml_config))
+    trigger_config = yaml_config['triggers'].get(trigger_name)
+    if not trigger_config:
+        raise Exception('No trigger registered under the name "%s". Please check your config file.'
+                        % trigger_name)
+
+    trigger_function = load_trigger_function(trigger_config, yaml_config)
+    trigger_parameters = load_trigger_params(trigger_config, yaml_config)
+    trigger_parameters.update(cli_params)
+
+    backcheck_function = load_backcheck_function(trigger_config, yaml_config)
+
+    dispatcher = EventDispatcher(services, trigger_parameters, preview_mode, debug=debug_mode)
+    recursion_setting = trigger_config.get('recursive', False)
+    event_type = trigger_config['event_type']
+    target_directory = trigger_config['parent_dir']
+
+    if not os.path.isdir(target_directory):
+        raise Exception('The target watch-directory %s either does not exist, or is not a directory. Please check your config file.' 
+                        % target_directory)
+
+    filter_rx_string = trigger_config.get('path_filter_regex', '')
+    if filter_rx_string == '*':
+        filter_rx_string = ''
+    filter_regex = re.compile(filter_rx_string)
+    
+    dispatcher.register_event_type(event_type, filter_regex, trigger_function)
+    
+    return (dispatcher, target_directory, recursion_setting)
+
+
+def load_gate_function(gate_function_name, yaml_config):
+
+    module_name = yaml_config['globals']['trigger_function_module']
+    trigger_module = __import__(module_name)
+    if not hasattr(trigger_module, gate_function_name):
+        raise Exception(f'The trigger function module "{module_name}" has no gate function "{gate_function_name}". Please check your configuration.')
+
+    return common.load_class(gate_function_name, module_name)
+
+
+def load_gates(yaml_config):
+    gates = {}
+
+    for trigger_name in yaml_config['triggers']:
+        trigger_config = yaml_config['triggers'][trigger_name]
+
+        if trigger_config.get('gate_function'):
+            gates[trigger_name] = load_gate_function(trigger_config['gate_function'], yaml_config)
+
+    return gates
+
+
+def compile_trigger_list(cmd_args: dict)-> list:
+    names = []
+    if cmd_args['--trigger']:
+        names.append(cmd_args['<trigger_name>'])
+
+    elif cmd_args['--triggers']:
+        list_string = cmd_args['<t1>'][0]
+        name_tokens = list_string.split(',')
+        names.extend(name_tokens)
+
+    return names
+        
+
+def main(args):
+    global debug_mode
+    debug_mode = args['--debug']
+
+    sys.path.append(os.getcwd())
+    
+    config_filename = args['<configfile>']
+    preview_mode = args['--preview'] or False
+    list_mode = args.get('--list') or False
+    replay_mode = args.get('--replay') or False
+    verbose_mode = args.get('--verbose') or False
+    yaml_config = common.read_config_file(config_filename)
+
+    project_dir = common.load_config_var(yaml_config['globals']['project_home'])
+    sys.path.append(project_dir)
+
+    if list_mode:
+        trigger_data = []
+        if yaml_config.get('triggers'):
+            for trigger_name, trigger_config  in yaml_config['triggers'].items():
+                if verbose_mode:
+                    trigger_data.append({
+                        'trigger_name': trigger_name,
+                        'settings': trigger_config
+                    })
+                else:
+                    trigger_data.append(trigger_name)
+        print(json.dumps(trigger_data))
+        return
+    
+    input_params = {
+        'debug': debug_mode
+    }
+
+    if replay_mode: # allows the user to namually fire a given trigger function
+        trigger_name = args['<trigger_name>']
+        if not yaml_config.get('triggers'):
+            print('no triggers specified in config file.', file=sys.stderr)
+            exit(1)
+        
+        if not yaml_config['triggers'].get(trigger_name):
+            print('no trigger "%s" registered in config file.' % trigger_name, file=sys.stderr)
+            exit(1)
+
+        trigger_config = yaml_config['triggers'][trigger_name]
+        tfunc = load_trigger_function(trigger_config, yaml_config)
+        
+        trigger_parameters = load_trigger_params(trigger_config, yaml_config) 
+        input_params.update(trigger_parameters)
+
+        services = common.ServiceObjectRegistry(snap.initialize_services(yaml_config))
+        input_file = args['<filename>']
+        event = {
+            'event_type': trigger_config['event_type'],
+            'src_path': args['<filename>'],
+            'dest_path': None, # TODO: we might want to set this to src_path instead
+            'is_directory': os.path.isdir(input_file),
+            'time_received': datetime.datetime.now().isoformat()
+        }
+
+        # has the user passed us explicit template parameters on the command line?
+        #        
+        if args.get('--params'):
+            raw_param_str = args['--params']
+            cli_params = parse_cli_params(raw_param_str)
+            # TODO: resolve references to environment vars
+
+            input_params.update(cli_params)
+
+        # execute trigger function
+        tfunc(event, services, **input_params)
+        return
+
+    else: # launch one or more filesystem watchers, which will automatically fire the associated trigger function
+        trigger_names = compile_trigger_list(args)
+
+        if args.get('--params'):
+            raw_param_str = args['--params']
+            cli_params = parse_cli_params(raw_param_str)
+            print(cli_params)
+
+            for name, value in cli_params.items():
+                if value[0] == '$':
+                    env_var = common.load_config_var(value)
+                    input_params[name] = common.load_config_var(env_var)
+                else:
+                    input_params[name] = value
+            
+        if debug_mode:
+            print(f'+++ selected triggers: {trigger_names}', file=sys.stderr)
+
+        watcher = Watcher(10, debug_mode)
+        function_gates = load_gates(yaml_config)
+
+        for trigger_name in trigger_names:
+
+            disp_tuple = build_event_dispatcher(trigger_name, yaml_config, preview_mode, **input_params)
+            dispatcher = disp_tuple[0]
+            target_dir = disp_tuple[1]
+            recursion_bool = disp_tuple[2]
+
+            if function_gates.get(trigger_name):
+                dispatcher.set_gate(function_gates[trigger_name])
+            
+            watcher.add_handler(trigger_name, dispatcher, target_dir, recursion_bool)
+            
+        watcher.run()
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)

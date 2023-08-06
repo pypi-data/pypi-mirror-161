@@ -1,0 +1,89 @@
+#!python
+
+'''
+Usage:
+    tuple2json --delimiter <delimiter> --keys=<key>... [--skip <num_lines>] [--limit=<limit>]
+    tuple2json --delimiter <delimiter> --datafile <file> --keys=<key>... [--skip <num_lines>] [--limit=<limit>]
+
+'''
+
+'''
++mdoc+
+
+tuple2json takes a list of tuples (represented as CSV records with the specified delimiter) and turns them 
+into a list of corresponding key:value JSON records whose keys are the comma-separated, ORDERED list of names
+passed to the --keys parameter.
+
+If the --datafile option is set, tuple2json reads its input records from the <file> parameter; if not, 
+it reads them from standard input. 
+
+tuple2json assumes a headlerless CSV file; it depends solely on the keys passed to it. If you are transforming a CSV
+file which contains a header, you must either remove it before passing the data, or use the --skip parameter; 
+otherwise the first record it generates will be a nonsense record. 
+
+tuple2json is often used in conjunction with tuplegen to turn a set of lists into a single JSONL file.
+
++mdoc+
+'''
+
+
+import os, sys
+import json
+import docopt
+from snap import common
+from mercury.utils import read_stdin
+
+
+def generate_dict_from_tuple(line: str, delimiter: str, keys: list):
+    # TODO: decide what to do if key count and token count do not match
+    output_record = {}
+    tokens = line.split(delimiter)
+    index = 0
+    for key in keys:
+        output_record[key] = tokens[index]
+        index += 1
+
+    return output_record
+
+
+def main(args):
+    
+    keys = args['--keys'][0].split(',')    
+    delimiter = args['<delimiter>']
+    limit = int(args.get('--limit') or -1)
+    skip_count = int(args.get('<num_lines>') or -1)
+
+    line_count = 0
+
+    if args['--datafile']:
+        with open(args['<file>'], 'r') as f:
+            for line in f:
+                if line_count == limit:
+                    break
+
+                if line_count < skip_count:
+                    line_count += 1
+                    continue
+
+                record = generate_dict_from_tuple(line.strip(), delimiter, keys)
+                print(json.dumps(record))
+                line_count += 1
+
+    else: # read data from standard input
+
+        for line in read_stdin():
+            if line_count == limit:
+                break
+
+            if line_count < skip_count:
+                line_count += 1
+                continue
+
+            record = generate_dict_from_tuple(line.strip(), delimiter, keys)
+            print(json.dumps(record))
+            line_count += 1
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)

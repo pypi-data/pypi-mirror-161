@@ -1,0 +1,78 @@
+#!python
+
+'''
+Usage:
+    tuplegen --delimiter <delimiter> [--skip <num_lines>] --listfiles=<filename>... [--limit=<limit>]
+
+'''
+
+'''
++mdoc+
+
+tuplegen generates a (headless) set of CSV records using the specified delimiter, from the ORDERED list of files
+passed to the --listfiles parameter. tuplegen will not generate a CSV header; if you wish to use it to generate
+a CSV file containing a header, you must ensure that the first line in each listfile is the column name.
+
+The source listfiles passed into tuplegen may be of different lengths; the gaps will simply be zero-length.
+
+tuplegen is often used in conjunction with tuple2json to turn a set of lists into a single JSONL file.
+
++mdoc+
+'''
+
+
+import os, sys
+import json
+import docopt
+from snap import common
+
+
+def generate_tuples(filenames: list):
+
+    file_handles = []
+    try:
+        for filename in filenames:
+            file_handles.append(open(filename))
+
+        while True:
+            record = []
+            file_index = 0
+            for handle in file_handles:
+                line = handle.readline().strip()
+                if len(line):
+                    record.append(line)
+                    
+                file_index += 1
+            if len(record):
+                yield record
+            else:
+                break
+
+    finally:
+        for handle in file_handles:
+            handle.close()
+
+
+def main(args):
+    
+    filenames = args['--listfiles'][0].split(',')    
+    delimiter = args['<delimiter>']
+    limit = int(args.get('--limit') or -1)
+    skip_count = int(args.get('<num_lines>') or 0)
+
+    line_count = 0
+    for t in generate_tuples(filenames):        
+        if line_count == limit:
+            break
+
+        if line_count < skip_count:
+            line_count += 1
+            continue
+
+        print(delimiter.join(t))
+        line_count += 1
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)

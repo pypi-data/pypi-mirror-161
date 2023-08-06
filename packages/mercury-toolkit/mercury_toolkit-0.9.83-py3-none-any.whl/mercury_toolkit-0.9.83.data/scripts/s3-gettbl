@@ -1,0 +1,168 @@
+#!python
+
+'''
+Usage:
+    s3-gettbl --config <configfile> --source <srcname> --manifest-uri <s3_uri> --list-keys
+    s3-gettbl --config <configfile> --source <srcname> --manifest-uri <s3_uri>
+    s3-gettbl --config <configfile> --list-sources
+'''
+
+import os, sys
+import json
+import multiprocessing as mp
+from snap import common
+import docopt
+import sh
+from sh import aws  # AWS CLI must already be installed
+from mercury import services as svcs
+
+
+
+class DATA_FORMAT(object):
+    CSV = 'csv'    
+    PARQUET = 'parquet'
+
+class Mode():
+    SERIAL = 'serial'
+    PARALLEL = 'parallel'
+
+
+def list_bucket_files_for_table(prefix, bucket_uri, directory, data_format):
+    extension = data_format
+    target_uri = os.path.join(bucket_uri, directory, '%s_*.%s' % (tablename, extension))
+    filenames = [name.lstrip().rstrip() for name in gsutil.ls(target_uri)]
+    return filenames
+
+
+def get_bucket_filecount_for_table(tablename, bucket_uri, directory, data_format):
+    return len(list_bucket_files_for_table(tablename, bucket_uri, directory, data_format))
+
+
+def stream_file_contents_direct_to_ngst(file_uri,
+                                        ngst_configfile,
+                                        ngst_target,
+                                        mode,
+                                        channel=None):
+    module = __name__
+    parent = os.getppid()
+    pid = os.getpid()
+
+    if channel:
+        ngst_cmd = ngst.bake('--config', ngst_configfile, '--target', ngst_target, '--channel=%s' % channel)
+    else:
+        ngst_cmd = ngst.bake('--config', ngst_configfile, '--target', ngst_target)
+
+
+
+    for line in ngst_cmd(gsutil('cp', file_uri, '-', _piped=True), _iter=True):
+        if mode == Mode.SERIAL:
+            print(line, file=sys.stderr)
+        else:
+            print('[%s:%s (child_proc_%s)]: %s' % (module, parent, pid, line), file=sys.stderr)
+
+
+def relay_file_contents_to_ngst(file_uri,
+                                data_format,
+                                delimiter,
+                                xfile_configfile,
+                                xfile_map,
+                                ngst_configfile,
+                                ngst_target,
+                                mode,
+                                channel=None):
+    module = __name__
+    parent = os.getppid()
+    pid = os.getpid()
+
+    if delimiter:
+        xfile_cmd = xfile.bake('--config', xfile_configfile, '--delimiter', delimiter, '--map', xfile_map, '-s')
+    elif data_format == DATA_FORMAT.JSON:
+        xfile_cmd = xfile.bake('--config', xfile_configfile, '--json', '--map', xfile_map, '-s')
+    else:
+        raise Exception('only csv and json formats are currently supported.')
+
+    if channel:
+        ngst_cmd = ngst.bake('--config', ngst_configfile, '--target', ngst_target, '--channel=%s' % channel)
+    else:
+        ngst_cmd = ngst.bake('--config', ngst_configfile, '--target', ngst_target)
+
+    for line in ngst_cmd(xfile_cmd(gsutil('cp', file_uri, '-', _piped=True), _piped=True), _iter=True):
+        if mode == Mode.SERIAL:
+            print(line, file=sys.stderr)
+        else:
+            print('[%s:%s (child_proc_%s)]: %s' % (module, parent, pid, line), file=sys.stderr)
+
+
+def stream_file_contents(file_uri, xfile_configfile, delimiter, xfile_map, mode):
+    module = __name__
+    parent = os.getppid()
+    pid = os.getpid()
+
+    xfile_cmd = xfile.bake('--config', xfile_configfile, '--delimiter', delimiter, '--map', xfile_map, '-s')    
+
+    for line in xfile_cmd(gsutil('cp', file_uri, '-', _piped=True), _iter=True):
+        if mode == Mode.SERIAL:
+            print(line, file=sys.stderr)
+        else:
+            print('[%s:%s (child_proc_%s)]: %s' % (module, parent, pid, line), file=sys.stderr)
+
+
+def list_s3_keys_from_manifest(bucket_name, bucket_path, manifest_data):
+    keys = []
+    for manifest_entry in manifest_data['entries']:
+        url = manifest_entry['url']
+        #filename = url.split('/')[-1]        
+        #if filename.startswith(tablename):
+        keys.append(url)
+
+    return keys
+
+
+def main(args):
+    configfile = args['<configfile>']
+    source_name = args['<srcname>']
+    yaml_config = common.read_config_file(configfile)
+    s3_service = None
+
+    list_src_mode = False
+    if args['--list-sources']:
+        list_src_mode = True
+
+    list_keys_mode = False
+    if args['--list-keys']:
+        list_keys_mode = True
+
+    if args['--source']:
+        if yaml_config['s3_sources'].get(source_name) is None:
+            raise Exception('No S3 source "%s" registered in config file.' % source_name)
+
+        s3_init_params = yaml_config['s3_sources'][source_name]
+        s3_service = svcs.S3Service(**s3_init_params)
+
+    elif args['--list-sources']:
+        for source in yaml_config['s3_sources'].keys():
+            print(source)
+        return
+
+    manifest_uri = args['<s3_uri>']
+    if not manifest_uri.startswith('s3://'):
+        raise Exception('Badly formatted S3 URI: %s' % manifest_uri)
+
+    uri_body = manifest_uri.split('s3://')[1]
+    uri_tokens = uri_body.split('/')
+    bucket_name = uri_tokens[0]
+    s3_key_string = '/'.join(uri_tokens[1:])
+
+    manifest_data = s3_service.download_json(bucket_name, s3_key_string)
+    
+    if args['--list-keys']:
+        keys = list_s3_keys_from_manifest(bucket_name, s3_key_string, manifest_data)
+        print('\n'.join(keys))
+        return
+    
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)
+

@@ -1,0 +1,95 @@
+#!python
+
+'''Usage:
+            filtr -x <expression> [--datafile <datafile>] [--skip <skip_count> ] [--limit=<max_records>]
+            filtr -x <expression> -p 
+            filtr --fmodule <filter_module> [--servicemodule <svc_module>] --ffunc <filter_function> [datafile] [--limit=<max_records>]
+            filtr --config <configfile> --list (rules | functions | services)
+            filtr --config <configfile> -r <filter_rule> [--limit=<max_records>]                        
+
+   Options:
+            -p   --preview      in expression mode, show the generated lambda
+'''
+
+'''
++mdoc+
+
+filtr: command line utility for filtering record streams
+
++mdoc+
+'''
+
+import os, sys
+import csv
+import json
+import re
+import copy
+from collections import namedtuple, OrderedDict
+import docopt
+from docopt import docopt as docopt_func
+from docopt import DocoptExit
+
+from snap import snap, common
+from mercury import datamap as dmap
+import yaml
+import logging
+
+rx_var_placeholder = re.compile(r'\~[a-zA-Z\-_]+')
+lambda_template = 'lambda {vars}: {exp}'
+
+
+ExpansionTuple = namedtuple('ExpansionTuple', 'placeholder varname')
+
+def expand_lambda_template(raw_expression):    
+    #raise Exception('invalid format for predicate placeholder variable. Please check your command line.')    
+    lambda_vars = OrderedDict()
+    for match in rx_var_placeholder.finditer(raw_expression):        
+        placeholder = match.group()        
+        lambda_vars[placeholder]=placeholder[1:]        
+
+    expr = raw_expression    
+    for key, value in lambda_vars.items():
+        expr = expr.replace(key, value)
+
+    vars = [lambda_vars[k] for k in lambda_vars.keys()]
+    vars_string = ','.join(vars)
+    return lambda_template.format(vars=vars_string, exp=expr)
+
+
+def main(args):
+    limit = -1
+    if args.get('--limit') is not None:
+        limit = int(args['--limit'])
+
+    if args['-x']:
+        # expression mode
+        expression = args['<expression>']
+        lstring = expand_lambda_template(expression)
+        if args['-p']: # preview mode simply prints the lambda expression
+            print(lstring, file=sys.stderr)
+            return    
+        filter_func = eval(lstring)
+        if args['--datafile']:
+            with open(args['<datafile>']) as f:
+                for line in f:
+                    record = line.lstrip().rstrip()
+                    if filter_func(record):
+                        print(record)
+        else:
+            # if no datafile provided, read records from stdin
+            record_count = 0
+            while True:
+                if record_count == limit:
+                    break
+                raw_line = sys.stdin.readline()
+                line = raw_line.lstrip().rstrip()
+                if not len(line):
+                    break
+                if filter_func(line):
+                    print(line)
+                record_count += 1
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)
