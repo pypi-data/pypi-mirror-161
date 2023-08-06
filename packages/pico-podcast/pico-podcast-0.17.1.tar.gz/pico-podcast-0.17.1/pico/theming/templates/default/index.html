@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block header %}
+    {% if SITE_SETTINGS.DOMAINS_OR_SLUGS == 'slugs' %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {% block hero %}
+        <div class="c-archive">
+            <div class="o-grid">
+                <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l">
+                    <h1 class="c-archive__title">{{ SITE_SETTINGS.NETWORK_NAME|default:'' }}</h1>
+                    {% if SITE_SETTINGS.NETWORK_SUBTITLE %}
+                        <p class="c-archive__description">{{ SITE_SETTINGS.NETWORK_SUBTITLE }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock hero %}
+
+    <div class="o-grid js-grid c-loop">
+        {% for object in object_list %}
+            <div class="js-post-card-wrap c-post-card-wrap o-grid__col o-grid__col--initial-grow o-grid__col--4-4-s o-grid__col--2-4-m o-grid__col--2-4-l">
+                <a href="{{ object.build_absolute_uri }}" class="c-post-card {% if forloop.first %} c-post-card--featured {% endif %}">
+                    {% if object.artwork %}
+                        <div class="c-post-card__media">
+                            <img alt="{{ object.title }}" class="c-post-card__image lazyload" data-srcset="
+                                {% thumbnail object.artwork '320x320' %} 320w,
+                                {% thumbnail object.artwork '578x578' %} 578w,
+                                {% thumbnail object.artwork '1156x1156' %} 1156w"
+                                sizes="(min-width: 1360px) 578px, (min-width: 640px) calc(44.86vw - 23px), calc(100vw - 48px)"
+                                data-src="{{ object.artwork.url }}">
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock main %}
+
+{% block social_icons %}
+    <ul class="c-social-icons o-plain-list">
+        {% if podcast.twitter_username or SITE_SETTINGS.TWITTER_CREATOR %}
+            <li class="c-social-icons__item">
+                <a href="https://twitter.com/{{ podcast.twitter_username|default:SITE_SETTINGS.TWITTER_CREATOR }}/" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
+                    <span class="c-social-icons__icon" data-icon="ei-sc-twitter" data-size="s"></span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% if podcast.facebook_username or SITE_SETTINGS.FACEBOOK_USERNAME %}
+            <li class="c-social-icons__item">
+                <a href="https://www.facebook.com/{{ podcast.facebook_username|default:SITE_SETTINGS.FACEBOOK_USERNAME }}/" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <span class="c-social-icons__icon" data-icon="ei-sc-facebook" data-size="s"></span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% if podcast.instagram_username or SITE_SETTINGS.INSTAGRAM_USERNAME %}
+            <li class="c-social-icons__item">
+                <a href="https://www.instagram.com/{{ podcast.instagram_username|default:SITE_SETTINGS.INSTAGRAM_USERNAME }}/" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <span class="c-social-icons__icon" data-icon="ei-sc-instagram" data-size="s"></span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock social_icons %}

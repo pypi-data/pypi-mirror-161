@@ -1,0 +1,120 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/style-min.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
+    <script src="{% static 'js/darkmode.js' %}"></script>
+    <script>window.site_url = '/'; window.search_api_key = '';</script>
+{% endblock css %}
+
+{% block body %}
+    <div class='c-site-container'>
+        {% block header %}
+            <header class="js-header c-header">
+                <div class="o-grid o-grid--center">
+                    <div class="o-grid__col o-grid__col--3-4-s o-grid__col--3-4-m o-grid__col--1-3-l">
+                        <div class="c-logo">
+                            {% block brand %}
+                                <a class="c-logo__link" href="/">{{ SITE_SETTINGS.NETWORK_NAME|default:'' }}</a>
+                            {% endblock %}
+                        </div>
+                    </div>
+
+                    {% block menu %}
+                        <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-3-l">
+                            <nav class="c-nav-wrap">
+                                <ul class="c-nav o-plain-list">
+                                    {% for item in menu_items %}
+                                        <li class="c-nav__item">
+                                            <a href="{{ item.url }}" class="{% if item.highlight %}c-btn c-btn--mini{% else %}c-nav__link{% if item.active %} c-nav__link--current{% endif %}{% endif %}">{{ item.text }}</a>
+                                        </li>
+                                    {% endfor %}
+
+                                    <li class="c-nav__item">
+                                        <button class="c-nav__link c-color-mode-btn js-mode-toggle js-mode-toggle-title" title="Enable dark mode">
+                                            <span class="u-hidden-visually js-mode-toggle-text">Enable dark mode</span>
+                                            <span class="c-color-mode-btn__icon" aria-hidden="true"></span>
+                                        </button>
+                                    </li>
+                                    <li class="c-nav__item">
+                                        <a href="javascript:;" class="toggle-search-button js-search-toggle" aria-label="Search">
+                                            <div class="icon icon--ei-search icon--s c-nav__icon">
+                                                <svg class="icon__cnt">
+                                                    <svg viewBox="0 0 50 50"><path d="M23 36c-7.2 0-13-5.8-13-13s5.8-13 13-13 13 5.8 13 13-5.8 13-13 13zm0-24c-6.1 0-11 4.9-11 11s4.9 11 11 11 11-4.9 11-11-4.9-11-11-11z"></path><path d="M32.682 31.267l8.98 8.98-1.414 1.414-8.98-8.98z"></path></svg>
+                                                </svg>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <div class="js-nav-toggle c-nav-toggle">
+                                <span class="c-nav-toggle__icon"></span>
+                            </div>
+                        </div>
+                    {% endblock menu %}
+                </div>
+            </header>
+        {% endblock header %}
+
+        <div class="o-wrapper">
+            {% block main %}{% endblock %}
+
+            <footer class="c-footer">
+                <div class="o-grid">
+                    <div class="o-grid__col o-grid__col--4-4-s">
+                        {% block social_icons %}{% endblock %}
+                    </div>
+
+                    <div class="o-grid__col o-grid__col--4-4-s u-mt-16">
+                        <ul class="c-footer-nav o-plain-list">
+                            {% for item in menu_items %}
+                                <li class="c-nav__item">
+                                    <a href="{{ item.url }}" class="c-nav__link{% if item.active %} c-nav__link--current{% endif %}">{{ item.text }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="o-grid__col o-grid__col--4-4-s u-mt-16">
+                        <div class="u-type-xs c-footer__copyright">
+                            {% block copyright %}&copy; {% now 'Y' %} {{ SITE_SETTINGS.COPYRIGHT_NAME|default:SITE_SETTINGS.NETWORK_NAME|default:'' }}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <div class="c-search js-search">
+        <div class="o-grid">
+            <div class="o-grid__col o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l o-grid__col--center">
+                <form class="c-search__form">
+                    <span class="c-search__icon" data-icon="ei-search" data-size="m"></span>
+                    <label for="search-form-input" class="u-hidden-visually">Search the site</label>
+                    <input type="search" id="search-form-input" aria-label="Search the site" class="c-search__input js-search-input" placeholder="Type to search">
+                </form>
+            </div>
+        </div>
+
+        <div class="o-grid">
+            <div class="o-grid__col o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l o-grid__col--center">
+                <div class="c-search-results js-search-results"></div>
+            </div>
+        </div>
+
+        <div class="c-search__close js-search-close">
+            <div data-icon="ei-close" data-size="s"></div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+    <script src="{% static 'js/ghosthunter.js' %}"></script>
+    <script src="{% static 'js/app.min.js' %}"></script>
+{% endblock javascript %}
