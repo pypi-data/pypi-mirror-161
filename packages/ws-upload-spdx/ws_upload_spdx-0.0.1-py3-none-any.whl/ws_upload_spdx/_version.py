@@ -1,0 +1,3 @@
+__version__ = "0.0.1"
+__tool_name__ = "upload_spdx"
+__description__ = "Preparation upload file for Mend UI"
