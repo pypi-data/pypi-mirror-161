@@ -1,0 +1,256 @@
+---
+# Schema for metadata file "staged.yaml" or "pub-mapfile.json"
+# accompanying a staged source.
+#
+# For general information about staging directories, see:
+# https://release-engineering.github.io/pushsource/sources/staged.html
+#
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://release-engineering.github.io/pushsource/staged-schema.yaml
+
+
+###############################################################################
+#  Subschemas
+definitions:
+
+    header:
+        type: object
+        properties:
+            version:
+                # Version of the file format.
+                # There is only a single supported version now.
+                const: "0.2"
+
+        requiredProperties:
+        - version
+
+        additionalProperties: false
+
+    payload:
+        type: object
+        properties:
+            files:
+                $ref: "#/definitions/file_list"
+        additionalProperties: false
+
+    attributes_any:
+        type: object
+        anyOf:
+        - $ref: "#/definitions/attributes_ami"
+        - $ref: "#/definitions/attributes_file"
+
+    attributes_ami:
+        # Attributes for Amazon Machine Images (AMIs).
+        properties:
+
+            release:
+                $ref: "#/definitions/ami_release"
+
+            region:
+                # AWS region to which this AMI should be pushed.
+                type: string
+                minLength: 1
+
+            type:
+                # Billing type for the image.
+                type: string
+                enum:
+                - hourly
+                - access
+                - marketplace
+
+            virtualization:
+                # Virtualization type.
+                type: string
+                enum:
+                - hvm
+
+            volume:
+                type: string
+                enum:
+                - standard
+                - gp2
+                - gp3
+                - io1
+                - io2
+                - st1
+                - sc1
+
+            root_device:
+                type: string
+                minLength: 1
+
+            description:
+                $ref: "#/definitions/optional_string"
+
+            sriov_net_support:
+                type:
+                - string
+                - "null"
+                enum:
+                - simple
+                - null
+
+            ena_support:
+                type:
+                - boolean
+                - "null"
+
+            billing_codes:
+                $ref: "#/definitions/ami_billing_codes"
+
+
+        required:
+        - release
+        - region
+        - type
+        - virtualization
+        - volume
+        - root_device
+
+        additionalProperties: false
+
+    attributes_file:
+        # Attributes for generic files.
+        properties:
+
+            description:
+                # Human-readable brief description of the file, e.g.
+                # appropriate for use in a file browsing UI
+                type: string
+
+        required:
+        - description
+        additionalProperties: false
+
+    file_list:
+        type: array
+        items:
+            anyOf:
+            - $ref: "#/definitions/file"
+            - $ref: "#/definitions/unsupported_file"
+        uniqueItems: true
+
+    file:
+        type: object
+        properties:
+            filename:
+                # Desired name of this file on the target system.
+                # Need not match the filename used in the staging area.
+                type: string
+                minLength: 1
+
+            relative_path:
+                # Relative path to the file being pushed within the staging
+                # area.
+                type: string
+                minLength: 3
+
+            sha256sum:
+                # SHA256 checksum of this file's content, as a hex digest.
+                type: string
+                minLength: 64
+                maxLength: 64
+                pattern: "^[0-9a-fA-F]+$"
+
+            version:
+                # A version string for display purposes
+                type: string
+                minLength: 1
+
+            order:
+                # An ordering hint for display purposes
+                type: number
+                minimum: -99999
+                maximum: 99999
+
+            attributes:
+                # Additional metadata, differs per content type.
+                $ref: "#/definitions/attributes_any"
+
+        additionalProperties: false
+
+    # Metadata for legacy types of files which were previously supported
+    # and are no longer. This schema simply accepts entries for these
+    # files without validating any of the attributes other than the path.
+    unsupported_file:
+        type: object
+        properties:
+            relative_path:
+                type: string
+                pattern: "^[^/]+/(DOCKER|CHANNEL_DUMPS)/"
+        required:
+        - relative_path
+
+    ami_release:
+        # Release metadata for an AMI.
+        type: object
+        properties:
+            product:
+                type: string
+                minLength: 1
+            version:
+                $ref: "#/definitions/optional_string"
+            base_product:
+                $ref: "#/definitions/optional_string"
+            base_version:
+                $ref: "#/definitions/optional_string"
+            variant:
+                $ref: "#/definitions/optional_string"
+            arch:
+                type: string
+                enum:
+                - arm64
+                - x86_64
+            respin:
+                type: integer
+            type:
+                $ref: "#/definitions/optional_string"
+                enum: ['ga', 'beta', null]
+            date:
+                type: string
+                minLength: 1
+                pattern: "^[0-9]{8}$"
+        required:
+        - product
+        - date
+        - arch
+        - respin
+
+    optional_string:
+        # A field which may hold a non-empty string, or null.
+        type:
+        - string
+        - "null"
+        minLength: 1
+
+    ami_billing_codes:
+        # Billing codes for an AMI
+        type:
+        - object
+        - "null"
+        properties:
+            name:
+                type: string
+            codes:
+                type: array
+                items:
+                    type: string
+        required:
+        - name
+        - codes
+
+###############################################################################
+#  Main schema
+type: object
+properties:
+    header:
+        $ref: "#/definitions/header"
+    payload:
+        $ref: "#/definitions/payload"
+
+required:
+- header
+
+additionalProperties: false
