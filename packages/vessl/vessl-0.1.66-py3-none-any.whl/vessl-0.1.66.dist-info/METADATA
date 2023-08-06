@@ -1,0 +1,85 @@
+Metadata-Version: 2.1
+Name: vessl
+Version: 0.1.66
+Summary: A library and CLI for VESSL
+Home-page: UNKNOWN
+Author: VESSL AI Dev Team
+Author-email: contact@vessl.ai
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: boto3
+Requires-Dist: click (==8.0.1)
+Requires-Dist: cloudpickle (==1.6.0)
+Requires-Dist: fastapi (==0.78.0)
+Requires-Dist: inquirer (>=2.7.0)
+Requires-Dist: paramiko (==2.11.0)
+Requires-Dist: python-dateutil (>=2.8.1)
+Requires-Dist: requests (>=2.0.0)
+Requires-Dist: requests-futures (>=1.0.0)
+Requires-Dist: sentry-sdk (>=1.1.0)
+Requires-Dist: schema (>=0.7.4)
+Requires-Dist: shortuuid
+Requires-Dist: sshpubkeys (==3.3.1)
+Requires-Dist: terminaltables (>=3.1.0)
+Requires-Dist: timeago (==1.0.15)
+Requires-Dist: toml (==0.10.1)
+Requires-Dist: tqdm
+Requires-Dist: psutil (==5.8.0)
+Requires-Dist: pynvml (==11.0.0)
+Requires-Dist: PyYAML (==5.4.1)
+Requires-Dist: humanfriendly (==10.0)
+Requires-Dist: uvicorn (==0.16.0)
+Provides-Extra: media
+Requires-Dist: numpy ; extra == 'media'
+Requires-Dist: Pillow (>=8.0.0) ; extra == 'media'
+Requires-Dist: soundfile ; extra == 'media'
+Requires-Dist: wave ; extra == 'media'
+
+# `vessl-python-sdk`
+
+## Basic usage
+
+```python
+import vessl
+
+vessl.init(organization_name="my-organization")
+vessl.create_experiment(...)
+```
+
+## Integrations
+
+### Keras
+
+- Use ExperimentCallback
+
+```python
+import vessl
+from vessl.integration.keras import ExperimentCallback
+
+vessl.init()
+
+# Keras training code
+model = Model()
+model.compile(...)
+
+# Add integration
+model.fit(x, y, epochs=5, callbacks=[ExperimentCallback()])
+```
+
+- Run experiment on Vessl using Web UI or SDK
+
+
+### For M1
+```bash
+docker context create remote --docker "host=ssh://ec2-user@10.110.3.24"
+docker context use remote
+docker build . -t vessl-python-sdk
+docker run vessl-python-sdk
+```
+
+
