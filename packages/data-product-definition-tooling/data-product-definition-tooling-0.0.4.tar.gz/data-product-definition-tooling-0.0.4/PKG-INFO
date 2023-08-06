@@ -1,0 +1,53 @@
+Metadata-Version: 2.1
+Name: data-product-definition-tooling
+Version: 0.0.4
+Summary: Data Product Definition Tooling
+Home-page: https://github.com/ioxio-nexus/data-product-definition-tooling
+License: BSD-3-Clause
+Author: Digital Living International Ltd
+Requires-Python: >=3.9.0,<4
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: deepdiff (>=5.8.0,<6.0.0)
+Requires-Dist: fastapi (>=0.70.1,<0.71.0)
+Requires-Dist: stringcase (>=1.2.0,<2.0.0)
+Requires-Dist: typer (>=0.4.1,<0.5.0)
+Project-URL: Repository, https://github.com/ioxio-nexus/data-product-definition-tooling
+Description-Content-Type: text/markdown
+
+# Data Product Definitions tooling
+
+Tools for managing Data Product definitions
+
+# Installation
+
+```shell
+poetry install
+```
+
+# Usage
+
+```shell
+poetry run converter --help
+
+# run tests
+poetry run invoke test
+
+# release a new version (after bumping it in pyproject.toml)
+poetry run invoke release
+```
+
+## Pre-commit hooks
+
+```yaml
+repos:
+  - repo: https://github.com/ioxio-nexus/data-product-definition-tooling
+    rev: main # You probably want to lock this to a specific tag
+    hooks:
+      - id: data-product-definition-converter
+        files: "src/.*py$"
+        args: ["src", "dest"]
+```
+
