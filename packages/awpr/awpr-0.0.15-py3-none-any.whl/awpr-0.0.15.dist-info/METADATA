@@ -1,0 +1,43 @@
+Metadata-Version: 2.1
+Name: awpr
+Version: 0.0.15
+Summary: Library that helps an application report progress to Argo Workflows.
+Home-page: https://github.com/fsai-dev/fsai-cli-tools
+License: MIT
+Author: Michael Mohamed
+Author-email: michael@foundationstack.com
+Requires-Python: >=3.7.1,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: beartype (>=0.10.4,<0.11.0)
+Requires-Dist: loguru (>=0.6.0,<0.7.0)
+Project-URL: Repository, https://github.com/fsai-dev/fsai-cli-tools
+Description-Content-Type: text/markdown
+
+# awpr
+Library that helps an application report progress to Argo Workflows.
+
+
+## Installation 
+```shell
+pip install awpr
+```
+
+## Usage
+Set the environment variable and run your application:
+`ARGO_PROGRESS_FILE=/tmp/progress.txt`
+
+```shell
+from awpr.awpr import ArgoWorkflowsProgressReporter
+
+awpr = ArgoWorkflowsProgressReporter()
+awpr.set_total_progress(100)
+awpr.start_reporting()
+
+awpr.set_current_progress(20)
+awpr.set_current_progress(30)
+awpr.get_progress_percent()
+```
