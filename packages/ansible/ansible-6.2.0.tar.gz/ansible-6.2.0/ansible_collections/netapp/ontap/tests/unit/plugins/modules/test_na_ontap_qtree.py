@@ -1,0 +1,333 @@
+''' unit tests ONTAP Ansible module: na_ontap_quotas '''
+from __future__ import (absolute_import, division, print_function)
+
+__metaclass__ = type
+import pytest
+
+import ansible_collections.netapp.ontap.plugins.module_utils.netapp as netapp_utils
+from ansible_collections.netapp.ontap.tests.unit.plugins.module_utils.ansible_mocks import patch_ansible,\
+    create_module, create_and_apply, expect_and_capture_ansible_exception
+from ansible_collections.netapp.ontap.tests.unit.framework.mock_rest_and_zapi_requests import patch_request_and_invoke,\
+    register_responses
+from ansible_collections.netapp.ontap.tests.unit.framework.rest_factory import rest_responses
+from ansible_collections.netapp.ontap.tests.unit.framework.zapi_factory import build_zapi_response, zapi_responses
+
+from ansible_collections.netapp.ontap.plugins.modules.na_ontap_qtree \
+    import NetAppOntapQTree as qtree_module  # module under test
+
+if not netapp_utils.has_netapp_lib():
+    pytestmark = pytest.mark.skip('skipping as missing required netapp_lib')
+
+
+DEFAULT_ARGS = {
+    'state': 'present',
+    'hostname': 'hostname',
+    'username': 'username',
+    'password': 'password',
+    'name': 'ansible',
+    'vserver': 'ansible',
+    'flexvol_name': 'ansible',
+    'export_policy': 'ansible',
+    'security_style': 'unix',
+    'unix_permissions': '755',
+    'use_rest': 'never'
+}
+
+
+qtree_info = {
+    'num-records': 1,
+    'attributes-list': {
+        'qtree-info': {
+            'export-policy': 'ansible',
+            'vserver': 'ansible',
+            'qtree': 'ansible',
+            'oplocks': 'enabled',
+            'security-style': 'unix',
+            'mode': '755',
+            'volume': 'ansible'
+        }
+    }
+}
+
+
+ZRR = zapi_responses({
+    'qtree_info': build_zapi_response(qtree_info)
+})
+
+
+# REST API canned responses when mocking send_request
+SRR = rest_responses({
+    'qtree_record': (200, {"records": [{
+        "svm": {"name": "ansible"},
+        "id": 1,
+        "name": "ansible",
+        "security_style": "unix",
+        "unix_permissions": 755,
+        "export_policy": {"name": "ansible"},
+        "volume": {"uuid": "uuid", "name": "volume1"}}
+    ]}, None)
+})
+
+
+def test_module_fail_when_required_args_missing():
+    ''' required arguments are reported as errors '''
+    # with python 2.6, dictionaries are not ordered
+    fragments = ["missing required arguments:", "hostname", "name", "vserver", "flexvol_name"]
+    error = create_module(qtree_module, {}, fail=True)['msg']
+    for fragment in fragments:
+        assert fragment in error
+
+
+def test_ensure_get_called():
+    ''' test get_qtree for non-existent qtree'''
+    register_responses([
+        ('qtree-list-iter', ZRR['empty'])
+    ])
+    my_obj = create_module(qtree_module, DEFAULT_ARGS)
+    portset = my_obj.get_qtree()
+    assert portset is None
+
+
+def test_ensure_get_called_existing():
+    ''' test get_qtree for existing qtree'''
+    register_responses([
+        ('qtree-list-iter', ZRR['qtree_info'])
+    ])
+    my_obj = create_module(qtree_module, DEFAULT_ARGS)
+    assert my_obj.get_qtree()
+
+
+def test_successful_create():
+    ''' creating qtree '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['empty']),
+        ('qtree-create', ZRR['success'])
+    ])
+    assert create_and_apply(qtree_module, DEFAULT_ARGS)['changed']
+
+
+def test_successful_delete():
+    ''' deleting qtree '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['qtree_info']),
+        ('qtree-delete', ZRR['success'])
+    ])
+    args = {'state': 'absent'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_successful_delete_idempotency():
+    ''' deleting qtree idempotency '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['empty'])
+    ])
+    args = {'state': 'absent'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed'] is False
+
+
+def test_successful_modify():
+    ''' modifying qtree '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['qtree_info']),
+        ('qtree-modify', ZRR['success'])
+    ])
+    args = {'export_policy': 'test'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_failed_rename():
+    ''' test error rename qtree '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['empty']),
+        ('qtree-list-iter', ZRR['empty'])
+    ])
+    args = {'from_name': 'test'}
+    error = 'Error renaming: qtree %s does not exist' % args['from_name']
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, args, fail=True)['msg']
+
+
+def test_successful_rename():
+    ''' rename qtree '''
+    register_responses([
+        ('ems-autosupport-log', ZRR['empty']),
+        ('qtree-list-iter', ZRR['empty']),
+        ('qtree-list-iter', ZRR['qtree_info']),
+        ('qtree-rename', ZRR['success'])
+    ])
+    args = {'from_name': 'ansible_old'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_if_all_methods_catch_exception():
+    ''' test error zapi - get/create/rename/modify/delete'''
+    register_responses([
+        ('qtree-list-iter', ZRR['error']),
+        ('qtree-create', ZRR['error']),
+        ('qtree-rename', ZRR['error']),
+        ('qtree-modify', ZRR['error']),
+        ('qtree-delete', ZRR['error'])
+    ])
+    qtree_obj = create_module(qtree_module, DEFAULT_ARGS, {'from_name': 'name'})
+
+    assert 'Error fetching qtree' in expect_and_capture_ansible_exception(qtree_obj.get_qtree, 'fail')['msg']
+    assert 'Error creating qtree' in expect_and_capture_ansible_exception(qtree_obj.create_qtree, 'fail')['msg']
+    assert 'Error renaming qtree' in expect_and_capture_ansible_exception(qtree_obj.rename_qtree, 'fail')['msg']
+    assert 'Error modifying qtree' in expect_and_capture_ansible_exception(qtree_obj.modify_qtree, 'fail')['msg']
+    assert 'Error deleting qtree' in expect_and_capture_ansible_exception(qtree_obj.delete_qtree, 'fail')['msg']
+
+
+def test_get_error_rest():
+    ''' test get qtree error in rest'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['generic_error'])
+    ])
+    error = 'Error fetching qtree'
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, {'use_rest': 'always'}, 'fail')['msg']
+
+
+def test_create_error_rest():
+    ''' test get qtree error in rest'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['empty_records']),
+        ('POST', 'storage/qtrees', SRR['generic_error'])
+    ])
+    error = 'Error creating qtree'
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, {'use_rest': 'always'}, 'fail')['msg']
+
+
+def test_modify_error_rest():
+    ''' test get qtree error in rest'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('PATCH', 'storage/qtrees/uuid/1', SRR['generic_error'])
+    ])
+    args = {'use_rest': 'always', 'unix_permissions': '777'}
+    error = 'Error modifying qtree'
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, args, 'fail')['msg']
+
+
+def test_rename_error_rest():
+    ''' test get qtree error in rest'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['empty_records']),
+        ('GET', 'storage/qtrees', SRR['empty_records'])
+    ])
+    args = {'use_rest': 'always', 'from_name': 'abcde', 'name': 'qtree'}
+    error = 'Error renaming: qtree'
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, args, 'fail')['msg']
+
+
+def test_delete_error_rest():
+    ''' test get qtree error in rest'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('DELETE', 'storage/qtrees/uuid/1', SRR['generic_error'])
+    ])
+    args = {'use_rest': 'always', 'state': 'absent'}
+    error = 'Error deleting qtree'
+    assert error in create_and_apply(qtree_module, DEFAULT_ARGS, args, 'fail')['msg']
+
+
+def test_successful_create_rest():
+    ''' test create qtree rest '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['empty_records']),
+        ('POST', 'storage/qtrees', SRR['success'])
+    ])
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, {'use_rest': 'always'})['changed']
+
+
+def test_idempotent_create_rest():
+    ''' test create qtree idempotency '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record'])
+    ])
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, {'use_rest': 'always'})['changed'] is False
+
+
+def test_successful_delete_rest():
+    ''' test delete qtree rest '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('DELETE', 'storage/qtrees/uuid/1', SRR['success'])
+    ])
+    args = {'use_rest': 'always', 'state': 'absent'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_idempotent_delete_rest():
+    ''' test delete qtree idempotency'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['empty_records'])
+    ])
+    args = {'use_rest': 'always', 'state': 'absent'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed'] is False
+
+
+def test_successful_modify_rest():
+    ''' test modify qtree rest '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('PATCH', 'storage/qtrees/uuid/1', SRR['success'])
+    ])
+    args = {'use_rest': 'always', 'unix_permissions': '777'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_idempotent_modify_rest():
+    ''' test modify qtree idempotency '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record'])
+    ])
+    args = {'use_rest': 'always'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, {'use_rest': 'always'})['changed'] is False
+
+
+def test_successful_rename_rest():
+    ''' test rename qtree rest '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['zero_records']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('PATCH', 'storage/qtrees/uuid/1', SRR['success'])
+    ])
+    args = {'use_rest': 'always', 'from_name': 'abcde', 'name': 'qtree'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
+
+
+def test_successful_rename_rest_idempotent():
+    ''' test rename qtree in rest - idempotency'''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['qtree_record'])
+    ])
+    args = {'use_rest': 'always', 'from_name': 'abcde'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed'] is False
+
+
+def test_successful_rename_and_modify_rest():
+    ''' test rename and modify qtree rest '''
+    register_responses([
+        ('GET', 'cluster', SRR['is_rest_9_9_1']),
+        ('GET', 'storage/qtrees', SRR['empty_records']),
+        ('GET', 'storage/qtrees', SRR['qtree_record']),
+        ('PATCH', 'storage/qtrees/uuid/1', SRR['success'])
+    ])
+    args = {'use_rest': 'always', 'from_name': 'abcde', 'name': 'qtree', 'unix_permissions': '744'}
+    assert create_and_apply(qtree_module, DEFAULT_ARGS, args)['changed']
