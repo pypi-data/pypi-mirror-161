@@ -1,0 +1,69 @@
+Metadata-Version: 2.1
+Name: oil-reservoir-synthesizer
+Version: 0.1.0
+Summary: A generator for synthetic oil reservoir values
+Author-email: Equinor <fg_sib-scout@equinor.com>
+Maintainer-email: Eivind Jahren <ejah@equinor.com>
+License: GPL-3.0
+Project-URL: Homepage, https://github.com/equinor/oil_reservoir_synthesizer
+Project-URL: Repository, https://github.com/equinor/oil_reservoir_synthesizer
+Project-URL: Bug Tracker, https://github.com/equinor/oil_reservoir_synthesizer/issues
+Classifier: Development Status :: 1 - Planning
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+
+Oil Reservoir Synthesizer
+==========
+
+A generator for synthetic oil reservoir simulator results based
+on [perlin noise](https://en.wikipedia.org/wiki/Perlin_noise). The
+values generated are pseudo-random but retains the nice properties
+of perlin noise.
+
+The values generated have names (such as fopr) that are derived from oil
+simulators such as [opm-flow](opm-project.org).
+
+## Example
+
+The code exposes one class, `OilSimulator` which is a builder of
+the oil reservoir model and the generator of the values.
+
+```python
+
+from oil_reservoir_synthesizer import OilSimulator
+
+simulator = OilSimulator()
+
+# build a model with one well and block
+simulator.addWell("wellName", seed=997)
+simulator.addBlock("5,5,5", seed=31)
+
+#run simulation
+num_steps = 10
+fopr_values = [] # oil production rate for each time step
+for time_steps in range(num_steps):
+    simulator.step(scale=1.0 / num_steps)
+    fopr_values.append(simulator.fopr())
+
+```
+
+
+
+## building
+
+    pip install .
+
+## testing
+
+    pip install -e  .[dev]
+    tox test
+
+## About
+
+this project was split out of github.com/equinor/ert and github.com/equinor/libres .
