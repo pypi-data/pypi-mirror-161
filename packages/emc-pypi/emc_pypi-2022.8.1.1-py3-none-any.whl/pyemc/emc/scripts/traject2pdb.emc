@@ -1,0 +1,42 @@
+#!/usr/bin/env emc.sh
+(* EMC: Script *)
+
+variables	= {
+  input		-> $arg0,
+  output	-> $arg1,
+  traject	-> input,
+  compress	-> true,
+  unwrap	-> true,
+  vdw		-> false,
+  source	-> ".",
+  target	-> ".",
+  frequency	-> 1
+};
+
+output		= {
+  debug		-> false,
+  exit		-> true,
+  info		-> true,
+  warning	-> true
+};
+
+shell		= {"rm -f "+output+(compress ? ".pdb.gz" : ".pdb")};
+shell		= {"rm -f "+output+(compress ? ".psf.gz" : ".psf")};
+
+get		= {name -> source+"/"+input};
+
+sample		= {
+  script	-> {
+    id		-> 0,
+    active	-> true,
+    frequency	-> frequency,
+    quiet	-> true,
+    script	-> {
+      pdb 	-> {name -> output, compress -> compress, unwrap -> unwrap,
+		    vdw -> vdw, mode -> append}
+    }
+  }
+};
+
+traject		= {mode -> sample, name -> traject};
+
