@@ -1,0 +1,49 @@
+Metadata-Version: 2.1
+Name: arcane-storage
+Version: 0.4.1
+Summary: 
+Author: Arcane
+Author-email: product@arcane.run
+Requires-Python: >=3.7,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: arcane-core (>=1.6.0,<2.0.0)
+Requires-Dist: backoff (>=1.10.0,<2.0.0)
+Requires-Dist: google-cloud-storage (>=2.1.0,<3.0.0)
+Description-Content-Type: text/markdown
+
+# Arcane Storage
+
+This package is base on [google-cloud-storage](https://pypi.org/project/google-cloud-storage/).
+
+## Get Started
+
+```sh
+pip install arcane-storage
+```
+
+## Example Usage
+
+```python
+from arcane import storage
+client = storage.Client()
+
+blobs = client.list_blobs('bucket-id-here')
+```
+
+or
+
+```python
+from arcane import storage
+
+# Import your configs
+from configure import Config
+
+client = storage.Client.from_service_account_json(Config.KEY, project=Config.GCP_PROJECT)
+
+blobs = client.list_blobs('bucket-id-here')
+```
+
