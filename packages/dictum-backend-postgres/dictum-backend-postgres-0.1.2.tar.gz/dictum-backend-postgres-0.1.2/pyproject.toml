@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "dictum-backend-postgres"
+version = "0.1.2"
+description = "Postgres backend for Dictum"
+authors = ["Mikhail Akimov"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4"
+psycopg2-binary = "^2.9.3"
+dictum-core = "^0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+black = "^22.3.0"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+
+[tool.poetry.plugins."dictum.backends"]
+postgres = "dictum_backend_postgres.postgres:PostgresBackend"
+
+[tool.isort]
+profile = "black"
+known_first_party = ["dictum-backend-postgres"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
