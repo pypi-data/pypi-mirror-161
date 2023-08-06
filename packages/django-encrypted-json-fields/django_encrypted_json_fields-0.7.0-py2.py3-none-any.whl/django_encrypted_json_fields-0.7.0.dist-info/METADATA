@@ -1,0 +1,210 @@
+Metadata-Version: 2.1
+Name: django-encrypted-json-fields
+Version: 0.7.0
+Summary: A set of fields that wrap standard Django fields, including JSONField, with encryption provided by the python cryptography library
+Home-page: https://github.com/morlandi/django-encrypted-json-fields
+Author: Mario Orlandi
+Author-email: morlandi@brainstorm.it
+License: MIT
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: django (>=2.2)
+Requires-Dist: cryptography (>=3.4)
+
+# Django Encrypted Model Fields (including JSONField)
+
+## About
+
+This is a fork of <https://gitlab.com/lansharkconsulting/django/django-encrypted-model-fields>,
+which in turn was a fork of <https://github.com/foundertherapy/django-cryptographic-fields>.
+
+It has been renamed, and updated to properly support Python3 and latest
+versions of Django.
+
+`django-encrypted-json-fields` is set of fields that wrap standard
+Django fields with encryption provided by the python cryptography
+library. These fields are much more compatible with a 12-factor design
+since they take their encryption key from the settings file instead of a
+file on disk used by `keyczar`.
+
+While keyczar is an excellent tool to use for encryption, it's not
+compatible with Python 3, and it requires, for hosts like Heroku, that
+you either check your key file into your git repository for deployment,
+or implement manual post-deployment processing to write the key stored
+in an environment variable into a file that keyczar can read.
+
+## JSONField support
+
+- The encrypted data remains a valid JSON, so you can inherit from django.db.models.JSONField and all validations will still work
+- if the data contains dictionaries, the keys are preserved so that the overall structure remains intact
+- we only encrypt the values
+
+### Implementation notes
+
+I opted to encrypt the repr() of the values, then apply eval() later only (after decrypting).
+
+This is required to reconstruct **both the value and the type**.
+
+Since JSON manages only a few simple types, this naive solution seems enough.
+
+## Deferred get_crypter()
+
+The original `FIELD_ENCRYPTION_KEY` setting now accepts a callable.
+
+Since the callable might need to retrieve some data from the Django models,
+I had to postpone the call to get_crypter() until all apps have been loaded.
+
+As a side effect, now you can always and safely call the `generate_encryption_key`
+management command (see below)
+
+## Generating an Encryption Key
+
+There is a Django management command `generate_encryption_key` provided
+with the `encrypted_json_fields` library. Use this command to generate
+a new encryption key to set as `settings.FIELD_ENCRYPTION_KEY`:
+
+    ./manage.py generate_encryption_key
+
+Running this command will print an encryption key to the terminal, which
+can be configured in your environment or settings file.
+
+~~NOTE: This command will ONLY work in a CLEAN, NEW django project that
+does NOT import encrypted_json_fields in any of it's apps.~~ IF you are
+already importing encrypted_json_fields, try running this in a python
+shell instead:
+
+    import os
+    import base64
+
+    new_key = base64.urlsafe_b64encode(os.urandom(32))
+    print(new_key)
+
+## Getting Started
+
+> $ pip install django-encrypted-json-fields
+
+Add "encrypted_json_fields" to your INSTALLED_APPS setting like this:
+
+```
+    INSTALLED_APPS = (
+        ...
+        'encrypted_json_fields',
+    )
+```
+
+`django-encrypted-json-fields` expects the encryption key to be
+specified using `FIELD_ENCRYPTION_KEY` in your project's `settings.py`
+file. For example, to load it from the local environment:
+
+```
+    import os
+
+    FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', '')
+```
+
+To use an encrypted field in a Django model, use one of the fields from
+the `encrypted_json_fields` module:
+
+```
+    from encrypted_json_fields.fields import EncryptedCharField
+
+    class EncryptedFieldModel(models.Model):
+        encrypted_char_field = EncryptedCharField(max_length=100)
+```
+
+For fields that require `max_length` to be specified, the `Encrypted`
+variants of those fields will automatically increase the size of the
+database field to hold the encrypted form of the content. For example, a
+3 character CharField will automatically specify a database field size
+of 100 characters when `EncryptedCharField(max_length=3)` is specified.
+
+Due to the nature of the encrypted data, filtering by values contained
+in encrypted fields won't work properly. Sorting is also not supported.
+
+## Running Tests
+
+Does the code actually work?
+
+Running the unit tests from this app:
+
+```
+python manage.py test -v 2
+```
+
+or
+
+```
+./runtests.py
+```
+
+or
+
+```
+coverage run --source='.' runtests.py
+coverage report
+```
+
+Running the unit tests from your project:
+
+```
+python manage.py test -v 2 encrypt_json_fields --settings=encrypt_json_fields.estapp.settings
+```
+
+
+## Credits
+
+- <https://gitlab.com/lansharkconsulting/django/django-encrypted-model-fields> has been shared by Scott Sharkey
+- <https://github.com/foundertherapy/django-cryptographic-fields> has been shared by Dana Spiegel
+
+
+# django-encrypted-model-fields Changelog
+
+-   0.7.0 - JSONField support
+          - deferred get_crypter()
+          - `FIELD_ENCRYPTION_KEY` setting now accepts a callable
+-   0.6.5 - RE-Correct links to repository and homepage
+-   0.6.4 - Correct links to repository and homepage
+-   0.6.3 - Converted to poetry for build system
+-   0.6.2 - Bump support to any python \< 4
+    -   Make Generating an Encryption Key more prominent
+-   0.6.1 - Add Support for Python up to 3.11
+-   0.6.0 - Major Update
+    -   Drop Python 2 Support
+    -   Drop support for Django \< 2.2
+    -   Add support for Django 2.2, 3.0, 3.1, and 3.2
+    -   Drop support for Python \< 3.6
+    -   Add Support for Python 3.6, 3.7, 3.8, and 3.9
+    -   Move travis-ci testing to gitlab
+    -   Remove Support for EncryptedNullBooleanField (deprecated by
+        Django 4.0)
+    -   Update Test App to Django 2.2 standard
+    -   Include 2 of Oleg Pesok's fixes: for Timezone-aware datetimes,
+        and the cached validator crash
+-   0.5.8 - Move to GITLAB repository
+-   0.5.7 - rearrange requirements and update dependencies
+    -   fix issue with output of generate_encryption_key command
+    -   define default value for FIELD_ENCRYPTION_KEY
+    -   restore support for Django 1.9, 1.10, and 1.11
+-   0.5.6 - Fixed issue with generating encryption keys (thanks Dave
+    Alan)
+    -   dropped support for Django 1.8, 1.9 and 1.10
+    -   fix classifier to include Django 2.0
+-   0.5.5 - Fixed README
+-   0.5.4 - drop python 3.4 support
+    -   add django 2.0 support
+    -   expand testing to cover python 2.7, 3.5 and 3.6 for django 1.9,
+        1.10, 1.11 and 2.0
+    -   fix broken test
+-   0.5.3 - Fork from foundertherapy/django-cryptographic-fields
+    -   update dependencies
+    -   convert to run under python 3.x
+    -   rename package so it can be uploaded to pypi
+    -   add support for tox/travis-ci testing
