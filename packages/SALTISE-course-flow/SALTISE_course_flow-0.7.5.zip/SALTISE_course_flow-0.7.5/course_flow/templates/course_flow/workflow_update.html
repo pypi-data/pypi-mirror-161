@@ -1,0 +1,191 @@
+{% extends "course_flow/base.html" %}
+<!-- -->
+{% load static compress i18n %} {% get_current_language as LANGUAGE_CODE %}
+<!-- -->
+{% load static i18n %}
+<!-- -->
+{% block title %}{% endblock %}
+<!-- -->
+{% block metadescription %} {% endblock %}
+<!-- -->
+{% block header %}{% endblock %}
+<!-- -->
+{% block body %}
+
+<div id="container" class="body-wrapper"><div class="load-screen"></div></div>
+<div id="popup-container"></div>
+<div id="sidebar" class="side-bar hide-print">
+  <ul>
+    <li class="hover-shade">
+      <a href="#edit-menu"
+        ><img title='{% trans "Edit" %}'
+          src="{% static 'course_flow/img/images_svg/edit_pencil_blue.svg' %}"
+      /></a>
+    </li>
+    <li class="hover-shade">
+      <a href="#node-bar"
+        ><img title='{% trans "Nodes" %}' src="{% static 'course_flow/img/images_svg/add_new_blue.svg' %}"
+      /></a>
+    </li>
+    {% if is_strategy == "false" %}
+    <li class="hover-shade">
+      <a href="#outcome-bar"
+        ><img title='{% trans "Outcomes" %}' src="{% static 'course_flow/img/images_svg/outcomes_blue.svg' %}"
+      /></a>
+    </li>
+    <li class="hover-shade">
+      <a href="#strategy-bar"
+        ><img title='{% trans "Strategies" %}' src="{% static 'course_flow/img/images_svg/strategy_blue.svg' %}"
+      /></a>
+    </li>
+    <li class="hover-shade">
+      <a href="#view-bar"
+        ><img title='{% trans "View Options" %}' src="{% static 'course_flow/img/images_svg/view.svg' %}"
+      /></a>
+    </li>
+    <li class="hover-shade">
+      <a href="#restore-bar"
+        ><img title='{% trans "Restore Deleted" %}' src="{% static 'course_flow/img/images_svg/restore_blue.svg' %}"
+      /></a>
+    </li>
+    {% endif %}
+  </ul>
+    <div id="edit-menu" class="right-panel-container"></div>
+    <div id="node-bar" class="right-panel-container"></div>
+    {% if is_strategy == "false" %}
+        <div id="outcome-bar" class="right-panel-container"></div>
+        <div id="view-bar" class="right-panel-container"></div>
+        <div id="strategy-bar" class="right-panel-container"></div>
+    {% endif %}
+    <div id="restore-bar" class="right-panel-container"></div>
+  <div class="window-close-button" id="side-bar-close-button">
+    <img src="{% static 'course_flow/img/images_svg/close.svg' %}" />
+  </div>
+</div>
+
+{{is_strategy}} {% endblock %}
+<!-- -->
+{% block foot %} {% endblock %}
+<!-- -->
+{% csrf_token %}
+<!-- -->
+{% block scripts %} {{ block.super }}
+<script nonce="{{request.csp_nonce}}">
+    
+  const workflow_paths = {
+      activity:'{% url "course_flow:workflow-update" pk=object.pk %}',
+      course:'{% url "course_flow:workflow-update" pk=object.pk %}',
+      program:'{% url "course_flow:workflow-update" pk=object.pk %}',
+      workflow:'{% url "course_flow:workflow-update" pk=object.pk %}',
+  }
+  const iconpath = "{% static 'course_flow/img/images_svg/' %}";
+
+  $("#sidebar").tabs({
+      active:1,
+      disabled:[0],
+      collapsible:true,
+      activate:(evt,ui)=>{
+          if(ui.oldTab.length==0)$("#sidebar").removeClass("collapsed");
+          else if(ui.newTab.length==0)$("#sidebar").addClass("collapsed");
+      }
+  });
+
+  $("#sidebar").on("dblclick mousedown",(evt)=>{evt.stopPropagation();});
+
+    
+  const read_only = {{read_only|safe}};
+  const allow_comments = {{comment|safe}};
+  console.log("override comments");
+  console.log(allow_comments);
+  if(read_only)$("#sidebar").hide();
+  else{
+      $("#side-bar-close-button").on("click",()=>{
+          $("#sidebar").addClass("collapsed");
+          $("#sidebar").tabs("option","active",false);
+      });
+  }
+
+
+
+//  {% if is_strategy == "false" %}
+//      $("#viewbar").append("<div id='outcomeviewbar'><div class='outcomeviewtext'>Outcome View:</div><label class='switch'><input type='checkbox'><span class ='slider round'></span></label></div>");
+//
+//      $("#outcomeviewbar input").on("change",(evt)=>{
+//          if(evt.target.checked)workflow_renderer.render($("#container"),"outcometable");
+//          else workflow_renderer.render($("#container"));
+//      });
+//  {% endif %}
+
+  const user_id = {{ user.id }};
+  const workflow_model_id = {{ object.id }};
+  const workflow_type = "{{ object.type }}";
+  console.log(workflow_type);
+  const user_name = "{{ user.username }}";
+  const create_path=null;
+
+  workflow_data_package = {{data_package|safe}}
+  var workflow_renderer;
+
+    const openfunction = function(){
+        workflow_renderer.connection_opened();
+    };
+
+   const myColour = 'hsl('+(((user_id*5)%360)+1)+',50%,50%)';
+
+   const changeFieldID = Math.floor(Math.random()*10000);
+
+    function connect(){
+        workflow_renderer.messages_queued=true;
+        
+        let websocket_prefix;
+        if (window.location.protocol == "https:") {
+           websocket_prefix = "wss";
+        }else{
+           websocket_prefix = "ws";
+        }
+
+        const updateSocket = new WebSocket(
+            websocket_prefix+'://'+window.location.host+'/ws/update/'+workflow_model_id+'/'
+        );
+        console.log(window.location.protocol);
+        console.log(websocket_prefix);
+
+        workflow_renderer.updateSocket = updateSocket;
+        
+        
+        updateSocket.onmessage = function(e){
+            workflow_renderer.message_received(e);
+        }
+        
+        
+        
+        updateSocket.onopen = openfunction
+        if(updateSocket.readyState==1)openfunction();
+        
+        updateSocket.onclose = function(e){
+           setTimeout(
+                ()=>{
+                    connect();
+                },
+               10000
+           )
+           console.log(e);
+           console.log("Lost connection to server");
+        }
+
+    }
+   
+   
+  window.addEventListener("load", function(){
+      workflow_renderer = new renderers.WorkflowRenderer(workflow_data_package);
+      connect();
+      
+      
+      
+//      console.log(workflow_data_package);
+      $(document).ajaxError(renderers.fail_function);
+//      workflow_renderer.render($("#container"));
+  });
+</script>
+
+{% endblock %}

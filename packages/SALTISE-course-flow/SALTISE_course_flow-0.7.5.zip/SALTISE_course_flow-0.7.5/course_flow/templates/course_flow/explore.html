@@ -1,0 +1,51 @@
+{% extends "course_flow/base.html" %}
+<!-- -->
+{% load static i18n %}
+<!-- -->
+{% block header %}
+{% endblock %}
+<!-- -->
+{% block title %}{% endblock %}
+<!-- -->
+{% block metadescription %} {% endblock %}
+<!-- -->
+{% block body %}
+<div id="content-container" class="body-wrapper">
+    
+</div>
+<div id="popup-container"></div>
+<!-- -->
+{% endblock %}
+<!-- -->
+{% block foot %} {% endblock %}
+<!-- -->
+{% csrf_token %}
+<!-- -->
+{% block scripts %}
+<script nonce="{{request.csp_nonce}}">
+    
+    const iconpath = "{% static 'course_flow/img/images_svg/' %}";
+    const create_path=null;
+    const explore_path = "{% url 'course_flow:explore' %}";
+    const user_id = {{ user.id }};
+    
+    list_objects = {{object_list|safe}};
+    
+    disciplines = {{disciplines|safe}};
+    pages = {{pages|safe}}
+    
+    
+    
+    const read_only=true;
+    
+    
+    
+    window.addEventListener("load",function(){
+        renderers.renderExploreMenu(list_objects,disciplines);
+    });
+    
+    
+</script>
+
+
+{% endblock %}
