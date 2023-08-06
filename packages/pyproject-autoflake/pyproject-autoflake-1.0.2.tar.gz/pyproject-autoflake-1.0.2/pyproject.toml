@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "pyproject-autoflake"
+version = "1.0.2"
+description = "pyproject-autoflake (pautoflake), a monkey patching wrapper to connect autoflake with pyproject.toml configuration."
+authors = ["quwac <53551867+quwac@users.noreply.github.com>"]
+readme = "README.md"
+repository = "https://github.com/quwac/pyproject-autoflake"
+keywords = ['formatter','autoflake','pyproject.toml']
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+autoflake = "*"
+toml = ">=0.10.1"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+isort = "*"
+pyproject-flake8 = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 119
+
+[tool.black]
+line-length = 120
+
+[tool.autoflake]
+# return error code if changes are needed
+check = false
+# make changes to files instead of printing diffs
+in-place = true
+# drill down directories recursively
+recursive = true
+# exclude file/directory names that match these comma-separated globs
+# exclude = "<GLOBS>"
+# by default, only unused standard library imports are removed; specify a comma-separated list of additional
+# modules/packages
+# imports = "<IMPORTS>"
+# expand wildcard star imports with undefined names; this only triggers if there is only one star import in
+# the file; this is skipped if there are any uses of `__all__` or `del` in the file
+expand-star-imports = true
+# remove all unused imports (not just those from the standard library)
+remove-all-unused-imports = true
+# exclude __init__.py when removing unused imports
+ignore-init-module-imports = true
+# remove all duplicate keys in objects
+remove-duplicate-keys = true
+# remove unused variables
+remove-unused-variables = true
+# print more verbose logs (larger numbers are more verbose)
+verbose = 0
+
+[tool.poetry.scripts]
+pautoflake = "pyproject_autoflake.pautoflake:main"
