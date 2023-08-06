@@ -1,0 +1,52 @@
+stages:
+  - Run Job
+  - Upload Data
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "api"
+
+run-job:
+  stage: Run Job
+  image: <DOCKER_IMAGE>
+  tags:
+    - csiro-swarm
+  variables:
+    TZ: Australia/Perth
+    JOB_PARAMETERS: <PARAMS_JSON>
+    FILE_REFS: <FILE_REFS_JSON>
+    MODULE_NAME: <MODULE_NAME>
+    KUBERNETES_CPU_REQUEST: 900m
+    KUBERNETES_CPU_LIMIT: 4000m
+    KUBERNETES_MEMORY_REQUEST: 2Gi
+    KUBERNETES_MEMORY_LIMIT: 8Gi
+  script:
+    - $MODULE_NAME run-job --params-json "$JOB_PARAMETERS" --files-json "$FILE_REFS" --input input --output "output/$CI_JOB_ID"
+    - ls output
+  artifacts:
+    paths:
+      - output/*
+    expire_in: 1 week
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+
+upload-data:
+  stage: Upload Data
+  image: google/cloud-sdk:alpine
+  tags:
+    - csiro-swarm
+  variables:
+    UPLOAD_PATH: <UPLOAD_PATH>
+    KUBERNETES_CPU_REQUEST: 500m
+    KUBERNETES_CPU_LIMIT: 2000m
+    KUBERNETES_MEMORY_REQUEST: 2Gi
+    KUBERNETES_MEMORY_LIMIT: 6Gi
+  script:
+    - gcloud auth activate-service-account --key-file "$SERVICE_KEY"
+    - echo "Uploading to $UPLOAD_PATH/$CI_PIPELINE_ID"
+    - gsutil -m cp -r output/** "$UPLOAD_PATH/$CI_PIPELINE_ID/"
+  rules:
+    - when: on_success
+    - when: manual

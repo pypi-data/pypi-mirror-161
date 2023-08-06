@@ -1,0 +1,95 @@
+[tool.poetry]
+name = "fa-common"
+version = "1.7.3"
+description = "CSIRO Geoanalytics FastAPI Common Framework. Standardises Data access, authentication, task execution and provides a number of utilities and helper classes."
+authors = ["Sam Bradley <sam.bradley@csiro.au>", "Shouvojit Sarker <shouv.sarker@csiro.au>"]
+license = "CSIRO Open Source Software License"
+classifiers = [
+    # How mature is this project? Common values are
+    #   3 - Alpha
+    #   4 - Beta
+    #   5 - Production/Stable
+    "Development Status :: 4 - Beta",
+    # Indicate who your project is intended for
+    "Intended Audience :: Science/Research",
+    # Pick your license as you wish (should match "license" above)
+    "License :: OSI Approved :: MIT License",
+    # Specify the Python versions you support here. In particular, ensure
+    # that you indicate whether you support Python 2, Python 3 or both.
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+include = ["fa_common/workflow/*.yml"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+PyJWT = "^2.0.1"
+python-jose = "^3.2.0"
+python-dotenv = "^0.19.2"
+loguru = "^0.6.0"
+python-multipart = "^0.0.5"
+email-validator = "^1.1.2"
+six = "^1.15.0"
+fastapi = "^0.73.0"
+aiohttp = "^3.7.3"
+ujson = "^5.1.0"
+humps = "^0.2.2"
+secure = { version = "^0.3.0", optional = true }
+google-cloud-storage = { version = "^1.35.0", optional = true }
+google-cloud-logging = { version = "^2.1.1", optional = true }
+google-cloud-firestore = { version = "^2.0.2", optional = true }
+firebase-admin = { version = "^4.5.1", optional = true }
+minio = { version = "^7.0.1", optional = true }
+win32-setctime = { version = "^1.0.3", optional = true }
+oyaml = { version = "^1.0", optional = true }
+python-gitlab = { version = "^2.5.0", optional = true }
+pytz = "^2020.5"
+python-dateutil = "^2.8.1"
+orjson = "^3.4.7"
+rollbar = {version = "^0.16.2", optional = true}
+pyparsing = "2.4.7"
+httpx = {version = "^0.22.0", optional = true}
+beanie = {version = "^1.9.2"}
+
+[tool.poetry.dev-dependencies]
+requests = "^2.25.1"
+mypy = "^0.931"
+black = "^22.3.0"
+isort = "^5.9.3"
+flake8 = "^4.0.1"
+pytest = "^7.0.1"
+pytest-asyncio = "^0.18.1"
+pytest-cov = "^3.0.0"
+flake8-junit-report = "^2.1.0"
+importlib-metadata = "^3.4.0"
+lxml = "^4.6.3"
+pandas = "^1.2.4"
+autoflake = "^1.4"
+pre-commit = "^2.17.0"
+
+[tool.poetry.extras]
+secure = ["secure"]
+rollbar = ["rollbar", "httpx"]
+gcp = [
+    "google-cloud-storage",
+    "google-cloud-logging",
+    "google-cloud-firestore",
+    "firebase-admin"
+]
+minio = ["minio"]
+windows = ["win32-setctime"]
+gitlab = ["oyaml", "python-gitlab"]
+
+[tool.black]
+line-length = 110
+
+[tool.isort]
+profile = "black"
+py_version=39
+line_length=110
+known_third_party = ["numpy", "pandas"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
