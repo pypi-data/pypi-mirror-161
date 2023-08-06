@@ -1,0 +1,95 @@
+Metadata-Version: 2.1
+Name: ws-import-spdx
+Version: 0.0.5
+Summary: Preparation upload file for Mend UI
+Home-page: https://github.com/whitesource-ps/ws-import-spdx
+Author: WhiteSource Professional Services
+Author-email: ps@whitesourcesoftware.com
+License: LICENSE.txt
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+[![Logo](https://whitesource-resources.s3.amazonaws.com/ws-sig-images/Whitesource_Logo_178x44.png)](https://www.whitesourcesoftware.com/)  
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/whitesource-ps/ws-import-spdx/actions/workflows/ci.yml/badge.svg)](https://github.com/whitesource-ps/ws-import-spdx/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/whitesource-ps/ws-import-spdx)](https://github.com/whitesource-ps/ws-import-spdx/releases/latest)  
+[![PyPI](https://img.shields.io/pypi/v/ws-import-spdx?style=plastic)](https://pypi.org/project/ws-import-spdx/)
+[Mend Import SPDX](https://github.com/whitesource-ps/ws-import-spdx)
+
+#Import SPDX tool description
+
+CLI Tool imports data from the SBOM report into the MEND system in [SPDX format](https://spdx.org).
+ * The tool can upload data directly to Mend or create a Mend Offline Request file for uploading via Mend's UI interface ("Upload Update Request" action in the Admin panel)
+ * The tool supports only **JSON** format
+ * If the URL is not stated (defined with **-a WS_URL**), the tool will use **saas**.
+
+## Supported Operating Systems
+- **Linux (Bash):**	CentOS, Debian, Ubuntu, RedHat
+- **Windows (PowerShell):**	10, 2012, 2016
+
+
+## Prerequisites
+Python 3.8+
+
+### Installation and Execution by pulling from PyPi:
+1. Execute pip install `pip install ws-import-spdx`
+   * Note: If installing packages as a non-root, be sure to include the path of the executables within the Operating System paths.
+2. Run report: `ws_import_spdx -u <WS_USER_KEY> -k <WS_TOKEN> -pr <WS_PRODUCT_TOKEN> -p <PROJECT_TOKEN> -sbom <SBOM_FILE_PATH>`
+   * Output file will be created in the Upload folder. If a folder does not exist, the tool will create it.
+   
+### Required and Optional arguments:
+```shell
+  -h, --help      This help message and exit
+  -u WS_USER_KEY, --userKey
+                  WS User Key
+  -k WS_TOKEN, --token 
+                  WS Org Token (API Key)
+  -pr WS_PRODUCT_TOKEN, --product 
+                  Product token 
+  -s WS_PROJECT, --scope 
+                  WS Project token for updating data
+  -p WS_PROJECT_NAME, --project name
+                  WS Project Name                                
+  -a WS_URL, --wsUrl {saas, app, app-eu, saas-eu, your_url}
+                  WS URL 
+  -sbom SBOM_FILE_PATH, --sbom file path
+                  SBOM report file for import                  
+  -t UPDATE_TYPE, --updatetype {OVERRIDE,APPEND}
+                  Type of upload operation
+  -o OUT_DIR, --out 
+                  Output directory
+  -l LOAD, --load
+                  Direct load to Mend (deafult True)                  
+  * Note: 
+    * Project Name **OR** Project Token must be passed on
+    * SBOM report for importing should be in **JSON** format
+    * Default value of UPDATE_TYPE is **OVERRIDE** 
+    * Defaulst value of WS_URL is **saas**
+    * Default value of LOAD is **True**
+```
+## Examples:
+```shell
+# Import data direct to Mend. A new project will be created in Mend.
+ws_import_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -p <NEW_PROJECT_NAME> -sbom </path/upload.json>
+
+# Create a Mend Offline Update Request file without direct upload to Mend. A new project will be created in Mend.
+ws_import_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> -p <NEW_PROJECT_NAME>  -l False -o </path/reports> -sbom </path/upload.json>
+
+# Import data direct to Mend. SBOM data will be appended to the specified project.
+ws_import_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -t APPEND -sbom </path/upload.json>
+
+# Create a Mend Offline Update Request file without direct upload to Mend. SBOM data will be appended to the specified project.
+ws_import_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -t APPEND -l False - sbom </path/upload.json>
+
+# Create a Mend Offline Update Request file without direct ulpoad to Mend. The specific project will be overwritten by SBOM data.
+ws_import_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -l False -sbom </path/upload.json>
+```
+
+
