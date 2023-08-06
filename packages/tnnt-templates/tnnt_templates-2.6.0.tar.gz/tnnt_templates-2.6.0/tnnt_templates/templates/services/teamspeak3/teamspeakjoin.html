@@ -1,0 +1,62 @@
+{% extends "allianceauth/base.html" %}
+
+{% load bootstrap %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Verify Teamspeak" %}{% endblock page_title %}
+
+{% block extra_css %}{% endblock extra_css %}
+
+{% block content %}
+    <div class="clearfix">
+        <h1 class="page-header text-center">{% translate "Verify Teamspeak Identity" %}</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">{% translate "If you are already connected to TS" %}</div>
+                    </div>
+
+                    <div class="panel-body">
+                        <p>
+                            {% translate "If you are already on the server use the following token:" %}<br><br>
+                            <b>{{ authinfo.teamspeak3_perm_key }}</b>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">{% translate "You <b>DO NOT</b> have Teamspeak Open" %}</div>
+                    </div>
+
+                    <div class="panel-body">
+                        <a href="ts3server://{{ public_url }}?token={{ authinfo.teamspeak3_perm_key }}&nickname={{ authinfo.teamspeak3_uid }}" class="btn btn-primary btn-block btn-lg" title="Join">{% translate "Join Server" %}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">{% translate "Auth Teamspeak" %}</div>
+                    </div>
+
+                    <div class="panel-body">
+                        <p>{% translate "Once connected click here" %}</p>
+
+                        <form class="form-signin" role="form" action="{% url 'teamspeak3:verify' %}" method="POST">
+                            {% csrf_token %}
+                            {{ form|bootstrap }}
+                            <br>
+                            <button class="btn btn-lg btn-primary btn-block" type="submit">{% translate "Continue" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

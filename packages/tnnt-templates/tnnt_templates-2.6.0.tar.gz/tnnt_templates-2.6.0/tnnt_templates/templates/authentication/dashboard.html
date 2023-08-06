@@ -1,0 +1,183 @@
+{% extends "allianceauth/base.html" %}
+
+{% load tnnt_template_tags %}
+{% load i18n %}
+{% load evelinks %}
+
+{% block page_title %}{% translate "Dashboard" %}{% endblock %}
+
+{% block content %}
+    <h1 class="page-header text-center">
+        {% translate "Dashboard" %}
+    </h1>
+
+    {% if user.is_staff %}
+        {% include 'allianceauth/admin-status/include.html' %}
+    {% endif %}
+
+    <div class="clearfix">
+        <div class="row vertical-flexbox-row2">
+            <div class="col-sm-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            {% blocktrans with state=request.user.profile.state %}Main Character (State: {{ state }}){% endblocktrans %}
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        {% if request.user.profile.main_character %}
+                            {% with request.user.profile.main_character as main %}
+                                <div class="row clearfix">
+                                    <div class="col-lg-4 col-sm-4 col-xs-4">
+                                        <table class="table">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <img class="img-rounded ra-avatar" src="{{ main.portrait_url_128 }}" alt="{{ main.character_name }}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">{{ main.character_name }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="col-lg-4 col-sm-4 col-xs-4">
+                                        <table class="table">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <img class="img-rounded ra-avatar" src="{{ main.corporation_logo_url_128 }}" alt="{{ main.corporation_name }}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">{{ main.corporation_name }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="col-lg-4 col-sm-4 col-xs-4">
+                                        {% if main.alliance_id %}
+                                            <table class="table">
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <img class="img-rounded ra-avatar" src="{{ main.alliance_logo_url_128 }}" alt="{{ main.alliance_name }}">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">{{ main.alliance_name }}</td>
+                                                <tr>
+                                            </table>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            <div class="alert alert-danger" role="alert">
+                                {% translate "No main character set." %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row clearfix">
+                            <div class="col-sm-6 button-wrapper">
+                                <a href="{% url 'authentication:add_character' %}" class="btn btn-block btn-primary" title="Add Character">
+                                    {% translate 'Add Character' %}
+                                </a>
+                            </div>
+
+                            <div class="col-sm-6 button-wrapper">
+                                <a href="{% url 'authentication:change_main_character' %}" class="btn btn-block btn-primary" title="Change Main Character">
+                                    {% translate "Change Main" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">{% translate "Group Memberships" %}</div>
+                    </div>
+
+                    <div class="panel-body text-center">
+                        <div style="height: 240px; overflow-y: auto;">
+                            <div class="auth-member-groups">
+                                {% for group in groups %}
+                                    <span class="label label-tnnt-default label-dashboard-group-name auth-member-group-item">
+                                        {{ group.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    {% translate 'Characters' %}
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <table class="table table-striped table-hover hidden-xs">
+                    <thead>
+                        <tr>
+                            <th>{% translate 'Name' %}</th>
+                            <th>{% translate 'Corp' %}</th>
+                            <th>{% translate 'Alliance' %}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for char in characters %}
+                        <tr>
+                            <td class="valign-middle">
+                                <img class="ra-avatar img-rounded" src="{{ char.portrait_url_32 }}" alt="{{ char.character_name }}" style="margin-right: 0.25rem;">
+                                {{ char.character_name }}
+                            </td>
+                            <td class="valign-middle">
+                                <img src="{{ char.corporation_id|corporation_logo_url:32 }}" alt=" {{ char.corporation_name }}" style="margin-right: 0.25rem;">
+                                {{ char.corporation_name }}
+                            </td>
+                            <td class="valign-middle">
+                                {% if char.alliance_name %}
+                                    <img src="{{ char.alliance_id|alliance_logo_url:32 }}" alt=" {{ char.alliance_name }}" style="margin-right: 0.25rem;">
+                                    {{ char.alliance_name }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <table class="table visible-xs-block" style="width: 100%;">
+                    <tbody>
+                    {% for char in characters %}
+                        <tr>
+                            <td class="text-center valign-middle">
+                                <img class="ra-avatar img-rounded" src="{{ char.portrait_url_32 }}" alt="{{ char.character_name }}">
+                            </td>
+
+                            <td class="text-center" style="vertical-align: middle; width: 100%;">
+                                <strong>{{ char.character_name }}</strong><br>
+                                {{ char.corporation_name }}<br>
+                                {{ char.alliance_name|default:"" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/dashboard.min.css' %}">
+{% endblock extra_css %}

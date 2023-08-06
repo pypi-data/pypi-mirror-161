@@ -1,0 +1,23 @@
+{% extends "allianceauth/base.html" %}
+
+{% load i18n %}
+
+{% block page_title %}{% translate "View Notification" %}{% endblock page_title %}
+
+{% block content %}
+    <h1 class="page-header text-center">
+        {% translate "View Notification" %}
+        <div class="text-right">
+            <a href="{% url 'notifications:list' %}" class="btn btn-primary btn-lg">
+                <span class="glyphicon glyphicon-arrow-left"></span>
+            </a>
+        </div>
+    </h1>
+
+    <div class="panel panel-{{ notif.level }}">
+        <div class="panel-heading">
+            <div class="panel-title">{{ notif.timestamp }} {{ notif.title }}</div>
+        </div>
+        <div class="panel-body"><pre>{{ notif.message }}</pre></div>
+    </div>
+{% endblock %}

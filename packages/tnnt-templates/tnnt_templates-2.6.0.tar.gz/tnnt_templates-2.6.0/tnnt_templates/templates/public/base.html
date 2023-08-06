@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+{% load evelinks %}
+{% load tnnt_template_tags %}
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <meta name="og:image" content="{% if TNNT_TEMPLATE_ENTITY_ID == 1 %}{{ TNNT_TEMPLATE_AA_LOGO }}{% else %}{% if TNNT_TEMPLATE_ENTITY_TYPE == 'alliance' %}{{ TNNT_TEMPLATE_ENTITY_ID|alliance_logo_url:256 }}{% elif TNNT_TEMPLATE_ENTITY_TYPE == 'corporation' %}{{ TNNT_TEMPLATE_ENTITY_ID|corporation_logo_url:256 }}{% endif %}{% endif %}">
+        <meta name="og:type" content="website">
+        <meta name="og:site_name" content="auth.terra-nanotech.de">
+
+        {% if request.GET.next and request.GET.next|startswith:"/forum/" %}
+            <meta name="og:title" content="{{ TNNT_TEMPLATE_ENTITY_NAME }} Forum">
+            <meta name="og:description" content="Our beloved Forum. Discuss here at your hearts content. You might also find some useful information here, who knows?">
+        {% else %}
+            <meta name="og:title" content="{{ TNNT_TEMPLATE_ENTITY_NAME }} Authentication">
+            <meta name="og:description" content="Authentication System to get access to {{ TNNT_TEMPLATE_ENTITY_NAME }} services, like Discord, Mumble, Forums and more.">
+        {% endif %}
+
+        {% include 'allianceauth/icons.html' %}
+
+        <title>{% block title %}{% block page_title %}{% endblock page_title %} » {{ SITE_NAME }}{% endblock title %}</title>
+
+        {% include 'bundles/bootstrap-css.html' %}
+        {% include 'bundles/fontawesome.html' %}
+        {% block extra_include %}
+        {% endblock %}
+
+        <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/terra-nanotech-defaults.min.css' %}">
+        <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/terra-nanotech-public.min.css' %}">
+
+        <style>
+            {% block extra_style %}
+            {% endblock %}
+        </style>
+    </head>
+
+    <body>
+        <div class="auth-login-box">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <div class="tnnt-aa-svg-wrapper">
+            {% include "tnnt_templates/bundles/svg/ccp_sso.svg" %}
+        </div>
+    </body>
+</html>

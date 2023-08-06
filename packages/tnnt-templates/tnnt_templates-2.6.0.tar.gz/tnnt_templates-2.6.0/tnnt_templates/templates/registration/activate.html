@@ -1,0 +1,27 @@
+{% extends 'public/middle_box.html' %}
+
+{% load i18n %}
+{% load evelinks %}
+
+{% block page_title %}{% translate 'Account Activation' %}{% endblock %}
+
+{% block middle_box_content %}
+    <p class="text-center">
+        {% if TNNT_TEMPLATE_ENTITY_ID == 1 %}
+            <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_AA_LOGO }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+        {% else %}
+            {% if TNNT_TEMPLATE_ENTITY_TYPE == 'alliance' %}
+                <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_ENTITY_ID|alliance_logo_url:256 }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+            {% elif TNNT_TEMPLATE_ENTITY_TYPE == 'corporation' %}
+                <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_ENTITY_ID|corporation_logo_url:256 }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+            {% endif %}
+        {% endif %}
+    </p>
+
+    <p class="text-center" style="font-size: 150%;">
+        {{ TNNT_TEMPLATE_ENTITY_NAME }}<br>
+        {% translate "Authentication System" %}
+    </p>
+
+    <p class="alert alert-danger">{% translate 'Invalid or expired activation link.' %}</p>
+{% endblock %}
