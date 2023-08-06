@@ -1,0 +1,29 @@
+{% extends "bootstrap5/bootstrap5.html" %}
+{% load bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block bootstrap5_title %}
+    {% block title %}
+        Demo of django_userdefinedtables
+    {% endblock title %}
+{% endblock bootstrap5_title %}
+{% block bootstrap5_content %}
+    <div class="container">
+
+        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-light">
+            <ul>
+                <li><a class="dropdown-item" href="{% url "home" %}">home</a></li>
+                <li><a class="dropdown-item" href="{% url "playground" %}">playground</a></li>
+            </ul>
+        </nav>
+
+        {% autoescape off %}
+            {% bootstrap_messages %}
+        {% endautoescape %}
+        {% block content %}
+            <p>Users will be able to define the types which go in a table in a relatively flexible manner.</p>
+        {% endblock content %}
+    </div>
+{% endblock bootstrap5_content %}
