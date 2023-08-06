@@ -1,0 +1,1 @@
+This is a package to simplify the initial literature search procress in research. Please contact program author for details about use at alexcalder91@gmail.com
