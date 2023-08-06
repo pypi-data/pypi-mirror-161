@@ -1,0 +1,80 @@
+name: continuous-integration
+
+on:
+  push:
+    branches: [master]
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+
+  pre-commit:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - uses: pre-commit/action@v2.0.0
+
+  tests:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.7, 3.8, 3.9]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[testing]
+    - name: Run pytest
+      run: pytest --durations=10 --cov=pytest_notebook --cov-report=xml --cov-report=term-missing --nb-coverage
+
+    - name: Create cov
+      run: coverage xml
+
+    - name: Upload to Codecov
+      if: github.repository == 'chrisjsewell/pytest-notebook'
+      uses: codecov/codecov-action@v2
+      with:
+        name: pytests-notebook
+        flags: pytests
+        file: ./coverage.xml
+        fail_ci_if_error: true
+
+  publish:
+
+    name: Publish to PyPi
+    needs: [pre-commit, tests]
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: install flit
+      run: |
+        pip install flit~=3.4
+    - name: Build and publish
+      run: |
+        flit publish
+      env:
+        FLIT_USERNAME: __token__
+        FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
