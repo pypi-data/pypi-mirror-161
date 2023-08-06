@@ -1,0 +1,82 @@
+[tool.poetry]
+name = "kstreams"
+version = "0.3.1"
+description = "Build simple kafka streams applications"
+authors = ["Marcos Schroh <marcos.schroh@kpn.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["stream", "processing", "kafka", "event streaming"]
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Distributed Computing",
+    "Framework :: AsyncIO",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiokafka = "<1.0"
+prometheus-client = "<1.0"
+pkgsettings = "^0.12.0"
+future = "^0.18.2"
+PyYAML = "^5.4.1"
+pydantic = "^1.9.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1"
+mypy = "^0.961"
+isort = "^5.7.0"
+pytest-httpserver = "<1.0"
+pytest-cov = "^2.11.1"
+jedi = "0.17.2"
+mkdocs = "^1.1.2"
+uvicorn = "<1.0"
+commitizen = "^2.27.1 "
+pytest-asyncio = "^0.18.3"
+fastapi = "^0.75.2"
+mkdocs-material = "^8.3.9"
+starlette-prometheus = "^0.9.0"
+codecov = "^2.1.12"
+black = "^22.6.0"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+known_first_party = ["kstreams", "tests", "examples"]
+
+[tool.commitizen]
+version = "0.3.1"
+tag_format = "$version"
+version_files = [
+    "pyproject.toml:version",
+]
+update_changelog_on_bump = true
+
+[tool.pytest.ini_options]
+timeout = 300
+log_level = "DEBUG"
