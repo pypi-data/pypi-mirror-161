@@ -1,0 +1,1594 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>6. Template variables &#8212; Nikola 8.1.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Extending Nikola" href="extending.html" />
+    <link rel="prev" title="5. Theming Nikola" href="theming.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="7. Extending Nikola"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="theming.html" title="5. Theming Nikola"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Nikola 8.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>Template variables</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="template-variables">
+<h1><a class="toc-backref" href="#id3"><span class="section-number">6. </span>Template variables</a><a class="headerlink" href="#template-variables" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Version</dt>
+<dd class="field-odd"><p>8.1.3</p>
+</dd>
+<dt class="field-even">Author</dt>
+<dd class="field-even"><p>Chris Warrick &lt;<a class="reference external" href="mailto:chris&#37;&#52;&#48;getnikola&#46;com">chris<span>&#64;</span>getnikola<span>&#46;</span>com</a>&gt;</p>
+</dd>
+</dl>
+<p>Variables available in templates are listed below.</p>
+<ul class="simple">
+<li><p>This list is maintained by humans, so it may not always be perfect.</p></li>
+<li><p>Variables whose types are marked with <code class="docutils literal notranslate"><span class="pre">?</span></code> may not always be available or may be None in some cases.</p></li>
+<li><p>Templates usually do not have access to the original TranslatableSetting
+variables, only to the current locale version (except <code class="docutils literal notranslate"><span class="pre">NAVIGATION_LINKS</span></code>).</p></li>
+<li><p>For function and setting documentation, please consult <a class="reference external" href="https://docs.getnikola.com/en/latest/modules/">code documentation</a> and <a class="reference external" href="https://getnikola.com/conf.html">default configuration</a> respectively.</p></li>
+<li><p>Templates often create their own functions (macros), and import macros from
+other templates. Those macros are not listed here.</p></li>
+<li><p>This list has a partial documentation of post objects, but no other objects. For full docs, please consult
+the code, or auto-generated code docs on <a class="reference external" href="https://nikola.readthedocs.io/">ReadTheDocs</a>.</p></li>
+</ul>
+<p>Variables and functions come from three places:</p>
+<ul class="simple">
+<li><p>the global context</p></li>
+<li><p>the local context of a page</p></li>
+<li><p>the templates themselves and the templates they import</p></li>
+</ul>
+<div class="contents alert alert-primary topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#template-variables" id="id3">Template variables</a></p>
+<ul>
+<li><p><a class="reference internal" href="#global-variables" id="id4">Global variables</a></p></li>
+<li><p><a class="reference internal" href="#per-page-local-variables" id="id5">Per-page local variables</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-post-pages-post-tmpl-page-tmpl-etc" id="id6">Variables available in post pages (<code class="docutils literal notranslate"><span class="pre">post.tmpl</span></code>, <code class="docutils literal notranslate"><span class="pre">page.tmpl</span></code> etc.)</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-post-lists" id="id7">Variables available in post lists</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-indexes" id="id8">Variables available in indexes</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-taxonomies" id="id9">Variables available in taxonomies</a></p>
+<ul>
+<li><p><a class="reference internal" href="#templates-and-settings-used-by-taxonomies" id="id10">Templates and settings used by taxonomies</a></p></li>
+<li><p><a class="reference internal" href="#classification-overviews" id="id11">Classification overviews</a></p></li>
+<li><p><a class="reference internal" href="#classification-pages-lists" id="id12">Classification pages (lists)</a></p></li>
+<li><p><a class="reference internal" href="#subclassification-page" id="id13">Subclassification page</a></p></li>
+<li><p><a class="reference internal" href="#hierarchical-lists" id="id14">Hierarchical lists</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#variables-available-in-archives" id="id15">Variables available in archives</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-author-pages" id="id16">Variables available in author pages</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-category-pages" id="id17">Variables available in category pages</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-galleries" id="id18">Variables available in galleries</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-listings" id="id19">Variables available in listings</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-sections" id="id20">Variables available in sections</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-tag-pages" id="id21">Variables available in tag pages</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-the-tags-and-categories-page-tags-tmpl" id="id22">Variables available in the “Tags and categories” page (<code class="docutils literal notranslate"><span class="pre">tags.tmpl</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#variables-available-in-shortcodes" id="id23">Variables available in shortcodes</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id24">Variables available in post lists</a></p></li>
+<li><p><a class="reference internal" href="#post-object-attributes" id="id25">Post object attributes</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="global-variables">
+<h2><a class="toc-backref" href="#id4"><span class="section-number">6.1. </span>Global variables</a><a class="headerlink" href="#global-variables" title="Permalink to this headline">¶</a></h2>
+<p>Some variables on the global variables list may be None (the <code class="docutils literal notranslate"><span class="pre">?</span></code> symbol is not used).</p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_link</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.link</span></code> function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">abs_link</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.abs_link</span></code> function</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atom_path</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ATOM_PATH</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">author_pages_generated</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">blog_author</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BLOG_AUTHOR</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">blog_email</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BLOG_EMAIL</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">blog_description</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BLOG_DESCRIPTION</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">blog_title</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BLOG_TITLE</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">blog_url</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SITE_URL</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">body_end</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BODY_END</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">colorize_str_from_base_color</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">utils.colorize_str_from_base_color</span></code> function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">color_hsl_adjust_hex</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">utils.color_hsl_adjust_hex</span></code> function</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">comment_system_id</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">COMMENT_SYSTEM_ID</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">comment_system</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">COMMENT_SYSTEM</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">content_footer</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CONTENT_FOOTER</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>data files (from the <code class="docutils literal notranslate"><span class="pre">data/</span></code> directory)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">date_fanciness</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DATE_FANCINESS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">date_format</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DATE_FORMAT</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exists</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.file_exists</span></code> function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extra_head_data</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EXTRA_HEAD_DATA</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">favicons</span></code></p></td>
+<td><p>tuple</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FAVICONS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">front_index_header</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FRONT_INDEX_HEADER</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generate_atom</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GENERATE_ATOM</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">generate_rss</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GENERATE_RSS</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">global_data</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>alias for <code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">has_custom_css</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>True if custom.css exists</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hidden_authors</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HIDDEN_AUTHORS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hidden_categories</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HIDDEN_CATEGORIES</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hidden_tags</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HIDDEN_TAGS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hide_sourcelink</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SHOW_SOURCELINK</span></code> setting, negated</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">index_display_post_count</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INDEX_DISPLAY_POST_COUNT</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">index_file</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INDEX_FILE</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">js_date_format</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MOMENTJS_DATE_FORMAT</span></code> setting, JSONified</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">katex_auto_render</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">KATEX_AUTO_RENDER</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">license</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LICENSE</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">logo_url</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LOGO_URL</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">luxon_date_format</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LUXON_DATE_FORMAT</span></code> setting, JSONified</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mathjax_config</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MATHJAX_CONFIG</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">messages</span></code></p></td>
+<td><p>dict[dict[str, str]]</p></td>
+<td><p>translated messages (<code class="docutils literal notranslate"><span class="pre">{language:</span> <span class="pre">{english:</span> <span class="pre">translated}}</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">meta_generator_tag</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">META_GENERATOR_TAG</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">momentjs_locales</span></code></p></td>
+<td><p>defaultdict[str, str]</p></td>
+<td><p>dictionary of available Moment.js locales</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">multiple_authors_per_post</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MULTIPLE_AUTHORS_PER_POST</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">navigation_links</span></code></p></td>
+<td><p>TranslatableSetting</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NAVIGATION_LINKS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">navigation_alt_links</span></code></p></td>
+<td><p>TranslatableSetting</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NAVIGATION_ALT_LINKS</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">needs_ipython_css</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>whether or not Jupyter CSS is needed by this site</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posts_sections</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTIONS</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_are_indexes</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTIONS_ARE_INDEXES</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posts_sections_are_indexes</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTIONS_ARE_INDEXES</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_colors</span></code></p></td>
+<td><p>TranslatableSetting</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTION_COLORS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_descriptions</span></code></p></td>
+<td><p>Tss</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTION_DESCRIPTIONS</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_from_meta</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTION_FROM_META</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_name</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTION_NAME</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts_section_title</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTION_TITLE</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rel_link</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.rel_link</span></code> function</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rss_link</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RSS_LINK</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">search_form</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SEARCH_FORM</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">set_locale</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LocaleBorg.set_locale</span></code> function (or None if not available)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">show_blog_title</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SHOW_BLOG_TITLE</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">show_sourcelink</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SHOW_SOURCELINK</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">site_has_comments</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>whether or not a comment system is configured</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">social_buttons_code</span></code></p></td>
+<td><p>TranslatableSetting[str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SOCIAL_BUTTONS_CODE</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sort_posts</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">utils.sort_posts</span></code> function</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smartjoin</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">utils.smartjoin</span></code> function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">colorize_str</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">utils.colorize_str</span></code> function</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">template_hooks</span></code></p></td>
+<td><p>dict[str, TemplateHookRegistry]</p></td>
+<td><p>Template hooks registered by plugins</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theme_color</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">THEME_COLOR</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">theme_config</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">THEME_CONFIG</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timezone</span></code></p></td>
+<td><p>tzinfo</p></td>
+<td><p>Timezone object (represents the configured timezone)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">translations</span></code></p></td>
+<td><p>dict[str, str]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TRANSLATIONS</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">twitter_card</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TWITTER_CARD</span></code> setting, defaults to an empty dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">url_replacer</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.url_replacer</span></code> function</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">url_type</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">URL_TYPE</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_bundles</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_BUNDLES</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_cdn</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_CDN</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_katex</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_KATEX</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subtheme</span></code></p></td>
+<td><p>str?</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">THEME_REVEAL_CONFIG_SUBTHEME</span></code> setting (only if set — deprecated)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transition</span></code></p></td>
+<td><p>str?</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">THEME_REVEAL_CONFIG_TRANSITION</span></code> setting (only if set — deprecated)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="per-page-local-variables">
+<h2><a class="toc-backref" href="#id5"><span class="section-number">6.2. </span>Per-page local variables</a><a class="headerlink" href="#per-page-local-variables" title="Permalink to this headline">¶</a></h2>
+<p>Those variables are available on all pages, but their contents are dependent on page contents.</p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 11%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">description</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Description of the page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">is_rtl</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether or not the language is left-to-right</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lang</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Current language</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pagekind</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>List of strings that identify the type of this page <a class="reference external" href="https://getnikola.com/theming.html#identifying-and-customizing-different-kinds-of-pages-with-a-shared-template">(docs)</a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">title</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Title of the page (taken from post, config, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">formatmsg</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Wrapper over <code class="docutils literal notranslate"><span class="pre">%</span></code> string formatting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">striphtml</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Strips HTML tags (Mako only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crumbs</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Breadcrumbs for this page</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-post-pages-post-tmpl-page-tmpl-etc">
+<h2><a class="toc-backref" href="#id6"><span class="section-number">6.3. </span>Variables available in post pages (<code class="docutils literal notranslate"><span class="pre">post.tmpl</span></code>, <code class="docutils literal notranslate"><span class="pre">page.tmpl</span></code> etc.)</a><a class="headerlink" href="#variables-available-in-post-pages-post-tmpl-page-tmpl-etc" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 11%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">post</span></code></p></td>
+<td><p>Post</p></td>
+<td><p>The post object</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permalink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link to the post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enable_comments</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>True for posts, <code class="docutils literal notranslate"><span class="pre">COMMENTS_IN_PAGES</span></code> setting for pages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-post-lists">
+<h2><a class="toc-backref" href="#id7"><span class="section-number">6.4. </span>Variables available in post lists</a><a class="headerlink" href="#variables-available-in-post-lists" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 18%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts</span></code></p></td>
+<td><p>list[Post]</p></td>
+<td><p>List of post objects that appear in this list</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prevlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to previous page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nextlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to next page</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-indexes">
+<h2><a class="toc-backref" href="#id8"><span class="section-number">6.5. </span>Variables available in indexes</a><a class="headerlink" href="#variables-available-in-indexes" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 11%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts</span></code></p></td>
+<td><p>list[Post]</p></td>
+<td><p>List of post objects that appear in this list</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">index_teasers</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INDEX_TEASERS</span></code> setting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">show_index_page_navigation</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SHOW_INDEX_PAGE_NAVIGATION</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">current_page</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Number of current page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">page_links</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>Links to different pages</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prevlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to previous page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nextlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to next page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prevfeedlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to previous page as an Atom feed</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nextfeedlink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to next page as an Atom feed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prev_next_links_reversed</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether or not previous and next links should be reversed (<code class="docutils literal notranslate"><span class="pre">INDEXES_STATIC</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_frontmost_index</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether or not this is the front-most index (page 0)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-taxonomies">
+<h2><a class="toc-backref" href="#id9"><span class="section-number">6.6. </span>Variables available in taxonomies</a><a class="headerlink" href="#variables-available-in-taxonomies" title="Permalink to this headline">¶</a></h2>
+<p>Variable names enclosed in <code class="docutils literal notranslate"><span class="pre">{}</span></code> are dependent on the taxonomy.</p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 51%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Taxonomy</p></th>
+<th class="head"><p>Variable</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">archive</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">archive</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">author</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">authors</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">categories</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_items_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cat_items</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_hierarchy_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cat_hierarchy</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p>unavailable (None)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">page_index_folder</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">page_folder</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">section_index</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sections</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tag</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tags</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tag</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overview_page_items_variable_name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<section id="templates-and-settings-used-by-taxonomies">
+<h3><a class="toc-backref" href="#id10"><span class="section-number">6.6.1. </span>Templates and settings used by taxonomies</a><a class="headerlink" href="#templates-and-settings-used-by-taxonomies" title="Permalink to this headline">¶</a></h3>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 7%" />
+<col style="width: 13%" />
+<col style="width: 15%" />
+<col style="width: 18%" />
+<col style="width: 15%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Taxonomy</p></th>
+<th class="head"><p>Has hierarchy</p></th>
+<th class="head"><p>List (one classification) template</p></th>
+<th class="head"><p>Index (one classification) template</p></th>
+<th class="head"><p>Overview (list of classifications) template</p></th>
+<th class="head"><p>Subcategories list template</p></th>
+<th class="head"><p>List is an index</p></th>
+<th class="head"><p>Show as list of subcategories</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>(default settings)</p></td>
+<td><p>no</p></td>
+<td><p>tagindex.tmpl</p></td>
+<td><p>tagindex.tmpl</p></td>
+<td><p>list.tmpl</p></td>
+<td><p>taxonomy_list.tmpl (does not exist)</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">archive</span></code></p></td>
+<td><p>yes (0-3 levels)</p></td>
+<td><p>list_post.tmpl</p></td>
+<td><p>archiveindex.tmpl</p></td>
+<td><p>list.tmpl</p></td>
+<td><p>list.tmpl</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ARCHIVES_ARE_INDEXES</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">CREATE_FULL_ARCHIVES</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">author</span></code></p></td>
+<td><p>no</p></td>
+<td><p>author.tmpl</p></td>
+<td><p>authorindex.tmpl</p></td>
+<td><p>authors.tmpl</p></td>
+<td><p>n/a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AUTHOR_PAGES_ARE_INDEXES</span></code></p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p>yes</p></td>
+<td><p>tag.tmpl</p></td>
+<td><p>tagindex.tmpl</p></td>
+<td><p>tags.tmpl (with tags)</p></td>
+<td><p>n/a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CATEGORY_PAGES_ARE_INDEXES</span></code></p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p>no</p></td>
+<td><p>n/a</p></td>
+<td><p>index.tmpl</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">page_index_folder</span></code></p></td>
+<td><p>yes</p></td>
+<td><p>list.tmpl</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">section_index</span></code></p></td>
+<td><p>no</p></td>
+<td><p>list.tmpl</p></td>
+<td><p>sectionindex.tmpl</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POSTS_SECTIONS_ARE_INDEXES</span></code></p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tag</span></code></p></td>
+<td><p>no</p></td>
+<td><p>tag.tmpl</p></td>
+<td><p>tagindex.tmpl</p></td>
+<td><p>tags.tmpl (with categories)</p></td>
+<td><p>n/a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TAG_PAGES_ARE_INDEXES</span></code></p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classification-overviews">
+<h3><a class="toc-backref" href="#id11"><span class="section-number">6.6.2. </span>Classification overviews</a><a class="headerlink" href="#classification-overviews" title="Permalink to this headline">¶</a></h3>
+<p>Hierarchy-related variables are available if and only if <code class="docutils literal notranslate"><span class="pre">has_hierarchy</span></code> is True.</p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 2%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{overview_page_variable_name}</span></code></p></td>
+<td><p>str</p></td>
+<td><p>List of classifications</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{overview_page_items_variable_name}</span></code></p></td>
+<td><p>list</p></td>
+<td><p>List of items <em>(name, link)</em></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{overview_page_items_variable_name</span> <span class="pre">+</span> <span class="pre">&quot;_with_postcount&quot;}</span></code></p></td>
+<td><p>list</p></td>
+<td><p>List of items <em>(name, link, number of posts)</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{overview_page_hierarchy_variable_name}</span></code></p></td>
+<td><p>list?</p></td>
+<td><p>List of hierarchies <em>(name, full name, path, link, indent levels, indent to change before, indent to change after)</em></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{overview_page_hierarchy_variable_name</span> <span class="pre">+</span> <span class="pre">&quot;_with_postcount&quot;}</span></code></p></td>
+<td><p>list?</p></td>
+<td><p>List of hierarchies, with added counts <em>(name, full name, path, link, indent levels, indent to change before, indent to change after, number of children, number of posts)</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">has_hierarchy</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Value of <code class="docutils literal notranslate"><span class="pre">has_hierarchy</span></code> for the taxonomy</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">permalink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link to page</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classification-pages-lists">
+<h3><a class="toc-backref" href="#id12"><span class="section-number">6.6.3. </span>Classification pages (lists)</a><a class="headerlink" href="#classification-pages-lists" title="Permalink to this headline">¶</a></h3>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 15%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>The classification name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<td><p>list?</p></td>
+<td><p>List of items for <code class="docutils literal notranslate"><span class="pre">list.tmpl</span></code> <em>(title, permalink, None)</em></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts</span></code></p></td>
+<td><p>list[Post]?</p></td>
+<td><p>List of items for other templates</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permalink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link to page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of triples <code class="docutils literal notranslate"><span class="pre">(other_lang,</span> <span class="pre">other_classification,</span> <span class="pre">title)</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Index-style classification pages have <code class="docutils literal notranslate"><span class="pre">kind</span></code> in addition to the usual index variables.</p>
+</section>
+<section id="subclassification-page">
+<h3><a class="toc-backref" href="#id13"><span class="section-number">6.6.4. </span>Subclassification page</a><a class="headerlink" href="#subclassification-page" title="Permalink to this headline">¶</a></h3>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 12%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<td><p>list?</p></td>
+<td><p>List of items</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permalink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link to page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of triples <code class="docutils literal notranslate"><span class="pre">(other_lang,</span> <span class="pre">other_classification,</span> <span class="pre">title)</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hierarchical-lists">
+<h3><a class="toc-backref" href="#id14"><span class="section-number">6.6.5. </span>Hierarchical lists</a><a class="headerlink" href="#hierarchical-lists" title="Permalink to this headline">¶</a></h3>
+<p>The indenting information can be used to render the items as a tree. The values have the following meanings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span> <span class="pre">levels</span></code> is a list of pairs <code class="docutils literal notranslate"><span class="pre">(current_i,</span> <span class="pre">count_i)</span></code> giving the current position (<code class="docutils literal notranslate"><span class="pre">0</span></code>, …, <code class="docutils literal notranslate"><span class="pre">count_i-1</span></code>) and maximum (<code class="docutils literal notranslate"><span class="pre">count_i</span></code>) in the hierarchy level <code class="docutils literal notranslate"><span class="pre">i</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span> <span class="pre">to</span> <span class="pre">change</span> <span class="pre">before</span></code> is the difference of hierarchy levels between the previous and the current item; positive values indicate that the current item is indented further in and can be used to open HTML tags before the item;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indent</span> <span class="pre">to</span> <span class="pre">change</span> <span class="pre">after</span></code> is the difference of hierarchy levels between the current and the next item; negative values indicate that the current item is indented further in and can be used to close HTML tags after the item.</p></li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+--- levels:[(0,3)], before:1, after:0
++-+- levels:[(1,3)], before:0, after:1
+| +--- levels:[(1,3), (0,2)], before:1, after:0
+| +-+- levels:[(1,3), (1,2)], before:0, after:1
+|   +--- levels:[(1,3), (1,2), (0, 1)], before:1, after:-2
++-+- levels:[(2,3)], before:-2, after:1
+  +- levels:[(2,3), (0,1)], before:1, after:-2
+</pre></div>
+</div>
+<p>See <code class="docutils literal notranslate"><span class="pre">tags.tmpl</span></code> in the base themes for examples on how to render a tree as nested unordered lists in HTML.</p>
+</section>
+</section>
+<section id="variables-available-in-archives">
+<h2><a class="toc-backref" href="#id15"><span class="section-number">6.7. </span>Variables available in archives</a><a class="headerlink" href="#variables-available-in-archives" title="Permalink to this headline">¶</a></h2>
+<p>The archive navigation variables are available only if <code class="docutils literal notranslate"><span class="pre">create_archive_navigation</span></code> is True.</p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 12%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;archive&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">archive_name</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Name of the archive (only if using indexes)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">create_archive_navigation</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CREATE_ARCHIVE_NAVIGATION</span></code> setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">has_archive_navigation</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether or not archive navigation is available</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_archive</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Link to the archive one level up</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_archive_name</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Name of the archive one level up</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">previous_archive</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Link to the previous archive</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">previous_archive_name</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Name of the previous archive</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">next_archive</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Link to the next archive</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">next_archive_name</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Name of the next archive</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">archive_nodelevel</span></code></p></td>
+<td><p>int?</p></td>
+<td><p>Level of the archive</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list</p></td>
+<td><p>List of tuples <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">path,</span> <span class="pre">name)</span></code> of same archive in other languages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-author-pages">
+<h2><a class="toc-backref" href="#id16"><span class="section-number">6.8. </span>Variables available in author pages</a><a class="headerlink" href="#variables-available-in-author-pages" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 11%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;author&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">author</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Author name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rss_link</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to RSS (HTML fragment)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of tuples <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">author,</span> <span class="pre">name)</span></code> of same author in other languages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-category-pages">
+<h2><a class="toc-backref" href="#id17"><span class="section-number">6.9. </span>Variables available in category pages</a><a class="headerlink" href="#variables-available-in-category-pages" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 10%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;category&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Category name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">category_path</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>Category hierarchy</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rss_link</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>Link to RSS (HTML fragment, only if using indexes)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subcategories</span></code></p></td>
+<td><p>list</p></td>
+<td><p>List of subcategories (contains <em>name, link</em> tuples)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tag</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Friendly category name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of tuples <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">category,</span> <span class="pre">name)</span></code> of same category in other languages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-galleries">
+<h2><a class="toc-backref" href="#id18"><span class="section-number">6.10. </span>Variables available in galleries</a><a class="headerlink" href="#variables-available-in-galleries" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 9%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crumbs</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Breadcrumbs for this page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enable_comments</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Whether or not comments are enabled in galleries</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">folders</span></code></p></td>
+<td><p>list</p></td>
+<td><p>List of folders (contains <em>path, title</em> tuples)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permalink</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link to this page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">photo_array</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Photo array (contains dicts with image data: <em>url, url_thumb, title, size{w, h}</em>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">photo_array_json</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Photo array in JSON format</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">post</span></code></p></td>
+<td><p>Post?</p></td>
+<td><p>The Post object for this gallery</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">thumbnail_size</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">THUMBNAIL_SIZE</span></code> setting</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-listings">
+<h2><a class="toc-backref" href="#id19"><span class="section-number">6.11. </span>Variables available in listings</a><a class="headerlink" href="#variables-available-in-listings" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 15%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">code</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Highlighted source code (HTML fragment)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crumbs</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Breadcrumbs for this page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">folders</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>List of subfolders</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">files</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>List of files in the folder</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_link</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Link to the source file</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-sections">
+<h2><a class="toc-backref" href="#id20"><span class="section-number">6.12. </span>Variables available in sections</a><a class="headerlink" href="#variables-available-in-sections" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 10%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">section</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Section name (internal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of tuples <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">section,</span> <span class="pre">name)</span></code> of same section in other languages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-tag-pages">
+<h2><a class="toc-backref" href="#id21"><span class="section-number">6.13. </span>Variables available in tag pages</a><a class="headerlink" href="#variables-available-in-tag-pages" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 11%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;tag&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tag</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Tag name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">other_languages</span></code></p></td>
+<td><p>list[tuple]</p></td>
+<td><p>List of tuples <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">tag,</span> <span class="pre">name)</span></code> of same tag in other languages</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-available-in-the-tags-and-categories-page-tags-tmpl">
+<h2><a class="toc-backref" href="#id22"><span class="section-number">6.14. </span>Variables available in the “Tags and categories” page (<code class="docutils literal notranslate"><span class="pre">tags.tmpl</span></code>)</a><a class="headerlink" href="#variables-available-in-the-tags-and-categories-page-tags-tmpl" title="Permalink to this headline">¶</a></h2>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 4%" />
+<col style="width: 78%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Tags <em>(name, link)</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cat_items</span></code></p></td>
+<td><p>list</p></td>
+<td><p>Categories <em>(name, full name, path, link, indent levels, indent to change before, indent to change after)</em></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">category_titles</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CATEGORY_TITLES</span></code> setting (dict for the current language only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category_descriptions</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CATEGORY_DESCRIPTIONS</span></code> setting (dict for the current language only)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tag_titles</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TAG_TITLES</span></code> setting (dict for the current language only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tag_descriptions</span></code></p></td>
+<td><p>dict</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TAG_DESCRIPTIONS</span></code> setting (dict for the current language only)</p></td>
+</tr>
+</tbody>
+</table>
+<p>For more details about hierarchies, see <a class="reference internal" href="#hierarchical-lists">Hierarchical lists</a></p>
+</section>
+<section id="variables-available-in-shortcodes">
+<h2><a class="toc-backref" href="#id23"><span class="section-number">6.15. </span>Variables available in shortcodes</a><a class="headerlink" href="#variables-available-in-shortcodes" title="Permalink to this headline">¶</a></h2>
+<p><em>The global context is available in templated shortcodes.</em></p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 10%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lang</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Current language</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_args</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>Arguments given to the shortcode</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Shortcode contents</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">post</span></code></p></td>
+<td><p>Post</p></td>
+<td><p>Post object (if available)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p></td>
+<td><p>str?</p></td>
+<td><p>file name, if <code class="docutils literal notranslate"><span class="pre">shortcode_function.nikola_shortcode_pass_filename</span> <span class="pre">=</span> <span class="pre">True</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h2><a class="toc-backref" href="#id24"><span class="section-number">6.16. </span>Variables available in post lists</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><em>The global context is NOT available in post lists.</em></p>
+<table class="table table-bordered table-striped docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 15%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">posts</span></code></p></td>
+<td><p>list[Post]</p></td>
+<td><p>Posts that are on the list</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lang</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Current language</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">date_format</span></code></p></td>
+<td><p>str</p></td>
+<td><p>The date format for current language</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">post_list_id</span></code></p></td>
+<td><p>str</p></td>
+<td><p>GUID of post list</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">messages</span></code></p></td>
+<td><p>dict</p></td>
+<td><p>The messages dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_link</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nikola.link</span></code> function</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="post-object-attributes">
+<h2><a class="toc-backref" href="#id25"><span class="section-number">6.17. </span>Post object attributes</a><a class="headerlink" href="#post-object-attributes" title="Permalink to this headline">¶</a></h2>
+<p><em>Usable anywhere post objects are accessible.</em></p>
+<p>This list only includes variables that make sense for templates. Some function signatures have been shortened to save space, <code class="docutils literal notranslate"><span class="pre">?</span></code> means the argument has default value.</p>
+<p>More docs: <a class="reference external" href="https://nikola.readthedocs.io/en/latest/nikola/#nikola.post.Post">nikola.post.Post on ReadTheDocs</a>. Check out the source of the Post class as well.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 7%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alltags</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>All tags for the post</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">author(lang=None)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Localized author or <code class="docutils literal notranslate"><span class="pre">BLOG_AUTHOR</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">base_path</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cache</span></code> path with local <code class="docutils literal notranslate"><span class="pre">os.sep</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">category_from_destpath</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If category was set by <code class="docutils literal notranslate"><span class="pre">CATEGORY_DESTPATH_AS_DEFAULT</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data(key,</span> <span class="pre">lang=None)</span></code></p></td>
+<td><p>?</p></td>
+<td><p>Access to post data</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">date</span></code></p></td>
+<td><p>datetime</p></td>
+<td><p>Date of post (from meta)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">description(key,</span> <span class="pre">lang=None)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Description of post (from meta)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">destination_path(lang?,</span> <span class="pre">extension?,</span> <span class="pre">sep?)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Destination path of post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">formatted_date(date_format,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Format a date (default: post date)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">formatted_updated(date_format)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Format the last update date</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">guid(lang=None)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>GUID of post (used for feeds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">has_math</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post has math</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">has_pretty_url(lang)</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post has a pretty URL</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">is_draft</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post is a draft</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_post</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post is not a page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">is_private</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post is private</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_translation_available(lang)</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post is available in (translated to) a given language</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">is_two_file</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If the post uses two-file metadata</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">meta(key,</span> <span class="pre">lang=None)</span></code></p></td>
+<td><p>?</p></td>
+<td><p>Metadata of the post (assumes current language)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">next_post</span></code></p></td>
+<td><p>Post</p></td>
+<td><p>Next post in the order</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">paragraph_count</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Paragraph count for a post</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">permalink(lang?,</span> <span class="pre">absolute?,</span> <span class="pre">extension?,</span> <span class="pre">query?)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Permanent link for a post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">post_name</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Source path, without extension</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">post_status</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Post status meta field (published, featured, private, draft)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prev_post</span></code></p></td>
+<td><p>Post</p></td>
+<td><p>Previous post in the order</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">previewimage</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Preview image of the post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">publish_later</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>True if the post is not yet published (due to date)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reading_time</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Approximate reading time in minutes (220 wpm)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">remaining_paragraph_count</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Paragraph count after the teaser</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remaining_reading_time</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Reading time after the teaser</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_link</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Absolute link to the post’s source</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tags</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>Tags for the current language</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tags_for_language(lang)</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>Tags for a given language</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">text(lang?,</span> <span class="pre">teaser_only?,</span> <span class="pre">strip_html?,</span> <span class="pre">show_read_more_link?,</span> <span class="pre">…)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>The text of a post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">title(lang=None)</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Localized title of post</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">translated_to</span></code></p></td>
+<td><p>list[str]</p></td>
+<td><p>List of languages of post</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">updated</span></code></p></td>
+<td><p>datetime</p></td>
+<td><p>Date of last update (from meta)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_in_feeds</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If this post should be displayed in feeds</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/nikola-50px-transparent.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. Template variables</a><ul>
+<li><a class="reference internal" href="#global-variables">6.1. Global variables</a></li>
+<li><a class="reference internal" href="#per-page-local-variables">6.2. Per-page local variables</a></li>
+<li><a class="reference internal" href="#variables-available-in-post-pages-post-tmpl-page-tmpl-etc">6.3. Variables available in post pages (<code class="docutils literal notranslate"><span class="pre">post.tmpl</span></code>, <code class="docutils literal notranslate"><span class="pre">page.tmpl</span></code> etc.)</a></li>
+<li><a class="reference internal" href="#variables-available-in-post-lists">6.4. Variables available in post lists</a></li>
+<li><a class="reference internal" href="#variables-available-in-indexes">6.5. Variables available in indexes</a></li>
+<li><a class="reference internal" href="#variables-available-in-taxonomies">6.6. Variables available in taxonomies</a><ul>
+<li><a class="reference internal" href="#templates-and-settings-used-by-taxonomies">6.6.1. Templates and settings used by taxonomies</a></li>
+<li><a class="reference internal" href="#classification-overviews">6.6.2. Classification overviews</a></li>
+<li><a class="reference internal" href="#classification-pages-lists">6.6.3. Classification pages (lists)</a></li>
+<li><a class="reference internal" href="#subclassification-page">6.6.4. Subclassification page</a></li>
+<li><a class="reference internal" href="#hierarchical-lists">6.6.5. Hierarchical lists</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#variables-available-in-archives">6.7. Variables available in archives</a></li>
+<li><a class="reference internal" href="#variables-available-in-author-pages">6.8. Variables available in author pages</a></li>
+<li><a class="reference internal" href="#variables-available-in-category-pages">6.9. Variables available in category pages</a></li>
+<li><a class="reference internal" href="#variables-available-in-galleries">6.10. Variables available in galleries</a></li>
+<li><a class="reference internal" href="#variables-available-in-listings">6.11. Variables available in listings</a></li>
+<li><a class="reference internal" href="#variables-available-in-sections">6.12. Variables available in sections</a></li>
+<li><a class="reference internal" href="#variables-available-in-tag-pages">6.13. Variables available in tag pages</a></li>
+<li><a class="reference internal" href="#variables-available-in-the-tags-and-categories-page-tags-tmpl">6.14. Variables available in the “Tags and categories” page (<code class="docutils literal notranslate"><span class="pre">tags.tmpl</span></code>)</a></li>
+<li><a class="reference internal" href="#variables-available-in-shortcodes">6.15. Variables available in shortcodes</a></li>
+<li><a class="reference internal" href="#id2">6.16. Variables available in post lists</a></li>
+<li><a class="reference internal" href="#post-object-attributes">6.17. Post object attributes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="theming.html"
+                        title="previous chapter"><span class="section-number">5. </span>Theming Nikola</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter"><span class="section-number">7. </span>Extending Nikola</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/template-variables.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="7. Extending Nikola"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="theming.html" title="5. Theming Nikola"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Nikola 8.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>Template variables</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2021, The Nikola Contributors.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

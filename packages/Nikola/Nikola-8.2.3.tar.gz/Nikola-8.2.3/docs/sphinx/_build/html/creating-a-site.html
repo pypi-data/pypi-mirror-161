@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>3. Creating a Site (Not a Blog) with Nikola &#8212; Nikola 8.1.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Creating a Theme" href="creating-a-theme.html" />
+    <link rel="prev" title="1. The Nikola Handbook" href="manual.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="creating-a-theme.html" title="4. Creating a Theme"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="manual.html" title="1. The Nikola Handbook"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Nikola 8.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>Creating a Site (Not a Blog) with Nikola</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="creating-a-site-not-a-blog-with-nikola">
+<h1><span class="section-number">3. </span>Creating a Site (Not a Blog) with Nikola<a class="headerlink" href="#creating-a-site-not-a-blog-with-nikola" title="Permalink to this headline">¶</a></h1>
+<p class="lead">One of the most frequent questions I get about Nikola is “but how do
+I create a site that’s not a blog?”. And of course, that’s because the
+documentation is heavily blog–oriented. This document will change that ;-)</p>
+<p>Since it started, Nikola has had the capabilities to create generic sites. For example,
+Nikola’s <a class="reference external" href="https://getnikola.com/">own site</a> is a fairly generic one. Let’s go
+step by step on how you can do something like that.</p>
+<p>As usual when starting a nikola site, you start with <code class="docutils literal notranslate"><span class="pre">nikola</span> <span class="pre">init</span></code> which creates a
+empty (mostly) configured site:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nikola init mysite
+<span class="go">Creating Nikola Site</span>
+<span class="go">====================</span>
+<span class="go">⋮</span>
+<span class="go">[1970-01-01T00:00:00Z] INFO: init: Created empty site at mysite.</span>
+</pre></div>
+</div>
+<p>Then we go into the new <code class="docutils literal notranslate"><span class="pre">mysite</span></code> folder, and make the needed changes in the <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>
+configuration file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data about this site</span>
+<span class="n">BLOG_AUTHOR</span> <span class="o">=</span> <span class="s2">&quot;Roberto Alsina&quot;</span>
+<span class="n">BLOG_TITLE</span> <span class="o">=</span> <span class="s2">&quot;Not a Blog&quot;</span>
+<span class="c1"># This is the main URL for your site. It will be used</span>
+<span class="c1"># in a prominent link</span>
+<span class="n">SITE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://getnikola.com/&quot;</span>
+<span class="n">BLOG_EMAIL</span> <span class="o">=</span> <span class="s2">&quot;ralsina@example.com&quot;</span>
+<span class="n">BLOG_DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;This is a demo site (not a blog) for Nikola.&quot;</span>
+
+<span class="c1">#</span>
+<span class="c1"># Some things in the middle you don&#39;t really need to change...</span>
+<span class="c1">#</span>
+
+<span class="c1"># you can also keep the current content of POSTS if you want a blog with your site</span>
+<span class="n">POSTS</span> <span class="o">=</span> <span class="p">()</span>
+<span class="c1"># remove destination directory to generate pages in the root directory</span>
+<span class="n">PAGES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;pages/*.rst&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;page.tmpl&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pages/*.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;page.tmpl&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pages/*.html&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;page.tmpl&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># And to avoid a conflict because blogs try to generate /index.html</span>
+<span class="n">INDEX_PATH</span> <span class="o">=</span> <span class="s2">&quot;blog&quot;</span>
+
+<span class="c1"># Or you can disable blog indexes altogether:</span>
+<span class="c1"># DISABLE_INDEXES = True</span>
+</pre></div>
+</div>
+<p>And now we are ready to create our first page:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nikola new_page
+<span class="go">Creating New Page</span>
+<span class="go">-----------------</span>
+
+<span class="go">Title: index</span>
+<span class="go">Scanning posts....done!</span>
+<span class="go">[1970-01-01T00:00:00Z] INFO: new_page: Your page&#39;s text is at: pages/index.rst</span>
+</pre></div>
+</div>
+<p>We can now build and preview our site:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nikola build
+<span class="go">Scanning posts.done!</span>
+<span class="go">.  render_site:output/categories/index.html</span>
+<span class="go">.  render_sources:output/index.txt</span>
+<span class="go">.  render_rss:output/rss.xml</span>
+<span class="go">⋮</span>
+<span class="gp">$ </span>nikola serve
+<span class="go">[1970-01-01T00:00:00Z] INFO: serve: Serving HTTP on 0.0.0.0 port 8000...</span>
+</pre></div>
+</div>
+<p>And you can see your (very empty) site in <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a></p>
+<p>So, what’s in that <code class="docutils literal notranslate"><span class="pre">pages/index.txt</span></code> file?</p>
+<div class="highlight-rest notranslate"><div class="highlight"><pre><span></span><span class="cp">.. title: index</span>
+<span class="cp">.. slug: index</span>
+<span class="cp">.. date: 1970-01-01 00:00:00 UTC</span>
+<span class="cp">.. tags:</span>
+<span class="cp">.. link:</span>
+<span class="cp">.. description:</span>
+
+
+Write your post here.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">title</span></code> is the page title, <code class="docutils literal notranslate"><span class="pre">slug</span></code> is the name of the generated HTML file
+(in this case it would be <code class="docutils literal notranslate"><span class="pre">index.html</span></code>). <code class="docutils literal notranslate"><span class="pre">date</span></code>, <code class="docutils literal notranslate"><span class="pre">tags</span></code> and <code class="docutils literal notranslate"><span class="pre">link</span></code>
+doesn’t matter at all in pages. <code class="docutils literal notranslate"><span class="pre">description</span></code> is useful for SEO purposes
+if you care for that.</p>
+<p>And below, the content. By default Nikola uses
+<a class="reference external" href="https://getnikola.com/quickstart.html">reStructuredText</a> but it supports
+a ton of formats, including Markdown, plain HTML, Jupyter Notebooks, BBCode,
+Wiki, and Textile. We will use reStructuredText for this example, but some
+people might find it a bit too limiting — if that is the case, try using HTML
+for your pages (Nikola does this on the index page, for example).</p>
+<p>So, let’s give the page a nicer title, and some fake content. Since the default
+Nikola theme (called <code class="docutils literal notranslate"><span class="pre">bootblog4</span></code>) is based on <a class="reference external" href="https://getbootstrap.com/">Bootstrap</a>
+you can use anything you like from it:</p>
+<div class="highlight-rest notranslate"><div class="highlight"><pre><span></span><span class="cp">.. title: Welcome To The Fake Site</span>
+<span class="cp">.. slug: index</span>
+<span class="cp">.. date: 1970-01-01 00:00:00 UTC</span>
+<span class="cp">.. tags:</span>
+<span class="cp">.. link:</span>
+<span class="cp">.. description: Fake Site version 1, welcome page!</span>
+
+
+<span class="p">..</span> <span class="ow">class</span><span class="p">::</span> jumbotron col-md-6
+
+<span class="p">..</span> <span class="ow">admonition</span><span class="p">::</span> This is a Fake Site
+
+    It pretends to be about things, but is really just an example.
+
+<span class="p">    ..</span> <span class="ow">raw</span><span class="p">::</span> html
+
+       &lt;a href=&quot;https://getnikola.com/&quot; class=&quot;btn btn-primary btn-lg&quot;&gt;Click Me!&lt;/a&gt;
+
+
+<span class="p">..</span> <span class="ow">class</span><span class="p">::</span> col-md-5
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris non nunc turpis.
+Phasellus a ullamcorper leo. Sed fringilla dapibus orci eu ornare. Quisque
+gravida quam a mi dignissim consequat. Morbi sed iaculis mi. Vivamus ultrices
+mattis euismod. Mauris aliquet magna eget mauris volutpat a egestas leo rhoncus.
+In hac habitasse platea dictumst. Ut sed mi arcu. Nullam id massa eu orci
+convallis accumsan. Nunc faucibus sodales justo ac ornare. In eu congue eros.
+Pellentesque iaculis risus urna. Proin est lorem, scelerisque non elementum at,
+semper vel velit. Phasellus consectetur orci vel tortor tempus imperdiet. Class
+aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+himenaeos.
+</pre></div>
+</div>
+<div class="admonition-tip-nice-urls admonition">
+<p class="admonition-title">TIP: Nice URLs</p>
+<p>If you like your URLs without the <code class="docutils literal notranslate"><span class="pre">.html</span></code> then you want to create folders and
+put the pages in <code class="docutils literal notranslate"><span class="pre">index.html</span></code> inside them using the <code class="docutils literal notranslate"><span class="pre">PRETTY_URLS</span></code> option
+(on by default)</p>
+</div>
+<p>And that’s it. You will want to change the NAVIGATION_LINKS option to create a reasonable
+menu for your site, you may want to modify the theme (check <code class="docutils literal notranslate"><span class="pre">nikola</span> <span class="pre">help</span> <span class="pre">bootswatch_theme</span></code>
+for a quick &amp; dirty solution), and you may want to add a blog later on, for company news
+or whatever.</p>
+<div class="admonition-tip-so-how-do-i-add-a-blog-now admonition">
+<p class="admonition-title">TIP: So, how do I add a blog now?</p>
+<p>First, change the <code class="docutils literal notranslate"><span class="pre">POSTS</span></code> option like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">POSTS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;posts/*.rst&quot;</span><span class="p">,</span> <span class="s2">&quot;blog&quot;</span><span class="p">,</span> <span class="s2">&quot;post.tmpl&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;posts/*.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;blog&quot;</span><span class="p">,</span> <span class="s2">&quot;post.tmpl&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;posts/*.html&quot;</span><span class="p">,</span> <span class="s2">&quot;blog&quot;</span><span class="p">,</span> <span class="s2">&quot;post.tmpl&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a post with <code class="docutils literal notranslate"><span class="pre">nikola</span> <span class="pre">new_post</span></code> and that’s it, you now have a blog
+in the <code class="docutils literal notranslate"><span class="pre">/blog/</span></code> subdirectory of your site — you may want to link to
+it in <code class="docutils literal notranslate"><span class="pre">NAVIGATION_LINKS</span></code>.</p>
+</div>
+<p>If you want to see a site implementing all of the above, check out <a class="reference external" href="https://getnikola.com/">the Nikola
+website</a>.</p>
+<p>I hope this was helpful!</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/nikola-50px-transparent.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="manual.html"
+                        title="previous chapter"><span class="section-number">1. </span>The Nikola Handbook</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="creating-a-theme.html"
+                        title="next chapter"><span class="section-number">4. </span>Creating a Theme</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/creating-a-site.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="creating-a-theme.html" title="4. Creating a Theme"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="manual.html" title="1. The Nikola Handbook"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Nikola 8.1.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>Creating a Site (Not a Blog) with Nikola</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2021, The Nikola Contributors.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
