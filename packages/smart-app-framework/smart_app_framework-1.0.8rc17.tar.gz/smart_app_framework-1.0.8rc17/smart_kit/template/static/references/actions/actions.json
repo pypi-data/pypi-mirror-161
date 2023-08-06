@@ -1,0 +1,25 @@
+{
+  "exception_action": {
+    "command": "ANSWER_TO_USER",
+    "nodes": {
+      "answer": [
+        [
+          "Произошёл технический сбой, извините. Давайте попробуем ещё раз?"
+        ]
+      ]
+    }
+  },
+  "process_behavior_action": {
+    "type": "process_behavior"
+  },
+  "before_action": {
+    "type": "requirement",
+    "action": {
+		"type": "clear_all_scenarios"
+	},
+	"requirement": {
+		"type": "template",
+		"template": "{{ payload.get('new_session', False) and settings['template_settings'].get('reset_context_on_new_session', False)}}"
+	}
+  }
+}
