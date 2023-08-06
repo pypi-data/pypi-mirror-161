@@ -1,0 +1,572 @@
+/* ////////// LICENSE INFO ////////////////////
+
+ * Copyright (C) 2013 by NYSOL CORPORATION
+ *
+ * Unless you have received this program directly from NYSOL pursuant
+ * to the terms of a commercial license agreement with NYSOL, then
+ * this program is licensed to you under the terms of the GNU Affero General
+ * Public License (AGPL) as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING THOSE OF 
+ * NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * Please refer to the AGPL (http://www.gnu.org/licenses/agpl-3.0.txt)
+ * for more details.
+
+ ////////// LICENSE INFO ////////////////////*/
+// ============================================================================
+// 複数ファイルの併合
+// ============================================================================
+#include <cstdio>
+#include <sstream>
+#include <kgcat.h>
+#include <kgError.h>
+#include <kgMethod.h>
+#include <kgConfig.h>
+
+using namespace std;
+using namespace kglib;
+using namespace kgmod;
+
+// -----------------------------------------------------------------------------
+// コンストラクタ(モジュール名，バージョン登録,パラメータ)
+// -----------------------------------------------------------------------------
+const char * kgCat::_ipara[] = {"i",""};
+const char * kgCat::_opara[] = {"o",""};
+
+
+kgCat::kgCat(void)
+{
+	_name    = "kgcat";
+	_version = "###VERSION###";
+	_iCnt    = 0;
+
+	_paralist = "i=,flist=,o=,f=,a=,-skip,-nostop,-force,-skip_fnf,-add_fname,-stdin,kv=,-skip_zero";
+	_paraflg = kgArgs::COMMON|kgArgs::IODIFF|kgArgs::NULL_IN;
+
+	#include <help/en/kgcatHelp.h>
+	_titleL = _title;
+	_docL   = _doc;
+	#ifdef JPN_FORMAT
+		#include <help/jp/kgcatHelp.h>
+	#endif
+
+}
+// -----------------------------------------------------------------------------
+// 引数の設定
+// -----------------------------------------------------------------------------
+void kgCat::setArgs(void)
+{
+	// パラメータチェック
+	_args.paramcheck(_paralist,_paraflg);
+
+	// 項目名指定
+	_fvstr = _args.toStringVector("f=",false);
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// フラグセット
+	// (-skip_fnf,-add_fname,-stdin,-force,-skip,-nostop")
+	// -force,-skip,-nostopのいずれか指定されていれば
+	// _stopがfalse(項目名違っていてもERRORにならないようにする)
+	// -force,-skipは同時に指定できない
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	_skip_fnf = _args.toBool("-skip_fnf");
+	_add_fn   = _args.toBool("-add_fname");
+	_stdin    = _args.toBool("-stdin");
+	_force		= _args.toBool("-force");
+	_skip 		= _args.toBool("-skip");
+	_zskip 		= _args.toBool("-skip_zero");
+	
+	_stop			= !(_force || _skip || _args.toBool("-nostop"));
+	_is_f     = !_fvstr.empty();
+	if(_skip && _force){ throw kgError("choose one from -force or -skip");}
+	_dicinfoSize=0;
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// 入力ファイル名取得（ファイルオープンはしない）
+	// _stdin==trueで最初のファイル名は""(標準入力)
+	// ファイルが一つもなければエラー
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	vector<kgstr_t> vs = _args.toStringVector("i=",false);
+	vector< vector<kgstr_t> > vsf = _args.toStringVecVec("flist=",':',2,false);
+	if(!vsf.empty()){
+		for(size_t i=0;i<vsf[0].size();i++){
+			kgCSVfld iFileL;
+			kgArgFld fFieldL;	
+			iFileL.open(vsf[0][i], _env,_nfn_i);
+			iFileL.read_header();
+
+			fFieldL.set(vsf[1][i], &iFileL, _fldByNum);
+			// ファイルリスト読み込み
+			while( EOF != iFileL.read() ){ vs.push_back(iFileL.getVal(fFieldL.num(0))); }
+			iFileL.close();
+		}
+	}
+
+	_iFilename = kgFilesearch(vs,_skip_fnf,_stdin);
+	if(_iFilename.empty()){ throw kgError("all files on i= are not found");	}
+
+	// o= 出力ファイルオープン
+	_oFile.open(_args.toString("o=",false), _env, _nfn_o,_rp);
+
+	vector<kgstr_t> vskv = _args.toStringVector("kv=",false);
+	if (vskv.size()!=0) {
+		for ( size_t i=0 ;i < vskv.size();i++){
+			_kv.push_back(aToSizeT(vskv[i].c_str()));
+		}
+	}
+	vector< vector<kgstr_t> > vsa = _args.toStringVecVec("a=",':',2,false);
+	if (vsa[0].size()!=0) {
+		for ( size_t i=0 ;i < vsa[0].size();i++){
+			_k1.push_back(atoi(vsa.at(0).at(i).c_str()));
+			_v1.push_back(vsa.at(1).at(i));
+		}
+		for(size_t i=0; i< vs.size();i++){
+			string fnck = vs[i];
+			cerr << " f " << vs[i] << endl;
+			vector <kgstr_t> fnckv = splitToken(fnck, '/');
+			if( _dicinfoSize == 0 || _dicinfoSize == fnckv.size()){
+				_dicinfoSize = fnckv.size();
+			}
+			else{
+				throw kgError("diffrent DIRECTORY HIERARCHY");	
+			}
+ 		}
+ 	}
+
+}
+// -----------------------------------------------------------------------------
+// 引数の設定
+// -----------------------------------------------------------------------------
+void kgCat::setArgs(int inum,int *i_p,int onum ,int *o_p)
+{
+	int iopencnt = 0;
+	int oopencnt = 0;
+	try{
+
+		// パラメータチェック
+		_args.paramcheck(_paralist,_paraflg);
+
+		// 項目名指定
+		_fvstr = _args.toStringVector("f=",false);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		// フラグセット
+		// (-skip_fnf,-add_fname,-stdin,-force,-skip,-nostop")
+		// -force,-skip,-nostopのいずれか指定されていれば
+		// _stopがfalse(項目名違っていてもERRORにならないようにする)
+		// -force,-skipは同時に指定できない
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		_skip_fnf = _args.toBool("-skip_fnf");
+		_add_fn   = _args.toBool("-add_fname");
+		_stdin    = _args.toBool("-stdin");
+		_force		= _args.toBool("-force");
+		_skip 		= _args.toBool("-skip");
+		_zskip 		= _args.toBool("-skip_zero");
+	
+		_stop			= !(_force || _skip || _args.toBool("-nostop"));
+		_is_f     = !_fvstr.empty();
+		if(_skip && _force){ throw kgError("choose one from -force or -skip");}
+		_dicinfoSize=0;
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		// 入力ファイル名取得（ファイルオープンはしない）
+		// _stdin==trueで最初のファイル名は""(標準入力)
+		// ファイルが一つもなければエラー
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		vector< vector<kgstr_t> > vsf = _args.toStringVecVec("flist=",':',2,false);
+		vector<kgstr_t> vs;
+		if(onum>1){
+			throw kgError("no match IO");
+		}	
+		if(inum!=0){
+			throw kgError("not support pipe file");	
+		}
+		else{
+			vs = _args.toStringVector("i=",false);
+			if(!vsf.empty()){
+				for(size_t i=0;i<vsf[0].size();i++){
+					kgCSVfld iFileL;
+					kgArgFld fFieldL;	
+					iFileL.open(vsf[0][i], _env,_nfn_i);
+					iFileL.read_header();	
+
+					fFieldL.set(vsf[1][i], &iFileL, _fldByNum);
+					// ファイルリスト読み込み
+					while( EOF != iFileL.read() ){ vs.push_back(iFileL.getVal(fFieldL.num(0))); }
+					iFileL.close();
+				}
+			}
+			_iFilename = kgFilesearch(vs,_skip_fnf,_stdin);	
+			if(_iFilename.empty()){ throw kgError("all files on i= are not found");	}
+		}
+
+		if(onum==1 && *o_p > 0){ _oFile.popen(*o_p, _env,_nfn_o,_rp); }
+		else     { _oFile.open(_args.toString("o=",true), _env,_nfn_o,_rp);}
+		oopencnt++;
+
+		vector<kgstr_t> vskv = _args.toStringVector("kv=",false);
+		if (vskv.size()!=0) {
+			for ( size_t i=0 ;i < vskv.size();i++){
+				_kv.push_back(aToSizeT(vskv[i].c_str()));
+			}
+		}
+
+		vector< vector<kgstr_t> > vsa = _args.toStringVecVec("a=",':',2,false);
+		if (vsa[0].size()!=0) {
+			for ( size_t i=0 ;i < vsa[0].size();i++){
+				_k1.push_back(atoi(vsa.at(0).at(i).c_str()));
+				_v1.push_back(vsa.at(1).at(i));
+			}
+			for(size_t i=0; i< vs.size();i++){
+				string fnck = vs[i];
+				vector <kgstr_t> fnckv = splitToken(fnck, '/');
+				if( _dicinfoSize == 0 || _dicinfoSize == fnckv.size()){
+					_dicinfoSize = fnckv.size();
+				}
+				else{
+					throw kgError("diffrent DIRECTORY HIERARCHY");	
+				}
+ 			}
+ 		}
+
+
+	}catch(...){
+		for(int i=iopencnt; i<inum ;i++){
+			if(*(i_p+i)>0){ ::close(*(i_p+i)); }
+		}
+		for(int i=oopencnt; i<onum ;i++){
+			if(*(o_p+i)>0){ ::close(*(o_p+i)); }
+		}
+		throw;
+	}
+
+}
+// -----------------------------------------------------------------------------
+// データ出力
+// -----------------------------------------------------------------------------
+void kgCat::output(kgCSVfld* csv)
+{
+	if(!csv->opened()) return;
+	vector<int> outFldNo;
+	if(_force){ // 強制併合
+		size_t i;
+		for(i=0; i<_fldSize; i++){
+			if(i < csv->fldSize() ) { outFldNo.push_back( i);}
+			else                    { outFldNo.push_back(-1);}
+		}
+	}else{
+		if(csv->noFldName()){ // 項目名行なしの場合
+			if(csv->fldSize() < _fldSize){
+				if(_stop){
+					ostringstream ss;
+					ss << "the number of fields is less than [" << _fldSize
+						<< "] on file [" << csv->fileName() << "]";
+					throw kgError(ss.str());
+				}
+				if(_skip){ return; }
+			}
+			if(_is_f){ // f=指定あり 指定項目を選択
+				for(size_t i=0; i<_fldSize; i++){
+					if(i < csv->fldSize() ){ outFldNo.push_back(_fField.getNum().at(i));}
+					else                   { outFldNo.push_back(-1);}
+				}
+			}else{
+				for(size_t i=0; i<_fldSize; i++){
+					if(i < csv->fldSize() ) { outFldNo.push_back( i);}
+					else                   	{ outFldNo.push_back(-1);}
+				}
+			}
+		}else{ // 項目名行ありの場合
+			for(size_t i=0; i<_fldSize; i++){
+				int no=csv->fldNum(_fldNames.at(i),true);
+				if(no==-1){
+					if(_stop){
+						ostringstream ss;
+						ss << "field name [" << _fldNames.at(i)
+						  << "] not found on file ["   << csv->fileName() << "]";
+						throw kgError(ss.str());
+					}
+					if(_skip)return;
+				}
+ 				outFldNo.push_back(no);
+			}
+		}
+	}
+	// ファイル名スプリット
+	vector<vector <kgstr_t> > fsplit;
+	vector <kgstr_t> fsplit1;
+
+	string csvfn = csv->fileName();
+
+	if(_kv.size()!=0){
+		fsplit = splitToken2(csvfn, '/','_'); 
+	}
+	else if(_k1.size()!=0){
+		fsplit1 = splitToken(csvfn, '/');
+	}
+	// 出力実行
+	while( EOF != csv->read() ){
+		_iCnt++;
+		if(_assertNullIN) { if(csv->isNull(outFldNo) ){_existNullIN  = true; } }
+		if(_kv.size()!=0){
+			int endpos = fsplit.size()-1;
+			_oFile.writeFld(csv->getFld(),&outFldNo,false);
+			if (_add_fn){ _oFile.writeStr(csv->fileName().c_str(), false ); }
+			for(size_t i=0;i<_kv.size();i++){
+				int pos =  endpos - _kv[i];
+				if(pos<0 || fsplit[pos].size()<2){
+					_oFile.writeStr("", i == _kv.size()-1);
+				}
+				else{
+					for(size_t j=1;j<fsplit[pos].size();j+=2){
+						_oFile.writeStr(fsplit.at(pos).at(j).c_str(), i == _kv.size()-1 &&  j==fsplit[pos].size()-1 );
+					}
+				}
+			}
+		}
+		else if(_k1.size()!=0){
+			int endpos1 = fsplit1.size();
+			_oFile.writeFld(csv->getFld(),&outFldNo,false);
+			if (_add_fn){ _oFile.writeStr(csv->fileName().c_str(), false ); }
+
+			for(size_t i=0;i<_k1.size();i++){
+				// start pos計算
+				int startpos = endpos1 - _dicinfoSize;
+				//int pos =  endpos - _k1[i];
+				//cerr << "epos " << startpos << " " << _dicinfoSize << " "<< endpos1  << " " << _k1[i] << endl; 
+				if(_k1[i]<0 ){
+					int pos =  endpos1 + _k1[i];
+				//cerr << "eposp "<< pos << endl; 
+					if(pos<startpos){
+						_oFile.writeStr("", i == _k1.size()-1);
+					}
+					else{
+						_oFile.writeStr(fsplit1.at(pos).c_str(),i == _k1.size()-1 );
+					}
+				}
+				else{
+					int pos = _k1[i]+startpos;
+					if(pos>=endpos1){
+						_oFile.writeStr("", i == _k1.size()-1);
+					}
+					else{
+						_oFile.writeStr(fsplit1.at(pos).c_str(),i == _k1.size()-1 );
+					}
+				}
+			}
+		}
+		else if (_add_fn){
+			_oFile.writeFld(csv->getFld(),&outFldNo,false);
+			_oFile.writeStr(csv->fileName().c_str(), true );
+		}else{
+			_oFile.writeFld(csv->getFld(),&outFldNo);
+		}
+	}	
+}
+// -----------------------------------------------------------------------------
+// 処理ファイルセット
+//  fnameで指定されたファイルのヘッダまで読み込む
+// -----------------------------------------------------------------------------
+int kgCat::readFile_set(kgstr_t fname)
+{
+	if(fname=="")	{ _iCsv = &_iFile; }
+	else					{ _iCsv = new kgCSVfld;}
+	if( _iCsv->opened()==false ){
+		_iCsv->open(fname, _env, _nfn_i);
+		try {
+			_iCsv->read_header();
+		}catch(kgError& err){
+			if( _zskip && err.message(0).find("no data found :")!=string::npos ){
+				return 1;
+			}
+			throw ;
+		}
+	}
+	return 0;
+}
+// -----------------------------------------------------------------------------
+// 処理ファイル解除
+//  _iCsvで指定されているファイルをクローズする（標準入力の場合はSKIP）
+// -----------------------------------------------------------------------------
+void kgCat::readFile_unset()
+{
+	if(!_iCsv->isStdin()){
+		_iCsv->close();
+		delete _iCsv;
+	}
+	return;
+}
+
+
+int kgCat::runMain(){
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	// 出力項目名or出力項目数決定
+	// データがある最初ファイルの項目名or項目数を基準とする
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+	for( _inf_pos = 0; _inf_pos<_iFilename.size(); _inf_pos++ ){
+		if(readFile_set( _iFilename.at(_inf_pos) )){
+			readFile_unset();
+			continue;
+		}
+		if(0==_iCsv->fldSize()){ 
+			readFile_unset();
+			continue;
+		}
+		if(_is_f){
+			_fField.set(_fvstr, _iCsv, _fldByNum);
+			_fldNames = _fField.getName();
+			_fldSize  = _fField.size();
+		}else{
+			_fldNames = _iCsv->fldName();
+			_fldSize  = _iCsv->fldSize();
+		}
+		readFile_unset();
+		break;
+	}
+
+	// 項目名の出力
+	vector<kgstr_t> fldtNames = _fldNames;
+
+	if(_add_fn){ 
+		fldtNames.push_back("fileName"); 
+	}
+
+	if(_kv.size()!=0){
+		// ファイル名スプリット
+		vector<vector <kgstr_t> >  fsplit;
+		string fn = _iFilename.at(_inf_pos);
+		fsplit = splitToken2(fn, '/','_'); 
+		int endpos = fsplit.size()-1;
+		for(size_t i=0;i<_kv.size();i++){
+			int pos =  endpos - _kv[i];
+			if(pos<0){ throw kgError("kv key not found");}
+			for(size_t j=0;j<fsplit[pos].size();j+=2){
+				fldtNames.push_back(fsplit[pos][j]);
+			}
+		}
+	}
+	else if(_k1.size()!=0){
+		for ( size_t i=0 ; i < _v1.size();i++){ 
+			fldtNames.push_back(_v1[i]); 
+		}
+	}
+
+	if(!_nfn_o){ _oFile.writeFldName(fldtNames);  }
+
+	// データの出力
+	for( ; _inf_pos<_iFilename.size(); _inf_pos++ ){
+		if(readFile_set( _iFilename.at(_inf_pos) )){
+			readFile_unset();
+			continue;
+		}
+		if(_iCsv->fldSize()!=0) { output(_iCsv); }
+		readFile_unset();
+	}
+	// 終了処理
+	_iFile.close();
+	_oFile.close();
+
+	return 0;
+
+}
+// -----------------------------------------------------------------------------
+// 実行
+// -----------------------------------------------------------------------------
+int kgCat::run(void)
+{
+	try {
+
+		setArgs();
+		int sts = runMain();
+		successEnd();
+		return sts;
+
+	}catch(kgOPipeBreakError& err){
+
+		runErrEnd();
+		successEnd();
+		return 0;
+
+	}catch(kgError& err){
+
+		runErrEnd();
+		errorEnd(err);
+	}catch (const exception& e) {
+
+		runErrEnd();
+		kgError err(e.what());
+		errorEnd(err);
+	}catch(char * er){
+
+		runErrEnd();
+		kgError err(er);
+		errorEnd(err);
+	}catch(...){
+
+		runErrEnd();
+		kgError err("unknown error" );
+		errorEnd(err);
+	}
+	return 1;
+
+}
+
+///* thraad cancel action
+static void cleanup_handler(void *arg)
+{
+    ((kgCat*)arg)->runErrEnd();
+}
+
+int kgCat::run(int inum,int *i_p,int onum, int* o_p,string &msg)
+{
+	int sts=1;
+	pthread_cleanup_push(&cleanup_handler, this);	
+
+	try {
+
+		setArgs(inum, i_p, onum,o_p);
+		sts = runMain();
+		msg.append(successEndMsg());
+
+	}catch(kgOPipeBreakError& err){
+
+		runErrEnd();
+		msg.append(successEndMsg());
+		sts = 0;
+
+	}catch(kgError& err){
+
+		runErrEnd();
+		msg.append(errorEndMsg(err));
+
+	}catch (const exception& e) {
+
+		runErrEnd();
+		kgError err(e.what());
+		msg.append(errorEndMsg(err));
+
+	}catch(char * er){
+
+		runErrEnd();
+		kgError err(er);
+		msg.append(errorEndMsg(err));
+
+	}
+	KG_ABI_CATCH
+	catch(...){
+
+		runErrEnd();
+		kgError err("unknown error" );
+		msg.append(errorEndMsg(err));
+
+	}
+	pthread_cleanup_pop(0);
+	return sts;
+}
+
+
+
+
