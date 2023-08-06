@@ -1,0 +1,11 @@
+query getOrgProjectItems(
+  $org: String!
+  $projectNumber: Int!
+  $after: String
+) {
+  organization(login: $org) {
+    project: projectV2(number: $projectNumber) {
+      ...projectV2Data    # fragment: project_entries_frag.graphql
+    }
+  }
+}
