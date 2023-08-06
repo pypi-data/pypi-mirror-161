@@ -1,0 +1,15 @@
+"""Constances for testing purposes."""
+
+TEST_HOST = "127.0.0.1"
+TEST_PORT = 9883
+TEST_USER_NAME = "test"
+TEST_PASSWORD = "test_password"
+TEST_DEBUG_TRUE = True
+TEST_DEBUG_FALSE = False
+
+TEST_INELS_MQTT_NAMESPACE = "inelsmqtt"
+TEST_INELS_MQTT_CLASS_NAMESPACE = "inelsmqtt.InelsMqtt"
+
+TEST_TOPIC_STATE = "inels/status/4254524524/02/452454"
+TEST_TOPIC_SET = "inels/set/4254524524/02/452454"
+TEST_TOPIC_CONNECTED = "inels/connected/4254524524/02/452454"
