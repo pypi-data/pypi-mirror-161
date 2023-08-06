@@ -1,0 +1,39 @@
+"""Exceptions for Travelling Salesman Problem with Profits"""
+
+from networkx import exception as ex
+
+
+class EdgeNotFoundException(ex.NetworkXException):
+    """An edge could not be found in the graph"""
+
+
+class EdgesNotAdjacentException(ex.AmbiguousSolution):
+    """An edge list has been given non-adjacent edges which is ambiguous"""
+
+
+class NotSimpleException(ex.NetworkXException):
+    """A path, cycle or walk is not simple"""
+
+
+class NotSimpleCycleException(NotSimpleException):
+    """The walk was not a simple cycle"""
+
+
+class NotSimplePathException(NotSimpleException):
+    """The walk was not a simple path"""
+
+
+class UnexpectedSelfLoopException(ex.NetworkXException):
+    """A self loop was found where it wasn't exprected"""
+
+
+class GraphStructureException(ex.NetworkXException):
+    """The structure of a graph is not allowed"""
+
+
+class NoTreesException(GraphStructureException):
+    """The graph is not allowed to be a tree"""
+
+
+class NotConnectedException(GraphStructureException):
+    """The graph must be connected"""

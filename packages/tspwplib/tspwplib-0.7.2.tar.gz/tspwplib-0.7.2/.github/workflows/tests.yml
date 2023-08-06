@@ -1,0 +1,40 @@
+name: Tests
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    
+    env:
+      OPLIB_ROOT: ../OPLib
+      TSPLIB95_ROOT: ../tsplib95
+      TSPLIB_ROOT: ../tsplib95/archives/problems/tsp
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install
+      run: |
+        python3 -m pip install --upgrade pip
+        git clone https://github.com/bcamath-ds/OPLib.git ${OPLIB_ROOT}
+        git clone https://github.com/rhgrant10/tsplib95.git ${TSPLIB95_ROOT}
+        pip3 install -r requirements.txt
+        pip3 install -e .
+    - name: Test
+      run: pytest
+    - name: Formatting
+      run: black --check */
+    - name: Lint
+      run: pylint --rcfile .pylintrc setup.py tspwplib/* tests/*
+    - name: Type hinting
+      run: mypy --config-file .mypy.ini tspwplib
