@@ -1,0 +1,148 @@
+Metadata-Version: 2.1
+Name: spark-quality-rules-tools
+Version: 0.1.4
+Summary: spark_quality_rules_tools
+Home-page: https://github.com/jonaqp/spark_quality_rules_tools/
+Author: Jonathan Quiza
+Author-email: jony327@gmail.com
+License: UNKNOWN
+Download-URL: https://github.com/jonaqp/spark_quality_rules_tools/archive/main.zip
+Keywords: spark,dq,rules,hammurabies
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas (>=1.1.5)
+Requires-Dist: numpy (>=1.19.5)
+Requires-Dist: findspark (>=2.0.1)
+Requires-Dist: pyspark (==3.2.0)
+Requires-Dist: jinja2 (>=3.0.3)
+Requires-Dist: humanize (>=3.14.0)
+Requires-Dist: xlrd (>=2.0.1)
+Requires-Dist: pyhocon (>=0.3.59)
+Requires-Dist: requests (>=2.27.1)
+Requires-Dist: certifi (>=2022.6.15)
+Requires-Dist: GitPython (>=3.1.18)
+Requires-Dist: color-tools (>=0.0.2)
+Requires-Dist: tqdm (>=4.64.0)
+
+# spark_quality_rules_tools
+
+[![Github License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Updates](https://pyup.io/repos/github/woctezuma/google-colab-transfer/shield.svg)](pyup)
+[![Python 3](https://pyup.io/repos/github/woctezuma/google-colab-transfer/python-3-shield.svg)](pyup)
+[![Code coverage](https://codecov.io/gh/woctezuma/google-colab-transfer/branch/master/graph/badge.svg)](codecov)
+
+spark_quality_rules_tools is a Python library that implements quality rules in sandbox
+
+## Installation
+
+The code is packaged for PyPI, so that the installation consists in running:
+
+```sh
+pip install spark-quality-rules-tools --user --upgrade
+```
+
+## Usage
+
+wrapper run hammurabies
+
+![Process](./spark_quality_rules_tools/utils/external/folder_process.png)
+
+## Local
+
+```sh
+import os
+from spark_quality_rules_tools import get_quality_run_repo_local
+
+## add user register
+os.environ['JPY_USER'] = 'PXXXXX'
+
+project_sda="CDD"
+repo_urls= ["ssh://git@globaldevtools.bbva.com:7999/vbsuu/vbsuu_skynet_products_services_administration.git",
+            "ssh://git@globaldevtools.bbva.com:7999/vbsuu/vbsuu_skynet_xdkq.git",
+            "ssh://git@globaldevtools.bbva.com:7999/vbsuu/vbsuu_skynet_risk.git"]
+            
+## quality run_sandbox
+get_quality_run_repo_local(project_sda=project_sda,
+                           repo_urls=repo_urls)
+
+```
+
+## Sandbox
+
+```sh
+import os
+from spark_quality_rules_tools import get_path_workspace
+from spark_quality_rules_tools import get_creating_directory_txt_file_empty
+from spark_quality_rules_tools import quality_rules_get_conf_parameter
+from spark_quality_rules_tools import get_quality_run_sandbox
+
+project_sda="CDD"
+uuaa_name = "ksan"
+table_name = "eomassetsliabilities"
+conf_name = "eomassetsliabilities-01"
+
+## Create workspace
+get_path_workspace(project_sda=project_sda)
+
+## Create file conf local
+get_creating_directory_txt_file_empty(uuaa_name=uuaa_name,
+                                      table_name=table_name,
+                                      confs_list=[conf_name])
+                                      
+## Extract y Show Parameter                                 
+quality_rules_get_conf_parameter(uuaa_name=uuaa_name,
+                                 table_name=table_name,
+                                 confs_list=[conf_name])
+
+parameter_conf_list = [
+ {
+   "ENTIFIC_ID": "PE",
+   "INFORMATION_ORIGIN_ID": "SKCO",
+   "SCHEMAS_REPOSITORY": "da-datio/schemas/pe/kgug/master/t_kgug_guarantees/latest/",
+   "LAST_CUTOFF_DATE": "2022-05-31",
+   "ODATE_DATE": "2022-06-30",
+   "SCHEMA_PATH": "t_ksan_eom_assets_liabilities.output.schema",
+   "CUTOFF_DATE": "2022-06-30",
+   "ARTIFACTORY_UNIQUE_CACHE": "https://globaldevtools.bbva.com"
+ }
+]
+
+                         
+## quality run_sandbox
+get_quality_run_sandbox(project_sda=project_sda,
+                        spark=spark,
+                        sc=sc,
+                        uuaa_name=uuaa_name,
+                        table_name=table_name,
+                        conf_name=conf_name,
+                        parameter_conf_list=parameter_conf_list,
+                        is_download_jar=True,
+                        jar_url=None,
+                        is_report_compress=False)
+
+```
+
+## License
+
+[Apache License 2.0](https://www.dropbox.com/s/8t6xtgk06o3ij61/LICENSE?dl=0).
+
+## New features v1.0
+
+## BugFix
+
+- choco install visualcpp-build-tools
+
+## Reference
+
+- Jonathan Quiza [github](https://github.com/jonaqp).
+- Jonathan Quiza [RumiMLSpark](http://rumi-ml.herokuapp.com/).
+
+
