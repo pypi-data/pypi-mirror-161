@@ -1,0 +1,280 @@
+Metadata-Version: 2.1
+Name: yams-cli
+Version: 3.2.2
+Summary: Yams CLI 
+Home-page: UNKNOWN
+Author: Team Edge
+Author-email: infrastructure-platform-edge@adevinta.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.7
+Description-Content-Type: text/markdown
+Requires-Dist: requests (==2.27.1)
+Requires-Dist: configparser (==5.2.0)
+Requires-Dist: cryptography (==36.0.2)
+Requires-Dist: py (==1.11.0)
+Requires-Dist: docopt (==0.6.2)
+Requires-Dist: injector (==0.19.0)
+Requires-Dist: pycryptodome (==3.14.1)
+Requires-Dist: python-jose (==3.3.0)
+Requires-Dist: ecdsa (==0.17)
+Requires-Dist: python-dateutil (==2.8.1)
+Requires-Dist: pytz
+Requires-Dist: setuptools (==62.0.0)
+Requires-Dist: wheel (==0.37.1)
+Requires-Dist: twine (==4.0.0)
+Requires-Dist: cmarkgfm
+Requires-Dist: tqdm
+
+
+
+# Yams Command Line Interface
+The Yams Command Line Interface (yams-cli) is a unified tool to manage your Yams services.<br>
+With just one tool users can configure and control all the Yams services from the command line.
+
+### Prerequisites
+Before proceeding with the installation, please make sure that your machine:
+* Has a working [Python3](http://www.python.org/download/) interpreter (version 3.7 or higher).
+* Can install packages via the [pip](http://www.pip-installer.org/en/latest/) tool.
+
+### Performing the installation
+Installing YAMS CLI is as easy as running this install command:
+```bash
+pip install yams-cli
+```
+
+In case you have dependencies issues, we recommend using a virtual environment:
+
+```bash
+export YAMSCLI_DIR=<yams-virtualenv-directory>  # dir will be created by next command
+python3 -m venv $YAMSCLI_DIR
+source $YAMSCLI_DIR/bin/activate
+pip install --upgrade pip
+pip install --upgrade yams-cli
+```
+
+After the installation steps, to use yams-cli from your virtual env you should always activate it with
+
+```bash
+source <yams-virtualenv-directory>/bin/activate
+```
+
+## Usage
+The YAMS' `help` sub-command will show the tool's syntax, all the available sub-commands and their usage.
+
+**The YAMS inline help**:
+```
+% yams help
+usage: yams [-h] [--version] [--debug] [-a API_VERSION] [-m MANAGEMENT_URL] [-f FETCH_URL] [-j JWT_ALGORITHM] [-p PROFILE] COMMAND ...
+
+YAMS CLI
+https://yams.mpi-internal.com
+#yams @ Slack
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show current version
+  --debug               debug mode
+  -a API_VERSION, --api-version API_VERSION
+                        API version. Default: api/v1
+  -m MANAGEMENT_URL, --management-url MANAGEMENT_URL
+                        management URL. Default: https://mgmt-yams.mpi-internal.com
+  -f FETCH_URL, --fetch-url FETCH_URL
+                        fetch URL. Default: https://fetch-yams.mpi-internal.com
+  -j JWT_ALGORITHM, --jwt-algorithm JWT_ALGORITHM
+                        JWT algorithm. Default: RS512
+  -p PROFILE, --profile PROFILE
+                        profile name as defined in ~/.yams/credentials. Default: yams-default
+
+actions:
+  COMMAND
+    configure           create credential files
+    tenant              get tenant info or delete tenant
+    distribution        list, create or delete distributions
+    domain              list, create or delete domains
+    bucket              list, create, update or delete buckets
+    object              list, fetch, upload, delete, restore media files or uncache
+    object-metadata     get or update object metadata
+    image               get an image applying a transformation rule
+    document            get a document applying a transformation rule
+    video-processing    Process video features
+    static              get the original-stored file
+    rule                list, create, update or delete transformation rules
+    accesskey           list, create, update, provide or revoke access keys. Also, attach or detach policies
+    policy              list, create, update or delete policies
+    watermark           list, fetch, create, update or delete watermarks
+    metrics             show usage metrics
+    processing          ML processing
+    ml-models           list ml models ready to be used by this tenant
+    ml-models-config    list, get info, create, update or delete tenant ml models configurations
+    help                show this message
+```
+
+YAMS' help can also provide command-specific usage by means of the `yams help <command>` syntax:
+```
+$ yams help domain
+usage: yams domain [-h] COMMAND ...
+
+list, create or delete domains
+
+yams domain list [-h]
+yams domain info [-h] --domain-id DOMAIN_ID
+yams domain create [-h] --domain-name DOMAIN_NAME [--domain-status DOMAIN_STATUS]
+yams domain delete [-h] --domain-id DOMAIN_ID
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+actions:
+  COMMAND
+    list      list domains
+    info      show info for a domain
+    create    create a domain
+    delete    delete a domain
+```
+
+**Basic usage:**
+
+```bash
+yams + [config options] + command [ + subcommand [ + subcommand parameters ] ]
+```
+
+**Examples:**
+
+- Credentials file generation:
+    - `yams configure`
+- List buckets with debug tracing:
+    - `yams --debug bucket list --domain-id=123-141234-12341234`
+- Show concrete bucket details:
+    - `yams bucket info --domain-id=123-141234-12341234 --bucket-id=222-1234-12341234`
+
+## Overview of all the available commands
+
+> Note: the CLI allows to directly interact with the YAMS' management API, although it only generates the signed URLs to
+be used against the CDN. These need to be copy/pasted in order to be executed.
+
+### General
+
+- `yams configure`: helps generating the `~/.yams/credentials` file with the retrieved access key id, secret key id and
+tenant id
+
+### Management API
+
+#### Tenant
+
+- `yams tenant list`: list all tenants (you need super admin credentials)
+- `yams tenant info`: get tenant (defined in `~/.yams/credentials` file) details
+- `yams tenant delete`: remove a tenant (defined in `~/.yams/credentials` file)
+
+#### Domain
+
+- `yams domain list`: list all the tenant domains
+- `yams domain info`: get specific domain details
+- `yams domain create`: create a new domain
+- `yams domain delete`: remove a specific domain
+
+#### Rule
+
+- `yams rule list`: list all domain rules
+- `yams rule info`: get specific rule details
+- `yams rule create`: create rule by passing the json definition
+- `yams rule update`: update a rule
+- `yams rule delete`: delete a specific rule
+
+#### Acesskey
+
+- `yams accesskey list`: list all tenant access-keys
+- `yams accesskey info`: get specific access-key details
+- `yams accesskey create`: create access-key
+- `yams accesskey provide`: provide access-key
+- `yams accesskey update`: update access-key status or description
+- `yams accesskey delete`: delete a specific access-key
+- `yams accesskey list-policies`: list policies attached to a given access-key
+- `yams accesskey attach-policy`: attach a policy to a given access-key
+- `yams accesskey detach-policy`: detach a policy from a given access-key
+
+#### Policy
+
+- `yams policy list`: list all tenant policies
+- `yams policy info`: get specific policy details
+- `yams policy create`: create policy by passing the json definition
+- `yams policy update`: update a policy by passing the json definition
+- `yams policy delete`: delete a specific policy
+
+#### Watermark
+
+- `yams watermark list`: list all domain watermarks
+- `yams watermark fetch`: get specific watermark
+- `yams watermark create`: upload a watermark
+- `yams watermark update`: update watermark metadata
+- `yams watermark delete`: delete a specific watermark
+
+#### Bucket
+
+- `yams bucket list`: list all domain buckets
+- `yams bucket info`: get specific bucket details
+- `yams bucket create`: create a new bucket
+- `yams bucket delete`: delete a specific bucket
+
+#### Object
+
+- `yams object list`: list objects in bucket
+- `yams object describe`: describe the details of a specific object
+- `yams object fetch`: get specific object, not transformed
+- `yams object push`: put object into bucket
+- `yams object remove`: delete a specific object
+- `yams object restore`: restore a recently removed object (up to 1 month ago)
+- `yams object uncache`: YAMS managed cdn and caches invalidation
+
+#### Distribution
+
+- `yams distribution list`: list all distributions
+- `yams distribution info`: show the specified distribution's information
+- `yams distribution create`: create a new distribution
+- `yams distribution delete`: delete a specific distribution
+
+#### Object metadata
+
+- `yams object-metadata info`: get an object's metadata
+- `yams object-metadata update`: update an object's metadata
+
+#### Metrics
+
+- `yams metrics list`: show the name of all available metrics
+
+#### Video Processing
+
+- `yams video-processing start`: start processing video to different codecs and resolutions
+- `yams video-processing status`: Get video processing job status
+
+#### Processing
+
+- `yams processing start`: start processing of an object with given models
+
+#### ML Models
+
+- `yams ml-models list`: show info about ml models ready to be used by this tenant
+
+#### ML Models Config
+
+- `yams ml-models-config list`: list all existing ml-model configurations for this tenant
+- `yams ml-models-config info`: show the details of the selected ml-model configuration
+- `yams ml-models-config create`: create a new ml-model configuration for this tenant
+- `yams ml-models-config delete`: delete an existing ml-model configuration for this tenant
+- `yams ml-models-config list-attached`: show info about ml models configs attached to a bucket
+- `yams ml-models-config attach`: attach a new configuration to a bucket
+- `yams ml-models-config detach`: detach a configuration from a bucket
+- `yams ml-models-config replace`: replace a configuration attached to the bucket with another configuration belonging to the same ml model
+
+### Fetch API
+
+#### Image
+
+- `yams image fetch`: apply a transformation and return the url for fetching the transformed image
+
+#### Static
+
+- `fetch`: generate the url for fetching the original (non-transformed) image with all its cache headers
+
+
+
