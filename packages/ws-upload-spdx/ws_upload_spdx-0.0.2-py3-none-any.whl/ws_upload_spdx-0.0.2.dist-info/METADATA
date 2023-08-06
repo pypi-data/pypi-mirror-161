@@ -1,0 +1,89 @@
+Metadata-Version: 2.1
+Name: ws-upload-spdx
+Version: 0.0.2
+Summary: Preparation upload file for Mend UI
+Home-page: https://github.com/whitesource-ps/ws-upload-spdx
+Author: WhiteSource Professional Services
+Author-email: ps@whitesourcesoftware.com
+License: LICENSE.txt
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+[![Logo](https://whitesource-resources.s3.amazonaws.com/ws-sig-images/Whitesource_Logo_178x44.png)](https://www.whitesourcesoftware.com/)  
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/whitesource-ps/ws-upload-spdx/actions/workflows/ci.yml/badge.svg)](https://github.com/whitesource-ps/ws-upload-spdx/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/whitesource-ps/ws-upload-spdx)](https://github.com/whitesource-ps/ws-upload-spdx/releases/latest)  
+[![PyPI](https://img.shields.io/pypi/v/ws-upload-spdx?style=plastic)](https://pypi.org/project/ws-upload-spdx/)
+[Mend Upload SPDX](https://github.com/whitesource-ps/ws-upload-spdx)
+#Tool description
+
+## Supported Operating Systems
+- **Linux (Bash):**	CentOS, Debian, Ubuntu, RedHat
+- **Windows (PowerShell):**	10, 2012, 2016
+
+
+## Prerequisites
+Python 3.9+
+
+### Installation and Execution by pulling package from PyPi:
+1. Execute pip install `pip install ws-upload-spdx`
+   * Note: If installing packages as a non-root be sure to include the path to the executables within the Operating System paths.
+2. Run report: `ws_upload_spdx -u <WS_USER_KEY> -k <WS_TOKEN> -pr <WS_PRODUCT_TOKEN> -sbom <SBOM>`
+   * Note: If installing packages as a non-root be sure to include the path to the executables within the Operating System paths.
+   * Output file will be created in the Upload folder. If folder does not exist - toll will create it
+   
+### Required and Optional arguments:
+```shell
+  -h, --help      This help message and exit
+  -u WS_USER_KEY, --userKey
+                  WS User Key
+  -k WS_TOKEN, --token 
+                  WS Org Token (API Key)
+  -pr WS_PRODUCT_TOKEN, --product 
+                  Product token 
+  -s WS_PROJECT, --scope 
+                  WS Project token for updating data
+  -p WS_PROJECT_NAME
+                  WS Project Name                                
+  -a WS_URL, --wsUrl {saas, app, app-eu, saas-eu, your_url}
+                  WS URL 
+  -sbom SBOM --sbom
+                  SBOM report file for upload                  
+  -t UPDATE_TYPE, --updatetype {OVERRIDE,APPEND}
+                  Type of upload operation
+  -o OUT_DIR, --out 
+                  Output directory
+  -l LOAD, --load
+                  Direct load to Mend                   
+  * Note: 
+    * Project Name **OR** Project Token must be passed on
+    * SBOM report for uploading should be in **JSON** format
+    * Default value of UPDATE_TYPE is **OVERRIDE** 
+    * Defaulst value of WS_URL is **saas**
+    * Default value of LOAD is **True**
+```
+## Examples:
+```shell
+# Create upload file by SBOM report for creation new project without direct upload
+ws_upload_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> -p <NEW_PROJECT_NAME>  -l False -o </path/reports> -sbom </path/upload.json>
+
+# Create upload file for override data in specific project without direct upload
+ws_upload_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -l False -sbom </path/upload.json>
+
+# Upload data direct to Mend. Creation new project
+ws_upload_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -p <NEW_PROJECT_NAME> -sbom </path/upload.json>
+
+# Create upload file for appending data to specific project without direct upload
+ws_upload_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -t APPEND -l False - sbom </path/upload.json>
+
+# Upload data direct to Mend. Append data to specific project  
+ws_upload_spdx -u <WS_USER_KEY> -k <WS_ORG_TOKEN> -pr <WS_PRODUCT_TOKEN> --o </path/reports> -s <WS_PROJECT> -t APPEND -sbom </path/upload.json>
+```
+
+
