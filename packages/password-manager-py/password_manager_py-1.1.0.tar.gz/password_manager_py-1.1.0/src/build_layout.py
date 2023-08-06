@@ -1,0 +1,17 @@
+def build_layout(sg):
+    return [[sg.pin(sg.Text('Enter Username here (optional)', key='UsernameFormText', visible=False)),
+           sg.pin(sg.InputText('', key='UsernameFormInput', visible=False, do_not_clear=False))],
+          [sg.pin(sg.Text('Enter website here (optional)', key='WebsiteFormName', visible=False)),
+           sg.pin(sg.InputText('', key='WebsiteFormInput', visible=False, do_not_clear=False))],
+          [sg.pin(sg.Text('Enter length of password here', key='PasswordFormName', visible=False)),
+           sg.pin(sg.InputText('', key='PasswordFormInput', visible=False, do_not_clear=False))],
+          [sg.pin(sg.Button('Enter', key='EnterPasswordButton', visible=False)),
+           sg.pin(sg.Button('Cancel', key='CancelButton', visible=False))],
+          [sg.pin(sg.Button('Show Passwords', key='showPasswordsButton', visible=False))],
+          [sg.pin(sg.Text('Enter master password', key='EnterMasterPasswordText', visible=False)),
+           sg.pin(sg.InputText('', key='EnterMasterPasswordInput', visible=False, do_not_clear=False))],
+          [sg.pin(sg.Text('Create master password', key='CreateMasterPasswordText', visible=False)),
+           sg.pin(sg.InputText('', key='CreateMasterPasswordInput', visible=False, do_not_clear=False))],
+          [sg.pin(sg.Button('Enter', key='EnterExistingMasterPasswordButton', visible=False))],
+          [sg.pin(sg.Button('Enter', key='CreateMasterPasswordButton', visible=False))],
+          [sg.pin(sg.Text('Invalid Password', key='InvalidPasswordText', visible=False))]]
