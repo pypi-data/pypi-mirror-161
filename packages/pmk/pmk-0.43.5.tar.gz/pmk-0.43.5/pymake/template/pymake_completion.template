@@ -1,0 +1,81 @@
+#-*-shell-script-*-
+
+shopt -s extglob
+
+#have pmk &&
+_pmk()
+{
+    # Automate variables init
+    local cur prev opts project
+    local specs lists all_scripts sur_scripts dict_scripts
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    if [[ "$cur" == --*=* ]]; then
+        prev="${cur%=*}"
+        cur="${cur##*=}"
+    else
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
+
+    opts="-l -x -v --cores --net --repeat --redfdir --pmk --type --fast"
+    lists="spec script model"
+
+    project="$(basename $PWD)"
+
+    if [[ "$project" == "/" ]]; then
+        specs="where_do_you_come_from?"
+    # %%PMK version=$$version
+    fi
+
+    local extspecs="+(""$(echo $specs|tr ' ' '|')"")"
+    local extsur_scripts="+(""$(echo $sur_scripts|tr ' ' '|')"")"
+
+    # The used completion functions are defined in /etc/bash_completion.
+    if [[ "$cur" == -* ]]; then
+        # Parse gramarg ?
+        COMPREPLY=( $(compgen -W "$opts" -- $cur) )
+        return 0
+    else
+        case "$prev" in
+            $$spec_cmds)
+                COMPREPLY=( $(compgen -W "$specs" -- $cur) )
+                return 0
+                ;;
+            $extspecs)
+                COMPREPLY=( $(compgen -W "$specs" -- $cur) )
+                return 0
+                ;;
+            -x)
+                COMPREPLY=( $(compgen -W "$all_scripts" -- $cur) )
+                return 0
+                ;;
+            -l)
+                COMPREPLY=( $(compgen -W "$lists" -- $cur) )
+                return 0
+                ;;
+            $extsur_scripts)
+                local cpt=0
+                for w in $sur_scripts; do
+                    if [ "$prev" == "$w" ]; then
+                        break
+                    else
+                        let cpt=cpt+1
+                    fi
+                done
+
+                COMPREPLY=( $(compgen -W "${dict_scripts[$cpt]}" -- $cur) )
+                return 0
+                ;;
+            *)
+                # Parse gramarg ?
+                #COMPREPLY=( $(compgen -W "$opts" -- $cur) )
+                COMPREPLY=( $(compgen -f -d -- $cur) ) # list and dir completion
+                return 0
+                ;;
+        esac
+    fi
+}
+
+complete -F _pmk -o filenames pmk
+
