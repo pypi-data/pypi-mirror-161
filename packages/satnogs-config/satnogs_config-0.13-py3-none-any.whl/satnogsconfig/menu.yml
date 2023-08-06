@@ -1,0 +1,843 @@
+---
+_submenu_description: &submenu_description |
+  [UP], [DOWN] arrow keys to move
+  [ENTER] to select
+
+type: 'submenu'
+short_description: 'Main menu'
+description: *submenu_description
+exit_button: true
+cancel_label: 'Exit'
+cancel:
+  type: 'exit'
+  short_description: >-
+    Are you sure you want to exit without applying configuration?
+  title: 'Exit without applying'
+  defaultno: true
+esc:
+  type: 'exit'
+  short_description: >-
+    Are you sure you want to exit without applying configuration?
+  title: 'Exit without applying'
+  defaultno: true
+extra_button: true
+extra_label: 'Apply'
+extra:
+  type: 'apply'
+  title: 'Basic configuration incomplete'
+  short_description: >-
+    WARNING: Some 'Basic' configuration options are not set.
+    All basic options should be set for a functional SatNOGS Client
+    system.\n\nApply partial configuration?
+  defaultno: true
+defaults:
+  ok_label: 'Select'
+  cancel_label: 'Back'
+  exit_label: 'Exit'
+  help_label: 'Help'
+  no_label: 'No'
+  yes_label: 'Yes'
+items:
+  Basic:
+    type: 'submenu'
+    short_description: 'Basic configuration options'
+    title: 'Basic configuration options'
+    description: *submenu_description
+    ok_label: 'Select'
+    cancel_label: 'Back'
+    defaults:
+      title: 'Parameter definition'
+      ok_label: 'Save'
+      cancel_label: 'Cancel'
+    items:
+      SATNOGS_API_TOKEN:
+        type: 'variablebox'
+        short_description: 'Define API token'
+        variable: 'satnogs_api_token'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_SOAPY_RX_DEVICE:
+        type: 'variablebox'
+        short_description: 'Define Soapy RX device'
+        variable: 'satnogs_soapy_rx_device'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_ANTENNA:
+        type: 'variablebox'
+        short_description: 'Define SatNOGS Radio Antenna'
+        variable: 'satnogs_antenna'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_RX_SAMP_RATE:
+        type: 'variablebox'
+        short_description: 'Define RX sampling rate'
+        variable: 'satnogs_rx_samp_rate'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_STATION_ELEV:
+        type: 'variablebox'
+        short_description: 'Define station elevation'
+        variable: 'satnogs_station_elev'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_STATION_ID:
+        type: 'variablebox'
+        short_description: 'Define station ID'
+        variable: 'satnogs_station_id'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_STATION_LAT:
+        type: 'variablebox'
+        short_description: 'Define station latitude'
+        variable: 'satnogs_station_lat'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+      SATNOGS_STATION_LON:
+        type: 'variablebox'
+        short_description: 'Define station longitude'
+        variable: 'satnogs_station_lon'
+        mandatory: true
+        tags:
+          - 'satnogs_client_config'
+  Advanced:
+    type: 'submenu'
+    short_description: 'Advanced configuration options'
+    description: *submenu_description
+    defaults:
+      ok_label: 'Select'
+      cancel_label: 'Back'
+    items:
+      Network:
+        type: 'submenu'
+        short_description: 'Network settings'
+        title: 'Network settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_API_TOKEN:
+            type: 'variablebox'
+            short_description: 'Define API token'
+            variable: 'satnogs_api_token'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_STATION_ELEV:
+            type: 'variablebox'
+            short_description: 'Define station elevation'
+            variable: 'satnogs_station_elev'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_STATION_ID:
+            type: 'variablebox'
+            short_description: 'Define station ID'
+            variable: 'satnogs_station_id'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_STATION_LAT:
+            type: 'variablebox'
+            short_description: 'Define station latitude'
+            variable: 'satnogs_station_lat'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_STATION_LON:
+            type: 'variablebox'
+            short_description: 'Define station longitude'
+            variable: 'satnogs_station_lon'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_NETWORK_API_URL:
+            type: 'variablebox'
+            short_description: 'Define network API URL'
+            variable: 'satnogs_network_api_url'
+            init: 'https://network.satnogs.org/api/'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_NETWORK_API_QUERY_INTERVAL:
+            type: 'variablebox'
+            short_description: 'Define network API query interval'
+            variable: 'satnogs_network_api_query_interval'
+            init: '60'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_NETWORK_API_POST_INTERVAL:
+            type: 'variablebox'
+            short_description: 'Define network API post interval'
+            variable: 'satnogs_network_api_post_interval'
+            init: '180'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_VERIFY_SSL:
+            type: 'variableyesno'
+            short_description: 'Verify SatNOGS network SSL certificate'
+            variable: 'satnogs_verify_ssl'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+      Radio:
+        type: 'submenu'
+        short_description: 'Radio settings'
+        title: 'Radio settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_RIG_IP:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rigctld IP'
+            variable: 'satnogs_rig_ip'
+            init: '127.0.0.1'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_RIG_PORT:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rigctld port'
+            variable: 'satnogs_rig_port'
+            init: '4532'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_DOPPLER_CORR_PER_SEC:
+            type: 'variablebox'
+            short_description: 'Define doppler corrections per sec'
+            variable: 'satnogs_doppler_corr_per_sec'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_PPM_ERROR:
+            type: 'variablebox'
+            short_description: 'Define frequency correction (ppm)'
+            variable: 'satnogs_ppm_error'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_LO_OFFSET:
+            type: 'variablebox'
+            short_description: 'Define local oscillator offset (Hz)'
+            variable: 'satnogs_lo_offset'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_GAIN_MODE:
+            type: 'variablebox'
+            short_description: |-
+              Define SatNOGS Radio Gain mode (Overall, Settings Field)
+            variable: 'satnogs_gain_mode'
+            init: 'Overall'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_RF_GAIN:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio RF Gain'
+            variable: 'satnogs_rf_gain'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_RX_BANDWIDTH:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio RF Bandwidth (Hz)'
+            variable: 'satnogs_rx_bandwidth'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ANTENNA:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio Antenna'
+            variable: 'satnogs_antenna'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_SOAPY_RX_DEVICE:
+            type: 'variablebox'
+            short_description: 'Define Soapy RX device'
+            variable: 'satnogs_soapy_rx_device'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_RX_SAMP_RATE:
+            type: 'variablebox'
+            short_description: 'Define RX sampling rate'
+            variable: 'satnogs_rx_samp_rate'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_DEV_ARGS:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio device arguments'
+            variable: 'satnogs_dev_args'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_STREAM_ARGS:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio stream arguments'
+            variable: 'satnogs_stream_args'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_TUNE_ARGS:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Radio tune arguments'
+            variable: 'satnogs_tune_args'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_OTHER_SETTINGS:
+            type: 'variablebox'
+            short_description: |-
+              Define SatNOGS Radio other settings field options
+            variable: 'satnogs_other_settings'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_DC_REMOVAL:
+            type: 'variableyesno'
+            short_description: 'Enable automatic DC removal'
+            variable: 'satnogs_dc_removal'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_BB_FREQ:
+            type: 'variablebox'
+            short_description: |-
+              Define SatNOGS Radio baseband frequency correction
+            variable: 'satnogs_bb_freq'
+            tags:
+              - 'satnogs_client_config'
+          ENABLE_IQ_DUMP:
+            type: 'variableyesno'
+            short_description: 'Enable IQ dump'
+            variable: 'enable_iq_dump'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+          IQ_DUMP_FILENAME:
+            type: 'variablebox'
+            short_description: 'Define IQ dump filename'
+            variable: 'iq_dump_filename'
+            tags:
+              - 'satnogs_client_config'
+          DISABLE_DECODED_DATA:
+            type: 'variableyesno'
+            short_description: 'Disable decoded data'
+            variable: 'disable_decoded_data'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+          UDP_DUMP_HOST:
+            type: 'variablebox'
+            short_description: 'Destination host for UDP sink'
+            variable: 'udp_dump_host'
+            tags:
+              - 'satnogs_client_config'
+          UDP_DUMP_PORT:
+            type: 'variablebox'
+            short_description: 'Destination port for UDP sink'
+            variable: 'udp_dump_port'
+            tags:
+              - 'satnogs_client_config'
+      Rotator:
+        type: 'submenu'
+        short_description: 'Rotator settings'
+        title: 'Rotator settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_ROT_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable use of antenna rotator'
+            variable: 'satnogs_rot_enabled'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_MODEL:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotator model'
+            variable: 'satnogs_rot_model'
+            init: 'ROT_MODEL_DUMMY'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_BAUD:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotator baud rate'
+            variable: 'satnogs_rot_baud'
+            init: '19200'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_PORT:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotctld port'
+            variable: 'satnogs_rot_port'
+            init: '/dev/ttyUSB0'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_THRESHOLD:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotator command threshold'
+            variable: 'satnogs_rot_threshold'
+            init: '4'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_FLIP:
+            type: 'variableyesno'
+            short_description: 'Enable Hamlib rotator flip'
+            variable: 'satnogs_rot_flip'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ROT_FLIP_ANGLE:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotator flip angle'
+            variable: 'satnogs_rot_flip_angle'
+            init: '75'
+            tags:
+              - 'satnogs_client_config'
+      Waterfall:
+        type: 'submenu'
+        short_description: 'Waterfall settings'
+        title: 'Waterfall settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_WATERFALL_AUTORANGE:
+            type: 'variableyesno'
+            short_description: 'Enable waterfall power range adjustment'
+            variable: 'satnogs_waterfall_autorange'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_WATERFALL_MIN_VALUE:
+            type: 'variablebox'
+            short_description: 'Define waterfall minimum power'
+            variable: 'satnogs_waterfall_min_value'
+            init: '-100'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_WATERFALL_MAX_VALUE:
+            type: 'variablebox'
+            short_description: 'Define Waterfall maximum power'
+            variable: 'satnogs_waterfall_max_value'
+            init: '-50'
+            tags:
+              - 'satnogs_client_config'
+      Artifacts:
+        type: 'submenu'
+        short_description: 'Artifacts settings'
+        title: 'Artifacts settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_ARTIFACTS_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable uploading of artifacts'
+            variable: 'satnogs_artifacts_enabled'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ARTIFACTS_API_URL:
+            type: 'variablebox'
+            short_description: 'Define artifacts server API URL'
+            variable: 'satnogs_artifacts_api_url'
+            init: 'https://db.satnogs.org/api/'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ARTIFACTS_API_POST_INTERVAL:
+            type: 'variablebox'
+            short_description: 'Define artifacts server API post interval'
+            variable: 'satnogs_artifacts_api_post_interval'
+            init: '180'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ARTIFACTS_API_TOKEN:
+            type: 'variablebox'
+            short_description: 'Define artifacts server API token'
+            variable: 'satnogs_artifacts_api_token'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_KEEP_ARTIFACTS:
+            type: 'variableyesno'
+            short_description: 'Keep artifact files'
+            variable: 'satnogs_keep_artifacts'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ARTIFACTS_OUTPUT_PATH:
+            type: 'variablebox'
+            short_description: 'Define path for storing artifact files'
+            variable: 'satnogs_artifacts_output_path'
+            init: '/tmp/.satnogs/artifacts'
+            tags:
+              - 'satnogs_client_config'
+      Uploads:
+        type: 'submenu'
+        short_description: 'Upload settings'
+        title: 'Upload settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_UPLOAD_AUDIO_FILES:
+            type: 'variableyesno'
+            short_description: 'Enable uploading audio to SatNOGS network.'
+            variable: 'satnogs_upload_audio_files'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_UPLOAD_WATERFALL_FILES:
+            type: 'variableyesno'
+            short_description: 'Enable uploading waterfalls to SatNOGS network.'
+            variable: 'satnogs_upload_waterfall_files'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+      Scripts:
+        type: 'submenu'
+        short_description: 'Pre/post-observation scripts'
+        title: 'Pre/post-observation scripts'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_PRE_OBSERVATION_SCRIPT:
+            type: 'variablebox'
+            short_description: 'Define pre-observation script'
+            variable: 'satnogs_pre_observation_script'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_POST_OBSERVATION_SCRIPT:
+            type: 'variablebox'
+            short_description: 'Define post-observation script'
+            variable: 'satnogs_post_observation_script'
+            tags:
+              - 'satnogs_client_config'
+      Paths:
+        type: 'submenu'
+        short_description: 'Path settings'
+        title: 'Path settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_APP_PATH:
+            type: 'variablebox'
+            short_description: 'Define application data path'
+            variable: 'satnogs_app_path'
+            init: '/tmp/.satnogs'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_OUTPUT_PATH:
+            type: 'variablebox'
+            short_description: 'Define output data path'
+            variable: 'satnogs_output_path'
+            init: '/tmp/.satnogs/data'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_COMPLETE_OUTPUT_PATH:
+            type: 'variablebox'
+            short_description: 'Define completed data path'
+            variable: 'satnogs_complete_output_path'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_INCOMPLETE_OUTPUT_PATH:
+            type: 'variablebox'
+            short_description: 'Define incompleted data path'
+            variable: 'satnogs_incomplete_output_path'
+            init: '/tmp/.satnogs/data/incomplete'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_REMOVE_RAW_FILES:
+            type: 'variableyesno'
+            short_description: 'Remove raw files'
+            variable: 'satnogs_remove_raw_files'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_KEEP_ARTIFACTS:
+            type: 'variableyesno'
+            short_description: 'Keep artifact files'
+            variable: 'satnogs_keep_artifacts'
+            defaultno: false
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_ARTIFACTS_OUTPUT_PATH:
+            type: 'variablebox'
+            short_description: 'Define path for storing artifact files'
+            variable: 'satnogs_artifacts_output_path'
+            init: '/tmp/.satnogs/artifacts'
+            tags:
+              - 'satnogs_client_config'
+      Hamlib:
+        type: 'submenu'
+        short_description: 'Hamlib settings'
+        title: 'Hamlib settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          HAMLIB_UTILS_ROT_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable Hamlib rotctld'
+            variable: 'hamlib_utils_rot_enabled'
+            defaultno: true
+            tags:
+              - 'hamlib_utils_config'
+          HAMLIB_UTILS_ROT_OPTS:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rotctld options'
+            variable: 'hamlib_utils_rot_opts'
+            tags:
+              - 'hamlib_utils_config'
+          HAMLIB_UTILS_RIG_DISABLED:
+            type: 'variableyesno'
+            short_description: 'Disable Hamlib rigctld'
+            variable: 'hamlib_utils_rig_disabled'
+            defaultno: true
+            tags:
+              - 'hamlib_utils_config'
+          HAMLIB_UTILS_RIG_OPTS:
+            type: 'variablebox'
+            short_description: 'Define Hamlib rigctld options'
+            variable: 'hamlib_utils_rig_opts'
+            init: '-T 127.0.0.1 -m 1'
+            tags:
+              - 'hamlib_utils_config'
+      SNMP:
+        type: 'submenu'
+        short_description: 'SNMP settings'
+        title: 'SNMP settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SNMPD_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable snmpd'
+            variable: 'snmpd_enabled'
+            defaultno: true
+            tags:
+              - 'snmpd_config'
+          SNMPD_AGENTADDRESS:
+            type: 'variablebox'
+            short_description: 'Define snmpd agentAddress'
+            variable: 'snmpd_agentaddress'
+            tags:
+              - 'snmpd_config'
+          SNMPD_ROCOMMUNITY:
+            type: 'variablebox'
+            short_description: 'Define snmpd rocommunity'
+            variable: 'snmpd_rocommunity'
+            tags:
+              - 'snmpd_config'
+      GPS:
+        type: 'submenu'
+        short_description: 'GPS settings'
+        title: 'GPS settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          GPSD_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable GPSd'
+            variable: 'gpsd_enabled'
+            defaultno: true
+            tags:
+              - 'gpsd_config'
+      Software:
+        type: 'submenu'
+        short_description: 'Software package settings'
+        title: 'Software package settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        cancel:
+          type: 'msgbox'
+          title: 'Software configuration changes warning'
+          message: >-
+            WARNING: If changes have been made on any software configuration
+            options, it is required to 'Apply' and then 'Update' as soon as
+            possible otherwise you may encounter unpredictable behavior
+          pop: true
+        items:
+          EXPERIMENTAL:
+            type: 'variableyesno'
+            short_description: 'Install latest versions of all software'
+            variable: 'experimental'
+            defaultno: true
+            tags:
+              - 'apt_software'
+              - 'satnogs_setup_software'
+              - 'satnogs_client_software'
+              - 'satnogs_radio_software'
+          APT_REPOSITORY:
+            type: 'variablebox'
+            short_description: 'Define package repository'
+            variable: 'apt_repository'
+            tags:
+              - 'apt_software'
+          APT_KEY_URL:
+            type: 'variablebox'
+            short_description: 'Define package repository key URL'
+            variable: 'apt_key_url'
+            tags:
+              - 'apt_software'
+          APT_KEY_ID:
+            type: 'variablebox'
+            short_description: 'Define package repository key ID'
+            variable: 'apt_key_id'
+            tags:
+              - 'apt_software'
+          SATNOGS_CLIENT_VERSION:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS client version'
+            variable: 'satnogs_client_version'
+            tags:
+              - 'satnogs_client_software'
+          SATNOGS_CLIENT_URL:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS client Git URL'
+            variable: 'satnogs_client_url'
+            tags:
+              - 'satnogs_client_software'
+          SATNOGS_RADIO_FLOWGRAPHS_VERSION:
+            type: 'variablebox'
+            short_description: 'Define satnogs-flowgraphs package version'
+            variable: 'satnogs_radio_flowgraphs_version'
+            tags:
+              - 'satnogs_radio_software'
+          SATNOGS_SETUP_ANSIBLE_URL:
+            type: 'variablebox'
+            short_description: 'Define Ansible Git URL'
+            variable: 'satnogs_setup_ansible_url'
+            tags:
+              - 'satnogs_setup_software'
+          SATNOGS_SETUP_ANSIBLE_BRANCH:
+            type: 'variablebox'
+            short_description: 'Define Ansible Git branch'
+            variable: 'satnogs_setup_ansible_branch'
+            tags:
+              - 'satnogs_setup_software'
+          SATNOGS_SETUP_SATNOGS_CONFIG_VERSION:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Config version'
+            variable: 'satnogs_setup_satnogs_config_version'
+            tags:
+              - 'satnogs_setup_software'
+          SATNOGS_SETUP_SATNOGS_CONFIG_URL:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS Config Git URL'
+            variable: 'satnogs_setup_satnogs_config_url'
+            tags:
+              - 'satnogs_setup_software'
+      Debug:
+        type: 'submenu'
+        short_description: 'Debug settings'
+        title: 'Debug settings'
+        description: *submenu_description
+        ok_label: 'Select'
+        cancel_label: 'Back'
+        defaults:
+          title: 'Parameter definition'
+          ok_label: 'Save'
+          cancel_label: 'Cancel'
+        items:
+          SATNOGS_LOG_LEVEL:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS client log level'
+            variable: 'satnogs_log_level'
+            init: 'WARNING'
+            tags:
+              - 'satnogs_client_config'
+          SATNOGS_SCHEDULER_LOG_LEVEL:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS client scheduler log level'
+            variable: 'satnogs_scheduler_log_level'
+            init: 'WARNING'
+            tags:
+              - 'satnogs_client_config'
+          SENTRY_DSN:
+            type: 'variablebox'
+            short_description: 'Define SatNOGS client Sentry DSN'
+            variable: 'sentry_dsn'
+            init: 'd50342fb75aa8f3945e2f846b77a0cdb7c7d2275'
+            tags:
+              - 'satnogs_client_config'
+          SENTRY_ENABLED:
+            type: 'variableyesno'
+            short_description: 'Enable SatNOGS client Sentry error monitoring'
+            variable: 'sentry_enabled'
+            defaultno: true
+            tags:
+              - 'satnogs_client_config'
+      Support:
+        type: 'support'
+        short_description: 'Generate support information'
+  Show:
+    type: 'configbox'
+    short_description: 'Show configuration file'
+    title: 'SatNOGS client configuration'
+    exit_label: 'Back'
+  Update:
+    type: 'update'
+    short_description: 'Update configuration tool'
+  Reset:
+    type: 'resetyesno'
+    short_description: 'Reset configuration'
+    defaultno: true
+  Reboot:
+    type: 'reboot'
+    short_description: 'Reboot system'
+    description: >-
+      Are you sure you want to reboot the system?
+    title: 'System reboot'
+    defaultno: true
+  About:
+    type: 'msgbox'
+    short_description: 'Information about satnogs-config'
+    title: 'SatNOGS config utility'
+    message: 'satnogs-config is a tool for configuring SatNOGS client system'
+    ok_label: 'Back'
