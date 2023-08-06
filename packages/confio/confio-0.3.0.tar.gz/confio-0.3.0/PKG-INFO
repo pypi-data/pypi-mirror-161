@@ -1,0 +1,327 @@
+Metadata-Version: 2.1
+Name: confio
+Version: 0.3.0
+Summary: Configurations IO for various of data sources with unified interfaces.
+Home-page: https://gitee.com/wangankeji/confio
+Author: hyjiacan
+Author-email: hyjiacan@163.com
+Maintainer: hyjiacan
+Maintainer-email: hyjiacan@163.com
+License: UNKNOWN
+Project-URL: Documentation, https://gitee.com/wangankeji/confio/wikis
+Project-URL: Repository, https://gitee.com/wangankeji/confio
+Project-URL: Issue tracker, https://gitee.com/wangankeji/confio/issues
+Description: # 配置读写组件
+        
+        此组件用于对本地配置进行读写，目前支持以下类型的配置：
+        
+        - `ConfFS` 文件系统
+        - `ConfDB` 数据库 (默认使用 MySQL)
+        - `ConfConsul`
+        
+        ## TODOs
+        
+        - [ ] 配置值加密支持
+        
+        ## 概述
+        
+        此组件针对不同的数据源提供了相同的数据读写接口，以避免开发过程中，读写不同数据源中配置的差异，以及无缝切换数据源。
+        
+        ### 配置文件
+        
+        配置文件的存储基于 JSON 格式，并且扁平化读写。 配置项在配置文件中，以数组的方式存在，每项为一个配置项。
+        
+        可使用的配置字段如下：
+        
+        - `name` 配置项名称
+        - `id_` 配置项标识，建议均为小写
+        - `value` 系统值
+        - `user_value` 用户值
+        - `desc` 描述
+        - `enabled` 是否启用，默认为 `true` (保留字)，暂未使用
+        
+        其中，`value` 为系统设置的值（或者叫做默认值），`user_value` 为用户设置的值，通过 `.value` 取值时，会优先获取 `user_value`，为空时会使用 `value`
+        
+        字段名称 `value` 可以添加一些类型修饰符，详见 [#类型修饰符](#类型修饰符)
+        
+        > 一般来说，在项目的开发过程中，使用 json 数据格式来对配置进行管理。
+        > 而在线上运行时，使用数据库对配置进行管理。
+        
+        ### 类型修饰符
+        
+        类型修饰符用于简化一些数据的写法。只能写在 `value` 字段名上，其作用于 `value` 和 `user_value` 的值，写法如下：
+        
+        ```json
+        {
+          "value:path": "../to/path"
+        }
+        ```
+        
+        其中的 `:path` 就是修饰符，可选值好如下：
+        
+        0. 不指定类型
+        1. `path` 其值为一个文件系统的路径
+            - 在这种情况下，字段名称 `type` 值为 `path`
+            - 其值可以是绝对路径，或者相对路径（相对于项目根目录）。 当其为相对路径时，组件会自动计算出其绝对路径
+            - 在这种情况下，需要通过 `ValueParser.PATH_ROOT=` 或者 `ValueParser(path_root=)`
+        2. `expr` 其值为一个表达式
+            - 在这种情况下，字段名称 `type` 值为 `expr`
+            - 一般来说，仅仅在字段的数据类型为数值时才应该指定这种类型
+            - 其值应该是一个合法的 python 表达式（其中不能包含需要通过外部导入的模块）
+            - 例：`60 * 10`, `5 * (20 + 8 * (27 - 4))`
+            - 通过 `.value` 得到的值单位均为 数值类型 **int**
+        3. `size` 其值为文件大小
+            - 在这个情况下，字段名称 `type` 值为 `size`
+            - 一般来说，仅仅在配置文件/占用空间大小等需要使用存储单位时才使用此值
+            - 使用的进制为 `1024`
+            - 写法：允许使用 `k/m/g/t` 作为单位
+            - 例：`10m`, `50g`
+            - 通过 `.value` 得到的值单位均为 数值类型 **byte**
+        3. `time` 其值为时间范围（多少年，月，天，小时，分，秒）
+            - 在这个情况下，字段名称 `type` 值为 `time`
+            - 一般来说，仅仅在时间范围相关等需要使用时间存储单位时才使用此值
+            - 写法：允许使用以下作为单位 **区分大小写**
+                - `s` 秒（可以省略）
+                - `m` 分钟
+                - `h` 小时
+                - `D` 天
+                - `M` 月（一个月仅按30天计算）
+                - `Y` 年（一年按365天计算）
+            - 例：
+                - `10m` 10 分钟
+                - `500` 500 秒
+                - `1h20m` 1 小时 20 分
+            - 通过 `.value` 得到的值单位均为 数值类型 **秒**
+        
+        > 当指定类型修饰符时，`value` 和 `user_value` 的值必须是一个字符串
+        
+        ## 快速上手
+        
+        配置文件 _/config/module1/conf.json_
+        
+        ```json
+        [
+          {
+            "key": "foo",
+            "value": "bar",
+            "name": "test"
+          },
+          {
+            "...": "..."
+          }
+        ]
+        ```
+        
+        ```python
+        from confio import ConfFS
+        
+        conf_root = '/config'
+        
+        conf = ConfFS(conf_root)
+        # 配置项存在，得到值 bar
+        conf.get('module1.conf.foo')
+        # 配置项不存在，得到值 None
+        conf.get('module1.conf.bar')
+        # 配置项不存在，使用默认值 'foo'
+        conf.get('module1.conf.bar', default='foo')
+        # 匹配所有以 module1.conf 开头的项
+        conf.match('module1.conf')
+        ```
+        
+        ## 初始化
+        
+        **ConfFS** 基于文件系统 (JSON 格式) 的配置存储，其通过目录和文件进行模块分割。
+        
+        ```python
+        from confio import ConfFS
+        
+        conf = ConfFS(conf_root='/config')
+        ```
+        
+        `conf_root` 存放配置文件的根目录(应该是一个绝对路径)，所有的配置模块，基于此目录计算。
+        
+        > 此模块会自动缓存。在文件更改后会自动更新缓存(主动模式，即读取时才会更新)
+        
+        **ConfDB** 基于数据库的配置存储。
+        
+        > `ConfDB` 依赖 [dbutils](https://pypi.org/project/DBUtils/) 和 [PyMysql](https://pypi.org/project/PyMySQL/) 包。
+        
+        ```python
+        from confio import ConfDB
+        
+        conf = ConfDB(
+            database='database-name',
+            host='127.0.0.1',
+            port=3306,
+            user='root',
+            password='',
+            charset='',
+            table_name='conf_items'
+        )
+        ```
+        
+        > 在使用数据库时，其表名称默认为 `conf_items`
+        
+        可以指定一个值处理器 `ValueParser`，其用于处理字段 `type` 指定的不同类型。
+        
+        可以指定一个自定义的枚举类型，其用于扩展内置的 `ConfTypes` 枚举，在使用了自定义的 `type` 时会用到。
+        
+        在系统内使用了 `type=path` 时，那么需要通过以下方式指定根路径:
+        
+        ```python
+        from confio import ValueParser, ConfItem
+        
+        # 指定全局的根路径
+        ValueParser.PATH_ROOT = 'xxx'
+        
+        # 按实例指定根路径
+        parser = ValueParser('xxx')
+        ConfItem.parser = parser
+        
+        from enum import Enum
+        
+        
+        class MyConfTypes(Enum):
+            XXX = 'xxx'
+            """
+            支持 type="xxx": "key:xxx": 123
+            """
+        
+        
+        ValueParser.enum_class_ext = MyConfTypes
+        ```
+        
+        ## 值处理拦截器
+        
+        ```python
+        from confio import ValueParser, ConfTypes
+        
+        
+        def value_handler(parse_type: ConfTypes, raw_value, parsed_value, prev_value):
+            return prev_value
+        
+        
+        ValueParser.add_interceptor(value_handler)
+        ```
+        
+        ## 接口说明
+        
+        在以下文档中，
+        
+        - `fs.abc()` 表示 `ConfFS().abc()`
+        - `db.abc()` 表示 `ConfDB().abc()`
+        
+        ### load
+        
+        加载所有配置项
+        
+        `load() -> List[ConfItem]`
+        
+        参数：
+        
+        _无_
+        
+        返回：
+        
+        所有配置项的列表
+        
+        ### get
+        
+        获取指定配置项的值。
+        
+        `get(id_: str, default=None, value_only=True) -> Union[ConfItem, Any]`
+        
+        参数：
+        
+        - `id_` 指定的配置项 ID。其必须是与配置名称完全一致
+        - `default` 指定的默认值。当指定的配置项不存在时，使用此值
+        - `value_only` 是否仅返回配置项的值。指定为 `True` 时表示仅返回配置项的值， 为 `False` 时表示返回 `ConfItem` 对象
+        
+        返回：
+        
+        返回一个 `ConfItem` 对象(`value_only=False`)或具体的某个字段的值
+        
+        ### match
+        
+        获取匹配指定前缀的所有配置项的值。
+        
+        `match(prefix: str, value_only=True, fullkey=False) -> Dict[str, Union[ConfItem, Any]]`
+        
+        参数：
+        
+        - `prefix` 指定的前缀。其必须按模块指定，如： 存在模块 `aaa.bbb.ccc`，只能通过 `aaa` 或 `aaa.bbb` 进行匹配， 不能通过 `aa` 或 `aaa.b` 或者 `aaa.bbb.ccc`
+          进行匹配
+        - `value_only` 是否仅返回配置项的值。指定为 `True` 时表示仅返回配置项的值， 为 `False` 时表示返回 `ConfItem` 对象
+        - `fullkey` 是否返回完整的 `id_`
+        
+        返回：
+        
+        配置项的键值对集合。
+        
+        当 `fullkey=True` 时，键名称为键名全称，否则为除去 `prefix` 后的名称
+        
+        如：
+        
+        `prefix='aaa'`，有配置项 `aaa.bbb.ccc=5`， 当 `fullkey=True` 时，返回 `{'aaa.bbb.ccc': 5}`； 当 `fullkey=False`
+        时，返回 `{'bbb.ccc': 5}`；
+        
+        ### set
+        
+        添加/更新配置项的值。
+        
+        `set(id_: str, value, update_sys_value=False, allow_add=False):`
+        
+        参数：
+        
+        - `id_` 指定的配置项
+        - `value` 指定配置项的值，当此值类型为 `ConfItem` 时，会更新配置项的所有属性
+        - `update_sys_value` 是否更新系统值，默认情况下更新用户值
+        - `allow_add` 在指定项不存在时，是否允许添加新的配置项
+        
+        返回：
+        
+        _无_
+        
+        ### batch_set
+        
+        批量添加/更新配置项的值。
+        
+        `set(items: Union[Dict[str, Any], List[ConfItem]], prefix: str = None, update_sys_value=False, allow_add=False):`
+        
+        参数：
+        
+        - `items` 指定的配置项
+        - `prefix` 指定的配置项使用的前缀。在指定了此值后，会给 `items` 中的每一项的ID添加此前缀
+        - `value` 指定配置项的值
+        - `update_sys_value` 在 `value` **不**为 `ConfItem` 类型时有效。是否新增为系统值，默认情况下新增为用户值
+        - `allow_add` 在指定项不存在时，是否允许添加新的配置项
+        
+        返回：
+        
+        _无_
+        
+        ### remove
+        
+        移除指定的配置项。
+        
+        `remove(id_: Union[str, List[str], Tuple[str]]) -> Optional[Union[ConfItem, List[ConfItem]]]`
+        
+        > 注意：指定的项不存在时，此项操作会被忽略。
+        
+        参数：
+        
+        - `id_` 要移除的配置项 ID(或 ID集合)
+        
+        返回：
+        
+        _无_
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.5
+Description-Content-Type: text/markdown
