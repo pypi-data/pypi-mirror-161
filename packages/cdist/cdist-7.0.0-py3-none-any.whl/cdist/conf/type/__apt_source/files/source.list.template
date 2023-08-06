@@ -1,0 +1,16 @@
+#!/bin/sh
+set -u
+
+entry="$uri $distribution $component"
+
+cat << DONE
+# Created by cdist ${__type##*/}
+# Do not change. Changes will be overwritten.
+#
+
+# $name
+deb ${options} $entry
+DONE
+if [ -f "$__object/parameter/include-src" ]; then
+   echo "deb-src $entry"
+fi
