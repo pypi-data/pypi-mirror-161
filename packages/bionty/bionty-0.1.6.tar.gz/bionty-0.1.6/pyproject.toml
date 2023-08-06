@@ -1,0 +1,60 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "bionty"
+authors = [{name = "Lamin Labs", email = "laminlabs@gmail.com"}]
+readme = "README.md"
+dynamic = ["version", "description"]
+dependencies = [
+    "lamin_logger",
+    "anndata",
+    "pandas",
+    "loguru",
+    "typeguard",
+    "biothings_client",
+    "xmltodict",
+    "owlready2",
+    "pydantic",
+    "httpx",
+    "nest_asyncio",
+    "syncer",
+    "orjson",
+    "pyarrow",
+    "nbproject",
+]
+
+[project.urls]
+Home = "https://github.com/laminlabs/bionty"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "nox",
+]
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "nbmake",
+    "scanpy",
+    "biomart",
+]
+
+[project.scripts]
+bionty = "bionty.__main__:main"
+
+[tool.black]
+preview = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+    "docs/guides",
+    "docs/tutorials",
+]
+
+[tool.coverage.run]
+omit = [
+    "bionty/*",
+]
