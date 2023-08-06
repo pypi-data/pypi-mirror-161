@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CDBx - CDB Reimplementation for Python &mdash; cdbx 0.2.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ci.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cdbx package" href="apidoc/cdbx.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> cdbx
+          </a>
+              <div class="version">
+                0.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/cdbx.html">cdbx package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/cdbx.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="apidoc/cdbx._cdb.html">cdbx._cdb module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="apidoc/cdbx._cdb.html#cdbx-cdb-reimplementation-for-python">cdbx - CDB Reimplementation for Python</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="apidoc/cdbx.html#module-cdbx">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="apidoc/cdbx.html#cdbx-cdb-reimplementation-for-python">CDBx - CDB Reimplementation for Python</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">cdbx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>CDBx - CDB Reimplementation for Python</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cdbx-cdb-reimplementation-for-python">
+<h1>CDBx - CDB Reimplementation for Python<a class="headerlink" href="#cdbx-cdb-reimplementation-for-python" title="Permalink to this heading"></a></h1>
+<p><strong class="ci">cdbx</strong> is a <a class="reference external" href="https://cr.yp.to/cdb.html">CDB</a> reimplementation for
+Python.</p>
+<p>Supported python versions are Python 2.7 and Python 3.6+.</p>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Documentation Search</span></a> (needs javascript)</p></li>
+<li><p><a class="reference internal" href="apidoc/cdbx.html"><span class="doc">API Documentation</span></a> (generated)</p></li>
+</ul>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>Note that everything going in and out of the CDB is bytes. This is
+more relevant for Python 3. Keys and values which are passed as
+(unicode) strings, are converted to bytes using the latin-1 codec.
+However, keys and values retrieved from the CDB are always bytes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># simple file write</span>
+<span class="kn">import</span> <span class="nn">cdbx</span>
+
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdbx</span><span class="o">.</span><span class="n">CDB</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;somefile&#39;</span><span class="p">)</span>
+<span class="n">cdb</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdb</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cdb</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># atomic file write (original cdbmake behaviour)</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">cdbx</span>
+
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdbx</span><span class="o">.</span><span class="n">CDB</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;somefile.tmp&#39;</span><span class="p">)</span>
+<span class="n">cdb</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">cdb</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;somefile.tmp&#39;</span><span class="p">,</span> <span class="s1">&#39;somefile&#39;</span><span class="p">)</span>
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdbx</span><span class="o">.</span><span class="n">CDB</span><span class="p">(</span><span class="s1">&#39;somefile&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cdb</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CDB within tempfile</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">cdbx</span>
+
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdbx</span><span class="o">.</span><span class="n">CDB</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(),</span> <span class="n">close</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cdb</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">cdb</span> <span class="o">=</span> <span class="n">cdb</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cdb</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">])</span>
+
+<span class="n">cdb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># or going out-of-scope, or del cdb</span>
+
+<span class="c1"># now it&#39;s gone</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cdb</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">])</span>
+<span class="ne">IOError</span><span class="p">:</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">operation</span> <span class="n">on</span> <span class="n">a</span> <span class="n">closed</span> <span class="n">file</span>
+</pre></div>
+</div>
+</section>
+<section id="rationale-advocacy-key-features">
+<h2>Rationale, Advocacy, Key Features<a class="headerlink" href="#rationale-advocacy-key-features" title="Permalink to this heading"></a></h2>
+<p><a class="reference external" href="https://cr.yp.to/cdb.html">CDB</a> as a concept is a great idea for
+various reasons. It’s fast, it’s a simple, portable file format and all
+operations can be done using one open file descriptor.</p>
+<p>There are, of course, other interfaces to CDB (most notably <a class="reference external" href="https://pypi.python.org/pypi/python-cdb">python-cdb</a>, which I have been using for
+a long time).</p>
+<p><em class="ci">cdbx</em> tries to solve a few problems with those for me:</p>
+<ul class="simple">
+<li><p>support for Python 3</p></li>
+<li><p>better interface for CDB creation - you only need a file descriptor if
+you want to. This is important if you want to create a CDB within a
+single temporary file.</p></li>
+<li><p>all operations are independent from each other (multiple accesses at
+the same time are possible). Thanks to the GIL it should be even
+thread safe. This has not been tested yet, though.</p></li>
+<li><p>more natural interface for the main CDB class in general</p></li>
+<li><p>better error handling (especially with regard to python) in some
+places</p></li>
+<li><p>Since it’s a complete reimplementation, the licensing issue (people
+claim to have with public domain software [cdb]) does not apply.</p></li>
+</ul>
+</section>
+<section id="development-status">
+<h2>Development Status<a class="headerlink" href="#development-status" title="Permalink to this heading"></a></h2>
+<p>Beta.</p>
+<p>There are some features to add and some cleanups to do before a stable
+release.</p>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this heading"></a></h2>
+<p><em class="ci">cdbx</em> is available under the terms and conditions of the “Apache
+License, Version 2.0.” You’ll find the detailed licensing terms in the
+root directory of the source distribution package or online at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>.</p>
+</section>
+<section id="bugs">
+<h2>Bugs<a class="headerlink" href="#bugs" title="Permalink to this heading"></a></h2>
+<p>No bugs, of course. ;-)
+But if you’ve found one or have an idea how to improve <em class="ci">cdbx</em>,
+feel free to send a pull request on <a class="reference external" href="https://github.com/ndparker/cdbx">github</a> or send a mail to
+&lt;<a class="reference external" href="mailto:cdbx-bugs&#37;&#52;&#48;perlig&#46;de">cdbx-bugs<span>&#64;</span>perlig<span>&#46;</span>de</a>&gt;.</p>
+</section>
+<section id="author-information">
+<h2>Author Information<a class="headerlink" href="#author-information" title="Permalink to this heading"></a></h2>
+<p><em class="ci">cdbx</em> was written and is maintained by André Malo.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="apidoc/cdbx.html" class="btn btn-neutral float-right" title="cdbx package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016 - 2022 André Malo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+.. license:
+    Copyright 2016 - 2022
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+========================================
+ CDBx - CDB Reimplementation for Python
+========================================
+
+|**cdbx**| is a `CDB <https://cr.yp.to/cdb.html>`_ reimplementation for
+Python.
+
+Supported python versions are Python 2.7 and Python 3.6+.
+
+
+Documentation
+~~~~~~~~~~~~~
+
+.. toctree::
+    :hidden:
+
+    apidoc/cdbx
+
+
+- :ref:`Documentation Search <search>` (needs javascript)
+- :doc:`API Documentation <apidoc/cdbx>` (generated)
+
+
+Examples
+~~~~~~~~
+
+Note that everything going in and out of the CDB is bytes. This is
+more relevant for Python 3. Keys and values which are passed as
+(unicode) strings, are converted to bytes using the latin-1 codec.
+However, keys and values retrieved from the CDB are always bytes.
+
+
+.. code-block:: python
+
+    # simple file write
+    import cdbx
+
+    cdb = cdbx.CDB.make('somefile')
+    cdb.add('key', 'value')
+    # ...
+    cdb = cdb.commit()
+    print(cdb['key'])
+
+
+.. code-block:: python
+
+    # atomic file write (original cdbmake behaviour)
+    import os
+    import cdbx
+
+    cdb = cdbx.CDB.make('somefile.tmp')
+    cdb.add('key', 'value')
+    # ...
+    cdb.commit().close()
+    os.rename('somefile.tmp', 'somefile')
+    cdb = cdbx.CDB('somefile')
+    print(cdb['key'])
+
+
+.. code-block:: python
+
+    # CDB within tempfile
+    import tempfile
+    import cdbx
+
+    cdb = cdbx.CDB.make(tempfile.TemporaryFile(), close=True)
+    cdb.add('key', 'value')
+    # ...
+    cdb = cdb.commit()
+    print(cdb['key'])
+
+    cdb.close()  # or going out-of-scope, or del cdb
+
+    # now it's gone
+    print(cdb['key'])
+    IOError: I/O operation on a closed file
+
+
+Rationale, Advocacy, Key Features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`CDB <https://cr.yp.to/cdb.html>`_ as a concept is a great idea for
+various reasons. It's fast, it's a simple, portable file format and all
+operations can be done using one open file descriptor.
+
+There are, of course, other interfaces to CDB (most notably `python-cdb
+<https://pypi.python.org/pypi/python-cdb>`_, which I have been using for
+a long time).
+
+|cdbx| tries to solve a few problems with those for me:
+
+- support for Python 3
+- better interface for CDB creation - you only need a file descriptor if
+  you want to. This is important if you want to create a CDB within a
+  single temporary file.
+- all operations are independent from each other (multiple accesses at
+  the same time are possible). Thanks to the GIL it should be even
+  thread safe. This has not been tested yet, though.
+- more natural interface for the main CDB class in general
+- better error handling (especially with regard to python) in some
+  places
+- Since it's a complete reimplementation, the licensing issue (people
+  claim to have with public domain software [cdb]) does not apply.
+
+
+Development Status
+~~~~~~~~~~~~~~~~~~
+
+Beta.
+
+There are some features to add and some cleanups to do before a stable
+release.
+
+
+.. placeholder: Download
+
+
+License
+~~~~~~~
+
+|cdbx| is available under the terms and conditions of the "Apache
+License, Version 2.0." You'll find the detailed licensing terms in the
+root directory of the source distribution package or online at
+`http://www.apache.org/licenses/LICENSE-2.0
+<http://www.apache.org/licenses/LICENSE-2.0>`_.
+
+
+Bugs
+~~~~
+
+No bugs, of course. ;-)
+But if you've found one or have an idea how to improve |cdbx|,
+feel free to send a pull request on `github
+<https://github.com/ndparker/cdbx>`_ or send a mail to
+<cdbx-bugs@perlig.de>.
+
+
+Author Information
+~~~~~~~~~~~~~~~~~~
+
+|cdbx| was written and is maintained by André Malo.
+
+
+.. vim: ft=rest tw=72
