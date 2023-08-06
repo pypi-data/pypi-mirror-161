@@ -1,0 +1,3 @@
+guniflask = dict(
+    cors=True,
+)
