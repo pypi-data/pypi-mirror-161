@@ -1,0 +1,48 @@
+# irisml-tasks
+
+A collection of tasks for irisml framework.
+
+Visit [irisml](https://github.com/microsoft/irisml) for the detail.
+
+## tasks
+### assertion
+This task throws an exception if the given assertion failed for the input object.
+
+### download_azure_blob
+Download a file from azure blob.
+
+### get_dataset_stats
+Get statistics of the input dataset.
+
+### get_dataset_subset
+Create a new dataset with a subset of the input dataset.
+
+### get_fake_image_classification_dataset
+Create a new dataset with fake classification images.
+
+### get_fake_object_detection_dataset
+Create a new dataset with fake object detection examples.
+
+### get_item
+Get an item from a given list.
+
+### load_state_dict
+Load a specified file to the input model.
+
+### run_parallel
+Run child tasks in new forked processes.
+
+### run_sequential
+Run child tasks sequentially on the same process.
+
+### save_file
+Save the input binary as a file.
+
+### save_state_dict
+Save the state_dict of the input model.
+
+### search_grid_sequential
+Grid search hyperparameters in sequential. Run the child tasks and returns a set of parameters that achieved the best result.
+
+### upload_azure_blob
+Upload a file to azure blob.
