@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, minimum-scale=1.0"/>
+    <title>{{ name }}</title>
+    <style>
+        body {
+            text-rendering: auto;
+        }
+
+        #evanyou-canvas {
+            z-index: -1 !important;
+        }
+
+        .dplayer-wrap {
+            max-width: 600px;
+            min-height: 340px;
+            margin: 0 auto;
+        }
+
+        .tselect {
+            text-align: center;
+            margin: 45px auto;
+        }
+    </style>
+</head>
+<body>
+<div class="dplayer-wrap ">
+    <div id="dplayer"></div>
+</div>
+<div class="tselect">
+    <label for="typeSelect"></label>
+    <select id="typeSelect" name="typeSelect">
+        <option value="mp4">mp4</option>
+        <option value="flv">flv</option>
+        <option value="hls">hls</option>
+        <option value="dash">dash</option>
+        <option value="auto">auto</option>
+    </select>
+    <button onclick="changeType()">change type</button>
+</div>
+{% for j in typejss %}
+    <script src="{{ j }}"></script>
+{% endfor %}
+<script src="{{ typejs }}"></script>
+<script src="/static/DPlayer.min.js"></script>
+<script type="text/javascript">
+
+    for (let o of document.getElementById('typeSelect').options)
+        if (o.value === '{{ type }}')
+            o.selected = true
+
+    const dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        screenshot: false,
+        video: {
+            url: '{{ url }}',
+            type: '{{ type }}'
+        }
+    });
+
+    function changeType() {
+        let tSelect = document.getElementById('typeSelect');
+        let val = tSelect.options[tSelect.selectedIndex].value;
+        let ind = window.location.href.indexOf('?');
+        let url = window.location.href.substr(0, ind);
+        window.location.href = url + '?mode=play&play_type=' + val;
+    }
+</script>
+</body>
+</html>

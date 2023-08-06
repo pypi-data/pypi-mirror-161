@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, minimum-scale=1.0"/>
+    <title>dir</title>
+    <style>
+        .mode-btn {
+            background-color: #8585ff;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 6px;
+            outline: none;
+        }
+
+        .mode-btn:disabled {
+            background-color: rgba(133, 133, 255, 0.36);
+        }
+
+        {% if upload %}
+            .file {
+                position: relative;
+                display: inline-block;
+                background: #78b6ff;
+                border-radius: 2px;
+                padding: 8px 12px;
+                overflow: hidden;
+                color: white;
+                text-decoration: none;
+                text-indent: 0;
+            }
+            .file input {
+                position: absolute;
+                font-size: 16px;
+                right: 0;
+                font-weight: bold;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                opacity: 0;
+            }
+        {% endif %}
+
+        ul {
+            margin-left: 20px;
+            margin-right: 4px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .check_box {
+            height: 13px;
+            width: 13px;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            display: inline-block;
+        }
+
+        li {
+            min-height: 21px;
+            list-style-type: none;
+            white-space: nowrap;
+        }
+
+        .menu {
+            white-space: nowrap;
+        }
+
+        .li_head {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            position: relative;
+            text-align: center;
+        }
+
+        .circle {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: black;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+<h2>Directory listing for {{ path }}</h2>
+<hr>
+<ul id="dir_ul">
+    {% for l in list %}
+        <li>
+            <span class="li_head">
+                <span class="circle"></span>
+                <input class="hide" type="checkbox" name="cb" id="{{ l }}">
+            </span>
+            <a href="{{ l|urlencode + arg }}">{{ l }}</a>
+        </li>
+    {% endfor %}
+</ul>
+<hr>
+
+<h3 id="mode" class="menu"> mode:
+    <button id="btn_normal" class="mode-btn">normal</button>
+    <button id="btn_txt" class="mode-btn">display</button>
+    <button id="btn_down" class="mode-btn">download</button>
+    <button id="btn_play" class="mode-btn">play</button>
+</h3>
+
+<h3 class="menu"> function:
+    <button id="select_btn" class="mode-btn">select_on</button>
+    <button id="batch_down" class="mode-btn" disabled>batch_down</button>
+    <button id="select_all_btn" class="mode-btn" disabled>select all</button>
+</h3>
+
+
+<script type="text/javascript">
+
+    // init view status
+    let btn_select = document.getElementById('select_btn')
+    let lis = document.getElementsByClassName('li_head')
+    let btns_mode = document.getElementById('mode').children
+    let btn_select_all = document.getElementById('select_all_btn')
+    let btn_batch_down = document.getElementById('batch_down')
+    let links = document.getElementsByTagName('a')
+
+    btn_select.onclick = function () {
+        let select_on = btn_select.innerText === 'select_on'
+        btn_select.innerText = select_on ? 'select_off' : 'select_on'
+        for (let ele of lis) {
+            ele.children[0].setAttribute('class', select_on ? 'hide' : 'circle')
+            ele.children[1].setAttribute('class', select_on ? 'check_box' : 'hide')
+        }
+        btn_batch_down.disabled = !select_on
+        btn_select_all.disabled = !select_on;
+        for (let ele of btns_mode) {
+            ele.disabled = select_on
+        }
+        document.getElementById('btn_' + get_mode()).disabled = true
+    }
+
+    for (let ele of lis) {
+        ele = ele.children[1]
+        if (ele.id === undefined || ele.id === '' || ele.id[ele.id.length - 1] === '/')
+            ele.disabled = true
+    }
+
+    for (let ele of btns_mode) {
+        ele.onclick = function () {
+            let mode_n = ele.id.split('_')[1]
+
+            let url = new URL(window.location.href)
+            url.searchParams.set('mode', mode_n)
+            if (mode_n === 'normal')
+                url.searchParams.delete('mode')
+
+            for (let i of btns_mode)
+                i.disabled = false
+            ele.disabled = true
+            window.history.replaceState('', document.title, url.pathname + url.search);
+
+            let arg = (get_mode() === 'normal') ? '' : ('?mode=' + mode_n)
+            for (let a of links)
+                a.href = a.getAttribute('href').split('?')[0] + arg
+        }
+    }
+
+    let select_all_check_box = 0; // 0: undefined; 1: select_all; -1: cancel_all
+    btn_select_all.onclick = function () {
+        if (select_all_check_box !== 1) {
+            select_all_check_box = 1
+        } else {
+            select_all_check_box = -1
+        }
+        btn_select_all.innerText = select_all_check_box !== 1 ? 'select_all' : 'cancel_all'
+        for (let ele of lis) {
+            ele = ele.children[1]
+            ele.checked = (!ele.disabled) && (select_all_check_box === 1)
+        }
+    }
+
+    // for batch down
+    function download(name, href) {
+        console.log('download: ', href);
+        let a = document.createElement("a");
+        let e = document.createEvent("MouseEvents");
+        e.initEvent("click", false, false);
+        a.href = href;
+        a.download = name;
+        a.dispatchEvent(e);
+        a = undefined
+    }
+
+    btn_batch_down.onclick = function () {
+        let url = window.location.origin + window.location.pathname;
+        url += url.endsWith('/') ? '' : '/'
+        let empty = true;
+        for (let ele of lis) {
+            ele = ele.children[1]
+            if (ele.checked) {
+                let h = url + ele.id + '?mode=down';
+                download(ele.id, h);
+                empty = false;
+            }
+        }
+        if (empty) {
+            alert('please check one at least for download')
+        }
+    }
+
+
+    let modeSet = new Set(['txt', 'play', 'down', 'normal'])
+
+    function get_mode() {
+        let url = new URL(window.location.href)
+        let ret = url.searchParams.get("mode")
+        if (ret === null || ret === undefined || ret === '' || !modeSet.has(ret))
+            ret = 'normal'
+        return ret
+    }
+
+    // check mode to set link
+    document.getElementById('btn_' + get_mode()).disabled = true
+</script>
+
+{% if upload %}
+    <div style="margin-left: 30px; margin-right: 30px">
+        <a href="javascript:void(0);" class="file">选择文件<input type="file" name="file" id="file"
+                                                              multiple="multiple"/></a>
+        <a href="javascript:void(0);" class="file" style="float: right" onclick="upload_file()">上传</a>
+    </div>
+    <div>
+        <ul id="file_ul"></ul>
+    </div>
+    {#    the js for upload #}
+    <script type="text/javascript">
+        let file_ele = document.getElementById('file');
+        let file_ul = document.getElementById('file_ul');
+        let empty_file_list = file_ele.files;
+        let file_map = new Map();
+        file_ele.addEventListener('change', function () {
+            let tmp_files = file_ele.files;
+            if (tmp_files.length > 0) {
+                for (let i = 0; i < tmp_files.length; i++) {
+                    file_map.set(ftoa(tmp_files[i]), {'fobj': tmp_files[i], 'state': 0}); // state completed=1,wait=0,error=-1，ing=2
+                }
+            }
+            file_ele.files = empty_file_list;
+            update_ul();
+        });
+
+        function del_file(key) {//key is the base64 of file object
+            file_map.set(key, '');
+            update_ul();
+        }
+
+        function update_ul() {
+            let str = '';
+            for (let pair of file_map) {
+                let k = pair[0];
+                let f = pair[1];
+                if (!is_empty(f)) {
+                    let fobj = f['fobj'];
+                    let state = f['state'];
+                    if (state === 1) { // completed
+                        str += '<li id=li_\'' + k + '\'>' +
+                            '<div style="margin-right:35px">' +
+                            '<a style="margin-right:15px;" href="javascript:void(0);" onclick="del_file(\'' + k + '\')"> remove</a>' +
+                            '<span>' + fobj.name + '</span>' +
+                            '<span style="float:right;color:#8ADE1F">completed</span>' +
+                            '<div>' +
+                            '</li>';
+                    } else if (state === 0) { // wait
+                        str += '<li id=li_\'' + k + '\'>' +
+                            '<div style="margin-right:35px">' +
+                            '<a style="margin-right:15px;" href="javascript:void(0);" onclick="del_file(\'' + k + '\')"> remove</a>' +
+                            '<span>' + fobj.name + '</span>' +
+                            '<span style="float:right;">wait</span>' +
+                            '<div>' +
+                            '</li>';
+                    } else if (state === -1) {  // error
+                        str += '<li id=li_\'' + k + '\'>' +
+                            '<div style="margin-right:35px">' +
+                            '<a style="margin-right:15px;" href="javascript:void(0);" onclick="del_file(\'' + k + '\')"> remove</a>' +
+                            '<span>' + fobj.name + '</span>' +
+                            '<span style="float:right; color=#FF4326">failed</span>' +
+                            '<div>' +
+                            '</li>';
+                    } else if (state === 2) {// ing
+                        str += '<li id=li_\'' + k + '\'>' +
+                            '<div style="margin-right:35px">' +
+                            '<span style="margin-right:15px; color:#8585FF" > remove</span>' +
+                            '<span>' + fobj.name + '</span>' +
+                            '<span style="float:right;">' + f['per'] + '% uploading</span>' +
+                            '<div style="height:1px;background-color:#8585ff; width:' + f['per'] + '%"><div>' +
+                            '<div>' +
+                            '</li>';
+                    }
+                }
+            }
+            file_ul.innerHTML = str;
+        }
+
+        function is_empty(arg) {
+            return arg === null || arg === undefined || arg === '';
+        }
+
+        function ftoa(f) {
+            let s = '';
+            for (let i in f) {
+                s = s + f[i];
+            }
+            return window.btoa(window.encodeURIComponent(s));
+        }
+
+        function upload_file() {
+            if (is_map_empty(file_map) || file_map.size === 0) {
+                alert('Please select one file at least');
+                return;
+            }
+            let all_completed = true;
+            for (let pair of file_map) {
+                all_completed = all_completed && (pair[1]['state'] === 1);
+            }
+            if (all_completed) {
+                alert('All files have uploaded, Please select some file to upload.');
+                return;
+            }
+            for (let pair of file_map) {
+                let f = pair[1];
+                if (is_empty(f) || f['state'] === 1) continue;
+                let fobj = f['fobj'];
+                let form = new FormData();
+                form.append('file', fobj);
+                let xhr = new XMLHttpRequest();
+                xhr.custom_file_name = fobj.name;
+                xhr.custom_file_key = pair[0];
+                xhr.upload.custom_file_key = pair[0];
+                xhr.open('post', url, true);
+                xhr.onload = upload_complete;
+                xhr.onerror = upload_error;
+                xhr.upload.onprogress = upload_progress;
+                xhr.send(form);
+            }
+        }
+
+        function is_map_empty(map) {
+            if (!is_empty(map)) {
+                let values_all_empty = true;
+                for (let pair of map) {
+                    values_all_empty = values_all_empty && (is_empty(pair[1]));
+                }
+                return values_all_empty;
+            }
+            return true
+        }
+
+        function upload_complete() {
+            console.log(this.responseText)
+            var obj = JSON.parse(this.responseText);
+            if (obj['state'] === 'succeed')
+                file_map.get(this.custom_file_key)['state'] = 1;
+            else
+                file_map.get(this.custom_file_key)['state'] = -1;
+            update_ul();
+        }
+
+        function upload_error(evt) {
+            file_map.get(this.custom_file_key)['state'] = -1;
+            update_ul();
+            alert('upload error: ' + evt);
+        }
+
+        function upload_progress(evt) {
+            console.log('upload_progress', evt.lengthComputable);
+            let f = file_map.get(this.custom_file_key);
+            f['state'] = 2; //ing
+            if (evt.lengthComputable)
+                f['per'] = Math.round(evt.loaded / evt.total * 100);
+            else
+                f['per'] = 'unknown';
+            update_ul();
+        }
+    </script>
+{% endif %}
+</body>
+</html>
