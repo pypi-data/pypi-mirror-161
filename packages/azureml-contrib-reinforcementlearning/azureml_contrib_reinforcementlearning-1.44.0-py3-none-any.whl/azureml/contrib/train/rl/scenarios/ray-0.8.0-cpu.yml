@@ -1,0 +1,13 @@
+dockerFile: "FROM mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04\nRUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && apt-get clean -y && rm -rf /var/lib/apt/lists/* && rm -rf /usr/share/man/*"
+inlineCondaDependencies:
+  dependencies:
+  - python=3.6.2
+  - pip:
+    - azureml-defaults
+    - azureml-contrib-reinforcementlearning
+    - tensorflow==1.14.0
+    - ray[rllib,dashboard]==0.8.0
+    - psutil
+    - setproctitle
+    - gym[atari]
+  
