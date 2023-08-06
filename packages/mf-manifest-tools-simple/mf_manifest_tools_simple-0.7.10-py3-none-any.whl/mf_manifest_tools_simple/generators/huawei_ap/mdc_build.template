@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "select build type:"
+select build_type in Release Debug RelWithDebInfo ; do
+    echo "build type = $build_type"
+    break
+done
+
+echo "select plane:"
+select plane in A B ; do
+    echo "plane = $plane"
+    PLANE="plane=$plane"
+    break
+done
+
+echo "select extra verison:"
+read extraversion
+if [ -n "$extraversion" ]; then
+    echo "no extra version"
+else
+    echo "extra version = $extraversion"
+    EXTRAVERSION="extraversion=$extraversion"
+fi
+
+mkdir -p build
+cd build
+env $PLANE $EXTRAVESION \
+cmake \
+    -D CMKAE_BUILD_TYPE=$build_type \
+    -D CMAKE_INSTALL_PREFIX=install \
+..
+make install -j

@@ -1,0 +1,24 @@
+if (NOT DEFINE ENABLE_AOS_CORE)
+     set(ENABLE_AOS_CORE ON CACHE BOOL "Force ENABLE_AOS_CORE ON" FORCE)
+endif()
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/maf_ap_applications/cmake/aos_arm_toolchain.cmake)
+cmake_minimum_required(VERSION 3.0)
+
+project(${SWC_NAME})
+get_filename_component(TOOLCHAIN_REAL_PATH "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+
+#if you are playing mdc810 set the following
+#set(ap_version "v2.2_rc3_MDC810_Plane_X")
+
+include(${CMAKE_CURRENT_LIST_DIR}/thirdparty/maf_ap_applications/cmake/ap.cmake)
+
+# add_subdirectory(thirdparty/<core cmake>)
+
+add_ap_executable(${PROJECT_NAME} src/main.cc)
+
+#target_link_libraries(${PROJECT_NAME} PRIVATE msd_controller_basic)
+
+#install(FILES <SWC_basic_LIB> DESTINATION ${PROJECT_NAME}Root/lib)
+
+install(FILES <config.json_path> DESTINATION <target_dir_path>)
+export_aos_rpm(${swc} "")
