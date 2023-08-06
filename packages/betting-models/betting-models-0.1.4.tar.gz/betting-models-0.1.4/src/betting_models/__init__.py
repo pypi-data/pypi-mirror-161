@@ -1,0 +1,4 @@
+from betting_models.football.league_markets.seed import FootballFTRLeagueGenerator
+from betting_models.football.match_markets.seed import FootballMatchMarketsGenerator
+from betting_models.racing.seed import RacingGenerator
+from betting_models.generic.seed import GenericGenerator
