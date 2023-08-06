@@ -1,0 +1,27 @@
+<h2>{{ app_name }} Users ({{ users|length }})</h2>
+
+<p><a class="btn btn-primary" href="/admin/users/add" role="button">Add</a></p>
+
+<table class="table table-sm">
+    <thead>
+        <tr class="table-primary">
+            <th>ID</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users|sort(attribute="email") %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.admin }}</td>
+            <td nowrap>
+                <a class="btn btn-primary btn-sm" href="/admin/users/{{ u.id }}" role="button">Edit</a>
+                <a class="btn btn-danger btn-sm" href="/admin/users/{{ u.id }}/delete" role="button">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
