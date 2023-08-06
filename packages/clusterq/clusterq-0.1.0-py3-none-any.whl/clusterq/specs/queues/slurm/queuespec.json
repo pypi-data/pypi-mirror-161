@@ -1,0 +1,88 @@
+{
+   "schedulername": "SLURM",
+   "submitcmd": [ "sbatch", "--export=ALL" ],
+   "statcmd": [ "squeue", "--noheader", "-o%T", "-j" ],
+   "submitre": ".* ([0-9]+)",
+   "statre": "(.+)",
+
+   "jobname": "#SBATCH -J '{}'",
+   "jobinfo": "#SBATCH --comment='{}'",
+
+   "logfiles": [
+       "#SBATCH -o '{}/%A.out'",
+       "#SBATCH -e '{}/%A.err'"
+   ],
+
+   "serial": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -n '1'"
+   ],
+
+   "serialat": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -w '{nodelist}'",
+       "#SBATCH -n '1'"
+   ],
+
+   "singlehost": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -n '{nproc}'",
+       "#SBATCH -N '1'"
+   ],
+
+   "singlehostat": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -n '{nproc}'",
+       "#SBATCH -w '{nodelist}'"
+   ],
+
+   "multihost": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -n '{nproc}'",
+       "#SBATCH -N '{nhost}'"
+   ],
+
+   "multihostat": [
+       "#SBATCH -p '{queue}'",
+       "#SBATCH -n '{nproc}'",
+       "#SBATCH -w '{hostlist}'"
+   ],
+
+   "envars": {
+       "jobid": "$SLURM_JOB_ID",
+       "nproc": "$SLURM_NTASKS",
+       "hostlist": "$(getent hosts $SLURM_JOB_NODELIST | cut -d\\  -f1 | uniq)"
+   },
+   
+   "mpilauncher": {
+       "openmpi": "mpirun",
+       "intelmpi": "mpirun",
+       "mpich": "mpirun"
+   },
+   
+   "queued_states": [
+       "PENDING",
+       "RUNNING",
+       "SUSPENDED",
+       "STOPPED",
+       "CONFIGURING",
+       "COMPLETING",
+       "SIGNALING",
+       "RESV_DEL_HOLD",
+       "REQUEUE_HOLD",
+       "REQUEUED"
+   ],
+   
+   "ready_states": [
+       "COMPLETED",
+       "CANCELLED",
+       "PREEMPTED",
+       "DEADLINE",
+       "TIMEOUT",
+       "FAILED",
+       "BOOT_FAIL",
+       "NODE_FAIL",
+       "OUT_OF_MEMORY"
+   ]
+}
+
