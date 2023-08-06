@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{{ organization.name }}{% endblock %}
+
+{% block content %}
+    <section class="container">
+        {% include "partials/header_name.html" with object=organization %}
+
+        {% block exttendmeta %}
+            {% if organization.start %}
+                <p>
+                    <span class="fa-custom fa-clock-o" aria-hidden="true"></span>
+                    {% if organization.end %}
+                        {% trans 'Existed from' %} {{ organization.start }} {% trans 'until' %} {{ organization.end }}
+                    {% else %}
+                        {% trans 'Exists since' %} {{ organization.start }}
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            {% trans "Legislative Terms:" as name context "List name" %}
+            {% include "partials/inline_list.html" with objects=organization.legislative_terms.all icon="calendar" %}
+        {% endblock %}
+
+        {% if not organization.body.is_default_body %}
+            <p title="{% trans 'Belongs to this body' %}">
+                <span class="fa-custom fa-globe" aria-hidden="true"></span>
+                <a href="{{ organization.body.get_default_link }}">{{ organization.body }}</a>
+            </p>
+        {% endif %}
+        {% if organization.location %}
+            <p title="{% trans 'Is located there' %}">
+                <i class="fa-custom fa-map-marker" aria-hidden="true"></i>{{ organization.location }}
+            </p>
+        {% endif %}
+    </section>
+
+    <section class="container">
+        {% if not members and not papers and not meetings %}
+            <p class="lead">{% trans "Unfortunately, there is only few information about this organization" %}</p>
+        {% endif %}
+        <ul class="nav nav-pills nav-fill" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link mst-active {% if not members %}text-muted{% endif %}"
+                   id="member-tab" data-bs-toggle="tab"
+                   role="tab" aria-controls="{% trans 'Members' context 'Header' %}" aria-selected="true"
+                   href="#member-list">
+                    <span>{% trans "Members" context "Header" %}</span>
+                    <span class="badge badge-secondary">{{ members|length }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if not papers %}text-muted{% endif %}"
+                   id="paper-tab" data-bs-toggle="tab" role="tab"
+                   href="#paper-list"
+                   aria-controls="{% trans 'Paper' context 'Header' %}" aria-selected="false">
+                    <span>{% trans "Paper" context "Header" %}</span>
+                    <span class="badge badge-secondary">{{ paper_count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if not meetings %}text-muted{% endif %}" id="meeting-tab" data-bs-toggle="tab"
+                   href="#calendar-list" role="tab"
+                   aria-controls="{% trans 'Meetings' context 'Header' %}" aria-selected="false">
+                    <span>{% trans "Meetings" context "Header" %}</span>
+                    <span class="badge badge-secondary">{{ meeting_count }}</span>
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content pt-3">
+            <div id="member-list" class="tab-pane fade" role="tabpanel"
+                 aria-labelledby="member-tab">
+                <div class="d-flex flex-column">{% include "partials/person_grid.html" %}</div>
+                {% if members|length == 0 %}
+                    <p class="font-italic">{% trans "This organization doesn't have any members listed" %}</p>
+                {% endif %}
+            </div>
+            <div id="paper-list" class="tab-pane fade" role="tabpanel"
+                 aria-labelledby="paper-tab">
+                <a href="{{ to_search_url }}" class="btn btn-primary btn-sm float-end">
+                    {% trans "Open in Search" %}
+                </a>
+                {% if papers|length > 0 %}
+                    <ul class="list-unstyled">
+                        {% for paper in papers %}
+                            <li class="py-2">
+                                <a href="{{ paper.get_default_link }}">
+                                    <div>{{ paper.name }}</div>
+                                    <div class="text-muted">
+                                        {% if paper.legal_date %}
+                                            <span>{{ paper.legal_date }}</span>
+                                        {% endif %}
+
+                                        {% if paper.legal_date and paper.reference_number %}
+                                            <span>|</span>
+                                        {% endif %}
+
+                                        {% if paper.reference_number %}
+                                            <span>{{ paper.reference_number | safe }}</span>
+                                        {% endif %}
+                                    </div>
+                                </a></li>
+                        {% endfor %}
+                    </ul>
+                    {% if paper_count > papers|length %}
+                        <a href="{{ to_search_url }}">
+                            <p>{% trans "Remaining files omitted. They can be found with the search" %}</p>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="font-italic">{% trans "No papers for this organization" %}</p>
+                {% endif %}
+            </div>
+            <div id="calendar-list" class="tab-pane fade" role="tabpanel" aria-labelledby="calendar-tab">
+                <a href="{% url 'organizazion_ical' organization.id %}"
+                   class="btn btn-primary btn-sm float-end clearfix">
+                    <span class="fa fa-calendar-plus-o" aria-hidden="true"></span>
+                    {% trans "Subscribe (iCal)" %}
+                </a>
+                <ul>
+                    {% for meeting in meetings %}
+                        <li class="my-2">
+                            <a href="{{ meeting.get_default_link }}">
+                                <span>{{ meeting.start }}</span>
+                            </a>
+
+                            {% if meeting.name != organization.name %}
+                                <br/>
+                                <span>{{ meeting.name }}</span>
+                            {% endif %}
+                            <br/>
+                            <div class="d-flex">
+                                <div title="{% trans 'Place of the meeting' %}" class="d-flex">
+                                    <div class="text-muted">
+                                        <span class="fa me-1 fa-map-marker" aria-hidden="true"></span>
+                                        {% if meeting.location %}
+                                            <span title="{{ meeting.location.description }}">{{ meeting.location.short }}</span>
+                                        {% else %}
+                                            <i>{% trans "Unknown" %}</i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% if meeting_count > meetings|length %}
+                    <p>
+                        {% trans "Remaining meetings omitted. They can be found with the search" %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block additional_js %}
+    {% render_bundle 'persons' 'js' %}
+{% endblock %}

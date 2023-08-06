@@ -1,0 +1,23 @@
+{% load i18n %}
+
+{% if historical %}
+    <p>
+        <span class="fa-custom fa-triangle-exclamation"
+              aria-hidden="true"></span>{% trans "History is not available for" %}
+        {{ historical_name }}
+    </p>
+{% elif objects|length > 0 %}
+    <div class="clearfix">
+        <p class="float-start">
+            <span class="fa-custom fa-{{ icon }}" aria-hidden="true"></span>{{ name }}&nbsp;
+            {% for object in objects %}
+                {% if link %}
+                    <a href="{% url link object.id %}">{{ object }}</a>{% if not forloop.last %},
+                {% endif %}
+                {% else %}
+                    {{ object }}{% if not forloop.last %}, {% endif %}
+                {% endif %}
+            {% endfor %}
+        </p>
+    </div>
+{% endif %}

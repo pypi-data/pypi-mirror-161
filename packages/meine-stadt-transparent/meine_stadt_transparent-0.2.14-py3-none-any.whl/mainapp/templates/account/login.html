@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+{% load widget_tweaks %}
+
+{% block title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+    <div class="container login-container">
+        <div class="card">
+            <div class="card-body">
+                <h1>{% trans "Sign in" context 'login' %}</h1>
+
+                <div class="signup">
+                    <a class="signup-link" href="{{ signup_url }}">{% trans "Sign Up" context 'login' %}</a>
+                </div>
+
+                <form class="login card-body" method="POST" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    {{ form.login.errors }}
+                    <div class="my-2 row">
+                        <label for="{{ form.login.id_for_label }}" class="col-form-label" hidden>
+                            {{ form.login.label }}:
+                        </label>
+                        {{ form.login|add_class:"form-control" }}
+                    </div>
+
+                    {{ form.password.errors }}
+                    <div class="my-2 row">
+                        <label for="{{ form.password.id_for_label }}" class="col-form-label" hidden>
+                            {{ form.password.label }}:
+                        </label>
+                        {{ form.password|add_class:"form-control" }}
+                    </div>
+
+                    <div class="my-2 row">
+                        <a class="forgot-link"
+                           href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                    </div>
+
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                    {% endif %}
+
+                    <div class="my-2 row">
+                        <button class="w-100 btn btn-primary"
+                                type="submit">{% trans "Sign In" context 'login' %}</button>
+                    </div>
+                </form>
+
+                {% get_providers as socialaccount_providers %}
+                {% if socialaccount_providers %}
+                    <div class="allauth-wrapper">
+                        <h3>
+                            {% trans "Social Login" context 'login' %}
+                        </h3>
+
+                        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+
+                        {% include "socialaccount/snippets/login_extra.html" %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

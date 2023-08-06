@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "Persons" %}{% endblock %}
+
+{% block content %}
+    <h1 class="sr-only">{% trans "Persons" %}</h1>
+    <section class="container mb-3 d-flex justify-content-between persons-list-filter">
+        <!-- Filtering by parliamentary group - large screens -->
+        <div class="btn-group filter-organizations d-none d-md-flex flex-wrap btn-group-toggle" data-bs-toggle="buttons">
+            <label class="btn btn-primary active organization-all">
+                <input type="radio" class="btn-check" name="organization" value="all">
+                {% trans "All" context "persons-list" %}
+            </label>
+            {% for group in parliamentary_groups %}
+                <label class="btn btn-content-switcher organization-{{ group.id }}">
+                    <input type="radio" class="btn-check" name="organization" value="{{ group.id }}">
+                    {{ group.short_name }}
+                </label>
+            {% endfor %}
+        </div>
+
+        <!-- Filtering by parliamentary group - small/medium screens -->
+        <div class="btn-group filter-organizations d-md-none pe-3" role="group">
+            <button type="button" class="btn btn-content-switcher dropdown-toggle" data-bs-toggle="dropdown"
+                    id="btnFilterDropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="fa-custom fa-filter"></span>
+                <span class="current-mode">{% trans "All" context "persons-list" %}</span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnFilterDropdown" role="menu">
+                <h2 class="dropdown-header">{% trans "Party" context "persons-list" %}</h2>
+                <a class="dropdown-item" href="#" data-filter="all">{% trans "All" context "persons-list" %}</a>
+                {% for group in parliamentary_groups %}
+                    <a class="dropdown-item" href="#" data-filter="{{ group.id }}">{{ group.short_name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sorting by name or parliamentary group -->
+        <div class="btn-group sort-selector d-flex align-content-start flex-wrap" role="group">
+            <button type="button" class="btn btn-content-switcher dropdown-toggle" data-bs-toggle="dropdown"
+                    id="btnSortDropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="fa-custom fa-arrow-down-a-z"></span>
+                <span class="current-mode">{% trans "Name" context "persons-list" %}</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnSortDropdown" role="menu">
+                <h2 class="dropdown-header">{% trans "Sort by" %}</h2>
+                <a class="dropdown-item" href="#" data-sort="name">{% trans "Name" context "persons-list" %}</a>
+                <a class="dropdown-item" href="#" data-sort="group">{% trans "Party" context "persons-list" %}</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="container d-flex flex-column">
+        {% include "partials/person_grid.html" %}
+    </section>
+{% endblock %}
+
+{% block additional_js %}
+    {% render_bundle 'persons' 'js' %}
+{% endblock %}
