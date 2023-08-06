@@ -1,0 +1,26 @@
+queue_rules:
+  - name: default
+    conditions:
+      - base=main
+
+pull_request_rules:
+  - name: Automatic merge on approval and when when GitHub branch protection passes on main
+    conditions:
+      - "#approved-reviews-by>=1"
+      - base=main
+    actions:
+      queue:
+        method: merge
+        name: default
+        
+pull_request_rules:
+  - name: Automatic merge for leadership team members when there are no reviewers
+    conditions:
+      - "#review-requested=0"
+      - base=main
+      - author=@leadership
+      - label=ready_for_merge
+    actions:
+      queue:
+        method: merge
+        name: default
