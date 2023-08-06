@@ -1,0 +1,56 @@
+Metadata-Version: 2.1
+Name: aiokeydb
+Version: 0.0.9
+Summary: Python client for KeyDB database and key-value store
+Home-page: https://github.com/trisongz/aiokeydb-py
+Author: Tri Songz
+Author-email: ts@growthengineai.com
+License: MIT Style
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Topic :: Software Development :: Libraries
+Description-Content-Type: text/markdown
+Requires-Dist: deprecated (>=1.2.3)
+Requires-Dist: packaging (>=20.4)
+Requires-Dist: async-timeout (>=4.0.2)
+Requires-Dist: pydantic
+Requires-Dist: importlib-metadata (>=1.0) ; python_version < "3.8"
+Requires-Dist: typing-extensions ; python_version < "3.8"
+Provides-Extra: hiredis
+Requires-Dist: hiredis (>=1.0.0) ; extra == 'hiredis'
+Provides-Extra: ocsp
+Requires-Dist: cryptography (>=36.0.1) ; extra == 'ocsp'
+Requires-Dist: pyopenssl (==20.0.1) ; extra == 'ocsp'
+Requires-Dist: requests (>=2.26.0) ; extra == 'ocsp'
+
+# aiokeydb-py
+
+  **Important**
+
+  v0.0.8 Fully Migrates away from `aioredis` to `redis-py` @ `v4.3.4`.
+
+  This inherits all API methods from [`redis-py`](https://github.com/redis/redis-py) to enforce compatability since deprecation of `aioredis` [going forward](https://github.com/aio-libs/aioredis-py/issues/1273)
+
+  This fork of `redis-py` has some modified semantics, while attempting to replicate all the API methods of `redis-py` to avoid compatibility issues with underlying libraries that require a pinned `redis` version.
+
+  Notably, all `async` Classes and methods are prefixed by `Async` to avoid name collisions with the `sync` version.
+
+
+---
+
+## Usage
+
+```python
+
+from aiokeydb import KeyDB, AsyncKeyDB, from_url
+
+sync_client = KeyDB()
+async_client = AsyncKeyDB()
+
+# Alternative methods
+sync_client = from_url('keydb://localhost:6379/0')
+async_client = from_url('keydb://localhost:6379/0', asyncio = True)
+
+
+```
