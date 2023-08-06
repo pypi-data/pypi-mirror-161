@@ -1,0 +1,84 @@
+[build-system]
+requires = [
+  "setuptools>=19.6",
+  # see https://github.com/numpy/numpy/pull/18389
+  "wheel>=0.36.2",
+]
+
+[tool.black]
+line-length = 88
+target-version = [
+  'py38',
+  'py39',
+  'py310'
+]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | yt/frontends/stream/sample_data
+)/
+| yt/visualization/_colormap_data.py
+'''
+
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+skip =  ["venv", "benchmarks"]
+known_third_party = [
+  "IPython",
+  "nose",
+  "numpy",
+  "sympy",
+  "matplotlib",
+  "unyt",
+  "git",
+  "yaml",
+  "dateutil",
+  "requests",
+  "coverage",
+  "pytest",
+  "pyx",
+  "glue",
+]
+known_first_party = ["yt"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+# The -s option prevents pytest from capturing output sent to stdout
+# -v runs pytest in verbose mode
+# -rsfE: The -r tells pytest to provide extra test summary info on the events
+# specified by the characters following the r. s: skipped, f: failed, E: error
+[tool.pytest.ini_options]
+addopts = '''
+    -s
+    -v
+    -rsfE
+    --ignore-glob='*_nose.py'
+    --ignore='yt/frontends/owls_subfind/tests/test_outputs.py'
+    --ignore='yt/frontends/ramses/tests/test_outputs.py'
+'''
+filterwarnings = [
+    "error",
+    # triggered on Python 3.10 by dependencies
+    "ignore: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives:DeprecationWarning",
+]
+
+
+[tool.mypy]
+python_version = 3.8
+show_error_codes = true
+ignore_missing_imports = true # remove once yt 4.1.0 is released
+warn_unused_configs = true
+# warn_unused_ignores = true # uncomment when minimal supported version is yt 4.1 or newer
+warn_unreachable = true
+show_error_context = true
