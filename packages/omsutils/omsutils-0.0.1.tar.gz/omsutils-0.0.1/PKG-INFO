@@ -1,0 +1,209 @@
+Metadata-Version: 2.1
+Name: omsutils
+Version: 0.0.1
+Summary: OMS Utilities
+Home-page: http://pypi.python.org/pypi/PackageName/
+Author: Johnny Hendricks
+Author-email: Johnny Hendricks <johnny.hendricks@orbitalmicro.com>
+License: LICENSE
+Project-URL: Homepage, https://github.com/pypa/sampleproject
+Project-URL: Bug Tracker, https://github.com/pypa/sampleproject/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# OMS Utility Library
+
+Common tools that are used across OMS.
+
+## Description
+
+A collection of fileio, gridding, ...
+
+## Getting Started
+
+### Dependencies
+
+* pytest, wheel, setuptools
+
+### Installing
+
+* omsutils is not yet available on PyPI, so the suggested method to install is as follows:
+```
+$ git clone git@github.com:OrbitalMicro/omsutils.git
+$ cd omsutils
+```
+
+It is recommended to install the package in a virtual environment
+to avoid conflicts with system packages.
+
+```
+# create your virtual environment
+$ python3.8 -m venv py38
+
+# activate your virtual environment
+$ source py38/bin/activate
+```
+
+If you install outside of the virtual environment you will get the message:
+
+```
+Defaulting to user installation because normal site-packages is not writeable
+```
+
+We can install the package only, package in editable mode, and package with tests.
+
+```
+# Package Only
+$ pip install .
+```
+
+```
+# Package Only in editable mode
+$ pip install -e .
+```
+
+```
+# Packages and testing
+$ python setup.py install
+```
+
+### Creating a Package
+
+The generic package structure is
+
+```
+omsutils
+├── LICENSE                    ┐
+├── setup.cfg                  │
+├── setup.py                   │
+├── docs                       │ Package documentation
+│   └── ...                    │
+├── LICENSE                    │
+├── README.md                  ┘
+├── pyproject.toml             ┐
+├── src                        │
+│   └── omsutils               │ Package source code, metadata,
+│       ├── __init__.py        │ and build instructions
+│       ├── moduleA.py         │
+│       ├── moduleB.py         │
+│       └── submodule          │
+│           ├── __init__.py    │
+│           ├── moduleA.py     │
+│           └── moduleB.py     ┘
+└── tests                      ┐
+    └── ...                    ┘ Package tests
+```
+
+* To add a new module
+
+Add module file to omsutils that contains function definitions
+for example gridding.py.
+
+To call the package
+
+```
+from omsutils import gridding
+```
+
+### Testing
+
+## Install pytest
+
+```
+pip install -U pytest
+```
+
+* Tests go in the tests folder
+
+```
+# content of test_sample.py
+def func(x):
+    return x + 1
+
+
+def test_answer():
+    assert func(3) == 5
+```
+
+## Run Tests
+
+To execute the test function:
+
+```
+$ pytest
+=========================== test session starts ============================
+platform linux -- Python 3.x.y, pytest-6.x.y, py-1.x.y, pluggy-1.x.y
+cachedir: $PYTHON_PREFIX/.pytest_cache
+rootdir: $REGENDOC_TMPDIR
+collected 1 item
+
+test_sample.py F                                                     [100%]
+
+================================= FAILURES =================================
+_______________________________ test_answer ________________________________
+
+    def test_answer():
+>       assert func(3) == 5
+E       assert 4 == 5
+E        +  where 4 = func(3)
+
+test_sample.py:6: AssertionError
+========================= short test summary info ==========================
+FAILED test_sample.py::test_answer - assert 4 == 5
+============================ 1 failed in 0.12s =============================
+```
+
+this will run all files of the form test_*.py or *_test.py in the current directory and its subdirectoruies
+
+## Group multiple tests in a class
+
+```
+# content of test_class.py
+class TestClass:
+    def test_one(self):
+        x = "this"
+        assert "h" in x
+
+    def test_two(self):
+        x = "hello"
+        assert hasattr(x, "check")
+```
+
+## Help
+
+Any advise for common problems or issues.
+```
+command to run if program contains helper info
+```
+
+## Authors
+
+Contributors names and contact info
+
+ex. Dominique Pizzie
+ex. [@DomPizzie](https://twitter.com/dompizzie)
+
+## Version History
+
+* 0.2
+    * Various bug fixes and optimizations
+        * See [commit change]() or See [release history]()
+	* 0.1
+	    * Initial Release
+
+	    ## License
+
+	    This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+
+	    ## Acknowledgments
+
+	    Inspiration, code snippets, etc.
+	    * [awesome-readme](https://github.com/matiassingers/awesome-readme)
+	    * [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
+	    * [dbader](https://github.com/dbader/readme-template)
+	    * [zenorocha](https://gist.github.com/zenorocha/4526327)
+	    * [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
