@@ -1,0 +1,77 @@
+# SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
+# SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
+
+name: Autorelease
+on:
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+  # https://github.com/bblanchon/pdfium-binaries/blob/master/.github/workflows/trigger.yml
+  schedule:
+    - cron: '0 10 * * 1'
+  workflow_dispatch:
+
+jobs:
+  
+  autorelease:
+    
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    
+    steps:
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Check out pypdfium2
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0
+      
+      - name: Configure git
+        run: |
+          git config user.email "geisserml@gmail.com"
+          git config user.name "geisserml"
+      
+      - name: Install/update dependencies
+        run: |
+          python3 -m pip install -U pip
+          python3 -m pip install -U setuptools setuptools-scm build
+          python3 -m pip install --force-reinstall git+https://github.com/pypa/wheel.git@9d4264d2f23ea44dd85639a27fa6b284261921cd
+          python3 -m pip install git+https://github.com/ctypesgen/ctypesgen.git@2120dbf9a5086a21c48e5a002b1f274f3716b7ec
+          python3 -m pip install -U .[utilities,test,inserttext,converters]
+      
+      # we have to reset the state of the repository since `pip install .[...]` will implicitly alter the version file,
+      # but we want to do versioning in the autorelease script while still installing dependencies beforehand
+      - name: Post-install cleanup
+        run: |
+          git reset --hard HEAD
+          rm -rf ./data/.presetup_done.txt
+      
+      - name: Run autorelease script
+        run: python3 setupsrc/pl_setup/autorelease.py --checkin --publish
+      
+      - name: Run packaging script
+        run: make packaging
+      
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          RELEASE_TAG=$(git describe --abbrev=0)
+          echo "::set-output name=release_tag::$RELEASE_TAG"
+      
+      - name: Publish to GitHub
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'dist/*'
+          bodyFile: 'RELEASE.md'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.get_tag.outputs.release_tag }}
+      
+      - name: Publish to TestPyPI
+        run: twine upload -u __token__ -p ${{ secrets.TESTPYPI_TOKEN }} --verbose --repository-url "https://test.pypi.org/legacy/" dist/*
+      
+      - name: Publish to PyPI
+        run: twine upload -u __token__ -p ${{ secrets.PYPI_TOKEN }} --verbose dist/*
