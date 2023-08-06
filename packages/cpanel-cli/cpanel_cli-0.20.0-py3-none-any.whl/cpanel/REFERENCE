@@ -1,0 +1,1364 @@
+Usage: cpanel list features
+    cpanel get feature details
+    cpanel has feature FEATURE
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist features\033[0m
+    List a cPanel account’s features.
+
+    EXAMPLE
+        \033[1;34mcpanel list features\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_features/
+
+\033[1mget feature details\033[0m
+    Get details for all available features. Details include whether the
+    feature is a plug-in or an add-on, and a long name.
+
+    EXAMPLE
+        \033[1;34mcpanel get feature details\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_feature_metadata/
+
+\033[1mhas feature FEATURE\033[0m
+    Return ‘1’ if a cPanel account has FEATURE, ‘0’ if it doesn’t.
+    If FEATURE is an invalid name, return ‘null’.
+    For a list of valid FEATURE names, see ‘cpanel list features’.
+
+    EXAMPLE
+        \033[1;34mcpanel has feature autossl\033[00m
+
+---
+
+Usage: cpanel get quota
+
+Get the cPanel account’s total disk quota information in megabytes.
+
+EXAMPLE
+    \033[1;34mcpanel get quota\033[00m
+
+See a sample of the JSON result data at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/get_quota_info/
+
+---
+
+Usage: cpanel get usage
+
+Show resource usage and some statistics, like bandwidth, number of subdomains,
+disk usage, number of mail filters, etc.
+
+EXAMPLE
+    \033[1;34mcpanel get usage\033[00m
+
+See a sample of the JSON result data at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/get_usages/
+
+---
+
+Usage: cpanel get stats STAT...
+
+Show detailed data and statistics, like hostname, file usage, database usage,
+dedicated IPs, etc.
+
+STAT is the name of the statistic you want, you can provide a list of STATs to
+be displayed. For a complete list ot STAT names, see ‘display parameters’ at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/get_stats/
+
+EXAMPLES
+    \033[1;34mcpanel get stats hostname\033[00m
+    \033[1;34mcpanel get stats machinetype cpanelversion\033[00m
+
+See a sample of the JSON result data at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/get_stats/
+
+---
+
+Usage: cpanel list accounts
+    cpanel get account
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist accounts\033[0m
+    List basic information of the main cPanel account.
+
+    EXAMPLE
+        \033[1;34mcpanel list accounts\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_accounts/
+
+\033[1mget account\033[0m
+    Show detailed information of the main account.
+
+    EXAMPLE
+        \033[1;34mcpanel get account\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/Variables-get_user_information/
+
+---
+
+Usage: cpanel list subaccounts
+    cpanel get subaccount GUID
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist subaccounts\033[0m
+    List the sub-accounts of the main cPanel account, along with detailed information
+    of each sub-account.
+
+    EXAMPLE
+        \033[1;34mcpanel list subaccounts\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/UserManager-list_users/
+
+\033[1mget subaccount GUID\033[0m
+    Show detailed information of a sub-account, identified by its GUID. To get
+    this GUID, use ‘cpanel list subaccounts’. Note that only sub-accounts with a
+    sub_account_exists flag set to 1 can be queried.
+
+    EXAMPLE
+        \033[1;34mcpanel get subaccount EXAMPLE1:EXAMPLE.COM:564CD663:FE50072F2620B50988EA4E5F46022546FBE6BDDE3C36C2F2534F4967C661EC37\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/lookup_user/
+
+---
+
+Usage: cpanel create backup home [EMAIL]
+    cpanel create backup ftp USERNAME PASSWORD HOST [DIRECTORY] [EMAIL]
+    cpanel create backup scp USERNAME PASSWORD HOST [DIRECTORY] [EMAIL]
+    cpanel list backups
+
+\033[1mCOMMANDS\033[0m
+
+All ‘create backup’ commands create a backup tarball (a .tar.gz file) of
+the user’s home directory along with other account data, such as the crontab,
+API tokens, log files and DB data. The backup tarball’s name is
+backup-MM.DD.YYYY_HH-MM-SS_USERNAME.tar.gz.
+
+If you pass an optional EMAIL argument, the backup engine will send a
+confirmation email after it completes the backup.
+
+\033[1mcreate backup home [EMAIL]\033[0m
+    Create a backup tarball and store it in the user’s home directory itself.
+
+\033[1mcreate backup ftp USERNAME PASSWORD HOST [DIRECTORY] [EMAIL]\033[0m
+    Create a backup tarball and store it on a remote FTP server.
+
+    HOST is the hostname of the remote FTP server.
+    USERNAME and PASSWORD are the credentials to log in to it.
+    Optional DIRECTORY is the destination directory on the remote server;
+    by default use the remote user’s login directory. Note that DIRECTORY
+    is not an absolute path, but a path relative to the login directory, i.e.,
+    /public corresponds to <remote login directory>/public.
+
+\033[1mcreate backup scp USERNAME PASSWORD HOST [DIRECTORY] [EMAIL]\033[0m
+    Create a backup tarball and store it on a remote SCP server.
+
+    USERNAME, PASSWORD, HOST and DIRECTORY are the same as for ‘create backup ftp’.
+
+    EXAMPLES
+        \033[1;34mcpanel backup home\033[00m
+        \033[1;34mcpanel backup home scott@example.com\033[00m
+        \033[1;34mcpanel backup ftp scott tiger ftp.example.com\033[00m
+        \033[1;34mcpanel backup ftp scott tiger ftp.example.com /backup\033[00m
+        \033[1;34mcpanel backup scp scott tiger ssh.example.com /backup scott@example.com\033[00m
+
+\033[1mlist backups\033[0m
+    List the account’s backup files.
+
+    EXAMPLE
+        \033[1;34mcpanel list backups\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_backups/
+
+---
+
+Usage: cpanel update cache
+    cpanel read cache
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mupdate cache\033[0m
+    Create web browser cached file override ID.
+
+    EXAMPLE
+        \033[1;34mcpanel update cache\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/update/
+
+\033[1mread cache\033[0m
+    Return web browser cached file override ID.
+
+    EXAMPLE
+        \033[1;34mcpanel read cache\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/CacheBuster-read/
+
+---
+
+Usage: cpanel list locales
+    cpanel get locale
+    cpanel set locale LOCALE
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist locales\033[0m
+    List all the available locales (language and conventions) for the cPanel user
+    interface.
+
+    EXAMPLE
+        \033[1;34mcpanel list locales\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_locales/
+
+\033[1mget locale\033[0m
+    Return the current locale (language and conventions) used for the cPanel user
+    interface.
+
+    EXAMPLE
+        \033[1;34mcpanel get locale\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_attributes/
+
+\033[1mset locale LOCALE\033[0m
+    Set the cPanel user interface locale (language and conventions) to LOCALE.
+    Use ‘cpanel list locales’ for a list of available locales.
+    In general terms, a LOCALE corresponds to a ISO 639-1 two-letter language code.
+
+    EXAMPLE
+        \033[1;34mcpanel set locale bg\033[00m  # Set UI to Bulgarian
+
+---
+
+Usage: cpanel list styles
+    cpanel get style
+    cpanel set style NAME
+    cpanel default style NAME
+
+\033[1mCOMMANDS\033[0m
+
+A style is a variation of a user interface theme for cPanel. For example, the
+‘paper lantern’ theme has four styles: ‘basic’, ‘dark’, ‘light’ and ‘glass’.
+
+\033[1mlist styles\033[0m
+    Return all the available user interface styles.
+
+    EXAMPLE
+        \033[1;34mcpanel list styles\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list/
+
+\033[1mget style\033[0m
+    Return the current user interface style.
+
+    EXAMPLE
+        \033[1;34mcpanel get style\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/current/
+
+\033[1mset style NAME\033[0m
+    Set the current user interface style to NAME.
+    NAME must be one of ‘basic’, ‘dark’, ‘light’ or ‘glass’
+
+    EXAMPLE
+        \033[1;34mcpanel set style dark\033[00m
+
+\033[1mdefault style NAME\033[0m
+    Set the default user interface style to NAME.
+    NAME must be one of ‘basic’, ‘dark’, ‘light’ or ‘glass’
+
+    EXAMPLE
+        \033[1;34mcpanel default style basic\033[00m
+
+---
+
+Usage: cpanel list themes
+    cpanel get theme
+    cpanel set theme NAME
+
+A theme is a customized look and feel for the cPanel user interface. The default
+cPanel theme is ‘jupiter’; another popular theme is ‘paper lantern’.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist themes\033[0m
+    Return all the available themes.
+
+    EXAMPLE
+        \033[1;34mcpanel list themes\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/Themes::list/
+
+\033[1mget theme\033[0m
+    Return the current theme.
+
+    EXAMPLE
+        \033[1;34mcpanel get theme\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_theme_base/
+
+\033[1mset theme NAME\033[0m
+    Set the current theme to NAME.
+    NAME must be one the available themes reported by ‘cpanel list themes’.
+
+    EXAMPLE
+        \033[1;34mcpanel set theme paper_lantern\033[00m
+
+---
+
+Usage: cpanel list dir indexing PATH
+    cpanel get dir indexing PATH
+    cpanel set dir indexing PATH TYPE
+
+The indexing of a remote directory controls how to present that directory
+to a web browser if no default HTML index page is found.
+
+There are four possible index settings:
+
+- ‘inherit’: Use the parent directory’s setting.
+- ‘disabled’ (No Indexing): do not list the directory contents.
+- ‘standard’ (Show Filename Only): list only the directory’s file names.
+- ‘fancy’: (Show Filename and Description) list the directory’s file names, sizes and types.
+
+cPanel uses a .htaccess directive in the remote directory to control the
+index settings. For instance, for ‘fancy’, it adds the following code to .htaccess:
+
+    Options +Indexes
+    IndexOptions +HTMLTable +FancyIndexing
+
+See https://docs.cpanel.net/cpanel/advanced/indexes/ for further information.
+
+Note that the PATH in all commands below is not absolute, but relative to the
+remote login directory, i.e., /public_html corresponds to
+<remote login directory>/public_html.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist dir indexing PATH\033[0m
+    List the index settings for remote PATH and its subdirectories (children).
+
+    EXAMPLE
+        \033[1;34mcpanel list dir indexing /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/DirectoryIndexes-list_directories/
+
+\033[1mget dir indexing PATH\033[0m
+    Get the index setting for remote PATH only.
+
+    EXAMPLE
+        \033[1;34mcpanel get dir indexing /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_indexing/
+
+\033[1mset dir indexing PATH TYPE\033[0m
+    Set the index setting for remote PATH. Possible values for TYPE are
+    ‘inherit’, ‘disabled’, ‘standard’ or ‘fancy’.
+
+    EXAMPLE
+        \033[1;34mcpanel set dir indexing /public_html fancy\033[00m
+
+---
+
+Usage: cpanel list dir privacy PATH
+    cpanel get dir privacy PATH
+    cpanel enable dir privacy PATH
+    cpanel disable dir privacy PATH
+
+cPanel can password-protect remote directories for privacy. Any attempt to
+access a private directory using a web browser will prompt for a
+username and password.
+
+The actual underlying authentication method is Basic HTTP authentication;
+these users and passwords are local to the directory, they are not cPanel users.
+
+Note that the PATH in all commands below is not absolute, but relative to the
+remote login directory, i.e., /public_html corresponds to
+<remote login directory>/public_html.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist dir privacy PATH\033[0m
+    List the privacy settings for remote PATH and its subdirectories (children).
+
+    EXAMPLE
+        \033[1;34mcpanel list dir privacy /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/DirectoryPrivacy-list_directories/
+
+\033[1mget dir privacy PATH\033[0m
+    Get the privacy settings for remote PATH only.
+    You can enable or disable password protection using
+    ‘cpanel enable dir privacy’ or ‘cpanel disable dir privacy’ (see below).
+
+    EXAMPLE
+        \033[1;34mcpanel get dir privacy /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/is_directory_protected/
+
+\033[1menable dir privacy PATH\033[0m
+    Enable password protection for PATH. Note that you need to add users
+    using ‘cpanel add dir user’ (see below) to grant access to PATH.
+
+    EXAMPLE
+        \033[1;34mcpanel enable dir privacy /public_html\033[00m
+
+\033[1mdisable dir privacy PATH\033[0m
+    Disable password protection for PATH.
+
+    EXAMPLE
+        \033[1;34mcpanel disable dir privacy /public_html\033[00m
+
+---
+
+Usage: cpanel add dir user PATH USER PASSWORD
+    cpanel delete dir user PATH USER
+    cpanel list dir users PATH
+
+cPanel grants access to remote password-protected directories using
+ad hoc users and passwords specific to every directory. Use the
+commands below to manage these users.
+
+cPanel stores the credentials in a .htpasswd file.
+See https://en.wikipedia.org/wiki/.htpasswd for further information.
+
+Note that the PATH in all commands below is not absolute, but relative to the
+remote login directory, i.e., /public_html corresponds to
+<remote login directory>/public_html.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1madd dir user PATH USER PASSWORD\033[0m
+    Add USER with corresponding PASSWORD to the list of allowed users
+    for PATH.
+
+    EXAMPLE
+        \033[1;34mcpanel add dir user /public_html scott tiger\033[00m
+
+\033[1mdelete dir user PATH USER\033[0m
+    Remove USER from the list of allowed users for PATH.
+
+    EXAMPLE
+        \033[1;34mcpanel delete dir user /public_html scott\033[00m
+
+\033[1mlist dir users PATH\033[0m
+    List allowed users for PATH.
+
+    EXAMPLE
+        \033[1;34mcpanel list dir users /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/DirectoryPrivacy::list_users/
+
+---
+
+Usage: cpanel list dir protection PATH
+
+Leech protection adds some basic measures against the abuse of
+password-protected directories. The system allows a maximum number of
+logins per hour for a leech-protected directory.
+
+See https://docs.cpanel.net/cpanel/security/leech-protection/ for further information.
+
+\033[1mlist dir protection PATH\033[0m
+    List leech protection status for PATH and its subdirectories (children).
+
+    EXAMPLE
+        \033[1;34mcpanel list dir protection /public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/DirectoryProtection-list_directories/
+
+---
+
+Usage: cpanel check dns DOMAIN
+    cpanel authoritative dns DOMAIN
+    cpanel lookup dns
+    cpanel list dynamic dns
+    cpanel create dynamic dns SUBDOMAIN [DESCRIPTION]
+    cpanel recreate dynamic dns ID
+    cpanel update dynamic dns ID DESCRITPION
+    cpanel delete dynamic dns ID
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mcheck dns DOMAIN\033[0m
+    Check if DOMAIN resolves to the cPanel server.
+
+    EXAMPLE
+        \033[1;34mcpanel check dns example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/ensure_domains_reside_only_locally/
+
+\033[1mcheck authoritative dns DOMAIN\033[0m
+    Tell if cPanel server is the authoritative server for DOMAIN.
+
+    EXAMPLE
+        \033[1;34mcpanel authoritative dns example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/has_local_authority/
+
+\033[1mlookup dns DOMAIN\033[0m
+    Return DNS zone information about DOMAIN.
+
+    EXAMPLE
+        \033[1;34mcpanel lookup dns DOMAIN\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/dns-lookup/
+
+\033[1mlist dynamic dns\033[0m
+    List the Dynamic DNS domains for your cPanel user.
+
+    EXAMPLE
+        \033[1;34mcpanel list dynamic dns\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/dynamicdns-list/
+
+\033[1mcreate dynamic dns SUBDOMAIN [DESCRIPTION]\033[0m
+    Create a new Dynamic DNS entry attached to SUBDOMAIN.
+    Optionally include a human-readable DESCRIPTION.
+    Return an ID which you can later use in a web call
+    https://example.com/cpanelwebcall/<ID>.
+
+   For further information see:
+   https://docs.cpanel.net/cpanel/domains/dynamic-dns/
+
+    EXAMPLES
+        \033[1;34mcpanel create dynamic dns homeserver.example.com\033[00m
+        \033[1;34mcpanel create dynamic dns homeserver.example.com "A home server with variable IP"\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/dynamicdns-create/
+
+\033[1mrecreate dynamic dns ID\033[0m
+    Delete and create again a Dynamic DNS entry identified by ID.
+    Return a new ID. Use ‘cpanel list dynamic dns’ to get a list of IDs and
+    associated subdomains.
+
+    EXAMPLE
+        \033[1;34mcpanel recreate dynamic dns gziugyxxjwnamqtwysgmvrurplmafxpj\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/dynamicdns-recreate/
+
+\033[1mupdate dynamic dns ID DESCRIPTION\033[0m
+    Update the DESCRIPTION of Dynamic DNS entry identified by ID.
+
+    EXAMPLE
+        \033[1;34mcpanel update dynamic dns gziugyxxjwnamqtwysgmvrurplmafxpj "A home server with variable IP"\033[00m
+
+\033[1mdelete dynamic dns ID\033[0m
+    Delete a Dynamic DNS entry identified by ID. Use ‘cpanel list dynamic dns’
+    to get a list of IDs and associated subdomains.
+
+    EXAMPLE
+        \033[1;34mcpanel delete dynamic dns gziugyxxjwnamqtwysgmvrurplmafxpj\033[00m
+
+---
+
+Usage: cpanel list domains
+    cpanel list domain data
+    cpanel get domain data DOMAIN
+    cpanel get domain aliases
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist domains\033[0m
+    List domains for the cPanel account’s.
+
+    EXAMPLE
+        \033[1;34mcpanel list domains\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_domains/
+
+\033[1mlist domain data\033[0m
+    Get hosting data for all the cPanel account’s domains.
+
+    EXAMPLE
+        \033[1;34mcpanel list domain data\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/domains_data/
+
+\033[1mget domain data DOMAIN\033[0m
+    Get hosting data for DOMAIN. Use ‘cpanel list domains’
+    to get a list of domains.
+
+    EXAMPLE
+        \033[1;34mcpanel get domain data example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/single_domain_data/
+
+\033[1mget domain aliases\033[0m
+    List the built-in subdomain aliases for an account’s main domain.
+
+    EXAMPLE
+        \033[1;34mcpanel get domain aliases\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/main_domain_builtin_subdomain_aliases/
+
+---
+
+Usage: cpanel get log settings
+    cpanel set log settings SETTING...
+    cpanel unset log settings SETTING...
+    cpanel list log archives
+
+cPanel log archival settings are:
+
+- ‘archive’
+- ‘prune’
+
+If ‘archive’ is set, log files will be archived to your home directory
+after the system processes statistics.
+
+If ‘prune’ is set, cPanel will remove the previous month’s archived logs
+at the end of every month.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mget log settings\033[0m
+    Get the account’s log archival settings.
+
+    EXAMPLE
+        \033[1;34mcpanel get log settings\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_settings/
+
+\033[1mset log settings SETTING...\033[0m
+    Set the account’s log archival settings.
+    SETTING is ‘archive’ or ‘prune’.
+
+    EXAMPLES
+        \033[1;34mcpanel set log settings archive\033[00m
+        \033[1;34mcpanel set log settings prune\033[00m
+        \033[1;34mcpanel set log settings archive prune\033[00m
+
+\033[1munset log settings SETTING...\033[0m
+    Unset the account’s log archival settings.
+    SETTING is ‘archive’ or ‘prune’.
+
+    EXAMPLES
+        \033[1;34mcpanel unset log settings archive\033[00m
+        \033[1;34mcpanel unset log settings prune\033[00m
+        \033[1;34mcpanel unset log settings archive prune\033[00m
+
+\033[1mlist log archives\033[0m
+    List the account’s archived log files.
+
+    EXAMPLE
+        \033[1;34mcpanel list log archives\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_archives/
+
+---
+
+Usage: cpanel get bandwidth services
+    cpanel get bandwidth retention
+
+For further information see:
+https://docs.cpanel.net/cpanel/metrics/bandwidth/
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mget bandwidth services\033[0m
+    Return a list of services (by protocol) being monitored in bandwidth data.
+
+    EXAMPLE
+        \033[1;34mcpanel get bandwidth services\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_enabled_protocols/
+
+\033[1mget bandwidth retention\033[0m
+    Get the collection interval and retention periods for bandwidth data.
+
+    EXAMPLE
+        \033[1;34mcpanel get bandwidth services\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_retention_periods/
+
+---
+
+Usage: cpanel list files [DIRECTORY]
+    cpanel glob files PARTIALPATH
+    cpanel get file info PATH
+    cpanel cat file FILE
+    cpanel write file FILE
+    cpanel upload file DIRECTORY LOCALFILE
+    cpanel delete file trash [DAYS]
+
+Arguments:
+
+- Optional DIRECTORY is a remote directory
+- PATH can refer to either a remote directory or a remote file
+- PARTIALPATH is an incomplete remote PATH
+- FILE is a remote file
+- LOCALFILE is a local file
+
+Use ‘/’ to separate subdirectory components in DIRECTORY, PATH,
+PARTIALPATH or FILE. For example, a DIRECTORY could be
+public_html/images or a PATH could be public_ftp/.htacccess.
+
+All the remote arguments are relative to the remote user’s login
+directory, e.g., public corresponds to <remote login directory>/public.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist files DIRECTORY\033[0m
+    Return a list of files and subdirectories in DIRECTORY
+
+    EXAMPLE
+        \033[1;34mcpanel list files public_html\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_files/
+
+\033[1mglob files PARTIALPATH\033[0m
+    Return a list of files and subdirectories whose names start
+    with PARTIALPATH. For instance, /public matches /public_html and
+    /public_ftp.
+
+    EXAMPLE
+        \033[1;34mcpanel glob files /public\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/autocompletedir/
+
+\033[1mget file info PATH\033[0m
+    Return file information about PATH.
+
+    EXAMPLES
+        \033[1;34mcpanel get file info ssl\033[00m
+        \033[1;34mcpanel get file info .bashrc\033[00m
+        \033[1;34mcpanel get file info public_html/.htaccess\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_file_information/
+
+\033[1mcat file FILE\033[0m
+    Return the contents of FILE. Note that only UTF-8 encoded files are supported.
+
+    EXAMPLES
+        \033[1;34mcpanel cat file .mysqlhistory\033[00m
+        \033[1;34mcpanel cat file public_html/.htaccess\033[00m
+
+\033[1mwrite file FILE CONTENTS\033[0m
+    Write CONTENTS as a remote text FILE.
+    Note that only UTF-8 encoded content is supported.
+    Escape codes, such as ‘\\n’, ‘\\t’ and others, are supported.
+
+    EXAMPLES
+        \033[1;34mcpanel write file public_html/index.txt "Hallo\\nTschüss\\n"\033[00m
+
+\033[1mupload file DIRECTORY LOCALFILE\033[0m
+    Upload a LOCALFILE to remote DIRECTORY .
+    If the remote DIRECTORY doesn’t exist, it will be created.
+
+    EXAMPLES
+        \033[1;34mcpanel upload file public_html index.html\033[00m
+
+\033[1mdelete file trash [DAYS]\033[0m
+    Delete the contents of the .trash directory in the user’s home.
+    Optional DAYS will only delete files older than DAYS days.
+    By default, all files are deleted.
+
+    EXAMPLES
+        \033[1;34mcpanel delete file trash\033[00m
+        \033[1;34mcpanel delete file trash 31\033[00m
+
+---
+
+Usage: cpanel count mail accounts
+    cpanel list mail accounts
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mcount mail accounts\033[0m
+    Count the number of cPanel email accounts.
+
+    EXAMPLE
+        \033[1;34mcpanel count mail accounts\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/count_pops/
+
+\033[1mlist mail accounts\033[0m
+    List cPanel email accounts.
+
+    EXAMPLE
+        \033[1;34mcpanel list mail accounts\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_pops/
+
+---
+
+Usage: cpanel get mail settings ACCOUNT
+
+Get an ACCOUNT’s email settings.
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+Use ‘cpanel list mail accounts’ to get a list of valid ACCOUNTS.
+
+EXAMPLE
+    \033[1;34mcpanel get mail settings scott@example.com\033[00m
+
+See a sample of the JSON result data at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/get_client_settings/
+
+---
+
+Usage: cpanel list mail boxes [ACCOUNT] [DIR]
+
+List the mailboxes (directories and files) for ACCOUNT.
+If no ACCOUNT is passed, list the mailboxes for all mail accounts.
+Optionally, you can restrict the listing to directory DIR.
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+Use ‘cpanel list mail accounts’ to get a list of valid ACCOUNTS.
+
+EXAMPLES
+    \033[1;34mcpanel list mail boxes\033[00m
+    \033[1;34mcpanel list mail boxes scott@example.com\033[00m
+    \033[1;34mcpanel list mail boxes scott@example.com .Sent\033[00m
+    \033[1;34mcpanel list mail boxes scott@example.com .spam\033[00m
+
+See a sample of the JSON result data at:
+https://api.docs.cpanel.net/openapi/cpanel/operation/browse_mailbox/
+
+---
+
+Usage: cpanel list mail autoresponders DOMAIN
+    cpanel count mail autoresponders
+    cpanel get mail autoresponder ACCOUNT
+    cpanel set mail autoresponder ACCOUNT [FROM] [SUBJECT] [BODY] [START] [STOP]
+    cpanel delete mail autoresponder ACCOUNT
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+Use ‘cpanel list mail accounts’ to get a list of valid ACCOUNTS.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist mail autoresponders DOMAIN\033[0m
+    List the autoresponders of all email accounts in DOMAIN.
+
+    EXAMPLE
+        \033[1;34mcpanel list mail autoresponders example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_auto_responders/
+
+\033[1mcount mail autoresponders\033[0m
+    Return the number of autoresponders for all email accounts.
+
+    EXAMPLE
+        \033[1;34mcpanel count mail autoresponders\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/count_auto_responders/
+
+\033[1mcount get mail autoresponder ACCOUNT\033[0m
+    Retrieve autoresponder information corresponding to ACCOUNT.
+
+    EXAMPLE
+        \033[1;34mcpanel count get mail autoresponder scott@example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_auto_responder/
+
+\033[1mset mail autoresponder ACCOUNT [FROM] [SUBJECT] [BODY] [START] [STOP]\033[0m
+    Create an autoresponder for ACCOUNT.
+
+    FROM is the sender’s name; by default, the ACCOUNT email name is used.
+
+    SUBJECT is the subject of the autoresponse email; the default subject is
+      “This is an automatic message”
+
+    BODY is the text of the autoresponse email; the default body is
+      “I’m currently unavailable.”
+
+    START is when to enable the autoresponder; you can use a readable
+    expression parsable as a time and date, e.g., “now”, “tomorrow 9 AM”,
+    “December 20, 2022 19:00”, etc.
+    For more examples, see https://github.com/bear/parsedatetime
+    The default START time is “now”, meaning the autoresponder will be
+    immediately enabled.
+
+    STOP is when to disable the autoresponder; you can use a readable
+    expression as for START.
+    The default STOP time is a date far in the future, meaning the
+    autoresponder will be effectively enabled until you manually
+    disable it using ‘cpanel delete mail autoresponder’
+
+    EXAMPLES
+        \033[1;34mcpanel set mail autoresponder scott@example.com\033[00m
+
+        \033[1;34mcpanel set mail autoresponder \\ \033[00m
+        \033[1;34m    scott@example.com \\ \033[00m
+        \033[1;34m    "Bruce Scott" \\ \033[00m
+        \033[1;34m    "Auto-response"\033[00m
+
+        \033[1;34mcpanel set mail autoresponder \\ \033[00m
+        \033[1;34m    scott@example.com \\ \033[00m
+        \033[1;34m    "Bruce Scott" \\ \033[00m
+        \033[1;34m    "This is an automatic message" \\ \033[00m
+        \033[1;34m    "I’m currently unavailable, please contact my boss." \\ \033[00m
+        \033[1;34m    "Tomorrow 6 PM" \\ \033[00m
+        \033[1;34m    "December 15, 8:00 AM"\033[00m
+
+\033[1mdelete mail autoresponder ACCOUNT\033[0m
+    Delete an autoresponder for ACCOUNT.
+
+    EXAMPLE
+        \033[1;34mcpanel delete mail autoresponder scott@example.com\033[00m
+
+---
+
+Usage: cpanel list mail filters ACCOUNT
+    cpanel count mail filters
+    cpanel get mail filter ACCOUNT FILTERNAME
+    cpanel set mail filter ACCOUNT FILE
+    cpanel enable mail filter ACCOUNT FILTERNAME
+    cpanel disable mail filter ACCOUNT FILTERNAME
+    cpanel delete mail filter ACCOUNT FILTERNAME
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+Use ‘cpanel list mail accounts’ to get a list of valid ACCOUNTS.
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mlist mail filters ACCOUNT\033[0m
+    List mail filters associated to ACCOUNT.
+
+    EXAMPLE
+        \033[1;34mcpanel list mail filters scott@example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_filters/
+
+\033[1mcount mail filters\033[0m
+    Return the total number of mail filters for all accounts.
+
+    EXAMPLE
+        \033[1;34mcpanel count mail filters\033[00m
+
+\033[1mget mail filter ACCOUNT FILTERNAME\033[0m
+    Return a JSON-formatted description of email filter FILTERNAME associated
+    to email ACCOUNT. To get a list of current filter names, use
+    ‘cpanel list mail filters ACCOUNT’
+
+    EXAMPLE
+        \033[1;34mcpanel get mail filter scott@example.com spamkiller\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_filter/
+
+\033[1mset mail filter ACCOUNT FILE\033[0m
+    Create or update an email filter associated with email ACCOUNT.
+    If the filter already exists, it updates it; otherwise, it creates a new filter.
+    Use a JSON FILE to describe the filter rules. This JSON FILE has the same
+    textual format as the output from ‘cpanel get mail filter’, so the easiest way
+    to create a new filter is to dump an existing filter into a filter.json file,
+    edit it and then upload it with ‘cpanel set mail filter’.
+    See the EXAMPLE below.
+
+    EXAMPLE
+        \033[1;34mcpanel get mail filter scott@example.com spamkiller > filter.json\033[00m
+        \033[1;34mcpanel set mail filter scott@example.com filter.json\033[00m
+
+\033[1menable mail filter ACCOUNT FILTERNAME\033[0m
+    Enable FILTERNAME associated to ACCOUNT. To get a list of current
+    filter names, use ‘cpanel list mail filters ACCOUNT’
+
+    EXAMPLE
+        \033[1;34mcpanel enable mail filter scott@example.com spamkiller\033[00m
+
+\033[1mdisable mail filter ACCOUNT FILTERNAME\033[0m
+    Disable FILTERNAME associated to ACCOUNT. To get a list of current
+    filter names, use ‘cpanel list mail filters ACCOUNT’
+
+    EXAMPLE
+        \033[1;34mcpanel disable mail filter scott@example.com spamkiller\033[00m
+
+\033[1mdelete mail filter ACCOUNT FILTERNAME\033[0m
+    Delete email filter FILTERNAME associated to ACCOUNT. To get a list of current
+    filter names, use ‘cpanel list mail filters ACCOUNT’
+
+    EXAMPLE
+         \033[1;34mcpanel delete mail filter scott@example.com spamkiller\033[00m
+
+---
+
+Usage: cpanel get mail quota ACCOUNT
+    cpanel set mail quota ACCOUNT QUOTA
+    cpanel get mail quota default
+    cpanel get mail quota max
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mget mail quota ACCOUNT\033[0m
+    Return the email quota in megabytes allocated to ACCOUNT,
+    or "unlimited" if there’s no quota.
+
+    EXAMPLE
+        \033[1;34mcpanel get mail quota scott@example.com\033[00m
+
+\033[1mset mail quota ACCOUNT QUOTA\033[0m
+    Set the email QUOTA in megabytes allocated to ACCOUNT;
+    use ‘0’ or ‘unlimited’ to set an unlimited quota.
+
+    EXAMPLES
+        \033[1;34mcpanel set mail quota scott@example.com 1024\033[00m
+        \033[1;34mcpanel set mail quota scott@example.com 0\033[00m
+        \033[1;34mcpanel set mail quota scott@example.com unlimited\033[00m
+
+\033[1mget mail quota max\033[0m
+    Return the maximum email quota in megabytes allowed in cPanel.
+
+    EXAMPLE
+        \033[1;34mcpanel get mail quota max\033[00m
+
+\033[1mget mail quota default\033[0m
+    Return the default email quota in megabytes allocated in cPanel.
+
+    EXAMPLE
+        \033[1;34mcpanel get mail quota default\033[00m
+
+---
+
+Usage: cpanel get mail usage ACCOUNT
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+Return the disk space in megabytes used by ACCOUNT.
+
+EXAMPLE
+   \033[1;34mcpanel get mail usage scott@example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_disk_usage/
+
+---
+
+Usage: cpanel get webmail settings [ACCOUNT]
+    cpanel list webmail apps
+
+ACCOUNT is the name of a cPanel email account, usually in the
+form user@domain.com
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mget webmail settings [ACCOUNT]\033[0m
+    Return the settings for the Web Mail app used for ACCOUNT.
+    If no ACCOUNT is provided, the default mail account is used.
+
+    EXAMPLES
+        \033[1;34mcpanel get webmail settings\033[00m
+        \033[1;34mcpanel get webmail settings scott@example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_webmail_settings/
+
+\033[1mlist webmail apps\033[0m
+    Return a list of available Web Mail apps.
+
+    EXAMPLE
+        \033[1;34mcpanel list webmail apps\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/listwebmailapps/
+
+---
+
+Usage: cpanel create ftp USER@DOMAIN PASSWORD QUOTA [DIRECTORY]
+    cpanel check ftp USER@DOMAIN
+    cpanel get ftp USER@DOMAIN
+    cpanel get ftp quota USER@DOMAIN
+    cpanel set ftp quota USER@DOMAIN QUOTA
+    cpanel set ftp dir USER@DOMAIN DIR
+    cpanel set ftp password USER@DOMAIN PASSWORD
+    cpanel list ftp accounts
+    cpanel list ftp sessions
+    cpanel kill ftp session USER@DOMAIN
+    cpanel delete ftp USER@DOMAIN
+    cpanel get ftp port
+    cpanel get ftp server
+    cpanel enable ftp anon [incoming]
+    cpanel disable ftp anon [incoming]
+    cpanel get ftp anon [incoming]
+    cpanel get ftp welcome
+    cpanel set ftp welcome MESSAGE
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mcreate ftp USER@DOMAIN PASSWORD QUOTA [DIRECTORY]\033[0m
+    Create a new FTP account using USER@DOMAIN and PASSWORD.
+    The DOMAIN must be a domain owned by your cPanel user.
+    The newly created user will be allocated QUOTA megabytes of space;
+    use ‘0’ for QUOTA to set an unlimited quota.
+
+    Optionally, you can provide the FTP account’s home DIRECTORY to
+    create. If you don’t provide a DIRECTORY, <DOMAIN>_ftp will be
+    used. You can later change this using ‘cpanel set ftp dir’ (see below).
+
+    Note that DIRECTORY is not an absolute path, but a path relative to
+    the cPanel user’s remote login directory, i.e., /my_ftp corresponds
+    to <remote login directory>/my_ftp.
+
+    EXAMPLE
+        \033[1;34mcpanel create ftp scott@example.com \'tiger\' 1024\033[00m
+        \033[1;34mcpanel create ftp scott@example.com \'tiger\' 1024 my_ftp\033[00m
+
+        Access the account using an FTP client:
+
+        - FTP host:     ftp.example.com
+        - FTP username: scott@example.com
+        - FTP password: tiger
+
+\033[1mcheck ftp USER@DOMAIN\033[0m
+    Check whether the FTP account identified by USER@DOMAIN exists.
+    Return ‘OK’ if it exists, or an error if it doesn’t.
+
+    EXAMPLE
+        \033[1;34mcpanel check ftp scott@example.com\033[00m
+
+\033[1mget ftp USER@DOMAIN\033[0m
+    Get information about FTP account USER@DOMAIN.
+
+    EXAMPLE
+        \033[1;34mcpanel get ftp scott@example.com\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_ftp_with_disk/
+
+\033[1mget ftp quota USER@DOMAIN\033[0m
+    Return the disk quota in megabytes allocated to FTP USER@DOMAIN,
+    or ‘unlimited’ if it has no quota.
+
+    EXAMPLE
+        \033[1;34mcpanel get ftp quota scott@example.com\033[00m
+
+\033[1mset ftp quota USER@DOMAIN QUOTA\033[0m
+    Set the disk quota in megabytes allocated to FTP USER@DOMAIN;
+    use ‘0’ for QUOTA to set an unlimited quota.
+
+    EXAMPLES
+        \033[1;34mcpanel set ftp quota scott@example.com 2048\033[00m
+        \033[1;34mcpanel set ftp quota scott@example.com 0\033[00m
+
+\033[1mset ftp dir USER@DOMAIN DIRECTORY\033[0m
+    Set the home DIRECTORY for FTP account USER@DOMAIN. If DIRECTORY
+    doesn’t exist, it is created.
+
+    Note that DIRECTORY is not an absolute path, but a path relative to
+    the cPanel user’s remote login directory, i.e., /my_ftp corresponds
+    to <remote login directory>/my_ftp.
+
+    To get the current home directory for USER@DOMAIN, use
+    ‘cpanel get ftp’ (see above).
+
+    To list all the directories in cPanel user’s remote login directory,
+    use ‘cpanel list files / | jq .[].fullpath’
+
+    EXAMPLE
+        \033[1;34mcpanel set ftp dir scott@example.com my_ftp\033[00m
+
+\033[1mset ftp password USER@DOMAIN PASSWORD\033[0m
+    Change the PASSWORD of FTP USER@DOMAIN.
+
+    EXAMPLES
+        \033[1;34mcpanel set ftp password scott@example.com \'tiger\'\033[00m
+
+\033[1mlist ftp accounts\033[0m
+    List all the FTP accounts on the cPanel server, along with disk
+    usage information and other data.
+
+    EXAMPLE
+        \033[1;34mcpanel list ftp accounts\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_ftp_with_disk/
+
+\033[1mlist ftp sessions\033[0m
+    List the active FTP sessions.
+
+    EXAMPLE
+        \033[1;34mcpanel list ftp sessions\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/list_sessions/
+
+\033[1mkill ftp session USER@DOMAIN\033[0m
+    Kill the active FTP session associated to USER@DOMAIN.
+    Use ‘cpanel list ftp sessions’ to list all active sessions.
+    Use ‘all’ to kill all active sessions.
+
+    EXAMPLES
+        \033[1;34mcpanel kill ftp session all\033[00m
+        \033[1;34mcpanel kill ftp session scott@example.com\033[00m
+
+\033[1mdelete ftp USER@DOMAIN\033[0m
+    Delete the FTP account identified by USER@DOMAIN.
+    Be advised that the USER’s FTP directory on the cPanel will also
+    be deleted.
+
+    EXAMPLE
+        \033[1;34mcpanel delete ftp scott@example.com\033[00m
+
+\033[1mget ftp port\033[0m
+    Return the FTP port open on the server.
+
+    EXAMPLE
+        \033[1;34mcpanel get ftp port\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_port/
+
+\033[1mget ftp server\033[0m
+    Return information about the FTP server software.
+
+    EXAMPLE
+        \033[1;34mcpanel get ftp server\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/get_ftp_daemon_info/
+
+\033[1menable ftp anon [incoming]\033[0m
+    Enable anonymous FTP users to download files. If ‘incoming’ is passed,
+    also enable the anonymous user to upload files.
+
+    EXAMPLES
+        \033[1;34mcpanel enable ftp anon\033[00m
+        \033[1;34mcpanel enable ftp anon incoming\033[00m
+
+    Assuming your cPanel domain is ‘example.com’, then an anonymous user
+    can access your FTP server using the following (no password required):
+
+    - FTP host:     ftp.example.com
+    - FTP username: anonymous@example.com
+
+    If ‘incoming’ is enabled, the anonymous user can also upload files
+    to the /incoming directory.
+
+    For further information, see:
+    https://docs.cpanel.net/cpanel/files/anonymous-ftp/
+
+\033[1mdisable ftp anon [incoming]\033[0m
+    Disable anonymous FTP users to download files. If ‘incoming’ is passed,
+    also disable the anonymous user to upload files.
+
+    See ‘cpanel enable ftp anon’ above for further details.
+
+    EXAMPLES
+        \033[1;34mcpanel disable ftp anon\033[00m
+        \033[1;34mcpanel disable ftp anon incoming\033[00m
+
+\033[1mget ftp anon [incoming]\033[0m
+    Return whether anonymous FTP users are allowed. If ‘incoming’ is passed,
+    return whether the anonymous FTP user is allowed to upload files.
+
+    See ‘cpanel enable ftp anon’ above for further details.
+
+    EXAMPLES
+        \033[1;34mcpanel get ftp anon\033[00m
+        \033[1;34mcpanel get ftp anon incoming\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/allows_anonymous_ftp/
+
+\033[1mget ftp welcome\033[0m
+    Return the FTP welcome message for anonymous users.
+
+    EXAMPLE
+        \033[1;34mcpanel get ftp welcome\033[00m
+
+\033[1mget ftp welcome MESSAGE\033[0m
+    Set the FTP welcome message for anonymous users.
+
+    EXAMPLE
+        \033[1;34mcpanel set ftp welcome 'Welcome to the FTP server!'\033[00m
+---
+
+Usage: cpanel create mysql user USERNAME PASSWORD
+    cpanel list mysql users
+    cpanel rename mysql user OLDUSERNAME NEWUSERNAME
+    cpanel set mysql password USERNAME NEWPASSWORD
+    cpanel delete mysql user USERNAME
+
+\033[1mCOMMANDS\033[0m
+
+\033[1mcreate mysql user USERNAME PASSWORD\033[0m
+    Create a new MySQL user with USERNAME and PASSWORD.
+
+    EXAMPLE
+        \033[1;34mcpanel create mysql user "scott" \'tiger\'\033[00m
+
+\033[1mlist mysql users\033[0m
+    List all MySQL users associated to the cPanel account.
+
+    EXAMPLE
+        \033[1;34mcpanel list mysql users\033[00m
+
+    See a sample of the JSON result data at:
+    https://api.docs.cpanel.net/openapi/cpanel/operation/Mysql-list_users/
+
+\033[1mrename mysql user OLDUSERNAME\033[0m
+    Rename MySQL user from OLDUSERNAME to NEWUSERNAME.
+
+    EXAMPLE
+        \033[1;34mcpanel rename mysql user "scott" "larry"\033[00m
+
+\033[1mset mysql password USERNAME NEWPASSWORD\033[0m
+    Change the password for MySQL user USERNAME to NEWPASSWORD.
+
+    EXAMPLE
+        \033[1;34mcpanel set mysql password "scott" 'panther'\033[00m
+
+\033[1mdelete mysql user USERNAME\033[0m
+    Delete MySQL user USERNAME.
+
+    EXAMPLE
+        \033[1;34mcpanel delete mysql user "scott"\033[00m
+
+---
