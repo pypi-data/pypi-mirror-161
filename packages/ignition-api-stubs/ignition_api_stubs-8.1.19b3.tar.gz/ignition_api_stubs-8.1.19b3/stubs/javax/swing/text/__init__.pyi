@@ -1,0 +1,6 @@
+from java.awt import Container
+from java.lang import String as String
+
+class JTextComponent(Container):
+    def getText(self) -> String: ...
+    def setText(self, t: String) -> None: ...
