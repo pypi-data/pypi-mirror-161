@@ -1,0 +1,104 @@
+Metadata-Version: 2.1
+Name: hspf-utils
+Version: 5.3.1
+Summary: Utilities to work with Hydrological Simulation Program - FORTRAN (HSPF) models.
+Home-page: http://timcera.bitbucket.io/hspf_utils/docs/index.html
+Author: Tim Cera, PE
+Author-email: tim@cerazone.net
+License: BSD
+Keywords: time_series
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Developers
+Classifier: Environment :: Console
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7.1
+Provides-Extra: dev
+License-File: LICENSE.txt
+License-File: AUTHORS.rst
+
+.. image:: https://github.com/timcera/hspf_utils/actions/workflows/python-package.yml/badge.svg
+    :target: https://github.com/timcera/hspf_utils/actions/workflows/python-package.yml
+    :height: 20
+
+.. image:: https://coveralls.io/repos/timcera/hspf_utils/badge.png?branch=master
+    :target: https://coveralls.io/r/timcera/hspf_utils?branch=master
+    :height: 20
+
+.. image:: https://img.shields.io/pypi/v/hspf_utils.svg
+    :alt: Latest release
+    :target: https://pypi.python.org/pypi/hspf_utils
+
+.. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
+    :alt: BSD-3 clause license
+    :target: https://pypi.python.org/pypi/hspf_utils/
+
+.. image:: http://img.shields.io/pypi/dd/hspf_utils.svg
+    :alt: hspf_utils downloads
+    :target: https://pypi.python.org/pypi/hspf_utils/
+
+hspf_utils - Quick Guide
+========================
+The hspf_utils is a command line script and Python library of utilities to work
+with the Hydrological Simulation Program - FORTRAN (HSPF).  Uses pandas
+(http://pandas.pydata.org/) or numpy (http://numpy.scipy.org) for any heavy
+lifting.
+
+Requirements
+------------
+* tstoolbox - Time-series toolbox; collected and installed by 'pip' or
+  'easy_install' command.
+* hspfbintoolbox - Utility to extract time-series from HSFP binary output
+  files; collected and installed by 'pip' or 'easy_install' command.
+
+Installation
+------------
+Should be as easy as running ``pip install hspf_utils`` or
+``easy_install hspf_utils`` at any command line.
+
+Usage - Command Line
+--------------------
+Just run 'hspf_utils --help' to get a list of subcommands::
+
+  usage: hspf_utils [-h] {about,detailed,summary,mapping,parameters} ...
+
+  positional arguments:
+    {about,detailed,summary,mapping,parameters}
+      about               Display version number and system information.
+      detailed            Develops a detailed water balance.
+      summary             Develops a summary water balance.
+      mapping             Develops a csv file appropriate for joining to a GIS
+                          layer.
+      parameters          Develops a table of parameter values.
+
+  optional arguments:
+    -h, --help            show this help message and exit
+
+For the subcommands that output data it is printed to the screen and you can
+then redirect to a file.
+
+Usage - API
+-----------
+You can use all of the command line subcommands as functions.  The function
+signature is identical to the command line subcommands.  The return is always
+a PANDAS DataFrame.  Input can be a CSV or TAB separated file, or a PANDAS
+DataFrame and is supplied to the function via the 'input_ts' keyword.
+
+Simply import hspf_utils::
+
+  from hspf_utils import hspf_utils
+
+  # Then you could call the functions
+
+  # Once you have a PANDAS DataFrame you can use that as input to other
+  # hspf_utils functions.
+  ntsd = hspf_utils.aggregate(statistic='mean', agg_interval='daily', input_ts=ntsd)
