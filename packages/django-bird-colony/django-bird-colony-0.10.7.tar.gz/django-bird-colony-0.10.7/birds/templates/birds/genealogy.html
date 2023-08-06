@@ -1,0 +1,65 @@
+{% extends "base_view.html" %}
+{% load date_fmt %}
+
+{% block title %} meliza-lab : bird : {{ animal.name }} {% endblock %}
+
+{% block content %}
+<h2>{{ animal.name }}</h2>
+
+<hr>
+<dl class="dl-horizontal">
+  <dt>species</dt><dd>{{ animal.species }}</dd>
+  <dt>sex</dt><dd>{{ animal.sex }}</dd>
+  <dt>band</dt><dd>{{ animal.band }}</dd>
+  <dt>plumage</dt><dd>{{ animal.plumage }}</dd>
+  <dt>uuid</dt><dd>{{ animal.uuid }}</dd>
+  <dt>alive</dt><dd>{{ animal.alive|yesno }}</dd>
+  <dt>acquired</dt><dd>{{ animal.acquisition_event.event_date }}</dd>
+  <dt>age</dt><dd>{{ animal.age_days|agestr }} ({{ animal.age_group }})</dd>
+</dl>
+
+<h3>Great-great-grandparents</h3>
+
+{% include "birds/animal_table.html" with animal_list=ancestors.3 %}
+
+<h3>Great-grandparents</h3>
+
+{% include "birds/animal_table.html" with animal_list=ancestors.2 %}
+
+<h3>Grandparents</h3>
+{% include "birds/animal_table.html" with animal_list=ancestors.1 %}
+
+<h3>Parents</h3>
+{% include "birds/animal_table.html" with animal_list=ancestors.0 %}
+
+<h3>F1 (children)</h3>
+<dl class="dl-horizontal">
+  <dt>total</dt><dd>{{ descendents.0.count }}</dd>
+  <dt>living</dt><dd>{{ living.0.count }}</dd>
+</dl>
+
+{% include "birds/animal_table.html" with animal_list=descendents.0 %}
+
+<h3>F2 (grandchildren)</h3>
+<dl class="dl-horizontal">
+  <dt>total</dt><dd>{{ descendents.1.count }}</dd>
+  <dt>living</dt><dd>{{ living.1.count }}</dd>
+</dl>
+{% include "birds/animal_table.html" with animal_list=descendents.1 %}
+
+<h3>F3 (great-grandchildren)</h3>
+<dl class="dl-horizontal">
+  <dt>total</dt><dd>{{ descendents.2.count }}</dd>
+  <dt>living</dt><dd>{{ living.2.count }}</dd>
+</dl>
+{% include "birds/animal_table.html" with animal_list=descendents.2 %}
+
+<h3>F4 (great-great-grandchildren)</h3>
+<dl class="dl-horizontal">
+  <dt>total</dt><dd>{{ descendents.3.count }}</dd>
+  <dt>living</dt><dd>{{ living.3.count }}</dd>
+</dl>
+{% include "birds/animal_table.html" with animal_list=descendents.3 %}
+
+
+{% endblock %}

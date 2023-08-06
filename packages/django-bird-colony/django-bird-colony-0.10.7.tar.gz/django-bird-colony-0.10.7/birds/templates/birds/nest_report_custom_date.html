@@ -1,0 +1,64 @@
+{% extends "base_view.html" %}
+{% load static %}
+{% load date_fmt %}
+
+{% block title %} meliza-lab : nest report {% endblock %}
+
+{% block css %}
+    <link href="{% static 'local/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'local/js/moment.min.js' %}"></script>
+<script src="{% static 'local/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+  $(function () {
+  $('#datetimepicker1').datetimepicker({ pickTime: false});
+  $('#datetimepicker2').datetimepicker({ pickTime: false});
+  });
+</script>
+{% endblock %}
+
+
+{% block content %}
+<h2>Nest Report: {{ since|date }} - {{ until|date }}</h2>
+<hr/>
+
+<form class="form-horizontal" method="get" role="form">
+  <div class="form-group">
+    <div class="col-sm-3">
+      <input type="text" name="since" class="form-control" placeholder="Since" id="id_since_date" placeholder="Since">
+    </div>
+    <div class="col-sm-3">
+      <input type="text" name="until" class="form-control" placeholder="Until" id="id_until_date" placeholder="Until">
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <span class="glyphicon glyphicon-search"></span> Search
+    </button>
+  </div>
+</form>
+
+
+<table class="table table-striped">
+  <thead>
+    <th></th>
+    {% for date in dates %}
+    <th>{{ date|date:"SHORT_DATE_FORMAT" }}</th>
+    {% endfor %}
+  </thead>
+  <tbody>
+    {% for nest,ndata in nest_data.items %}
+    <tr>
+      <td><strong>{{ nest }}<strong></td>
+      {% for date,ddata in ndata.items %}
+      <td>
+        {{ ddata.adult|url_list }}
+        <br/>{{ ddata.count|count_summary }}
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

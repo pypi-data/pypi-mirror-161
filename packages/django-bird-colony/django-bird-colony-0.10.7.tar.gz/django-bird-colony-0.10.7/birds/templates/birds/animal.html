@@ -1,0 +1,89 @@
+{% extends "base_view.html" %}
+{% load date_fmt %}
+
+{% block title %} meliza-lab : bird : {{ animal.name }} {% endblock %}
+
+{% block content %}
+<h2>{{ animal.name }}</h2>
+
+<hr>
+<dl class="dl-horizontal">
+  <dt>species</dt><dd>{{ animal.species }}</dd>
+  <dt>sex</dt><dd>{{ animal.sex }}</dd>
+  <dt>band</dt><dd>{{ animal.band }}</dd>
+  <dt>plumage</dt><dd>{{ animal.plumage }}</dd>
+  <dt>uuid</dt><dd>{{ animal.uuid }}</dd>
+  <dt>alive</dt><dd>{{ animal.alive|yesno }}</dd>
+  <dt>acquired</dt><dd>{{ animal.acquisition_event.event_date }}</dd>
+  <dt>age</dt><dd>{{ animal.age_days|agestr }} ({{ animal.age_group }})</dd>
+  {% if animal.expected_hatch %}<dt>expected hatch</dt><dd>{{ animal.expected_hatch}}</dd>{% endif %}
+  <dt>living children</dt><dd>{{ animal.living_children.count }}</dd>
+  <dt>total children</dt><dd>{{ animal.all_children.count }}</dd>
+  <dt>unhatched eggs</dt><dd> {{ animal.unhatched.count }}</dd>
+  <dt>sire</dt><dd>{% if animal.sire %}<a href="{{ animal.sire.get_absolute_url }}">{{ animal.sire }}</a>{% endif %}</dd>
+  <dt>dam</dt><dd>{% if animal.dam %}<a href="{{ animal.dam.get_absolute_url }}">{{ animal.dam }}</a>{% endif %}</dd>
+  <dt>reserved by</dt>
+  <dd>
+    <span class="text-warning">{{ animal.reserved_by }}</span>
+  </dd>
+</dl>
+{% if not animal.sexed %}
+<a href="{% url 'birds:set_sex' animal.uuid %}">update sex</a><br/>
+{% endif %}
+<a href="{% url 'birds:update_reservation' animal.uuid %}">
+  {% if animal.reserved_by %}
+  release reservation
+  {% else %}
+  reserve this bird
+  {% endif %}
+</a><br/>
+{% if not animal.band_number %}
+<a href="{% url 'birds:new_band' animal.uuid %}">band bird</a><br/>
+{% endif %}
+<a href="{% url 'admin:birds_animal_change' animal.uuid %}">edit bird (advanced users only)</a><br/>
+
+<h3>Recent Events</h3>
+
+<table class="table table-striped table-condensed">
+  <thead>
+    <th>Status</th>
+    <th>Date</th>
+    <th>Age</th>
+    <th>Location</th>
+    <th>Comments</th>
+    <th>Entered by</th>
+    <th>Edit</th>
+  </thead>
+  <tbody>
+    {% for event in event_list|slice:":10" %}
+        <tr>
+          <td>{{ event.status }}</td>
+          <td>{{ event.date }}</td>
+	  <td>{% age_at animal event %}</td>
+          <td>{{ event.location }}</td>
+          <td>{{ event.description }}</td>
+	  <td>{{ event.entered_by}}</td>
+          <td><a href="{% url 'admin:birds_event_change' event.id %}"
+                 class="glyphicon glyphicon-edit" alt="[edit]" aria-label="[Edit]"></a></td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="events/">show all</a>&nbsp;&nbsp;
+<a href="events/new/">add event</a><br/>
+
+<h3>Samples</h3>
+{% include "birds/sample_table.html" %}
+<a href="samples/">show all</a>&nbsp;&nbsp;
+<a href="samples/new/">add sample</a><br/>
+
+<h3>Pairings</h3>
+
+{% include "birds/pairing_table.html" %}
+
+
+<h3>Children</h3>
+{% include "birds/animal_table.html" %}
+
+<p><a href="{% url 'birds:genealogy' animal.uuid %}">view genealogy</a> (may take a while)</p>
+{% endblock %}

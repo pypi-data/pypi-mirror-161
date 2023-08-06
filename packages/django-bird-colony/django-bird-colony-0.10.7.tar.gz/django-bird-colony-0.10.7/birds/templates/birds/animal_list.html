@@ -1,0 +1,47 @@
+{% extends "base_view.html" %}
+{% load widget_tweaks %}
+
+{% block title %} meliza-lab : animals {% endblock %}
+
+{% block content %}
+<h2>Birds</h2>
+
+<form class="form-horizontal" method="get" role="form">
+  <div class="form-group">
+    <div class="col-sm-2">
+      {% render_field filter.form.color placeholder="Band color" class+="form-control" %}
+    </div>
+    <div class="col-sm-2">
+      {% render_field filter.form.band placeholder="Band number" class+="form-control" %}
+    </div>
+    <div class="col-sm-2">
+      {% render_field filter.form.uuid placeholder="UUID (beginning)" class+="form-control" %}
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <span class="glyphicon glyphicon-search"></span> Search
+    </button>
+  </div>
+</form>
+
+{% include "birds/animal_table.html" %}
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?{{ query.urlencode }}&amp;page={{ page_obj.previous_page_number }}">previous</a> |
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            | <a href="?{{ query.urlencode }}&amp;page={{ page_obj.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+<p>NB: When alive is False, age is at death or release</p>
+
+<p><a href="{% url 'birds:new_animal' %}">add new animal</a></p>
+
+{% endblock %}
