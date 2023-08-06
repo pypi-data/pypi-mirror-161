@@ -1,0 +1,107 @@
+Metadata-Version: 2.1
+Name: Lab-3419
+Version: 0.0.3
+Summary: A small example package
+Author-email: Subhendu Das <subhendudas.sinp@gmail.com>
+License: MIT License        
+        Copyright (c) 2022 Subhendu Das        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.        
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+Lab 3419
+========
+Lab_3419 is a cross-platform python library. It contains some useful function for MST simulation
+
+Installation
+============
+`pip install Lab_3419`
+
+Dependencies
+============
+
+Lab_3419 supports Python 3.6 and later. If you are installing Lab_3419 from PyPI using pip:
+please install numpy before installing Lab_3419.
+
+Example Usage
+=============
+### Import Lab_3419 module
+```python
+    >>> import Lab_3419 as lb
+```
+### Some important data format
+```
+1. A point in 3D Space --> point = (x, y, z)
+2. Line points in 3D Space --> points = numpy.array([(x1, y1, z1), (x2, y2, z2), (x3, y3, z3), ...])
+3. A fitted Line in 3D Space --> fitted_line = numpy.array([(x1, y1, z1), (x2, y2, z2)])
+```
+
+### Fit 3D line
+```python
+    >>> simulated_points = numpy.array([(x1, y1, z1), (x2, y2, z2), (x3, y3, z3)])
+    >>> points = lb.add_resolusion(points_=simulated_points, res_=position_resolution)
+    >>> fitted_line = lb.fit_3D(points)
+```
+
+### Find POCA point
+```python
+    >>> poca_xyz, deviation = lb.POCA_Point(fitted_line_1, fitted_line_)
+```
+
+### Find POCA point directly from data string
+```python
+    >>> data_string = "x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 x5 y5 z5 x6 y6 z6"
+    >>> poca_x, poca_y, poca_z, deviation = lb.calculate(data_string)
+```
+### Find POCA points directly from data file
+A file contains multiple number of data string. 
+
+Example data file: data_file.txt
+```
+-279.717 270.73 -391 -233.76 277.098 -321 -187.807 283.464 -251 140.424 328.94 249 186.895 335.379 319.776 232.346 341.674 389
+42.0465 62.3473 -391 28.2942 59.1205 -321 14.5489 55.8892 -251 -83.7591 32.7117 249.426 -97.4228 29.4739 319 -111.175 26.2129 389
+138.413 682.409 -391 134.046 628.646 -321 129.676 574.895 -251 98.4977 190.939 249 94.075 136.334 320.099 89.7752 83.4056 389
+174.57 -20.909 -391 149.972 -1.86935 -321 125.373 17.1698 -251 -50.315 153.155 249 -74.9115 172.191 319 -99.567 191.274 389
+```
+
+Example code
+```python
+    >>> all_poca_points = lb.file_to_poca("data_file.txt", is_save=False)
+    # To write into new file use "is_save = True". 
+    # This will create a file "data_file_poca_points.txt"
+    >>> lb.file_to_poca("data_file.txt", is_save=True)
+    # Same function with multi-threaded mode
+    >>> all_poca_points = lb.file_to_poca_mt("data_file.txt", is_save=False)
+    >>> lb.file_to_poca_mt("data_file.txt", is_save=True)
+```
+
+### Filter POCA points according to their deviation angle
+Example poca file: data_file.txt
+```
+-320.1396 -187.6816 -157.1030 1.0040
+351.6875 -307.2162 -125.7960 0.0117
+288.7207 349.4853 474.8601 3.0034
+-41.1887 42.8014 32.7391 0.0243
+```
+
+```python
+    >>> filter_poca_points = lb.filter_poca_data(poca_data_array, minimum_theta)
+```
