@@ -1,0 +1,71 @@
+#!python
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright 2018 Linaro Ltd.
+# Copyright 2018 Arm Ltd.
+
+import signal
+
+def sigint_handler(signum, frame):
+    sys.exit(-2)
+
+signal.signal(signal.SIGINT, sigint_handler)
+
+import os
+import sys
+import ruamel.yaml
+import dtschema
+import argparse
+import glob
+
+line_number = False
+
+def check_doc(filename):
+    ret = 0
+    try:
+        testtree = dtschema.load(filename, line_number=line_number)
+    except ruamel.yaml.YAMLError as exc:
+        print(filename + ":" + str(exc.problem_mark.line + 1) + ":" +
+              str(exc.problem_mark.column + 1) + ":", exc.problem, file=sys.stderr)
+        return 1
+
+    try:
+        for error in sorted(dtschema.DTValidator.iter_schema_errors(testtree), key=lambda e: e.linecol):
+            print(dtschema.format_error(filename, error, verbose=args.verbose), file=sys.stderr)
+            ret = 1
+    except:
+        print(filename + ': error checking schema file', file=sys.stderr)
+        return 1
+
+    dtschema.DTValidator.check_schema_refs(filename, testtree)
+    dtschema.DTValidator.check_quotes(filename + ":", testtree)
+
+    return ret
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(fromfile_prefix_chars='@',
+        epilog='Arguments can also be passed in a file prefixed with a "@" character.')
+    ap.add_argument("yamldt", nargs='*', type=str,
+                    help="Filename of YAML encoded devicetree input file")
+    ap.add_argument('-v', '--verbose', help="verbose mode", action="store_true")
+    ap.add_argument('-n', '--line-number', help="Print line and column numbers (slower)", action="store_true")
+    ap.add_argument('-u', '--url-path', help="Additional search path for references")
+    ap.add_argument('-V', '--version', help="Print version number",
+                    action="version", version=dtschema.__version__)
+    args = ap.parse_args()
+
+    line_number=args.line_number
+
+    if args.url_path:
+        dtschema.add_schema_path(args.url_path)
+
+    ret = 0
+    for f in args.yamldt:
+        if os.path.isdir(f):
+            for filename in glob.iglob(f + "/**/*.yaml", recursive=True):
+                ret = check_doc(filename)
+                if ret != 0:
+                    break
+        else:
+            ret = check_doc(f)
+
+    exit(ret)
