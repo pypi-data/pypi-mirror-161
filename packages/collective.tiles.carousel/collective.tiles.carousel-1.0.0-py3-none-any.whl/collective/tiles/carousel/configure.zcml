@@ -1,0 +1,60 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="collective.tiles.carousel">
+
+  <i18n:registerTranslations directory="locales" />
+
+  <include package="plone.app.tiles" />
+  <include package="plone.tiles" />
+  <include package=".slides" />
+
+
+  <!-- Slider tile -->
+  <plone:tile
+      add_permission="cmf.ModifyPortalContent"
+      class=".tile.SliderTile"
+      description=""
+      for="*"
+      layer="collective.tiles.carousel.interfaces.ICollectiveTilesCarouselLayer"
+      name="collective.tiles.carousel"
+      permission="zope2.View"
+      schema=".tile.ISliderTile"
+      template="tile.pt"
+      title="Carousel"
+      />
+
+  <utility
+      component="collective.tiles.carousel.tile.availableSliderViewsVocabulary"
+      name="Available Slider Views"
+      />
+    
+
+  <genericsetup:registerProfile
+      name="default"
+      title="collective.tiles.carousel"
+      directory="profiles/default"
+      description="Installs the collective.tiles.carousel add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      post_handler=".setuphandlers.post_install"
+      />
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="collective.tiles.carousel (uninstall)"
+      directory="profiles/uninstall"
+      description="Uninstalls the collective.tiles.carousel add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      post_handler=".setuphandlers.uninstall"
+      />
+
+  <utility
+      factory=".setuphandlers.HiddenProfiles"
+      name="collective.tiles.carousel-hiddenprofiles"
+      />
+
+  <!-- -*- extra stuff goes here -*- -->
+
+</configure>
