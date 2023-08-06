@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "My profile" %}{% endblock %}
+
+{% block content %}
+    <div class="container mst-container-account">
+        {% if profile.has_unverified_email_adresses %}
+            <section class="alert alert-warning mst-account-section">
+                <p>{% trans 'Your email address has not been verified' %}</p>
+                <a class="btn btn-primary" href="{% url 'account_email' %}">
+                    {% trans 'Verify now' %}
+                </a>
+            </section>
+        {% endif %}
+
+        <section class="card mst-notifications mst-account-section">
+            <h2 class="card-header">
+                {% trans 'Notifications' %}
+            </h2>
+
+            <div>{% if alerts|length > 0 %}
+                {# The flush allows us to reuse the card bodies border #}
+                <ul class="list-group list-group-flush">
+                    {% for alert in alerts %}
+                        <li class="list-group-item">
+                            <div class="float-end d-flex">
+                                <a href="{% url 'search' query=alert.search_string %}"
+                                   class="btn btn-outline-primary me-3">
+                                    <span class="fa fa-magnifying-glass" aria-hidden="true"></span>
+                                    <span>{% trans "Search" %}</span>
+                                </a>
+
+                                <form method="post" action="{% url 'profile-home' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" name="removenotification" value="{{ alert.id }}"
+                                            class="btn btn-outline-danger">
+                                        <span class="fa fa-remove"></span> {% trans 'Remove' %}
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="h-100 d-flex align-items-center">{{ alert }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="alert alert-info">
+                    {% blocktrans with site_name=settings.TEMPLATE_META.site_name %}{{ site_name }} can send
+                        you custom notifications. Just click the subscribe button on searches, persons or papers and
+                        we'll notify you via mail about any changes. You can even select an area on the map as basis for
+                        the notifications.{% endblocktrans %}
+                </p>
+            {% endif %}</div>
+        </section>
+
+        <section class="card mst-accountsettings mst-account-section">
+            <h2 class="card-header">
+                {% trans 'Account Settings' %}
+            </h2>
+            <div class="card-body">
+                {% if not profile.email_is_verified %}
+                    <a href="{% url 'account_email' %}" class="btn btn-primary">{% trans "Manage email addresses" %}</a>
+                {% else %}
+                    <a href="{% url 'account_email' %}" class="btn btn-default">{% trans "Edit email" %}</a>
+                {% endif %}
+
+                <a href="{% url 'account_change_password' %}" class="btn btn-primary change-password-link">
+                    {% trans "Change your password" %}
+                </a>
+
+                <a href="{% url 'profile-delete' %}" class="float-end btn btn-danger">
+                    {% trans 'Delete account' %}
+                </a>
+            </div>
+        </section>
+
+        {% if settings.TEMPLATE_META.enable_pgp %}
+            <section class="card mst-accountsettings mst-account-section">
+                <h2 class="card-header">
+                    {% trans 'Mail Encryption' %}
+                </h2>
+
+                <div class="card-body" id="select-pgp-key-box">
+                    {% if not profile.pgp_key_fingerprint %}
+                        <div class="float-end">
+                            <form action="{% url 'profile-home' %}" method="POST" id="pgp-form"
+                                  data-pgp-input="{{ profile.user.email }}"
+                                  data-sks-keyserver="{{ settings.TEMPLATE_META.sks_keyserver }}">
+                                {% csrf_token %}
+                                <div class="dropdown pgp-select">
+                                    <button class="btn btn-primary dropdown-toggle" type="button"
+                                            id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {% trans "Select PGP Key" %}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <div class="dropdown-item">{% trans "Searching for Keys" %}</div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="h-100 d-flex align-items-center">
+                            {% trans "Select your pgp key receive encrypted notifications. Note that encryted notifications are plaintext only." %}
+                        </div>
+                    {% else %}
+                        <div class="float-end">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete_pgp_key" value="true">
+                                <button type="submit" class="btn btn-danger">
+                                    {% trans 'Remove key' %}
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="h-100 d-flex align-items-center">
+                            {% trans "Your notifications will be pgp encrypted. Fingerprint: " %}{{ profile.pgp_key_fingerprint }}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

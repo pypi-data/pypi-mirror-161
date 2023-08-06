@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "Calendar" %}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div id='calendar'
+             data-src="{% url 'calendar_data' %}"
+             data-init-date="{{ init_date }}"
+             data-init-view="{{ init_view }}"
+             data-default-date="{{ default_date }}"
+             data-default-view="{{ default_view }}"
+             data-url-default="{% url 'calendar' %}"
+             data-hide-weekends="{{ hide_weekends }}"
+             data-min-time="{{ min_time }}"
+             data-max-time="{{ max_time }}"
+             data-url-template="{% url 'calendar_specific' 'VIEW' '0000-00-00' %}"
+        ></div>
+        <div class="text-dark pt-3">
+        
+            <a href="{% url "calendar_ical" %}">
+                <button class="btn btn-primary btn-sm" title="{% trans "with 6 months of history" %}">
+                    <span class="fa-custom fa-calendar-plus" aria-hidden="true"></span> 
+                    {% trans "Subscribe to this iCal calendar" %}
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_css %}
+    {% render_bundle 'calendar' 'css' %}
+{% endblock %}
+{% block additional_js %}
+    {% render_bundle 'calendar' 'js' %}
+{% endblock %}

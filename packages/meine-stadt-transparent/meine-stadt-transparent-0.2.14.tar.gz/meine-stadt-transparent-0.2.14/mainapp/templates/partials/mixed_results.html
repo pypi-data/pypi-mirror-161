@@ -1,0 +1,41 @@
+{% load i18n %}
+
+<ul class="results-list" id="endless-scroll-target" data-total-hits="{{ total_hits }}">
+    {% for result in results %}
+        <li class="clearfix result result-type-{{ result.type }}">
+            <a href="{{ result.url }}" class="no-link-color">
+                <div class="py-2 container">
+                    <div class="lead fw-normal" title="{{ result.name_escaped | safe }}">
+                        {{ result.name_escaped | safe | linebreaksbr }}
+                    </div>
+
+                    <div class="text-truncate results-small">
+                        <span class="fa fa-fw fa-1x result-icon {% include "partials/type_to_fa_icon.html" with type=result.type %}"
+                              aria-hidden="true">
+                        </span>
+                        <span>{% firstof result.type_translated result.paper_type.paper_type %}</span>
+
+                        {% if result.reference_number_escaped %}
+                            <span>|</span>
+                            <span>{{ result.reference_number_escaped | safe }}</span>
+                        {% endif %}
+
+                        {% if result.legal_date %}
+                            <span>|</span>
+                            <span>{{ result.legal_date }}</span>
+                        {% elif result.display_date %}
+                            <span>|</span>
+                            <span><i class="fa fa-calendar"></i> {{ result.display_date }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-truncate">{{ result.body.name }}</div>
+
+                    {% if result.highlight %}
+                        <div class="results-small">{{ result.highlight | safe }}</div>
+                    {% endif %}
+                </div>
+            </a>
+        </li>
+    {% endfor %}
+</ul>

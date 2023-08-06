@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load tz %}
+
+{% block title %}{{ meeting.name|wordwrap:60 }}{% endblock %}
+
+{% block content %}
+    {% spaceless %}
+        <section class="container meeting-section">
+            {% if historical %}
+                {% include "partials/historical_note.html" with view_name="meeting" %}
+            {% endif %}
+
+            {% if False and meeting.history.count > 1 %}
+                <div class="dropdown paragraph">
+                    <span class="fa-custom fa-history"></span>
+                    <button class="btn btn-sm btn-secondary dropdown-toggle revision-dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ meeting.history.count }}{% trans " Revisions" context "X revisions" %}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for historical_meeting in meeting.history.all %}
+                            <a class="dropdown-item" href="{% url 'historical_meeting' historical_meeting.history_id %}"
+                               title="{{ historical_meeting.history_date|date:"c" }}" rel="nofollow">
+                                {{ historical_meeting.history_date }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between flex-wrap align-items-center">
+                <div>
+                    {% include "partials/header_name.html" with object=meeting %}
+                </div>
+
+                <div class="d-flex">
+                    <div>
+                        {% if previous %}
+                            <a class="btn btn-sm btn-light d-flex flex-column" href="{% url 'meeting' previous.id %}"
+                               title="{{ previous.start.date }}: {{ previous }}">
+                                <div>
+                                    <span class="fa fa-chevron-left me-1" aria-hidden="true"></span>
+                                    <span>{% trans 'Previous Meeting' %}</span>
+                                </div>
+                                {# TODO: Do we want that ? #}
+                                {# <small class="text-muted text-sm ">{{ previous.start.date }}</small> #}
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="ps-3">
+                        {% if following %}
+                            <a class="btn btn-sm btn-light d-flex flex-column" href="{% url 'meeting' following.id %}"
+                               title="{{ following.start.date }}: {{ following }}">
+                                <div>
+                                    <span>{% trans 'Following Meeting' %}</span>
+                                    <span class="fa fa-chevron-right ms-1" aria-hidden="true"></span>
+                                </div>
+                                {# <small class="text-muted text-sm ">{{ following.start.date }}</small> #}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="container meeting-section">
+            {# The extra div around icons of d-flex parents places the icon on the height as the text #}
+            <div class="d-flex flex-column flex-md-row justify-content-between meeting-vertical-bar">
+                {% if meeting.location.geometry %}
+                    <div class="dropdown location-dropdown std-element" data-location="{{ location_json }}">
+                        <button type="button" class="btn btn-sm btn-transparent" data-bs-toggle="modal"
+                                data-bs-target="#locationModal" name="meeting-location-dropdown" id="locationShowButton"
+                                title="{{ meeting.location.description }}" aria-haspopup="true" aria-expanded="false"
+                                tabindex="0">
+
+                            {# div is not allowed inside buttons, but span also works #}
+                            <span class="d-flex text-start">
+                                <span><span class="fa-custom fa-map-marker" aria-hidden="true"></span></span>
+                                <span class="dropdown-toggle text-wrap">{{ meeting.location.short }}</span>
+                            </span>
+                        </button>
+
+                        <div class="modal fade" id="locationModal" tabindex="-1" role="dialog"
+                             aria-labelledby="MapModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content dynamic-location-modal">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title"
+                                            id="MapModalLabel">{{ meeting.location.description }}</h4>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="location-map" id="location-select-map"
+                                             data-map-data="{{ map }}"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{{ google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                                           class="btn btn-secondary">
+                                            <span class="fa fa-external-link" aria-hidden="true"></span> Google Maps
+                                        </a>
+                                        <a href="{{ osm_url }}" target="_blank" rel="noopener noreferrer"
+                                           class="btn btn-secondary">
+                                            <span class="fa fa-external-link" aria-hidden="true"></span>
+                                            OpenStreetMaps
+                                        </a>
+                                        <button type="button" class="btn btn-primary"
+                                                data-bs-dismiss="modal">{% trans 'Close' %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div title="{% trans 'Place of the meeting' %}" class="std-element d-flex">
+                        <div>
+                            <span class="fa-custom fa-map-marker" aria-hidden="true"></span>
+                        </div>
+                        {% if meeting.location %}
+                            <div title="{{ meeting.location.description }}">{{ meeting.location.short }}</div>
+                        {% else %}
+                            <i>{% trans "Unknown" %}</i>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div title="{% trans 'Time of the Meeting' %}" class="std-element mx-1 flex-shrink-0">
+                    <span class="fa-custom fa-clock-o" aria-hidden="true"></span>
+
+                    {% if end and start.date == end.date %}
+                        <span>{{ start.date }} {{ start.time }} - {{ end.time }}</span>
+                    {% elif end %}
+                        <span>{{ start.date }} {{ start.time }} - {{ end.date }} {{ end.time }}</span>
+                    {% elif start.time %}
+                        <span>{{ start.date }} {{ start.time }}</span>
+                    {% elif start.date %}
+                        <span>{{ start.date }}</span>
+                    {% else %}
+                        <i>{% trans "Unknown" %}</i>
+                    {% endif %}
+                </div>
+
+                {% if meeting.organizations.all|length == 1 %}
+                    <div class="std-element mx-1 flex-shrink-0"
+                         title="{% trans 'Main organization of the meeting: ' %}{{ meeting.organizations.all.0.name }}"
+                    >
+                        <a href="{% url 'organization' meeting.organizations.all.0.id %}">
+                        <span class="fa-custom fa-users"
+                              aria-hidden="true"></span>{{ meeting.organizations.all.0 }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                <div class="std-element mx-1 flex-shrink-0">
+                    <a href="{% url 'meeting-ical' meeting.id %}"
+                       title="{% trans 'Download the meeting in a format readable by most calendars' %}">
+                        <span class="fa-custom fa-calendar-plus-o" aria-hidden="true"></span>
+                        <span>{% trans 'iCal-Export' %}</span>
+                    </a>
+                </div>
+            </div>
+
+            {% if meeting.cancelled %}
+                <div class="alert alert-danger">{% trans "This meeting has been cancelled" %}</div>
+            {% endif %}
+        </section>
+
+        <section class="container meeting-section">
+            {% if extra_persons|length > 0 %}
+                {% trans "Participating organizations:" as name %}
+                {% include "partials/inline_list.html" with objects=meeting.organizations.all icon="users" link="organization" %}
+            {% endif %}
+            {% trans "Further Attendees:" as name %}
+            {% include "partials/inline_list.html" with objects=extra_persons icon="user" link="person" %}
+
+            {% if meeting.invitation %}
+                <p>
+                    <span class="fa-custom fa-file" aria-hidden="true"></span>{% trans 'Invitation: ' %}
+                    <a href="{% url 'file' meeting.invitation.id %}">{{ meeting.invitation }}</a>
+                </p>
+            {% endif %}
+            {% if meeting.results_protocol %}
+                <p>
+                    <span class="fa-custom fa-file" aria-hidden="true"></span>{% trans 'Results protocol: ' %}
+                    <a href="{% url 'file' meeting.results_protocol.id %}">{{ meeting.results_protocol }}</a>
+                </p>
+            {% endif %}
+            {% if meeting.verbatim_protocol %}
+                <p>
+                    <span class="fa-custom fa-file" aria-hidden="true"></span>{% trans 'Verbatim protocol: ' %}
+                    <a href="{% url 'file' meeting.verbatim_protocol.id %}">{{ meeting.verbatim_protocol }}</a>
+                </p>
+            {% endif %}
+            {% if meeting.auxiliary_files|length > 0 %}
+                <ul>
+                    {% for file in meeting.auxiliary_files.all %}
+                        <li>
+                            <a href="{% url 'file' file.id %}">
+                                <span class="fa-custom fa-file" aria-hidden="true"></span>{{ file }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+
+        <section class="container meeting-section">
+            <h2>{% trans 'Agenda' %}</h2>
+            {% if agenda_items %}
+                <dl class="agenda">
+                    {% for agenda_item in agenda_items %}
+                        <span id="item-{{ agenda_item.key }}" class="offsetted-anchor"></span>
+                        <div class="d-flex align-content-start">
+                            <dt class="me-2">
+                                <a href="#item-{{ agenda_item.key }}" class="text-dark">{{ agenda_item.key }}</a>
+                            </dt>
+                            <dd>
+                                {{ agenda_item.name|linebreaksbr }}
+                                {% if agenda_item.paper %}
+                                    <a href="{% url 'paper' agenda_item.paper.id %}">{{ agenda_item.title }}</a>
+                                {% else %}
+                                    <div>{{ agenda_item.title }}</div>
+                                {% endif %}
+
+                                {% if agenda_item.result %}
+                                    <div class="my-1 font-italic">{{ agenda_item.result }}</div>
+                                {% endif %}
+
+                                {% if agenda_item.consultation.paper %}
+                                    <div class="additional-links">
+                                        {% if agenda_item.consultation.paper.main_file %}
+                                            <a href="{% url 'meeting-file' meeting.id agenda_item.consultation.paper.main_file_id %}"
+                                               class="paper-link">
+                                                <span class="fa fa-chevron-right"></span>
+                                                {% trans 'Paper' %}
+                                                {{ agenda_item.consultation.paper.reference_number|default_if_none:agenda_item.consultation.paper }}
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'paper' agenda_item.consultation.paper.id %}"
+                                               class="paper-link">
+                                                <span class="fa fa-chevron-right"></span>
+                                                {% trans 'Paper' %}
+                                                {{ agenda_item.consultation.paper.reference_number|default_if_none:agenda_item.consultation.paper }}
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                            </dd>
+                        </div>
+                    {% endfor %}
+                </dl>
+            {% else %}
+                <p class="lead">{% trans 'An Agenda has not been published' %}</p>
+            {% endif %}
+        </section>
+    {% endspaceless %}
+{% endblock %}
