@@ -1,0 +1,50 @@
+
+# TODO pre install script that does things
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "py_gs1_barcode_engine"
+version = "0.0.17"
+authors = [
+  "Edward Ong <edward93@gmail.com>"
+]
+description = "A thin Python wrapper of https://github.com/gs1/gs1-barcode-engine."
+readme = "README.md"
+license = "Apache-2.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+packages = [
+    { include = "py_gs1_barcode_engine", from = "src" }
+]
+include = ["src/py_gs1_barcode_engine/build_artifacts/*"]
+
+[tool.poetry.dependencies]
+python = ">= 3.6.1"
+pydantic = "1.9.1" # keep in sync with requirements.txt
+
+[tool.poetry.dev-dependencies]
+pytest = "7.0.1"
+psutil = "5.9.1"
+keyring = "22.3.0"
+"keyrings.alt" = "4.1.0"
+
+[tool.poetry.scripts]
+build-c-lib = "compile_and_test_lib:main"
+
+[project.entry-points]
+pyinstaller40 = {hook-dirs="py_gs1_barcode_engine._pyinstaller:get_hook_dirs"}
+
+[tool.poetry.urls]
+"Homepage" = "https://bitbucket.org/stolmen/gs1-wrapper"
+
+[tool.pytest.ini_options]
+pythonpath = ["src/py_gs1_barcode_engine"]
+filterwarnings = [
+  'ignore:invalid escape sequence \\:DeprecationWarning'
+]
