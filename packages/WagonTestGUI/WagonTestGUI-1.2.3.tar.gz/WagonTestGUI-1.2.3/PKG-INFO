@@ -1,0 +1,112 @@
+Metadata-Version: 2.1
+Name: WagonTestGUI
+Version: 1.2.3
+Summary: Python scripts to be located on the user interface computer.
+Home-page: https://github.com/UMN-CMS/WagonTestGUI
+Author: Garrett Schindler, Andrew Kirzeder, & Bryan Crossman
+Author-email: none@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
+
+
+
+
+# WagonTestGUI
+
+This repository contains the GUI used to run the quality control testing for all HGCAL LD Wagons.
+
+## Setup 
+
+### GUI Setup
+
+Run these commands from your working area to pull the code in:
+```
+	git clone git@github.com:UMN-CMS/WagonTestGUI.git
+
+	pip install WagonTestGUI
+``` 
+When updating the code, you can use the following commands:
+``` 
+    git add <your files>
+    git commit -m "Message about what you are committing"
+    git push origin <LocalBranchName>:<RemoteBranchName>
+``` 
+You can then open a pull request (PR) by going to the Github repo and then we can merge your code into the master branch. 
+
+### Setting Up Server/Client/Backend
+
+You will need to pull the repository for the testing station onto the testing station.
+
+You will then need to run "python utils/fetch\_ip.py" on the testing station.  
+
+You will need to pull "client\_setup.py" from the git@github.com:UMN-CMS/WagonTestHUI.git repository onto the GUI computer.
+
+Then run the command it tells you (./client\_setup.py testing\_station\_ip\_address).
+
+You will also need to install and set up the database that you will be using at DATABASE GITHUB REPO LINK HERE
+
+## To run the program:
+
+To run the program:
+
+You will need to run "python REPServer.py" on the appropriate machine after pulling the server code from REPSERVER GITHUB REPO LINK HERE.
+
+This program is built to be compatible with a Zebra (MODEL NUMBER GOES HERE) Scanner. Please connect it to the computer and do any required setup before running the program. 
+
+With those set up and running, open these files in VS Code (or any application that runs Python) and run the following commands in the terminal:
+
+```
+./run_WagonTestGUI
+```
+## Using the program
+
+When the GUI loads in there will be a loading screen, this will change to the login scene when the GUI is loaded.
+
+The login scene will require you to choose a user to continue into the program further. If you wish to add a new user, you may click the "Add User" button. However, this will require admin privileges within the database.
+
+The scan scene will require a board serial number to be scanned to progress forward. Simply scan the QR code on the board and then hit the "Submit" button. If you scan the wrong QR Code, you may push the "Rescan" button to scan another QR code.
+ 
+Most scenes in the GUI will contain the "Change Boards" and "Logout" buttons. This will allow you to return to scan scene and scan a new board in or return to login scene to choose a new user respectively.
+
+When using the GUI, the sidebar will allow you to navigate to any frame that is not greyed out simply by click on the respective named button. If a test has been completed, it cannot be selected from the navigator, but instead requires the user to use the respective "Retest" button found on the test summary scene.
+
+While a test is in progress, the GUI will disable sidebar navigation and prevent you from leaving the GUI. This can be overriden using CTRL + C, but it will not halt the test. That would require a similar override on the test station's computer.
+
+The test summary scene contains a "More Info" button. This button will display the information found in the "data" portion of the test results in the python dictionary. This information is also viewable from the website. It also contain's a "Next Test" button. This functions identically to the "Change Boards" button found on other scenes.
+
+To access the website, you simply need to type "" into the web browser of your choice (CHECK IF THIS NEEDS TO BE ON A CERTAIN COMPUTER)
+ 
+
+## Goals for this Framework:
+
+The main goal for this framework is to have an efficient and easy-to-use user interface for running Wagon QC testing. The points of focus are:
+- Integration the GUI with the test results database to store information about which boards have been tested and what tests have been run
+- Easy to understand step-by-step instructions for QC testers to follow
+- Implementation of a barcode scanning functionality for registering new boards and uploading test results
+- Tracking of who is doing a tests, where it is taking place, and where the boards will be moved to after testing is finished
+
+## Background Information
+
+### What is a GUI?
+
+A GUI (or Graphical User Interface) is a program which allows users to interact with software via buttons, text entry boxes, and other module types. Most software that we are familiar with includes a user interface where we can modify data, navigate pages, and perform actions. An example of a GUI is the webpage you are currently on! You can choose to look at some of the code in this repository or perform actions to updated it with the click of a button. 
+
+The GUI we will be developing for testing wagon functionality will be python based. There are a few packages that can be used for developing python based GUIs. The example GUI ([here](gui/initial_test_gui.py)) uses [TKinter](https://docs.python.org/3/library/tkinter.html) to produce the user interface. You can try out this GUI by performing the following command line call: `python initial_test_gui.py`.
+
+### What is a Wagon?
+
+Wagons are the motherboard connecting the active detector modules (what is measuring particle intractions) and the engines (the "brains" of the front-end electronics). Wagons are responsible for carrying clock, trigger, DAQ, and control infromation to between 2-4 modules simultaneously. They are completely passive boards and have no chips for communicating with the rest of the system. 
+
+The purpose of wagons in the front-end readout train is to tranasmit data and control information to and from modules. Thus, we would like to ensure that each wagon in the final version of the detector has been checked for good communication ability.
+
+### What tests are being run?
+
+There are four tests that need to be run in order to verify a wagon is funcitioning properly:
+
+- Analog line connection check: measure the resistance of each of the analog lines on the wagon to ensure good connection
+- Measurement of ID resistor: each wagon has a precision resistor used for identification of wagon type that must be measured and compared to the nominal value
+- I2C read/write test: verify that the slow control communication along the wagon lines is working
+- Bit error rate measurement: check the quality of the data sent along the wagon elinks
+
+
