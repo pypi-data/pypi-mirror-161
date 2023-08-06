@@ -1,0 +1,30 @@
+{% extends "allianceauth/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Delete Timer" %}{% endblock page_title %}
+
+{% block content %}
+    <h1 class="page-header text-center">
+        {% translate "Delete Structure Timer" %}
+    </h1>
+
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    {% translate "Are you sure you want to delete timer this timer?" %}
+                </div>
+            </div>
+            <div class="panel-body">
+                <form action="" method="post" id="confirm-delete-form">
+                    {% csrf_token %}
+                    <p>
+                        <strong>{{ object }}</strong>
+                    </p>
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                    {% include 'structuretimers/partials/cancel_button.html' %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

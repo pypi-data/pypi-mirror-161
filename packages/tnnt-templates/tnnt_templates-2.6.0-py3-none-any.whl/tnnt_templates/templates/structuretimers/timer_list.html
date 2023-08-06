@@ -1,0 +1,138 @@
+{% extends "structuretimers/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load evelinks %}
+
+{% block details %}
+    <div class="text-center">
+        <b>{% translate "Current Eve Time:" %}</b>&nbsp;<span id="current-time">{{ current_time }}</span>
+    </div>
+
+    <span class="pull-right">
+        {% if perms.structuretimers.create_timer %}
+            <a
+                href="{% url 'structuretimers:add' %}"
+                class="btn btn-success btn-tabs"
+                title="Add new timer">
+                Add Timer
+            </a>
+        {% endif %}
+    </span>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"><a href="#preliminary" aria-controls="preliminary" role="tab" data-toggle="tab">{% translate "Preliminary" %}</a></li>
+        <li role="presentation"><a href="#current" aria-controls="current" role="tab" data-toggle="tab">{% translate "Current" %}</a></li>
+        <li role="presentation"><a href="#past" aria-controls="past" role="tab" data-toggle="tab">{% translate "Past" %}</a></li>
+        <li class="dropdown pull-right">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                Staging: {{ selected_staging_system|default:"?" }} <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for staging_system in stageing_systems %}
+                    <li><a href="{% url 'structuretimers:timer_list' %}?staging={{ staging_system.eve_solar_system.name }}">
+                        {{ staging_system }} ({{ staging_system.eve_solar_system.eve_constellation.eve_region }})
+                        {% if staging_system.is_main %} {% translate "[MAIN]" %} {% endif %}
+                    </a></li>
+                {% empty %}
+                    <li class="disabled"><a href="#">{% translate "No staging system configured." %}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+
+    <div class="panel panel-default panel-tabs">
+        <div class="panel-body">
+            <div class="tab-content">
+                <!-- targets tab -->
+                <div role="tabpanel" class="tab-pane" id="preliminary">
+                    {% include 'structuretimers/partials/preliminary_list_table.html' %}
+                    <p class="text-muted">
+                        {% translate "This page contains potential future timers." %}
+                    </p>
+                </div>
+
+                <!-- current structuretimers tab -->
+                <div role="tabpanel" class="tab-pane" id="current">
+                    {% include 'structuretimers/partials/timer_list_table.html' with tab_name='current' %}
+                    <p class="text-muted">
+                        {% blocktranslate %}Timers remain on this page for {{ max_hours_expired }} hours after they expired{% endblocktranslate %}
+                    </p>
+                </div>
+
+                <!-- past structuretimers tab -->
+                <div role="tabpanel" class="tab-pane" id="past">
+                    {% include 'structuretimers/partials/timer_list_table.html' with tab_name='past' %}
+                </div>
+            </div>
+            <p class="text-muted">
+                {% translate "*: Distance from selected staging system:" %} {{ selected_staging_system|default:"?" }}
+                ({{ selected_staging_system.eve_solar_system.eve_constellation.eve_region|default:"?" }})
+            </p>
+        </div>
+    </div>
+
+    <!-- modal to show timer details -->
+    <div class="modal" id="modalTimerDetails" tabindex="-1" role="dialog" aria-labelledby="myModal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">{% translate "Timer details" %}</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="modal_div_spinner">
+                        {% if NIGHT_MODE %}
+                            <img src="{% static 'structuretimers/img/Spinner-1s-64px-dark.gif' %}" alt="Spinner">
+                        {% else %}
+                            <img src="{% static 'structuretimers/img/Spinner-1s-64px-light.gif' %}" alt="Spinner">
+                        {% endif %}
+                    </div>
+                    <div id="modalContent" style="display: none;"></div>
+                    <div id="modalLoadError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% translate "Close" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- share data with JS part -->
+    <div
+        id="dataExport"
+        data-listDataCurrentUrl="{% url 'structuretimers:timer_list_data' 'current' %}?staging={{ selected_staging_system.pk }}"
+        data-listDataPastUrl="{% url 'structuretimers:timer_list_data' 'past' %}?staging={{ selected_staging_system.pk }}"
+        data-listDataTargetUrl="{% url 'structuretimers:timer_list_data' 'preliminary' %}?staging={{ selected_staging_system.pk }}"
+        data-getTimerDataUrl="{% url 'structuretimers:detail' 'pk_dummy' %}"
+        data-titleSolarSystem="{% translate 'Solar System' %}"
+        data-titleRegion="{% translate 'Region' %}"
+        data-titleStructureType="{% translate 'Structure Type' %}"
+        data-titleTimerType="{% translate 'Timer Type' %}"
+        data-titleOwner="{% translate 'Owner' %}"
+        data-titleObjective="{% translate 'Objective' %}"
+        data-titleVisibility="{% translate 'Visibility' %}"
+        data-hasPermOPSEC="{{ perms.structuretimers.opsec_access }}"
+        data-dataTablesPageLength="{{ data_tables_page_length }}"
+        data-dataTablesPaging="{{ data_tables_paging }}"
+        data-tabId="{{ tab }}"
+    >
+    </div>
+{% endblock details %}
+
+{% block extra_css %}
+    {% include 'bundles/datatables-css.html' %}
+
+    <link rel="stylesheet" href="{% static 'structuretimers/css/global.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'structuretimers/css/timer_list.css' %}" media="screen">
+{% endblock extra_css%}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js.html' %}
+    {% include 'bundles/filterdropdown-js.html' %}
+    {% include 'bundles/moment-js.html' with locale=True %}
+
+    <script src="{% static 'structuretimers/js/timer_list.js' %}"></script>
+{% endblock extra_javascript %}

@@ -1,0 +1,156 @@
+{% extends "allianceauth/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Available Groups" %}{% endblock page_title %}
+
+{% block content %}
+    <div class="clearfix">
+        <h1 class="page-header text-center">{% translate "Available Groups" %}</h1>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">{% translate "Groups" %}</div>
+            </div>
+
+            <div class="panel-body">
+                {% if groups %}
+                    <table class="table table-striped table-hover" id="available-secure-groups">
+                        <thead>
+                            <tr>
+                                <th>{% translate "Name" %}</th>
+                                <th>{% translate "Description" %}</th>
+                                <th><!-- {% translate "Action" %} --></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for g in groups %}
+                                <tr>
+                                    <td>
+                                        {{ g.smart_group.group.name }}
+
+                                        {% if g.grace_msg %}
+                                            <br>
+                                            <span rel="tooltip" class="label label-warning" data-toggle="tooltip" data-placement="top" data-html="true" title data-original-title="{{g.grace_msg}}">{% translate "Pending Removal" %}</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if g.smart_group.group.authgroup.description %}
+                                            {{ g.smart_group.group.authgroup.description|linebreaks|urlize }}
+                                        {% endif %}
+
+                                        {% if g.smart_group.description %}
+                                            {{ g.smart_group.description|linebreaks|urlize }}
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-right">
+                                        {% if g.smart_group.group in user.groups.all %}
+                                            {% if not g.request %}
+                                                <a href="{% url 'securegroups:request_leave' g.smart_group.group.id %}" class="btn btn-danger">
+                                                    {% translate "Leave" %}
+                                                </a>
+                                            {% else %}
+                                                <button type="button" class="btn btn-primary" disabled>
+                                                    {{ g.request.status }}
+                                                </button>
+                                            {% endif %}
+                                        {% elif not g.request %}
+                                            <a id="{{ g.smart_group.group.id }}" class="btn btn-primary check-user-button">
+                                                {% translate "Request" %}
+                                            </a>
+                                        {% else %}
+                                            <button type="button" class="btn btn-primary" disabled>
+                                                {{ g.request.status }}
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        {% translate "No groups available." %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-secure-groups-checks" tabindex="-1" role="dialog" aria-labelledby="Available Secure Groups Checks" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="main-modal-title">
+                        {% translate "Group Requirements Checks" %}
+                    </div>
+                </div>
+
+                <div id="main-modal-body" class="modal-body" style="overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_css %}
+    <style>
+        @media (min-width: 768px) {
+            .modal-dialog {
+                width: 800px;
+                margin: 30px auto;
+            }
+        }
+    </style>
+
+    {% include 'bundles/datatables-css.html' %}
+{% endblock extra_css %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js.html' %}
+
+    <script>
+        $(document).ready(function () {
+            $('.check-user-button').on('click', function () {
+                let url = "{% url 'securegroups:request_check' 123456 %}";
+                let id = this.id;
+
+                url = url.replace('123456', id);
+
+                $.get(url, function(data) {
+                    const modal_body = $('#main-modal-body')[0];
+                    modal_body.innerHTML = data;
+
+                    $('#modal-secure-groups-checks').modal();
+                });
+            });
+
+            $('[rel="tooltip"]').tooltip();
+
+            {% if groups %}
+                $('#available-secure-groups').DataTable({
+                    paging: false,
+                    info: false,
+                    order: [
+                        [0, 'asc']
+                    ],
+                    columnDefs: [
+                        {
+                            width: '250px',
+                            targets: [0]
+                        },
+                        {
+                            width: '150px',
+                            targets: [2]
+                        },
+                        {
+                            orderable: false,
+                            targets: [1,2]
+                        }
+                    ],
+                });
+            {% endif %}
+        });
+    </script>
+{% endblock %}

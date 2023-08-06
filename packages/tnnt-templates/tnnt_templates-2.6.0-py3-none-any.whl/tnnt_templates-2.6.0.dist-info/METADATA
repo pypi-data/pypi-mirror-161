@@ -1,0 +1,105 @@
+Metadata-Version: 2.1
+Name: tnnt-templates
+Version: 2.6.0
+Summary: Terra Nanotech Template Overrides for Alliance Auth
+Home-page: https://github.com/terra-nanotech/tn-nt-auth-templates
+Author: Peter Pfeufer
+Author-email: development@ppfeufer.de
+Maintainer: Peter Pfeufer
+Maintainer-email: development@ppfeufer.de
+License: GPL-3.0
+Project-URL: Issue / Bug Reports, https://github.com/terra-nanotech/tn-nt-auth-templates/issues
+Project-URL: Changelog, https://github.com/terra-nanotech/tn-nt-auth-templates/blob/master/CHANGELOG.md
+Keywords: allianceauth,eveonline,template,template_override,terra_nanotech
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 4.0
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: ~=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: allianceauth (>=3.0.0)
+
+# Terra Nanotech Auth Templates
+
+[![Version](https://img.shields.io/pypi/v/tnnt-templates?label=release)](https://pypi.org/project/tnnt-templates/)
+[![GitHub license](https://img.shields.io/github/license/terra-nanotech/tn-nt-auth-templates)](https://github.com/terra-nanotech/tn-nt-auth-templates/blob/master/LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/tnnt-templates)](https://pypi.org/project/tnnt-templates/)
+[![Django](https://img.shields.io/pypi/djversions/tnnt-templates?label=django)](https://pypi.org/project/tnnt-templates/)
+![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
+[![Code Style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](http://black.readthedocs.io/en/latest/)
+[![Discord](https://img.shields.io/discord/790364535294132234?label=discord)](https://discord.gg/zmh52wnfvM)
+[![Checks](https://github.com/terra-nanotech/tn-nt-auth-templates/actions/workflows/automated-checks.yml/badge.svg)](https://github.com/terra-nanotech/tn-nt-auth-templates/actions/workflows/automated-checks.yml)
+[![codecov](https://codecov.io/gh/terra-nanotech/tn-nt-auth-templates/branch/master/graph/badge.svg?token=4JLA8CXJ64)](https://codecov.io/gh/terra-nanotech/tn-nt-auth-templates)
+
+
+Template Overrides for Alliance Auth
+
+![TN-NT Auth Template](https://raw.githubusercontent.com/terra-nanotech/tn-nt-auth-templates/master/tnnt_templates/images/tnnt-template.jpg)
+
+
+```shell
+pip install tnnt-templates
+```
+
+In `local.py` right after `INSTALLED_APPS`:
+
+```python
+# TN-NT Auth Templates
+INSTALLED_APPS.insert(0, "tnnt_templates")
+
+TEMPLATES[0]["OPTIONS"]["context_processors"].append(
+    "tnnt_templates.context_processors.tnnt_settings"
+)
+
+TNNT_TEMPLATE_ENTITY_ID = 8154711  #  replace with your corp/alliance ID
+TNNT_TEMPLATE_ENTITY_TYPE = "corporation"  # default: "alliance"
+TNNT_TEMPLATE_ENTITY_NAME = "My Awesome Corp/Alliance"  # your corp/alliance name
+
+# the URLs are shown in the user menu
+TNNT_TEMPLATE_URLS_OWN_WEBSITES = [
+    {
+        "name": "Website",
+        "url": "https://webseite.com/",
+        "new_tab": True,
+    },
+    {
+        "name": "Forums",
+        "url": "https://forum.website.com/",
+        "new_tab": True,
+    },
+]
+
+TNNT_TEMPLATE_URLS_OTHER_WEBSITES = [
+    {
+        "name": "Website",
+        "url": "https://website.com/",
+        "new_tab": True,
+    },
+]
+```
+
+**Important**
+
+If you are using `AA-GDPR`, the template stuff needs to be **after** the `AA_GDPR`
+entry, like this:
+
+```python
+# GDPR Compliance
+INSTALLED_APPS.insert(0, "aagdpr")
+AVOID_CDN = True
+
+
+# TN-NT Auth Templates
+INSTALLED_APPS.insert(0, "tnnt_templates")
+```

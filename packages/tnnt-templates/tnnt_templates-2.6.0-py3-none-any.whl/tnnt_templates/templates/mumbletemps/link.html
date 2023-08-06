@@ -1,0 +1,133 @@
+{% load humanize %}
+{% load timetags %}
+{% load static %}
+{% load tnnt_template_tags %}
+{% load i18n %}
+{% load navactive %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        {% include 'allianceauth/icons.html' %}
+
+        <title>{% block title %}{% translate "Mumble Temporary Access" %}{% endblock title %} - {{ SITE_NAME }}</title>
+
+        <link rel="stylesheet" href="{% static 'tnnt_templates/css/theme/terra-nanotech/v3/css/bootstrap.min.css' %}">
+        {% include 'bundles/fontawesome.html' %}
+
+        <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/terra-nanotech-defaults.min.css' %}">
+        <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/terra-nanotech.min.css' %}">
+
+        {% block extra_css %}{% endblock extra_css %}
+        <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/community-app-fixes.min.css' %}">
+
+        {% if NIGHT_MODE %}
+            <link rel="stylesheet" href="{% tnnt_static 'tnnt_templates/css/terra-nanotech-dark-mode.min.css' %}">
+        {% endif %}
+    </head>
+
+    <body>
+        <div class="alliance-auth-background"></div>
+        <div class="alliance-auth-content">
+            <!-- Navigation -->
+            {% include 'allianceauth/top-menu.html' %}
+            <div style="margin-top: 6rem;">
+                <div class="text-center">
+                    <div class="clearfix">
+                        <img class="ra-avatar img-rounded" src="{{ link.creator.portrait_url_128 }}" alt="{{ link.creator.character_name }}"><br><br>
+                        <h1>{{ link.creator.character_name }} has invited you to join Mumble!</h1>
+                        <p>Time Remaining: <span id="countdown{{ link.link_ref }}"></span></p>
+                        <p><span class="label">Link Ref: {{ link.link_ref }}</span></p>
+                        <p>
+                            <a class="btn btn-default clearfix" href="mumble://{{ connect_url }}">
+                                <img class="img-rounded" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Icons_mumble.svg/400px-Icons_mumble.svg.png" alt="Mumble" height="64" width="64" style="float: left;">
+                                <span style="display: inline-block; margin-top: 0.6rem; margin-left: 1rem;">Click to Join Mumble as: <b><br>{{ temp_user.name }}</b></span>
+                            </a>
+                        </p>
+                    </div>
+
+                    <p>&nbsp;</p>
+
+                    <div style="width: 600px; max-width: 95%; margin: 0 auto;">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="panel-title">Manual Connect</div>
+                            </div>
+                            <div class="panel-body">
+                                <p>If you have problems with the application link above. <br>Please use the following in Mumble's connection dialog</p>
+                                <p>Mumble Url: <span class="badge">{{ mumble }}</span></p>
+                                <p>Username: <span class="badge">{{ temp_user.username }}</span></p>
+                                <p>Password: <span class="badge">{{ temp_user.password }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'bundles/bootstrap-js.html' %}
+        {% include 'bundles/moment-js.html' with locale=True %}
+
+        <script src="{% tnnt_static 'tnnt_templates/javascript/terra-nanotech.min.js' %}"></script>
+
+        {% include 'bundles/timers-js.html' %}
+        <script>
+            const locale = "{{ LANGUAGE_CODE }}";
+            const timers = [
+                {
+                    'id': "{{ link.link_ref }}",
+                    'targetDate': moment("{{ link.expires|print_timestamp| date:"c" }}"),
+                    'expired': false
+                }
+            ];
+
+            moment.locale(locale);
+
+            /**
+             * Update a timer
+             * @param timer Timer information
+             * @param timer.targetDate Date of the timer
+             * @param timer.id Id number of the timer
+             * @param timer.expired
+             */
+            function updateTimer(timer) {
+                if (timer.targetDate.isAfter(Date.now())) {
+                    const duration = moment.duration(timer.targetDate - moment(), 'milliseconds');
+
+                    document.getElementById("countdown" + timer.id).innerHTML = getDurationString(duration);
+                } else {
+                    timer.expired = true;
+
+                    document.getElementById("countdown" + timer.id).innerHTML = "";
+                }
+            }
+
+            function updateAllTimers () {
+                const l = timers.length;
+
+                for (let i=0; i < l; ++i) {
+                    if (timers[i].expired) {
+                        continue;
+                    }
+
+                    updateTimer(timers[i]);
+                }
+            }
+
+            function timedUpdate() {
+                updateAllTimers();
+            }
+
+            // Set initial values
+            timedUpdate();
+
+            // Start timed updates
+            setInterval(timedUpdate, 1000);
+        </script>
+    </body>
+</html>

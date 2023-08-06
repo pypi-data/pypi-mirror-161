@@ -1,0 +1,119 @@
+{% extends "allianceauth/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ group }} {% translate "Audit Log" %}{% endblock page_title %}
+
+{% block content %}
+    <div class="clearfix">
+        <br>
+        {% include 'groupmanagement/menu.html' %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">{{ group }} - {% translate "Audit Log" %}</div>
+            </div>
+
+            <div class="panel-body">
+                <p>
+                    <a class="btn btn-default" href="{% url 'groupmanagement:membership' %}" role="button">
+                        {% translate "Back" %}
+                    </a>
+                </p>
+
+                {% if entries %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="log-entries">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{% translate "Date/Time" %}</th>
+                                    <th scope="col">{% translate "Requestor" %}</th>
+                                    <th scope="col">{% translate "Character" %}</th>
+                                    <th scope="col">{% translate "Corporation" %}</th>
+                                    <th scope="col">{% translate "Type" %}</th>
+                                    <th scope="col">{% translate "Action" %}</th>
+                                    <th scope="col">{% translate "Actor" %}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for entry in entries %}
+                                    <tr>
+                                        <td>{{ entry.date|date:"Y-M-d, H:i" }}</td>
+                                        <td>{{ entry.requestor }}</td>
+                                        <td>{{ entry.req_char }}</td>
+                                        <td>{{ entry.req_char.corporation_name }}</td>
+                                        <td>{{ entry.type_to_str }}</td>
+
+                                        {% if entry.request_type is None %}
+                                            <td>{% translate "Removed" %}</td>
+                                        {% else %}
+                                            <td>{{ entry.action_to_str }}</td>
+                                        {% endif %}
+
+                                        <td>{{ entry.request_actor }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <br>
+                    <div class="alert alert-warning text-center">
+                        {% translate "No entries found for this group." %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="panel-footer">
+                <p class="text-muted">
+                    {% translate "All times displayed are EVE/UTC." %}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'bundles/datatables-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js.html' %}
+    {% include 'bundles/filterdropdown-js.html' %}
+    {% include 'bundles/moment-js.html' with locale=True %}
+
+    <script>
+        $(document).ready(function() {
+            $('#log-entries').DataTable({
+                order: [[0, 'desc'], [1, 'asc']],
+                filterDropDown:
+                {
+                    columns: [
+                        {
+                            idx: 1
+                        },
+                        {
+                            idx: 2
+                        },
+                        {
+                            idx: 3
+                        },
+                        {
+                            idx: 4
+                        },
+                        {
+                            idx: 5
+                        },
+                        {
+                            idx: 6
+                        }
+                    ],
+                    bootstrap: true
+                },
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'public/middle_box.html' %}
+
+{% load i18n %}
+{% load evelinks %}
+
+{% block page_title %}{% translate 'Login' %}{% endblock %}
+
+{% block middle_box_content %}
+    <p class="text-center">
+        {% if TNNT_TEMPLATE_ENTITY_ID == 1 %}
+            <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_AA_LOGO }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+        {% else %}
+            {% if TNNT_TEMPLATE_ENTITY_TYPE == 'alliance' %}
+                <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_ENTITY_ID|alliance_logo_url:256 }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+            {% elif TNNT_TEMPLATE_ENTITY_TYPE == 'corporation' %}
+                <img class="login-image img-rounded" src="{{ TNNT_TEMPLATE_ENTITY_ID|corporation_logo_url:256 }}" style="display: inline-block;" height="256" width="256" alt="{{ TNNT_TEMPLATE_ENTITY_NAME }}">
+            {% endif %}
+        {% endif %}
+    </p>
+
+    <p class="text-center" style="font-size: 150%;">
+        {{ TNNT_TEMPLATE_ENTITY_NAME }}<br>
+        {% translate "Authentication System" %}
+    </p>
+
+    <p class="text-center">
+        <a class="sso-login-button" href="{% url 'auth_sso_login' %}{% if request.GET.next %}?next={{request.GET.next}}{%endif%}">
+            <svg>
+                <use href="#tnnt-aa-svg-sso"></use>
+            </svg>
+        </a>
+    </p>
+
+    <p class="text-center">
+        {% translate "For information on SSO, ESI and security read the CCP Dev Blog" %}<br>
+        <a href="https://www.eveonline.com/article/introducing-esi" target="_blank">
+            {% translate "Introducing ESI - A New API For Eve Online" %}
+        </a>
+    </p>
+
+    <p class="text-center">
+        <a href="https://community.eveonline.com/support/third-party-applications/" target="_blank">
+            {% translate "Manage ESI Applications" %}
+        </a>
+    </p>
+{% endblock %}
