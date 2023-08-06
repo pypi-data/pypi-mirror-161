@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "datapipe-app"
+version = "0.1.2"
+description = ""
+authors = ["Andrey Tatarinov <a@tatarinov.co>"]
+
+# build = "build.py"
+
+packages = [
+    { include = "datapipe_app" },
+]
+
+include = [
+    "datapipe_app/frontend/**/*"
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.78.0"
+uvicorn = {extras = ["standard"], version = "^0.18.2"}
+click = ">=7.1.2"
+
+datapipe-core = ">=0.11.0-beta.7, <0.12"
+# datapipe-core = {path="../datapipe"}
+
+[tool.poetry.scripts]
+datapipe = 'datapipe_app.cli:cli'
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.961"
+alembic = "^1.8.1"
+black = "^22.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
