@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>stdcom &#8212; stdcom 1.6.03 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for stdcom</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Subscription"><a class="viewcode-back" href="../code.html#stdcom.Subscription">[docs]</a><span class="k">class</span> <span class="nc">Subscription</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class Passed Around by data coming from Multiverse, Note most of the time will be in its own thread, so copy the data before use</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Subscription.Name"><a class="viewcode-back" href="../code.html#stdcom.Subscription.Name">[docs]</a>    <span class="k">def</span> <span class="nf">Name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            returns the name of the subscription</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span></div>
+
+<div class="viewcode-block" id="Subscription.Data"><a class="viewcode-back" href="../code.html#stdcom.Subscription.Data">[docs]</a>    <span class="k">def</span> <span class="nf">Data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_data</span></div>
+
+<div class="viewcode-block" id="Subscription.SetData"><a class="viewcode-back" href="../code.html#stdcom.Subscription.SetData">[docs]</a>    <span class="k">def</span> <span class="nf">SetData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Sets the class full of information</span>
+<span class="sd">                :name: the name of the subscription</span>
+<span class="sd">                :data: a list of the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span></div></div>
+
+
+<div class="viewcode-block" id="stdcom"><a class="viewcode-back" href="../code.html#stdcom.stdcom">[docs]</a><span class="k">class</span> <span class="nc">stdcom</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Threaded communication class to Multiverse, Standard Communication Class.  This is a stand alone class that does not retuire</span>
+<span class="sd">        PyQt5</span>
+
+<span class="sd">         :Host:  Name, or IP address where the Nextstep plugin is running</span>
+<span class="sd">         :Port:  ServicePort where the NextStep plugin is listening</span>
+<span class="sd">         :Connected: Callback  arg(Bool)</span>
+<span class="sd">         :Data: Callback, where all the subscription comes in where it changes  Callback(Subscription)</span>
+<span class="sd">         :Names: Call Back, where all possible names come in  Callabck(str)</span>
+<span class="sd">         :Error: Callback  Callback()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">_Callback</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_NCallback</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_ECallback</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_DCallback</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">nbrAcks</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="stdcom.Start"><a class="viewcode-back" href="../code.html#stdcom.stdcom.Start">[docs]</a>    <span class="k">def</span> <span class="nf">Start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start used interally when constructed starts the thread</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Condition</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ipaddress</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">connectedFunction</span>  <span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">NCallback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ECallback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">DCallback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;&quot;</span><span class="p">:</span> <span class="p">[]}</span> <span class="c1"># todo need a way to stop collecting it down higher up</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outQueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outDescQueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outNameList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">HOST</span> <span class="o">=</span> <span class="n">ipaddress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Callback</span> <span class="o">=</span> <span class="n">Callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_NCallback</span> <span class="o">=</span> <span class="n">NCallback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">=</span> <span class="n">ECallback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DCallback</span> <span class="o">=</span> <span class="n">DCallback</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connectedCallback</span> <span class="o">=</span> <span class="n">connectedFunction</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PORT</span><span class="p">))</span>
+
+
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;could not open socket&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s1">&#39;Represents a hidden bug, do not catch this&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connecting&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">HOST</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PORT</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Start</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connectedCallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connectedCallback</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="stdcom.UpDateMap"><a class="viewcode-back" href="../code.html#stdcom.stdcom.UpDateMap">[docs]</a>    <span class="k">def</span> <span class="nf">UpDateMap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal Use for stuffing data</span>
+<span class="sd">            :name:  Subscription name</span>
+<span class="sd">            :data:  Date coming from Multiverse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="stdcom.ReadValues"><a class="viewcode-back" href="../code.html#stdcom.stdcom.ReadValues">[docs]</a>    <span class="k">def</span> <span class="nf">ReadValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads data for a given name, returns a list of data, the data that is cached from normal running operation to subscription changes.</span>
+<span class="sd">            :name: The subscriber name</span>
+<span class="sd">            :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">toDo</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">toDo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toDo</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AddSubscriptions</span><span class="p">(</span><span class="n">toDo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="stdcom.SetCallbacks"><a class="viewcode-back" href="../code.html#stdcom.stdcom.SetCallbacks">[docs]</a>    <span class="k">def</span> <span class="nf">SetCallbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">namecallback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">desccallback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SetCallbacks  sets the Data and</span>
+<span class="sd">            :callback: Data Callback( Subscription)</span>
+<span class="sd">            :namecallback: Name Callback(str)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Callback</span> <span class="o">=</span> <span class="n">callback</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_NCallback</span> <span class="o">=</span> <span class="n">namecallback</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_DCallback</span> <span class="o">=</span> <span class="n">desccallback</span></div>
+
+<div class="viewcode-block" id="stdcom.terminate"><a class="viewcode-back" href="../code.html#stdcom.stdcom.terminate">[docs]</a>    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops the thread,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Closing&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="stdcom.NamesOn"><a class="viewcode-back" href="../code.html#stdcom.stdcom.NamesOn">[docs]</a>    <span class="k">def</span> <span class="nf">NamesOn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turns the names on in the Multiverse Plugin, allowing all possible names to come from Multiverse platform</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;NAMES</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.GetErrors"><a class="viewcode-back" href="../code.html#stdcom.stdcom.GetErrors">[docs]</a>    <span class="k">def</span> <span class="nf">GetErrors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the status of the socket</span>
+<span class="sd">            :return: False is connection is ok</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span></div>
+
+<div class="viewcode-block" id="stdcom.isConnected"><a class="viewcode-back" href="../code.html#stdcom.stdcom.isConnected">[docs]</a>    <span class="k">def</span> <span class="nf">isConnected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the status of the socket, same as getErrors()</span>
+<span class="sd">            :return: False is connection is ok</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span></div>
+
+<div class="viewcode-block" id="stdcom.RemoveSub"><a class="viewcode-back" href="../code.html#stdcom.stdcom.RemoveSub">[docs]</a>    <span class="k">def</span> <span class="nf">RemoveSub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span> <span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove a Subscription previously made</span>
+<span class="sd">            :who:  the name of the subscrition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">who</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;REMOVESUB,&quot;</span> <span class="o">+</span> <span class="n">who</span>
+                <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span>
+
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="p">[</span><span class="n">who</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="stdcom.Ping"><a class="viewcode-back" href="../code.html#stdcom.stdcom.Ping">[docs]</a>    <span class="k">def</span> <span class="nf">Ping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pings the host, will except if socket in error or not open</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;PING</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ping Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.ReadData"><a class="viewcode-back" href="../code.html#stdcom.stdcom.ReadData">[docs]</a>    <span class="k">def</span> <span class="nf">ReadData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads data of a subscription directly from Multiverse</span>
+<span class="sd">            :who: The name of the subscription</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;READDATA,&quot;</span> <span class="o">+</span> <span class="n">who</span>
+        <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">UpdateLocalData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Usaed internally if the subscription is designed to be local</span>
+
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">Subscription</span><span class="p">()</span>
+        <span class="n">sub</span><span class="o">.</span><span class="n">SetData</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="n">CB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Callback</span>
+        <span class="k">if</span> <span class="n">CB</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outQueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">CB</span><span class="p">:</span>
+            <span class="n">CB</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+<div class="viewcode-block" id="stdcom.UpdateAsInt"><a class="viewcode-back" href="../code.html#stdcom.stdcom.UpdateAsInt">[docs]</a>    <span class="k">def</span> <span class="nf">UpdateAsInt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates Data as int, to Multiverse no need for caller to recast to int..  ~/name will assume internal subscription does not participate with Multiverse</span>
+<span class="sd">            :who:    Name of the subscription</span>
+<span class="sd">            :what:   list[int]</span>
+<span class="sd">            :where: to begin to change into the array,</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">who</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;~/&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UpdateLocalData</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;UPDATEI,&quot;</span> <span class="o">+</span> <span class="n">who</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.UpdateAsBool"><a class="viewcode-back" href="../code.html#stdcom.stdcom.UpdateAsBool">[docs]</a>    <span class="k">def</span> <span class="nf">UpdateAsBool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates Data as Bool, to Multiverse no need for caller to recast to Bool..  ~/name will assume internal subscription does not participate with Multiverse</span>
+<span class="sd">            :who:   Name of the subscription</span>
+<span class="sd">            :what:  list[Bool]</span>
+<span class="sd">            :where: to begin to change into the array,</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">who</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;~/&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UpdateLocalData</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;UPDATEB,&quot;</span> <span class="o">+</span> <span class="n">who</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.UpdateAsFloat"><a class="viewcode-back" href="../code.html#stdcom.stdcom.UpdateAsFloat">[docs]</a>    <span class="k">def</span> <span class="nf">UpdateAsFloat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates Data as Float, to Multiverse no need for caller to recast to Float..  ~/name will assume internal subscription does not participate with Multiverse</span>
+<span class="sd">            :who:  Name of the subscription</span>
+<span class="sd">            :what: list[Float]</span>
+<span class="sd">            :where: to begin to change into the array,</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">who</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;~/&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UpdateLocalData</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;UPDATEF,&quot;</span> <span class="o">+</span> <span class="n">who</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">UpdateDescription</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">what</span> <span class="p">):</span>
+
+         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-DESC,&quot;</span> <span class="o">+</span> <span class="n">who</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="n">what</span>
+         <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="stdcom.UpdateRaw"><a class="viewcode-back" href="../code.html#stdcom.stdcom.UpdateRaw">[docs]</a>    <span class="k">def</span> <span class="nf">UpdateRaw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates Data as when is passed, to Multiverse user should recast to desired type()  ~/name will assume internal subscription does not participate with Multiverse</span>
+<span class="sd">            :who:   Name of the subscription</span>
+<span class="sd">            :what:  list[type()]</span>
+<span class="sd">            :where: to begin to change into the array,</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">what</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">UpdateAsInt</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">UpdateAsFloat</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">UpdateAsBool</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">who</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;~/&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">UpdateLocalData</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">what</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;UPDATE,&quot;</span> <span class="o">+</span> <span class="n">who</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.GetNotifications"><a class="viewcode-back" href="../code.html#stdcom.stdcom.GetNotifications">[docs]</a>    <span class="k">def</span> <span class="nf">GetNotifications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If callback are not used, user can call this and it returns changed subsriptions, Use callbacks it makes more sense</span>
+
+<span class="sd">            :return: list of subs that should be read if call backs are not used</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outQueue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outQueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="stdcom.GetDescNotifications"><a class="viewcode-back" href="../code.html#stdcom.stdcom.GetDescNotifications">[docs]</a>    <span class="k">def</span> <span class="nf">GetDescNotifications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If callback are not used, user can call this and it returns changed subsriptions, Use callbacks it makes more sense</span>
+
+<span class="sd">            :return: list of subs that should be read if call backs are not used</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outDescQueueQueue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outDescQueueQueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="stdcom.AddSubscriptions"><a class="viewcode-back" href="../code.html#stdcom.stdcom.AddSubscriptions">[docs]</a>    <span class="k">def</span> <span class="nf">AddSubscriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a list of subscriptions</span>
+<span class="sd">            :subs:  A list of str of subscriber names desired  subs : list[str]</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">subs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RemoveSub</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">activeData</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">word</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;NOTIFY,&quot;</span> <span class="o">+</span> <span class="n">word</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caught exception socket.error : &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">isopen</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_ECallback</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="stdcom.GetNames"><a class="viewcode-back" href="../code.html#stdcom.stdcom.GetNames">[docs]</a>    <span class="k">def</span> <span class="nf">GetNames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the names all possible names possible to subscribe to</span>
+<span class="sd">            :returns: List of possible names that are available at this time to subscribe to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outNameList</span>
+            <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="stdcom.GetAcks"><a class="viewcode-back" href="../code.html#stdcom.stdcom.GetAcks">[docs]</a>    <span class="k">def</span> <span class="nf">GetAcks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the number of Acks, used to see if the system is alive based on Pings or other actions, resets after it has been called</span>
+
+<span class="sd">        :returns: Number of Acks to messages, including pings, since the last time read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+            <span class="n">nbrAcks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbrAcks</span><span class="p">;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nbrAcks</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">return</span>  <span class="n">nbrAcks</span></div>
+
+<div class="viewcode-block" id="stdcom.run"><a class="viewcode-back" href="../code.html#stdcom.stdcom.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Internal use, thread running</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span><span class="p">:</span>
+            <span class="n">scsv</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">jv</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">scsv</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">scsv</span> <span class="o">=</span> <span class="n">jv</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">scsv</span> <span class="o">=</span> <span class="n">scsv</span> <span class="o">+</span> <span class="n">jv</span>
+
+                <span class="k">if</span> <span class="n">jv</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+
+            <span class="c1"># scsv = data.decode(&#39;ascii&#39;)</span>
+            <span class="k">if</span> <span class="n">scsv</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">reader</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">scsv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+
+            <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="ow">and</span> <span class="n">l</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;NAMESUP&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)):</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                        <span class="n">NCB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NCallback</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">NCB</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_outNameList</span> <span class="o">+=</span> <span class="n">data</span>
+                    <span class="k">if</span> <span class="n">NCB</span><span class="p">:</span>
+                        <span class="n">NCB</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="s1">&#39;READDATA&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)):</span>
+                            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+
+                        <span class="n">sub</span> <span class="o">=</span> <span class="n">Subscription</span><span class="p">()</span>
+                        <span class="n">sub</span><span class="o">.</span><span class="n">SetData</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">UpDateMap</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                            <span class="n">CB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Callback</span>
+
+                            <span class="k">if</span> <span class="n">CB</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_outQueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">CB</span><span class="p">:</span>
+                            <span class="n">CB</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="s1">&#39;UPDATE-DESC&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">try</span> <span class="p">:</span>
+                        <span class="n">indx</span> <span class="o">=</span> <span class="n">scsv</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">scsv</span><span class="p">[</span><span class="n">indx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scsv</span><span class="p">)]</span>
+
+                        <span class="n">d</span><span class="o">=</span><span class="p">[</span> <span class="n">data</span><span class="p">]</span>
+
+                        <span class="n">sub</span> <span class="o">=</span> <span class="n">Subscription</span><span class="p">()</span>
+                        <span class="n">sub</span><span class="o">.</span><span class="n">SetData</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+                        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                            <span class="n">CB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DCallback</span>
+
+                            <span class="k">if</span> <span class="n">CB</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_outDescQueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">CB</span><span class="p">:</span>
+                            <span class="n">CB</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Desc Error&quot;</span><span class="p">)</span>
+
+
+
+                <span class="k">elif</span> <span class="s1">&#39;ACK&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditionValue</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nbrAcks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbrAcks</span> <span class="o">+</span> <span class="mi">1</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<span class="n">cBridge</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="k">if</span> <span class="s2">&quot;--version&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1.6.02&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">_AddNames</span><span class="p">(</span><span class="n">lnames</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lnames</span><span class="p">)):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">lnames</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Press Enter to exit...&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_AddValues</span><span class="p">(</span><span class="n">sub</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">Name</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Press Enter to exit...&quot;</span><span class="p">)</span>
+
+
+    <span class="c1"># this could be argv but we will weld it for now</span>
+    <span class="n">XHOST</span> <span class="o">=</span> <span class="s2">&quot;192.168.199.245&quot;</span>  <span class="c1"># we talk to ourself</span>
+    <span class="n">XPORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">4897</span><span class="p">)</span>  <span class="c1"># service port for NextStep plugin</span>
+
+    <span class="n">XSUBS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Scanner1.moisture&quot;</span><span class="p">,</span> <span class="s2">&quot;Scannner1.basiswt&quot;</span><span class="p">]</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">11110</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cBridge</span> <span class="o">=</span> <span class="n">stdcom</span><span class="p">(</span><span class="n">XHOST</span><span class="p">,</span>
+                        <span class="n">XPORT</span><span class="p">)</span>  <span class="c1"># start the ball rolling make the communication class if it fails we will die a death in lib</span>
+        <span class="n">cBridge</span><span class="o">.</span><span class="n">SetCallbacks</span><span class="p">(</span><span class="n">_AddValues</span><span class="p">,</span> <span class="n">_AddNames</span><span class="p">)</span>
+        <span class="n">cBridge</span><span class="o">.</span><span class="n">NamesOn</span><span class="p">()</span>  <span class="c1"># tell the communication class to turn all the names so we can get every name across Multiverse</span>
+        <span class="n">cBridge</span><span class="o">.</span><span class="n">AddSubscriptions</span><span class="p">(</span><span class="n">XSUBS</span><span class="p">)</span>  <span class="c1"># add our subscriptions to multiverse</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">XSUBS</span><span class="p">)):</span>
+            <span class="n">cBridge</span><span class="o">.</span><span class="n">UpdateAsFloat</span><span class="p">(</span><span class="n">XSUBS</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">s1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Check IP or Ensure NextStep Plugin is running&quot;</span><span class="p">)</span>
+
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cBridge</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">stdcom</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Ed Chapman.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
