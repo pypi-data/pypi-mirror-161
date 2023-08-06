@@ -1,0 +1,50 @@
+{% load i18n creme_core_tags creme_menu creme_widgets %}
+<div class="header-menu">
+    {% block home_link %}
+    <a id="logo" href="/" alt="{% translate 'Home' %}">
+        {% block home_icon %}
+{% comment %} One way to customize the icon without having an icon per theme: (need to load 'media')
+        <img src="{% media_url 'common/images/my_icon_30.png' %}" height="30px" width="30px" alt="{% translate 'Home' %}">
+{% endcomment %}
+        {% widget_icon name='creme' size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
+        {% endblock %}
+    </a>
+    {% endblock %}
+
+    {% menu_display %}
+
+    {% block accessories %}
+    <div class="accessories-box">
+        {% block search %}
+        <div class="search-box">
+            <input type="text" placeholder="{% translate 'Search' %}">
+            <span class="search-box-icon default">
+                {% widget_icon name='wait' size='header-menu' label=_('Loading…') class='search-icon-loading' %}
+                {% widget_icon name='search' size='header-menu' label=_('Search') class='search-icon-default' %}
+            </span>
+
+            <div class="inline-search-results">
+                <div class="search-results-group all-search-results">
+                    <span class="search-results-group-title"></span>
+                    <ul class="search-results">
+                        <li class="search-result"><a href="{% url 'creme_core__search' %}">{% translate 'Advanced search' %}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <script type="text/javascript">
+    {% block script %}
+        $(function () {
+            new creme.menu.MenuController().bind($('.header-menu'));
+            new creme.search.SearchBox({
+                searchUrl: '{% url 'creme_core__light_search' %}',
+                advancedSearchUrl: '{% url 'creme_core__search' %}'
+            }).bind($('.search-box'));
+        });
+    {% endblock %}
+    </script>
+</div>

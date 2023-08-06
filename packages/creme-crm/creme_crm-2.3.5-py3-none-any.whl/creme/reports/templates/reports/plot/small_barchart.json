@@ -1,0 +1,69 @@
+{% load reports_tags %}
+{
+    "title": {
+        "text":       "",
+        "textColor":  "black",
+        "fontSize":   "12pt",
+        "renderer":   "jqplot.DivTitleRenderer"
+    },
+    "seriesDefaults": {
+        "shadow": false,
+        "renderer": "jqplot.BarRenderer", 
+        "rendererOptions": {
+            "fillToZero": true,
+            "varyBarColor": true
+        }
+    },
+    "grid": {
+        "drawGridlines": true,
+        "shadow": false,
+        "background": "#ffffff",
+        "drawBorder": false
+    },
+    "axes": {
+        "xaxis": {
+            "renderer": "jqplot.CategoryAxisRenderer",
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "angle": -30,
+                "fontSize": "9pt",
+                "textColor":  "black"
+            },
+            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize":   "10pt",
+                "textColor":  "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
+        },
+        "yaxis": {
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "formatString": "%d",
+                "textColor":  "black",
+                "fontSize":   "9pt"
+            },
+            "label": "{% reports_graph_ordinate rgraph %}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize":   "10pt",
+                "textColor":  "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
+        }
+    },
+    "highlighter": {
+        "show": true,
+        "showMarker": false,
+        "tooltipAxes": "y",
+        "formatString": "%s",
+        "tooltipLocation": "n",
+        "cursorStyle": "pointer"
+    },
+    "handlers": [
+        {"action": "redirect", "event": "click", "url": "%2$s"}
+    ],
+    "dataFormat": "creme.graphael.BargraphData",
+    "dataDefaults": [[[" ", 0.0]]]
+}
