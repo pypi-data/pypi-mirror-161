@@ -1,0 +1,199 @@
+#!python
+from cosymlib import Cosymlib, __version__
+from cosymlib.file_io.tools import print_header, print_footer, print_input_info
+from cosymlib.file_io import read_generic_structure_file
+from cosymlib.symmetry.tools import print_symmetry_labels
+from cosymlib.symmetry.tools import orthogonal_c4
+import argparse
+import sys
+import os
+import yaml
+import numpy as np
+
+
+parser = argparse.ArgumentParser(description='mosym')
+
+# positional arguments
+parser.add_argument(type=str,
+                    dest='input_file',
+                    nargs='?', default=None,
+                    help='input file with structures')
+parser.add_argument(type=str,
+                    dest="yaml_input",
+                    nargs='?', default=None,
+                    help='input file with keywords')
+# Main options
+parser.add_argument('-m', '--measure',
+                    dest='measure',
+                    metavar='SG',
+                    default=False,
+                    help='compute the SG symmetry measure of the input structures')
+parser.add_argument('-o', '--output',
+                    dest='output_name',
+                    metavar='filename',
+                    default=None,
+                    help='store output into a file')
+
+# Extra options
+parser.add_argument('-l', '--labels',
+                    dest='labels',
+                    action='store_true',
+                    default=False,
+                    help='print the symmetry labels (SG) for the groups that can be used')
+parser.add_argument('--info',
+                    action='store_true',
+                    default=False,
+                    help='print information about the input structures')
+parser.add_argument('-v', '--version',
+                    dest='version',
+                    action='store_true',
+                    default=False,
+                    help='print information about the input structures')
+
+# addtional print
+parser.add_argument('-mo', '--molecular_orbitals',
+                    dest='molecular_orbitals',
+                    default=False,
+                    action='store_true',
+                    help='print molecular orbitals symmetry elements')
+parser.add_argument('--trans_matrices',
+                    dest='trans_matrices',
+                    default=False,
+                    action='store_true',
+                    help='print the transformation matrices')
+parser.add_argument('--mo_overlaps',
+                    dest='mo_overlaps',
+                    default=False,
+                    action='store_true',
+                    help='print the molecular orbitals overlap')
+
+# Modifiers
+parser.add_argument('--mode',
+                    dest='mode',
+                    metavar='I',
+                    type=int,
+                    default=0,
+                    help='working mode. Check manual for further details (default:0) ')
+parser.add_argument('--charge',
+                    dest='charge',
+                    metavar='I',
+                    type=int,
+                    default=0,
+                    help='Charge in Extended Huckel calculations default:0) ')
+parser.add_argument('-center',
+                    dest='center',
+                    metavar='R',
+                    type=float,
+                    default=None,
+                    nargs=3,
+                    help='fix coordinates x,y,z for the center of symmetry operations (Angs)')
+parser.add_argument('-axis',
+                    dest='axis',
+                    metavar='R',
+                    type=float,
+                    default=None,
+                    nargs=3,
+                    help='set main symmetry axis')
+parser.add_argument('-axis2',
+                    dest='axis2',
+                    metavar='R',
+                    type=float,
+                    default=None,
+                    nargs=3,
+                    help='set secondary symmetry axis')
+parser.add_argument('--add_axes',
+                    dest='add_axes',
+                    action='store_true',
+                    default=False,
+                    help='create an xyz file of the molecule with axes orientation as dummies')
+parser.add_argument('-c3_c4',
+                    dest='c3_c4',
+                    action='store_true',
+                    default=False,
+                    help='axis1 is a c3 rotational axis instead of a c4')
+
+args = parser.parse_args()
+
+if args.yaml_input:
+    with open(args.yaml_input, 'r') as stream:
+        input_parameters = yaml.safe_load(stream)
+
+    for key, value in input_parameters.items():
+        if key.lower() in args:
+            setattr(args, key.lower(), value)
+        else:
+            raise KeyError("Key %s is not valid" % key)
+
+if args.version:
+    print('Cosymlib version = {}'.format(__version__))
+    exit()
+
+common_output = open(args.output_name, 'w') if args.output_name is not None else sys.stdout
+
+if args.input_file is None:
+    parser.error('No input file selected! An existing file must be provide')
+
+print_header(common_output)
+structures = read_generic_structure_file(args.input_file, read_multiple=True)
+structure_set = Cosymlib(structures, mode=args.mode, charge_eh=args.charge)
+
+if args.labels:
+    print_symmetry_labels()
+    exit()
+
+if args.info:
+    print_input_info(structure_set.get_geometries(), output=common_output)
+    exit()
+
+# Symgroup commands
+if args.measure:
+    if args.axis is not None:
+        args.axis = np.array(args.axis).astype(float)
+    if args.axis2 is not None:
+        args.axis2 = np.array(args.axis2).astype(float)
+    if args.center is not None:
+        args.center = np.array(args.center).astype(float)
+    if args.c3_c4:
+        if args.axis is None:
+            raise KeyError('Missing axis')
+        elif args.axis2 is None:
+            raise KeyError('Missing axis2')
+        args.axis, args.axis2 = orthogonal_c4(args.axis, args.axis2)
+
+    structure_set.print_esym_irreducible_repr(args.measure,
+                                              axis=args.axis,
+                                              axis2=args.axis2,
+                                              center=args.center,
+                                              output=common_output)
+
+    if args.molecular_orbitals:
+        structure_set.print_esym_mo_irreducible_repr(args.measure,
+                                                     axis=args.axis,
+                                                     axis2=args.axis2,
+                                                     center=args.center,
+                                                     show_axes=False,
+                                                     output=common_output)
+
+    if args.trans_matrices:
+        structure_set.print_esym_matrices(args.measure,
+                                          axis=args.axis,
+                                          axis2=args.axis2,
+                                          center=args.center,
+                                          output=common_output)
+
+    if args.mo_overlaps:
+        structure_set.print_esym_sym_overlaps(args.measure,
+                                              axis=args.axis,
+                                              axis2=args.axis2,
+                                              center=args.center,
+                                              output=common_output)
+
+    if args.add_axes:
+        file_name, file_extension = os.path.splitext(args.input_file)
+        output_str = open(file_name + '_orient.xyz', 'w')
+        structure_set.print_esym_orientation(args.measure,
+                                             axis=args.axis,
+                                             axis2=args.axis2,
+                                             center=args.center,
+                                             output=output_str)
+print_footer(common_output)

@@ -1,0 +1,737 @@
+from cosymlib.molecule import Molecule
+from cosymlib.molecule.geometry import Geometry
+from cosymlib.molecule.electronic_structure import ElectronicStructure
+from cosymlib.file_io.tools import extract_geometries
+from cosymlib.tools import atomic_number_to_element, element_to_atomic_number
+from cosymlib.file_io import errors
+
+import numpy as np
+import os, re
+import warnings
+
+
+comment_line = ('#', '!', '$')
+
+
+def _non_blank_lines(f):
+    for l in f:
+        line = l.rstrip()
+        if line:
+            yield line
+
+
+def no_name(file_name, n_title_structure):
+    if len(os.path.splitext(os.path.basename(file_name))[0]) > 8:
+        return os.path.splitext(os.path.basename(file_name))[0][:8] + '_' + str(n_title_structure)
+    else:
+        return os.path.splitext(os.path.basename(file_name))[0] + '_' + str(n_title_structure)
+
+
+def check_geometries_vertices(geometries, file_name):
+    n_atoms = geometries[0].get_n_atoms()
+    for idg, geometry in enumerate(geometries):
+        if geometry.get_n_atoms() != n_atoms:
+            warnings.warn('Structure {} with name {} of file {}\n '
+                          'Number of vertices does not match with other structures\n'.format(idg + 1, geometry.name,
+                                                                                             file_name),
+                          errors.DifferentVerticesWarning)
+
+
+# Read INPUT files
+def read_generic_structure_file(input_name, read_multiple=False):
+    # print('Reading file {}...'.format(os.path.basename(input_name)))
+    if os.stat(input_name).st_size == 0:
+        raise FileExistsError('File {} is empty'.format(os.path.basename(input_name)))
+    file_name, file_extension = os.path.splitext(input_name)
+    if 'molden' in file_name:
+        file_extension = ' molden'
+
+    possibles = globals().copy()
+    possibles.update(locals())
+    method = possibles.get('get_molecule_from_file_' + file_extension[1:])
+    if method is None:
+        method = possibles.get('get_geometry_from_file_' + file_extension[1:])
+    if not method:
+        raise NotImplementedError("File not recognized")
+
+    return method(input_name, read_multiple=read_multiple)
+
+
+def get_geometry_from_file_xyz(file_name, read_multiple=False):
+    """
+    Reads a XYZ file and returns the geometry of all structures in it
+    :param file_name: file name
+    :param read_multiple: read multiple files if available
+    :return: list of Geometry objects
+    """
+    input_molecule = [[], []]
+    geometries = []
+    n_atoms = None
+    n_atoms_line = 1
+    no_title_structures = 1
+    name = ''
+    with open(file_name, mode='r') as lines:
+        for idl, line in enumerate(lines):
+            if line.lstrip().startswith(comment_line):
+                pass
+            elif line.strip() == '':
+                warnings.warn('Line {} is empty in xyz file'.format(idl + 1), errors.EmptyLineWarning)
+            else:
+                try:
+                    float(line.split()[1])
+                    input_molecule[0].append(line.split()[0])
+                    input_molecule[1].append(line.split()[1:])
+                except (IndexError, ValueError):
+                    if input_molecule[0]:
+                        if len(input_molecule[0]) != n_atoms:
+                            warnings.warn('Number of atoms in line {} and number '
+                                          'of atoms provided are not equal'.format(n_atoms_line),
+                                          errors.MissingAtomWarning)
+                        if name == '':
+                            name = no_name(file_name, no_title_structures)
+                            no_title_structures += 1
+
+                        geometries.append(Geometry(symbols=input_molecule[0],
+                                                   positions=input_molecule[1],
+                                                   name=name))
+                        n_atoms = None
+
+                    name = ''
+                    input_molecule = [[], []]
+                    if n_atoms is None:
+                        n_atoms = int(line.split()[0])
+                        n_atoms_line = idl + 1
+                    else:
+                        name = line.split()[0]
+
+        if len(input_molecule[0]) != n_atoms:
+            warnings.warn('Number of atoms in line {} and number '
+                          'of atoms provided are not equal'.format(n_atoms_line),
+                          errors.MissingAtomWarning)
+        if name == '':
+            name = no_name(file_name, no_title_structures)
+
+        geometries.append(Geometry(symbols=input_molecule[0],
+                                   positions=input_molecule[1],
+                                   name=name))
+        if not read_multiple:
+            return geometries[0]
+
+    # Check if all geometries are of the same vertices
+    check_geometries_vertices(geometries, file_name)
+
+    return geometries
+
+
+def get_geometry_from_file_cor(file_name, read_multiple=False):
+    """
+    Reads a Conquest formatted file and the geometry of all structures in it
+    :param file_name: file name
+    :param read_multiple: read multiple files if available
+    :return: list of Geometry objects
+    """
+    input_molecule = [[], []]
+    geometries = []
+    name = ''
+    with open(file_name, mode='r') as lines:
+
+        for idl, line in enumerate(lines):
+            if line.lstrip().startswith(comment_line):
+                pass
+            elif line.strip() == '':
+                warnings.warn('Line {} is empty'.format(idl + 1), errors.EmptyLineWarning)
+            else:
+                try:
+                    float(line.split()[1])
+                    if len(line.split()) == 4:
+                        input_molecule[0].append(line.split()[0])
+                        input_molecule[1].append(line.split()[1:])
+                    elif len(line.split()) == 5:
+                        input_molecule[0].append(line.split()[0])
+                        input_molecule[1].append(line.split()[1:-1])
+                    else:
+                        float(line.split()[2])
+                except (ValueError, IndexError):
+                    if input_molecule[0]:
+                        geometries.append(Geometry(symbols=input_molecule[0],
+                                                   positions=input_molecule[1],
+                                                   name=name))
+                    input_molecule = [[], []]
+                    name = line.replace('**FRAG**', '')[:-1]
+                    name = name.replace(' ', '')
+        geometries.append(Geometry(symbols=input_molecule[0],
+                                   positions=input_molecule[1],
+                                   name=name))
+        if not read_multiple:
+            return geometries[0]
+
+    # Check if all geometries are of the same vertices
+    check_geometries_vertices(geometries, file_name)
+
+    return geometries
+
+
+# TODO: This function should handle open and close shell, mo energies and more. A lot to improve!
+def get_molecule_from_file_fchk(file_name, read_multiple=False):
+    key_list = ['Charge', 'Multiplicity', 'Number of alpha electrons', 'Number of beta electrons', 'Atomic numbers',
+                'Current cartesian coordinates', 'Shell type', 'Number of primitives per shell', 'Shell to atom map',
+                'Primitive exponents', 'Contraction coefficients', 'P(S=P) Contraction coefficients',
+                'Alpha Orbital Energies', 'Beta Orbital Energies', 'Alpha MO coefficients', 'Beta MO coefficients']
+    input_molecule = [[] for _ in range(len(key_list))]
+    read = False
+    with open(file_name, mode='r') as lines:
+        name = lines.readline().split()[0]#.strip('\n')
+        line = lines.readline().split()
+        basis_set = line[-1]
+        if 'R' in line[1]:
+            del key_list[-1]
+
+        n = 1
+        options = True
+        for line in lines:
+            if read:
+                try:
+                    float(line.split()[0])
+                    input_molecule[n].append(line.split())
+                except ValueError:
+                    read = False
+
+            for idn, key in enumerate(key_list):
+                if key in line:
+                    if n == len(key_list) - 1:
+                        break
+                    if options and idn != 4:
+                        input_molecule[idn].append(int(line.split()[-1]))
+                        n = idn
+                        break
+                    else:
+                        options = False
+                    if n == idn:
+                        n += 1
+                    else:
+                        n = idn
+                    read = True
+                    break
+
+        for n in range(4, len(input_molecule)):
+            input_molecule[n] = reformat_input(input_molecule[n])
+        bohr_to_angstrom = 0.529177249
+        coordinates = np.array(input_molecule[5], dtype=float).reshape(-1, 3) * bohr_to_angstrom
+
+        atomic_number = [int(num) for num in input_molecule[4]]
+        symbols = []
+        for number in atomic_number:
+            symbols.append(atomic_number_to_element(number))
+
+        basis = basis_format(basis_set_name=basis_set,
+                             atomic_numbers=atomic_number,
+                             atomic_symbols=symbols,
+                             shell_type=input_molecule[6],
+                             n_primitives=input_molecule[7],
+                             atom_map=input_molecule[8],
+                             p_exponents=input_molecule[9],
+                             c_coefficients=input_molecule[10],
+                             p_c_coefficients=input_molecule[11])
+
+        geometry = Geometry(symbols=symbols,
+                            positions=coordinates,
+                            name=name)
+
+        alpha_energies = np.array(input_molecule[12], dtype=float).tolist()
+        if input_molecule[13]:
+            beta_energies = np.array(input_molecule[13], dtype=float).tolist()
+        else:
+            beta_energies = []
+
+        Ca = np.array(input_molecule[14], dtype=float).reshape(-1, int(np.sqrt(len(input_molecule[14]))))
+        if input_molecule[15]:
+            Cb = np.array(input_molecule[15], dtype=float).reshape(-1, int(np.sqrt(len(input_molecule[15]))))
+        else:
+            Cb = []
+
+        electronic_structure = ElectronicStructure(basis=basis,
+                                                   orbital_coefficients=[Ca, Cb],
+                                                   # charge=input_molecule[0][0],
+                                                   multiplicity=input_molecule[1][0],
+                                                   alpha_energies=alpha_energies,
+                                                   beta_energies=beta_energies,
+                                                   alpha_occupancy=[1]*int(input_molecule[2][0]),
+                                                   beta_occupancy=[1]*int(input_molecule[3][0]))
+
+        if read_multiple:
+            return [Molecule(geometry, electronic_structure)]
+
+        return Molecule(geometry, electronic_structure)
+
+
+def get_molecule_from_file_molden(file_name, read_multiple=False):
+    key_list = ['Charge', 'Multiplicity', 'Atomic numbers', 'Current cartesian coordinates',
+                'Shell type', 'Number of primitives per shell', 'Shell to atom map', 'Primitive exponents',
+                'Contraction coefficients', 'P(S=P) Contraction coefficients',
+                'Alpha MO coefficients', 'Beta MO coefficients', 'MO Energies']
+
+    type_list = {'s': '0',
+                 'p': '1',
+                 'd': '2',
+                 'f': '3',
+                 'sp': '-1'}
+
+    input_molecule = {key: [] for key in key_list}
+    read_molden = False
+    read_coordinates = False
+    read_basis = False
+    read_coefficients = False
+    occupation = {'Alpha': [], 'Beta': []}
+    with open(file_name, mode='r') as lines:
+        lines.readline()
+        lines.readline()
+        name = file_name.split('.')[0]
+        for line in _non_blank_lines(lines):
+
+            if '[' in line:
+                pass
+            elif read_molden:
+                if '======= END OF MOLDEN-FORMAT MOLECULAR ORBITALS =======' in line:
+                    break
+                if read_coordinates:
+                    input_molecule['Atomic numbers'].append(line.split()[2])
+                    input_molecule['Current cartesian coordinates'].append(line.split()[3:])
+                if read_basis:
+                    try:
+                        number = float(line.split()[0].replace('D', 'E'))
+                        if number-int(number) != 0.:
+                            input_molecule['Primitive exponents'].append(line.split()[0].replace('D', 'E'))
+                            input_molecule['Contraction coefficients'].append(line.split()[1].replace('D', 'E'))
+                            if len(line.split()) > 2:
+                                input_molecule['P(S=P) Contraction coefficients'].append(line.split()[2].replace('D', 'E'))
+                            else:
+                                input_molecule['P(S=P) Contraction coefficients'].append(0.)
+                        else:
+                            atom = line.split()[0]
+                    except ValueError:
+                        input_molecule['Shell to atom map'].append(atom)
+                        input_molecule['Shell type'].append(type_list[line.split()[0].lower()])
+                        input_molecule['Number of primitives per shell'].append(line.split()[1])
+                if read_coefficients:
+                    if 'Sym' in line:
+                        pass
+                    else:
+                        if 'Ene' in line:
+                            input_molecule['MO Energies'].append(float(re.split('[= ]', line)[-1]))
+                        elif 'Spin' in line:
+                            spin = re.split('[= ]', line)[-1]
+                            input_molecule[spin + ' MO coefficients'].append([])
+                        elif 'Occup' in line:
+                            occupation[spin].append(int(float(line.split('=')[-1])))
+                        else:
+                            input_molecule[spin+' MO coefficients'][-1].append(line.split()[1])
+
+            if '[Atoms]' in line:
+                read_molden = True
+                read_coordinates = True
+                if 'AU' in line:
+                    bohr_to_angstrom = 0.529177249
+                else:
+                    bohr_to_angstrom = 1
+            elif '[GTO]' in line:
+                read_coordinates = False
+                read_basis = True
+            elif '[MO]' in line:
+                read_basis = False
+                read_coefficients = True
+            elif '[5D]' in line:
+                input_molecule['Shell type'] = [x.replace('2', '-2') for x in input_molecule['Shell type']]
+            elif '[7F]' in line:
+                input_molecule['Shell type'] = [x.replace('3', '-3') for x in input_molecule['Shell type']]
+
+        coordinates = np.array(input_molecule['Current cartesian coordinates'], dtype=float).reshape(-1, 3) * bohr_to_angstrom
+
+        total_n_electrons = 0
+        symbols = []
+        for atom_number in input_molecule['Atomic numbers']:
+            total_n_electrons += int(atom_number)
+            symbols.append(atomic_number_to_element(atom_number))
+
+        new_occupation = []
+        if len(occupation['Beta']) == 0:
+            if 2 not in occupation['Alpha']:
+                occupation['Beta'] = occupation['Alpha']
+            else:
+                for occup in occupation['Alpha']:
+                    new_occupation.append(occup//2)
+                    if occup == 2:
+                        occupation['Beta'].append(1)
+                    else:
+                        occupation['Beta'].append(0)
+                occupation['Alpha'] = new_occupation
+        n_electrons = sum(occupation['Alpha'] + occupation['Beta'])
+        input_molecule['Multiplicity'].append(sum(occupation['Alpha']) - sum(occupation['Beta']) + 1)
+        input_molecule['Charge'].append(int(total_n_electrons - n_electrons))
+
+        basis = basis_format(basis_set_name='UNKNOWN',
+                             atomic_numbers=input_molecule['Atomic numbers'],
+                             atomic_symbols=symbols,
+                             shell_type=input_molecule['Shell type'],
+                             n_primitives=input_molecule['Number of primitives per shell'],
+                             atom_map=input_molecule['Shell to atom map'],
+                             p_exponents=input_molecule['Primitive exponents'],
+                             c_coefficients=input_molecule['Contraction coefficients'],
+                             p_c_coefficients=input_molecule['P(S=P) Contraction coefficients'])
+
+        geometry = Geometry(symbols=symbols,
+                            positions=coordinates,
+                            name=name)
+
+        Ca = np.array(input_molecule['Alpha MO coefficients'], dtype=float)
+        if input_molecule['Beta MO coefficients']:
+            Cb = np.array(input_molecule['Beta MO coefficients'], dtype=float)
+        else:
+            Cb = []
+
+        warnings.warn('Beta energies not implemented yet')
+        ee = ElectronicStructure(basis=basis,
+                                 orbital_coefficients=[Ca, Cb],
+                                 # charge=input_molecule['Charge'][0],
+                                 multiplicity=input_molecule['Multiplicity'][0],
+                                 alpha_energies=input_molecule['MO Energies'],
+                                 beta_energies=[],
+                                 alpha_occupancy=occupation['Alpha'],
+                                 beta_occupancy=occupation['Beta'])
+
+        if read_multiple:
+            return [Molecule(geometry, ee)]
+
+        return Molecule(geometry, ee)
+
+
+def get_geometry_from_file_ref(file_name, read_multiple=False):
+    """
+    Reads a Conquest formatted file and the geometry of all structures in it
+    :param file_name: file name
+    :param read_multiple: read all geometries inside the file
+    :return: list of Geometry objects
+    """
+    input_molecule = []
+    structures = []
+    with open(file_name, mode='r') as lines:
+        lines.readline()
+        lines.readline()
+        name = lines.readline().split()[0]
+        for line in lines:
+            if line.lstrip().startswith(comment_line):
+                pass
+            # elif line.strip() == '':
+            #     warnings.warn('Line {} is empty'.format(idl + 1), custom_errors.EmptyLineWarning)
+            else:
+                try:
+                    if len(line.split()) > 3:
+                        float(line.split()[1])
+                        input_molecule.append(line.split()[1:])
+                    else:
+                        float(line.split()[0])
+                        input_molecule.append(line.split())
+                except (ValueError, IndexError):
+                    if input_molecule:
+                        structures.append(Geometry(positions=input_molecule,
+                                                   name=name))
+                    input_molecule = []
+                    name = line.split()[0]
+        structures.append(Geometry(positions=input_molecule,
+                                   name=name))
+    if read_multiple is False:
+        return structures[0]
+
+    return structures
+
+
+def get_geometry_from_file_pdb(file_name, read_multiple=False):
+    """
+    Reads a Conquest formatted file and the geometry of all structures in it
+    :param file_name: file name
+    :param read_multiple: read multiple files if available
+    :return: list of Geometry objects
+    """
+
+    file_txt = open(file_name, mode='r').read()
+
+    index_list = []
+    for i in re.finditer('TITLE', file_txt):
+        index_list.append(i.start())
+    index_list.append(len(file_txt))
+
+    geometries = []
+    for i in range(len(index_list)-1):
+        mol_section = file_txt[index_list[i]:index_list[i+1]]
+        coordinates = []
+        symbols = []
+        connect = []
+        name = ''
+        for line in mol_section.split('\n'):
+            if line.find('TITLE') > -1:
+                name = ' '.join(line.split()[1:])
+            if line.find('HETATM') > -1 or line.find('ATOM') > -1:
+                coordinates.append([float(num) for num in line.split()[4:7]])
+                symbols.append(line.split()[2])
+            if line.find('CONECT') > -1:
+                connect.append([int(num) for num in line.split()[1:]])
+            if line.find('TER') > -1 or line.find('END') > -1:
+                break
+
+        connectivity = []
+        for atom in connect:
+            for j in atom[1:]:
+                connectivity.append((atom[0], j))
+
+        geometries.append(Geometry(symbols=symbols,
+                                   positions=coordinates,
+                                   name=name,
+                                   connectivity=connectivity))
+
+    if read_multiple is False:
+        return geometries[0]
+
+    return geometries
+
+
+def basis_format(basis_set_name,
+                 atomic_numbers,
+                 atomic_symbols,
+                 shell_type,
+                 n_primitives,
+                 atom_map,
+                 p_exponents,
+                 c_coefficients,
+                 p_c_coefficients):
+    type_list = {'0': ['s', 1],
+                 '1': ['p', 3],
+                 '2': ['d', 6],
+                 '3': ['f', 10],
+                 '-1': ['sp', 4],
+                 '-2': ['d_', 5],
+                 '-3': ['f_', 7]}
+
+    atomic_numbers = np.array(atomic_numbers, dtype=int)
+    atom_map = np.array(atom_map, dtype=int)
+
+    basis_set = {'name': basis_set_name,
+                 'primitive_type': 'gaussian'}
+
+    # shell_type_index = [0] + np.cumsum([type_list['{}'.format(s)][1]
+    #                                     for s in shell_type]).tolist()
+    prim_from_shell_index = [0] + np.cumsum(np.array(n_primitives, dtype=int)).tolist()
+
+    atoms_data = []
+    for iatom, atomic_number in enumerate(atomic_numbers):
+        symbol = atomic_symbols[iatom]
+
+        shell_from_atom_counts = np.unique(atom_map, return_counts=True)[1]
+        shell_from_atom_index = np.unique(atom_map, return_index=True)[1]
+
+        shells_data = []
+        for ishell in range(shell_from_atom_counts[iatom]):
+            st = type_list['{}'.format(shell_type[shell_from_atom_index[iatom] + ishell])]
+            ini_prim = prim_from_shell_index[shell_from_atom_index[iatom] + ishell]
+            fin_prim = prim_from_shell_index[shell_from_atom_index[iatom] + ishell + 1]
+
+            shells_data.append({
+                'shell_type': st[0],
+                'p_exponents': p_exponents[ini_prim: fin_prim],
+                'con_coefficients': c_coefficients[ini_prim: fin_prim],
+                'p_con_coefficients': p_c_coefficients[ini_prim: fin_prim],
+            })
+
+        atoms_data.append({'shells': shells_data,
+                           'symbol': symbol,
+                           'atomic_number': atomic_number})
+
+    basis_set['atoms'] = atoms_data
+
+    return basis_set
+
+
+def get_connectivity_from_file(file_name):
+
+    file_txt = open(file_name, mode='r').read()
+
+    connect = []
+    for line in file_txt.split('\n'):
+            try:
+                connect.append([int(num) for num in line.split()])
+            except ValueError:
+                raise Exception('Error reading connectivity file')
+
+    connectivity = []
+    for atom in connect:
+        for j in atom[1:]:
+            connectivity.append((atom[0], j))
+
+    return connectivity
+
+
+def get_permutation_from_file(file_name):
+    permutation = []
+    with open(file_name, 'r') as f:
+        for line in f:
+            try:
+                permutation.append(np.array(line.strip().split(), dtype=int).tolist())
+            except ValueError:
+                raise Exception('Error reading permutation file')
+
+    return permutation
+
+
+# Get OUPUT files
+def get_file_xyz_txt(structure):
+
+    # Get xyz file format from Molecule or Geometry (or list)
+    geometries = extract_geometries(structure, as_list=True)
+
+    txt = ''
+    for geometry in geometries:
+        txt += '{}\n'.format(geometry.get_n_atoms())
+        txt += '{}\n'.format(geometry.name if geometry.name is not None else '')
+        for idp, position in enumerate(geometry.get_positions()):
+            txt += '{:2} {:11.6f} {:11.6f} {:11.6f}\n'.format(geometry.get_symbols()[idp],
+                                                                  position[0], position[1], position[2])
+    return txt
+
+
+# Support functions
+def reformat_input(array):
+    flat_list = []
+    for sublist in array:
+        for item in sublist:
+            if len(item) > 2:
+                flat_list.append(item)
+            else:
+                flat_list.append(item)
+    return flat_list
+
+
+def get_array_txt(label, type, array, row_size=5):
+
+    formats = {'R': '15.8e',
+               'I': '11'}
+
+    n_elements = len(array)
+    rows = int(np.ceil(n_elements/row_size))
+
+    txt_fchk = '{:40}   {}   N=       {:5}\n'.format(label, type, n_elements)
+
+    for i in range(rows):
+        if (i+1)*row_size > n_elements:
+            txt_fchk += (' {:{fmt}}'* (n_elements - i*row_size) + '\n').format(*array[i * row_size:n_elements],
+                                                                               fmt=formats[type])
+        else:
+            txt_fchk += (' {:{fmt}}'* row_size  + '\n').format(*array[i * row_size: (i+1)*row_size],
+                                                               fmt=formats[type])
+
+    return txt_fchk
+
+
+def build_fchk(molecule):
+
+
+    structure = np.array(molecule.geometry.get_positions())
+    basis = molecule.electronic_structure.basis
+    alpha_mo_coeff = molecule.electronic_structure.coefficients_a
+    alpha_mo_energies = molecule.electronic_structure.alpha_energies
+    if molecule.electronic_structure.coefficients_b != molecule.electronic_structure.coefficients_a:
+        beta_mo_coeff = molecule.electronic_structure.coefficients_b
+        beta_mo_energies = molecule.electronic_structure.beta_energies
+        beta_mo_coeff = np.array(beta_mo_coeff).flatten().tolist()
+    else:
+        beta_mo_coeff = None
+        beta_mo_energies = None
+
+    number_of_basis_functions = len(alpha_mo_coeff)
+    alpha_electrons = molecule.electronic_structure.alpha_electrons
+    beta_electrons = molecule.electronic_structure.beta_electrons
+    number_of_electrons = alpha_electrons + beta_electrons
+
+    alpha_mo_coeff = np.array(alpha_mo_coeff).flatten().tolist()
+
+    atomic_numbers = [element_to_atomic_number(symbol) for symbol in molecule.geometry.get_symbols()]
+    total_energy = np.dot(alpha_mo_energies, alpha_electrons) + np.dot(beta_mo_energies, beta_electrons)
+
+    shell_type_list = {'s':  {'type':  0, 'angular_momentum': 0},
+                       'p':  {'type':  1, 'angular_momentum': 1},
+                       'd':  {'type':  2, 'angular_momentum': 2},
+                       'f':  {'type':  3, 'angular_momentum': 3},
+                       'sp': {'type': -1, 'angular_momentum': 1},  # hybrid
+                       'd_': {'type': -2, 'angular_momentum': 2},  # pure
+                       'f_': {'type': -3, 'angular_momentum': 3}}  # pure
+
+    shell_type = []
+    p_exponents = []
+    c_coefficients = []
+    p_c_coefficients = []
+    n_primitives = []
+    atom_map = []
+
+    largest_degree_of_contraction = 0
+    highest_angular_momentum = 0
+    number_of_contracted_shells = 0
+
+    for i, atoms in enumerate(basis['atoms']):
+        for shell in atoms['shells']:
+            number_of_contracted_shells += 1
+            st = shell['shell_type']
+            shell_type.append(shell_type_list[st]['type'])
+            n_primitives.append(len(shell['p_exponents']))
+            atom_map.append(i+1)
+            if highest_angular_momentum < shell_type_list[st]['angular_momentum']:
+                highest_angular_momentum = shell_type_list[st]['angular_momentum']
+
+            if len(shell['con_coefficients']) > largest_degree_of_contraction:
+                    largest_degree_of_contraction = len(shell['con_coefficients'])
+
+            for p in shell['p_exponents']:
+                p_exponents.append(p)
+            for c in shell['con_coefficients']:
+                c_coefficients.append(c)
+            for pc in shell['p_con_coefficients']:
+                p_c_coefficients.append(pc)
+
+    angstrom_to_bohr = 1/0.529177249
+    coordinates_list = angstrom_to_bohr*structure.flatten()
+
+    txt_fchk = '{}\n'.format('Extended Huckel calculation over filename')
+    txt_fchk += 'SP        RHuckel                                                     {}\n'.format('STO-3G')
+    txt_fchk += 'Number of atoms                            I               {}\n'.format(len(structure))
+    txt_fchk += 'Charge                                     I               {}\n'.format(molecule.get_charge())
+    txt_fchk += 'Multiplicity                               I               {}\n'.format(molecule.electronic_structure.
+                                                                                         multiplicity)
+    txt_fchk += 'Number of electrons                        I               {}\n'.format(number_of_electrons)
+    txt_fchk += 'Number of alpha electrons                  I               {}\n'.format(alpha_electrons)
+    txt_fchk += 'Number of beta electrons                   I               {}\n'.format(beta_electrons)
+    txt_fchk += 'Number of basis functions                  I               {}\n'.format(number_of_basis_functions)
+
+    txt_fchk += get_array_txt('Atomic numbers', 'I', atomic_numbers, row_size=6)
+    txt_fchk += get_array_txt('Nuclear charges', 'R', atomic_numbers)
+    txt_fchk += get_array_txt('Current cartesian coordinates', 'R', coordinates_list)
+
+    txt_fchk += 'Number of contracted shells                I               {}\n'.format(number_of_contracted_shells)
+    txt_fchk += 'Number of primitive shells                 I               {}\n'.format(np.sum(n_primitives))
+    txt_fchk += 'Highest angular momentum                   I               {}\n'.format(highest_angular_momentum)
+    txt_fchk += 'Largest degree of contraction              I               {}\n'.format(largest_degree_of_contraction)
+
+    txt_fchk += get_array_txt('Shell types', 'I', shell_type, row_size=6)
+    txt_fchk += get_array_txt('Number of primitives per shell', 'I', n_primitives, row_size=6)
+    txt_fchk += get_array_txt('Shell to atom map', 'I', atom_map, row_size=6)
+    txt_fchk += get_array_txt('Primitive exponents', 'R', p_exponents)
+    txt_fchk += get_array_txt('Contraction coefficients', 'R', c_coefficients)
+    txt_fchk += get_array_txt('P(S=P) Contraction coefficients', 'R', p_c_coefficients)
+    # txt_fchk += get_array_txt('Coordinates of each shell', 'R', coor_shell) #
+    # txt_fchk += get_array_txt('Overlap Matrix', 'R', overlap)
+    #txt_fchk += get_array_txt('Core Hamiltonian Matrix', 'R', core_hamiltonian)
+    txt_fchk += 'Total Energy                               R             {}\n'.format(total_energy)
+    txt_fchk += get_array_txt('Alpha Orbital Energies', 'R', alpha_mo_energies)
+    if beta_mo_energies is not None:
+        txt_fchk += get_array_txt('Beta Orbital Energies', 'R', beta_mo_energies)
+    # txt_fchk += get_array_txt('Total SCF Density', 'R', scf_density)
+    txt_fchk += get_array_txt('Alpha MO coefficients', 'R', alpha_mo_coeff)
+    if beta_mo_coeff is not None:
+        txt_fchk += get_array_txt('Beta MO coefficients', 'R', beta_mo_coeff)
+
+    return txt_fchk
