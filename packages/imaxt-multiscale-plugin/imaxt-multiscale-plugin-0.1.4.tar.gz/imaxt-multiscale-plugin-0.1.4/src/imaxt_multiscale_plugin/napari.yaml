@@ -1,0 +1,48 @@
+name: imaxt-multiscale-plugin
+display_name: IMAXT Multiscale Image Napari Plugin
+contributions:
+  commands:
+    - id: imaxt-multiscale-plugin.get_reader
+      python_name: imaxt_multiscale_plugin._reader:napari_get_reader
+      title: Open data with IMAXT Multiscale Image Napari Plugin
+    - id: imaxt-multiscale-plugin.write_multiple
+      python_name: imaxt_multiscale_plugin._writer:write_multiple
+      title: Save multi-layer data with IMAXT Multiscale Image Napari Plugin
+    - id: imaxt-multiscale-plugin.write_single_image
+      python_name: imaxt_multiscale_plugin._writer:write_single_image
+      title: Save image data with IMAXT Multiscale Image Napari Plugin
+    - id: imaxt-multiscale-plugin.make_sample_data
+      python_name: imaxt_multiscale_plugin._sample_data:make_sample_data
+      title: Load sample data from IMAXT Multiscale Image Napari Plugin
+    - id: imaxt-multiscale-plugin.make_qwidget
+      python_name: imaxt_multiscale_plugin._widget:ExampleQWidget
+      title: Make example QWidget
+    - id: imaxt-multiscale-plugin.make_magic_widget
+      python_name: imaxt_multiscale_plugin._widget:example_magic_widget
+      title: Make example magic widget
+    - id: imaxt-multiscale-plugin.make_func_widget
+      python_name: imaxt_multiscale_plugin._widget:example_function_widget
+      title: Make example function widget
+  readers:
+    - command: imaxt-multiscale-plugin.get_reader
+      accepts_directories: true
+      filename_patterns: ['*']
+  writers:
+    - command: imaxt-multiscale-plugin.write_multiple
+      layer_types: ['image*','labels*']
+      filename_extensions: []
+    - command: imaxt-multiscale-plugin.write_single_image
+      layer_types: ['image']
+      filename_extensions: ['.npy']
+  sample_data:
+    - command: imaxt-multiscale-plugin.make_sample_data
+      display_name: IMAXT Multiscale Image Napari Plugin
+      key: unique_id.1
+  widgets:
+    - command: imaxt-multiscale-plugin.make_qwidget
+      display_name: Example QWidget
+    - command: imaxt-multiscale-plugin.make_magic_widget
+      display_name: Example Magic Widget
+    - command: imaxt-multiscale-plugin.make_func_widget
+      autogenerate: true
+      display_name: Example Function Widget
