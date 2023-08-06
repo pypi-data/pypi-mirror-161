@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  twine-check:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - run: python setup.py sdist
+      - run: python -m pip install -U --user --force-reinstall twine
+      - run: python -m twine check dist/*
+
+workflows:
+  version: 2
+  twine-check:
+    jobs:
+      - twine-check
