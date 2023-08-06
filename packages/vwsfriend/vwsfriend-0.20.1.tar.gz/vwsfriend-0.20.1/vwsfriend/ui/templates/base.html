@@ -1,0 +1,48 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - VWsFriend</title>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head %}
+{% endblock %}
+<div id="wrapper">
+<nav>
+  <h1>VWsFriend</h1>
+  <ul>
+    {% if current_app.connector.withDB and g.dbsettings is not none %}
+    <li><a href="{{ g.dbsettings.grafana_url}}">Visualization</a>
+    {% endif %}
+    <li><a href="{{ url_for('status.vehicles') }}">Status</a>
+    {% if current_app.connector.withDB %}
+      <li><a href="{{ url_for('database.overview') }}">Database</a>
+      {% endif %}
+    {% if current_app.homekitDriver %}
+    <li><a href="{{ url_for('settings.homekit') }}">Homekit</a>
+    {% endif %}
+    {% if current_app.connector.withDB and current_app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql://') %}
+    <li><a href="{{ url_for('database.backup') }}">Backup</a>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+    <li><a href="{{ url_for('logout') }}" class="button">Logout</a>
+    {% else %}
+    <li><a href="{{ url_for('login') }}" class="button">Login</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
+
+<section id="footer">
+  {% block footer %}
+  VWsFriend <a href="{{ url_for('versions') }}">{{ g.versions['VWsFriend']}}</a>
+  {% endblock %}
+</section>
+</div>
