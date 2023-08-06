@@ -1,0 +1,85 @@
+{% extends "base.spc" %}
+
+{% block include_css %}
+    <!-- include your css stylesheets here -->
+
+    <!--link href="{{static_url("css/prism.css")}}" rel="stylesheet" /-->
+    <link href="{{static_url("css/highlight-styles/hopscotch.css")}}" rel="stylesheet" />
+   
+    
+{% end %}
+
+{% block view_css %}
+    <style>
+        /* add styles for this view here */
+    </style>
+
+{% end %}
+
+{% block content %}
+    
+    <!-- 
+        *************
+        the cli 
+        *************
+    -->
+    <div class="container" id="cli_div">
+        Hello Websocket container.
+
+    </div>
+
+{% end %}
+
+{% block include_js %}
+    <!--Include your js libs here -->
+{% end %}
+
+{% block view_js %}
+    <script>
+
+    var clientId = generateUUID();
+
+	// 
+	// open the websocket
+	//
+    var loc = window.location, new_uri;
+	if (loc.protocol === "https:") {
+	    new_uri = "wss:";
+	} else {
+	    new_uri = "ws:";
+	}
+    //
+    // adapt this to your websocket handler's route.
+    // for the generated example this is: /websocket
+    //
+	new_uri += "//" + loc.host + "/websocket";
+	console.log(new_uri);
+    var ws = new WebSocket(new_uri);
+    var current_connection = "{{connection_id}}";
+
+    ws.onopen = function() {
+        data={
+            "client_id"     : clientId,
+            "connection_id" : current_connection,
+            "method"        : "welcome",
+            "data"          : "hello world."
+        }
+
+        ws.send(JSON.stringify(data));
+    };
+
+    ws.onmessage = function (evt) {
+        //
+        // checking the message type and 
+        // generate the appropriate output        
+        data=JSON.parse(evt.data);
+        console.log("I received: " + JSON.stringify(data, null, 2));
+        console.log( data["data"]);
+        // if info 
+        console.log("I received: data['type'] :" + data["type"])
+        
+    };
+        
+    </script>
+
+{% end %}
