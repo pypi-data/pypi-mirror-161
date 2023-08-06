@@ -1,0 +1,78 @@
+#Build Configuration for docker deployment to artifactory
+image: python:3.9
+
+definitions:
+  services:
+    redis:
+      image: redis
+  steps:
+    - step: &lint
+        caches:
+          - pip
+        name: Lint
+        script:
+          - pip install pre-commit
+          - pre-commit install
+          - pre-commit run --all-files
+    - step: &scan
+        caches:
+          - pip
+        name: Scan
+        script:
+          - pip install -e .
+          - pip freeze | grep -v @ > requirements.txt
+          - cat requirements.txt
+          - echo $SNYK_VERSION
+          - curl -L -o snyk https://github.com/snyk/snyk/releases/download/$SNYK_VERSION/snyk-linux
+          - chmod 755 snyk
+          - ./snyk -d auth $SNYK_TOKEN
+          - echo $SNYK_CLI_COMMAND
+          - $SNYK_CLI_COMMAND
+    - step: &test
+        caches:
+          - pip
+        name: Test
+        script:
+          - pip install .[test]
+          - pip install -U dkist-processing-core
+          - pytest -v -n auto -m "not development" --cov dkist_processing_test
+        services:
+          - redis
+    - step: &push_workflow
+        caches:
+          - pip
+        name: Push Workflow
+        script:
+          - pip install .
+          - pip install -U dkist-processing-core
+          - export BUILD_VERSION="${BITBUCKET_TAG:1}"
+          - export ARTIFACT_FOLDER="${BITBUCKET_REPO_SLUG}_${BUILD_VERSION}/"
+          - python -c "from dkist_processing_core.build_utils import export; import dkist_processing_test.workflows as workflow_package; export(workflow_package, '${ARTIFACT_FOLDER}')"
+          - export SOURCE_PATH="workflow_${BUILD_VERSION}.gz"
+          - tar --exclude="bitbucket-pipelines.yml" -cvzf ${SOURCE_PATH} ${ARTIFACT_FOLDER}
+          - export TARGET_PATH="generic-packages/dkist-processing-test/${BUILD_VERSION}/"
+          - curl -fL https://getcli.jfrog.io | sh
+          - ./jfrog rt u --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --password $ARTIFACTORY_PASSWORD ${SOURCE_PATH} ${TARGET_PATH}
+    - step: &push_code
+        caches:
+          - pip
+        name: Push Code
+        script:
+          - python setup.py sdist
+          - pip install twine
+          - twine upload dist/*
+
+
+pipelines:
+  default:
+    - step: *lint
+#    - step: *scan
+    - step: *test
+  tags:
+    'v*':
+      - parallel:
+          - step: *lint
+#          - step: *scan
+          - step: *test
+      - step: *push_workflow
+      - step: *push_code
