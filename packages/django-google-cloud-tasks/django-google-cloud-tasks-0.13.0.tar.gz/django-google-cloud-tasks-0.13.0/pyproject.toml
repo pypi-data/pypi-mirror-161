@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "django-google-cloud-tasks"
+version = "0.13.0"
+description = "Async Tasks with HTTP endpoints"
+authors = ["Joao Daher <joao@daher.dev>"]
+packages = [
+    { include = "django_cloud_tasks" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+django = ">=3,<5"
+gcp-pilot = {version = "*", extras = ["tasks", "pubsub"]}
+
+
+[tool.poetry.dev-dependencies]
+pylint = "*"
+black = "*"
+nose = "^1"
+coverage = "*"
+factory-boy = "*"
+freezegun = "*"
+
+[tool.black]
+line-length = 120
+target-version = ['py39']
+
+
+[tool.pylint.master]
+ignore = "migrations"
+
+[tool.pylint.messages_control]
+disable = "C0114, C0115, C0116, W0212, W0511, W0613, W1203, W0221, R0901, R0903, R0913, R0801, R0401, R0902, R0914"
+
+[tool.pylint.format]
+max-line-length = "120"
+
+[tool.pylint.basic]
+good-names= "i, j, k, m, n, dt, db, pk, tz, qs, ex, _"
+
+
+[tool.coverage.run]
+branch = true
+source = ["django_cloud_tasks"]
+omit = ["*/manage.py", "*/settings.py", "*/wsgi.py"]
+
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
