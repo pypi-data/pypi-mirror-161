@@ -1,0 +1,206 @@
+Metadata-Version: 2.1
+Name: mlrun
+Version: 1.1.0rc20
+Summary: Tracking and config of machine learning runs
+Home-page: https://github.com/mlrun/mlrun
+Author: Yaron Haviv
+Author-email: yaronh@iguazio.com
+License: MIT
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Libraries
+Description-Content-Type: text/markdown
+Requires-Dist: urllib3 (<1.27,>=1.25.4)
+Requires-Dist: chardet (<4.0,>=3.0.2)
+Requires-Dist: GitPython (~=3.0)
+Requires-Dist: aiohttp (~=3.8)
+Requires-Dist: click (~=8.0.0)
+Requires-Dist: typing-extensions (<4,>=3.10.0)
+Requires-Dist: kfp (~=1.8.0)
+Requires-Dist: nest-asyncio (~=1.0)
+Requires-Dist: ipython (~=7.0)
+Requires-Dist: nuclio-jupyter (~=0.9.1)
+Requires-Dist: numpy (<1.23.0,>=1.16.5)
+Requires-Dist: pandas (~=1.2)
+Requires-Dist: pyarrow (<7,>=1)
+Requires-Dist: pyyaml (~=5.1)
+Requires-Dist: requests (~=2.22)
+Requires-Dist: sqlalchemy (~=1.3)
+Requires-Dist: tabulate (~=0.8.6)
+Requires-Dist: v3io (~=0.5.13)
+Requires-Dist: pydantic (~=1.5)
+Requires-Dist: orjson (~=3.3)
+Requires-Dist: alembic (<1.6.0,~=1.4)
+Requires-Dist: mergedeep (~=1.3)
+Requires-Dist: v3io-frames (~=0.10.2)
+Requires-Dist: semver (~=2.13)
+Requires-Dist: dask (~=2021.11.2)
+Requires-Dist: distributed (~=2021.11.2)
+Requires-Dist: kubernetes (~=12.0)
+Requires-Dist: humanfriendly (~=8.2)
+Requires-Dist: fastapi (~=0.78.0)
+Requires-Dist: fsspec (~=2021.8.1)
+Requires-Dist: v3iofs (~=0.1.7)
+Requires-Dist: cryptography (<3.4,~=3.0)
+Requires-Dist: storey (~=1.1.5)
+Requires-Dist: deepdiff (~=5.0)
+Requires-Dist: pymysql (~=1.0)
+Requires-Dist: inflection (~=0.5.0)
+Requires-Dist: python-dotenv (~=0.17.0)
+Provides-Extra: api
+Requires-Dist: uvicorn (~=0.17.0) ; extra == 'api'
+Requires-Dist: dask-kubernetes (~=0.11.0) ; extra == 'api'
+Requires-Dist: apscheduler (~=3.6) ; extra == 'api'
+Requires-Dist: sqlite3-to-mysql (~=1.4) ; extra == 'api'
+Provides-Extra: azure-blob-storage
+Requires-Dist: msrest (~=0.6.21) ; extra == 'azure-blob-storage'
+Requires-Dist: azure-storage-blob (~=12.0) ; extra == 'azure-blob-storage'
+Requires-Dist: azure-core (<1.23) ; extra == 'azure-blob-storage'
+Requires-Dist: adlfs (~=2021.8.1) ; extra == 'azure-blob-storage'
+Provides-Extra: azure-key-vault
+Requires-Dist: azure-identity (~=1.5) ; extra == 'azure-key-vault'
+Requires-Dist: azure-keyvault-secrets (~=4.2) ; extra == 'azure-key-vault'
+Provides-Extra: bokeh
+Requires-Dist: bokeh (>=2.4.2,~=2.4) ; extra == 'bokeh'
+Provides-Extra: complete
+Requires-Dist: adlfs (~=2021.8.1) ; extra == 'complete'
+Requires-Dist: aiobotocore (~=1.4.0) ; extra == 'complete'
+Requires-Dist: aioitertools (<0.9) ; extra == 'complete'
+Requires-Dist: azure-core (<1.23) ; extra == 'complete'
+Requires-Dist: azure-identity (~=1.5) ; extra == 'complete'
+Requires-Dist: azure-keyvault-secrets (~=4.2) ; extra == 'complete'
+Requires-Dist: azure-storage-blob (~=12.0) ; extra == 'complete'
+Requires-Dist: boto3 (<1.17.107,~=1.9) ; extra == 'complete'
+Requires-Dist: botocore (<1.20.107,>=1.20.106) ; extra == 'complete'
+Requires-Dist: gcsfs (~=2021.8.1) ; extra == 'complete'
+Requires-Dist: google-cloud-bigquery (~=3.0) ; extra == 'complete'
+Requires-Dist: kafka-python (~=2.0) ; extra == 'complete'
+Requires-Dist: msrest (~=0.6.21) ; extra == 'complete'
+Requires-Dist: plotly (~=5.4) ; extra == 'complete'
+Requires-Dist: s3fs (~=2021.8.1) ; extra == 'complete'
+Provides-Extra: complete-api
+Requires-Dist: adlfs (~=2021.8.1) ; extra == 'complete-api'
+Requires-Dist: aiobotocore (~=1.4.0) ; extra == 'complete-api'
+Requires-Dist: aioitertools (<0.9) ; extra == 'complete-api'
+Requires-Dist: apscheduler (~=3.6) ; extra == 'complete-api'
+Requires-Dist: azure-core (<1.23) ; extra == 'complete-api'
+Requires-Dist: azure-identity (~=1.5) ; extra == 'complete-api'
+Requires-Dist: azure-keyvault-secrets (~=4.2) ; extra == 'complete-api'
+Requires-Dist: azure-storage-blob (~=12.0) ; extra == 'complete-api'
+Requires-Dist: boto3 (<1.17.107,~=1.9) ; extra == 'complete-api'
+Requires-Dist: botocore (<1.20.107,>=1.20.106) ; extra == 'complete-api'
+Requires-Dist: dask-kubernetes (~=0.11.0) ; extra == 'complete-api'
+Requires-Dist: gcsfs (~=2021.8.1) ; extra == 'complete-api'
+Requires-Dist: google-cloud-bigquery (~=3.0) ; extra == 'complete-api'
+Requires-Dist: kafka-python (~=2.0) ; extra == 'complete-api'
+Requires-Dist: msrest (~=0.6.21) ; extra == 'complete-api'
+Requires-Dist: plotly (~=5.4) ; extra == 'complete-api'
+Requires-Dist: s3fs (~=2021.8.1) ; extra == 'complete-api'
+Requires-Dist: sqlite3-to-mysql (~=1.4) ; extra == 'complete-api'
+Requires-Dist: uvicorn (~=0.17.0) ; extra == 'complete-api'
+Provides-Extra: google-cloud-bigquery
+Requires-Dist: google-cloud-bigquery (~=3.0) ; extra == 'google-cloud-bigquery'
+Provides-Extra: google-cloud-storage
+Requires-Dist: gcsfs (~=2021.8.1) ; extra == 'google-cloud-storage'
+Provides-Extra: kafka
+Requires-Dist: kafka-python (~=2.0) ; extra == 'kafka'
+Provides-Extra: plotly
+Requires-Dist: plotly (~=5.4) ; extra == 'plotly'
+Provides-Extra: s3
+Requires-Dist: boto3 (<1.17.107,~=1.9) ; extra == 's3'
+Requires-Dist: botocore (<1.20.107,>=1.20.106) ; extra == 's3'
+Requires-Dist: aiobotocore (~=1.4.0) ; extra == 's3'
+Requires-Dist: aioitertools (<0.9) ; extra == 's3'
+Requires-Dist: s3fs (~=2021.8.1) ; extra == 's3'
+
+<a id="top"></a>
+[![Build Status](https://github.com/mlrun/mlrun/workflows/CI/badge.svg)](https://github.com/mlrun/mlrun/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![PyPI version fury.io](https://badge.fury.io/py/mlrun.svg)](https://pypi.python.org/pypi/mlrun/)
+[![Documentation](https://readthedocs.org/projects/mlrun/badge/?version=latest)](https://mlrun.readthedocs.io/en/latest/?badge=latest)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+<p align="left"><img src="docs/_static/images/MLRun-logo.png" alt="MLRun logo" width="150"/></p>
+
+
+
+## MLRun - The Open Source MLOps Orchestration Framework
+
+MLRun enables production pipeline design using a modular strategy, where the different parts contribute to a continuous, automated, and far simpler path from research and development to scalable production pipelines, without refactoring code, adding glue logic, or spending significant efforts on data and ML engineering.
+
+MLRun uses **Serverless Function** technology: write the code once, using your preferred development environment and simple “local” semantics, and then run it as-is on different platforms and at scale. MLRun automates the build process, execution, data movement, scaling, versioning, parameterization, outputs tracking, CI/CD integration, deployment to production, monitoring, and more.
+
+Those easily developed data or ML “functions” can then be published or loaded from a [marketplace](https://www.mlrun.org/marketplace/) and used later to form offline or real-time production pipelines with minimal engineering efforts.
+
+<p align="center"><img src="./docs/_static/images/mlrun-flow.png" alt="mlrun-flow" width="600"/></p><br>
+
+Data preparation, model development, model and application delivery, and end to end monitoring are tightly connected: they cannot be managed in silos. This is where MLRun MLOps orchestration comes in. ML, data, and DevOps/MLOps teams collaborate using the same set of tools, practices, APIs, metadata, and version control.
+
+**MLRun simplifies & accelerates the time to production.**
+
+## Architecture 
+
+![pipeline](./docs/_static/images/pipeline.png)
+
+MLRun is composed of the following layers:
+
+- **[Feature Store](https://docs.mlrun.org/en/latest/feature-store/feature-store.html)** &mdash; collects, prepares, catalogs, and serves data features for development (offline) and real-time (online) usage for real-time and batch data. See also 
+[Feature store: data ingestion](https://docs.mlrun.org/en/latest/feature-store/feature-store-data-ingestion.html) and [Feature store: data retrieval](https://docs.mlrun.org/en/latest/feature-store/feature-store-data-retrieval.html), as well as the [Feature Store tutorials](https://docs.mlrun.org/en/latest/feature-store/feature-store-tutorials.html).
+- **[ML CI/CD pipeline](https://docs.mlrun.org/en/latest/projects/ci-integration.html)** &mdash; automatically trains, tests, optimizes, and deploys or updates models using a snapshot of the production 
+data (generated by the feature store) and code from the source control (Git).
+- **[Real-Time Serving Pipeline](https://docs.mlrun.org/en/latest/serving/serving-graph.html)** &mdash; Rapid deployment of scalable data and ML pipelines using real-time serverless technology, including 
+the API handling, data preparation/enrichment, [model serving](https://docs.mlrun.org/en/latest/serving/build-graph-model-serving.html), ensembles, driving and measuring actions, etc.
+- **[Real-Time monitoring and retraining](https://docs.mlrun.org/en/latest/model_monitoring/index.html)** &mdash; monitors data, models, and production components and provides a feedback loop for exploring production data, identifying drift, alerting on anomalies or data quality issues, triggering re-training jobs, measuring business impact, etc.
+
+## Get started
+
+It's easy to start using MLRun: 
+1. Install the MLRun service [locally using Docker](https://docs.mlrun.org/en/latest/install/local-docker.html) or [over Kubernetes Cluster](https://docs.mlrun.org/en/latest/install/kubernetes.html). Alternatively, you can use [Iguazio's managed MLRun service](https://www.iguazio.com/docs/latest-release/)
+2. [Set up your client environment](https://docs.mlrun.org/en/latest/install/remote.html) to work with the service. 
+3. Follow the [Quick Start tutorial](https:///docs.mlrun.org/en/latest/quick-start/quick-start.html) and [Additional Tutorials and Examples](https://docs.mlrun.org/en/latest/howto/index.html) to learn how to use MLRun to develop and deploy machine learning applications to production.<br>
+
+For hands-on learning, try the [MLRun Katakoda Scenarios](https://www.katacoda.com/mlrun). And you can watch the [Tutorial on Youtube](https://www.youtube.com/embed/O6g1pJJ609U) to see the flow in action.
+
+## MLRun documentation
+
+Read more in the MLRun documentation, including:
+- MLRun basics
+   - [What is MLRun?](https://docs.mlrun.org/en/latest/index.html)
+   - [Quick-Start Guide](https://docs.mlrun.org/en/latest/quick-start/quick-start.html)
+   - [Tutorials and examples](https://docs.mlrun.org/en/latest/howto/index.html)
+   - [Installation and setup guide](https://docs.mlrun.org/en/latest/install.html)
+- Concepts
+   - [Projects](https://docs.mlrun.org/en/latest/projects/project.html)
+   - [MLRun serverless functions](https://docs.mlrun.org/en/latest/concepts/functions-concepts.html)
+   - [Data stores and data items](https://docs.mlrun.org/en/latest/concepts/data-feature-store.html)
+   - [Feature store](https://docs.mlrun.org/en/latest/feature-store/feature-store.html)
+   - [Runs, functions, and workflows](https://docs.mlrun.org/en/latest/concepts/runs-experiments-workflows.html)
+   - [Artifacts and models](https://docs.mlrun.org/en/latest/store/artifacts.html)
+   - [Deployment and monitoring](https://docs.mlrun.org/en/latest/concepts/deployment-monitoring.html)
+- Working with data
+   - [Data ingestion](https://docs.mlrun.org/en/latest/feature-store/feature-store-data-ingestion.html)
+   - [Data retrieval](https://docs.mlrun.org/en/latest/feature-store/feature-store-data-retrieval.html)
+   - [Tutorials](https://docs.mlrun.org/en/latest/feature-store/feature-store-tutorials.html)
+- Develop Functions and models
+   - [Creating and using functions](https://docs.mlrun.org/en/latest/runtimes/functions.html)
+   - [Run, track, and compare jobs](https://docs.mlrun.org/en/latest/runtimes/run-track-compare-jobs.html)
+- Deploy ML applications
+   - [Real-time serving pipelines (graphs)](https://docs.mlrun.org/en/latest/serving/serving-graph.html)
+   - [Model serving pipelines](https://docs.mlrun.org/en/latest/serving/build-graph-model-serving.html)
+   - [CI/CD, rolling upgrades, git](https://docs.mlrun.org/en/latest/model_monitoring/ci-cd-rolling-upgrades-git.html)
+- References
+   - [API](https://docs.mlrun.org/en/latest/api/index.html)
+   - [CLI](https://docs.mlrun.org/en/latest/cli.html)
+   - [Glossary](https://docs.mlrun.org/en/latest/glossary.html)
+
+
