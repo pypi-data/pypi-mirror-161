@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Based on script pp.py provided with EPW code (C) 2015 Samuel Ponce.
+# This program is free software under the terms of the GNU GPLv3 or later.
+
+set -e
+
+: ${fildyn:=dyn}
+: ${outdir:=work}
+: ${dvscf_dir:=save}
+
+if test ! -e "$fildyn"1 -o ! -e "$outdir"
+then
+    echo "Usage: [fildyn=...] [outdir=...] [dvscf_dir=...] ph2epw"
+    exit 1
+fi
+
+mkdir -p "$dvscf_dir"
+
+for phsave in "$outdir"/_ph0/*.phsave
+do
+    prefix=${phsave#$outdir/_ph0/}
+    prefix=${prefix%.phsave}
+
+    cp -r "$phsave" "$dvscf_dir"
+
+    for dyn in "$fildyn"*
+    do
+        n=${dyn#$fildyn}
+
+        test $n -eq 0 && continue
+
+        cp "$dyn" "$dvscf_dir/$prefix.dyn_q$n"
+
+        orig="$outdir/_ph0"
+
+        test $n -gt 1 && orig="$orig/$prefix.q_$n"
+
+        for suffix in dvscf dvscf_paw
+        do
+            origfile="$orig/$prefix.$suffix"1
+
+            if test -f "$origfile"
+            then
+                cp "$origfile" "$dvscf_dir/$prefix.$suffix"_q$n
+            fi
+        done
+    done
+done
