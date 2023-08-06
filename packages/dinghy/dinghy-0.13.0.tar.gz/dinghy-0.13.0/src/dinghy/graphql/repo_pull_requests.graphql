@@ -1,0 +1,25 @@
+query getPullRequests(
+  $owner: String!
+  $name: String!
+  $after: String
+) {
+  repository(owner: $owner, name: $name) {
+    ...repoData         # fragment: repo_frag.graphql
+    pullRequests(
+      first: 10
+      orderBy: {
+        field: UPDATED_AT
+        direction: DESC
+      }
+      after: $after
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        ...pullRequestData    # fragment: pull_request_frag.graphql
+      }
+    }
+  }
+}
