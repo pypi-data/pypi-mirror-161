@@ -1,0 +1,81 @@
+Metadata-Version: 2.1
+Name: simplelhs
+Version: 1.2.0
+Summary: Simple implementation of Latin Hypercube Sampling.
+Project-URL: Homepage, https://github.com/mikediessner/simplelhs
+Author-email: Mike Diessner <mikediessner@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2022 mikediessner
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Keywords: Latin Hypercube Sampling,Python,Space filling design
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.7
+Requires-Dist: numpy
+Requires-Dist: scipy
+Description-Content-Type: text/markdown
+
+# simplelhs
+Simple implementation of Latin Hypercube Sampling.
+
+# Example
+
+The example below shows how to sample a random Latin Hypercube design with five points for three inputs.
+
+```python
+from simplelhs import LatinHypercubeSampling
+
+lhs = LatinHypercubeSampling(3)
+hc = lhs.random(5)
+
+print(hc)
+```
+
+```
+[[0.65830165 0.26660356 0.78491755]
+ [0.42168063 0.43244666 0.979281  ]
+ [0.39058169 0.76099351 0.34764726]
+ [0.07122137 0.15507069 0.58082752]
+ [0.87530571 0.94575193 0.03949576]]
+ ```
+
+The example below shows how to sample a Maximin Latin Hypercube design with five points for three inputs. Out of 1000 randomly sampled Latin Hypercube designs the design with the maximal minimal distance between points is selected.
+
+```python
+from simplelhs import LatinHypercubeSampling
+
+lhs = LatinHypercubeSampling(3)
+hc = lhs.maximin(5, 1000)
+
+print(hc)
+```
+
+```
+[[0.74819463 0.30320436 0.44740315]
+ [0.04272589 0.04285395 0.64291632]
+ [0.23792251 0.45723098 0.04046911]
+ [0.57580627 0.70606249 0.94469312]
+ [0.96656601 0.9932299  0.29306131]]
+ ```
+ 
