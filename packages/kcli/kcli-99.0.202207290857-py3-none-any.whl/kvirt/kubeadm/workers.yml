@@ -1,0 +1,42 @@
+{% for number in range(0, workers|int) %}
+{% if extra_worker_networks %}
+ {% set extra_networks = extra_worker_networks %}
+{% endif %}
+{% if extra_worker_disks %}
+ {% set extra_disks = extra_worker_disks %}
+{% endif %}
+
+{{cluster }}-worker-{{ number }}:
+ image: {{ image }}
+ pool: {{ pool or config_pool }}
+ keys: {{ keys }}
+ numcpus: {{ worker_numcpus | default(numcpus, numcpus) }}
+ memory: {{ worker_memory | default(memory, memory) }}
+ reservedns: false
+ domain: {{ domain }}
+ nets: {{ [network] + extra_networks }}
+ disks: {{ [disk_size] + extra_disks }}
+ files:
+ - path: /root/join.sh
+   origin: ~/.kcli/clusters/{{ cluster }}/join.sh
+ - path: /root/admin.conf
+   origin: ~/.kcli/clusters/{{ cluster }}/auth/kubeconfig
+{% if eksd %}
+ - eksd.sh
+{% endif %}
+ - path: /root/pre.sh
+   origin: pre_{{ 'ubuntu' if ubuntu|default(False) else 'el' }}.sh
+ - workers.sh
+ - path: /root/deploy.sh
+   origin: deploy.sh_workers
+{% if config_type == 'gcp' %}
+ - path: /usr/local/bin/gcp-hack.sh
+   origin: gcp-hack.sh
+   mode: 755
+ - path: /usr/lib/systemd/system/gcp-hack.service
+   origin: gcp-hack.service
+   mode: 644
+{% endif %}
+ cmds:
+ - bash /root/deploy.sh
+{% endfor %}
