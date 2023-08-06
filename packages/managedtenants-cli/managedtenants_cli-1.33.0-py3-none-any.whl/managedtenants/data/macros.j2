@@ -1,0 +1,25 @@
+# vi: ft=jinja :
+{% macro expand_dict(d) %}
+  {% for k,v in d.items() %}
+'{{ k }}': '{{ v }}'
+  {% endfor %}
+{% endmacro %}
+
+{% macro maybe_labels(labels) %}
+{% if labels %}
+labels:
+{{ expand_dict(labels) | indent(2, first=True) }}
+{%- endif %}
+{% endmacro %}
+
+{% macro maybe_annotations(annotations) %}
+{% if annotations %}
+annotations:
+{{ expand_dict(annotations) | indent(2, first=True) }}
+{%- endif %}
+{% endmacro %}
+
+{# jinja does not keep indent on included templates #}
+{% macro render_extra_resource(ADDON, resource) %}
+{% include resource %}
+{% endmacro %}

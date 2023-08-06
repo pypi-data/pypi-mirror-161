@@ -1,0 +1,326 @@
+"$schema": "http://json-schema.org/draft-07/schema#"
+description: "Addon metadata schema for the 'addon.yaml' file."
+type: object
+additionalProperties: false
+properties:
+  id:
+    pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,30}[A-Za-z0-9]$
+    type: string
+    description: "Unique ID of the addon."
+  name:
+    type: string
+    format: printable
+    description: "Friendly name for the addon, displayed in the UI."
+  description:
+    type: string
+    format: printable
+    description: "Short description for the addon."
+  link:
+    type: string
+    pattern: ^http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&#+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+$
+    description: "Link to the addon documentation."
+  icon:
+    type: string
+    contentEncoding: base64
+    contentMediaType: image/png
+    format: printable
+    description: "Icon to be shown in UI. Should be around 200px and base64 encoded."
+  label:
+    type: string
+    pattern: ^api\.openshift\.com/addon-[0-9a-z][0-9a-z-]{0,30}[0-9a-z]$
+    description: "Kubernetes label for the addon. Needs to match: 'api.openshift.com/<addon-id>'."
+  enabled:
+    type: boolean
+    description: "Set to true to allow installation of the addon."
+  hasExternalResources:
+    type: boolean
+  addonOwner:
+    type: string
+    pattern: ^([A-Za-z -]+ <[0-9A-Za-z_.-]+@redhat\.com>,?)+$
+    description: "Team or individual responsible for this addon. Needs to match: 'some name <some-email@redhat.com>'."
+  addonNotifications:
+    type: array
+    items:
+      type: string
+      pattern: ^([A-Za-z -]+ <[0-9A-Za-z_.-]+@redhat\.com>,?)+$
+  quayRepo:
+    type: string
+    pattern: ^quay\.io/osd-addons/[a-z-]+$
+    description: "Quay repository for the addon operator. Needs to match: 'quay.io/osd-addons/<my-addon-repo>'."
+  testHarness:
+    type: string
+    pattern: ^quay\.io/[0-9A-Za-z._-]+/[0-9A-Za-z._-]+(:[A-Za-z0-9._-]+)?$
+    description: "Quay repository for the testHarness image. Needs to match: 'quay.io/<my-repo>/<my-test-harness>:<my-tag>'."
+  installMode:
+    type: string
+    enum:
+      - AllNamespaces
+      - OwnNamespace
+    description: "OLM InstallMode for the addon operator."
+  syncsetMigration:
+    type: string
+    enum:
+      - "step 0 - delete addon migration"
+      - "step 1 - block installations"
+      - "step 2 - orphan SSS objects"
+      - "step 3 - change SSS label"
+      - "step 4 - enable syncset"
+      - "step 5 - migration complete"
+      - "rollback step 1 - ocm"
+      - "rollback step 2 - selectorsyncset"
+      - "rollback step 3 - reset addon migration"
+    description: "The step currently in consideration in the process of migrating the addon to SyncSet."
+  manualInstallPlanApproval:
+    type: boolean
+  targetNamespace:
+    type: string
+    pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+    description: "Namespace where the addon operator should be installed."
+  namespaces:
+    type: array
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+    description: "Namespaces managed by the addon-operator. Need to include the TargetNamespace."
+  pullSecret:
+    type: string
+    format: printable
+    description: "'pullSecret' is deprecated for now. Please use the 'secrets' and 'pullSecretName' fields instead."
+  pullSecretName:
+    type: string
+    pattern: ^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$
+    description: Name of the secret under `secrets` which is supposed to be used for pulling Catalog Image under CatalogSource.
+  additionalCatalogSources:
+    type: array
+    description: "List of additional catalog sources to be created."
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          format: printable
+          description: "Name of the additional catalog source."
+        image:
+          type: string
+          description: "Url of the additional catalog source image."
+      required:
+        - name
+        - image
+  namespaceLabels:
+    type: object
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+    description: "Labels to be applied on all listed namespaces."
+  namespaceAnnotations:
+    type: object
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+    description: "Annotations to be applied on all listed namespaces."
+  commonLabels:
+    type: object
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+    description: "Labels to be applied to all objects created in the SelectorSyncSet."
+  commonAnnotations:
+    type: object
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9-_.]+$
+    description: "Annotations to be applied to all objects created in the SelectorSyncSet."
+  monitoring:
+    type: object
+    description: "Configuration parameters to be injected in the ServiceMonitor used for federation. The target prometheus server found by matchLabels needs to serve service-ca signed TLS traffic (https://docs.openshift.com/container-platform/4.6/security/certificate_types_descriptions/service-ca-certificates.html), and it needs to be runing inside the monitoring.namespace, with the service name 'prometheus'."
+    additionalProperties: false
+    required:
+      - portName
+      - namespace
+      - matchNames
+      - matchLabels
+    properties:
+      portName:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+        description: "The name of the service port fronting the prometheus server."
+      namespace:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+        description: "Namespace where the prometheus server is running."
+      matchNames:
+        type: array
+        items:
+          type: string
+          format: printable
+          pattern: ^[a-zA-Z_:][a-zA-Z0-9_:]*$
+        description: "List of series names to federate from the prometheus server."
+      matchLabels:
+        type: object
+        items:
+          type: string
+          format: printable
+          pattern: ^[a-zA-Z_][a-zA-Z0-9_]*$
+        description: "List of labels used to discover the prometheus server(s) to be federated."
+        minItems: 1
+  defaultChannel:
+    type: string
+    enum:
+      - alpha
+      - beta
+      - stable
+      - edge
+      - rc
+      - fast
+      - candidate
+    description: "OLM channel from which to install the addon-operator."
+  ocmQuotaName:
+    type: string
+    pattern: ^[A-Za-z0-9][A-Za-z0-9-_]{0,35}[A-Za-z0-9]$
+    description: "Refers to the SKU name for the addon."
+  ocmQuotaCost:
+    type: integer
+    minimum: 0
+  operatorName:
+    type: string
+    pattern: ^[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$
+    description: "Name of the addon operator."
+  bundleParameters:
+    type: object
+    additionalProperties: false
+    properties:
+      useClusterStorage:
+        type: string
+        pattern: ^(true|false|^$)$
+      alertingEmailAddress:
+        type: string
+        pattern: ^([0-9A-Za-z_.-]+@redhat\.com,? ?)+$
+      buAlertingEmailAddress:
+        type: string
+        pattern: ^([0-9A-Za-z_.-]+@redhat\.com,? ?)+$
+      alertSMTPFrom:
+        type: string
+        pattern: ^[0-9A-Za-z._-]+@(devshift\.net|rhmw\.io)$
+      addonParamsSecretName:
+        type: string
+        pattern: ^addon-[0-9A-Za-z-]+-parameters$
+  channels:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          format: printable
+        currentCSV:
+          type: string
+          format: printable
+  startingCSV:
+    type: string
+    format: printable
+  indexImage:
+    type: string
+    pattern: ^quay\.io/osd-addons/[a-z-]+
+  addonImageSetVersion:
+    description: "A string which specifies the imageset to use. Can either be 'latest', a version string or 'null'."
+  pagerduty:
+    type: object
+    additionalProperties: false
+    required:
+      - escalationPolicy
+      - acknowledgeTimeout
+      - resolveTimeout
+      - secretName
+      - secretNamespace
+    properties:
+      escalationPolicy:
+        type: string
+        pattern: ^[A-Za-z0-9]+$
+      acknowledgeTimeout:
+        type: integer
+        minimum: 0
+      resolveTimeout:
+        type: integer
+        minimum: 0
+      secretName:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+      secretNamespace:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+  deadmanssnitch:
+    type: object
+    additionalProperties: false
+    description: "Denotes the Deadmans Snitch Configuration which is supposed to be setup alongside the Addon."
+    required:
+      - tags
+    properties:
+      clusterDeploymentSelector:
+        type: object ## should we go as granular as describing properties for matchExpressions/matchLabels?
+        description: "Default: check selectorsyncset.yaml.j2 - line 260"
+      snitchNamePostFix:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+        description: "Default: {{ADDON.metadata['id']}}"
+      targetSecretRef:
+        type: object
+        additionalProperties: false
+        properties:
+          name:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+            description: "Default: {{ADDON.metadata['id']}}-deadmanssnitch"
+          namespace:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+            description: "Default: {{ADDON.metadata['targetNamespace']}}"
+      tags:
+        type: array
+        items:
+          type: string
+          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,60}[A-Za-z0-9]$
+  extraResources:
+    type: array
+    items:
+      type: string
+      format: printable
+    description: "Extra Resources to be applied to the Hive cluster."
+  credentialsRequests:
+    $ref: "shared/credentials_requests.json"
+    description: "List of credential requests to authenticate operators."
+  addOnParameters:
+    $ref: "shared/addon_parameters.json"
+    description: "List of parameters for the addon."
+  addOnRequirements:
+    $ref: "shared/addon_requirements.json"
+    description: "List of requirements for the addon."
+  subOperators:
+    $ref: "shared/sub_operators.json"
+    description: "Sub operator under the umbrella of add-on operator."
+  config:
+    $ref: "shared/config.json"
+    description: "Additional config for addons"
+  managedService:
+    type: boolean
+    description: "Indicates if the add-on will be used as a Managed Service."
+required:
+  - id
+  - name
+  - description
+  - icon
+  - label
+  - enabled
+  - addonOwner
+  - quayRepo
+  - testHarness
+  - installMode
+  - targetNamespace
+  - namespaces
+  - ocmQuotaName
+  - ocmQuotaCost
+  - operatorName
+  - defaultChannel
+  - namespaceLabels
+  - namespaceAnnotations

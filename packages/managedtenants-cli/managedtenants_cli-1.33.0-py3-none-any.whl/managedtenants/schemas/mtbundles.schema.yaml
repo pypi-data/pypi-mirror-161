@@ -1,0 +1,68 @@
+"$schema": "http://json-schema.org/draft-07/schema#"
+description: "managed-tenants-bundles configuration schema for the 'config.yaml' file."
+type: object
+additionalProperties: false
+properties:
+  ocm:
+    type: object
+    description: "Required OCM data for valid imagesets to be constructed by automated MRs to managed-tenants."
+    additionalProperties: false
+    properties:
+      addOnParameters:
+        $ref: "shared/addon_parameters.json"
+        description: "List of parameters for the addon."
+      addOnRequirements:
+        $ref: "shared/addon_requirements.json"
+        description: "List of requirements for the addon."
+      subOperators:
+        $ref: "shared/sub_operators.json"
+        description: "Sub operator under the umbrella of add-on operator."
+      config:
+        $ref: "shared/config.json"
+        description: "Additional config for the addons"
+      pullSecretName:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$
+        description: Name of the secret under `secrets` which is supposed to be used for pulling Catalog Image under CatalogSource.
+      additionalCatalogSources:
+        type: array
+        description: "List of additional catalog sources to be created."
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            name:
+              type: string
+              format: printable
+              description: "Name of the additional catalog source."
+            image:
+              type: string
+              description: "Url of the additional catalog source image."
+          required:
+            - name
+            - image
+  addons:
+    type: array
+    description: "List of addons that use these underlying bundles."
+    minItems: 1
+    items:
+      type: object
+      required:
+        - name
+        - environments
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          format: printable
+          description: "ID of the addon. (metadata.id)"
+        environments:
+          type: array
+          description: "List of all environments in managed-tenants to be upgraded by automated MRs. Production has to be upgraded manually."
+          items:
+            type: string
+            enum:
+              - integration
+              - stage
+required:
+  - addons

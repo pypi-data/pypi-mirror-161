@@ -1,0 +1,55 @@
+"$schema": "http://json-schema.org/draft-07/schema#"
+description: "Addon imageset schema for the files found under the addonimagesets/ dir."
+type: object
+additionalProperties: false
+properties:
+  name:
+    type: string
+    pattern: ^[a-z-]+.v[0-9A-Za-z\.-]+$
+    description: "The name of the imageset along with the version."
+  indexImage:
+    type: string
+    pattern: ^quay\.io/osd-addons/[a-z-]+
+    description: "The url for the index image."
+  relatedImages:
+    type: array
+    description: "A list of image urls of related operators."
+    items:
+      type: string
+  addOnParameters:
+    $ref: "shared/addon_parameters.json"
+    description: "List of parameters for the addon."
+  addOnRequirements:
+    $ref: "shared/addon_requirements.json"
+    description: "List of requirements for the addon."
+  subOperators:
+    $ref: "shared/sub_operators.json"
+    description: "Sub operator under the umbrella of add-on operator."
+  config:
+    $ref: "shared/config.json"
+    description: "Additional config for addons"
+  pullSecretName:
+    type: string
+    pattern: ^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$
+    description: Name of the secret under `secrets` which is supposed to be used for pulling Catalog Image under CatalogSource.
+  additionalCatalogSources:
+    type: array
+    description: "List of additional catalog sources to be created."
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          format: printable
+          description: "Name of the additional catalog source."
+        image:
+          type: string
+          description: "Url of the additional catalog source image."
+      required:
+        - name
+        - image
+required:
+  - name
+  - indexImage
+  - relatedImages
