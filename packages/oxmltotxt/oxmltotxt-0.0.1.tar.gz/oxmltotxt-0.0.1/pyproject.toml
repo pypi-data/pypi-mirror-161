@@ -1,0 +1,61 @@
+# pyproject.toml based on example from
+# https://realpython.com/pypi-publish-python-package/
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oxmltotxt"
+version = "0.0.1"
+description = "A simple tool to extract text from Open XML format (.docx/.xlsx/.pptx). The tool is meant to be used in combination with git to facilitate the version control of Open XML files."
+readme = "README.md"
+authors = [{ name = "Michael von den Driesch", email = "mdriesch@web.de" }]
+license = { file = "LICENSE" }
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Software Development :: Libraries",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+]
+keywords = ["Open XML", "version control", "git", "MS Excel"]
+dependencies = [
+    "beautifulsoup4", 
+    "oletools", 
+    "lxml"
+]
+requires-python = ">=3"
+
+[project.optional-dependencies]
+dev = [
+            "pytest >= 3.7",
+            "check-manifest",
+            "twine",
+            "black",
+            "flake8",
+            "mypy",
+            "isort",
+            "bumpver",
+            "wheel"
+]
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"src/oxmltotxt/__init__.py" = ["{version}"]
+
+[project.urls]
+Homepage = "https://github.com/mdriesch/oxmltotxt"
