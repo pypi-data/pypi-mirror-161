@@ -1,0 +1,10 @@
+<a href="{% url 'runs:batch_summary' instrument_name=instrument_name pk=run.pk run_version=run.run_version %}
+        ?{% get_run_navigation_queries run.pk paginator.current_page_index last_instrument_run.pk first_instrument_run.pk %}
+        &pagination={{ paginator.items_per_page }}
+        &sort={{ paginator.page_type }}
+        &filter={{ filtering }}"
+    {% if forloop.first %}
+    id="top-run-number"
+    {% endif %}
+    class="run-num-links">{{ run.title }}
+</a>

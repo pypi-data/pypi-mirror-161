@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}Reduction job #{{ run.title|default:"null" }}{% endblock %}
+{% load colour_table_row %}
+{% load natural_time_difference %}
+{% load replace %}
+{% load naturaltime from humanize %}
+{% load generate_run_link %}
+{% load static %}
+
+{% block body %}
+    <!-- Only pull in plotly if there are interactive plots -->
+    {% if interactive_plots %}
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    {% endif %}
+
+    {% if not run %}
+        <div class="text-center col-md-6 col-md-offset-3 card-body">Reduction run not found or error encountered: {{ message }}.</div>
+    {% else %}
+        <title>Reduction Job #{{ run.title }}</title>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2 id = "runTitle">Reduction Job #{{ run.title }}</h2>
+                {% if is_rerun %}
+                    <p>
+                        (This run has been re-reduced,
+                        <a href="#" class="js-reduction-run-history" id="run_history">see history</a>)
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% if plot_error_message %}
+            <div class="row">
+                <div class="col-8 offset-2">
+                    <p class="card text-center">{{ plot_error_message }}</p>
+                </div>
+            </div>
+        {% else %}
+            {% if static_plots %}
+                <div class="row plot-container">
+                {% for plot_file in static_plots %}
+                    {% if static_plots|length == 1 %}
+                        <img class="center-block" src="{{ plot_file }}" alt="Plot image stored at {{ plot_file }}">
+                    {% else %}
+                        <img class="col-md-6" src="{{ plot_file }}" alt="Plot image stored at {{ plot_file }}">
+                    {% endif %}
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% if interactive_plots %}
+                <div class="row plot-container">
+                    {% for name, data in interactive_plots.items %}
+                        <div id="{{ name }}"></div>
+                        <script>
+                            var data = JSON.parse('{{ data|escapejs }}');
+                            var elem = document.getElementById("{{ name }}");
+                            Plotly.newPlot(elem, data);
+                        </script>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% if run.message %}
+            {% if is_skipped %}
+                <div class="alert alert-{% replace run.status.value_verbose 'Skipped' 'info' %} word-wrap" role="alert">
+                    <i class="fa fa-{% replace run.status.value_verbose 'Skipped' 'question' %} fa-{% replace run.status.value_verbose 'Skipped' 'question' %}-circle fa-lg"></i>
+                    <a href="#" class="js-log-display"> {{ run.message }}</a>
+                </div>
+            {% else %}
+                <div class="alert alert-{% replace run.status.value_verbose 'Error' 'danger' %} word-wrap" role="alert">
+                    <i class="fa fa-{% replace run.status.value_verbose 'Error' 'exclamation' %} fa-{% replace run.status.value_verbose 'Error' 'exclamation' %}-circle fa-lg"></i>
+                    <a href="#" class="js-log-display">[{{ run.finished }}] {{ run.message }}</a>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="d-flex justify-content-center" id="reduction_job_panel">
+                <div class="card card-2-column">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="run_description">
+                                    {% if run.run_description %}
+                                        <strong>Run description: </strong> {{ run.run_description }}
+                                    {% endif %}
+                                </div>
+
+                                <div id="started_by">
+                                    {% if started_by is not null %}
+                                        <strong>Started by:</strong> {{ started_by }}
+                                    {% endif %}
+                                </div>
+
+                                <div id="status">
+                                    <strong>Status:</strong> <strong class="text-{% colour_table_row run.status.value_verbose %}">{{ run.status.value_verbose }}</strong>
+                                </div>
+
+                                <div id="instrument">
+                                    <strong>Instrument:</strong> {{ run.instrument.name }}
+                                </div>
+
+                                <div id="rb_number">
+                                    <strong>RB Number:</strong>
+                                        <a href="{% url 'experiment_summary' reference_number=run.experiment.reference_number %}">{{ run.experiment.reference_number }}</a>
+                                </div>
+
+                                <div id="last_updated">
+                                    <strong>Last Updated:</strong> {{ run.last_updated }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div>
+                                    <strong>Start:</strong>
+                                    {% if run.started %}
+                                        {{ run.started }}
+                                    {% elif is_skipped %}
+                                        <em>Not run</em>
+                                    {% else %}
+                                        <em>Not yet started</em>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <strong>Finish:</strong>
+                                    {% if is_skipped %}
+                                        <em>Not run</em>
+                                    {% elif run.finished %}
+                                        {{ run.finished }}
+                                    {% else %}
+                                        <em>Not yet finished</em>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <strong>Duration:</strong>
+                                    {% if run.started and run.finished %}
+                                        {% natural_time_difference run.started run.finished %}
+                                    {% elif is_skipped %}
+                                        <em>Not run</em>
+                                    {% else %}
+                                        <em>Not yet finished</em>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <strong>Software used:</strong>
+                                    {% if run.software is not null %}
+                                        {{ run.software.name }} - {{ run.software.version }}
+                                    {% else %}
+                                        <em>No software data found</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="file-path">
+                                    <strong>Data:</strong>
+                                    {% if data_location %}
+                                        {{ data_location }}
+                                        <a class="btn btn-primary"
+                                        id='datapath_toggle'
+                                        href="{% generate_run_link instrument run=run %}?page={{current_page}}&per_page={{ per_page }}&sort={{ page_type }}&filter={{ filtering }}&path_type={{ new_path_type }}"
+                                        aria-label="Switch to {{ new_path_type|title }}"><i class="fab fa-{{ new_path_type }}" aria-hidden="true"></i></a>
+                                    {% else %}
+                                        <em>No data found</em>
+                                    {% endif %}
+                                </div>
+                                <div id="reduction_host"><strong>Host:</strong> {{ run.reduction_host }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="file-path">
+                                    <strong>Reduced:</strong>
+                                    {% if reduction_location %}
+                                        <a href="{{ data_analysis_link_url }}" rel="noopener noreferrer" target="_blank">{{ reduction_location }}
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                        </a><br/>
+                                    {% elif run.reduction_location.all %}
+                                        {% for location in run.reduction_location.all %}
+                                            {{ location.file_path }}<br/>
+                                        {% endfor %}
+                                    {% else %}
+                                        <em>No reduced data found</em>
+                                    {% endif %}
+                                </div>
+                                {% if not is_skipped %}
+                                <div>
+                                    <strong>Logs:</strong>
+                                    <a href="#" class="js-log-display" id="show_reduction_logs">Show reduction logs</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+
+        <div id="re-run_and_graphs">
+            {% autoescape on %}
+                {% include "snippets/run_variables.html" with run_number=run_number run_version=run_version has_reduce_vars=has_reduce_vars has_reduce_script=has_reduce_script run=run standard_variables=standard_variables advanced_variables=advanced_variables variable_help=variable_help instrument=instrument %}
+            {% endautoescape %}
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            <div class="text-center">
+                <a href="{% generate_run_link instrument run=previous_run %}?page={{current_page}}&per_page={{ per_page }}&sort={{ page_type }}&filter={{ filtering }}" class="btn btn-primary back {% if previous_run == run %} disabled {% endif %}" id="previous"><i class="fas fa-step-backward"></i>Previous</i></a>
+                <a href="{% url 'runs:list' run.instrument.name %}?page={{ current_page }}&per_page={{ per_page }}&sort={{ page_type }}&filter={{ filtering }}" class="btn btn-primary back" id="cancel">Back to {{ run.instrument.name }} runs</a>
+                <a href="{% generate_run_link instrument run=next_run %}?page={{current_page}}&per_page={{ per_page }}&sort={{ page_type }}&filter={{ filtering }}" class="btn btn-primary back {% if next_run == run %} disabled {% endif %}" id="next">Next <i class="fas fa-step-forward"></i></a>
+                <a href="{% generate_run_link instrument run=newest_run %}?page={{current_page}}&per_page={{ per_page }}&sort={{ page_type }}&filter={{ filtering }}" class="btn btn-primary back {% if newest_run == run %} disabled {% endif %}" id="newest"> Newest {{ newest_run }}</a>
+            </div>
+        </div>
+
+        {% include 'snippets/run_summary/history.html' with history=history started_by=started_by %}
+        {% include 'snippets/run_summary/reduction_log.html' with run=run %}
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/vendor/prettify.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tourist.css' %}">
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'javascript/run_summary.js' %}"></script>
+    <script src="{% static 'javascript/vendor/prettify.js' %}"></script>
+    <script src="{% static 'javascript/run_variables.js' %}"></script>
+    <script src="{% static 'javascript/vendor/bootstrap-tourist.js' %}"></script>
+    <script src="{% static 'javascript/tours/run_summary_tour.js' %}"></script>
+    <script src="{% static 'javascript/tours/navbar_tour.js' %}"></script>
+    <script src="{% static 'javascript/create_tour.js' %}"></script>
+{% endblock %}

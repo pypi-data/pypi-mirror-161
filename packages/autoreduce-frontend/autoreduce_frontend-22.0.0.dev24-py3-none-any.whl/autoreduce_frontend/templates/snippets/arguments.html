@@ -1,0 +1,50 @@
+<div class="row">
+    <div class="col-md-4 text-center">
+        {% if arguments.experiment %}
+            <div class="run-numbers">
+                <div class="middle">
+                    Experiment
+                    <div>#{{ arguments.experiment }}</div>
+                </div>
+            </div>
+            <a href="{% url 'runs:variables_by_experiment' instrument=instrument.name experiment_reference=arguments.experiment %}">edit variables</a>
+            <br/>
+            <a href="{% url 'runs:delete_variables_by_experiment' instrument=instrument.name experiment_reference=arguments.experiment %}">delete variables</a>
+        {% else %}
+            <div class="run-numbers">
+                <div class="middle">
+                    Runs
+                    <div>{{ arguments.run_start }}</div>
+                        <div>
+                            <i class="fa fa-arrow-down hidden-xs"></i>
+                        </div>
+                    {% if arguments.run_end > 0 %}
+                        <div>{{ arguments.run_end }}</div>
+                    {% else %}
+                        <div>Ongoing</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if upcoming %}
+            <br/>
+            <a href="{% url 'runs:variables' instrument=instrument.name start=arguments.run_start %}">edit variables</a>
+                <br/>
+                <a href="{% url 'runs:delete_variables' instrument=instrument.name start=arguments.run_start end=arguments.run_end %}">delete variables</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        {% for var_type, args_values in arguments.arguments.items %}
+            <div>
+                {% if not var_type == 'variable_help' %}
+                <strong>{{ var_type }}</strong>
+                <ul class="list-group">
+                    {% for name,value in args_values.items %}
+                    <li class="list-group-item">{{ name }}: {{ value }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Run confirmation{% endblock %}
+{% load colour_table_row %}
+{% load natural_time_difference %}
+{% load naturaltime from humanize %}
+{% load static %}
+
+{% block body %}
+    {% if runs and not error %}
+        <div class="row">
+            <div class="col-sm text-center">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Successfully submitted batch runs for reduction: {{ runs }}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div>See the run in the <a href="{% url 'runs:list' instrument=instrument_name %}?filter=batch_runs&sort=-run_number">instrument runs page</a>.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row" id="error_container">
+            <div class="col-md-8 offset-2">
+                <div class="alert alert-danger">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <span id="error_message">{{ error }}</span><a href="#back">Go Back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

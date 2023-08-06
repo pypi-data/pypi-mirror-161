@@ -1,0 +1,38 @@
+{% load encode_b64 %}
+{% load dict_get %}
+
+{% for name, variable in variables.items %}
+<div class="form-group">
+    <label for="var-{{ type }}-{% encode_b64 name %}" class="col-form-label col-12">
+    {{ name }}
+    {% if name in variable_help %}
+    <a href="#" data-toggle="popover" data-html="true" data-content="{% dict_get variable_help name %}"
+        data-trigger="hover" data-placement="top" data-container="body">
+        <i class="fa fa-info-circle"></i>
+    </a>
+    {% endif %}
+    </label>
+    <div class="form-row col-sm-12">
+        <div class="col-11">
+            {% if variable.current|lower == "true" or variable.current|lower == "false" %}
+            <select id="var-{{ type }}-{% encode_b64 name %}" data-initial="{{ variable.current }}" data-default="{{ variable.default }}" name="var-{{ type }}-{% encode_b64 name %}">
+            <option value="True" {% if value.lower == 'true' %} selected {% endif %}>True</option>
+            <option value="False" {% if value.lower == 'false' %} selected {% endif %}>False</option>
+            </select>
+            {% else %}
+            <input id="var-{{ type }}-{% encode_b64 name %}" value="{{ variable.current }}" data-initial="{{ variable.current }}" data-default="{{ variable.default }}"
+                class="form-control variable-field"
+                name="var-{{ type }}-{% encode_b64 name %}"
+                />
+            {% endif %}
+        </div>
+
+        <div class="col-1">
+            <div>
+                <a aria-label="Reset to original value" title="Reset to initial value" data-for="var-{{ type }}-{% encode_b64 name %}" data-toggle="popover" data-html="true" data-content="Reset to the initial value used for this reduction run." data-trigger="hover" data-placement="top" data-container="body" tabindex="0" onclick="reset_to_initial(this)"><i class="fas fa-redo"></i></a>
+                <a aria-label="Reset to script value" title="Reset to script value" data-for="var-{{ type }}-{% encode_b64 name %}" data-toggle="popover" data-html="true" data-content="Reset to the value currently contained in the reduce_vars script." data-trigger="hover" data-placement="top" data-container="body" tabindex="0" onclick="reset_to_default(this)"><i class="far fa-file-code"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

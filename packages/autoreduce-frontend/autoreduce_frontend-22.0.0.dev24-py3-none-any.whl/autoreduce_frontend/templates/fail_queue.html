@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Failed jobs{% endblock %}
+{% load colour_table_row %}
+{% load naturaltime from humanize %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% include crispy_tags %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+    {% if queue %}
+        <div class="column">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2>Failed Jobs</h2>
+                </div>
+            </div>
+            {% if message %}
+                <div class="alert alert-danger word-wrap" role="alert">
+                    <i class="fas fa-exclamation fa-exclamation-circle fa-lg"></i>
+                    {{ message }}
+                </div>
+            {% endif %}
+            <div class="row" id="run-action-row">
+                <label for="runAction" hidden>Select action to apply to selected runs</label>
+                {{ options_form.run_action|as_crispy_field }} 
+                <form id="actionForm" method="POST" action="{% url 'runs:failed' %}"
+                      style="float: left; padding-left: 5px;">
+                    <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}'/>
+                    <input type="hidden" name="selectedRuns">
+                    <input type="hidden" name="action">
+                    <input class="btn btn-primary" type="submit" id="runActionButton" value="Apply">
+                </form>
+            </div>
+
+
+            <div class="row" id="fail_queue_table">
+                {% render_table fail_queue_table %}
+            </div>
+
+        </div>
+
+        <div class="row">
+           <div class="col-md-12 text-center">
+                <form action="{{ request.path }}" method="get" id="items-per-page">
+                    <label for="items-per-page">Items per page: </label>
+                    {{ options_form.per_page|as_crispy_field }} 
+                </form>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2>No failed jobs.</h2>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src='{% static "javascript/runs_failed.js" %}'></script>
+{% endblock %}
