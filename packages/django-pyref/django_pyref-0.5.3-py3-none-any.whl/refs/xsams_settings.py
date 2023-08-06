@@ -1,0 +1,5 @@
+NODEID = "PYREF"
+SCHEMA_LOCATION = "http://vamdc.org/xml/xsams/1.0/"
+XSAMS_VERSION = "1.0"
+SOFTWARE_VERSION = "1.1"
+STANDARDS_VERSION = "12.07"
