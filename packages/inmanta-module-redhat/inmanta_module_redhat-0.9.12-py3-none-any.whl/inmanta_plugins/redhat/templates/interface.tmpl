@@ -1,0 +1,22 @@
+# Generated configuration file
+TYPE=Ethernet
+ONBOOT=on
+DEVICE={{ iface.name }}
+{% if iface.mac != "" %}HWADDR={{ iface.mac }}{%- endif %}
+{% if dhcp %}
+BOOTPROTO=dhcp
+{% else %}
+NM_CONTROLLER=no
+BOOTPROTO=none
+IPADDR={{ v4 }}
+NETMASK={{ netmask }}
+{% endif %}
+{% if iface.mtu != 1500 -%}
+MTU={{ iface.mtu }}
+{% endif %}
+{% if iface.vlan -%}
+VLAN=yes
+{%- endif %}
+
+# DNS configuration
+PEERDNS=no
