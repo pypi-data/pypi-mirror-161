@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "new-dale-chall-readability"
+version = "1.0.1"
+description = "An implementation of the New Dale-Chall readability formula which strictly follows the specification."
+authors = ["Robb Shecter <robb@public.law>"]
+license = "MIT"
+homepage = "https://github.com/public-law/new-dale-chall-readability"
+repository = "https://github.com/public-law/new-dale-chall-readability"
+keywords = ["nlp", "readability", "dale-chall"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Topic :: Text Processing :: Linguistic"
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-watch = "*"
+black = "*"
+pyright = "*"
+ipython = "*"
+devtools = "*"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.pyright]
+ignore = ["**/typings"]
+# As strict as possible: strict mode plus the optional strict checks.
+strict = ["*"]
+reportUninitializedInstanceVariable = "error"
+reportUnusedCallResult = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportPropertyTypeMismatch = "error"
+reportMissingSuperCall = "error"
+reportImplicitStringConcatenation = "error"
+reportCallInDefaultInitializer = "error"
+reportUnusedImport = "warning"
+
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+pythonpath = "."
+python_files = ["*_test.py",]
+python_classes = ["Test", "Describe"]
+python_functions = ["test_", "it_", "and_", "but_", "they_"]
+addopts = "-q --no-header --doctest-modules"
