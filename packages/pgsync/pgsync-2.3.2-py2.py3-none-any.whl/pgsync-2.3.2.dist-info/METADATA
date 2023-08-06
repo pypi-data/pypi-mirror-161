@@ -1,0 +1,179 @@
+Metadata-Version: 2.1
+Name: pgsync
+Version: 2.3.2
+Summary: Postgres to Elasticsearch sync
+Home-page: https://github.com/toluaina/pgsync
+Author: Tolu Aina
+Author-email: toluaina@hotmail.com
+Maintainer: Tolu Aina
+Maintainer-email: toluaina@hotmail.com
+License: LGPLv3
+Project-URL: Bug Reports, https://github.com/toluaina/pgsync/issues
+Project-URL: Funding, https://github.com/sponsors/toluaina
+Project-URL: Source, https://github.com/toluaina/pgsync
+Project-URL: Web, https://pgsync.com
+Project-URL: Documentation, https://pgsync.com
+Keywords: pgsync,elasticsearch,postgres,change data capture
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Requires-Python: >=3.7.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS.rst
+Requires-Dist: async-timeout (==4.0.2)
+Requires-Dist: black (==22.6.0)
+Requires-Dist: boto3 (==1.24.35)
+Requires-Dist: botocore (==1.27.35)
+Requires-Dist: bump2version (==1.0.1)
+Requires-Dist: bumpversion (==0.6.0)
+Requires-Dist: certifi (==2022.6.15)
+Requires-Dist: charset-normalizer (==2.1.0)
+Requires-Dist: click (==8.1.3)
+Requires-Dist: deprecated (==1.2.13)
+Requires-Dist: elasticsearch (==7.13.4)
+Requires-Dist: elasticsearch-dsl (==7.4.0)
+Requires-Dist: environs (==9.5.0)
+Requires-Dist: faker (==13.15.0)
+Requires-Dist: greenlet (==1.1.2)
+Requires-Dist: idna (==3.3)
+Requires-Dist: importlib-metadata (==4.2.0)
+Requires-Dist: jmespath (==1.0.1)
+Requires-Dist: marshmallow (==3.17.0)
+Requires-Dist: mypy-extensions (==0.4.3)
+Requires-Dist: newrelic (==7.16.0.178)
+Requires-Dist: packaging (==21.3)
+Requires-Dist: pathspec (==0.9.0)
+Requires-Dist: platformdirs (==2.5.2)
+Requires-Dist: psycopg2-binary (==2.9.3)
+Requires-Dist: pyparsing (==3.0.9)
+Requires-Dist: python-dateutil (==2.8.2)
+Requires-Dist: python-dotenv (==0.20.0)
+Requires-Dist: redis (==4.3.4)
+Requires-Dist: requests (==2.28.1)
+Requires-Dist: requests-aws4auth (==1.1.2)
+Requires-Dist: s3transfer (==0.6.0)
+Requires-Dist: six (==1.16.0)
+Requires-Dist: sqlalchemy (==1.4.39)
+Requires-Dist: sqlparse (==0.4.2)
+Requires-Dist: tomli (==2.0.1)
+Requires-Dist: typing-extensions (==4.3.0)
+Requires-Dist: urllib3 (==1.26.10)
+Requires-Dist: wrapt (==1.14.1)
+Requires-Dist: zipp (==3.8.1)
+
+# PostgreSQL to Elasticsearch sync
+
+
+- [PGSync](https://pgsync.com) is a middleware for syncing data from [Postgres](https://www.postgresql.org) to [Elasticsearch](https://www.elastic.co/products/elastic-stack).
+- It allows you to keep [Postgres](https://www.postgresql.org) as your source of truth data source and
+expose structured denormalized documents in [Elasticsearch](https://www.elastic.co/products/elastic-stack).
+
+
+### Requirements
+
+- [Python](https://www.python.org) 3.7+
+- [Postgres](https://www.postgresql.org) 9.6+
+- [Redis](https://redis.io) 3.1.0
+- [Elasticsearch](https://www.elastic.co/products/elastic-stack) 6.3.1+
+- [SQlAlchemy](https://www.sqlalchemy.org) 1.3.4+
+
+### Postgres setup
+  
+  Enable [logical decoding](https://www.postgresql.org/docs/current/logicaldecoding.html) in your 
+  Postgres setting.
+
+  - You also need to set up two parameters in your Postgres config postgresql.conf
+
+    ```wal_level = logical```
+
+    ```max_replication_slots = 1```
+
+### Installation
+
+You can install PGSync from [PyPI](https://pypi.org):
+
+    $ pip install pgsync
+
+### Config
+
+Create a schema for the application named e.g **schema.json**
+
+[Example schema](https://github.com/toluaina/pgsync/blob/main/examples/airbnb/schema.json)
+
+Example spec
+
+.. code-block::
+
+    [
+        {
+            "database": "[database name]",
+            "index": "[elasticsearch index]",
+            "nodes": {
+                "table": "[table A]",
+                "schema": "[table A schema]",
+                "columns": [
+                    "column 1 from table A",
+                    "column 2 from table A",
+                    ... additional columns
+                ],
+                "children": [
+                    {
+                        "table": "[table B with relationship to table A]",
+                        "schema": "[table B schema]",
+                        "columns": [
+                          "column 1 from table B",
+                          "column 2 from table B",
+                          ... additional columns
+                        ],
+                        "relationship": {
+                            "variant": "object",
+                            "type": "one_to_many"
+                        },
+                        ...
+                    },
+                    {
+                        ... additional children
+                    }
+                ]
+            }
+        }
+    ]
+
+### Environment variables 
+
+Setup environment variables required for the application
+
+    SCHEMA='/path/to/schema.json'
+
+    ELASTICSEARCH_HOST=localhost
+    ELASTICSEARCH_PORT=9200
+
+    PG_HOST=localhost
+    PG_USER=i-am-root # this must be a postgres superuser or replication user
+    PG_PORT=5432
+    PG_PASSWORD=*****
+
+    REDIS_HOST=redis
+    REDIS_PORT=6379
+    REDIS_DB=0
+    REDIS_AUTH=*****
+
+
+### Running
+
+Bootstrap the database (one time only)
+  - $ bootstrap --config schema.json
+
+Run pgsync as a daemon
+  - $ pgsync --config schema.json --daemon
+
+
