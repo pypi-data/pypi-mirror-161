@@ -1,0 +1,1 @@
+This package is designed for researchers using the COSMOP platform who want or need to work in Python, but have limited experience with the language. The functions simplify a number of tasks down to a single line of code each, making it easier to organize data into the desired format. This library uses the Pandas and NumPy libraries.
