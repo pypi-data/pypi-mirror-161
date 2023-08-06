@@ -1,0 +1,224 @@
+site_name: ColorAide Documentation
+site_url: https://facelessuser.github.io/coloraide
+repo_url: https://github.com/facelessuser/coloraide
+edit_uri: ""
+site_description: A library to aid in using colors
+copyright: |
+  Copyright &copy; 2020 - 2022 <a href="https://github.com/facelessuser" target="_blank" rel="noopener">Isaac Muse</a>
+
+docs_dir: docs/src/markdown
+theme:
+  custom_dir: docs/theme
+  name: material
+  icon:
+    logo: material/book-open-page-variant
+  palette:
+    scheme: dracula
+    primary: deep purple
+    accent: deep purple
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.instant
+    - navigation.sections
+    - navigation.indexes
+  pymdownx:
+    sponsor: "https://github.com/sponsors/facelessuser"
+
+nav:
+  - ColorAide:
+      - Introduction: index.md
+      - The Color Object: color.md
+      - Manipulating Colors: manipulation.md
+      - Color Interpolation: interpolation.md
+      - Compositing and Blending: compositing.md
+      - Color Distance and Delta E: distance.md
+      - Gamut Mapping: gamut.md
+      - Chromatic Adaptation: cat.md
+      - Contrast: contrast.md
+      - Color Harmonies: harmonies.md
+      - Filters: filters.md
+      - String Output: strings.md
+
+  - Color Spaces:
+      - colors/index.md
+
+      - RGB Color Spaces:
+        - sRGB: colors/srgb.md
+        - Display P3: colors/display_p3.md
+        - A98 RGB: colors/a98_rgb.md
+        - Rec. 2020: colors/rec2020.md
+        - ProPhoto RGB: colors/prophoto_rgb.md
+        - Rec. 2100 PQ: colors/rec2100pq.md
+        - Linear sRGB: colors/srgb_linear.md
+        - Linear Display P3: colors/display_p3_linear.md
+        - Linear A98 RGB: colors/a98_rgb_linear.md
+        - Linear Rec. 2020: colors/rec2020_linear.md
+        - Linear ProPhoto RGB: colors/prophoto_rgb_linear.md
+
+      - Cylindrical sRGB Spaces:
+        - HSV: colors/hsv.md
+        - HSL: colors/hsl.md
+        - HWB: colors/hwb.md
+        - HSI: colors/hsi.md
+        - Okhsv: colors/okhsv.md
+        - Okhsl: colors/okhsl.md
+        - HSLuv: colors/hsluv.md
+        - HPLuv: colors/hpluv.md
+
+      - XYZ Spaces:
+        - XYZ D65: colors/xyz_d65.md
+        - XYZ D50: colors/xyz_d50.md
+
+      - Lab Like Spaces:
+        - Lab D50: colors/lab.md
+        - Lab D65: colors/lab_d65.md
+        - Oklab: colors/oklab.md
+        - Luv: colors/luv.md
+        - DIN99o: colors/din99o.md
+        - Jzazbz: colors/jzazbz.md
+        - Hunter Lab: colors/hunter_lab.md
+        - RLAB: colors/rlab.md
+        - IPT: colors/ipt.md
+        - ICtCp: colors/ictcp.md
+        - IgPgTg: colors/igpgtg.md
+
+      - LCh Like Spaces:
+        - LCh D50: colors/lch.md
+        - LCh D65: colors/lch_d65.md
+        - OkLCh: colors/oklch.md
+        - LCh(uv): colors/lchuv.md
+        - DIN99 LCh: colors/lch99o.md
+        - JzCzhz: colors/jzczhz.md
+
+      - ACES Spaces:
+        - ACES 2065-1: colors/aces2065_1.md
+        - ACEScg: colors/acescg.md
+        - ACEScc: colors/acescc.md
+        - ACEScct: colors/acescct.md
+
+      - Miscellaneous Spaces:
+        - xyY: colors/xyy.md
+        - CMY: colors/cmy.md
+        - CMYK: colors/cmyk.md
+        - oRGB: colors/orgb.md
+        - Prismatic: colors/prismatic.md
+
+  - Plugins:
+      - plugins/index.md
+      - Delta E: plugins/delta_e.md
+      - Fit/Gamut Mapping: plugins/fit.md
+      - Chromatic Adaptation: plugins/cat.md
+      - Filters: plugins/filter.md
+      - Contrast: plugins/contrast.md
+      - Color Spaces: plugins/space.md
+      - Interpolation: plugins/interpolate.md
+
+  - API:
+      - Color API: api/index.md
+  - Playground: playground.md
+  - About:
+      - Contributing &amp; Support: about/contributing.md
+      - Acknowledgments: about/acknowledgments.md
+      - Changelog: about/changelog.md
+      - Migration Notes:
+          - '1.0': about/releases/1.0.md
+      - License: about/license.md
+
+markdown_extensions:
+  - markdown.extensions.toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+      permalink: ""
+  - markdown.extensions.admonition:
+  - markdown.extensions.smarty:
+      smart_quotes: false
+  - pymdownx.betterem:
+  - markdown.extensions.attr_list:
+  - markdown.extensions.def_list:
+  - markdown.extensions.tables:
+  - markdown.extensions.abbr:
+  - markdown.extensions.footnotes:
+  - markdown.extensions.md_in_html:
+  - pymdownx.superfences:
+      preserve_tabs: true
+      custom_fences:
+        # Mermaid diagrams
+        - name: diagram
+          class: diagram
+          format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: playground
+          class: playground
+          format: !!python/name:docs.src.py.notebook.color_command_formatter
+          validator: !!python/name:docs.src.py.notebook.color_command_validator
+  - pymdownx.highlight:
+      extend_pygments_lang:
+        - name: php-inline
+          lang: php
+          options:
+            startinline: true
+        - name: pycon3
+          lang: pycon
+          options:
+            python3: true
+  - pymdownx.inlinehilite:
+      custom_inline:
+        - name: color
+          class: color
+          format: !!python/name:docs.src.py.notebook.color_formatter
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      social_url_shorthand: true
+      user: facelessuser
+      repo: coloraide
+  - pymdownx.tilde:
+  - pymdownx.caret:
+  - pymdownx.smartsymbols:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.escapeall:
+      hardbreak: True
+      nbsp: True
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.progressbar:
+  - pymdownx.striphtml:
+  - pymdownx.snippets:
+      base_path:
+      - docs/src/markdown/.snippets
+      - LICENSE.md
+      auto_append:
+      - refs.md
+      - info-container.md
+  - pymdownx.keys:
+      separator: "\uff0b"
+  - pymdownx.details:
+  - pymdownx.saneheaders:
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - assets/coloraide-extras/extra-753860a807.css
+extra_javascript:
+  - https://unpkg.com/mermaid@8.13.3/dist/mermaid.min.js
+  - playground-config-1e20e984.js
+  - https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js
+  - assets/coloraide-extras/extra-notebook-a4927f29.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/facelessuser
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/TWs8Tgr
+
+plugins:
+  - search
+  - git-revision-date-localized
+  - mkdocs_pymdownx_material_extras
+  - minify:
+      minify_html: true
