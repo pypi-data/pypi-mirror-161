@@ -1,0 +1,149 @@
+variables:
+  KOJI_TARGET: 'authz7'
+  KOJI_TARGET_C8S: 'authz8s'
+  KOJI_TARGET_C9: 'authz9'
+  DIST: 'el7'
+  DIST_C8S: 'el8s'
+  DIST_C9: 'el9'
+  SPEC_FILE: 'auth-get-sso-cookie.spec'
+  RPM_RELEASE: 1
+
+stages:
+  - test
+  - package
+  - deploy_dev
+  - deploy
+
+.rpmbuild_deps_template: &rpmbuild_deps
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base:latest
+  before_script:
+    - yum install -y rpm-build rpmdevtools redhat-rpm-config
+    - yum install -y python3-setuptools python3-pip gcc python3-devel krb5-devel
+  dependencies:
+    - test_python3_cc7
+
+.rpmbuild_deps_template_8s: &rpmbuild_deps_8s
+  image: gitlab-registry.cern.ch/linuxsupport/cs8-base:latest
+  before_script:
+    - yum install -y rpm-build rpmdevtools redhat-rpm-config
+    - yum install -y python3-setuptools python3-pip gcc python3-devel krb5-devel
+    - pip3 install -U setuptools
+  dependencies:
+    - test_python3_cc7
+
+.rpmbuild_deps_template_9: &rpmbuild_deps_9
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  before_script:
+    - yum install -y rpm-build rpmdevtools redhat-rpm-config
+    - yum install -y python3-setuptools python3-pip gcc python3-devel krb5-devel
+    - pip3 install -U setuptools
+  dependencies:
+    - test_python3_cc7
+
+.koji_deps_template: &koji_deps
+  image: "gitlab-registry.cern.ch/linuxsupport/rpmci/kojicli"
+  before_script:
+    - yum install -y koji krb5-workstation
+    - echo $AUTHZSVCOPS_PASSWORD | kinit authzsvcops@CERN.CH
+  after_script:
+    - kdestroy || true
+
+test_python3_cc7:
+  stage: test
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base:latest
+  script:
+    - yum install -y python3-pip gcc python3-devel krb5-devel
+    - pip3 install cryptography==3.3.2
+    - pip3 install --user -r requirements.txt
+    - echo $AUTHZSVCOPS_PASSWORD | kinit authzsvcops@CERN.CH
+    - python3 -m unittest auth_get_sso_cookie.test_cern_sso
+
+build_rpm_cc7:
+  stage: package
+  <<: *rpmbuild_deps
+  script:
+    - python3 setup.py bdist_rpm --build-requires "python3-devel krb5-devel python3-setuptools gcc" --requires "python3 python3-requests python36-cryptography python36-requests-gssapi python36-beautifulsoup4" --release $RPM_RELEASE.$DIST --distribution-name $DIST
+  artifacts:
+    paths:
+      - dist/*
+    expire_in: 1 week
+
+build_rpm_c8s:
+  stage: package
+  <<: *rpmbuild_deps_8s
+  script:
+    - python3 setup.py bdist_rpm --build-requires "python3-devel krb5-devel python3-setuptools gcc" --requires "python3 python3-requests python3-cryptography python3-requests-gssapi python3-beautifulsoup4" --release $RPM_RELEASE.$DIST_C8S --distribution-name $DIST_C8S
+  artifacts:
+    paths:
+      - dist/*
+    expire_in: 1 week
+
+build_rpm_c9:
+  stage: package
+  <<: *rpmbuild_deps_9
+  script:
+    - python3 setup.py bdist_rpm --build-requires "python3-devel krb5-devel python3-setuptools gcc" --requires "python3 python3-requests python3-cryptography python3-requests-gssapi python3-beautifulsoup4" --release $RPM_RELEASE.$DIST_C9 --distribution-name $DIST_C9
+  artifacts:
+    paths:
+      - dist/*
+    expire_in: 1 week
+
+koji_build_cc7:
+  <<: *koji_deps
+  stage: deploy_dev
+  when: always
+  allow_failure: true
+  dependencies:
+    - build_rpm_cc7
+    - build_rpm_c8s
+    - build_rpm_c9
+  script:
+    - koji --config=.koji build --wait $KOJI_TARGET dist/auth-get-sso-cookie-*.$DIST.src.rpm
+    - KOJI_LATEST=$(koji --config=.koji latest-pkg $KOJI_TARGET-testing auth-get-sso-cookie | tail -n +3 | cut -d ' ' -f 1)
+    - koji --config=.koji tag-pkg $KOJI_TARGET-qa $KOJI_LATEST
+  only:
+    - master
+
+koji_build_c8s:
+  <<: *koji_deps
+  stage: deploy_dev
+  when: always
+  allow_failure: true
+  dependencies:
+    - build_rpm_cc7
+    - build_rpm_c8s
+    - build_rpm_c9
+  script:
+    - koji --config=.koji build --wait $KOJI_TARGET_C8S dist/auth-get-sso-cookie-*.$DIST_C8S.src.rpm
+    - KOJI_LATEST_C8S=$(koji --config=.koji latest-pkg $KOJI_TARGET_C8S-testing auth-get-sso-cookie | tail -n +3 | cut -d ' ' -f 1)
+    - koji --config=.koji tag-pkg $KOJI_TARGET_C8S-qa $KOJI_LATEST_C8S
+  only:
+    - master
+
+koji_build_c9:
+  <<: *koji_deps
+  stage: deploy_dev
+  when: always
+  allow_failure: true
+  dependencies:
+    - build_rpm_cc7
+    - build_rpm_c8s
+    - build_rpm_c9
+  script:
+    - koji --config=.koji build --wait $KOJI_TARGET_C9 dist/auth-get-sso-cookie-*.$DIST_C9.src.rpm
+    - KOJI_LATEST_C9=$(koji --config=.koji latest-pkg $KOJI_TARGET_C9-testing auth-get-sso-cookie | tail -n +3 | cut -d ' ' -f 1)
+    - koji --config=.koji tag-pkg $KOJI_TARGET_C9-qa $KOJI_LATEST_C9
+  only:
+    - master
+
+koji_prod:
+  <<: *koji_deps
+  stage: deploy
+  when: manual
+  allow_failure: true
+  script:
+    - koji --config=.koji tag-pkg $KOJI_TARGET-stable auth-get-sso-cookie-${CI_COMMIT_REF_NAME}.$DIST
+    - koji --config=.koji tag-pkg $KOJI_TARGET_C8S-stable auth-get-sso-cookie-${CI_COMMIT_REF_NAME}.$DIST_C8S
+    - koji --config=.koji tag-pkg $KOJI_TARGET_C9-stable auth-get-sso-cookie-${CI_COMMIT_REF_NAME}.$DIST_C9
+  only:
+    - tags
