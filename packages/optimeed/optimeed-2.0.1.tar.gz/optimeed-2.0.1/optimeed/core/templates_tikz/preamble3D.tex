@@ -1,0 +1,63 @@
+\usepackage{xcolor}
+\usepackage{pgfplots}
+
+% pgfplots options
+\pgfplotsset{compat=newest}
+\pgfplotsset{
+    /pgfplots/layers/MyLayer/.define layer set={
+        axis background,axis grid,main,axis ticks,axis lines,axis tick labels,
+        axis descriptions,axis foreground
+    }{/pgfplots/layers/standard},
+}
+
+
+\pgfplotsset{
+    default_axis_style/.style={
+        % Size figure
+        height=8.8cm,
+        width=8.8cm,
+        % Grid
+        grid style={line width=0.1pt, draw=gray!60},
+        colormap/jet,
+        % Ticks style
+        ticklabel style = {font=\scriptsize},
+        tick style = {draw=black},
+        label style={font=\footnotesize},
+        % Label styles
+        label style={sloped},
+        %Legend
+        legend style={
+            cells={anchor=west, align={left}},
+            %draw=none,
+            %fill=none,
+            font=\footnotesize,
+            legend pos= north east,
+        },
+        axis x line =left,
+        axis y line =left,
+        axis z line = left,
+        axis line style={-}
+    },
+    grid on/.style={
+        xmajorgrids=true,
+        ymajorgrids=true,
+        xminorgrids=true,
+        yminorgrids=true,
+        zminorgrids=true,
+        zmajorgrids=true,
+    },
+    grid off/.style={
+        xmajorgrids=false,
+        ymajorgrids=false,
+        xminorgrids=false,
+        yminorgrids=false,
+        zminorgrids=false,
+        zmajorgrids=false,
+    }
+}
+
+% Fix imports
+\usepackage{import}
+\makeatletter
+\def\relativepath{\import@path}
+\makeatother
