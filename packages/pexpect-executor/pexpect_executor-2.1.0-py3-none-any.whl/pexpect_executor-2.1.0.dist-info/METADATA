@@ -1,0 +1,175 @@
+Metadata-Version: 2.1
+Name: pexpect-executor
+Version: 2.1.0
+Summary: Automate interactive CLI tools actions
+Home-page: https://gitlab.com/AdrianDC/pexpect-executor
+Author: Adrian DC
+Author-email: radian.dc@gmail.com
+License: Apache License 2.0
+Project-URL: Bug Reports, https://gitlab.com/AdrianDC/pexpect-executor/-/issues
+Project-URL: Changelog, https://gitlab.com/AdrianDC/pexpect-executor/blob/master/CHANGELOG.md
+Project-URL: Documentation, https://gitlab.com/AdrianDC/pexpect-executor#pexpect-executor
+Project-URL: Source, https://gitlab.com/AdrianDC/pexpect-executor
+Project-URL: Statistics, https://pypistats.org/packages/pexpect-executor
+Keywords: pexpect pexpect-executor
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+Requires-Python: >=3, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: colored (>=1.4.2)
+Requires-Dist: setuptools (>=45.1.0)
+Requires-Dist: pexpect (>=4.2.1) ; platform_system == "Linux"
+Requires-Dist: wexpect (>=4.0.0) ; platform_system == "Windows"
+
+# pexpect-executor
+
+[![Build](https://gitlab.com/AdrianDC/pexpect-executor/badges/master/pipeline.svg)](https://gitlab.com/AdrianDC/pexpect-executor/-/commits/master/)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=AdrianDC_pexpect-executor&metric=bugs)](https://sonarcloud.io/dashboard?id=AdrianDC_pexpect-executor)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=AdrianDC_pexpect-executor&metric=code_smells)](https://sonarcloud.io/dashboard?id=AdrianDC_pexpect-executor)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AdrianDC_pexpect-executor&metric=coverage)](https://sonarcloud.io/dashboard?id=AdrianDC_pexpect-executor)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=AdrianDC_pexpect-executor&metric=ncloc)](https://sonarcloud.io/dashboard?id=AdrianDC_pexpect-executor)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AdrianDC_pexpect-executor&metric=alert_status)](https://sonarcloud.io/dashboard?id=AdrianDC_pexpect-executor)
+
+Automate interactive CLI tools actions to create previews or tests in Python.
+
+---
+
+## Preview
+
+![preview.svg](https://gitlab.com/AdrianDC/pexpect-executor/raw/2.1.0/docs/preview.svg)
+
+---
+
+## CLI examples
+
+```bash
+pexpect-executor --help
+pexpect-executor --down --down --down --down --down --space --enter -- gitlabci-local -H -B
+pexpect-executor --press a --press a --enter -- gitlabci-local
+pexpect-executor --ctrl c -- gitlabci-local
+```
+
+---
+
+## Python examples
+
+```python
+#!/usr/bin/env python3
+
+# Modules libraries
+from pexpect_executor import Executor
+
+# Configure
+Executor.configure(host='previews', tool='pexpect-executor')
+
+# List
+Executor('ls -la', workdir='/').\
+    finish()
+
+# More
+Executor('ls -la | more -5', delay_press=0.5, workdir='/').\
+    read().\
+    press('s').\
+    read().\
+    press('s').\
+    read().\
+    press('b').\
+    read().\
+    press('b').\
+    read().\
+    press(' ').\
+    read().\
+    wait(1).\
+    press(Executor.KEY_ENTER).\
+    read().\
+    wait(1).\
+    press('q').\
+    finish()
+
+# Prompt
+Executor('').\
+    finish()
+```
+
+---
+
+## Usage
+
+| Command          |                                        |
+| ---------------- | -------------------------------------- |
+| pexpect-executor | Automate interactive CLI tools actions |
+
+| Internal arguments |                          |
+| ------------------ | ------------------------ |
+| -h, --help         | Show this help message   |
+| --version          | Show the current version |
+
+| Configuration arguments |                                                                 |
+| ----------------------- | --------------------------------------------------------------- |
+| --delay-init SECS       | Delay the initial action execution (in s, default: 1.0)         |
+| --delay-press SECS      | Delay the press actions execution (in s, default: 0.5)          |
+| --delay-prompt SECS     | Delay the prompt actions execution (in s, default: 1.0)         |
+| --hold-prompt           | Hold the prompt execution without a new line                    |
+| --host HOST             | Configure the host name (default: preview, env: EXECUTOR_HOST)  |
+| --tool TOOL             | Configure the tool name (default: executor, env: EXECUTOR_TOOL) |
+| --workdir WORKDIR       | Use a specific working directory path                           |
+
+| Actions arguments |                                              |
+| ----------------- | -------------------------------------------- |
+| --up              | Press the &lt;UP&gt; key                     |
+| --down            | Press the &lt;DOWN&gt; key                   |
+| --left            | Press the &lt;LEFT&gt; key                   |
+| --right           | Press the &lt;RIGHT&gt; key                  |
+| --enter           | Press the &lt;ENTER&gt; key                  |
+| --space           | Press the &lt;SPACE&gt; key                  |
+| --press KEY       | Press the specified &lt;KEY&gt;              |
+| --ctrl KEY        | Press the specified Ctrl+&lt;KEY&gt;         |
+| --read            | Read the buffered data output (forced)       |
+| --wait SECS       | Wait the specified time (in s, example: 1.0) |
+| --finish          | Finish the execution (forced)                |
+
+| Positional arguments |                                                   |
+| -------------------- | ------------------------------------------------- |
+| command              | Command arguments to execute (use -- to separate) |
+
+---
+
+## Supported systems
+
+|     Systems      | Supported |
+| :--------------: | :-------: |
+|  Linux (shell)   |   **✓**   |
+|  macOS (shell)   |   **?**   |
+| Windows (shell)  |   **~**   |
+| Android (Termux) |   **✓**   |
+
+---
+
+## Dependencies
+
+- [colored](https://pypi.org/project/colored/): Terminal colors and styles
+- [pexpect](https://pypi.org/project/pexpect/): Interactive console applications controller
+- [setuptools](https://pypi.org/project/setuptools/): Build and manage Python packages
+- [wexpect](https://pypi.org/project/wexpect/): Windows alternative of pexpect
+
+---
+
+## References
+
+- [git-chglog](https://github.com/git-chglog/git-chglog): CHANGELOG generator
+- [gitlab-release](https://pypi.org/project/gitlab-release/): Utility for publishing on GitLab
+- [gitlabci-local](https://pypi.org/project/gitlabci-local/): Launch .gitlab-ci.yml jobs locally
+- [PyPI](https://pypi.org/): The Python Package Index
+- [termtosvg](https://pypi.org/project/termtosvg/): Record terminal sessions as SVG animations
+- [twine](https://pypi.org/project/twine/): Utility for publishing on PyPI
