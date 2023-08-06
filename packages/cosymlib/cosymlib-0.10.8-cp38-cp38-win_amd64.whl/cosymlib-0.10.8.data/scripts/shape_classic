@@ -1,0 +1,98 @@
+#!python
+from cosymlib import Cosymlib, __version__
+from cosymlib import file_io
+from cosymlib.file_io.tools import print_header, print_footer
+from cosymlib.molecule.geometry import Geometry
+from cosymlib.file_io import classic_inputs
+from cosymlib.shape import tools
+import argparse
+import os
+import sys
+
+parser = argparse.ArgumentParser(description='shape')
+parser.add_argument(type=str, dest='input_file', nargs='?', help='input file name(+extension)')
+parser.add_argument('-n', dest='n', action='store', default=None,
+                    type=int, help='show the reference labels for a given structure')
+parser.add_argument('-v', '--version', dest='version', action='store_true', default=False,
+                    help='print information about the input structures')
+
+
+args = parser.parse_args(sys.argv[1:])
+
+if args.version:
+    print('Cosymlib version = {}'.format(__version__))
+    exit()
+
+# Shape's commands
+if args.n:
+    print(tools.get_shape_label_info(args.n, old=True))
+
+if args.input_file is None:
+    parser.error('No input file selected! An existing file must be provide')
+else:
+    if os.stat(args.input_file).st_size == 0:
+        raise FileExistsError('File {} is empty'.format(os.path.basename(args.input_file)))
+    output_name, file_extension = os.path.splitext(args.input_file)
+
+    structures, options = classic_inputs.read_old_input(args.input_file)
+    central_atom = options['%central_atom']
+    symobj = Cosymlib(structures)
+
+    if options['%test']:
+        test_structure = []
+        symbols = ['H' for _ in range(options['%n_atoms'])]
+        symbols.append('N')
+        for label in tools.get_structure_references(options['%n_atoms']):
+            positions = tools.get_reference_structure(label, central_atom=central_atom).get_positions()
+            test_structure.append(Geometry(symbols=symbols,
+                                           positions=positions,
+                                           name=label))
+
+        if central_atom == 0:
+            output = open('{}/L{}.xyz'.format(os.path.dirname(output_name), options['%n_atoms']), 'w')
+            print_header(output)
+        else:
+            output = open('{}/ML{}.xyz'.format(os.path.dirname(output_name), options['%n_atoms']), 'w')
+            print_header(output)
+        output.write(file_io.get_file_xyz_txt(test_structure))
+        print_footer(output)
+        exit()
+
+    reference_polyhedron = []
+    if options['%labels'] != 0:
+        for number in options['%labels']:
+            if int(number) == 0:
+                for ref in file_io.get_geometry_from_file_ref(output_name + '.ref', read_multiple=True):
+                    reference_polyhedron.append(ref)
+            else:
+                reference_polyhedron.append(tools.get_shape_label(int(number), options['%n_atoms']))
+
+    if options['%fullout']:
+        output_name = open(output_name + '.tab', 'w')
+        print_header(output_name)
+        symobj.print_shape_measure(reference_polyhedron,
+                                   central_atom=central_atom,
+                                   output=output_name)
+        symobj.print_shape_structure(reference_polyhedron,
+                                     central_atom=central_atom,
+                                     output=output_name)
+        print_footer(output_name)
+
+    if options['%path']:
+        output_name = open(output_name + '.tab', 'w')
+        print_header(output_name)
+        if len(reference_polyhedron) > 2:
+            raise Exception('No more than two labels can be specified for a path calculation')
+        symobj.print_minimum_distortion_path_shape(reference_polyhedron[0],
+                                                   reference_polyhedron[1],
+                                                   central_atom=central_atom,
+                                                   output=output_name)
+        print_footer(output_name)
+
+    if not options['%fullout'] and not options['%path']:
+        output_name = open(output_name + '.tab', 'w')
+        print_header(output_name)
+        symobj.print_shape_measure(reference_polyhedron,
+                                   central_atom=central_atom,
+                                   output=output_name)
+        print_footer(output_name)
