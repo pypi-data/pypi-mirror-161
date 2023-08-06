@@ -1,0 +1,123 @@
+name: Tests
+on: [push]
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - uses: autoreduction/autoreduce-actions/build@main
+        with:
+          package_name: autoreduce_utils
+          migrate_db: false
+
+      - name: Remote dotenv to Environment (configserver alike)
+        uses: Steph0/dotenv-configserver@v1.2.0
+        with:
+          repository: "autoreduction/autoreduce-workspace"
+
+      - name: Run unit tests
+        run: >-
+          pytest --cov=autoreduce_utils --cov-report=xml
+
+      - uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Build package for publishing
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: python3 -m pip install --upgrade build wheel && python -m build
+
+      - name: Publish distribution 📦 to PyPI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  dependency-check:
+    name: Dependency-Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ job.container.image }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ job.container.image }}-pip-
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+
+  Inspection:
+    name: Code Inspection
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - uses: autoreduction/autoreduce-actions/build@main
+        with:
+          package_name: autoreduce_utils
+          migrate_db: false
+
+      - name: Remote dotenv to Environment (configserver alike)
+        uses: Steph0/dotenv-configserver@v1.2.0
+        with:
+          repository: "autoreduction/autoreduce-workspace"
+
+      - uses: autoreduction/autoreduce-actions/code_inspection@main
+        with:
+          package_name: autoreduce_utils
+          pylint: false

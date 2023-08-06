@@ -1,0 +1,52 @@
+[build-system]
+requires = ["wheel", "setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoreduce_utils"
+version = "22.0.0.dev23"
+description = "Various utils for the Autoreduction service"
+readme = "README.md"
+license = { text = "GNU General Public License" }
+classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+dependencies = [
+    'pydantic==1.9.0',
+    'gitpython==3.1.27',
+    'python-icat==0.21.0',
+    'suds-community==1.1.1',
+    'confluent-kafka==1.9.0',
+]
+
+[project.urls]
+"Repository" = "https://github.com/autoreduction/utils"
+"Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
+
+[tool.setuptools]
+packages = ["autoreduce_utils"]
+
+[tool.pytest.ini_options]
+norecursedirs = [".*", "dist", "CVS", "_darcs", "{arch}", "*.egg"]
+
+[tool.yapf]
+column_limit = 120
+based_on_style = "pep8"
+
+[tool.yapfignore]
+ignore_patterns = ["setup.py", "**/migrations", "venv/", "venv3/"]
+
+[tool.pylint.MAIN]
+extension-pkg-whitelist = ["pydantic"]
+disable = [
+    "R0904", # too-many-public-methods
+    "R0902", # too-many-instance-attributes
+    "R0903", # too-few-public-methods
+    "R1705", # no-else-return
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.pylint.DESIGN]
+max-args = 8
