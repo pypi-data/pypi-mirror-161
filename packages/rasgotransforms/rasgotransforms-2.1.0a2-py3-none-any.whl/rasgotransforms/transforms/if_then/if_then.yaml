@@ -1,0 +1,29 @@
+name: if_then
+tags:
+  - column
+  - conditional
+  - data_cleaning
+  - natural_language_processing
+description: |
+  This function creates a new column based on the conditions provided in the `conditions` argument.
+
+  Output values should be of the same type, since they are constructing one new column.
+
+  A default value for the new column should be set, as should the output column name.
+arguments:
+  conditions:
+    type: conditional_list
+    description: A nested list. In each inner list the first element would be the condition to check, and the second the value with which to fill.
+  default:
+    type: mixed_value
+    description: The default value with which to fill the new column. Please enclose fixed strings in quotes inside of the argument (e.g., below)
+  alias:
+    type: string
+    description: The name of the output column in the new dataset.
+example_code: |
+  ds = rasgo.get.dataset(id)
+
+  ds2 = ds.if_then(conditions=[["DS_WEATHER_ICON like '%cloudy%'", 1]],
+        default=2,
+        alias="CLOUDY_WEATHER_FLAG")
+  ds2.preview()

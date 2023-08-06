@@ -1,0 +1,34 @@
+name: standard_scaler
+tags:
+  - column
+  - feature_engineering
+description: |
+  This function scales a column by removing the mean and scaling by standard deviation.
+
+  If you omit averages and standarddevs, the function will compute the average and standard deviation of each column. Pass averages and standarddevs values if you want to override the calculation with static values for each column.
+arguments:
+  columns_to_scale:
+    type: column_list
+    description: A list of numeric columns that you want to scale
+  averages:
+    type: value_list
+    description: An optional argument representing a list of the static averages to use for each column in columns_to_scale. If omitted, the averages are calculated directly off each column.
+    is_optional: true
+  standarddevs:
+    type: int_list
+    description: An optional argument representing a list of the static standard deviations to use for each column in columns_to_scale. If omitted, the values are calculated directly off each column.
+    is_optional: true
+  overwrite_columns:
+    type: boolean
+    description: "Optional: if true, the scaled values will overwrite values in 'columns_to_scale'. If false, new columns with the scaled values will be generated."
+    is_optional: true
+example_code: |
+  ds = rasgo.get.dataset(id)
+
+  ds2 = ds.standard_scaler(columns_to_scale=['DS_DAILY_HIGH_TEMP','DS_DAILY_LOW_TEMP'])
+  ds2.preview()
+
+  ds2b = ds.standard_scaler(columns_to_scale=['DS_DAILY_HIGH_TEMP','DS_DAILY_LOW_TEMP'],
+    averages=[68, 52],
+    standarddevs=[12, 8])
+  ds2b.preview()
