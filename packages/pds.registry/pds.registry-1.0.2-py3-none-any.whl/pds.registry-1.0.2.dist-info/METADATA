@@ -1,0 +1,82 @@
+Metadata-Version: 2.1
+Name: pds.registry
+Version: 1.0.2
+Summary: A short description, about 100-120 characters, suitable for search summaries
+Home-page: https://github.com/NASA-PDS/registry
+Download-URL: https://github.com/NASA-PDS/registry/releases/
+Author: PDS
+Author-email: pds_operator@jpl.nasa.gov
+License: apache-2.0
+Keywords: pds,planetary data,registry
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+License-File: NOTICE.txt
+Provides-Extra: dev
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: docutils (==0.16) ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: flake8-bugbear ; extra == 'dev'
+Requires-Dist: flake8-docstrings ; extra == 'dev'
+Requires-Dist: pep8-naming ; extra == 'dev'
+Requires-Dist: mypy ; extra == 'dev'
+Requires-Dist: pydocstyle ; extra == 'dev'
+Requires-Dist: coverage ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: pytest-watch ; extra == 'dev'
+Requires-Dist: pytest-xdist ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: sphinx ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme ; extra == 'dev'
+Requires-Dist: sphinxcontrib-openapi ; extra == 'dev'
+Requires-Dist: sphinxcontrib-redoc ; extra == 'dev'
+Requires-Dist: tox ; extra == 'dev'
+Requires-Dist: types-setuptools ; extra == 'dev'
+
+
+# 🪐 NASA PDS Registry repository
+
+This repository contains PDS registry application resources:
+
+- the source for the user/administrator documentation, see `docs` folder
+- docker compose script to start the full application with its required components, see https://github.com/NASA-PDS/registry/blob/main/docker/README.md for details. This also includes integration tests.
+
+
+Users and administrator should use the documentation published on http://nasa-pds.github.io/registry
+
+
+## Code of Conduct
+
+All users and developers of the NASA-PDS software are expected to abide by our [Code of Conduct](https://github.com/NASA-PDS/.github/blob/main/CODE_OF_CONDUCT.md). Please read this to ensure you understand the expectations of our community.
+
+
+## Development
+
+To develop this project, use your favorite text editor, or an integrated development environment with Python support, such as [PyCharm](https://www.jetbrains.com/pycharm/).
+
+
+### Contributing
+
+For information on how to contribute to NASA-PDS codebases please take a look at our [Contributing guidelines](https://github.com/NASA-PDS/.github/blob/main/CONTRIBUTING.md).
+
+
+
+### Documentation
+
+The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to build its documentation. PDS' documentation template is already configured as part of the default build. You can build your projects docs with:
+
+
+    cd docs
+    make html
+    
+The generated documnentation can be found in directory docs/build/html
+
+
+## CI/CD
+
+The template repository comes with our two "standard" CI/CD workflows, `stable-cicd` and `unstable-cicd`. The unstable build runs on any push to `main` (± ignoring changes to specific files) and the stable build runs on push of a release branch of the form `release/<release version>`. Both of these make use of our GitHub actions build step, [Roundup](https://github.com/NASA-PDS/roundup-action). The `unstable-cicd` will generate (and constantly update) a SNAPSHOT release. If you haven't done a formal software release you will end up with a `v0.0.0-SNAPSHOT` release (see NASA-PDS/roundup-action#56 for specifics).
