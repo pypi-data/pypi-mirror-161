@@ -1,0 +1,105 @@
+Metadata-Version: 2.1
+Name: fmetools
+Version: 0.4.2
+Summary: Tools for extending Safe Software's FME using Python.
+Home-page: https://github.com/safesoftware/fmetools
+Author: Safe Software Inc.
+License: BSD
+Keywords: FME fmeobjects
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Intended Audience :: Developers
+Requires-Python: !=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: hypothesis ; extra == 'dev'
+Requires-Dist: black (>=22.1.0) ; extra == 'dev'
+
+# fmetools: helpers for FME Python
+
+_fmetools_ is a Python library that streamlines the development of Python-based
+formats and transformers that can be shared as FME Packages on FME Hub.
+It provides base classes and utilities that make it easy to get started.
+
+This library is built on top of the
+[Python `fmeobjects` API](https://docs.safe.com/fme/html/fmepython/index.html)
+that's included with FME.
+
+## Installation
+
+Developers of FME Packages use _fmetools_ by including a private copy it
+in their FME Package. This process is called vendorization, and can be done
+using the [vendorize](https://pypi.org/project/vendorize/) tool on PyPI.
+
+This library is distributed as a wheel, but it should _not_ be installed
+with `pip install`.
+
+
+## For maintainers of fmetools
+
+1. Start with a clean environment
+2. Install dev requirements using `pip install -r requirements.txt`
+3. Do a dev install using `pip install --editable .`
+4. Run tests using `pytest`
+5. Build wheel using `python -m build --wheel`
+
+# fmetools changes
+
+## 0.4.2
+
+* Prepare for PyPI release.
+
+## 0.4.0
+
+* Support new GUI types `ACTIVECHOICE_LOOKUP` and `NAMED_CONNECTION`.
+* Int and float GUI types: parse empty string to None instead of raising ValueError.
+
+## 0.3.1
+
+* Fix FMESession leak in `parsers.parse_def_line()`.
+
+## 0.3.0
+
+* Add `guiparams` module, for parsing GUI parameter values.
+  This initial implementation supports just a small subset of GUI types.
+
+## 0.2.0
+
+* Remove `FMEEnhancedTransformer.keyword` and replace its usages with `FMETransformer.factory_name`.
+* Use relative imports, to support copy-paste vendorization.
+
+## 0.1.4
+
+* Add `hasSupportFor()` to `plugins.FMESimplifiedReader` to allow for reader bulk mode support.
+
+## 0.1.3
+
+* Add `webservices.set_session_auth_from_named_connection()` to honour SSL verification settings on Named Connections.
+
+## 0.1.2
+
+* Add `has_support_for()` to `plugins.FMETransformer` to enable transformer bulk mode support.
+
+## 0.1.1
+
+* Maintain Python 2.7 support.
+
+## 0.1.0
+
+* Respect web connection token placement settings.
+
+## 0.0.2
+
+* Added localization utilities.
+* Updated logging infrastructure.
+
+## 0.0.1
+
+* Initial packaging of utility functions.
