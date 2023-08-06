@@ -1,0 +1,63 @@
+{% extends 'cruditor/base.html' %}
+{% load i18n %}
+{% load tapeforms %}
+
+
+{% block extrahead %}
+	{{ block.super }}
+	{{ form.media.css }}
+{% endblock %}
+
+
+{% block content %}
+<div class="cruditor-form">
+	<form action="." method="post" enctype="multipart/form-data" novalidate{% block form_attributes %}{% endblock %}>
+		{% csrf_token %}
+
+		{% if form.errors or formset_errors %}
+			<div class="alert alert-error">
+				{% trans 'Please correct the errors below.' %}
+			</div>
+		{% endif %}
+
+		{% block form %}
+			{% form form %}
+		{% endblock %}
+
+		{% block form_extra %}
+		{% endblock %}
+
+		{% block formsets %}
+			{% for formset in formsets.values %}
+				{% include 'cruditor/forms/inline-formset.html' %}
+			{% endfor %}
+		{% endblock %}
+
+		{% block form_actions %}
+			<div class="row form-actions">
+				<div class="col-auto mr-auto">
+					{% block form_actions_left %}
+						{% if object_delete_url %}
+							<a class="btn btn-danger" href="{{ object_delete_url }}">{% trans 'Delete' %}</a>
+						{% endif %}
+					{% endblock %}
+				</div>
+				<div class="col-auto">
+					{% block form_actions_right %}
+						<button class="btn btn-primary" type="submit" name="save">
+							{% trans 'Save form' as default_form_save_button_label %}
+							{{ form_save_button_label|default:default_form_save_button_label }}
+						</button>
+					{% endblock %}
+				</div>
+			</div>
+		{% endblock %}
+	</form>
+</div>
+{% endblock %}
+
+
+{% block extrabody %}
+	{{ block.super }}
+	{{ form.media.js }}
+{% endblock %}
