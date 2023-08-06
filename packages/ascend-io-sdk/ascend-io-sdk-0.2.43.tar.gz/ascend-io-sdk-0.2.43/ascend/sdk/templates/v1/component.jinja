@@ -1,0 +1,25 @@
+import base64
+import os
+import pathlib
+
+from ascend.sdk import definitions, field, value
+from ascend.sdk.applier import ComponentApplier
+from ascend.sdk.client import Client
+
+{% for mod in proto_mods %}
+import ascend.protos.{{mod}}.{{mod}}_pb2 as {{mod}}
+{% endfor %}
+
+{% for gmod, cls in gmod_classes %}
+from {{gmod}} import {{cls}}
+{% endfor %}
+
+{% set attribute_overrides = extract_inline_code(component, base_path, base_path) %}
+component = {{renderer(component, classname_map=classname_map, attribute_overrides=attribute_overrides)}}
+
+def apply_component(client: Client, data_service_id: str, dataflow_id: str, component: definitions.Component):
+  ComponentApplier.build(client, data_service_id, dataflow_id).apply(data_service_id, dataflow_id, component)
+
+if __name__ == "__main__":
+  client = Client("{{hostname}}")
+  apply_component(client, "{{data_service_id}}", "{{dataflow_id}}", component)

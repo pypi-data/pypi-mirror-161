@@ -1,0 +1,96 @@
+import argparse
+import base64
+import os
+import pathlib
+
+from ascend.sdk import definitions, field, value
+from ascend.sdk.applier import DataflowApplier
+from ascend.sdk.client import Client
+
+{% for mod in proto_mods %}
+import ascend.protos.{{mod}}.{{mod}}_pb2 as {{mod}}
+{% endfor %}
+
+{% for gmod, cls in gmod_classes %}
+from {{gmod}} import {{cls}}
+{% endfor %}
+
+
+GENERATED_FROM_HOSTNAME = "{{hostname}}"
+GENERATED_FROM_DATA_SERVICE_ID = "{{data_service_id}}"
+GENERATED_FROM_DATAFLOW_ID = "{{dataflow.id}}"
+
+
+def construct_dataflow(data_service_id: str = GENERATED_FROM_DATA_SERVICE_ID, dataflow_id: str = GENERATED_FROM_DATAFLOW_ID):
+  ## Data feed connectors for this dataflow
+  data_feed_connectors = []
+  {% for data_feed_connector in dataflow.data_feed_connectors %}
+  {% set attribute_overrides = {
+        ("input_data_service_id",): (
+          'data_service_id' if data_feed_connector.input_data_service_id == data_service_id else "'"+data_feed_connector.input_data_service_id+"'"
+        )
+      }
+  %}
+
+  data_feed_connector_{{data_feed_connector.id}} = {{ renderer(data_feed_connector, classname_map=classname_map, attribute_overrides=attribute_overrides) | indent(2) }}
+  data_feed_connectors.append(data_feed_connector_{{data_feed_connector.id}})
+  {% endfor %}
+
+
+  ## Components for this dataflow
+  components = []
+  {% for component in ordered_components(dataflow.components) %}
+
+  {% set attribute_overrides = extract_inline_code(component, os.path.join(base_path, 'components'), base_path) %}
+  component_{{component.id}} = {{ renderer(component, classname_map=classname_map, attribute_overrides=attribute_overrides) | indent(2) }}
+  components.append(component_{{component.id}})
+  {% endfor %}
+
+
+  ## Data feeds for this dataflow
+  data_feeds = []
+  {% for data_feed in dataflow.data_feeds %}
+  {% set data_services_shared_with = [] %}
+  {% for ds_id in data_feed.data_services_shared_with %}
+  {% do data_services_shared_with.append('data_service_id' if ds_id == data_service_id else "'"+ds_id+"'") %}
+  {% endfor %}
+  {% set attribute_overrides = {("data_services_shared_with",): '[' + ', '.join(data_services_shared_with) + ']'} %}
+
+  data_feed_{{data_feed.id}} = {{ renderer(data_feed, classname_map=classname_map, attribute_overrides=attribute_overrides) | indent(2) }}
+  data_feeds.append(data_feed_{{data_feed.id}})
+  {% endfor %}
+
+
+  ## Component groups for this dataflow
+  groups = []
+
+  {% for group in dataflow.groups %}
+
+  group_{{group.id}} = {{ renderer(group, classname_map=classname_map) | indent(2) }}
+  groups.append(group_{{group.id}})
+  {% endfor %}
+
+  {% set attribute_overrides = {
+        ("components",): "components",
+        ("data_feeds",): "data_feeds",
+        ("data_feed_connectors",): "data_feed_connectors",
+        ("groups",): "groups",
+        ("id",): "dataflow_id",
+        ("name",): ("'" + dataflow.name + "' if dataflow_id == GENERATED_FROM_DATAFLOW_ID else dataflow_id"),
+      }
+  %}
+  return {{ renderer(dataflow, classname_map=classname_map, attribute_overrides=attribute_overrides) | indent(2) }}
+
+
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--hostname", default=os.getenv("ASCEND_HOSTNAME", default=GENERATED_FROM_HOSTNAME))
+  parser.add_argument("-ds", "--data-service-id", default=os.getenv("ASCEND_DATA_SERVICE_ID", default=GENERATED_FROM_DATA_SERVICE_ID))
+  parser.add_argument("-df", "--dataflow-id", default=os.getenv("ASCEND_DATAFLOW_ID", default=GENERATED_FROM_DATAFLOW_ID))
+  parser.add_argument("--no-delete", action='store_true')
+  parser.add_argument("--dry-run", action='store_true')
+  args = parser.parse_args()
+
+  client = Client(args.hostname)
+  dataflow = construct_dataflow(args.data_service_id, args.dataflow_id)
+  DataflowApplier(client).apply(args.data_service_id, dataflow, delete=(not args.no_delete), dry_run=args.dry_run)

@@ -1,0 +1,63 @@
+{% from 'common.jinja' import dataflow_from_definition -%}
+import base64
+import os
+import pathlib
+
+from ascend.sdk import definitions, field, value
+from ascend.sdk.applier import DataServiceApplier
+from ascend.sdk.client import Client
+
+{% for mod in proto_mods %}
+import ascend.protos.{{mod}}.{{mod}}_pb2 as {{mod}}
+{% endfor %}
+
+{% for gmod, cls in gmod_classes %}
+from {{gmod}} import {{cls}}
+{% endfor %}
+
+
+credentials = []
+
+{% for credential in data_service.credentials %}
+{% set cred_var = "credential_" + (credential.id | replace("-", "_")) -%}
+{{cred_var}} = {{renderer(credential, classname_map=classname_map)}}
+credentials.append({{cred_var}})
+
+{% endfor %}
+
+# Connections for all data service
+connections = []
+
+{% for connection in data_service.connections %}
+{% set conn_var = "connection_" + (connection.id | replace("-", "_")) -%}
+{{conn_var}} = {{renderer(connection, classname_map=classname_map)}}
+connections.append({{conn_var}})
+
+{% endfor %}
+
+dataflows = []
+
+{% for dataflow in data_service.dataflows %}
+{% set dataflow_alias = "dataflow_{}".format(dataflow.id) -%}
+{{ dataflow_from_definition(dataflow, dataflow_alias, renderer, ordered_components, classname_map, extract_inline_code, os.path.join(base_path, dataflow.id), base_path) }}
+dataflows.append({{dataflow_alias}})
+
+{% endfor %}
+
+
+# data service '{{data_service.id}}'
+{% set attribute_overrides = {
+      ("credentials",): "credentials",
+      ("connections",): "connections",
+      ("dataflows",): "dataflows",
+    }
+-%}
+data_service = {{renderer(data_service, classname_map=classname_map, attribute_overrides=attribute_overrides)}}
+
+
+def apply_data_service(client: Client, data_service: definitions.DataService):
+  DataServiceApplier(client).apply(data_service)
+
+if __name__ == "__main__":
+  client = Client("{{hostname}}")
+  apply_data_service(client, data_service)
