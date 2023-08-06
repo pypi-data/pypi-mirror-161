@@ -1,0 +1,18 @@
+{% load thumbnail %}
+
+{% thumbnail instance.image 50x50 crop upscale quality=50 as thumb %}
+{% thumbnail instance.image 150x150 crop upscale quality=50 as thumb_quote %}
+
+
+<section class="image-block{% if instance.caption %} image-block--quote{% endif %}">
+    <div class="wrapper wrapper--mid">
+        <div class="image-block__image">
+            <img src="{% if instance.caption %}{{ thumb_quote.url }}{% else %}{{ thumb.url }}{% endif %}" alt="{% if instance.alt_text %}{{ instance.alt_text }}{% else %}Content image{% endif %}" />
+            {% if instance.caption %}
+                <div class="quote">
+                    <p>{{ instance.caption }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
