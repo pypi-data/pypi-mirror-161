@@ -1,0 +1,3 @@
+'''Addresses of predeployed smart contracts'''
+
+MULTISIGWALLET_ADDRESS = '0xD244519000000000000000000000000000000000'
