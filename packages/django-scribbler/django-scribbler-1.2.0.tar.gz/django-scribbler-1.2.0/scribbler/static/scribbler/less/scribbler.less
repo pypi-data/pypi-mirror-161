@@ -1,0 +1,287 @@
+/*
+ * django-scribbler
+ * Source: https://github.com/caktus/django-scribbler
+ * Docs: http://django-scribbler.readthedocs.org/
+ *
+ * Copyright 2012-2014, Caktus Consulting Group, LLC
+ * BSD License
+ *
+*/
+
+/* Table of Contents
+========================
+Imports
+Variables
+Mixins - Twitter Bootstrap
+Scribbler wrapper styles
+Scribbler editor container styles
+Scribbler menu styles
+Codemirror customization styles
+
+*/
+
+/* Variables
+======================== */
+@white:                     #FFFFFF;
+@black:                     #000000;
+
+@gray:                      #666666;
+@grayDark:                  #333333;
+
+@yellow:                    #f1c40f;
+@green:                     #2ecc71;
+@red:                       #cd0000;
+
+@primaryFont:               'Open Sans', Helvetica, sans-serif;
+
+
+/* Mixins - Twitter Bootstrap
+================================ */
+.border-radius(@radius: 5px) {
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+    border-radius: @radius;
+}
+
+.box-shadow(@shadow: 0 5px 5px rgba(50, 50, 50, 0.8)) {
+    -webkit-box-shadow: @shadow;
+    -moz-box-shadow: @shadow;
+    box-shadow: @shadow;
+}
+
+// Transitions
+.transition(@transition) {
+  -webkit-transition: @transition;
+     -moz-transition: @transition;
+      -ms-transition: @transition;
+       -o-transition: @transition;
+          transition: @transition;
+}
+
+.opacity(@opacity) {
+  opacity: @opacity / 100;
+  filter: ~"alpha(opacity=@{opacity})";
+}
+
+/* Scribbler wrapper styles
+======================== */
+.scribble-wrapper {
+    &.with-controls:hover, &.active {
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    &.with-controls .original:hover {
+        background: lighten(@yellow, 20%);
+        .transition(background 0.4s linear);
+    }
+
+    .preview {
+        background: lighten(@yellow, 20%);
+    }
+
+    &.highlight {
+        background: lighten(@yellow, 20%);
+        min-height: 10px;
+        min-width: 10px;
+    }
+
+    &.active {
+        .scribble-controls {
+            .preview, .delete, .save, .cancel {
+                display: inline;
+                border: none;
+            }
+        }
+    }
+
+    // Styles below hide editor and preview on page load
+    .scribble-controls {
+        display: none;
+        background: #eee;
+        border-bottom: 1px solid black;
+        padding: 5px;
+        .preview, .delete, .save, .cancel {
+            display: none;
+        }
+    }
+
+    .scribble-form, .scribble-default { display: none; }
+}
+
+/* Scribbler editor container styles
+==================================== */
+#scribbleEditorContainer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 0;
+    z-index: 10000;
+    background-color: @grayDark;
+
+    .controls {
+        font-family: @primaryFont;
+        color: @white;
+        padding: 5px 25px;
+        line-height: 30px;
+        // Clearfix
+        *zoom: 1;
+        &:before,
+        &:after {
+          display: table;
+          content: "";
+          line-height: 0;
+        }
+        &:after { clear: both; }
+
+        span {
+            float: left;
+            &.error-msg {
+                margin: 0 8px;
+                color: lighten(@red, 25%);
+            }
+        }
+
+        a {
+            float: right;
+            color: @white;
+            .border-radius();
+            padding: 0 10px;
+            margin-left: 8px;
+            cursor: pointer;
+            &.save {
+                background-color: @green;
+                &:hover {
+                  background-color: lighten(@green, 10%);
+                }
+            }
+            &.draft {
+                background-color: @yellow;
+                &:hover {
+                  background-color: lighten(@yellow, 10%);
+                }
+            }
+            &.discard {
+                background-color: @red;
+                &:hover {
+                  background-color: lighten(@red, 10%);
+                }
+            }
+        }
+    }
+}
+
+.scribbleEditor-fullscreen {
+  top: 0px;
+}
+/* Scribbler menu styles
+==================================== */
+#scribbleMenuContainer {
+    position: absolute;
+    top: 0;
+    z-index: 10000;
+    width: 100%;
+    a.tab {
+        position: absolute;
+        left: 45%;
+        .border-radius(0 0 10px 10px);
+        padding: 5px 10px;
+        background-color: @grayDark;
+        cursor: pointer;
+        .hot-dog {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background-color: @gray;
+            .border-radius(1px);
+            margin: 2px 0;
+        }
+    }
+    .control-panel {
+        background-color: @grayDark;
+        height: 50px;
+        font-family: @primaryFont;
+        a {
+            color: @white;
+            .border-radius();
+            margin: 0 25px;
+            line-height: 50px;
+            padding: 10px;
+            cursor: pointer;
+            &.reveal {
+                color: @white;
+                background-color: lighten(@grayDark, 10%);
+                &:hover {
+                   background-color: lighten(@grayDark, 20%);
+                }
+            }
+        }
+        select {
+            font-family: @primaryFont;
+            text-transform: capitalize;
+        }
+    }
+}
+
+/* Codemirror customization styles
+==================================== */
+.CodeMirror {
+    background-color: @white;
+    .activeline {
+        background: lighten(@red, 10%) !important;
+    }
+}
+
+.CodeMirror-hints {
+    position: absolute;
+    z-index: 10010;
+    overflow: hidden;
+    -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+}
+
+.CodeMirror-hints select {
+    background: #fafafa;
+    outline: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: monospace;
+}
+
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  max-width: 19em;
+  overflow: hidden;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
+}
+
+li.CodeMirror-hint-active {
+  background: #08f;
+  color: white;
+}
+
+.CodeMirror-fullscreen {
+  position: fixed;
+  top: 40px; left: 0; right: 0; bottom: 0;
+  height: auto;
+  z-index: 9;
+}
+
+.fullscreen {
+  float: right;
+}
+
+.CodeMirror-gutter-elt {
+  position: absolute;
+  cursor: default;
+  z-index: 4;
+  left: -30px !important;
+}
