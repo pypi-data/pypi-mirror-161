@@ -1,0 +1,69 @@
+[tool.poetry]
+name = "plagdef"
+version = "1.4.11"
+description = "A tool which makes life hard for students who try to make theirs simple."
+authors = ["Yannik Queisler"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/devWhyqueue/plagdef"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent"
+]
+exclude = ["*/tests"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.11"
+beautifulsoup4 = "^4.10"
+click = "^8.1"
+deep-translator = "^1.7"
+jsonpickle = "^2.2"
+langdetect = "^1.0"
+networkx = "^2.7"
+numpy = "^1.22"
+pdfplumber = "^0.6"
+ocrmypdf = "^13.7"
+pyside6 = "^=6.2"
+python-magic = "^0.4"
+sortedcontainers = "^2.4"
+stanza = "^1.4"
+tqdm = "^4.63"
+urlextract = "^1.6"
+Werkzeug = "^2.2"
+
+[tool.poetry.dev-dependencies]
+coverage = "^6.4"
+flake8 = "^5.0"
+fpdf2 = "^2.5"
+pytest = "^7.0"
+tox = "^3.25"
+tox-gh-actions = "^2.9"
+
+[tool.poetry.scripts]
+plagdef = "plagdef.app:cli"
+plagdef-gui = "plagdef.app:gui"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py39, py310
+
+[gh-actions]
+python =
+    3.9: py39
+    3.10: py310
+
+[testenv:py39]
+whitelist_externals = make
+commands = make coverage-ci
+
+[testenv:py310]
+whitelist_externals = make
+commands = make test-ci
+"""
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
