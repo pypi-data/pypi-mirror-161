@@ -1,0 +1,138 @@
+Metadata-Version: 2.1
+Name: octue
+Version: 0.30.0
+Summary: A package providing template applications for data services, and a python SDK to the Octue API.
+Home-page: https://www.github.com/octue/octue-sdk-python
+License: MIT
+Keywords: digital,twins,twined,data,services,science,api,apps,ml
+Author: Marcus Lugg
+Author-email: cortado.codes@protonmail.com
+Requires-Python: >=3.7.1,<4.0.0
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Provides-Extra: dataflow
+Provides-Extra: hdf5
+Requires-Dist: Flask (==2.0.3)
+Requires-Dist: apache-beam (>=2.37,<3.0); extra == "dataflow"
+Requires-Dist: cachetools (>=3.1.0,<5); extra == "dataflow"
+Requires-Dist: click (>=7,<9)
+Requires-Dist: coolname (>=1.1,<2.0)
+Requires-Dist: google-apitools (>=0.5.31,<0.5.32); extra == "dataflow"
+Requires-Dist: google-auth (>=1.27.0,<3)
+Requires-Dist: google-auth-httplib2 (>=0.1.0,<0.2.0); extra == "dataflow"
+Requires-Dist: google-cloud-datastore (>=1.8.0,<2); extra == "dataflow"
+Requires-Dist: google-cloud-pubsub (>=2.5,<3.0)
+Requires-Dist: google-cloud-secret-manager (>=2.3,<3.0)
+Requires-Dist: google-cloud-storage (>=1.35.1,<3)
+Requires-Dist: google-crc32c (>=1.1,<2.0)
+Requires-Dist: gunicorn (>=20.1,<21.0)
+Requires-Dist: h5py (>=3.6,<4.0); extra == "hdf5"
+Requires-Dist: packaging (>=20.4,<22)
+Requires-Dist: python-dateutil (>=2.8,<3.0)
+Requires-Dist: pyyaml (>=6,<7)
+Requires-Dist: twined (>=0.5.0,<0.6.0)
+Project-URL: Repository, https://www.github.com/octue/octue-sdk-python
+Description-Content-Type: text/markdown
+
+[![PyPI version](https://badge.fury.io/py/octue.svg)](https://badge.fury.io/py/octue)
+[![Release](https://github.com/octue/octue-sdk-python/actions/workflows/release.yml/badge.svg)](https://github.com/octue/octue-sdk-python/actions/workflows/release.yml)
+[![codecov](https://codecov.io/gh/octue/octue-sdk-python/branch/main/graph/badge.svg?token=4KdR7fmwcT)](https://codecov.io/gh/octue/octue-sdk-python)
+[![Documentation Status](https://readthedocs.org/projects/octue-python-sdk/badge/?version=latest)](https://octue-python-sdk.readthedocs.io/en/latest/?badge=latest)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
+# Octue Python SDK <img src="./docs/source/images/213_purple-fruit-snake-transparent.gif" alt="Purple Fruit Snake" width="100"/></span>
+
+The python SDK for running [Octue](https://octue.com) data services, digital twins, and applications - get faster data
+groundwork so you have more time for the science!
+
+Read the docs [here.](https://octue-python-sdk.readthedocs.io/en/latest/)
+
+Uses our [twined](https://twined.readthedocs.io/en/latest/) library for data validation.
+
+## Installation and usage
+To install, run one of:
+```shell
+pip install octue
+```
+
+```shell
+poetry add octue
+```
+
+The command line interface (CLI) can then be accessed via:
+```shell
+octue --help
+```
+
+```text
+Usage: octue [OPTIONS] COMMAND [ARGS]...
+
+  The CLI for the Octue SDK. Use it to start an Octue data service or digital
+  twin locally or run an analysis on one locally.
+
+  Read more in the docs: https://octue-python-sdk.readthedocs.io/en/latest/
+
+Options:
+  --id UUID                       UUID of the analysis being undertaken. None
+                                  (for local use) will cause a unique ID to be
+                                  generated.
+  --logger-uri TEXT               Stream logs to a websocket at the given URI.
+  --log-level [debug|info|warning|error]
+                                  Log level used for the analysis.  [default:
+                                  info]
+  --force-reset / --no-force-reset
+                                  Forces a reset of analysis cache and outputs
+                                  [For future use, currently not implemented]
+                                  [default: force-reset]
+  --version                       Show the version and exit.
+  -h, --help                      Show this message and exit.
+
+Commands:
+  deploy  Deploy a python app to the cloud as an Octue service or digital...
+  run     Run an analysis on the given input data using an Octue service...
+  start   Start an Octue service or digital twin locally as a child so it...
+```
+
+## Deprecated code
+When code is deprecated, it will still work but a deprecation warning will be issued with a suggestion on how to update
+it. After an adjustment period, deprecations will be removed from the codebase according to the [code removal schedule](https://github.com/octue/octue-sdk-python/issues/415).
+This constitutes a breaking change.
+
+## Developer notes
+
+### Installation
+We use [Poetry](https://python-poetry.org/) as our package manager. For development, run the following from the
+repository root, which will editably install the package:
+
+```shell
+poetry install -E dataflow -E hdf5
+```
+
+Then run the tests to check everything's working.
+
+### Testing
+These environment variables need to be set to run the tests:
+* `GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service/account/file.json`
+* `TEST_PROJECT_NAME=<name-of-google-cloud-project-to-run-pub-sub-tests-on>`
+
+Then, from the repository root, run
+```shell
+python3 -m unittest
+```
+or
+```shell
+tox
+```
+
+## Contributing
+Take a look at our [contributing](/docs/contributing.md) page.
+
