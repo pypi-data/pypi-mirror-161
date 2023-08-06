@@ -1,0 +1,476 @@
+{
+  "src/lib/components/layers/GeoJSONLayer.js": {
+    "description": "",
+    "displayName": "__GeoJSONLayer",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "url": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/lib/components/maps/MapView.js": {
+    "description": "",
+    "displayName": "__MapView",
+    "methods": [],
+    "props": {
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "node"
+              }
+            },
+            {
+              "name": "node"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Children of the map view, these are normally layers."
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "basemap": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "basemap (a value equal to: 'topo', 'streets', 'satelite', 'hybrid', 'dark-gray', 'gray', 'national-geographic', 'oceans', 'osm', 'terrain', 'dark-gray-vector', 'gray-vector', 'streets-vector', 'streets-night-vector', 'streets-navigation-vector', 'topo-vector' or 'streets-relief-vector'; default 'gray-vector'): The basemap type. Commonly 'gray-vector',. The ID used to identify this component in Dash callbacks.",
+        "defaultValue": {
+          "value": "'streets-navigation-vector'",
+          "computed": false
+        }
+      },
+      "breakpoints": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "breakpoints (dict): The breakpoints for the view. Simple implementation of the below.\n     https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#breakpoints",
+        "defaultValue": {
+          "value": "{\n    xsmall: 544,\n    small: 768,\n    medium: 992,\n    large: 1200,\n    xlarge: 1600,\n}",
+          "computed": false
+        }
+      },
+      "center": {
+        "type": {
+          "name": "array"
+        },
+        "required": false,
+        "description": "center (list; default [-168, 46]): Represents the view's center point; when setting the center, pass an array of numbers representing a longitude/latitude pair ([-100.4593, 36.9014]).",
+        "defaultValue": {
+          "value": "[0.13, 51.51]",
+          "computed": false
+        }
+      },
+      "constraints": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Basic implementation of the below.\n     https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#constraints"
+      },
+      "extent": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "extent (dict): dictionary of the form {xmin, ymin, xmax, ymax} that represents the extent of the map.\nSpatial reference is assumed to be the same as the map view's spatial reference.\nWhen extent is directly set, zoom and center will be overridden.\nBased on https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#extent"
+      },
+      "heightBreakpoint": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "heightBreakpoint (string) : Possible Values:\"xsmall\"|\"small\"|\"medium\"|\"large\"|\"xlarge\""
+      },
+      "highlightOptions": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "highlightOptions (dict): Basic implementation of the below.\nhttps://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#highlightOptions"
+      },
+      "orientation": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "orientation (string): Either 'landscape' or 'portrait'.\nREADONLY: implementation of the below.\nhttps://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#loaded"
+      },
+      "resizeAlign": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "resizeAlign (string): implementation of https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#resizeAlign\nDefines which anchor stays still while resizing the browser window. The default, center, ensures the view's center point remains constantly visible as the window size changes. The other options allow the respective portion of the view to remain visible when the window's size is changed.Possible Values:\"center\"|\"left\"|\"right\"|\"top\"|\"bottom\"|\"top-left\"|\"top-right\"|\"bottom-left\"|\"bottom-right\"",
+        "defaultValue": {
+          "value": "'center'",
+          "computed": false
+        }
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "widthBreakpoint": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "widthBreakpoint (string) : Possible Values:\"xsmall\"|\"small\"|\"medium\"|\"large\"|\"xlarge\""
+      },
+      "zoom": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "zoom (number; default 10): Represents the view's zoom level. Setting manually will override the extent.",
+        "defaultValue": {
+          "value": "10",
+          "computed": false
+        }
+      }
+    }
+  },
+  "src/lib/components/maps/WebMap.js": {
+    "description": "",
+    "displayName": "__WebMap",
+    "methods": [],
+    "props": {
+      "children": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.oneOfType([\n    PropTypes.arrayOf(PropTypes.node),\n    PropTypes.node,\n])"
+        },
+        "required": false,
+        "description": ""
+      },
+      "basemap": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "'topo-vector'",
+          "computed": false
+        }
+      },
+      "center": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.array"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[-118.24, 34.05]",
+          "computed": false
+        }
+      },
+      "zoom": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.number"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "10",
+          "computed": false
+        }
+      },
+      "portalItem": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "style": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "breakpoints": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.array"
+        },
+        "required": false,
+        "description": ""
+      },
+      "extent": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.array"
+        },
+        "required": false,
+        "description": ""
+      },
+      "constraints": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.array"
+        },
+        "required": false,
+        "description": ""
+      },
+      "widthBreakpoint": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "heightBreakpoint": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/lib/components/widgets/BasemapGallery.js": {
+    "description": "",
+    "displayName": "BasemapGallery",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "position": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "position of the basemap gallery. Defaults to top-right.",
+        "defaultValue": {
+          "value": "'top-right'",
+          "computed": false
+        }
+      },
+      "visible": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.bool"
+        },
+        "required": false,
+        "description": "Indicates whether the widget is visible."
+      },
+      "label": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The widget's default label."
+      },
+      "activeBaseMap": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "Read-only. The current basemap name."
+      }
+    }
+  },
+  "src/lib/components/widgets/Bookmarks.js": {
+    "description": "",
+    "displayName": "Bookmarks",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "position": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "position of the basemap gallery. Defaults to top-right.\nPossible values: 'bottom-leading', 'bottom-left', 'bottom-right', 'bottom-trailing', 'top-leading', 'top-left', 'top-right', 'top-trailing'. Default: 'top-right'.",
+        "defaultValue": {
+          "value": "'top-right'",
+          "computed": false
+        }
+      },
+      "visible": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.bool"
+        },
+        "required": false,
+        "description": "Indicates whether the widget is visible."
+      },
+      "label": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The widget's default label."
+      },
+      "editingEnabled": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.bool"
+        },
+        "required": false,
+        "description": "editingEnabled (boolean; optional): Indicates whether the bookmarks are able to be edited.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      }
+    }
+  },
+  "src/lib/components/widgets/Editor.js": {
+    "description": "",
+    "displayName": "Editor",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "position": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "position of the basemap gallery. Defaults to top-right.",
+        "defaultValue": {
+          "value": "'top-right'",
+          "computed": false
+        }
+      },
+      "visible": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.bool"
+        },
+        "required": false,
+        "description": "Indicates whether the widget is visible."
+      },
+      "label": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The widget's default label."
+      }
+    }
+  },
+  "src/lib/components/widgets/Expand.js": {
+    "description": "",
+    "displayName": "Expand",
+    "methods": [],
+    "props": {
+      "children": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "Another widget that will be rendered inside the Expand widget."
+      },
+      "id": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "position": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "position of the basemap gallery. Defaults to top-right.",
+        "defaultValue": {
+          "value": "'top-right'",
+          "computed": false
+        }
+      },
+      "visible": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.bool"
+        },
+        "required": false,
+        "description": "Indicates whether the widget is visible."
+      },
+      "label": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "The widget's default label."
+      }
+    }
+  }
+}
