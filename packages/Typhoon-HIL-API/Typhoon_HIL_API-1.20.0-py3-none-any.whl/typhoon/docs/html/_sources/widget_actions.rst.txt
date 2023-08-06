@@ -1,0 +1,76 @@
+###########################
+Available Widget Actions
+###########################
+
+Through the SCADA API, you are able to execute widget actions programmatically, instead of manually interacting with the GUI.
+This useful feature allows you to automate some steps when running your simulation in HIL SCADA.
+
+The execute_action() function expects two mandatory arguments - widget_handle and action_name.
+
+It can also receive other optional keyword arguments (arg_name=arg_value) - this depends on the implementation by each widget.
+
+Example::
+
+    # store the widget id
+    w_id = "484d3a86ffcf11e9956de0d55e6b2045"
+
+    # get the widget that needs to be changed (in this case the Capture/Scope widget)
+    wh = panel.get_widget_by_id(w_id)
+
+    # executing the "force_trigger" action (api_const.ACT_CS_FORCE_TRIGGER)
+    panel.execute_action(widget_handle=wh,
+                         action_name=api_const.ACT_CS_FORCE_TRIGGER)
+
+    # waiting for 5 seconds - this only blocks further code execution
+    # and gives the C/S widget time to capture data
+    hil.wait_sec(5)
+
+    # executing the "export_data" action (api_const.ACT_CS_EXPORT_DATA)
+    # the captured data will be exported in the hdf5 table format,
+    # to the "D:\\MyFolder\\capture_data.h5" file,
+    # and of all the captured signals only the 3 signals
+    # named "Signal1", "Signal3" and "Signal7" will be exported
+
+    panel.execute_action(widget_handle=wh,
+                         action_name=api_const.ACT_CS_EXPORT_DATA,
+                         format="hdf5 table",
+                         signals=["Signal1","Signal3","Signal7"],
+                         path="D:\\MyFolder\\capture_data.h5")
+
+
+The following is a list of widgets, and their currently supported actions.
+
+Capture/Scope Widget
+--------------------
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Action name
+     - Description
+     - Arguments
+     - Notes
+
+   * - ``ACT_CS_FORCE_TRIGGER`` or "force_trigger"
+     - This will force the Capture trigger with the current settings of the widget
+       (sample rate and period, desired signals, trigger settings)
+     - This action has no optional arguments
+     - None
+
+   * - ``ACT_CS_ENABLE_TRIGGER`` or "enable_trigger"
+     - This will enable the Capture trigger (arm it and start data acquisition)
+       with the current settings of the widget (sample rate and period, desired signals, trigger settings)
+     - This action has no optional arguments
+     - None
+
+   * - ``ACT_CS_STOP_CAPTURE`` or "stop_capture"
+     - This will stop the Capture process (and retrieve existing data)
+     - This action has no optional arguments
+     - None
+
+   * - ``ACT_CS_EXPORT_DATA`` or "export_data"
+     - This will export the Captured data (if any exists) in a number of formats.
+     - Optional arguments are "format", "signals" and "path".
+     - Supported formats: "png", "csv", "mat", "hdf5 fixed", "hdf5 table". The default format is "png". The signals argument is a list of strings, and each string must match the name of a Captured signal. If no argument is passed, all Captured signals will be exported. If the path argument is passed, the Captured data will be exported to the specified file. However, if the path argument is not passed, the default export path (typhoon folder in your %appdata% folder) will be used. Note that special characters such as "\\\\" must be escaped and the full file path should contain the extension too.

@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>7. HIL SCADA &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="8. Typhoon HIL RPC API" href="rpc_api.html" />
+    <link rel="prev" title="6. PV Generator API" href="pv_generator_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rpc_api.html" title="8. Typhoon HIL RPC API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pv_generator_api.html" title="6. PV Generator API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">7. </span>HIL SCADA</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="hil-scada">
+<h1><span class="section-number">7. </span>HIL SCADA<a class="headerlink" href="#hil-scada" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="serial-connection-widget">
+<h2><span class="section-number">7.1. </span>Serial Connection Widget<a class="headerlink" href="#serial-connection-widget" title="Permalink to this headline">¶</a></h2>
+<p>Serial Connection Widget is used to establish serial communication link within Custom UI.</p>
+<p>Its main purpose is to open a serial connection with the specified parameters on the selected COM port. Opened connection is available through a special identifier (variable)
+that holds the opened serial connection object. The connection object is accessible from all the macro and expression scripts for both writing and reading.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The connection object itself is the object of the class <code class="docutils literal notranslate"><span class="pre">Serial()</span></code>, one of the classes from the PySerial Python library. For more information about available functions visit PySerial web site (<a class="reference external" href="https://pythonhosted.org/pyserial/pyserial_api.html">https://pythonhosted.org/pyserial/pyserial_api.html</a>).</p>
+</div>
+<p>Since Custom UI is a multithreaded application and all monitoring widgets use threads to periodically read data, writing to and reading from the serial port needs to be synchronized between threads to prevent overlapping of write/read operations.</p>
+<p>For that purpose a simple locking mechanism is used. The idea is that communication sequence which requires exclusive access to the serial port can lock the port in order to prevent other threads from accessing it.</p>
+<p>Below can be found examples that demonstrate Serial Connection Widget typical use cases.</p>
+<div class="section" id="how-to-examples">
+<h3><span class="section-number">7.1.1. </span>How to examples<a class="headerlink" href="#how-to-examples" title="Permalink to this headline">¶</a></h3>
+<p>First inside the Serial Connection Widget property dialog set the desired <cite>Connection identifier name</cite>.</p>
+<img alt="_images/serial.png" src="_images/serial.png" />
+<p>This identifier with the name which you specified is available as a variable with the same name in all Macro and Expression scripts. The identifier holds the connection object of the class <code class="docutils literal notranslate"><span class="pre">Serial()</span></code> and all functions of this class are available for use.</p>
+<p>You can lock the port and on that way make the code thread-safe in two simple ways:</p>
+<ol class="arabic simple">
+<li><p>You can use dedicated connection object <code class="docutils literal notranslate"><span class="pre">lock()</span></code> and <code class="docutils literal notranslate"><span class="pre">unlock()</span></code> functions. By calling serial connection object <code class="docutils literal notranslate"><span class="pre">lock()</span></code> function you will explicitly lock that serial port. After locking the serial port writing to and reading from it will be thread-safe.
+After you finished working with the serial port you need to unlock it by calling <code class="docutils literal notranslate"><span class="pre">unlock()</span></code> function.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>After the port is locked, code that follows needs to be as short as possible (it is preferable to contain only serial read/write calls) to prevent slowdown of other threads that use the same connection object.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is very important that the port that was previously locked is unlocked again by calling <code class="docutils literal notranslate"><span class="pre">unlock()</span></code> function. If some exception occurs, <code class="docutils literal notranslate"><span class="pre">unlock()</span></code> function must be called. Because of that Python <code class="docutils literal notranslate"><span class="pre">try/finally</span></code> statement should be used.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># lock the port by using its serial connection object</span>
+<span class="n">serial_con</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+<span class="c1"># from this line using locked serial port is thread-safe</span>
+<span class="c1"># NOTE: After we lock the port, code should be as short as possible</span>
+
+<span class="c1"># try to read from/write to serial port</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># check if connection is opened</span>
+    <span class="k">if</span> <span class="n">serial_con</span><span class="o">.</span><span class="n">isOpen</span><span class="p">():</span>
+
+        <span class="c1"># write something to com port</span>
+        <span class="n">serial_con</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;RST&quot;</span><span class="p">)</span>
+
+        <span class="c1"># read one line</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">serial_con</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="c1"># we need to release the lock or the port will stayed locked for other threads also</span>
+    <span class="n">serial_con</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Use connection object’s <code class="docutils literal notranslate"><span class="pre">serial_lock</span></code> attribute and  Python <code class="docutils literal notranslate"><span class="pre">with</span></code> statement. In this case you don’t need to worry about locking and unlocking the serial port or handling exceptions explicitly, <code class="docutils literal notranslate"><span class="pre">with</span></code> statement automatically takes care about that.</p></li>
+</ol>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># all serial read/write operations with the serial port inside the context of `with` statement is thread-safe</span>
+<span class="k">with</span> <span class="n">serial_con</span><span class="o">.</span><span class="n">serial_lock</span><span class="p">:</span>
+    <span class="c1"># at the beginning of the context &#39;with&#39; statement will automatically lock the serial port</span>
+
+    <span class="c1"># NOTE 1: &#39;with&#39; statement will automatically unlock the serial port in case of exception.</span>
+    <span class="c1"># NOTE 2: Code inside context should be as short as possible</span>
+
+    <span class="c1"># check if connection is opened</span>
+    <span class="k">if</span> <span class="n">serial_con</span><span class="o">.</span><span class="n">isOpen</span><span class="p">():</span>
+
+        <span class="c1"># write something to com port</span>
+        <span class="n">serial_con</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;RST&quot;</span><span class="p">)</span>
+
+        <span class="c1"># read one line</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">serial_con</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1"># at the end of the context &#39;with&#39; statement will unlock the serial port</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7. HIL SCADA</a><ul>
+<li><a class="reference internal" href="#serial-connection-widget">7.1. Serial Connection Widget</a><ul>
+<li><a class="reference internal" href="#how-to-examples">7.1.1. How to examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pv_generator_api.html"
+                        title="previous chapter"><span class="section-number">6. </span>PV Generator API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rpc_api.html"
+                        title="next chapter"><span class="section-number">8. </span>Typhoon HIL RPC API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/serial_conn_widget.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rpc_api.html" title="8. Typhoon HIL RPC API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pv_generator_api.html" title="6. PV Generator API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">7. </span>HIL SCADA</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

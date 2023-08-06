@@ -1,0 +1,119 @@
+*******
+HIL API
+*******
+**Module:** ``typhoon.api.hil``
+
+HIL API is collections of functions that allow users to real-time control HIL simulation process from the Python scripts.
+
+Functions are divided into four groups:
+
+* Functions for controlling and initializing simulation process (function for loading model, starting/stopping simulation...)
+* Functions for setting and changing the state of the simulation (various ``set_`` functions)
+* Functions for getting information from the simulation (``get_`` functions including Capture functionality)
+* Various utility functions
+
+In order to correctly control HIL simulation process, simulation model (and connected HIL itself) should be initialized by loading compiled
+Schematic Editor model (.cpd file) with ``load_model()`` function.
+
+.. note::
+    Many functions cannot be used correctly if simulation model is not initialized. In case you try to use these functions before model is initialized,
+    you will get **Model was not loaded. Command ignored!** message.
+
+After simulation model was initialized you should set model parameters (Sources, Machines, Contactors... by using appropriate ``set_`` functions)
+and then start simulation with the ``start_simulation()`` function.
+
+.. note::
+    Simulation parameters also can be changed after simulation is started.
+
+Simulation can be stopped at any time by calling ``stop_simulation()`` function.
+
+Bellow you can find example which demonstrates use of the Capture functionality after simulation is initialized.
+
+Example script::
+
+    import typhoon.api.hil as hil
+
+    # first we need to load model
+    hil.load_model(file= r'C:\Typhoon HIL Control Center\examples\models\power electronics\3ph_rectifier Target files\3ph_rectifier.cpd')
+
+    # after model is loaded we could open existing settings file which will initialize model parameters...
+    hil.load_settings_file(file=r'C:\Typhoon HIL Control Center\examples\models\power electronics\3ph_rectifier Target files\settings.runx')
+
+    # ...or manually set desired model parameters
+    # input files
+    hil.set_source_arbitrary_waveform('Va',file=r'D:\input variables\phase_a_110V_60Hz.isg')
+    hil.set_source_arbitrary_waveform('Vb',file=r'D:\input variables\phase_b_110V_60Hz.isg')
+    hil.set_source_arbitrary_waveform('Vc',file=r'D:\input variables\phase_c_110V_60Hz.isg')
+
+    # switching blocks
+    hil.set_pe_switching_block_control_mode(blockName = "3ph_inverter 1",switchName = "Sa_top",swControl = True)
+    hil.set_pe_switching_block_software_value(blockName = "3ph_inverter 1",switchName = "Sa_top",value = 1)
+
+    # analog channels
+    hil.set_analog_output(5,"V( Va )",scaling=150.00,offset=5.00)
+
+    # digital channels
+    hil.set_digital_output(1,name="digital input 1",invert=True,swControl=False,value=0)
+
+    # machine
+    hil.set_machine_constant_torque(name="machine 1",value=2.5)
+    hil.set_machine_linear_torque(name="machine 1",value=5.0)
+    hil.set_machine_square_torque(name="machine 1",value=6.0)
+    hil.set_machine_constant_torque_type(name="machine 1",frictional=True)
+    hil.set_machine_initial_angle(name="machine 1",angle=3.14)
+    hil.set_machine_initial_speed(name="machine 1",speed=100.0)
+    hil.set_machine_inc_encoder_offset(name="machine 1",offset=3.14)
+    hil.set_machine_sin_encoder_offset(name="machine 1",offset=1.57)
+
+    # after we set model parameters we can start simulation
+    hil.start_simulation()
+
+    # decimation,numberOfChannels,numberOfSamples
+    captureSettings = [1,3,1e5]
+    # triggerType,triggerSource,threshold,edge,triggerOffset
+    triggerSettings = ["Analog",1,0.0,"Rising edge",50.0]
+    # signals for capturing
+    channelSettings = ["V( Va )","V( Vb )","V( Vc )"]
+
+    # regular python list is used for data buffer
+    capturedDataBuffer = []
+
+    # start capture process and if everything ok continue...
+    if hil.start_capture(captureSettings,
+                         triggerSettings,
+                         channelSettings,
+                         dataBuffer = capturedDataBuffer,
+                         fileName = r'C:\captured_signals\capture_test.mat'):
+
+        # when capturing is finished...
+        while hil.capture_in_progress():
+            pass
+
+        # unpack data from data buffer
+        # (signalsNames - list with names,
+        #  yDataMatrix  - 'numpy.ndarray' matrix with data values,
+        #  xData        - 'numpy.array' with time data)
+        (signalsNames,yDataMatrix,xData) = capturedDataBuffer[0]
+
+        # unpack data for appropriate captured signals
+        Va_data = yDataMatrix[0] # first row for first signal and so on
+        Vb_data = yDataMatrix[1]
+        Vc_data = yDataMatrix[2]
+
+    else:
+
+        # if error occured
+        print "Unable to start capture process."
+
+
+    # we will stop simulation
+    hil.stop_simulation()
+
+    # and end script
+    hil.end_script_by_user()
+
+`API references`_
+_________________
+.. automodule:: typhoon.api.hil
+    :members:
+    :member-order: bysource

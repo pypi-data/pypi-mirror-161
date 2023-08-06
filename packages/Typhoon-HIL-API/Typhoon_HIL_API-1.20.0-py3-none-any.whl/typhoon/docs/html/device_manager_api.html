@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>10. Device Manager API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="9. Firmware Manager API" href="firmware_manager_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="firmware_manager_api.html" title="9. Firmware Manager API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">10. </span>Device Manager API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="device-manager-api">
+<h1><span class="section-number">10. </span>Device Manager API<a class="headerlink" href="#device-manager-api" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.device_manager</span></code></p>
+<p>Device Manager API set of functions/methods to manipulate current HIL setup
+(add or remove devices), create new ones from scratch programmaticaly and
+connect/disconnect current setup.
+This is most commonly used for creating scripts for <strong>testing</strong> and
+<strong>automating</strong> repetitive tasks, but its use is not restricted for these use
+cases only.</p>
+<div class="section" id="examples">
+<h2><span class="section-number">10.1. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Following two examples illustrates how you can use Device Manager API.</p>
+<div class="section" id="example-1">
+<h3><span class="section-number">10.1.1. </span>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h3>
+<p>This example illustrates adding/removing device to
+setup and how to connect/disconnect current setup.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># specify HIL devices serial numbers</span>
+<span class="n">hil_device_1</span> <span class="o">=</span> <span class="s2">&quot;604-1010101&quot;</span>
+<span class="n">hil_device_2</span> <span class="o">=</span> <span class="s2">&quot;604-2020202&quot;</span>
+<span class="n">devices_to_add</span> <span class="o">=</span> <span class="p">[</span><span class="n">hil_device_1</span><span class="p">,</span> <span class="n">hil_device_2</span><span class="p">]</span>
+<span class="c1"># add devices to setup</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">add_devices_to_setup</span><span class="p">(</span><span class="n">devices_to_add</span><span class="p">)</span>
+<span class="c1"># connect HIL setup</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">connect_setup</span><span class="p">()</span>
+<span class="c1">#</span>
+<span class="c1"># do something here with 2 connected devices</span>
+<span class="c1">#</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">disconnect_setup</span><span class="p">()</span>
+
+<span class="c1"># remove device with &quot;604-2020202&quot; serial number</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">remove_devices</span><span class="p">(</span><span class="n">hil_device_2</span><span class="p">)</span>
+
+<span class="c1"># connect setup again this time only with device with serial &quot;604-1010101&quot;</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">connect_setup</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Script output:</p>
+</div>
+<div class="section" id="example-2">
+<h3><span class="section-number">10.1.2. </span>Example 2<a class="headerlink" href="#example-2" title="Permalink to this headline">¶</a></h3>
+<p>This example illustrates loading an existing setup and connecting it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># print all detected devices on network</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">device_manager</span><span class="o">.</span><span class="n">get_detected_devices</span><span class="p">())</span>
+
+<span class="n">device_manager</span><span class="o">.</span><span class="n">load_setup</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;C:/Users/User/Desktop/test_setup.setup&quot;</span><span class="p">)</span>
+<span class="c1"># connect HIL setup</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">connect_setup</span><span class="p">()</span>
+
+<span class="c1"># print all devices from setup</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">device_manager</span><span class="o">.</span><span class="n">get_setup_devices</span><span class="p">)</span>
+
+<span class="c1"># Check connection status</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">is_setup_connected</span><span class="p">()</span>
+
+<span class="c1"># and disconnect setup</span>
+<span class="n">device_manager</span><span class="o">.</span><span class="n">disconnect_setup</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>Script output:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">DeviceManagerAPI</span></span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.add_devices_to_setup">
+<span class="sig-name descname"><span class="pre">add_devices_to_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.add_devices_to_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add devices to active setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>devices</strong> (<em>list</em>) – devices to add.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.add_discovery_ip_addresses">
+<span class="sig-name descname"><span class="pre">add_discovery_ip_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.add_discovery_ip_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify addresses where HIL devices are located if auto discovery
+fails for some reason.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addresses</strong> (<em>list</em>) – IP addresses where HIL devices are located.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.connect_setup">
+<span class="sig-name descname"><span class="pre">connect_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.connect_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate current selected HIL setup.
+Make all devices in the selected setup inaccessible to others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.disconnect_setup">
+<span class="sig-name descname"><span class="pre">disconnect_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.disconnect_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deactivate current selected HIL setup.
+Make all devices in the selected setup accessible to others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.get_available_devices">
+<span class="sig-name descname"><span class="pre">get_available_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.get_available_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all discovered available devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>available devices in JSON representation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>devices (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.get_detected_devices">
+<span class="sig-name descname"><span class="pre">get_detected_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.get_detected_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all discovered devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>discovered devices in JSON representation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>devices (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.get_setup_devices">
+<span class="sig-name descname"><span class="pre">get_setup_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.get_setup_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all devices from current HIL setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>dicts with information for each devices</dt><dd><dl class="simple">
+<dt>{“serial_number”: “some_serial”, “device_name”: “some_device_name”,</dt><dd><p>”status”: “device_stauts”}.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>devices (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.get_setup_devices_serials">
+<span class="sig-name descname"><span class="pre">get_setup_devices_serials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.get_setup_devices_serials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all devices from current HIL setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>serial number of each device from setup.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>devices (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.is_setup_connected">
+<span class="sig-name descname"><span class="pre">is_setup_connected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.is_setup_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current status of active HIL setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.load_setup">
+<span class="sig-name descname"><span class="pre">load_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.load_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads HIL setup from file to Control Center.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – Setup description.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.remove_devices_from_setup">
+<span class="sig-name descname"><span class="pre">remove_devices_from_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.remove_devices_from_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove devices from active setup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>devices</strong> (<em>list</em>) – devices to remove.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.device_manager.DeviceManagerAPI.remove_discovery_ip_addresses">
+<span class="sig-name descname"><span class="pre">remove_discovery_ip_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.device_manager.DeviceManagerAPI.remove_discovery_ip_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove previously added addresses where HIL devices are located
+if auto discovery fails for some reason.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addresses</strong> (<em>list</em>) – IP addresses which you want to remove.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if everything ok, otherwise returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>status (bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">10. Device Manager API</a><ul>
+<li><a class="reference internal" href="#examples">10.1. Examples</a><ul>
+<li><a class="reference internal" href="#example-1">10.1.1. Example 1</a></li>
+<li><a class="reference internal" href="#example-2">10.1.2. Example 2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="firmware_manager_api.html"
+                        title="previous chapter"><span class="section-number">9. </span>Firmware Manager API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/device_manager_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="firmware_manager_api.html" title="9. Firmware Manager API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">10. </span>Device Manager API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>9. Firmware Manager API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="10. Device Manager API" href="device_manager_api.html" />
+    <link rel="prev" title="8. Typhoon HIL RPC API" href="rpc_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="device_manager_api.html" title="10. Device Manager API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rpc_api.html" title="8. Typhoon HIL RPC API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">9. </span>Firmware Manager API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="firmware-manager-api">
+<h1><span class="section-number">9. </span>Firmware Manager API<a class="headerlink" href="#firmware-manager-api" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.firmware_manager</span></code></p>
+<p>The Firmware Manager API provides functions to update and change firmware configurations using python.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Care must be taken to guarantee that power is not removed from the HIL while firmware update is on course,
+especially considering that firmware update can occur in an automated test run without being noticed.</p>
+</div>
+<div class="section" id="module-typhoon.api.firmware_manager">
+<span id="api-references"></span><h2><span class="section-number">9.1. </span><a class="reference internal" href="#api-references">API references</a><a class="headerlink" href="#module-typhoon.api.firmware_manager" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.firmware_manager.update_firmware">
+<span class="sig-name descname"><span class="pre">update_firmware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.firmware_manager.update_firmware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads firmware with given configuration id to HIL device with chosen id.
+If HIL device already have the same configuration, only upload if force
+parameter is set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_id</strong> (<em>int</em>) – id of HIL device whose firmware is to be updated</p></li>
+<li><p><strong>configuration_id</strong> (<em>int</em>) – Update to a firmware with given
+configuration id</p></li>
+<li><p><strong>force</strong> (<em>boolean</em>) – Force upload even if desired firmware is the same as
+the one already in HIL device</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There should be only one device with a given device id, otherwise
+exception will be raised.</p>
+<p>If <cite>configuration_id</cite> is not provided, it is considered as the current
+firmware id in the device.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.firmware_manager.get_hil_info">
+<span class="sig-name descname"><span class="pre">get_hil_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.firmware_manager.get_hil_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about all connected HIL devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>list that contains dictionaries where each dictionary holds
+information about one connected HIL device.</p>
+<p>In case there is no connected HIL devices <code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned.</p>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+<table class="colwidths-auto docutils align-left" id="id1">
+<caption><span class="caption-text">Format of one dictionary that holds HIL information.</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Dictionary key</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Value Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“device_id”</p></td>
+<td><p>HIL Device ID (0, 1, 2…)</p></td>
+<td><p>int value</p></td>
+</tr>
+<tr class="row-odd"><td><p>“serial_number”</p></td>
+<td><p>HIL Serial number (00404-00-0001, 00402-00-0001…)</p></td>
+<td><p>string value</p></td>
+</tr>
+<tr class="row-even"><td><p>“configuration_id”</p></td>
+<td><p>HIL Configuration ID (1, 2, 3…)</p></td>
+<td><p>int value</p></td>
+</tr>
+<tr class="row-odd"><td><p>“product_name”</p></td>
+<td><p>HIL Product Name (HIL402, HIL602…)</p></td>
+<td><p>string value</p></td>
+</tr>
+<tr class="row-even"><td><p>“firmware_release_date”</p></td>
+<td><p>HIL Firmware Release date (in format Y-M-D)</p></td>
+<td><p>string value</p></td>
+</tr>
+<tr class="row-odd"><td><p>“calibration_date”</p></td>
+<td><p>HIL Calibration date (in format Y-M-D). <code class="docutils literal notranslate"><span class="pre">None</span></code> will be
+returned if HIL is not calibrated, calibration data is
+wrong or calibration is not supported on connected HIL)</p></td>
+<td><p>string value</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9. Firmware Manager API</a><ul>
+<li><a class="reference internal" href="#module-typhoon.api.firmware_manager">9.1. API references</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rpc_api.html"
+                        title="previous chapter"><span class="section-number">8. </span>Typhoon HIL RPC API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="device_manager_api.html"
+                        title="next chapter"><span class="section-number">10. </span>Device Manager API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/firmware_manager_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="device_manager_api.html" title="10. Device Manager API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rpc_api.html" title="8. Typhoon HIL RPC API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">9. </span>Firmware Manager API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

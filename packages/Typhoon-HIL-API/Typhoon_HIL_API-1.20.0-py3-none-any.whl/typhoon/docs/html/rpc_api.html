@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8. Typhoon HIL RPC API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="9. Firmware Manager API" href="firmware_manager_api.html" />
+    <link rel="prev" title="7. HIL SCADA" href="serial_conn_widget.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="firmware_manager_api.html" title="9. Firmware Manager API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="serial_conn_widget.html" title="7. HIL SCADA"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">8. </span>Typhoon HIL RPC API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="typhoon-hil-rpc-api">
+<h1><span class="section-number">8. </span>Typhoon HIL RPC API<a class="headerlink" href="#typhoon-hil-rpc-api" title="Permalink to this headline">¶</a></h1>
+<p>RPC (<em>Remote Procedure Call</em>) is an interprocess communication technique that
+allows two independent processes to communicate. RPC is most commonly used to
+create distributed client/server programs where:</p>
+<ul class="simple">
+<li><p><strong>client</strong> is a process (program or task) that requests the service provided by another program, and</p></li>
+<li><p><strong>server</strong> is a process (program or task) that provides the service (responds to the requests from a client).</p></li>
+</ul>
+<p>Typhoon HIL’s RPC API allows you to write custom APIs in any language you want
+as long as it is supported by ZMQ <a class="footnote-reference brackets" href="#id4" id="id1">1</a> library.</p>
+<div class="section" id="message-format">
+<h2><span class="section-number">8.1. </span>Message format<a class="headerlink" href="#message-format" title="Permalink to this headline">¶</a></h2>
+<p>Messages exchanged between the client and the server side are compatible
+with the JSON-RPC protocol <a class="footnote-reference brackets" href="#id5" id="id2">2</a>.</p>
+<p><strong>Request</strong> message contains following members:</p>
+<ul class="simple">
+<li><p><strong>api</strong> - a string specifying the version of the Typhoon HIL RPC API.</p></li>
+<li><p><strong>jsonrpc</strong> - a string specifying the version of the JSON-RPC protocol. MUST be exactly “2.0”.</p></li>
+<li><p><strong>method</strong> - a string containing the name of the method to be invoked.</p></li>
+<li><p><strong>params</strong> - a list or dictionary of parameter values to be used during the invocation of the method. This member is optional.</p></li>
+<li><p><strong>id</strong> - an identifier established by the client. It can be either a string or an integer.</p></li>
+</ul>
+<p><strong>Response</strong> message contains following members:</p>
+<ul class="simple">
+<li><p><strong>jsonrpc</strong> - a string specifying the version of the JSON-RPC protocol. MUST be exactly “2.0”.</p></li>
+<li><p><strong>result</strong> - this member exists only if method is invoked and finished successfully.</p></li>
+<li><p><strong>error</strong> - this member exists only if error occurred during the method invocation or execution.</p></li>
+<li><p><strong>warnings</strong> - this member exists only if warnings occurred during the method execution.</p></li>
+<li><p><strong>id</strong> - an identifier that must be the same as the value of the id member in the request.</p></li>
+</ul>
+<p>For more detailed information about message formats, check JSON-RPC specification <a class="footnote-reference brackets" href="#id6" id="id3">3</a>.</p>
+</div>
+<div class="section" id="usage">
+<h2><span class="section-number">8.2. </span>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Typhoon HIL RPC API can be used for following APIs:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="hil_api.html">HIL API</a>,</p></li>
+<li><p><a class="reference external" href="schematic_api.html">Schematic API</a>,</p></li>
+<li><p><a class="reference external" href="pv_generator_api.html">PV generator API</a>, and</p></li>
+<li><p><a class="reference external" href="scada_api.html">SCADA API</a>.</p></li>
+</ul>
+<p>For the full list of available methods, check the documentation of before-mentioned
+APIs. Each API is using different port number. The port numbers can be obtained by subscribing
+to the announcement port. Announcement port number is picked from the range defined in
+settings.conf file, which is located at the API version-specific folder at
+%APPDATA%\typhoon-api (i.e. for API version 1.7.0, that folder is %APPDATA%\typhoon-api\1.7.0)</p>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">8.3. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Following examples illustrate how you can use Typhoon HIL RPC API.</p>
+<div class="section" id="example-1">
+<h3><span class="section-number">8.3.1. </span>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h3>
+<p>This example shows how you can obtain port numbers of Typhoon APIs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">zmq</span>
+<span class="n">SERVICE_REGISTRY_HEADER</span> <span class="o">=</span> <span class="s2">&quot;typhoon-service-registry&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">discover</span><span class="p">(</span><span class="n">start_port</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span> <span class="n">end_port</span><span class="o">=</span><span class="mi">50100</span><span class="p">,</span> <span class="n">req_retries</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Discovers port numbers for each of Typhoon APIs, in a given range:</span>
+<span class="sd">    (start_port, end_port).</span>
+
+<span class="sd">    Note: Check if the default param values match values in your settings.conf.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        start_port (int): defines start of the port discovery range</span>
+<span class="sd">        end_port (int): defines end of the port discovery range</span>
+<span class="sd">        req_retries (int): defines number of times function will try to reach</span>
+<span class="sd">            Typhoon API server</span>
+<span class="sd">        timeout (int): defines timeout between each request retry, in</span>
+<span class="sd">            milliseconds.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+    <span class="n">socket</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUB</span><span class="p">)</span>
+
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">end_port</span> <span class="o">-</span> <span class="n">start_port</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">offset</span><span class="p">):</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">start_port</span> <span class="o">+</span> <span class="n">i</span>
+        <span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;tcp://localhost:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
+
+    <span class="n">socket</span><span class="o">.</span><span class="n">setsockopt_string</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUBSCRIBE</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">LINGER</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">poller</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Poller</span><span class="p">()</span>
+    <span class="n">poller</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLIN</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">req_retries</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">socks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">poller</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">timeout</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">socks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="o">==</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLIN</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Continue discovery if a received message is not from Typhoon</span>
+            <span class="c1"># HIL Control Center.</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">header</span> <span class="o">!=</span> <span class="n">SERVICE_REGISTRY_HEADER</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">req_retries</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">req_retries</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Server not found.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-2">
+<h3><span class="section-number">8.3.2. </span>Example 2<a class="headerlink" href="#example-2" title="Permalink to this headline">¶</a></h3>
+<p>This example shows how <em>load</em> method can be invoked.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">zmq</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">req_socket</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">REQ</span><span class="p">)</span>
+<span class="c1"># Connect with the server</span>
+<span class="c1"># In this example we assume that the server listens on the port 51357.</span>
+<span class="c1"># Example 1 shows how to always get correct port number.</span>
+<span class="n">req_socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;tcp://localhost:51357&quot;</span><span class="p">)</span>
+
+<span class="c1"># Request message</span>
+<span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;api&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;abs_path_to_the_model&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+
+<span class="n">req_socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">req_socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-3">
+<h3><span class="section-number">8.3.3. </span>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h3>
+<p>This example shows how <em>compile</em> method can be invoked.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">zmq</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">req_socket</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">REQ</span><span class="p">)</span>
+<span class="c1"># Connect with the server</span>
+<span class="c1"># In this example we assume that the server listens on the port 51357.</span>
+<span class="c1"># Example 1 shows how to always get correct port number.</span>
+<span class="n">req_socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;tcp://localhost:51357&quot;</span><span class="p">)</span>
+
+<span class="c1"># Request message</span>
+<span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;api&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;compile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+
+<span class="n">req_socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">req_socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-4">
+<h3><span class="section-number">8.3.4. </span>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h3>
+<p>This example shows how to send multiple requests at once.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">zmq</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">req_socket</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">REQ</span><span class="p">)</span>
+<span class="c1"># Connect with the server</span>
+<span class="c1"># In this example we assume that the server listens on the port 51357.</span>
+<span class="c1"># Example 1 shows how to always get correct port number.</span>
+<span class="n">req_socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;tcp://localhost:51357&quot;</span><span class="p">)</span>
+
+<span class="c1"># Request message</span>
+<span class="n">message</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;api&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;abs_path_to_the_model&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;api&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jsonrpc&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;compile&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">req_socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">req_socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Great success!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>ZMQ: <a class="reference external" href="http://zeromq.org/">http://zeromq.org/</a></p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>JSON RPC: <a class="reference external" href="http://www.jsonrpc.org/">http://www.jsonrpc.org/</a></p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>JSON RPC: <a class="reference external" href="http://www.jsonrpc.org/specification">http://www.jsonrpc.org/specification</a></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">8. Typhoon HIL RPC API</a><ul>
+<li><a class="reference internal" href="#message-format">8.1. Message format</a></li>
+<li><a class="reference internal" href="#usage">8.2. Usage</a></li>
+<li><a class="reference internal" href="#examples">8.3. Examples</a><ul>
+<li><a class="reference internal" href="#example-1">8.3.1. Example 1</a></li>
+<li><a class="reference internal" href="#example-2">8.3.2. Example 2</a></li>
+<li><a class="reference internal" href="#example-3">8.3.3. Example 3</a></li>
+<li><a class="reference internal" href="#example-4">8.3.4. Example 4</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="serial_conn_widget.html"
+                        title="previous chapter"><span class="section-number">7. </span>HIL SCADA</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="firmware_manager_api.html"
+                        title="next chapter"><span class="section-number">9. </span>Firmware Manager API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/rpc_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="firmware_manager_api.html" title="9. Firmware Manager API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="serial_conn_widget.html" title="7. HIL SCADA"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">8. </span>Typhoon HIL RPC API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

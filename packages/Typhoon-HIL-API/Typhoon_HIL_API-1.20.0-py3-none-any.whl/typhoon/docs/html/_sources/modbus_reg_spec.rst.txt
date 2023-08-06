@@ -1,0 +1,60 @@
+***************************************
+Modbus Registers Specification Language
+***************************************
+**Module:** ``typhoon.api.modbus``
+
+In the Modbus API there are few advance functions for writing to multiple input/holding registers and function for reading from holding registers.
+All advance functions use the same simple language for specifying registers that need to be read from or write to.
+
+Although the input and holding registers are 16 bit long (as defined by the Modbus protocol), multiple registers can be grouped together to represent 32 and 64 bit registers of different type.
+
+Registers can be defined as shown in table below.
+
++--------------------------+--------------------------------------------------+------------------------------------------+
+| Register in group        | Register type                                    | Address value                            |
++==========================+==================================================+==========================================+
+|    1 (16 bit)            | unsigned integer or signed integer               | Any positive integer value               |
++--------------------------+--------------------------------------------------+------------------------------------------+
+|    2 (32 bit)            | unsigned integer, signed integer, floating point | Any list of 2 consecutive integer values |
++--------------------------+--------------------------------------------------+------------------------------------------+
+|    4 (64 bit)            | unsigned integer, signed integer, floating point | Any list of 4 consecutive integer values |
++--------------------------+--------------------------------------------------+------------------------------------------+
+
+To illustrate how this looks, the different configuration of holding registers is shown below:
+
+#. All registers are 16 bit with of various types: '0u, 1u, 2i, 3u, 4i, 5i, 6i, 7u'
+#. All registers are 32 bit with of various types: '[0,1]u, [2,3]i, [4,5]f, [6,7]i, [8,9]i, [10,11]f'
+#. All registers are 64 bit with of various types: '[0,1,2,3]f, [4,5,6,7]u, [8,9,10,11]i, [12,13,14,15]f'
+#. Registers are of various lengths and types: '[0,1]f, 2u, 3i, [4,5,6,7]f, 8, [9,10]i, [11,12,13,14]u'
+
+To specify the length of the register, just group appropriate number of addresses in square brackets.
+
+To specify the type of register, write ``u`` (for unsigned integer), ``i`` (for integer) or ``f`` (for floating point) after the address value.
+
+.. note::
+
+    If the type is not specified explicitly, register will be defined as unsigned integer.
+
+.. note::
+
+    If the register is 32 or 64 bit, the type must be specified after the closing bracket.
+
+.. note::
+
+    Register of 16 bit length cannot be defined as floating point.
+
+Examples::
+
+    from typhoon.api.modbus.exceptions import ModbusError
+
+    try:
+        # write to int16, uint32, int64 and float registers
+        modbus_client.write_registers_adv("501i,[502,503]u,[504,505,506,507]i,[125,126]f", [-55, 233, -45558444, 256.36])
+    except ModbusError as ex:
+        print(ex)
+
+    try:
+        # read int16, uint32, int64 and float registers
+        values = modbus_client.read_holding_registers_adv("501i,[502,503]u,[504,505,506,507]i,[125,126]f")
+    except ModbusError as ex:
+        print(ex)

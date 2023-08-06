@@ -1,0 +1,316 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+Add all new changes to [Unreleased] version. The CHANGELOG will be updated when
+packaging a new release using the version defined in setup.py.
+
+## [Unreleased]
+
+## [1.19.0]
+### Changed:
+    - Dependencies with some version increased for Python 3.10
+
+### Added:
+    - Support for COMTRADE (.cff) and ASAMMDF (.mf4) files for start_capture() function
+
+## [1.18.0]
+### Added:
+    - Schematic API new functions: get_handler_code
+
+### Changed:
+    - create_component function - Added size parameter.
+
+## [1.16.0]
+### Added:
+    - SCADA API new functions:
+        - create_new_library_panel()
+        - load_library_panel()
+        - add_library_path()
+        - get_library_path()
+        - remove_library_path()
+        - reload_libraries()
+    - SCADA API new properties:
+	    - PROP_MODEL_COMP_TYPES
+		- PROP_MODEL_COMP
+### Changed:
+    - SCADA API create_widget: Added support for creating new Library Widgets
+    - SCADA API create_widget: New argument 'link_to_model_comp'
+
+## [1.15.0]
+### Added:
+    - Schematic API new functions:
+        - set_model_dependencies()
+        - get_model_dependencies()
+### Changed:
+    - compile() - Added conditional_compile bool parameter that's used
+    for compilation skipping in case of model being unchanged since
+    last successful compilation.
+
+### Removed:
+   - Test Executor API.
+
+## [1.14.0]
+### Added:
+    - Schematic API new functions:
+        - set_property_values()
+        - get_property_values()
+### Changed:
+    - get_item() raises SchApiException instead of returning None
+    when elements from locked component are aquired.
+    - get_items(), the same as above, with difference that exception
+    is raised instead of returning empty list ([]).
+    - add_library_path and remove_library_path got persist parameter,
+    which indicate if changes to library path will be permanent
+    after function call.
+
+## [1.13.0]
+### Added:
+    - SCADA API new properties:
+        - PROP_FQN (Read-only property)
+        - PROP_USE_LABEL
+        - PROP_LABEL
+        - PROP_SUB_PANEL_MODE
+    - SCADA API new function: get_widget_by_fqn()
+
+    - Schematic API new functions:
+        - show_name()
+        - hide_name()
+        - set_tunable()
+        - is_tunable()
+        - is_name_visible()
+        - get_mask()
+        - get_size()
+        - set_size()
+
+   - HIL API new functions: get_num_of_connected_hils()
+
+## [1.12.0]
+### Added:
+    - Schematic API new functions:
+        - create_library_model()
+        - enable_items()
+        - disable_items()
+        - is_enabled()
+
+## [1.11.0]
+### Added:
+    - HIL API new functions:
+        - model_write()
+        - model_read()
+        - get_model_variables()
+
+    - Firmware Manager API new functions: get_hil_info()
+    - Schematic API new function: get_model_information().
+
+## [1.10.2]
+### Added:
+    - HIL API: Support for reading of the PSU flag status on get_flag_status()
+
+## [1.10.1]
+### Fixed
+    - Documentation: Added missing function descriptions in
+    configuration manager section.
+
+## [1.10.0]
+### Added
+    - Configuration manager API.
+    - Schematic API new functions:
+        - get_breakpoints()
+        - get_comment_text(): Internal error code provided in case of exceptions
+    - HIL API new functions: check_hil_hwid()
+
+## [1.9.0]
+### Added:
+    - HIL API new functions: read_streaming_signals()
+    - SCADA API new functions: execute_action()
+
+### Changed:
+    - HIL API: set_pv_amb_params(): Added ramping support for PV ambiental parameter changes
+    - HIL API: set_pv_amb_params(): Added support for the new PV model type: Normalized IV
+
+    - PV Generator API: Added support for the new PV model type: Normalized IV
+
+## [1.8.0]
+### Added:
+    - HIL API new functions:
+        - get_model_file_path()
+        - read_streaming_signals()
+
+    - SCADA API new functions: execute_action()
+    - SCADA API properties: Sub-Panel Widget: PROP_USE_IMAGE
+
+### Changed
+    - Schematic API: add/remove_library_path functions now properly handling relative paths
+
+## [1.7.0]
+### Added:
+    - SCADA API new functions:
+        - create_widget()
+        - delete_widget()
+        - copy()
+        - create_new_panel()
+
+    - HIL API new functions: is_simulation_running()
+
+### Fixed:
+    - Schematic API: bug for functions where bool is returned instead of None
+
+### Deprecated:
+    - Backward incompatible changes: in create_property(), parameter
+    button_label had no effect, and it's removed.
+
+## [1.6.0]
+### Added:
+    - SCADA API first implementation
+
+    - Schematic API new functions:
+        - get_connectable_direction()
+        - get_connectable_kind()
+
+    - HIL API new functions:
+          - set_machine_encoder_offset(): Replaces set_machine_inc_encoder_offset()
+          - set_machine_resolver_offset(): Replaces set_machine_sin_encoder_offset()
+
+### Deprecated:
+    - HIL API functions:
+        - set_machine_inc_encoder_offset()
+        - set_machine_sin_encoder_offset()
+
+## [1.5.0]
+### Added:
+    - Schematic API new functions:
+        - set_model_init_code()
+        - unlink_component()
+        - get_available_library_components()
+        - get_library_resource_dir_path()
+        - export_c_from_subsystem()
+        - export_c_from_selection()
+
+    - HIL API new functions:
+        - reboot_hil()
+        - upload_standalone_model()
+        - set_boot_configuration()
+
+## [1.4.0]
+### Added:
+    - Schematic API new functions:
+        - add_library_path()
+        - remove_library_path()
+        - reload_libraries()
+
+    - PV Generator API: 'User defined' technology parameters to EN50530 PV panel type.
+
+## [1.3.0]
+### Added:
+    - Firmware Manager API
+    - Schematic API new functions:
+        - create_mask()
+        - remove_mask()
+        - set_description()
+        - get_description()
+        - set_icon_drawing_commands()
+        - get_icon_drawing_commands()
+        - set_handler_code()
+        - create_property()
+        - remove_property()
+        - get_compiled_model_file()
+        - get_sub_level_handle()
+
+### Deprecated:
+    - Backward incompatible changes:
+        - prop() - first parameter is now called 'item_handle' instead of 'component'.
+        - disp_component_icon_text - comp_handle parameter name is changed to item_handle.
+        - refresh_icon - comp_handle parameter name is changed to item_handle.
+        - set_color - comp_handle parameter name is changed to item_handle.
+        - set_component_icon_image - comp_handle parameter name is changed to item_handle.
+
+## [1.2.0]
+### Added:
+    - Schematic API new functions:
+        - set_port_properties()
+        - get_model_file_path()
+
+    - HIL API new functions:
+        - add_data_logger()
+        - remove_data_logger()
+        - start_data_logger()
+        - stop_data_logger()
+        - get_data_logger_status()
+        - get_streaming_analog_signals()
+        - get_streaming_digital_signals()
+
+### Changed:
+    - Updated API documentations.
+
+    - HIL API: Added vector support for the following functions:
+        - set_source_scaling()
+		- set_source_sine_waveform()
+		- prepare_source_sine_waveform()
+		- set_source_constant_value()
+		- prepare_source_constant_value()
+		- set_source_arbitrary_waveform()
+		- prepare_source_arbitrary_waveform()
+
+    -  HIL API: Added ramping support for the following functions:
+        - set_source_scaling()
+        - set_source_sine_waveform()
+        - set_source_constant_value()
+
+### Fixed:
+        - Minor bug fixes.
+
+## [1.1.4]
+### Fixed:
+    - typhoon_hil.exe locking log files when using RotatingFileHandler from logging module.
+
+## [1.1.3]
+### Fixed:
+    - Minor bug fixes.
+
+## [1.1.2]
+### Fixed:
+    - HIL API: capture data endianness issue.
+
+## [1.1.1]
+### Fixed
+    - Minor bug fixes.
+
+## [1.1.0]
+### Added:
+    - Schematic API new functions: get_component_type_name()
+    - HIL API new functions:
+        - enable_ao_limiting()
+        - disable_ao_limiting()
+
+    - typhoon.api module __version__ attribute.
+
+### Depreacated:
+    - Functions Deprecated:
+        - available_sources()
+        - available_pvs()
+        - available_analog_signals()
+        - available_digital_signals()
+        - available_contactors()
+        - available_machines()
+        - available_pe_switching_blocks()
+
+### Changed:
+    - Updated API documentations.
+
+### Fixed:
+    - RPC debugs logs won't propagate to higher-level handlers (e.g. root) anymore.
+
+## [1.0.2]
+#### Fixed:
+    - Bugfix release.
+
+## [1.0.1]
+### Changed:
+    - Updated documentation.
+
+## [1.0.0]
+### Added:
+    - Initial release.

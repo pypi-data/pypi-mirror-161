@@ -1,0 +1,100 @@
+####################
+Typhoon HIL RPC API
+####################
+
+RPC (*Remote Procedure Call*) is an interprocess communication technique that
+allows two independent processes to communicate. RPC is most commonly used to
+create distributed client/server programs where:
+
+* **client** is a process (program or task) that requests the service provided by another program, and
+* **server** is a process (program or task) that provides the service (responds to the requests from a client).
+
+Typhoon HIL's RPC API allows you to write custom APIs in any language you want
+as long as it is supported by ZMQ [#]_ library.
+
+
+Message format
+--------------
+
+Messages exchanged between the client and the server side are compatible
+with the JSON-RPC protocol [#]_.
+
+**Request** message contains following members:
+
+* **api** - a string specifying the version of the Typhoon HIL RPC API.
+* **jsonrpc** - a string specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
+* **method** - a string containing the name of the method to be invoked.
+* **params** - a list or dictionary of parameter values to be used during the invocation of the method. This member is optional.
+* **id** - an identifier established by the client. It can be either a string or an integer.
+
+**Response** message contains following members:
+
+* **jsonrpc** - a string specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
+* **result** - this member exists only if method is invoked and finished successfully.
+* **error** - this member exists only if error occurred during the method invocation or execution.
+* **warnings** - this member exists only if warnings occurred during the method execution.
+* **id** - an identifier that must be the same as the value of the id member in the request.
+
+For more detailed information about message formats, check JSON-RPC specification [#]_.
+
+
+Usage
+-----
+
+Typhoon HIL RPC API can be used for following APIs:
+
+* `HIL API`_,
+* `Schematic API`_,
+* `PV generator API`_, and
+* `SCADA API`_.
+
+For the full list of available methods, check the documentation of before-mentioned
+APIs. Each API is using different port number. The port numbers can be obtained by subscribing
+to the announcement port. Announcement port number is picked from the range defined in
+settings.conf file, which is located at the API version-specific folder at
+%APPDATA%\\typhoon-api (i.e. for API version 1.7.0, that folder is %APPDATA%\\typhoon-api\\1.7.0)
+
+
+Examples
+--------
+Following examples illustrate how you can use Typhoon HIL RPC API.
+
+Example 1
+=========
+This example shows how you can obtain port numbers of Typhoon APIs.
+
+.. literalinclude:: rst_api_examples/discovery.py
+   :language: python
+
+Example 2
+=========
+This example shows how *load* method can be invoked.
+
+
+.. literalinclude:: rst_api_examples/load.py
+   :language: python
+
+Example 3
+=========
+This example shows how *compile* method can be invoked.
+
+
+.. literalinclude:: rst_api_examples/compile.py
+   :language: python
+
+Example 4
+=========
+This example shows how to send multiple requests at once.
+
+
+.. literalinclude:: rst_api_examples/multiple.py
+   :language: python
+
+.. _HIL API: hil_api.html
+.. _Schematic API: schematic_api.html
+.. _PV generator API: pv_generator_api.html
+.. _SCADA API: scada_api.html
+
+.. [#] ZMQ: http://zeromq.org/
+.. [#] JSON RPC: http://www.jsonrpc.org/
+.. [#] JSON RPC: http://www.jsonrpc.org/specification

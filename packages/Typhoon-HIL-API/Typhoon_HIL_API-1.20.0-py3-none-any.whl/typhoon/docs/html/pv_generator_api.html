@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>6. PV Generator API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. HIL SCADA" href="serial_conn_widget.html" />
+    <link rel="prev" title="5. Modbus API" href="modbus_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="serial_conn_widget.html" title="7. HIL SCADA"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modbus_api.html" title="5. Modbus API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>PV Generator API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pv-generator-api">
+<h1><span class="section-number">6. </span>PV Generator API<a class="headerlink" href="#pv-generator-api" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.pv_generator</span></code></p>
+<p>This module is used for generating various PV panel settings file (.ipvx) following selected PV models.</p>
+<p>Later , this settings file can be used in HIL API and HIL SCADa for initializing appropriate PV panel.</p>
+<p><a class="reference internal" href="#api-references">API references</a> section display all methods which you can use.</p>
+<div class="section" id="module-typhoon.api.pv_generator">
+<span id="api-references"></span><h2><span class="section-number">6.1. </span><a class="reference internal" href="#api-references">API references</a><a class="headerlink" href="#module-typhoon.api.pv_generator" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.pv_generator.generate_pv_settings_file">
+<span class="sig-name descname"><span class="pre">generate_pv_settings_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.pv_generator.generate_pv_settings_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate PV panel settings (.ipvx extension) with specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modelType</strong> (<em>str</em>) – PV model type that will be used for generating settings file.</p></li>
+<li><p><strong>fileName</strong> (<em>str</em>) – file name of resulting .ipvx file.</p></li>
+<li><p><strong>parameters</strong> (<em>str</em>) – dictionary with parameters.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Supported PV <code class="docutils literal notranslate"><span class="pre">modelType</span></code> are:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'Detailed'</span></code> or <code class="docutils literal notranslate"><span class="pre">pv.PV_MODELS[0]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'EN50530</span> <span class="pre">Compatible'</span></code> or <code class="docutils literal notranslate"><span class="pre">pv.PV_MODELS[1]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'Normalized</span> <span class="pre">IV'</span></code> or <code class="docutils literal notranslate"><span class="pre">pv.PV_MODELS[2]</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>Depending on used PV model type available <code class="docutils literal notranslate"><span class="pre">parameters</span></code> are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'Detailed'</span></code> model</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 51%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Dictionary key</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“Voc_ref”</p></td>
+<td><p>Open-circuit voltage (Voc [V])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Isc_ref”</p></td>
+<td><p>Short-circuit current (Isc [A])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-even"><td><p>“dIsc_dT”</p></td>
+<td><p>Temperature coefficient of Isc [%Isc/C]</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Nc”</p></td>
+<td><p>Number of cells</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-even"><td><p>“dV_dI_ref”</p></td>
+<td><p>Curve gradient in Voc_ref point (dV/dI at Voc [V/A])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Vg”</p></td>
+<td><p>Band gap voltage</p></td>
+<td><p>string (“cSi” or “Amorphous Si”)</p></td>
+</tr>
+<tr class="row-even"><td><p>“n”</p></td>
+<td><p>Curve gradient in Voc_ref point (dV/dI at Voc [V/A])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p>“neg_current”</p></td>
+<td><p>Allow negative current</p></td>
+<td><p>boolean (True or False)</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'EN50530</span> <span class="pre">Compatible'</span></code> model</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 31%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Dictionary key</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“Voc_ref”</p></td>
+<td><p>Open-circuit voltage (Voc [V])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Isc_ref”</p></td>
+<td><p>Short-circuit current (Isc [A])</p></td>
+<td><p>float</p></td>
+</tr>
+<tr class="row-even"><td><p>“pv_type”</p></td>
+<td><p>PV type</p></td>
+<td><p>string (“cSi”, “Thin film” or “User defined”)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“neg_current”</p></td>
+<td><p>Allow negative current</p></td>
+<td><p>boolean (True or False)</p></td>
+</tr>
+<tr class="row-even"><td><p>“user_defined_params”</p></td>
+<td><p>User defined technology parameters</p></td>
+<td><p>dictionary (can be omitted if “pv_type” != “User defined”)</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'IV</span> <span class="pre">normalized'</span></code> model</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 31%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Dictionary key</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“csv_path”</p></td>
+<td><p>path to csv file</p></td>
+<td><p>str</p></td>
+</tr>
+</tbody>
+</table>
+<p>In case <code class="docutils literal notranslate"><span class="pre">&quot;User</span> <span class="pre">defined&quot;</span></code> is selected as <code class="docutils literal notranslate"><span class="pre">pv_type</span></code> additional sub-dictionary
+parameter (<code class="docutils literal notranslate"><span class="pre">&quot;user_defined_params&quot;</span></code>) should be specified.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 67%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Dictionary key</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“ff_u”</p></td>
+<td><p>Maximal power point to open circuit voltage ratio</p></td>
+<td><p>float ( 0.0 &lt; ff_u &lt; 1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“ff_i”</p></td>
+<td><p>Maximal power point to short circuit voltage ratio</p></td>
+<td><p>float ( 0.0 &lt; ff_i &lt; 1.0)</p></td>
+</tr>
+<tr class="row-even"><td><p>“c_g”</p></td>
+<td><p>Technology depending correction factor</p></td>
+<td><p>float ( 0.0 &lt; c_g &lt; 1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“c_v”</p></td>
+<td><p>Technology depending correction factor</p></td>
+<td><p>float ( 0.0 &lt; c_v &lt; 1.0)</p></td>
+</tr>
+<tr class="row-even"><td><p>“c_r”</p></td>
+<td><p>Technology depending correction factor</p></td>
+<td><p>float ( 0.0 &lt; c_r &lt; 1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“v_l2h”</p></td>
+<td><p>Voltage ratio from UMPP at irradiance of 200 W/m2 to UMPP at an irradiance of 1000 W/m2</p></td>
+<td><p>float ( 0.0 &lt; v_l2h &lt; 1.0)</p></td>
+</tr>
+<tr class="row-even"><td><p>“alpha”</p></td>
+<td><p>Temperature coefficient of the current</p></td>
+<td><p>float ( 0.0 &lt; alpha &lt; 1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>“beta”</p></td>
+<td><p>Temperature coefficient of the voltage</p></td>
+<td><p>float ( -1.0 &lt; beta &lt; 0.0)</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>tuple(<code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">message</span></code>)</dt><dd><ul class="simple">
+<li><p>status (bool): <code class="docutils literal notranslate"><span class="pre">True</span></code> if everything OK otherwise return <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p>message (str): status message</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">typhoon.api.pv_generator</span> <span class="k">as</span> <span class="nn">pv</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Voc_ref&quot;</span><span class="p">:</span> <span class="mf">45.60</span><span class="p">,</span>
+              <span class="s2">&quot;Isc_ref&quot;</span><span class="p">:</span> <span class="mf">5.8</span><span class="p">,</span>
+              <span class="s2">&quot;dIsc_dT&quot;</span><span class="p">:</span> <span class="mf">0.0004</span><span class="p">,</span>
+              <span class="s2">&quot;Nc&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+              <span class="s2">&quot;dV_dI_ref&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span>
+              <span class="s2">&quot;Vg&quot;</span><span class="p">:</span> <span class="s2">&quot;cSi&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;n&quot;</span> <span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+              <span class="s2">&quot;neg_current&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="p">}</span>
+
+    <span class="c1"># generate settings file using Detailed type of PV Model</span>
+    <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> <span class="o">=</span>  <span class="n">pv</span><span class="o">.</span><span class="n">generate_pv_settings_file</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">PV_MT_DETAILED</span><span class="p">,</span>
+                                                  <span class="s2">&quot;./setDet.ipvx&quot;</span><span class="p">,</span>
+                                                  <span class="n">params</span><span class="p">)</span>
+
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Voc_ref&quot;</span><span class="p">:</span> <span class="mf">45.60</span><span class="p">,</span>
+              <span class="s2">&quot;Isc_ref&quot;</span><span class="p">:</span> <span class="mf">5.8</span><span class="p">,</span>
+              <span class="s2">&quot;pv_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Thin film&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;neg_current&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="p">}</span>
+
+    <span class="c1"># generate settings file using EN50530 type of PV Model</span>
+    <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> <span class="o">=</span>  <span class="n">pv</span><span class="o">.</span><span class="n">generate_pv_settings_file</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">PV_MT_EN50530</span><span class="p">,</span>
+                                                  <span class="s2">&quot;./setEN.ipvx&quot;</span><span class="p">,</span>
+                                                  <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Voc_ref&quot;</span><span class="p">:</span> <span class="mf">45.60</span><span class="p">,</span>
+              <span class="s2">&quot;Isc_ref&quot;</span><span class="p">:</span> <span class="mf">5.8</span><span class="p">,</span>
+              <span class="s2">&quot;pv_type&quot;</span><span class="p">:</span> <span class="s2">&quot;User defined&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;neg_current&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+              <span class="s2">&quot;user_defined_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                  <span class="s2">&quot;ff_u&quot;</span><span class="p">:</span> <span class="mf">0.72</span><span class="p">,</span>
+                  <span class="s2">&quot;ff_i&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+                  <span class="s2">&quot;c_g&quot;</span><span class="p">:</span> <span class="mf">1.252e-3</span><span class="p">,</span>
+                  <span class="s2">&quot;c_v&quot;</span><span class="p">:</span> <span class="mf">8.419e-2</span><span class="p">,</span>
+                  <span class="s2">&quot;c_r&quot;</span><span class="p">:</span> <span class="mf">1.476e-4</span><span class="p">,</span>
+                  <span class="s2">&quot;v_l2h&quot;</span><span class="p">:</span> <span class="mf">0.98</span><span class="p">,</span>
+                  <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.0002</span><span class="p">,</span>
+                  <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.002</span> <span class="p">}</span>
+              <span class="p">}</span>
+
+    <span class="c1"># generate settings file using IV normalized type of PV Model</span>
+    <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> <span class="o">=</span>  <span class="n">pv</span><span class="o">.</span><span class="n">generate_pv_settings_file</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">IV_Normalized</span><span class="p">,</span>
+                                                  <span class="s2">&quot;./setEN.ipvx&quot;</span><span class="p">,</span>
+                                                  <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;csv_path&quot;</span><span class="p">:</span> <span class="s2">&quot;csv_file.csv&quot;</span><span class="p">}</span>
+
+
+    <span class="c1"># generate settings file using EN50530 type of PV Model with</span>
+    <span class="c1"># user defined parameters</span>
+    <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> <span class="o">=</span>  <span class="n">pv</span><span class="o">.</span><span class="n">generate_pv_settings_file</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">PV_MT_EN50530</span><span class="p">,</span>
+                                                  <span class="s2">&quot;./setEN.ipvx&quot;</span><span class="p">,</span>
+                                                  <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. PV Generator API</a><ul>
+<li><a class="reference internal" href="#module-typhoon.api.pv_generator">6.1. API references</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modbus_api.html"
+                        title="previous chapter"><span class="section-number">5. </span>Modbus API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="serial_conn_widget.html"
+                        title="next chapter"><span class="section-number">7. </span>HIL SCADA</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pv_generator_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="serial_conn_widget.html" title="7. HIL SCADA"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modbus_api.html" title="5. Modbus API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>PV Generator API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

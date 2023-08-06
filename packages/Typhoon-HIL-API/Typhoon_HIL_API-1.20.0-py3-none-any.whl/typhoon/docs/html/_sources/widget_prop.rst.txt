@@ -1,0 +1,1803 @@
+###########################
+Available Widget Properties
+###########################
+
+The properties which are available depend on the type of widget which is being changed,
+as well as on the type of values that can be set for a particular property.
+
+Below you can find the available properties and their allowed values divided by the type
+and group of widgets.
+
+.. note::
+    A property name can be specified either by using predefined constants or by typing
+    a property name.
+    The List of all properties can be found in ``typhoon.api.scada.const`` module
+    or listed in the section :ref:`api_constants`
+
+Example::
+
+    from typhoon.api.scada import panel
+    import typhoon.api.scada.const as api_const
+
+    # load a Panel file
+    panel.load_panel(r"C:\scada_file.cus")
+
+    # get the handle of the widget whose properties you want to change
+    widget_handle = panel.get_widget_by_id("e18c3fe582d011e9bac3e0d55e6b2045")
+
+    # change the widget name by using the handle as a widget identifier
+    # and specify the property by using property constants
+    panel.set_property_value(widget_handle,
+                             api_const.PROP_NAME,
+                             "New widget name")
+
+    # get the widget name by using the handle as a widget identifier
+    widget_name = panel.get_property_value(widget_handle, "name")
+
+-----------------
+Common Properties
+-----------------
+
+The list of properties available for all widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_NAME`` or "name"
+     - Set the Widget name.
+     - string value
+     - string value
+
+   * - ``PROP_FQN`` or "fully_qualified_name"
+     - Set the Widget fully qualified name.
+     - .. note::
+            This is a read-only property and cannot be changed.
+
+     - string value
+
+   * - ``PROP_LABEL`` or "label"
+     - Set the text that will be used for the Widget label instead of current Widget name.
+     - string value
+     - string value
+
+   * - ``PROP_USE_LABEL`` or "use_label"
+     - Use different text then Widget name for the Widget label.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_DESCRIPTION`` or "description"
+     - Set the Widget description.
+     - string value
+     - string value
+
+   * - ``PROP_POSITION`` or "position"
+     - Set the Widget position.
+     - list[x, y] where ``x`` and ``y`` are integer numbers
+     - list[x, y]
+
+   * - ``PROP_SIZE`` or "size"
+     - Set the Widget size.
+     - list[width, height] where ``width`` and ``height`` are integer numbers.
+     - list[width, height]
+
+   * - ``PROP_APPEARANCE`` or "appea.rance"
+     - Set the Widget appearance
+     - string value
+
+       Allowed values: "Raised" and "Flat".
+     - string value
+
+   * - ``PROP_PANEL_INIT`` or "panel_init_code"
+     - Set the Panel's initialization code.
+     - string value
+     - string value
+
+   * - ``PROP_PANEL_LOCK`` or "panel_locked"
+     - Set the Panel lock status.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_PANEL_BG_COLOR`` or "panel_bg_color"
+     - Set the background color of the Panel’s main canvas.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+------------------------------------
+Monitoring Widgets Common Properties
+------------------------------------
+
+The list of properties available for all Monitoring Widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_SIGNALS`` or "signals"
+     - Set the Monitoring Widget's signal(s)
+     - * list[list[analog_signals], list[digital_signals]] - in case ``Trace Graph`` Widget is changed.
+
+         Example::
+
+           (["an_sig_1", "an_sig_2"],
+            ["di_sig_1", "di_sig_2"])
+
+       * list[analog_signals] - in case ``XY Graph`` Widget is changed.
+
+         Example::
+
+           ["an_sig_1", "an_sig_2"]
+
+       * string value - in case any other Monitoring Widget is changed.
+
+     - * list[list[analog_signals], list[digital_signals]] - in case ``Trace Graph`` Widget is changed.
+       * list[analog_signals] - in case ``XY Graph`` Widget is changed.
+       * string value - in case any other Monitoring Widget is changed.
+
+   * - ``PROP_DATA_TYPE`` or "data_type"
+     - Set the Monitoring Widget's data source type.
+     - string value
+
+       Allowed values: "Analog signal" and "Expression".
+
+       .. note::
+         Some of Monitoring Widgets have different values allowed. Check the specific
+         widget for more details.
+
+     - string value
+
+   * - ``PROP_EXPRESSION`` or "expression_code"
+     - Set the Monitoring Widget's expression code.
+     - string value
+     - string value
+
+   * - ``PROP_UPDATE_RATE`` or "update_rate"
+     - Set the Monitoring Widget's update rate.
+     - integer value
+
+       Allowed values: 250, 500 and 1000.
+     - integer value
+
+Capture/Scope Widget
+--------------------
+
+.. note::
+
+    ``PROP_LABEL`` and ``PROP_USE_LABEL`` properties are not supported to be changed.
+
+
+The list of common properties available for both Capture and Scope states
+of the Capture/Scope Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_CS_STATE`` or "state"
+     - Set the C/S Widget's state
+     - string value, either "Capture" or "Scope"
+     - string value, either "Capture" or "Scope"
+
+
+The list of properties available for the Capture state of the Capture/Scope Widget
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_CS_CAPTURE_BG`` or "capture_background"
+     - Set the Capture Widget's background color
+     - string value, either "black" or "white"
+     - string value, either "black" or "white"
+
+   * - ``PROP_CS_CAPTURE_LEGEND`` or "capture_legend"
+     - Set the Capture Widget's legend visibility
+     - boolean value
+     - boolean value
+
+   * - ``PROP_CS_CAPTURE_LAYOUT`` or "capture_layout"
+     - Set the Capture Widget's viewport layout
+     - string value, either "Grid" or "Vertical"
+     - string value, either "Grid" or "Vertical"
+
+   * - ``PROP_CS_CAPTURE_SAMPLE_RATE`` or "sample_rate"
+     - Set the sample rate of the Capture Widget's currently active preset
+     - float or int value
+     - float value
+
+   * - ``PROP_CS_CAPTURE_TIME_INTERVAL`` or "time_interval"
+     - Set the Capture Widget's time interval
+     - float or int value
+     - float or int value
+
+   * - ``PROP_CS_CAPTURE_ANALOG_SIGNALS`` or "capture_analog_signals"
+     - Set the analog signals of the Capture Widget's currently active preset
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports]
+
+        .. note::
+            **MANDATORY** - ``signal_name`` is a string value.
+
+            **OPTIONAL** - ``signal_viewports`` is a list of integer values ranging from 1 to 4, and only the first 4 unique elements will be used.
+
+                **NOTE** - The default value is an empty list.
+
+        Example::
+
+            [
+                ["VDC1", [1,2]],
+                ["VDC2", [4]],
+                ["VDC3"],
+                ["VDC4"]
+            ]
+
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports
+
+   * - ``PROP_CS_CAPTURE_DIGITAL_SIGNALS`` or "capture_digital_signals"
+     - Set the digital signals of the Capture Widget's currently active preset
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports]
+
+        .. note::
+            **MANDATORY** - ``signal_name`` is a string value.
+
+            **OPTIONAL** - ``signal_viewports`` is a list of integer values ranging from 1 to 4, and only the first 4 unique elements will be used.
+
+                **NOTE** - The default value is an empty list.
+
+        Example::
+
+            [
+                ["HIL0 digital signal 1", [1,2]],
+                ["HIL0 digital signal 2", [4]],
+                ["HIL0 digital signal 3"]
+            ]
+
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports]
+
+   * - ``PROP_CS_CAPTURE_TRIGGER`` or "capture_trigger"
+     - Set the trigger settings of the Capture Widget's currently active preset
+     - list[trigger_type, trigger_source, edge, offset, first_trigger, threshold], where:
+        * ``trigger_type`` is a string value
+
+         Allowed values: "Analog", "Digital", "User"
+
+        * ``trigger_source`` is a string value, which is the name of the trigger signal
+
+        * ``edge`` is a string value
+
+         Allowed values: "Rising edge", "Falling edge"
+
+        * ``offset`` is an integer or float value
+
+         Allowed values: between 0 and 100
+
+        * ``first_trigger`` is a boolean value
+
+        * ``threshold`` is an integer of float value
+
+        .. note::
+            Depending on the trigger type, different properties can be set
+
+            .. list-table::
+               :widths: auto
+               :header-rows: 1
+               :align: left
+
+               * - Trigger parameter
+                 - Analog
+                 - Digital
+                 - User
+
+               * - trigger_source
+                 - **Y**-M
+                 - **Y**-M
+                 - **N**
+
+               * - edge
+                 - **Y**-O
+                 - **Y**-O
+                 - **N**
+
+               * - offset
+                 - **Y**-O
+                 - **Y**-O
+                 - **Y**-O
+
+               * - use_first_trigger
+                 - **Y**-O
+                 - **Y**-O
+                 - **N**
+
+               * - threshold
+                 - **Y**-O
+                 - **N**
+                 - **N**
+
+        M - mandatory, O - optional
+
+        Example::
+
+                ["Analog", "VDC5", "Falling edge", 60, True, 500], or
+                ["Digital", "HIL0 digital signal 4", "Falling edge", 55, True], or
+                ["User", 78]
+
+     - list[trigger_type, trigger_source, edge, offset, first_trigger, threshold]
+
+        .. note::
+            Depending on the trigger type, different values will be returned
+
+            .. list-table::
+               :widths: auto
+               :header-rows: 1
+               :align: left
+
+               * - Trigger parameter
+                 - Analog
+                 - Digital
+                 - User
+
+               * - trigger_source
+                 - **Y**
+                 - **Y**
+                 - **N**
+
+               * - edge
+                 - **Y**
+                 - **Y**
+                 - **N**
+
+               * - offset
+                 - **Y**
+                 - **Y**
+                 - **Y**
+
+               * - use_first_trigger
+                 - **Y**
+                 - **Y**
+                 - **N**
+
+               * - threshold
+                 - **Y**
+                 - **N**
+                 - **N**
+
+
+
+The list of properties available for the Scope state of the Capture/Scope Widget
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_CS_SCOPE_BG`` or "scope_background"
+     - Set the Scope Widget's background color
+     - string value, either "black" or "white"
+     - string value, either "black" or "white"
+
+   * - ``PROP_CS_SCOPE_LEGEND`` or "scope_legend"
+     - Set the Scope Widget's legend visibility
+     - boolean value
+     - boolean value
+
+   * - ``PROP_CS_SCOPE_LAYOUT`` or "scope_layout"
+     - Set the Scope Widget's viewport layout
+     - string value, either "Grid" or "Vertical"
+     - string value, either "Grid" or "Vertical"
+
+   * - ``PROP_CS_SCOPE_TIME_BASE`` or "time_base"
+     - Set the time base of Scope Widget's currently active preset
+     - float value
+     - float value
+
+   * - ``PROP_CS_SCOPE_ANALOG_SIGNALS`` or "scope_analog_signals"
+     - Set the analog signals of the Scope Widget's currently active preset
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports, vertical_scale, vertical_offset, coupling]
+
+        .. note::
+            **MANDATORY** - ``signal_name`` is a string value.
+
+            **OPTIONAL** - ``signal_viewports`` is a list of integer values ranging from 1 to 4, and only the first 4 unique elements will be used.
+
+                **NOTE** - The default value is an empty list.
+
+            **OPTIONAL** - ``vertical_scale`` is a string value.
+
+             Allowed values: "Auto", "Auto Range", "50m", "100m",
+                            "200m", "500m", "1", "2", "5", "10",
+                            "20", "50", "100", "200", "500", "1k",
+                            "2k", "5k", "10k", "20k", "50k", "100k",
+                            "200k", "500k", "1M"
+
+                **NOTE** - If the value is set to "Auto" or "Auto Range", vertical offset and coupling settings **will be ignored**!
+
+                **NOTE** - The default value is "Auto".
+
+            **OPTIONAL** - ``vertical_offset`` is an integer or float value, ranging between -4.5 and 4.5.
+
+                **NOTE** - The default value is 0.
+
+            **OPTIONAL** - ``coupling`` is a boolean value.
+
+                **NOTE** - The default value False.
+
+        Example::
+
+            [
+                ["const_0V"],
+                ["Va1", [1,3], "2k", -2, True],
+                ["Va2", [2,4], "2k", 3.5]
+            ]
+
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports, vertical_scale, vertical_offset, coupling]
+
+   * - ``PROP_CS_SCOPE_DIGITAL_SIGNALS`` or "scope_digital_signals"
+     - Set the digital signals of the Scope widget's currently active preset
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports, vertical_offset]
+
+        .. note::
+            **MANDATORY** - ``signal_name`` is a string value.
+
+            **OPTIONAL** - ``signal_viewports`` is a list of integer values ranging from 1 to 4, and only the first 4 unique elements will be used.
+
+                **NOTE** - The default value is an empty list.
+
+
+            **OPTIONAL** - ``vertical_offset`` is an integer or float value, ranging between -4.5 and 4.5.
+
+                **NOTE** - The default value is 0.
+
+
+        Example::
+
+            [
+                ["HIL0 digital input 1"],
+                ["HIL0 digital input 2", [1,2], -2],
+                ["HIL0 digital input 3", [2], 1.5, True]
+            ]
+
+     - list[signal_1, signal_2, ...], where:
+        * ``signal`` is a list[signal_name, signal_viewports, vertical_offset]
+
+
+
+   * - ``PROP_CS_SCOPE_TRIGGER`` or "scope_trigger"
+     - Set the trigger settings of the Scope widget's currently active preset
+     - list[trigger_type, trigger_source, edge, offset, threshold, trigger_mode], where:
+        * ``trigger_type`` is a string value
+
+         Allowed values: "Analog", "Digital"
+
+        * ``trigger_source`` is a string value, which is the name of the trigger signal
+
+        * ``edge`` is a string value
+
+         Allowed values: "Rising edge", "Falling edge"
+
+        * ``offset`` is an integer or float value
+
+         Allowed values: between 0 and 100
+
+        * ``threshold`` is an integer of float value
+
+        * ``trigger_mode`` is a string value
+
+         Allowed values: "Auto", "Normal"
+
+        .. note::
+            Depending on the trigger type, different properties can be set
+
+            .. list-table::
+               :widths: auto
+               :header-rows: 1
+               :align: left
+
+               * - Trigger parameter
+                 - Analog
+                 - Digital
+
+               * - trigger_source
+                 - **Y**-M
+                 - **Y**-M
+
+               * - edge
+                 - **Y**-O
+                 - **Y**-O
+
+               * - offset
+                 - **Y**-O
+                 - **Y**-O
+
+               * - threshold
+                 - **Y**-O
+                 - **N**
+
+               * - trigger_mode
+                 - **Y**-O
+                 - **Y**-O
+
+        M - mandatory, O - optional
+
+        Example::
+
+             ["Analog", "VDC1"], or
+             ["Analog", "VDC2", "Falling edge"], or
+             ["Digital", "HIL0 digital signal 1", "Rising edge", 70], or
+             ["Analog", "VDC3", "Rising edge", 70, 400], or
+             ["Analog", "VDC4", "Rising edge", 70, 400, "Normal"]
+
+     - list[trigger_type, trigger_source, edge, offset, threshold, trigger_mode]
+
+
+Gauge Widget
+------------
+
+The list of properties available for the Gauge Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_DECIMALS`` or "decimals"
+     - Set the Gauge's number of decimals that will be shown.
+     - integer number
+     - integer number
+
+   * - ``PROP_RANGE`` or "range"
+     - Set the Gauge Widget's range.
+     - list[min, max] where ``min`` and ``max`` are integer or float numbers.
+     - list[min, max]
+
+   * - ``PROP_USE_COLOR_RANGE`` or "use_color_range"
+     - Enable/disable warning and critical color ranges.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_WARNING_RANGE`` or "warning_range"
+     - Set the Gauge Widget's warning range.
+     - list[w1, w2, w3, w4] where ``w1``, ``w2``, ``w3``, ``w4`` are integer or float
+       numbers that represent ``Warning range 1`` and ``Warning range 2``.
+     - list[w1, w2, w3, w4]
+
+   * - ``PROP_CRITICAL_RANGE`` or "critical_range"
+     - Set the Gauge Widget's critical range.
+     - list[c1, c2, c3, c4] where ``c1``, ``c2``, ``c3``, ``c4`` are integer or float
+       numbers that represent ``Critical range 1`` and ``Critical range 2``.
+     - list[c1, c2, c3, c4]
+
+   * - ``PROP_UNIT`` or "unit"
+     - Set the Gauge Widget's unit.
+     - string value
+     - string value
+
+   * - ``PROP_AUTO_UNIT`` or "auto_unit_assign"
+     - Enable/disable the auto unit assign.
+     - boolean value
+     - boolean value
+
+
+Digital Display Widget
+----------------------
+
+The list of properties available for the Digital Display Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_DECIMALS`` or "decimals"
+     - Set the Digital Display's number of decimals that will be shown.
+     - integer number
+     - integer number
+
+   * - ``PROP_USE_COLOR_RANGE`` or "use_color_range"
+     - Enable/disable green, orange and red color ranges.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_GREEN_RANGE`` or "green_range"
+     - Set the Digital Display's green range.
+     - list[g1, g2, g3, g4] where ``g1``, ``g2``, ``g3``, ``g4`` are integer or float
+       numbers that represent ``Green range 1`` and ``Green range 2``.
+     - list[g1, g2, g3, g4]
+
+   * - ``PROP_ORANGE_RANGE`` or "orange_range"
+     - Set the Digital Display's orange range
+     - list[o1, o2, o3, o4] where ``o1``, ``o2``, ``o3``, ``o4`` are integer or float
+       numbers that represent ``Orange range 1`` and ``Orange range 2``.
+     - list[o1, o2, o3, o4]
+
+   * - ``PROP_RED_RANGE`` or "red_range"
+     - Set the Digital Display's red range.
+     - list[r1, r2, r3, r4] where ``r1``, ``r2``, ``r3``, ``r4`` are integer or float
+       numbers that represent ``Red range 1`` and ``Red range 2``.
+     - list[r1, r2, r3, r4]
+
+   * - ``PROP_UNIT`` or "unit"
+     - Set the Digital Display's unit.
+     - string value
+     - string value
+
+   * - ``PROP_AUTO_UNIT`` or "auto_unit_assign"
+     - Enable/disable the auto unit assign feature.
+     - boolean value
+     - boolean value
+
+
+Text Display Widget
+-------------------
+
+The Text Display Widget has only `Common Properties`_  and `Monitoring Widgets Common Properties`_.
+
+.. note::
+
+    ``PROP_SIGNALS`` and ``PROP_DATA_TYPE`` properties are not supported to be changed.
+
+LED Widget
+----------
+
+The list of properties available for the LED Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_LED_COLOR`` or "led_color"
+     - Set the LED Widget's color.
+     - string value
+
+       Allowed values: "Red", "Green", "Blue" and "Yellow".
+     - string value
+
+   * - ``PROP_DATA_TYPE`` or "data_type"
+     - Set the LED Widget's data source.
+     - string value
+
+       Allowed values: "Digital signal" and "Expression".
+     - string value
+
+Bar Graph Widget
+----------------
+
+.. note::
+
+    ``PROP_SIGNALS``, ``PROP_BG_COLOR``, ``PROP_LABEL`` and ``PROP_USE_LABEL`` properties are not supported to be changed.
+
+The list of properties available for the Bar Graph Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Bar Graph's background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_BARS_SETTINGS`` or "bars_settings"
+     - Set the Bar Graph's individual bar settings.
+     - list[bar_settings_1, bar_settings_2, ...] where:
+        * ``bar_settings`` is a list[display_name, signal_name, unit, minimum_value,
+          maximum_value, use_warning_critical, warning_value, critical_value] where:
+
+            * ``display_name`` is a string value.
+            * ``signal_name`` is a string value.
+            * ``unit`` is a string value.
+            * ``minimum_value`` is an integer or float value.
+            * ``maximum_value`` is an integer or float value.
+            * ``use_warning_critical`` is a boolean value.
+            * ``warning_value`` is an integer or float value.
+            * ``critical_value`` is an integer or float value.
+
+        Example::
+
+            (["Bar_1", "Sig1", "A", 0, 100, True, 70, 90],
+             ["Bar_2", "Sig2", "V", 0, 100, False, None, None], ...)
+
+     - list(bar_settings_1, bar_settings_2, ...)
+
+PV Monitor Widget
+-----------------
+
+.. note::
+
+    ``PROP_DATA_TYPE``, ``PROP_SIGNALS`` and ``PROP_EXPRESSION`` properties are not
+    supported to be changed.
+
+The list of properties available for the PV Monitor Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_PV_PANEL`` or "pv_panel"
+     - Set the PV panel name of the PV Monitor Widget
+     - string value
+     - string value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the PV Monitor's background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+Trace Graph Widget
+------------------
+
+The list of properties available for the Trace Graph Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_X_TITLE_ENABLED`` or "x_title_enabled"
+     - Enable/disable the Trace Graph's x axis title.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_X_TITLE`` or "x_title"
+     - Set the Trace Graph x axis's title text.
+     - string value
+     - string value
+
+   * - ``PROP_Y_TITLE_ENABLED`` or "y_title_enabled"
+     - Enable/disable the Trace Graph's y axis title.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_Y_TITLE`` or "y_title"
+     - Set the Trace Graph y axis's title text.
+     - string value
+     - string value
+
+   * - ``PROP_Y_RANGE`` or "y_range"
+     - Set the Trace Graph's y axis range
+     - list[r1, r2] where ``r1`` and ``r2`` are integer or float numbers.
+     - list[r1, r2]
+
+   * - ``PROP_TIME_WINDOW`` or "time_window"
+     - Set the Trace Graph's time window value
+     - integer value
+
+       Allowed values:
+        * in case ``Data type == Streaming`` the timed window value must be in range [1, 100].
+        * in case ``Data type == Signals``  the timed window value must be in range [10, 600].
+     - integer value
+
+   * - ``PROP_AUTO_SCALE_ENABLED`` or "autoscale_enabled"
+     - Enable/disable the Trace Graph's auto-scaling feature.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_LEGEND_ENABLED`` or "legend_enabled"
+     - Enable/disable the Trace Graph's legend.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_REF_CURVE_ENABLED`` or  "ref_curves_enabled"
+     - Enable/disable the Trace Graph's reference curves.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_REF_CURVE`` or "ref_curves_code"
+     - Set the reference curves code for the Trace Graph
+     - string value
+     - string value
+
+   * - ``PROP_STREAMING_SIGNALS`` or "streaming_signals"
+     - Set the Trace Graph's streaming signals.
+     - list[an_str_signals, di_str_signals] where:
+        * ``an_str_signals`` is a list of Analog streaming signals names.
+        * ``di_str_signals`` is a list of Digital streaming signals names.
+
+        Example::
+
+            (["Analog_str_sig1", "Analog_str_sig2", ...],
+             ["Digital_str_sig1", "Digital_str_sig2", ...])
+
+     - list[an_str_signals, di_str_signals]
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Trace Graph's background color.
+     - string value
+
+       Allowed values: "black" and "white".
+     - string value
+
+   * - ``PROP_DATA_TYPE`` or "data_type"
+     - Set the Trace Graph's data source type.
+     - string value
+
+       Allowed values: "Signals", "Streaming" and "Expression".
+     - string value
+
+XY Graph Widget
+---------------
+
+The list of properties available for the XY Graph Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_X_RANGE`` or "x_range"
+     - Set the XY Graph x axis's range.
+     - list[r1, r2] where ``r1`` and ``r2`` are integer or float numbers.
+     - list[r1, r2]
+
+   * - ``PROP_Y_RANGE`` or "y_range"
+     - Set the XY Graph y axis's range.
+     - list[r1, r2] where ``r1`` and ``r2`` are integer or float numbers.
+     - list[r1, r2]
+
+   * - ``PROP_X_AUTO_SCALE_ENABLED`` or "x_axis_autoscale_enabled"
+     - Enable/disable the XY Graph x axis's auto-scaling feature.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_Y_AUTO_SCALE_ENABLED`` or "y_axis_autoscale_enabled"
+     - Enable/disable the XY Graph y axis's auto-scaling feature.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_TIME_WINDOW`` or "time_window"
+     - Set the XY Graph's time window value.
+     - integer value
+
+       Allowed values: timed window value must be in range [10, 600].
+     - integer value
+
+   * - ``PROP_REF_CURVE_ENABLED`` or  "ref_curves_enabled"
+     - Enable/disable the XY Graph's reference curves.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_REF_CURVE`` or "ref_curves_code"
+     - Set the reference curves code of the XY Graph
+     - string value
+     - string value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the XY Graph's background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_LINE_STYLE`` or "line_style"
+     - Set the XY Graph's line style.
+     - string value
+
+       Allowed values: "Line (-)", "Line Circle (-o)" or "Circle (o)".
+     - string value
+
+Phasor Graph Widget
+-------------------
+
+.. note::
+
+    ``PROP_SIGNALS`` property is not supported
+    to be changed.
+
+The list of properties available for the Phasor Graph Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_LEGEND_ENABLED`` or "legend_enabled"
+     - Enable/disable the Phasor Graph's legend.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_AUTO_SCALE_ENABLED`` or "autoscale_enabled"
+     - Enable/disable the Phasor Graph's auto-scaling feature.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_PLOT_RANGE`` or "plot_range"
+     - Set the Phasor Graph range
+     - float number
+     - float number
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Phasor Graph's background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_PHASORS_SETTINGS`` or "phasors_settings"
+     - Set the Phasor Graph's phasors settings.
+     - list[phasor_settings_1, phasor_settings_2, ...] where:
+        * ``phasor_settings`` is a list[display_name, magnitude_signal, phase_signal] where:
+            * ``display_name`` is a string value.
+            * ``magnitude_signal`` is a string value.
+            * ``phase_signal`` is a string value.
+
+        Example::
+
+            (["Phasor_name_1", "Magnitude_sig1", "Phase_sig1"],
+             ["Phasor_name_2", "Magnitude_sig2", "Phase_sig2], ...)
+
+     - list[phasor_settings_1, phasor_settings_2, ...]
+
+--------------------------------
+Action Widgets Common Properties
+--------------------------------
+
+The list of properties available for all Action Widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_ON_START_ENABLED`` or "on_start_enabled"
+     - Enable/disable the Action Widget's On_Start handler.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_ON_USE_ENABLED`` or "on_use_enabled"
+     - Enable/disable the Action Widget's On_Click handler.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_ON_TIMER_ENABLED`` or "on_timer_enabled"
+     - Enable/disable the Action Widget's On_Timer handler.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_ON_STOP_ENABLED`` or "on_stop_enabled"
+     - Enable/disable the Action Widget's On_Stop handler.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_ON_START`` or "on_start_code"
+     - Set the Action Widget On_Start's handler code.
+     - string value
+     - string value
+
+   * - ``PROP_ON_USE`` or "on_use_code"
+     - Set the Action Widget On_Click's handler code.
+     - string value
+     - string value
+
+   * - ``PROP_ON_TIMER`` or "on_timer_code"
+     - Set the Action Widget On_Timer's handler code.
+     - string value
+     - string value
+
+   * - ``PROP_ON_STOP`` or "on_stop_code"
+     - Set the Action Widget On_Stop's handler code.
+     - string value
+     - string value
+
+   * - ``PROP_ON_START_SOURCE`` or "on_start_code_source"
+     - Set the Action Widget On_Start's code source.
+     - string value
+
+       Allowed values: "Macro code" and "Custom code".
+     - string value
+
+Macro Widget
+------------
+
+The list of properties available for the Macro Widget.
+
+.. note::
+
+    ``PROP_ON_START_SOURCE`` property is not supported to be changed.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_ON_TIMER_RATE`` or "on_timer_rate"
+     - Set the Macro's On_Timer update rate.
+     - integer value
+
+       Allowed values: 250, 500 and 1000.
+     - integer value
+
+Button Widget
+-------------
+
+The Button Widget has only `Common Properties`_  and `Action Widgets Common Properties`_.
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED``, ``PROP_ON_TIMER_ENABLED`` and ``PROP_ON_TIMER`` properties
+    are not supported to be changed.
+
+Text Box Widget
+---------------
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED`` property is not supported
+    to be changed.
+
+The list of properties available for the Text Box widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_UNIT`` or "unit"
+     - Set the Text Box's unit.
+     - string value
+     - string value
+
+   * - ``PROP_VALUE_TYPE`` or "value_type""
+     - Set the Text Box's value type.
+     - string value
+
+       Allowed values: "int", "float" and "string".
+     - string value
+
+   * - ``PROP_WIDGET_VALUE`` or "widget_value""
+     - Set the Text Box's current value.
+     - int, float or string value
+
+       .. note::
+            Depends of what type is set in ``PROP_VALUE_TYPE``.
+
+     - int, float or string value
+
+       .. note::
+            Depends of what type is set in ``PROP_VALUE_TYPE``.
+
+   * - ``PROP_INPUT_WIDTH`` or "input_width"
+     - Set the width of the Text Box’s input field.
+     - integer value
+     - integer value
+
+Combo Box Widget
+----------------
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED`` property is not supported
+    to be changed.
+
+The list of properties available for the Combo Box Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_COMBO_VALUES`` or  "values"
+     - Set the Combo Box's values.
+     - list[val1, val2,...] where ``val`` is a string value.
+     - list[val1, val2,...]
+
+   * - ``PROP_WIDGET_VALUE`` or "widget_value""
+     - Set the Combo Box's current selected value.
+     - string value
+
+       .. note::
+          Only supported values are values specified in ``PROP_COMBO_VALUES``.
+
+     - string value
+
+Check Box Widget
+----------------
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED`` property is not supported
+    to be changed.
+
+The list of properties available for the Check Box Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_WIDGET_VALUE`` or "widget_value""
+     - Set the Check Box's current value.
+     - boolean value
+     - boolean value
+
+Knob Widget
+-----------
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED`` property is not supported
+    to be changed.
+
+The list of properties available for the Knob Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_RANGE`` or "range"
+     - Set the Knob Widget's range.
+     - list[min, max] where ``min`` and ``max`` are integer or float numbers.
+     - list[min, max]
+
+   * - ``PROP_STEP`` or "step"
+     - Set the Knob Widget's step value.
+     - float value
+     - float value
+
+   * - ``PROP_WIDGET_VALUE`` or "widget_value""
+     - Set the Knob Widget's value.
+     - float value
+     - float value
+
+Slider Widget
+-------------
+
+.. note::
+
+    ``PROP_ON_USE_ENABLED`` property is not supported
+    to be changed.
+
+The list of properties available for the Slider Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_RANGE`` or "range"
+     - Set the Slider Widget's range.
+     - list[min, max] where ``min`` and ``max`` are integer or float numbers.
+     - list[min, max]
+
+   * - ``PROP_STEP`` or "step"
+     - Set the Slider Widget's step value.
+     - float value
+     - float value
+
+   * - ``PROP_WIDGET_VALUE`` or "widget_value""
+     - Set the Slider Widget's value.
+     - float value
+     - float value
+
+--------------------------------------
+Data Logging Widgets Common Properties
+--------------------------------------
+
+The list of properties available for all Data Logging Widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_USE_PANEL_DIR`` or "use_panel_dir"
+     - Enable/disable usage of the Panel file directory as the default output directory for log
+       data file.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_LOG_FILE_DIR`` or "log_file_dir"
+     - Set the Data Logging Widget's data log output directory.
+     - string value
+     - string value
+
+   * - ``PROP_LOG_FILE`` or "log_file"
+     - Set the Data Logging Widget log data file name.
+     - string value
+     - string value
+
+   * - ``PROP_USE_SUFFIX`` or "use_suffix"
+     - Enable/disable Data Logging Widget's log data file name suffix.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_LOGGING_ON_START`` or "start_logging_on_start"
+     - Enable/disable logging on the simulation start.
+     - boolean value
+     - boolean value
+
+Signal Data Logger Widget
+-------------------------
+
+The list of properties available for the Signal Data Logger Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_UPDATE_RATE`` or "update_rate"
+     - Set the Signal Data Logger Widget's update rate.
+     - integer value
+
+       Allowed values: 250, 500, and 1000
+     - integer value
+
+   * - ``PROP_DATA_TYPE`` or "data_type"
+     - Set Signal Data Logger Widget's data type.
+     - string value
+
+       Allowed values: "Signals" or "Expression"
+     - string value
+
+   * - ``PROP_EXPRESSION`` or "expression_code"
+     - Set the Signal Data Logger Widget's expression code.
+     - string value
+     - string value
+
+   * - ``PROP_SIGNALS`` or "signals"
+     - Set Signal Data Logger Widget analog/digital signals.
+     - list[list[analog_signals], list[digital_signals]] where:
+
+         * ``analog_signals`` is a list of Analog signals names.
+         * ``digital_signals`` is a list of Digital signals names.
+
+       Example::
+
+            (["an_sig_1", "an_sig_2"],
+             ["di_sig_1", "di_sig_2"])
+
+     - list[list[analog_signals], list[digital_signals]]
+
+   * - ``PROP_USE_SLOWER_UPDATE_RATE`` or "use_slower_update_rate"
+     - Enable/disable slower update rate.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_SLOWER_UPDATE_RATE`` or "slower_update_rate"
+     - Set the Signal Data Logger Widgets's slower update rate value.
+     - integer value
+     - integer value
+
+   * - ``PROP_LOG_FILE_FORMAT`` or "log_file_format"
+     - Set Signal Data Logger Widget's log data file format
+     - string value
+
+       Allowed values: "csv", "mat" or "h5"
+     - string value
+
+
+Stream Data Logger Widget
+-------------------------
+
+The list of properties available for the Stream Data Logger Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_STREAMING_SIGNALS`` or "streaming_signals"
+     - Set the Stream Data Logger Widget's analog/digital streaming signals.
+     - list[an_str_signals, di_str_signals] where:
+        * ``an_str_signals`` is a list of Analog streaming signals names.
+        * ``di_str_signals`` is a list of Digital streaming signals names.
+
+        Example::
+
+            (["Analog_str_sig1", "Analog_str_sig2", ...],
+             ["Digital_str_sig1", "Digital_str_sig2", ...])
+
+     - list[an_str_signals, di_str_signals]
+
+   * - ``PROP_LOG_FILE_FORMAT`` or "log_file_format"
+     - Set the Signal Data Logger Widget's log data file format.
+     - string value
+
+       Allowed values: "csv" or "h5"
+     - string value
+
+
+--------------------------------
+Visual Widgets Common Properties
+--------------------------------
+
+Visual Widgets do not have any common properties except properties listed in
+the `Common Properties`_ section.
+
+Group Like Visual Widgets Common Properties
+-------------------------------------------
+
+The list of properties available for all Group-like Widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_GROUP_NAMESPACE`` or "group_namespace"
+     - Set the Group-like Widget's namespace code.
+     - string value
+     - string value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Group-like Widget's canvas background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_MODEL_COMP_TYPES`` or "model_components_types"
+     - Set the Schematic model component types that can be linked to the Library Widget.
+
+       .. note::
+            This property can only be changed for widgets located on the Library Panel and widgets that are Library Widgets candidates.
+
+     - list value
+
+       Example::
+
+            ["Inductor", "Voltage Source"]
+
+     - list value
+
+   * - ``PROP_MODEL_COMP`` or "model_component"
+     - Set the Schematic model component that will be linked to Library Widget by specifying component fully qualified name
+
+       .. note::
+            This property can only be changed for Library widgets configured to be linked to Schematic Model components.
+
+     - string value
+     - string value
+
+Group Widget Properties
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The list of properties available for the Group Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_COLLAPSED`` or "collapsed"
+     - Set if the Group Widget is collapsed or not.
+     - string value
+     - string value
+
+Sub-Panel Widget Properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The list of properties available for the Sub-Panel Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_USE_IMAGE`` or "use_image"
+     - Enable/disable the Sub-Panel's image.
+     - boolean value
+     - boolean value
+
+   * - ``PROP_IMAGE`` or "image"
+     - Set the Sub-Panel's image.
+     - string value
+     - string value
+
+   * - ``PROP_IMAGE_SCALING`` or "image_scaling"
+     - Set the Sub-Panel's image scaling.
+     - string value
+
+       Allowed values: "Without scaling", "Ignore aspect ratio" or "Keep aspect ratio".
+     - string value
+
+   * - ``PROP_HTML_NAME`` or "html_name"
+     - Set the Sub-Panel's HTML name (name that is displayed on Widget).
+
+       .. note::
+            This property is left for the compatibility purposes and may be deprecated in the future.
+            Use ``PROP_LABEL`` instead.
+
+     - string value
+     - string value
+
+   * - ``PROP_NAME_POSITION`` or "name_position"
+     - Set the Sub-Panel's HTML name position.
+     - string value
+
+       Allowed values: "Top" or "Bottom".
+     - string value
+
+   * - ``PROP_SUB_PANEL_MODE`` or "sub_panel_mode"
+     - Set the Sub-Panel's working mode.
+     - string value
+
+       Allowed values: "Embedded" or "Windowed".
+     - string value
+
+Library Category Widget Properties
+----------------------------------
+
+.. note::
+
+    ``PROP_USE_IMAGE``, ``PROP_IMAGE``, ``PROP_IMAGE_SCALING``, ``PROP_GROUP_NAMESPACE``, ``PROP_NAME_POSITION``, ``PROP_MODEL_COMP`` and ``PROP_MODEL_COMP_TYPES`` properties are not supported to be changed.
+
+Text Note Widget Properties
+---------------------------
+
+.. note::
+
+    ``PROP_LABEL`` and ``PROP_USE_LABEL`` properties are not supported to be changed.
+
+
+The list of properties available for the Text Note Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_TEXT`` or "text"
+     - Set the Text Note's text.
+     - string value
+     - string value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Text Note's background color.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_BG_TYPE`` or "bg_type"
+     - Set the Text Note's text.
+     - string value
+
+       Allowed values: "Transparent" or "Filled".
+     - string value
+
+Image Widget Properties
+-----------------------
+
+.. note::
+
+    ``PROP_LABEL`` and ``PROP_USE_LABEL`` properties are not supported to be changed.
+
+
+The list of properties available for the Image Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_IMAGE`` or "image"
+     - Set the Image Widget's image that needs to be displayed.
+     - string value
+     - string value
+
+   * - ``PROP_IMAGE_SCALING`` or "image_scaling"
+     - Set the Image Widget's image scaling.
+     - string value
+
+       Allowed values: "Without scaling", "Ignore aspect ratio" or "Keep aspect ratio".
+     - string value
+
+   * - ``PROP_BG_TYPE`` or "bg_type"
+     - Set the Image Widget's background type.
+     - string value
+
+       Allowed values: "Transparent" or "Filled".
+     - string value
+
+   * - ``PROP_BG_COLOR`` or "bg_color"
+     - Set the Image Widget's background color in case the ``Filled`` background type is selected.
+     - string value
+
+       .. note::
+            The color needs to be specified as a hex number in string representation.
+
+            Example::
+
+                # red color
+                color = "#ff0000"
+
+     - string value
+
+   * - ``PROP_USE_AS_BG`` or "use_as_bg"
+     - Set the Image Widget to be background below all other Widgets.
+     - boolean value
+     - boolean value
+
+------------------------------------
+Connection Widgets Common Properties
+------------------------------------
+
+The list of properties available for all Connection Widgets.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_CONNECTION_IDENTIFIER`` or "connection_identifier"
+     - Set the Connection Widget's connection variable name.
+     - string value
+     - string value
+
+
+Serial Widget Properties
+------------------------
+
+The list of properties available for the Serial Widget.
+
+.. list-table::
+   :widths: auto
+   :header-rows: 1
+   :align: left
+
+   * - Property name
+     - Description
+     - set_property_value() set value
+     - get_property_value() return value
+
+   * - ``PROP_SERIAL_PORT_NAME`` or "serial_port_name"
+     - Set the Serial Widget's serial port name.
+     - string value
+     - string value
+
+   * - ``PROP_SERIAL_PORT_SETTINGS`` or "serial_port_settings
+     - Set the Serial Widget's serial port settings.
+     - list[baud_rate, stop_bits, parity, byte_size, timeout] where:
+
+         * ``baud_rate`` is an integer number.
+
+           Allowed values: 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
+           9600, 19200, 38400, 57600, 115200, 230400, 460800, 500000,
+           576000, 921600, 1000000, 1152000, 1500000, 2000000, 2500000,
+           3000000, 3500000 and 4000000.
+         * ``stop_bits`` is an integer or float number.
+
+           Allowed values: 1, 1.5 or 2.
+         * ``parity`` is a string value.
+
+           Allowed values: 'None', 'Even', 'Odd', 'Mark', 'Space'.
+         * ``byte_size`` is an integer number.
+
+           Allowed values: 5, 6, 7 or 8.
+         * ``timeout`` is a float number.
+
+     - string value
+
+----------------------------------
+Analysis Widgets Common Properties
+----------------------------------
+
+Analysis Widgets do not have any common properties except the properties listed in
+`Common Properties`_ section.
+
+.. note::
+
+    ``PROP_LABEL`` and ``PROP_USE_LABEL`` properties are not supported to be changed.
+
+
+Frequency Response Widget
+-------------------------
+
+The Frequency Response widget currently has only the properties listed in
+the `Common Properties`_ section.

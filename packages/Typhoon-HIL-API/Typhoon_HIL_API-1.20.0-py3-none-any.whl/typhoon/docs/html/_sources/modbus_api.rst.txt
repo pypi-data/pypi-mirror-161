@@ -1,0 +1,89 @@
+**********
+Modbus API
+**********
+**Module:** ``typhoon.api.modbus``
+
+Modbus Client Initialization
+----------------------------
+
+To initialize one TCP based Modbus client first you should make object of ``TCPModbusClient()`` class
+
+Many of Modbus client options can be set directly in constructor or later by using dedicated functions::
+
+
+   import typhoon.api.modbus as modbus
+
+   # create instance of the Modbus TCP client
+   # in case any arguments are invalid ValueError exception will be raised
+   try:
+      modbus_client = modbus.TCPModbusClient(host="192.168.0.250",
+                                          port=502,
+                                          auto_open=True)
+   except ValueError:
+      print("Invalid arguments...")
+
+
+Create the Modbus client and set options with the dedicated functions::
+
+    import typhoon.api.modbus as modbus
+
+    # create instance of the Modbus TCP client
+    # in case any arguments are invalid ValueError exception will be raised
+    try:
+      modbus_client = modbus.TCPModbusClient()
+    except ValueError:
+      print("Invalid arguments...")
+
+    # set host
+    modbus_client.set_host("192.168.0.250")
+    # set port
+    modbus_client.set_port(502)
+    # enable auto open feature
+    modbus_client.set_auto_open(True)
+
+Nearly all Modbus API functions raise one or more exceptions in order to distinguish different errors that can occur.
+
+Modbus exceptions hierarchy are displayed below.
+
+.. figure:: img/modbus_exceptions.png
+
+If you want to catch all Modbus exceptions you should catch base ``ModbusError`` exception::
+
+    from typhoon.api.modbus.exceptions import ModbusError
+
+    try:
+        modbus_client.read_input_registers_adv("501i,[502,503]u,[504,505,506,507]f")
+    except ModbusError as ex:
+        print(ex)
+
+In case you want to distinguish different errors you should catch them separately::
+
+    from typhoon.api.modbus.exceptions import ModbusError, ModbusNotConnected, ModbusInvalidRegSpec
+
+    try:
+        modbus_client.read_input_registers_adv("501i,[502,503]u,[504,505,506,507]f)
+    except ModbusNotConnected as ex:
+        print(ex)
+        # doo something in case connection is not opened
+    except ModbusInvalidRegSpec as ex:
+        print(ex)
+        # doo something in case provided registers specification is invalid
+    except ModbusError as ex:
+        print(ex)
+        # doo something in case read error occurs
+
+`API references`_
+_________________
+
+.. automodule:: typhoon.api.modbus
+.. autoclass:: TCPModbusClient
+   :members:
+   :special-members: __init__
+   :member-order: bysource
+
+`Utility module`_
+_________________
+
+.. automodule:: typhoon.api.modbus.util
+   :members:
+   :member-order: bysource

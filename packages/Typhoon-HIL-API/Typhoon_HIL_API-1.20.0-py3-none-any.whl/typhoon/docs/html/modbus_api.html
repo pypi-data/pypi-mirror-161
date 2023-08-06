@@ -1,0 +1,1251 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>5. Modbus API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. PV Generator API" href="pv_generator_api.html" />
+    <link rel="prev" title="4. Configuration Manager API" href="configuration_manager_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pv_generator_api.html" title="6. PV Generator API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="configuration_manager_api.html" title="4. Configuration Manager API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">5. </span>Modbus API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="modbus-api">
+<h1><span class="section-number">5. </span>Modbus API<a class="headerlink" href="#modbus-api" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.modbus</span></code></p>
+<div class="section" id="modbus-client-initialization">
+<h2><span class="section-number">5.1. </span>Modbus Client Initialization<a class="headerlink" href="#modbus-client-initialization" title="Permalink to this headline">¶</a></h2>
+<p>To initialize one TCP based Modbus client first you should make object of <code class="docutils literal notranslate"><span class="pre">TCPModbusClient()</span></code> class</p>
+<p>Many of Modbus client options can be set directly in constructor or later by using dedicated functions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">typhoon.api.modbus</span> <span class="k">as</span> <span class="nn">modbus</span>
+
+<span class="c1"># create instance of the Modbus TCP client</span>
+<span class="c1"># in case any arguments are invalid ValueError exception will be raised</span>
+<span class="k">try</span><span class="p">:</span>
+   <span class="n">modbus_client</span> <span class="o">=</span> <span class="n">modbus</span><span class="o">.</span><span class="n">TCPModbusClient</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;192.168.0.250&quot;</span><span class="p">,</span>
+                                       <span class="n">port</span><span class="o">=</span><span class="mi">502</span><span class="p">,</span>
+                                       <span class="n">auto_open</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid arguments...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create the Modbus client and set options with the dedicated functions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">typhoon.api.modbus</span> <span class="k">as</span> <span class="nn">modbus</span>
+
+<span class="c1"># create instance of the Modbus TCP client</span>
+<span class="c1"># in case any arguments are invalid ValueError exception will be raised</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="n">modbus_client</span> <span class="o">=</span> <span class="n">modbus</span><span class="o">.</span><span class="n">TCPModbusClient</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid arguments...&quot;</span><span class="p">)</span>
+
+<span class="c1"># set host</span>
+<span class="n">modbus_client</span><span class="o">.</span><span class="n">set_host</span><span class="p">(</span><span class="s2">&quot;192.168.0.250&quot;</span><span class="p">)</span>
+<span class="c1"># set port</span>
+<span class="n">modbus_client</span><span class="o">.</span><span class="n">set_port</span><span class="p">(</span><span class="mi">502</span><span class="p">)</span>
+<span class="c1"># enable auto open feature</span>
+<span class="n">modbus_client</span><span class="o">.</span><span class="n">set_auto_open</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Nearly all Modbus API functions raise one or more exceptions in order to distinguish different errors that can occur.</p>
+<p>Modbus exceptions hierarchy are displayed below.</p>
+<div class="figure align-default">
+<img alt="_images/modbus_exceptions.png" src="_images/modbus_exceptions.png" />
+</div>
+<p>If you want to catch all Modbus exceptions you should catch base <code class="docutils literal notranslate"><span class="pre">ModbusError</span></code> exception:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.modbus.exceptions</span> <span class="kn">import</span> <span class="n">ModbusError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">modbus_client</span><span class="o">.</span><span class="n">read_input_registers_adv</span><span class="p">(</span><span class="s2">&quot;501i,[502,503]u,[504,505,506,507]f&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ModbusError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In case you want to distinguish different errors you should catch them separately:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.modbus.exceptions</span> <span class="kn">import</span> <span class="n">ModbusError</span><span class="p">,</span> <span class="n">ModbusNotConnected</span><span class="p">,</span> <span class="n">ModbusInvalidRegSpec</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">modbus_client</span><span class="o">.</span><span class="n">read_input_registers_adv</span><span class="p">(</span><span class="s2">&quot;501i,[502,503]u,[504,505,506,507]f)</span>
+<span class="k">except</span> <span class="n">ModbusNotConnected</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+    <span class="c1"># doo something in case connection is not opened</span>
+<span class="k">except</span> <span class="n">ModbusInvalidRegSpec</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+    <span class="c1"># doo something in case provided registers specification is invalid</span>
+<span class="k">except</span> <span class="n">ModbusError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+    <span class="c1"># doo something in case read error occurs</span>
+</pre></div>
+</div>
+<div class="section" id="module-typhoon.api.modbus">
+<span id="api-references"></span><h3><span class="section-number">5.1.1. </span><a class="reference internal" href="#api-references">API references</a><a class="headerlink" href="#module-typhoon.api.modbus" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TCPModbusClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_open</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class that implements functionalities of the TCP based Modbus client.</p>
+<p>The class itself is the proxy to ModbusClent() class of the PyModbusTCP library (<a class="reference external" href="http://pythonhosted.org/pyModbusTCP/package/class_ModbusClient.html">http://pythonhosted.org/pyModbusTCP/package/class_ModbusClient.html</a>)
+with a additional functionalities.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_open</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a instance of the TCPModbusClient.
+Client parameters can be set here or later by using appropriate functions (<code class="docutils literal notranslate"><span class="pre">set_host()</span></code>, <code class="docutils literal notranslate"><span class="pre">set_port()</span></code> etc)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – hostname or IPv4/IPv6 address server address (optional)</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – TCP port number (optional)</p></li>
+<li><p><strong>unit_id</strong> (<em>int</em>) – unit ID (optional)</p></li>
+<li><p><strong>timeout</strong> (<em>float</em>) – socket timeout in seconds (optional)</p></li>
+<li><p><strong>debug</strong> (<em>bool</em>) – debug state (optional)</p></li>
+<li><p><strong>auto_open</strong> (<em>bool</em>) – auto TCP connect on first request (optional)</p></li>
+<li><p><strong>auto_close</strong> (<em>bool</em>) – auto TCP close after each request (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TCPModbusClient object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#typhoon.api.modbus.TCPModbusClient" title="typhoon.api.modbus.TCPModbusClient">TCPModbusClient</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if input parameters’ values are incorrect</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.modbus">
+<span class="sig-name descname"><span class="pre">modbus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.modbus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return wrapped ModbusClent object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ModbusClent object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ModbusClent</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.endianness">
+<span class="sig-name descname"><span class="pre">endianness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.endianness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns currently set endianness
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_endianness">
+<span class="sig-name descname"><span class="pre">set_endianness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endian_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_endianness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets endianness that will be used for merging multiple 16 bit registers’ values in one 32 bit or 64 bit number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>endian_type</strong> – <code class="docutils literal notranslate"><span class="pre">little_endian</span></code> or <code class="docutils literal notranslate"><span class="pre">big_endian</span></code> or appropriate constants can be used:</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>TCPModbusClient.BIG_ENDIAN</p></li>
+<li><p>TCPModbusClient.LITTLE_ENDIAN</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ModbusError</strong> – in case endianness type is not supported</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.auto_close">
+<span class="sig-name descname"><span class="pre">auto_close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.auto_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns status of auto TCP close mode.
+:returns: auto close mode status (<code class="docutils literal notranslate"><span class="pre">True</span></code> activated or <code class="docutils literal notranslate"><span class="pre">False</span></code> deactivated)
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_auto_close">
+<span class="sig-name descname"><span class="pre">set_auto_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_auto_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set auto TCP close mode. If this mode is active, connection will be closed after each request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>bool</em>) – Activate/deactivate auto close mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.auto_open">
+<span class="sig-name descname"><span class="pre">auto_open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.auto_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns status of auto TCP connect mode.
+:returns: auto open mode status (<code class="docutils literal notranslate"><span class="pre">True</span></code> activated or <code class="docutils literal notranslate"><span class="pre">False</span></code> deactivated)
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_auto_open">
+<span class="sig-name descname"><span class="pre">set_auto_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_auto_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set auto TCP connect mode. If this mode is active, connection will be opened on the first request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>bool</em>) – Activate/deactivate auto open mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes TCP connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>close status (<code class="docutils literal notranslate"><span class="pre">True</span></code> if connection successfully closed or <code class="docutils literal notranslate"><span class="pre">None</span></code> if connection already closed)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to modbus server (open TCP connection)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>connect status (<code class="docutils literal notranslate"><span class="pre">True</span></code> if connection successfully opened otherwise return <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns status of debug mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>debug mode status (<code class="docutils literal notranslate"><span class="pre">True</span></code> activated or <code class="docutils literal notranslate"><span class="pre">False</span></code> deactivated)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_debug">
+<span class="sig-name descname"><span class="pre">set_debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set debug mode.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While debug mode is active, debug information will be writen to the console.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>bool</em>) – Activate/deactivate debug mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.host">
+<span class="sig-name descname"><span class="pre">host</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>hostname</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_host">
+<span class="sig-name descname"><span class="pre">set_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set host (IPv4/IPv6 address or hostname like ‘plc.domain.net’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>hostname</strong> (<em>str</em>) – hostname or IPv4/IPv6 address</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ModbusError</strong> – if hostname is invalid or cannot be set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.port">
+<span class="sig-name descname"><span class="pre">port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current TCP port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>TCP port value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_port">
+<span class="sig-name descname"><span class="pre">set_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set TCP port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>port</strong> (<em>int</em>) – TCP port number</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ModbusError</strong> – if port is invalid or cannot be set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current timeout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>socket timeout value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_timeout">
+<span class="sig-name descname"><span class="pre">set_timeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set socket timeout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<em>float</em>) – socket timeout in seconds (0 to 3600)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ModbusError</strong> – if timeout is invalid or cannot be set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.unit_id">
+<span class="sig-name descname"><span class="pre">unit_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.unit_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current unit ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>unit ID value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.set_unit_id">
+<span class="sig-name descname"><span class="pre">set_unit_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.set_unit_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets unit ID field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>unit_id</strong> (<em>int</em>) – unit ID (0 to 255)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ModbusError</strong> – if unit ID is invalid or cannot be set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.is_open">
+<span class="sig-name descname"><span class="pre">is_open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get status of TCP connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>status (<code class="docutils literal notranslate"><span class="pre">True</span></code> if connection is opened otherwise return <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_coils">
+<span class="sig-name descname"><span class="pre">read_coils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bit_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_nb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_coils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function READ_COILS (0x01).</p>
+<p>Reads <code class="docutils literal notranslate"><span class="pre">bit_nb</span></code> number of successive addresses starting from <code class="docutils literal notranslate"><span class="pre">bit_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bit_addr</strong> (<em>int</em>) – bit address (0 to 65535)</p></li>
+<li><p><strong>bit_nb</strong> (<em>int</em>) – number of bits to read (1 to 2000)</p></li>
+<li><p><strong>to_int</strong> – convert coils values to integer number</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Value read from <code class="docutils literal notranslate"><span class="pre">bit_addr</span></code> address is treated as MSB</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of booleans (<code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>) or integer number if <code class="docutils literal notranslate"><span class="pre">to_int==True</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of bool</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of coils</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_discrete_inputs">
+<span class="sig-name descname"><span class="pre">read_discrete_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bit_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_nb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_discrete_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function READ_DISCRETE_INPUTS (0x02)</p>
+<p>Reads <code class="docutils literal notranslate"><span class="pre">bit_nb</span></code> number of successive addresses starting from <code class="docutils literal notranslate"><span class="pre">bit_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bit_addr</strong> (<em>int</em>) – bit address (0 to 65535)</p></li>
+<li><p><strong>bit_nb</strong> (<em>int</em>) – number of bits to read (1 to 2000)</p></li>
+<li><p><strong>to_int</strong> – convert coils values to integer number</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Value read from <code class="docutils literal notranslate"><span class="pre">bit_addr</span></code> address is treated as MSB</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of integers (<code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code>) or integer number if <code class="docutils literal notranslate"><span class="pre">to_int==True</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of bool</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of discrete inputs</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_input_registers">
+<span class="sig-name descname"><span class="pre">read_input_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_nb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_input_registers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function READ_INPUT_REGISTERS (0x04)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_addr</strong> (<em>int</em>) – register address (0 to 65535)</p></li>
+<li><p><strong>reg_nb</strong> (<em>int</em>) – number of registers to read (1 to 125)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>registers list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of input registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_holding_registers">
+<span class="sig-name descname"><span class="pre">read_holding_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_nb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_holding_registers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function READ_HOLDING_REGISTERS (0x03)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_addr</strong> (<em>int</em>) – register address (0 to 65535)</p></li>
+<li><p><strong>reg_nb</strong> (<em>int</em>) – number of registers to read (1 to 125)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>registers list</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of holding registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_input_registers_adv">
+<span class="sig-name descname"><span class="pre">read_input_registers_adv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_input_registers_adv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advance function for reading input registers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>read_spec</strong> – string with registers specification</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To specify registers specification special simple language is used.
+More about <code class="docutils literal notranslate"><span class="pre">Registers</span> <span class="pre">Specification</span> <span class="pre">Language</span></code> you can read <a class="reference internal" href="modbus_reg_spec.html"><span class="doc">here</span></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>data list with values converted to specified registers types</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of unsigned/signed int or float numbers depending read specification</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of input registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+<li><p><strong>ModbusInvalidRegSpec</strong> – if registers specification (<code class="docutils literal notranslate"><span class="pre">read_spec</span></code>) is not correct</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.read_holding_registers_adv">
+<span class="sig-name descname"><span class="pre">read_holding_registers_adv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.read_holding_registers_adv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advance function for reading holding registers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>read_spec</strong> – string with registers specification</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To specify registers specification special simple language is used.
+More about <code class="docutils literal notranslate"><span class="pre">Registers</span> <span class="pre">Specification</span> <span class="pre">Language</span></code> you can read <a class="reference internal" href="modbus_reg_spec.html"><span class="doc">here</span></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>data list with values converted to specified registers types</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of unsigned/signed int or float numbers depending read specification</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during read of input registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+<li><p><strong>ModbusInvalidRegSpec</strong> – if registers specification (<code class="docutils literal notranslate"><span class="pre">read_spec</span></code>) is not correct</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.write_single_coil">
+<span class="sig-name descname"><span class="pre">write_single_coil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bit_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.write_single_coil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function WRITE_SINGLE_COIL (0x05)</p>
+<p>Write <code class="docutils literal notranslate"><span class="pre">bit_value</span></code> value on <code class="docutils literal notranslate"><span class="pre">bit_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bit_addr</strong> (<em>int</em>) – bit address (0 to 65535)</p></li>
+<li><p><strong>bit_value</strong> (<em>bool</em>) – bit value to write</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during write of single coil</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.write_single_register">
+<span class="sig-name descname"><span class="pre">write_single_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.write_single_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function WRITE_SINGLE_REGISTER (0x06)</p>
+<p>Write <code class="docutils literal notranslate"><span class="pre">reg_value</span></code> value on <code class="docutils literal notranslate"><span class="pre">reg_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_addr</strong> (<em>int</em>) – register address (0 to 65535)</p></li>
+<li><p><strong>reg_value</strong> (<em>int</em>) – register value to write</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during write of single register</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.write_multiple_coils">
+<span class="sig-name descname"><span class="pre">write_multiple_coils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bits_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.write_multiple_coils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function WRITE_MULTIPLE_COILS (0x0F)</p>
+<p>Write <code class="docutils literal notranslate"><span class="pre">bits_value</span></code> values starting from <code class="docutils literal notranslate"><span class="pre">bits_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bits_addr</strong> (<em>int</em>) – bits address (0 to 65535)</p></li>
+<li><p><strong>bits_value</strong> (<em>list</em>) – bits values to write</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during write of multiple coils</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.write_multiple_registers">
+<span class="sig-name descname"><span class="pre">write_multiple_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regs_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regs_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.write_multiple_registers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of Modbus function WRITE_MULTIPLE_REGISTERS (0x10)</p>
+<p>Write <code class="docutils literal notranslate"><span class="pre">regs_value</span></code> values starting from <code class="docutils literal notranslate"><span class="pre">regs_addr</span></code> address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>regs_addr</strong> (<em>int</em>) – registers address (0 to 65535)</p></li>
+<li><p><strong>regs_value</strong> (<em>list</em>) – registers values to write</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during write of multiple registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.modbus.TCPModbusClient.write_registers_adv">
+<span class="sig-name descname"><span class="pre">write_registers_adv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regs_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.TCPModbusClient.write_registers_adv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advance function for writing multiple registers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>write_spec</strong> – string with registers specification</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To specify registers specification special simple language is used.
+More about <code class="docutils literal notranslate"><span class="pre">Registers</span> <span class="pre">Specification</span> <span class="pre">Language</span></code> you can read <a class="reference internal" href="modbus_reg_spec.html"><span class="doc">here</span></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>regs_values</strong> (<em>list of unsigned/signed int</em><em> or </em><em>float numbers depending write specification</em>) – registers values to write.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ModbusError</strong><strong> (</strong><strong>base exception</strong><strong>)</strong> – if error occurs during write of multiple registers</p></li>
+<li><p><strong>ModbusNotConnected</strong> – if connection is not opened before this function is called</p></li>
+<li><p><strong>ModbusInvalidRegSpec</strong> – if registers specification (<code class="docutils literal notranslate"><span class="pre">write_spec</span></code>) is not correct</p></li>
+<li><p><strong>ModbusInvalidData</strong> – if provided registers values are not compatible with registers types</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-typhoon.api.modbus.util">
+<span id="utility-module"></span><h3><span class="section-number">5.1.2. </span><a class="reference internal" href="#utility-module">Utility module</a><a class="headerlink" href="#module-typhoon.api.modbus.util" title="Permalink to this headline">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.bool_list_to_int">
+<span class="sig-name descname"><span class="pre">bool_list_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.bool_list_to_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts given bool list to the int number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bool_list</strong> – list of bool (<code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code> or <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>int number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_to_int16">
+<span class="sig-name descname"><span class="pre">uint16_to_int16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_to_int16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unsigned int (16 bit) number to signed int (16 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint16</strong> (<em>int</em>) – unsigned int (16 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>singed int (16 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint32_to_int32">
+<span class="sig-name descname"><span class="pre">uint32_to_int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint32_to_int32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unsigned int (32 bit) number to signed int (32 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint32</strong> (<em>int</em>) – unsigned int (32 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>singed int (32 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint64_to_int64">
+<span class="sig-name descname"><span class="pre">uint64_to_int64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint64_to_int64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unsigned int (64 bit) number to signed int (64 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint64</strong> (<em>int</em>) – unsigned int (64 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>singed int (64 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint32_to_float">
+<span class="sig-name descname"><span class="pre">uint32_to_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint32_to_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unsigned int (32 bit) number to float number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint32</strong> (<em>int</em>) – unsigned int (32 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint64_to_double">
+<span class="sig-name descname"><span class="pre">uint64_to_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint64_to_double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unsigned int (64 bit) number to float number (64 bit).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint64</strong> (<em>int</em>) – unsigned int (64 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float number (64 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.float_to_uint32">
+<span class="sig-name descname"><span class="pre">float_to_uint32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">float_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.float_to_uint32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert float number to unsigned int (32 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>float_num</strong> (<em>float</em>) – float number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>int number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.double_to_uint64">
+<span class="sig-name descname"><span class="pre">double_to_uint64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">double_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.double_to_uint64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert float number (64 bit) to unsigned int (64 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>double_num</strong> (<em>float</em>) – float number (64 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>int number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.int16_to_uint16">
+<span class="sig-name descname"><span class="pre">int16_to_uint16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.int16_to_uint16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert signed int (16 bit) number to unsigned int (16 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int16</strong> (<em>int</em>) – signed int (16 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned int (16 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.int32_to_uint32">
+<span class="sig-name descname"><span class="pre">int32_to_uint32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.int32_to_uint32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert signed int (32 bit) number to unsigned int (32 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int32</strong> (<em>int</em>) – signed int (32 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned int (32 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.int64_to_uint64">
+<span class="sig-name descname"><span class="pre">int64_to_uint64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.int64_to_uint64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert signed int (64 bit) number to unsigned int (64 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int64</strong> (<em>int</em>) – signed int (64 bit) number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned int (64 bit) number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.int32_to_uint16_list">
+<span class="sig-name descname"><span class="pre">int32_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.int32_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts signed int number (32 bit) to list of two unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int32</strong> (<em>int</em>) – signed int number (32 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with two unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.int64_to_uint16_list">
+<span class="sig-name descname"><span class="pre">int64_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.int64_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts signed int number (64 bit) to list of four unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int64</strong> (<em>int</em>) – signed int number (64 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with four unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint32_to_uint16_list">
+<span class="sig-name descname"><span class="pre">uint32_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint32_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts unsigned int number (32 bit) to list of two unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint32</strong> (<em>int</em>) – unsigned int number (32 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with two unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint64_to_uint16_list">
+<span class="sig-name descname"><span class="pre">uint64_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint64_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts unsigned int number (64 bit) to list of four unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint64</strong> (<em>int</em>) – unsigned int number (64 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with four unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.float_to_uint16_list">
+<span class="sig-name descname"><span class="pre">float_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">float_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.float_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts float number to list of two unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>float_num</strong> (<em>float</em>) – float number</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with two unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.double_to_uint16_list">
+<span class="sig-name descname"><span class="pre">double_to_uint16_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">double_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.double_to_uint16_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts float number (64 bit) to list of four unsigned int (16 bit) numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>double_num</strong> (<em>float</em>) – float number (64 bit)</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list with four unsigned int (16 bit) values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_float">
+<span class="sig-name descname"><span class="pre">uint16_list_to_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of two unsigned int (16 bit) numbers to float number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with two unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_double">
+<span class="sig-name descname"><span class="pre">uint16_list_to_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of four unsigned int (16 bit) numbers to float number (64 bit).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with four unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float number (64 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_int32">
+<span class="sig-name descname"><span class="pre">uint16_list_to_int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_int32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of two unsigned int (16 bit) numbers to signed int (32 bit).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with two unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>signed int number (32 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_int64">
+<span class="sig-name descname"><span class="pre">uint16_list_to_int64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_int64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of four unsigned int (16 bit) numbers to signed int number (64 bit).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with four unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>signed int number (64 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_uint32">
+<span class="sig-name descname"><span class="pre">uint16_list_to_uint32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_uint32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of two unsigned int (16 bit) numbers to unsigned int (32 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with two unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned int (32 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raise</dt>
+<dd class="field-even"><p>ValueError: in case <code class="docutils literal notranslate"><span class="pre">int_list</span></code> length is != 2</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="typhoon.api.modbus.util.uint16_list_to_uint64">
+<span class="sig-name descname"><span class="pre">uint16_list_to_uint64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">big_endian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.modbus.util.uint16_list_to_uint64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts list of four unsigned int (16 bit) numbers to unsigned int (64 bit) number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_list</strong> (<em>list</em>) – list with four unsigned int (16 bit) values</p></li>
+<li><p><strong>big_endian</strong> (<em>bool</em>) – True for big endian/False for little (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned int (64 bit)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raise</dt>
+<dd class="field-even"><p>ValueError: in case <code class="docutils literal notranslate"><span class="pre">val_list</span></code> length is != 4</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5. Modbus API</a><ul>
+<li><a class="reference internal" href="#modbus-client-initialization">5.1. Modbus Client Initialization</a><ul>
+<li><a class="reference internal" href="#module-typhoon.api.modbus">5.1.1. API references</a></li>
+<li><a class="reference internal" href="#module-typhoon.api.modbus.util">5.1.2. Utility module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="configuration_manager_api.html"
+                        title="previous chapter"><span class="section-number">4. </span>Configuration Manager API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pv_generator_api.html"
+                        title="next chapter"><span class="section-number">6. </span>PV Generator API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/modbus_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pv_generator_api.html" title="6. PV Generator API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="configuration_manager_api.html" title="4. Configuration Manager API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">5. </span>Modbus API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

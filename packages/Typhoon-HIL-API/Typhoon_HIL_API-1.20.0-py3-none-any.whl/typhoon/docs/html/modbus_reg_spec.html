@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modbus Registers Specification Language &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Modbus Registers Specification Language</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="modbus-registers-specification-language">
+<h1>Modbus Registers Specification Language<a class="headerlink" href="#modbus-registers-specification-language" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.modbus</span></code></p>
+<p>In the Modbus API there are few advance functions for writing to multiple input/holding registers and function for reading from holding registers.
+All advance functions use the same simple language for specifying registers that need to be read from or write to.</p>
+<p>Although the input and holding registers are 16 bit long (as defined by the Modbus protocol), multiple registers can be grouped together to represent 32 and 64 bit registers of different type.</p>
+<p>Registers can be defined as shown in table below.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 42%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Register in group</p></th>
+<th class="head"><p>Register type</p></th>
+<th class="head"><p>Address value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1 (16 bit)</p></td>
+<td><p>unsigned integer or signed integer</p></td>
+<td><p>Any positive integer value</p></td>
+</tr>
+<tr class="row-odd"><td><p>2 (32 bit)</p></td>
+<td><p>unsigned integer, signed integer, floating point</p></td>
+<td><p>Any list of 2 consecutive integer values</p></td>
+</tr>
+<tr class="row-even"><td><p>4 (64 bit)</p></td>
+<td><p>unsigned integer, signed integer, floating point</p></td>
+<td><p>Any list of 4 consecutive integer values</p></td>
+</tr>
+</tbody>
+</table>
+<p>To illustrate how this looks, the different configuration of holding registers is shown below:</p>
+<ol class="arabic simple">
+<li><p>All registers are 16 bit with of various types: ‘0u, 1u, 2i, 3u, 4i, 5i, 6i, 7u’</p></li>
+<li><p>All registers are 32 bit with of various types: ‘[0,1]u, [2,3]i, [4,5]f, [6,7]i, [8,9]i, [10,11]f’</p></li>
+<li><p>All registers are 64 bit with of various types: ‘[0,1,2,3]f, [4,5,6,7]u, [8,9,10,11]i, [12,13,14,15]f’</p></li>
+<li><p>Registers are of various lengths and types: ‘[0,1]f, 2u, 3i, [4,5,6,7]f, 8, [9,10]i, [11,12,13,14]u’</p></li>
+</ol>
+<p>To specify the length of the register, just group appropriate number of addresses in square brackets.</p>
+<p>To specify the type of register, write <code class="docutils literal notranslate"><span class="pre">u</span></code> (for unsigned integer), <code class="docutils literal notranslate"><span class="pre">i</span></code> (for integer) or <code class="docutils literal notranslate"><span class="pre">f</span></code> (for floating point) after the address value.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the type is not specified explicitly, register will be defined as unsigned integer.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the register is 32 or 64 bit, the type must be specified after the closing bracket.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Register of 16 bit length cannot be defined as floating point.</p>
+</div>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.modbus.exceptions</span> <span class="kn">import</span> <span class="n">ModbusError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># write to int16, uint32, int64 and float registers</span>
+    <span class="n">modbus_client</span><span class="o">.</span><span class="n">write_registers_adv</span><span class="p">(</span><span class="s2">&quot;501i,[502,503]u,[504,505,506,507]i,[125,126]f&quot;</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">55</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="o">-</span><span class="mi">45558444</span><span class="p">,</span> <span class="mf">256.36</span><span class="p">])</span>
+<span class="k">except</span> <span class="n">ModbusError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># read int16, uint32, int64 and float registers</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">modbus_client</span><span class="o">.</span><span class="n">read_holding_registers_adv</span><span class="p">(</span><span class="s2">&quot;501i,[502,503]u,[504,505,506,507]i,[125,126]f&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ModbusError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/modbus_reg_spec.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Modbus Registers Specification Language</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

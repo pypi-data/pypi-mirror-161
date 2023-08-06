@@ -1,0 +1,192 @@
+*********
+SCADA API
+*********
+**Module:** ``typhoon.api.scada``
+
+SCADA API is a collection of functions/methods that can be used for changing widget parameters.
+To use SCADA API to change widget parameters, you must first load the HIL SCADA Panel file.
+
+.. note::
+    In case you try to use any other function then ``load_panel()`` before the Panel file is loaded,
+    a ``ScadaAPIException`` will be raised. The same exception will be raised in case any error occurs in any SCADA API function.
+
+Example::
+
+    from typhoon.api.scada import panel
+
+    # load a Panel file
+    panel.load_panel(r"C:\scada_file.cus")
+
+You can access a particular widget by using the Widget ID or the Widget FQN (Fully Qualified Name) once its respective Panel has loaded.
+
+.. note::
+    To get the Widget ID or Widget FQN (Fully Qualified Name), open the Panel file in HIL SCADA, right-click on the desired widget, and choose either the ``Copy Widget ID`` or ``Copy Widget Fully Qualified Name`` action.
+
+Example::
+
+    from typhoon.api.scada import panel
+
+    # load a Panel file
+    panel.load_panel(r"C:\scada_file.cus")
+
+    # get the widget handle by using a Widget ID
+    widget_handle = panel.get_widget_by_id("e18c3fe582d011e9bac3e0d55e6b2045")
+
+    # or get the same widget handle by using a Widget FQN
+    widget_handle = panel.get_widget_by_fqn("Sub-Panel.Gauge")
+
+Once the desired widget is acquired, its properties can be changed.
+
+.. note::
+    Not all widget properties can be changed by SCADA API. For detailed information witch properties can be changed for a specific widget, please consult the :doc:`Available Widget Properties </widget_prop>` section.
+
+Example::
+
+    from typhoon.api.scada import panel
+    import typhoon.api.scada.const as api_const
+    from typhoon.api.scada.exception import ScadaAPIException
+
+    # load a Panel file
+    panel.load_panel(r"C:\scada_file.cus")
+
+    # get the widget handle
+    widget_handle = panel.get_widget_by_id("e18c3fe582d011e9bac3e0d55e6b2045")
+
+    # change the widget name
+    panel.set_property_value(widget_handle,
+                             api_const.PROP_NAME,
+                             "New widget name")
+
+    # in case we try to change an unsupported property or a new property
+    # value is not valid ``ScadaAPIException`` will be raised
+    try:
+        # the new property value is invalid
+        panel.set_property_value(widget_handle,
+                                 api_const.PROP_NAME,
+                                 [56, 28, 89])
+    except ScadaAPIException as ex:
+        print(ex)
+
+After you finish modifying the Panel and the Panel’s widget, the loaded Panel can be saved to an existing Panel file or as a new Panel file.
+
+Complete example::
+
+    from typhoon.api.scada import panel
+    import typhoon.api.scada.const as api_const
+    from typhoon.api.scada.exception import ScadaAPIException
+
+    # load a Panel file
+    panel.load_panel(r"C:\scada_file.cus")
+
+    # get the widget handle whose properties you want to change
+    widget_handle = panel.get_widget_by_id("e18c3fe582d011e9bac3e0d55e6b2045")
+
+    # change the widget name
+    panel.set_property_value(widget_handle,
+                             api_const.PROP_NAME,
+                             "New widget name")
+
+    # in case we try to change an unsupported property or a new property
+    # value is not valid ``ScadaAPIException`` will be raised
+    try:
+        # the new property value is invalid
+        panel.set_property_value(widget_handle,
+                                 api_const.PROP_NAME,
+                                 [56, 28, 89])
+    except ScadaAPIException as ex:
+        print(ex)
+
+    # save changes to the existing Panel file...
+    panel.save_panel()
+
+    # ...or save changes to a new Panel file
+    panel.save_panel_as(r"C:\new_scada_file.cus")
+
+WidgetHandle
+------------
+
+WidgetHandle is an object used as a connection between SCADA API and a real SCADA Widget,
+serving as widget identifier.
+It is used as an argument in nearly all SCADA API functions to identify the widget
+that we want to create, change, or delete.
+
+This object contains few attributes that can be used in various places in SCADA API:
+
+* item_type (str): SCADA Widget type
+* item_fqid (str): SCADA Widget ID
+* item_name (str): SCADA Widget name
+* item_fqn (str): SCADA Widget fully qualified name (FQN)
+* item_parent_id (str): SCADA Widget parent ID
+* item_parent_fqn (str): SCADA Widget parent fully qualified name (FQN)
+
+.. _api_constants:
+
+SCADA API constants
+-------------------
+**Module:** ``typhoon.api.scada.const``
+
+Various SCADA API methods expect predefined constants for some of their parameters.
+
+Below is a listing (Python module) of all constants which are used
+in SCADA API methods.
+
+.. literalinclude:: ../../../typhoon/api/scada/const.py
+   :language: python
+   :lines: 26-
+
+SCADA API in HIL SCADA
+----------------------
+
+HIL SCADA supports a subset of SCADA API functions, mainly for changing Panel widget properties and executing actions which are near identical to manual GUI actions.
+
+The following functions are available:
+
+* get_widget_by_id()
+* get_widget_by_fqn()
+* set_property_value()
+* get_property_value()
+* execute_action()
+
+.. note::
+    The functions listed above can be used in all handlers (Action Widgets) and Expression scripts (Monitoring Widgets), including
+    the Panel and the local namespace (group-like widgets) initialization scripts.
+
+.. note::
+    SCADA API is imported into the HIL SCADA namespace as ``panel``
+
+.. note::
+    It is not recommended to change a widget's parameters from multiple places (handlers, expression scripts...) at the same time.
+
+.. note::
+    The number of widgets which have support for the execute_action() function is currently limited. More information can be found in the :doc:`Available Widget Actions </widget_actions>` documentation.
+
+    The function expects two mandatory arguments - widget_handle and action_name.
+
+    It can also receive other optional keyword arguments (arg_name=arg_value) - this depends on the implementation of each widget.
+
+
+Below you can find an example of changing the widget's name and executing an action::
+
+    # store the widget id
+    w_id = "484d3a86ffcf11e9956de0d55e6b2045"
+
+    # get the widget that needs to be changed (in this case the Capture/Scope widget)
+    wh = panel.get_widget_by_id(w_id)
+
+    # change the widget's properties
+    panel.set_property_value(wh,
+                             prop_name=api_const.PROP_NAME,
+                             prop_value="New name")
+
+
+    # executing the "force_trigger" action (api_const.ACT_CS_FORCE_TRIGGER)
+    panel.execute_action(widget_handle=wh,
+                         action_name=api_const.ACT_CS_FORCE_TRIGGER)
+
+
+`API references`_
+-----------------
+
+.. autoclass:: typhoon.api.scada.ScadaAPI
+    :members:
+    :member-order: bysource

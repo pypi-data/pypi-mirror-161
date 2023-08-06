@@ -1,0 +1,1429 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2. SCADA API &#8212; Typhoon API 1.20.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Schematic Editor API" href="schematic_api.html" />
+    <link rel="prev" title="1. HIL API" href="hil_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="schematic_api.html" title="3. Schematic Editor API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hil_api.html" title="1. HIL API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">2. </span>SCADA API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="scada-api">
+<h1><span class="section-number">2. </span>SCADA API<a class="headerlink" href="#scada-api" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.scada</span></code></p>
+<p>SCADA API is a collection of functions/methods that can be used for changing widget parameters.
+To use SCADA API to change widget parameters, you must first load the HIL SCADA Panel file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case you try to use any other function then <code class="docutils literal notranslate"><span class="pre">load_panel()</span></code> before the Panel file is loaded,
+a <code class="docutils literal notranslate"><span class="pre">ScadaAPIException</span></code> will be raised. The same exception will be raised in case any error occurs in any SCADA API function.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can access a particular widget by using the Widget ID or the Widget FQN (Fully Qualified Name) once its respective Panel has loaded.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To get the Widget ID or Widget FQN (Fully Qualified Name), open the Panel file in HIL SCADA, right-click on the desired widget, and choose either the <code class="docutils literal notranslate"><span class="pre">Copy</span> <span class="pre">Widget</span> <span class="pre">ID</span></code> or <code class="docutils literal notranslate"><span class="pre">Copy</span> <span class="pre">Widget</span> <span class="pre">Fully</span> <span class="pre">Qualified</span> <span class="pre">Name</span></code> action.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the widget handle by using a Widget ID</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># or get the same widget handle by using a Widget FQN</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_fqn</span><span class="p">(</span><span class="s2">&quot;Sub-Panel.Gauge&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once the desired widget is acquired, its properties can be changed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all widget properties can be changed by SCADA API. For detailed information witch properties can be changed for a specific widget, please consult the <a class="reference internal" href="widget_prop.html"><span class="doc">Available Widget Properties</span></a> section.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+<span class="kn">from</span> <span class="nn">typhoon.api.scada.exception</span> <span class="kn">import</span> <span class="n">ScadaAPIException</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the widget handle</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># change the widget name</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                         <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="s2">&quot;New widget name&quot;</span><span class="p">)</span>
+
+<span class="c1"># in case we try to change an unsupported property or a new property</span>
+<span class="c1"># value is not valid ``ScadaAPIException`` will be raised</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># the new property value is invalid</span>
+    <span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                             <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                             <span class="p">[</span><span class="mi">56</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">89</span><span class="p">])</span>
+<span class="k">except</span> <span class="n">ScadaAPIException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After you finish modifying the Panel and the Panel’s widget, the loaded Panel can be saved to an existing Panel file or as a new Panel file.</p>
+<p>Complete example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+<span class="kn">from</span> <span class="nn">typhoon.api.scada.exception</span> <span class="kn">import</span> <span class="n">ScadaAPIException</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the widget handle whose properties you want to change</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># change the widget name</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                         <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="s2">&quot;New widget name&quot;</span><span class="p">)</span>
+
+<span class="c1"># in case we try to change an unsupported property or a new property</span>
+<span class="c1"># value is not valid ``ScadaAPIException`` will be raised</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># the new property value is invalid</span>
+    <span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                             <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                             <span class="p">[</span><span class="mi">56</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">89</span><span class="p">])</span>
+<span class="k">except</span> <span class="n">ScadaAPIException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+
+<span class="c1"># save changes to the existing Panel file...</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel</span><span class="p">()</span>
+
+<span class="c1"># ...or save changes to a new Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel_as</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\new_scada_file.cus&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="widgethandle">
+<h2><span class="section-number">2.1. </span>WidgetHandle<a class="headerlink" href="#widgethandle" title="Permalink to this headline">¶</a></h2>
+<p>WidgetHandle is an object used as a connection between SCADA API and a real SCADA Widget,
+serving as widget identifier.
+It is used as an argument in nearly all SCADA API functions to identify the widget
+that we want to create, change, or delete.</p>
+<p>This object contains few attributes that can be used in various places in SCADA API:</p>
+<ul class="simple">
+<li><p>item_type (str): SCADA Widget type</p></li>
+<li><p>item_fqid (str): SCADA Widget ID</p></li>
+<li><p>item_name (str): SCADA Widget name</p></li>
+<li><p>item_fqn (str): SCADA Widget fully qualified name (FQN)</p></li>
+<li><p>item_parent_id (str): SCADA Widget parent ID</p></li>
+<li><p>item_parent_fqn (str): SCADA Widget parent fully qualified name (FQN)</p></li>
+</ul>
+</div>
+<div class="section" id="scada-api-constants">
+<span id="api-constants"></span><h2><span class="section-number">2.2. </span>SCADA API constants<a class="headerlink" href="#scada-api-constants" title="Permalink to this headline">¶</a></h2>
+<p><strong>Module:</strong> <code class="docutils literal notranslate"><span class="pre">typhoon.api.scada.const</span></code></p>
+<p>Various SCADA API methods expect predefined constants for some of their parameters.</p>
+<p>Below is a listing (Python module) of all constants which are used
+in SCADA API methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Property names</span>
+<span class="c1">#</span>
+
+<span class="n">PROP_NAME</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span>
+<span class="n">PROP_HTML_NAME</span> <span class="o">=</span> <span class="s2">&quot;html_name&quot;</span>
+<span class="n">PROP_NAME_POSITION</span> <span class="o">=</span> <span class="s2">&quot;name_position&quot;</span>
+<span class="n">PROP_LABEL</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span>
+<span class="n">PROP_USE_LABEL</span> <span class="o">=</span> <span class="s2">&quot;use_label&quot;</span>
+<span class="n">PROP_FQN</span> <span class="o">=</span> <span class="s2">&quot;fully_qualified_name&quot;</span>
+<span class="n">PROP_DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;description&quot;</span>
+<span class="n">PROP_PANEL_INIT</span> <span class="o">=</span> <span class="s2">&quot;panel_init_code&quot;</span>
+<span class="n">PROP_PANEL_LOCK</span> <span class="o">=</span> <span class="s2">&quot;panel_locked&quot;</span>
+<span class="n">PROP_POSITION</span> <span class="o">=</span> <span class="s2">&quot;position&quot;</span>
+<span class="n">PROP_SIZE</span> <span class="o">=</span> <span class="s2">&quot;size&quot;</span>
+<span class="n">PROP_APPEARANCE</span> <span class="o">=</span> <span class="s2">&quot;appearance&quot;</span>
+<span class="n">PROP_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;signals&quot;</span>
+<span class="n">PROP_STREAMING_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;streaming_signals&quot;</span>
+<span class="n">PROP_DATA_TYPE</span> <span class="o">=</span> <span class="s2">&quot;data_type&quot;</span>
+<span class="n">PROP_EXPRESSION</span> <span class="o">=</span> <span class="s2">&quot;expression_code&quot;</span>
+<span class="n">PROP_UPDATE_RATE</span> <span class="o">=</span> <span class="s2">&quot;update_rate&quot;</span>
+<span class="n">PROP_TIME_WINDOW</span> <span class="o">=</span> <span class="s2">&quot;time_window&quot;</span>
+<span class="n">PROP_UNIT</span> <span class="o">=</span> <span class="s2">&quot;unit&quot;</span>
+<span class="n">PROP_AUTO_UNIT</span> <span class="o">=</span> <span class="s2">&quot;auto_unit_assign&quot;</span>
+<span class="n">PROP_BG_COLOR</span> <span class="o">=</span> <span class="s2">&quot;bg_color&quot;</span>
+<span class="n">PROP_PANEL_BG_COLOR</span> <span class="o">=</span> <span class="s2">&quot;panel_bg_color&quot;</span>
+<span class="n">PROP_BG_TYPE</span> <span class="o">=</span> <span class="s2">&quot;bg_type&quot;</span>
+<span class="n">PROP_USE_AS_BG</span> <span class="o">=</span> <span class="s2">&quot;use_as_bg&quot;</span>
+<span class="n">PROP_RANGE</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span>
+<span class="n">PROP_USE_COLOR_RANGE</span> <span class="o">=</span> <span class="s2">&quot;use_color_range&quot;</span>
+<span class="n">PROP_WARNING_RANGE</span> <span class="o">=</span> <span class="s2">&quot;warning_range&quot;</span>
+<span class="n">PROP_CRITICAL_RANGE</span> <span class="o">=</span> <span class="s2">&quot;critical_range&quot;</span>
+<span class="n">PROP_GREEN_RANGE</span> <span class="o">=</span> <span class="s2">&quot;green_range&quot;</span>
+<span class="n">PROP_ORANGE_RANGE</span> <span class="o">=</span> <span class="s2">&quot;orange_range&quot;</span>
+<span class="n">PROP_DECIMALS</span> <span class="o">=</span> <span class="s2">&quot;decimals&quot;</span>
+<span class="n">PROP_RED_RANGE</span> <span class="o">=</span> <span class="s2">&quot;red_range&quot;</span>
+<span class="n">PROP_LED_COLOR</span> <span class="o">=</span> <span class="s2">&quot;led_color&quot;</span>
+<span class="n">PROP_X_TITLE</span> <span class="o">=</span> <span class="s2">&quot;x_title&quot;</span>
+<span class="n">PROP_Y_TITLE</span> <span class="o">=</span> <span class="s2">&quot;y_title&quot;</span>
+<span class="n">PROP_Y_RANGE</span> <span class="o">=</span> <span class="s2">&quot;y_range&quot;</span>
+<span class="n">PROP_X_RANGE</span> <span class="o">=</span> <span class="s2">&quot;x_range&quot;</span>
+<span class="n">PROP_X_TITLE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;x_title_enabled&quot;</span>
+<span class="n">PROP_Y_TITLE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;y_title_enabled&quot;</span>
+<span class="n">PROP_AUTO_SCALE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;autoscale_enabled&quot;</span>
+<span class="n">PROP_X_AUTO_SCALE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;x_axis_autoscale_enabled&quot;</span>
+<span class="n">PROP_Y_AUTO_SCALE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;Y_axis_autoscale_enabled&quot;</span>
+<span class="n">PROP_LEGEND_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;legend_enabled&quot;</span>
+<span class="n">PROP_REF_CURVE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;ref_curves_enabled&quot;</span>
+<span class="n">PROP_REF_CURVE</span> <span class="o">=</span> <span class="s2">&quot;ref_curves_code&quot;</span>
+<span class="n">PROP_PV_PANEL</span> <span class="o">=</span> <span class="s2">&quot;pv_panel&quot;</span>
+<span class="n">PROP_LINE_STYLE</span> <span class="o">=</span> <span class="s2">&quot;line_style&quot;</span>
+<span class="n">PROP_PLOT_RANGE</span> <span class="o">=</span> <span class="s2">&quot;plot_range&quot;</span>
+<span class="n">PROP_PHASORS_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;phasors_settings&quot;</span>
+<span class="n">PROP_BARS_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;bars_settings&quot;</span>
+<span class="n">PROP_ON_USE_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;on_use_enabled&quot;</span>
+<span class="n">PROP_ON_USE</span> <span class="o">=</span> <span class="s2">&quot;on_use_code&quot;</span>
+<span class="n">PROP_ON_START_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;on_start_enabled&quot;</span>
+<span class="n">PROP_ON_START</span> <span class="o">=</span> <span class="s2">&quot;on_start_code&quot;</span>
+<span class="n">PROP_ON_START_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;on_start_code_source&quot;</span>
+<span class="n">PROP_ON_TIMER_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;on_timer_enabled&quot;</span>
+<span class="n">PROP_ON_TIMER</span> <span class="o">=</span> <span class="s2">&quot;on_timer_code&quot;</span>
+<span class="n">PROP_ON_TIMER_RATE</span> <span class="o">=</span> <span class="s2">&quot;on_timer_rate&quot;</span>
+<span class="n">PROP_ON_STOP_ENABLED</span> <span class="o">=</span> <span class="s2">&quot;on_stop_enabled&quot;</span>
+<span class="n">PROP_ON_STOP</span> <span class="o">=</span> <span class="s2">&quot;on_stop_code&quot;</span>
+<span class="n">PROP_COMBO_VALUES</span> <span class="o">=</span> <span class="s2">&quot;values&quot;</span>
+<span class="n">PROP_VALUE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;value_type&quot;</span>
+<span class="n">PROP_INPUT_WIDTH</span> <span class="o">=</span> <span class="s2">&quot;input_width&quot;</span>
+<span class="n">PROP_STEP</span> <span class="o">=</span> <span class="s2">&quot;step&quot;</span>
+<span class="n">PROP_USE_PANEL_DIR</span> <span class="o">=</span> <span class="s2">&quot;use_panel_dir&quot;</span>
+<span class="n">PROP_LOG_FILE_DIR</span> <span class="o">=</span> <span class="s2">&quot;log_file_dir&quot;</span>
+<span class="n">PROP_LOG_FILE</span> <span class="o">=</span> <span class="s2">&quot;log_file&quot;</span>
+<span class="n">PROP_LOG_FILE_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;log_file_format&quot;</span>
+<span class="n">PROP_USE_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;use_suffix&quot;</span>
+<span class="n">PROP_LOGGING_ON_START</span> <span class="o">=</span> <span class="s2">&quot;start_logging_on_start&quot;</span>
+<span class="n">PROP_USE_SLOWER_UPDATE_RATE</span> <span class="o">=</span> <span class="s2">&quot;use_slower_update_rate&quot;</span>
+<span class="n">PROP_SLOWER_UPDATE_RATE</span> <span class="o">=</span> <span class="s2">&quot;slower_update_rate&quot;</span>
+<span class="n">PROP_CONNECTION_IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;connection_identifier&quot;</span>
+<span class="n">PROP_SERIAL_PORT_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;serial_port_settings&quot;</span>
+<span class="n">PROP_SERIAL_PORT_NAME</span> <span class="o">=</span> <span class="s2">&quot;serial_port_name&quot;</span>
+<span class="n">PROP_GROUP_NAMESPACE</span> <span class="o">=</span> <span class="s2">&quot;group_namespace&quot;</span>
+<span class="n">PROP_COLLAPSED</span> <span class="o">=</span> <span class="s2">&quot;collapsed&quot;</span>
+<span class="n">PROP_USE_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;use_image&quot;</span>
+<span class="n">PROP_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span>
+<span class="n">PROP_IMAGE_SCALING</span> <span class="o">=</span> <span class="s2">&quot;image_scaling&quot;</span>
+<span class="n">PROP_TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+<span class="n">PROP_SUB_PANEL_MODE</span> <span class="o">=</span> <span class="s2">&quot;sub_panel_mode&quot;</span>
+<span class="n">PROP_MODEL_COMP_TYPES</span> <span class="o">=</span> <span class="s2">&quot;model_components_types&quot;</span>
+<span class="n">PROP_MODEL_COMP</span> <span class="o">=</span> <span class="s2">&quot;model_component&quot;</span>
+<span class="n">PROP_WIDGET_VALUE</span> <span class="o">=</span> <span class="s2">&quot;widget_value&quot;</span>
+<span class="n">PROP_CS_STATE</span> <span class="o">=</span> <span class="s2">&quot;state&quot;</span>
+<span class="n">PROP_CS_CAPTURE_TIME_INTERVAL</span> <span class="o">=</span> <span class="s2">&quot;time_interval&quot;</span>
+<span class="n">PROP_CS_CAPTURE_SAMPLE_RATE</span> <span class="o">=</span> <span class="s2">&quot;sample_rate&quot;</span>
+<span class="n">PROP_CS_SCOPE_TIME_BASE</span> <span class="o">=</span> <span class="s2">&quot;time_base&quot;</span>
+<span class="n">PROP_CS_CAPTURE_BG</span> <span class="o">=</span> <span class="s2">&quot;capture_background&quot;</span>
+<span class="n">PROP_CS_SCOPE_BG</span> <span class="o">=</span> <span class="s2">&quot;scope_background&quot;</span>
+<span class="n">PROP_CS_CAPTURE_LEGEND</span> <span class="o">=</span> <span class="s2">&quot;capture_legend&quot;</span>
+<span class="n">PROP_CS_SCOPE_LEGEND</span> <span class="o">=</span> <span class="s2">&quot;scope_legend&quot;</span>
+<span class="n">PROP_CS_CAPTURE_LAYOUT</span> <span class="o">=</span> <span class="s2">&quot;capture_layout&quot;</span>
+<span class="n">PROP_CS_SCOPE_LAYOUT</span> <span class="o">=</span> <span class="s2">&quot;scope_layout&quot;</span>
+<span class="n">PROP_CS_SCOPE_ANALOG_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;scope_analog_signals&quot;</span>
+<span class="n">PROP_CS_SCOPE_DIGITAL_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;scope_digital_signals&quot;</span>
+<span class="n">PROP_CS_CAPTURE_ANALOG_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;capture_analog_signals&quot;</span>
+<span class="n">PROP_CS_CAPTURE_DIGITAL_SIGNALS</span> <span class="o">=</span> <span class="s2">&quot;capture_digital_signals&quot;</span>
+<span class="n">PROP_CS_SCOPE_TRIGGER</span> <span class="o">=</span> <span class="s2">&quot;scope_trigger&quot;</span>
+<span class="n">PROP_CS_CAPTURE_TRIGGER</span> <span class="o">=</span> <span class="s2">&quot;capture_trigger&quot;</span>
+<span class="n">PROP_CS_ACTIVE_CAPTURE_PRESET</span> <span class="o">=</span> <span class="s2">&quot;active_capture_preset&quot;</span>
+<span class="n">PROP_CS_ACTIVE_SCOPE_PRESET</span> <span class="o">=</span> <span class="s2">&quot;active_scope_preset&quot;</span>
+
+<span class="c1">#</span>
+<span class="c1"># Widget actions</span>
+<span class="c1">#</span>
+
+<span class="n">ACT_CS_FORCE_TRIGGER</span> <span class="o">=</span> <span class="s2">&quot;force_trigger&quot;</span>
+<span class="n">ACT_CS_ENABLE_TRIGGER</span> <span class="o">=</span> <span class="s2">&quot;enable_trigger&quot;</span>
+<span class="n">ACT_CS_STOP_CAPTURE</span> <span class="o">=</span> <span class="s2">&quot;stop_capture&quot;</span>
+<span class="n">ACT_CS_EXPORT_DATA</span> <span class="o">=</span> <span class="s2">&quot;export_data&quot;</span>
+
+<span class="c1">#</span>
+<span class="c1"># Widget types</span>
+<span class="c1">#</span>
+
+<span class="n">WT_MACRO</span> <span class="o">=</span> <span class="s2">&quot;Macro&quot;</span>
+<span class="n">WT_BUTTON_MACRO</span> <span class="o">=</span> <span class="s2">&quot;MacroButton&quot;</span>
+<span class="n">WT_TEXT_MACRO</span> <span class="o">=</span> <span class="s2">&quot;TextBoxMacro&quot;</span>
+<span class="n">WT_COMBO_MACRO</span> <span class="o">=</span> <span class="s2">&quot;ComboBoxMacro&quot;</span>
+<span class="n">WT_CHECKBOX_MACRO</span> <span class="o">=</span> <span class="s2">&quot;CheckBoxMacro&quot;</span>
+<span class="n">WT_SLIDER_MACRO</span> <span class="o">=</span> <span class="s2">&quot;SliderMacro&quot;</span>
+<span class="n">WT_KNOB_MACRO</span> <span class="o">=</span> <span class="s2">&quot;KnobMacro&quot;</span>
+
+<span class="n">WT_GAUGE</span> <span class="o">=</span> <span class="s2">&quot;Gauge&quot;</span>
+<span class="n">WT_DIGITAL</span> <span class="o">=</span> <span class="s2">&quot;DigitalDisplay&quot;</span>
+<span class="n">WT_TEXT</span> <span class="o">=</span> <span class="s2">&quot;TextDisplay&quot;</span>
+<span class="n">WT_LED</span> <span class="o">=</span> <span class="s2">&quot;LedDisplay&quot;</span>
+<span class="n">WT_TRACE</span> <span class="o">=</span> <span class="s2">&quot;TraceDisplay&quot;</span>
+<span class="n">WT_PV</span> <span class="o">=</span> <span class="s2">&quot;PVDisplay&quot;</span>
+<span class="n">WT_XY_GRAPH</span> <span class="o">=</span> <span class="s2">&quot;XYGraphDisplay&quot;</span>
+<span class="n">WT_PHASOR_GRAPH</span> <span class="o">=</span> <span class="s2">&quot;PhasorGraphDisplay&quot;</span>
+<span class="n">WT_BAR_GRAPH</span> <span class="o">=</span> <span class="s2">&quot;BarGraphDisplay&quot;</span>
+
+<span class="n">WT_GROUP</span> <span class="o">=</span> <span class="s2">&quot;Group&quot;</span>
+<span class="n">WT_SUB_PANEL</span> <span class="o">=</span> <span class="s2">&quot;SubPanel&quot;</span>
+<span class="n">WT_LIBRARY_CATEGORY</span> <span class="o">=</span> <span class="s2">&quot;LibraryCategory&quot;</span>
+<span class="n">WT_TEXT_NOTE</span> <span class="o">=</span> <span class="s2">&quot;TextNote&quot;</span>
+<span class="n">WT_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;Image&quot;</span>
+<span class="n">WT_SERIAL_COMM</span> <span class="o">=</span> <span class="s2">&quot;SerialComm&quot;</span>
+<span class="n">WT_CAPTURE_SCOPE</span> <span class="o">=</span> <span class="s2">&quot;Capture/Scope&quot;</span>
+
+<span class="n">WT_SIGNAL_DATA_LOGGER</span> <span class="o">=</span> <span class="s2">&quot;SignalDataLogger&quot;</span>
+<span class="n">WT_STREAMING_DATA_LOGGER</span> <span class="o">=</span> <span class="s2">&quot;StreamingSignalDataLogger&quot;</span>
+
+<span class="n">WT_FREQUENCY_RESPONSE</span> <span class="o">=</span> <span class="s2">&quot;FrequencyResponse&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="scada-api-in-hil-scada">
+<h2><span class="section-number">2.3. </span>SCADA API in HIL SCADA<a class="headerlink" href="#scada-api-in-hil-scada" title="Permalink to this headline">¶</a></h2>
+<p>HIL SCADA supports a subset of SCADA API functions, mainly for changing Panel widget properties and executing actions which are near identical to manual GUI actions.</p>
+<p>The following functions are available:</p>
+<ul class="simple">
+<li><p>get_widget_by_id()</p></li>
+<li><p>get_widget_by_fqn()</p></li>
+<li><p>set_property_value()</p></li>
+<li><p>get_property_value()</p></li>
+<li><p>execute_action()</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The functions listed above can be used in all handlers (Action Widgets) and Expression scripts (Monitoring Widgets), including
+the Panel and the local namespace (group-like widgets) initialization scripts.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>SCADA API is imported into the HIL SCADA namespace as <code class="docutils literal notranslate"><span class="pre">panel</span></code></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not recommended to change a widget’s parameters from multiple places (handlers, expression scripts…) at the same time.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of widgets which have support for the execute_action() function is currently limited. More information can be found in the <a class="reference internal" href="widget_actions.html"><span class="doc">Available Widget Actions</span></a> documentation.</p>
+<p>The function expects two mandatory arguments - widget_handle and action_name.</p>
+<p>It can also receive other optional keyword arguments (arg_name=arg_value) - this depends on the implementation of each widget.</p>
+</div>
+<p>Below you can find an example of changing the widget’s name and executing an action:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># store the widget id</span>
+<span class="n">w_id</span> <span class="o">=</span> <span class="s2">&quot;484d3a86ffcf11e9956de0d55e6b2045&quot;</span>
+
+<span class="c1"># get the widget that needs to be changed (in this case the Capture/Scope widget)</span>
+<span class="n">wh</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="n">w_id</span><span class="p">)</span>
+
+<span class="c1"># change the widget&#39;s properties</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">wh</span><span class="p">,</span>
+                         <span class="n">prop_name</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="n">prop_value</span><span class="o">=</span><span class="s2">&quot;New name&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># executing the &quot;force_trigger&quot; action (api_const.ACT_CS_FORCE_TRIGGER)</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">execute_action</span><span class="p">(</span><span class="n">widget_handle</span><span class="o">=</span><span class="n">wh</span><span class="p">,</span>
+                     <span class="n">action_name</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">ACT_CS_FORCE_TRIGGER</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api-references">
+<h2><span class="section-number">2.4. </span><a class="reference internal" href="#api-references">API references</a><a class="headerlink" href="#api-references" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ScadaAPI</span></span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>SCADA API (Application Programming Interface) allows interfacing to the
+underlying HIL SCADA model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.add_library_path">
+<span class="sig-name descname"><span class="pre">add_library_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_subdirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.add_library_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add path to library search path. Added path will be treated as
+temporarily path (<code class="docutils literal notranslate"><span class="pre">persist=False</span></code>). In case you want to save it,
+set <code class="docutils literal notranslate"><span class="pre">persist=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>library_path</strong> (<em>str</em>) – Directory path where library files are located.</p></li>
+<li><p><strong>add_subdirs</strong> (<em>bool</em>) – Search in subdirectories for library files.</p></li>
+<li><p><strong>persist</strong> (<em>bool</em>) – Make library path change permanent.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># Add new path to library search path.</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">add_library_path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\new_library_dir&quot;</span><span class="p">)</span>
+
+<span class="c1"># reload library after search path is modified</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">reload_libraries</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.create_widget">
+<span class="sig-name descname"><span class="pre">create_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_to_model_comp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.create_widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates new widget using provided widget type inside the group like
+widget specified by <code class="docutils literal notranslate"><span class="pre">parent</span></code>. If <code class="docutils literal notranslate"><span class="pre">parent</span></code> is not
+specified main Panel’s canvas will be used as a parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget_type</strong> (<em>str</em>) – type of widget that need to be created.
+The list of all widget type names can be found in the
+<code class="docutils literal notranslate"><span class="pre">typhoon.api.scada.const</span></code> module or listed in the section
+<a class="reference internal" href="#scada-api-constants">SCADA API constants</a></p></li>
+<li><p><strong>parent</strong> (<em>WidgetHandle</em>) – parent group like widget where this widget
+need to be  created and added.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – name of the widget.</p></li>
+<li><p><strong>position</strong> (<em>list</em><em> or </em><em>tuple</em>) – list[x, y] coordinates where new widget
+need to be positioned after it is created.</p></li>
+<li><p><strong>link_to_model_comp</strong> (<em>str</em>) – <p>Fully qualified name (FQN) of Schematic
+Model component that we want to connect to created
+Library Widget.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Specifying this argument only has effect if a Library
+widget is created and that Library widget is configured to
+be connected to Model component.</p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>handle to the created widget.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Widget handle (WidgetHandle)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – in case any of arguments is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case Panel is not specified.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case parent widget with given id cannot be
+    found in loaded Panel.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case widget cannot be created for
+    some reason</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># create new blank Panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_panel</span><span class="p">()</span>
+
+<span class="c1"># create Group widget on the main/root canvas</span>
+<span class="n">group_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_GROUP</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Group for other widgets&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">])</span>
+
+<span class="c1"># create Digital display inside Group widget</span>
+<span class="n">dig_d_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_DIGITAL</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="n">group_handle</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Digital Display&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+
+<span class="c1">#</span>
+<span class="c1"># Create Library widget and connect it to Inductor &#39;Lc&#39; Schematic component</span>
+<span class="c1">#</span>
+
+<span class="c1"># Add directory where libraries are located to library search path.</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">add_library_path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\new_library_dir&quot;</span><span class="p">)</span>
+
+<span class="c1"># reload library</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">reload_libraries</span><span class="p">()</span>
+
+<span class="c1"># create new blank Panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_panel</span><span class="p">()</span>
+
+<span class="c1"># create &#39;Group&#39; Library widget from Widget Library &#39;Lib1&#39;</span>
+<span class="n">group_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="s2">&quot;Lib1/Group&quot;</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Group Library Widget&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+                                   <span class="n">link_to_model_comp</span><span class="o">=</span><span class="s2">&quot;Lc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.create_new_panel">
+<span class="sig-name descname"><span class="pre">create_new_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.create_new_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates new empty Panel in memory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case Panel is created and not loaded with <code class="docutils literal notranslate"><span class="pre">load_panel()</span></code>, for
+first time it can be only saved by calling <code class="docutils literal notranslate"><span class="pre">save_panel_as()</span></code>
+function. After Panel is saved with <code class="docutils literal notranslate"><span class="pre">save_panel_as()</span></code> it can be
+saved later by using regular <code class="docutils literal notranslate"><span class="pre">save_panel()</span></code> function.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># create new blank Panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_panel</span><span class="p">()</span>
+
+<span class="c1"># create Digital display on the main/root canvas</span>
+<span class="n">dig_d_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_DIGITAL</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Digital Display&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+
+<span class="c1"># save panel to file for the first time</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel_as</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\panel.cus&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># create or change something on Panel...</span>
+<span class="c1">#</span>
+
+<span class="c1"># now Panel can be saved to specified Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.create_new_library_panel">
+<span class="sig-name descname"><span class="pre">create_new_library_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library_description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.create_new_library_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates new empty Library Panel in memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>library_name</strong> (<em>str</em>) – name of the Widget Library</p></li>
+<li><p><strong>library_description</strong> (<em>str</em>) – short description</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case Library Panel is created and not loaded with
+<code class="docutils literal notranslate"><span class="pre">load_library_panel()</span></code> for first time it can be only saved by
+calling <code class="docutils literal notranslate"><span class="pre">save_panel_as()</span></code> function.
+After Panel is saved with <code class="docutils literal notranslate"><span class="pre">save_panel_as()</span></code> it can be saved later
+with regular <code class="docutils literal notranslate"><span class="pre">save_panel()</span></code> function.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ScadaAPIException</strong> – in case any of arguments are invalid</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># create new blank Library Panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_library_panel</span><span class="p">(</span><span class="n">library_name</span><span class="o">=</span><span class="s2">&quot;Lib1&quot;</span><span class="p">,</span>
+                               <span class="n">library_description</span><span class="o">=</span><span class="s2">&quot;My simple library&quot;</span><span class="p">)</span>
+
+<span class="c1"># create Group that will become Library Widget candidate</span>
+<span class="n">group_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_GROUP</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+
+<span class="c1"># create Digital display inside Group</span>
+<span class="n">dig_d_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_DIGITAL</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="n">group_handle</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Digital Display&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+
+<span class="c1"># save Library Panel to file for the first time</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel_as</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\lib1.wlib&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># create or change something in Library Panel...</span>
+<span class="c1">#</span>
+
+<span class="c1"># now Library Panel can be saved to specified Library Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.copy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Copies widget identified  by <code class="docutils literal notranslate"><span class="pre">src_handle</span></code> to Group like widget</dt><dd><p>identified by <code class="docutils literal notranslate"><span class="pre">dst_handle</span></code>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Source widget and all its child widgets (in case source widget is
+Group like widget) will be copied to destination widget.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_handle</strong> (<em>WidgetHandle</em>) – Handle of widget that need to be copied.</p></li>
+<li><p><strong>dst_handle</strong> (<em>WidgetHandle</em>) – <p>Handle to Group like widget where source
+widget need to be copied.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case <code class="docutils literal notranslate"><span class="pre">dst_handle</span></code> is None, source widget will be
+copied to main (root) Panel’s canvas.</p>
+</div>
+</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – new name of copied widget.</p></li>
+<li><p><strong>position</strong> (<em>list</em><em> or </em><em>tuple</em>) – list[x, y] coordinates where new copied
+widget need to be positioned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>flatten list that</dt><dd><p>contains handles of all copied widgets.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of copied widgets (List[WidgetHandle])</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – in case any of arguments is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case destination widget is not Group like
+    widget.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case Panel is not specified.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case source or destination widget with
+    given id cannot be found in loaded Panel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># Create new panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_panel</span><span class="p">()</span>
+
+<span class="c1"># create widget on the main/root canvas</span>
+<span class="n">group_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_GROUP</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Group for other widgets&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">])</span>
+
+<span class="c1"># create Digital display on the main/root canvas</span>
+<span class="n">dig_d_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_DIGITAL</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Digital Display&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+
+<span class="c1"># copy Digital display to the Group widget</span>
+<span class="c1"># `copied_widgets` is list with copy of digital display</span>
+<span class="n">copied_widgets</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src_handle</span><span class="o">=</span><span class="n">dig_d_handle</span><span class="p">,</span>
+                            <span class="n">dst_handle</span><span class="o">=</span><span class="n">group_handle</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;New name&quot;</span><span class="p">,</span>
+                            <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">304</span><span class="p">))</span>
+
+<span class="c1"># copy Group widget to main canvas</span>
+<span class="c1"># `copied_widgets` is list with copies of Group widget and</span>
+<span class="c1"># Digital display inside it</span>
+<span class="n">copied_widgets</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src_handle</span><span class="o">=</span><span class="n">group_handle</span><span class="p">,</span>
+                            <span class="n">dst_handle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;New name&quot;</span><span class="p">,</span>
+                            <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">304</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.delete_widget">
+<span class="sig-name descname"><span class="pre">delete_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_handle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.delete_widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes widget from the loaded or created Panel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>widget_handle</strong> (<em>WidgetHandle</em>) – Handle of the widget that need to
+be deleted.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – in case <code class="docutils literal notranslate"><span class="pre">widget_handle</span></code> argument is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case Panel is not specified.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case widget with given id cannot be found in
+    loaded Panel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># Create new panel</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">create_new_panel</span><span class="p">()</span>
+
+<span class="c1"># create Group widget on the main/root canvas</span>
+<span class="n">group_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">widget_type</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">WT_GROUP</span><span class="p">,</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Group for other widgets&quot;</span><span class="p">,</span>
+                                   <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">])</span>
+
+<span class="c1"># delete Group widget</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">delete_widget</span><span class="p">(</span><span class="n">group_handle</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.execute_action">
+<span class="sig-name descname"><span class="pre">execute_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.execute_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes an action of a widget, if the widget is found
+by widget handle on the panel.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function can only be used in HIL SCADA.
+For a detailed list of executable actions for each widget,
+please consult the <a class="reference internal" href="widget_actions.html"><span class="doc">Available Widget Actions</span></a>
+documentation.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget_handle</strong> (<em>WidgetHandle</em>) – widget handle object</p></li>
+<li><p><strong>action_name</strong> (<em>str</em>) – name of the action which needs to be executed
+(all action_name constants are listed in the
+<code class="docutils literal notranslate"><span class="pre">typhoon.api.scada.const</span></code> module or listed in
+the section <a class="reference internal" href="#scada-api-constants">SCADA API constants</a>)</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – optional parameters of the action</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – in case <cite>widget_handle</cite> or <cite>action_name</cite>
+    arguments are invalid</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case the widget doesn’t have the passed
+    <cite>action_name</cite> action</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case Panel is not specified</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case widget with given id cannot be found
+    in loaded Panel</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>macro scripts</p></li>
+<li><p>signal monitoring expressions</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: execute_action() can only be called in HIL SCADA!</span>
+
+<span class="c1"># get the handle of the widget whose actions you want to execute</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># executing the &quot;export_data&quot; action (api_const.ACT_CS_EXPORT_DATA)</span>
+<span class="c1"># the captured data will be exported in the default (png) format</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">execute_action</span><span class="p">(</span><span class="n">widget_handle</span><span class="o">=</span><span class="n">wh</span><span class="p">,</span>
+                     <span class="n">action_name</span><span class="o">=</span><span class="n">api_const</span><span class="o">.</span><span class="n">ACT_CS_EXPORT_DATA</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.reload_libraries">
+<span class="sig-name descname"><span class="pre">reload_libraries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.reload_libraries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reload all libraries which are found in library search path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>After libraries are reloaded and there is the opened Panel that has
+a Library widgets, it is recommended to reopen Panel again
+in order to load up to date Library widgets.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ScadaAPIException</strong> – when there is error during library reloading.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># Add new path to library search path.</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">add_library_path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\new_library_dir&quot;</span><span class="p">)</span>
+
+<span class="c1"># reload library after search path is modified</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">reload_libraries</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.remove_library_path">
+<span class="sig-name descname"><span class="pre">remove_library_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.remove_library_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove path from library search path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>library_path</strong> (<em>str</em>) – Library path to remove.</p></li>
+<li><p><strong>persist</strong> (<em>bool</em>) – Make library path change permanent after library
+path is removed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ScadaAPIException</strong> – when given path cannot be found in
+    library registry search path.</p>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># Remove path from library search path.</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">remove_library_path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\new_library_dir&quot;</span><span class="p">)</span>
+
+<span class="c1"># reload library after search path is modified</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">reload_libraries</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.load_panel">
+<span class="sig-name descname"><span class="pre">load_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.load_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the provided HIL SCADA Panel (.cus) file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>panel_file</strong> (<em>str</em>) – full path to the HIL SCADA Panel (.cus) file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case <cite>panel_file</cite> argument is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case provided Panel file cannot be opened.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.load_library_panel">
+<span class="sig-name descname"><span class="pre">load_library_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library_panel_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.load_library_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load provided HIL SCADA Widget Library (.wlib) file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>library_panel_file</strong> (<em>str</em>) – full path to the HIL SCADA
+Widget Library (.wlib) file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case <cite>library_panel_file</cite> argument is
+    invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case provided Library Panel file cannot
+    be opened.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Library Panel file.</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_library_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\lib1.wlib&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.save_panel">
+<span class="sig-name descname"><span class="pre">save_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.save_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save currently opened Panel to the same Panel file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case the Panel file is not opened.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the opened Panel cannot be saved.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># change something...</span>
+<span class="c1">#</span>
+
+<span class="c1"># save changes to the existing file (&quot;C:\scada_file.cus&quot;)</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.save_panel_as">
+<span class="sig-name descname"><span class="pre">save_panel_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.save_panel_as" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the currently opened Panel to a new Panel file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>save_to</strong> (<em>str</em>) – full path where opened Panel need to be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case the Panel file is not opened.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case <cite>save_to</cite> argument is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the opened Panel cannot be saved.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># change something...</span>
+<span class="c1">#</span>
+
+<span class="c1"># save changes to a new Panel file (&quot;C:\new_scada_file.cus&quot;)</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">save_panel</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.set_property_value">
+<span class="sig-name descname"><span class="pre">set_property_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.set_property_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a new value for the widget property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget_handle</strong> (<em>WidgetHandle</em>) – The widget handle used as a widget
+identifier.</p></li>
+<li><p><strong>prop_name</strong> (<em>str</em>) – <p>The name of property that you want to change.
+The list of all property names can be found in the
+<code class="docutils literal notranslate"><span class="pre">typhoon.api.scada.const</span></code> module or listed in the section
+<a class="reference internal" href="#scada-api-constants">SCADA API constants</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all widget properties can be changed by SCADA API.
+For detailed information which properties can be changed
+for a specific widget, please consult
+<a class="reference internal" href="widget_prop.html"><span class="doc">Available Widget Properties</span></a> section.</p>
+</div>
+</p></li>
+<li><p><strong>prop_value</strong> (<em>object</em>) – <p>A new property value that need to be set.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Type of value that need to be set depends of which property
+is being changed. More details can be found in the
+<a class="reference internal" href="widget_prop.html"><span class="doc">Available Widget Properties</span></a> section.</p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case the Panel file is not opened.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case any of arguments is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the widget identified by
+    <code class="docutils literal notranslate"><span class="pre">widget_handle</span></code> cannot be found in opened Panel.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case widget doesn’t have property with
+    given <code class="docutils literal notranslate"><span class="pre">prop_name</span></code>.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case property is read only and cannot
+    be changed.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+<li><p>macro scripts</p></li>
+<li><p>signal monitoring expressions</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the handle of the widget whose properties you want to change</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># change the widget name by using the handle as the widget identifier</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                         <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="s2">&quot;New widget name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.get_property_value">
+<span class="sig-name descname"><span class="pre">get_property_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.get_property_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of a given property for the given widget handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget_handle</strong> (<em>WidgetHandle</em>) – The widget handle used as a widget
+identifier.</p></li>
+<li><p><strong>prop_name</strong> (<em>str</em>) – <p>The name of a property.
+The list of all property names can be found in
+<code class="docutils literal notranslate"><span class="pre">typhoon.api.scada.const</span></code> module or listed in the section
+<a class="reference internal" href="#scada-api-constants">SCADA API constants</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all widget properties can be changed by SCADA API.
+For detailed information which properties can be changed
+for a specific widget, please consult
+<a class="reference internal" href="widget_prop.html"><span class="doc">Available Widget Properties</span></a> section.</p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>value can be arbitrary type</dt><dd><p>depending of the type of widget and property. More details can
+be found in the
+<a class="reference internal" href="widget_prop.html"><span class="doc">Available Widget Properties</span></a> section.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>property value (object)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case any of arguments is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the widget does not have the property
+    with given the <code class="docutils literal notranslate"><span class="pre">prop_name</span></code>.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case property is write only and cannot
+    be read.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the Panel is not specified.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the widget identified by the
+    <code class="docutils literal notranslate"><span class="pre">widget_handle</span></code> cannot be found in the opened Panel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+<li><p>macro scripts</p></li>
+<li><p>signal monitoring expressions</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the handle of the widget whose properties you want to change</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># change the widget name by using the handle as a widget identifier</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                         <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="s2">&quot;New widget name&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the widget name by using the handle as a widget identifier</span>
+<span class="n">widget_name</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                                       <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.get_widget_by_id">
+<span class="sig-name descname"><span class="pre">get_widget_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.get_widget_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the widget handle for the widget with a given widget ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>widget_id</strong> (<em>str</em>) – Widget ID. Widget ID can be acquired from
+WidgetHandle <code class="docutils literal notranslate"><span class="pre">item_fqid</span></code> attribute
+(widget_handle_object.item_fqid).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A handle to the widget with the</dt><dd><p>given <code class="docutils literal notranslate"><span class="pre">widget_id</span></code> that can be used as a widget identifier.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>handle to widget (WidgetHandle)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case the Panel file is not opened.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the <code class="docutils literal notranslate"><span class="pre">widget_id</span></code> argument is invalid.</p></li>
+<li><p><strong>ScadaAPIException</strong> – In case the widget with the given id cannot be
+    found in the loaded Panel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+<li><p>macro scripts</p></li>
+<li><p>signal monitoring expressions</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1"># get the handle of the widget whose properties you want to change</span>
+<span class="c1"># &#39;widget_handle&#39; is used as the widget identifier in other functions and</span>
+<span class="c1"># it also contains ID (&#39;widget_handle.item_fqid&#39;) and type (&#39;widget_handle.item_type&#39;)</span>
+<span class="c1"># of widget that is identified by this handle.</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_id</span><span class="p">(</span><span class="s2">&quot;e18c3fe582d011e9bac3e0d55e6b2045&quot;</span><span class="p">)</span>
+
+<span class="c1"># change the widget name by using the handle as the widget identifier</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">set_property_value</span><span class="p">(</span><span class="n">widget_handle</span><span class="p">,</span>
+                         <span class="n">api_const</span><span class="o">.</span><span class="n">PROP_NAME</span><span class="p">,</span>
+                         <span class="s2">&quot;New widget name&quot;</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.get_widget_by_fqn">
+<span class="sig-name descname"><span class="pre">get_widget_by_fqn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget_fqn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.get_widget_by_fqn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns widget handle for widget with given widget fully qualified
+name (FQN).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget_fqn</strong> (<em>str</em>) – Widget fully qualified name</p></li>
+<li><p><strong>parent</strong> (<em>WidgetHandle</em>) – parent group like widget where widget with
+given <cite>widget_fqn</cite> will be searched. In case <cite>parent</cite> is
+specified, given <cite>widget_fqn</cite> will be used as relative fully
+qualified name (relative from given parent).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>handle to widget with given widget FQN</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>WidgetHandle</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ScadaAPIException</strong> – In case any argument is invalid</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case widget with given
+    fully qualified name cannot be found in loaded Panel</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case parent widget with given
+    <cite>WidgetHandle</cite> cannot be found in loaded Panel</p></li>
+<li><p><strong>ScadaAPIException</strong> – in case Panel is not specified</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+<li><p>macro scripts</p></li>
+<li><p>signal monitoring expressions</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typhoon.api.scada</span> <span class="kn">import</span> <span class="n">panel</span>
+<span class="kn">import</span> <span class="nn">typhoon.api.scada.const</span> <span class="k">as</span> <span class="nn">api_const</span>
+
+<span class="c1"># load a Panel file</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">load_panel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:\scada_file.cus&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># Get the handle of the widget by using its fully qualified name (FQN)</span>
+<span class="c1">#</span>
+
+<span class="c1"># &#39;widget_handle&#39; is used as the widget identifier in other functions and</span>
+<span class="c1"># it also contains ID (&#39;widget_handle.item_fqid&#39;), type (&#39;widget_handle.item_type&#39;),</span>
+<span class="c1"># widget name (&#39;widget_handle.item_name&#39;) and widget FQN (&#39;widget_handle.item_fqn&#39;)</span>
+<span class="c1"># of widget that is identified by this handle.</span>
+
+<span class="c1"># In this example widget &#39;Gauge&#39; that has three parent widgets has FQN:</span>
+<span class="c1"># &quot;P1.P2.P3.Gauge&quot;</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_fqn</span><span class="p">(</span><span class="s2">&quot;P1.P2.P3.Gauge&quot;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># In case we want to search for the same widget but relative from parent &#39;P2&#39;</span>
+
+<span class="c1"># find a parent</span>
+<span class="n">parent_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_fqn</span><span class="p">(</span><span class="s2">&quot;P1.P2&quot;</span><span class="p">)</span>
+
+<span class="c1"># we give a parent handle and relative FQN to given parent.</span>
+<span class="c1"># If absolute FQN is &#39;P1.P2.P3.Gauge&#39; relative FQN from parent &#39;P2&#39; is:</span>
+<span class="c1"># &#39;P3.Gauge&#39;</span>
+<span class="n">widget_handle</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">get_widget_by_fqn</span><span class="p">(</span><span class="s2">&quot;P3.Gauge&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_handle</span><span class="p">)</span>
+
+
+
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="typhoon.api.scada.ScadaAPI.get_library_paths">
+<span class="sig-name descname"><span class="pre">get_library_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#typhoon.api.scada.ScadaAPI.get_library_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of the library search paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list with user library paths</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>library paths (list)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Availability:</dt><dd><ul class="simple">
+<li><p>standalone scripts</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="typhoon_api.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="typhoon_api.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. SCADA API</a><ul>
+<li><a class="reference internal" href="#widgethandle">2.1. WidgetHandle</a></li>
+<li><a class="reference internal" href="#scada-api-constants">2.2. SCADA API constants</a></li>
+<li><a class="reference internal" href="#scada-api-in-hil-scada">2.3. SCADA API in HIL SCADA</a></li>
+<li><a class="reference internal" href="#api-references">2.4. API references</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hil_api.html"
+                        title="previous chapter"><span class="section-number">1. </span>HIL API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="schematic_api.html"
+                        title="next chapter"><span class="section-number">3. </span>Schematic Editor API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/scada_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="schematic_api.html" title="3. Schematic Editor API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="hil_api.html" title="1. HIL API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="typhoon_api.html">Typhoon API 1.20.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">2. </span>SCADA API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Typhoon HIL.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
