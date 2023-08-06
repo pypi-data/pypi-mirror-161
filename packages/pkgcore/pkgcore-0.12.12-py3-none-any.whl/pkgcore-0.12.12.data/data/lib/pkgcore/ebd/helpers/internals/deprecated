@@ -1,0 +1,15 @@
+#!/usr/bin/env pkgcore-ebuild-helper
+
+eqawarn "QA Notice: ${HELPER_NAME}: deprecated in EAPI ${HELPER_EAPI}"
+
+# remove deprecated location from PATH and run original helper
+deprecated_path=$(__which ${HELPER_NAME})
+__var_push PATH=${PATH/${deprecated_path%/*}:/}
+ORIG_HELPER=$(__which ${HELPER_NAME})
+__var_pop
+
+if [[ ${deprecated_path} == ${ORIG_HELPER} ]]; then
+	die "couldn't find original '${HELPER_NAME}' helper, internal error"
+fi
+
+"${ORIG_HELPER}" "$@"

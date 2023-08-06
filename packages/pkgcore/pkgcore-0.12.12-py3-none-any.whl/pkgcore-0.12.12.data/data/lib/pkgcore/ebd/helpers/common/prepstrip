@@ -1,0 +1,66 @@
+#!/usr/bin/env pkgcore-ebuild-helper
+
+shopt -s extdebug
+
+# exit if the feature isn't requested, or the restrict isn't there.
+__feature_is_enabled installsources || return
+__safe_has installsources ${RESTRICT} && return
+
+if ! ${PKGCORE_PREFIX_SUPPORT:=false}; then
+	ED=${D}
+elif [[ ${ED:-unset} == "unset" ]]; then
+	__helper_exit -1 "The variable ED is missing from the environment, but is required for prefix mode; failing."
+fi
+
+for x in debugedit scanelf rsync; do
+	if ! type -P ${x} >/dev/null; then
+		ewarn "FEATURES=installsources is enabled but the ${x} binary could not"
+		ewarn "be found. This feature will not work unless ${x} is installed!"
+		return
+	fi
+done
+
+save_elf_sources() {
+	local x=$1
+	local sources_dir=/usr/src/debug/${CATEGORY}/${PF}
+	debugedit -b "${WORKDIR}" -d "${sources_dir}" \
+		-l "${T}"/debug.sources "${x}"
+	if [[ -s ${T}/debug.sources ]]; then
+		[[ -d ${ED}/${sources_dir} ]] || mkdir -p "${ED}/${sources_dir}"
+		grep -zv '/<built-in>$' "${T}"/debug.sources | \
+			(cd "${WORKDIR}"; LANG=C sort -z -u | \
+			rsync -rtL0 --files-from=- "${WORKDIR}/" "${ED}/${sources_dir}/" )
+	fi
+}
+
+# The existence of the section .symtab tells us that a binary is stripped.
+# We want to log already stripped binaries, as this may be a QA violation.
+# They prevent us from getting the splitdebug data.
+if ! __safe_has binchecks ${RESTRICT} && ! __safe_has strip ${RESTRICT}; then
+	f=$(scanelf -yqRBF '#k%F' -k '!.symtab' "$@")
+	if [[ -n ${f} ]]; then
+		echo -e "\a\n"
+		ewarn "QA Notice: Pre-stripped files found:"
+		ewarn "${f}"
+		echo "${f}" > "${T}"/scanelf-already-stripped.log
+	fi
+fi
+
+# Now we look for unstripped binaries.
+for x in $(scanelf -yqRBF '#k%F' -k '.symtab' "$@"); do
+	f=$(file "${x}") || continue
+	[[ -z ${f} ]] && continue
+
+	# only split debug info for final linked objects
+	# or kernel modules as debuginfo for intermediatary
+	# files (think crt*.o from gcc/glibc) is useless and
+	# actually causes problems.  install sources for all
+	# elf types though cause that stuff is good.
+
+	if [[ ${f} == *"SB executable"* || ${f} == *"SB pie executable"* ||
+			${f} == *"SB shared object"* ]]; then
+		save_elf_sources "${x}"
+	elif [[ ${f} == *"SB relocatable"* ]]; then
+		save_elf_sources "${x}"
+	fi
+done

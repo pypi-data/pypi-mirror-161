@@ -1,0 +1,12 @@
+#!/usr/bin/env pkgcore-ipc-helper
+
+if [[ ${HELPER_NAME} == "dolib.so" ]]; then
+	LIBOPTIONS="-m0755"
+elif [[ ${HELPER_NAME} == "dolib.a" ]]; then
+	LIBOPTIONS="-m0644"
+fi
+
+OPTIONS=(
+	"--dest=\"${PKGCORE_DESTTREE}/$(__get_libdir lib)\""
+	"--insoptions=\"${LIBOPTIONS}\""
+)

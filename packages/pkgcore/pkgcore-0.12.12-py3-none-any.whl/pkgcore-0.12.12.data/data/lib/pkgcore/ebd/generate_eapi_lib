@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# Generate EAPI specific bash libraries for various scopes.
+#
+# This script is run dynamically in a repo or tarball layout on initialization
+# of the build environment for each ebuild since different EAPIs require
+# different support to be enabled or overridden. For installed versions, static
+# function lists are generated at install time and used instead.
+
+load_eapi_libs() {
+	local scope="global"
+	local -a skip_funcs=( $(compgen -A function) )
+	local skip_regex=$(IFS='|'; echo "^(${skip_funcs[*]})$")
+
+	while getopts "s:" opt; do
+		case ${opt} in
+			s) scope=${OPTARG} ;;
+			*) exit 1 ;;
+		esac
+	done
+	shift $((OPTIND-1))
+	local EAPI=${1:-0}
+	local selected_func=$2
+
+	local eapi file func
+	for (( eapi=0 ; eapi<=${EAPI} ; eapi++ )) ; do
+		# load phase libs when not targeting global scope
+		if [[ ${scope} != global ]]; then
+			source "${PKGCORE_EBD_PATH}"/eapi/depend.bash || { echo "failed loading depend.bash" >&2; exit 1; }
+			if [[ ${scope} != phase ]]; then
+				file=${PKGCORE_EBD_PATH}/eapi/${eapi}/phase.bash
+				if  [[ -f ${file} ]]; then
+					source "${file}" || { echo "failed loading ${file}" >&2; exit 1; }
+				fi
+			fi
+		fi
+
+		file=${PKGCORE_EBD_PATH}/eapi/${eapi}/${scope}.bash
+		if  [[ -f ${file} ]]; then
+			source "${file}" || { echo "failed loading ${file}" >&2; exit 1; }
+		fi
+
+		# replace EAPI banned functions if any exist
+		for func in "${PKGCORE_BANNED_FUNCS[@]}"; do
+			if declare -F ${func} &>/dev/null; then
+				eval "${func}() { die \"\${FUNCNAME}: banned in EAPI ${eapi}\"; }"
+			else
+				echo "EAPI ${eapi}: undefined banned func: '${func}'" >&2
+				exit 1
+			fi
+		done
+		unset PKGCORE_BANNED_FUNCS
+
+		# replace EAPI deprecated functions if any exist
+		for func in "${PKGCORE_DEPRECATED_FUNCS[@]}"; do
+			if declare -F ${func} &>/dev/null; then
+				local func_src=$(declare -f ${func})
+				local warning="QA Notice: ${func}: deprecated in EAPI ${eapi}"
+				# rename deprecated function
+				eval "${func_src/#${func}/__deprecated_${func}}"
+				# replace deprecated function with QA warning + renamed function
+				eval "${func}() { eqawarn \"${warning}\"; __deprecated_${func}; }"
+			else
+				echo "EAPI ${eapi}: undefined deprecated func: '${func}'" >&2
+				exit 1
+			fi
+		done
+		unset PKGCORE_DEPRECATED_FUNCS
+	done
+
+	local -a eapi_funcs
+	for func in $(compgen -A function); do
+		[[ ! ${func} =~ ${skip_regex} ]] && eapi_funcs+=( ${func} )
+	done
+
+	if [[ -n ${selected_func} && ! ${selected_func} =~ ${skip_regex} ]]; then
+		declare -f ${selected_func}
+	else
+		declare -f ${eapi_funcs[@]}
+	fi
+}
+
+# output values if being run as a script
+if [[ ${BASH_SOURCE[0]} == $0 ]]; then
+	export PKGCORE_EBD_PATH=${BASH_SOURCE[0]%/*}
+	load_eapi_libs "$@"
+fi

@@ -1,0 +1,219 @@
+__phase_pkg_nofetch () 
+{ 
+    [[ -z ${SRC_URI} ]] && return;
+    echo "!!! The following are listed in SRC_URI for ${PN}:";
+    local fp;
+    __shopt_push -f;
+    for fp in ${SRC_URI};
+    do
+        echo "!!! ${fp}";
+    done;
+    __shopt_pop
+}
+__phase_src_compile () 
+{ 
+    if [[ -f Makefile || -f GNUmakefile || -f makefile ]]; then
+        emake || die "emake failed";
+    fi
+}
+__phase_src_configure () 
+{ 
+    if [[ -x ${ECONF_SOURCE:-.}/configure ]]; then
+        econf;
+    fi
+}
+__phase_src_install () 
+{ 
+    if [[ -f Makefile || -f GNUmakefile || -f makefile ]]; then
+        emake DESTDIR="${D}" install;
+    fi;
+    einstalldocs
+}
+__phase_src_prepare () 
+{ 
+    local patches;
+    if patches=$(declare -p PATCHES 2> /dev/null); then
+        if [[ ${patches} == "declare -a "* ]]; then
+            [[ ${#PATCHES[@]} -gt 0 ]] && eapply -- "${PATCHES[@]}";
+        else
+            [[ -n ${PATCHES} ]] && eapply -- ${PATCHES};
+        fi;
+    fi;
+    eapply_user
+}
+__phase_src_test () 
+{ 
+    addpredict /;
+    local extra_args=(${EXTRA_EMAKE});
+    if make check -n &> /dev/null; then
+        echo ">>> Test phase [check]: ${CATEGORY}/${PF}";
+        emake "${extra_args[@]}" check || die "make check failed, see above for details";
+    else
+        if make test -n &> /dev/null; then
+            emake "${extra_args[@]}" test || die "make test failed, see above for details";
+        else
+            echo ">>> Test phase [none]: ${CATEGORY}/${PF}";
+        fi;
+    fi;
+    SANDBOX_PREDICT=${SANDBOX_PREDICT%:/}
+}
+__phase_src_unpack () 
+{ 
+    [[ -n ${A} ]] && unpack ${A}
+}
+__ver_compare () 
+{ 
+    local va=${1} vb=${2} a an al as ar b bn bl bs br re LC_ALL=C;
+    re="^([0-9]+(\.[0-9]+)*)([a-z]?)((_(alpha|beta|pre|rc|p)[0-9]*)*)(-r[0-9]+)?$";
+    [[ ${va} =~ ${re} ]] || die "${FUNCNAME}: invalid version: ${va}";
+    an=${BASH_REMATCH[1]};
+    al=${BASH_REMATCH[3]};
+    as=${BASH_REMATCH[4]};
+    ar=${BASH_REMATCH[7]};
+    [[ ${vb} =~ ${re} ]] || die "${FUNCNAME}: invalid version: ${vb}";
+    bn=${BASH_REMATCH[1]};
+    bl=${BASH_REMATCH[3]};
+    bs=${BASH_REMATCH[4]};
+    br=${BASH_REMATCH[7]};
+    __ver_compare_int "${an%%.*}" "${bn%%.*}" || return;
+    while [[ ${an} == *.* && ${bn} == *.* ]]; do
+        an=${an#*.};
+        bn=${bn#*.};
+        a=${an%%.*};
+        b=${bn%%.*};
+        if [[ ${a} == 0* || ${b} == 0* ]]; then
+            [[ ${a} =~ 0+$ ]] && a=${a%"${BASH_REMATCH[0]}"};
+            [[ ${b} =~ 0+$ ]] && b=${b%"${BASH_REMATCH[0]}"};
+            [[ ${a} > ${b} ]] && return 3;
+            [[ ${a} < ${b} ]] && return 1;
+        else
+            __ver_compare_int "${a}" "${b}" || return;
+        fi;
+    done;
+    [[ ${an} == *.* ]] && return 3;
+    [[ ${bn} == *.* ]] && return 1;
+    [[ ${al} > ${bl} ]] && return 3;
+    [[ ${al} < ${bl} ]] && return 1;
+    as=${as#_}${as:+_};
+    bs=${bs#_}${bs:+_};
+    while [[ -n ${as} && -n ${bs} ]]; do
+        a=${as%%_*};
+        b=${bs%%_*};
+        if [[ ${a%%[0-9]*} == "${b%%[0-9]*}" ]]; then
+            __ver_compare_int "${a##*[a-z]}" "${b##*[a-z]}" || return;
+        else
+            [[ ${a%%[0-9]*} == p ]] && return 3;
+            [[ ${b%%[0-9]*} == p ]] && return 1;
+            [[ ${a} > ${b} ]] && return 3 || return 1;
+        fi;
+        as=${as#*_};
+        bs=${bs#*_};
+    done;
+    if [[ -n ${as} ]]; then
+        [[ ${as} == p[_0-9]* ]] && return 3 || return 1;
+    else
+        if [[ -n ${bs} ]]; then
+            [[ ${bs} == p[_0-9]* ]] && return 1 || return 3;
+        fi;
+    fi;
+    __ver_compare_int "${ar#-r}" "${br#-r}" || return;
+    return 2
+}
+__ver_compare_int () 
+{ 
+    local a=$1 b=$2 d=$(( ${#1}-${#2} ));
+    if [[ ${d} -gt 0 ]]; then
+        printf -v b "%0${d}d%s" 0 "${b}";
+    else
+        if [[ ${d} -lt 0 ]]; then
+            printf -v a "%0$(( -d ))d%s" 0 "${a}";
+        fi;
+    fi;
+    [[ ${a} > ${b} ]] && return 3;
+    [[ ${a} == "${b}" ]]
+}
+__ver_parse_range () 
+{ 
+    local range=${1};
+    local max=${2};
+    [[ ${range} == [0-9]* ]] || die "${FUNCNAME}: range must start with a number";
+    start=${range%-*};
+    [[ ${range} == *-* ]] && end=${range#*-} || end=${start};
+    if [[ -n ${end} ]]; then
+        [[ ${start} -le ${end} ]] || die "${FUNCNAME}: end of range must be >= start";
+        [[ ${end} -le ${max} ]] || end=${max};
+    else
+        end=${max};
+    fi
+}
+__ver_split () 
+{ 
+    local v=${1} LC_ALL=C;
+    comp=();
+    local s c;
+    while [[ -n ${v} ]]; do
+        s=${v%%[a-zA-Z0-9]*};
+        v=${v:${#s}};
+        [[ ${v} == [0-9]* ]] && c=${v%%[^0-9]*} || c=${v%%[^a-zA-Z]*};
+        v=${v:${#c}};
+        comp+=("${s}" "${c}");
+    done
+}
+ver_cut () 
+{ 
+    local range=${1};
+    local v=${2:-${PV}};
+    local start end;
+    local -a comp;
+    __ver_split "${v}";
+    local max=$((${#comp[@]}/2));
+    __ver_parse_range "${range}" "${max}";
+    local IFS=;
+    if [[ ${start} -gt 0 ]]; then
+        start=$(( start*2 - 1 ));
+    fi;
+    echo "${comp[*]:start:end*2-start}"
+}
+ver_rs () 
+{ 
+    local v;
+    (( ${#} & 1 )) && v=${@: -1} || v=${PV};
+    local start end i;
+    local -a comp;
+    __ver_split "${v}";
+    local max=$((${#comp[@]}/2 - 1));
+    while [[ ${#} -ge 2 ]]; do
+        __ver_parse_range "${1}" "${max}";
+        for ((i = start*2; i <= end*2; i+=2 ))
+        do
+            [[ ${i} -eq 0 && -z ${comp[i]} ]] && continue;
+            comp[i]=${2};
+        done;
+        shift 2;
+    done;
+    local IFS=;
+    echo "${comp[*]}"
+}
+ver_test () 
+{ 
+    local va op vb;
+    if [[ $# -eq 3 ]]; then
+        va=${1};
+        shift;
+    else
+        va=${PVR};
+    fi;
+    [[ $# -eq 2 ]] || die "${FUNCNAME}: bad number of arguments";
+    op=${1};
+    vb=${2};
+    case ${op} in 
+        -eq | -ne | -lt | -le | -gt | -ge)
+
+        ;;
+        *)
+            die "${FUNCNAME}: invalid operator: ${op}"
+        ;;
+    esac;
+    __ver_compare "${va}" "${vb}";
+    test $? "${op}" 2
+}

@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# protect against env screwups.
+if [[ -z ${PKGCORE_EBD_PATH} ]]; then
+	PKGCORE_EBD_PATH=$(readlink -f "${0}")
+	# and go up 3, out of helpers.
+	PKGCORE_EBD_PATH=${PKGCORE_EBD_PATH%/*}
+	PKGCORE_EBD_PATH=${PKGCORE_EBD_PATH%/*}
+	PKGCORE_EBD_PATH=${PKGCORE_EBD_PATH%/*}
+fi
+export PKGCORE_EBD_PATH
+
+source "${PKGCORE_EBD_PATH}"/exit-handling.bash || {
+	echo "failed to load exit-handling library: PKGCORE_EBD_PATH=${PKGCORE_EBD_PATH}" >&2
+	exit -127
+}
+
+if [[ $# -lt 1 ]]; then
+	die "ebuild-helper invoked without a target helper arg"
+fi
+
+source "${PKGCORE_EBD_PATH}"/ebuild-daemon-lib.bash || \
+	die "failed to load ebuild-daemon-lib.bash"
+source "${PKGCORE_EBD_PATH}"/isolated-functions.bash || \
+	die "failed to load isolated-functions.bash"
+source "${PKGCORE_EBD_PATH}"/eapi/depend.bash >&2 || \
+	die "failed sourcing eapi/depend.bash"
+source "${PKGCORE_EBD_PATH}"/eapi/common.bash >&2 || \
+	die "failed sourcing eapi/common.bash"
+source "${PKGCORE_EBD_PATH}"/helpers/internals/helper-lib.bash >&2 || \
+	die "failed sourcing helpers/internals/helper-lib.bash"
+
+failed=false
+
+MASTER_HELPER_NAME=${1##*/}
+HELPER_ERROR_PREFIX=
+
+if ! ${PKGCORE_PREFIX_SUPPORT:=false}; then
+	export ED=${D}
+elif [[ ${ED:-unset} == "unset" ]]; then
+	error "The variable ED is missing from the environment, but is required for prefix mode."
+	exit -1
+fi
+
+invoke_script() {
+	[[ $# -eq 0 ]] && die "${FUNCNAME}: missing required arguments"
+	local HELPER_PATH=$1
+	local HELPER_NAME=${1##*/}
+	local HELPER_EAPI=${1%/*}
+	HELPER_EAPI=${HELPER_EAPI##*/}
+	shift
+	local HELPER_ARG_COUNT=$#
+	if [[ ! -e ${HELPER_PATH} ]]; then
+		HELPER_PATH=$(type -p "${HELPER_NAME}")
+		[[ -z ${HELPER_PATH} ]] && die "${HELPER_NAME} command not found"
+	fi
+
+	local OLD_ERROR_PREFIX=${HELPER_ERROR_PREFIX}
+	local HELPER_ERROR_PREFIX=${OLD_ERROR_PREFIX:+${OLD_ERROR_PREFIX}: }${HELPER_NAME}
+
+	source "${HELPER_PATH}"
+
+	if ${failed}; then
+		if ${PKGCORE_NONFATAL}; then
+			echo "WARNING: nonzero exitcode from ${HELPER_ERROR_PREFIX}" >&2
+			# need to track the exit code here...
+			return 1
+		fi
+		die "helper failed: ${HELPER_NAME} $@"
+		exit 1
+	fi
+	return 0
+}
+invoke_script "$@"
+exit $(( $? ))

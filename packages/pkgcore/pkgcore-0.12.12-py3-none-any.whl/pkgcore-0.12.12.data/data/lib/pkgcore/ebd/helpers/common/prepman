@@ -1,0 +1,62 @@
+#!/usr/bin/env pkgcore-ebuild-helper
+
+shopt -s extdebug
+
+if ! ${PKGCORE_PREFIX_SUPPORT:=false}; then
+	ED=${D}
+elif [[ ${ED:-unset} == "unset" ]]; then
+	__helper_exit -1 "The variable ED is missing from the environment, but is required for prefix mode; failing."
+fi
+
+if [[ -z $1 ]]; then
+	z=${ED}/usr/share/man
+else
+	z=${ED}/$1/man
+fi
+
+[[ ! -d ${z} ]] && return
+
+if [[ -z ${PORTAGE_COMPRESS_SUFFIX} ]]; then
+	case ${PORTAGE_COMPRESS} in
+		gzip)  suffix="gz";;
+		bzip2) suffix="bz2";;
+		xz)    suffix="xz";;
+		*)     die "prepman error: please set PORTAGE_COMPRESS_SUFFIX in make.conf";;
+	esac
+fi
+
+echo "man: ${PORTAGE_COMPRESS} ${PORTAGE_COMPRESS_FLAGS}"
+
+for x in $(find "${z}"/ -type d 2>/dev/null); do
+	for y in $(find "${x}"/ \( -type f -or -type l \) ! -name '.keep*' -maxdepth 1 -mindepth 1 2>/dev/null); do
+		if [[ -L ${y} ]]; then
+			# Symlink ...
+			mylink=${y}
+			linkto=$(readlink "${y}")
+
+			# Do NOT change links to directories
+			if [[ -d ${z}/${linkto} ]]; then
+				continue
+			fi
+
+			if [[ ${linkto##*.} != ${suffix} ]]; then
+				linkto=${linkto}.${suffix}
+			fi
+			if [[ ${mylink##*.} != ${suffix} ]]; then
+				mylink=${mylink}.${suffix}
+			fi
+
+			echo "  link fixed ${mylink##*/}"
+			ln -snf "${linkto}" "${mylink}"
+			if [[ ${y} != ${mylink} ]]; then
+				echo "  link removed ${y##*/}"
+				rm -f "${y}"
+			fi
+		else
+			if [[ ${y##*.} != ${suffix} && ! -d ${y} ]]; then
+				echo "  compressing ${y##*/}"
+				"${PORTAGE_COMPRESS}" ${PORTAGE_COMPRESS_FLAGS} -f "${y}"
+			fi
+		fi
+	done
+done

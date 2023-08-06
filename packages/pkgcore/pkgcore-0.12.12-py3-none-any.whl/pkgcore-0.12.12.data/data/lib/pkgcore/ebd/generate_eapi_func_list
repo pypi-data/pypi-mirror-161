@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# Generate the list of functions specific to an EAPI version.
+#
+# This script is run dynamically in a repo or tarball layout on initialization
+# of the build environment for each ebuild since different EAPIs require
+# different lists of functions to be skipped. For installed versions, static
+# function lists are generated at install time and used instead.
+
+ONLY=false
+VISIBLE=false
+
+while getopts "ov" opt; do
+	case ${opt} in
+		o) ONLY=true ;;
+		v) VISIBLE=true ;;
+		*) ;;
+	esac
+done
+
+shift $((OPTIND-1))
+EAPI=${1:-0}
+${ONLY} && INITIAL_EAPI=${EAPI} || INITIAL_EAPI=0
+export PKGCORE_EBD_PATH=${BASH_SOURCE[0]%/*}
+
+shopt -s nullglob
+for (( eapi=${INITIAL_EAPI} ; eapi<=${EAPI} ; eapi++ )) ; do
+	for file in "${PKGCORE_EBD_PATH}/eapi/${eapi}"/*.bash; do
+		source "${file}" || { echo "failed loading ${file}" >&2; exit 1; }
+	done
+done
+
+${VISIBLE} || INTERNAL_FUNCS=( $(compgen -A function __) )
+
+# Sorting order; put PMS functionality first, then our internals.
+printf '%s\n' $(compgen -X '__*' -A function) ${INTERNAL_FUNCS[@]} | sort -u
