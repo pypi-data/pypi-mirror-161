@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*- --------------------------------------------------===#
+#
+#  Copyright 2022 Trovares Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#===----------------------------------------------------------------------===#
+
+name: Sphinx build
+
+on:
+  push:
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'docs/**'
+      - 'setup.cfg'
+      - 'README.md'
+      - 'RELEASE.rst'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build HTML
+      uses: ammaraskar/sphinx-action@0.4
+      with:
+         pre-build-command: "apt-get -y update && apt-get -y install unixodbc"
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: html-docs
+        path: docs/build/html/
+    - name: Test Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
+        destination_dir: testing
+    - name: Manual Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.event_name == 'workflow_dispatch'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
