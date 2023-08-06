@@ -1,0 +1,70 @@
+{% extends 'podcasts/base.html' %}
+{% load static thumbnail %}
+
+{% block head %}
+    {{ block.super }}
+    {% if page_obj.has_next %}
+        <link rel="next" href="/?page={{ page_obj.next_page_number }}">
+    {% endif %}
+
+    <script>
+        {% if page_obj.has_next %}window.pagination_next_page_number = {{ page_obj.next_page_number }}{% endif %}
+        window.pagination_available_pages_number = {{ page_obj.paginator.num_pages }}
+        window.posts_total_number = {{ page_obj.paginator.count }}
+        window.pagination_loading_text = 'Loading'
+        window.pagination_more_posts_text = 'Load more'
+        window.clipboard_copied_text = 'Link copied to clipboard'
+    </script>
+{% endblock head %}
+
+{% block main %}
+    <div class="c-archive">
+        <div class="o-grid">
+            <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l">
+                <h1 class="c-archive__title">Blog</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="o-grid js-grid c-loop">
+        {% for object in object_list %}
+            <div class="js-post-card-wrap c-post-card-wrap o-grid__col o-grid__col--initial-grow o-grid__col--4-4-s o-grid__col--2-4-m o-grid__col--2-4-l">
+                <a href="{{ object.get_absolute_url }}" class="c-post-card {% if forloop.first %} c-post-card--featured {% endif %}">
+                    {% if object.image %}
+                        <div class="c-post-card__media">
+                            <img alt="{{ object.title }}" class="c-post-card__image lazyload" data-srcset="
+                                {% thumbnail object.image '320x320' %} 320w,
+                                {% thumbnail object.image '578x578' %} 578w,
+                                {% thumbnail object.image '1156x1156' %} 1156w"
+                                sizes="(min-width: 1360px) 578px, (min-width: 640px) calc(44.86vw - 23px), calc(100vw - 48px)"
+                                data-src="{{ object.image.url }}">
+                        </div>
+                    {% endif %}
+
+                    <div class="c-post-card__content{% if not object.image %} c-post-card__content--no-image{% endif %}">
+                        <div class="c-post-card__meta">
+                            <span class="c-post-card__number"></span>
+                            <time class="c-post-card__date" datetime="{{ object.published|date:'Y-m-d' }}" title="{{ object.published|date:'jS F Y'}}">{{ object.published|date:'Y.m.d' }}</time>
+
+                            <div class="c-post-card__visibility c-post-card__visibility--public">
+                                <span class="paid">Paid</span>
+                                <span class="members">Members</span>
+                                <span class="public">Public</span>
+                            </div>
+                        </div>
+
+                        <h2 class="c-post-card__title">{{ object.title }}</h2>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="o-grid">
+        {% if page_obj.has_next %}
+            <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--2-4-m o-grid__col--1-4-l">
+                <button class="c-btn c-btn--full js-load-posts">Load more</button>
+            </div>
+        {% endif %}
+    </div>
+{% endblock main %}
