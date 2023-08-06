@@ -1,0 +1,39 @@
+import requests
+
+class TikApi(object):
+  def __init__(self, key=None):
+    self._key = key
+    self.base_url = "https://tiktok.jiroawesome.tech"
+
+  def xss_stub(self, payload):
+    url = self.base_url + "/xssstub"
+    data = {"key": self._key, "payload": payload}
+    resp = requests.post(url, data=data).json()
+    if resp['status'] == 0:
+        return 'Invalid API-Key'
+    elif resp['status'] == 1:
+        return 'Missing required parameters. DM Virtuality.#6670 for proper instruction.'
+    elif resp['status'] == 5:
+        return resp['result']['xss']
+
+  def xgorgon(self, url, cookies):
+    url = self.base_url + "/xgorgon"
+    data = {"key": self._key, "url": url, "cookies": cookies}
+    resp = requests.post(url, data=data).json()
+    if resp['status'] == 0:
+        return 'Invalid API-Key'
+    elif resp['status'] == 1:
+        return 'Missing required parameters. DM Virtuality.#6670 for proper instruction.'
+    elif resp['status'] == 5:
+        return resp['result']['gorgon']
+
+  def xkhronos(self, url, cookies):
+    url = self.base_url + "/xkhronos"
+    data = {"key": self._key, "url": url, "cookies": cookies}
+    resp = requests.post(url, data=data).json()
+    if resp['status'] == 0:
+        return 'Invalid API-Key'
+    elif resp['status'] == 1:
+        return 'Missing required parameters. DM Virtuality.#6670 for proper instruction.'
+    elif resp['status'] == 5:
+        return resp['result']['khronos']
