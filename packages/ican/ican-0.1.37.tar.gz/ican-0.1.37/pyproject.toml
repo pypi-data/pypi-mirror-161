@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ican"
+description = "ican is a simple version bumper/build pipeline orchestrator"
+readme = "README.md"
+keywords = ["api", "auth"]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Natural Language :: English",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Topic :: Software Development :: Version Control",
+]
+dependencies = ['importlib-metadata; python_version<"3.11"']
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ican.__public_version__"}
+
+[project.scripts]
+ican = "ican.cli:entry"
+
+[project.urls]
+"Homepage" = "https://github.com/jthop/ican"
+"Bug Tracker" = "https://github.com/jthop/ican/issues"
+
+[tool.black]
+line-length = 88
