@@ -1,0 +1,66 @@
+Metadata-Version: 2.1
+Name: asyncify-python
+Version: 2.0.1
+Summary: A python library to make things async!
+Author: The Master
+License: MIT
+Project-URL: GitHub, https://github.com/chawkk6404/asyncify
+Project-URL: Documentation, https://asyncify.readthedocs.io/en/latest
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
+Classifier: Typing :: Typed
+Requires-Python: >=3.7.0
+Description-Content-Type: text/x-rst
+Provides-Extra: docs
+License-File: LICENSE
+
+Asyncify
+=========
+
+A python library with helpful things to be used with asyncio!
+
+
+Documentation
+---------------
+https://asyncify.readthedocs.io/en/latest/
+
+
+Installation
+--------------
+Python 3.7 or higher is required
+
+.. code:: sh
+
+    $ pip install -U asyncify-python
+
+
+Example
+--------
+.. code:: py
+
+    import asyncify
+    import requests
+
+    @asyncify.asyncify_func
+    def get(url: str) -> str:
+        return requests.get(url).text
+
+    # `get` is no longer a blocking function
+    # it is now a coroutine function
+
+    async def main():
+        text = await get('https://python.org')
+
+    # this is very useful to turn a blocking library into an async library
+    get = asyncify(requests.get)
