@@ -1,0 +1,145 @@
+Metadata-Version: 2.1
+Name: generate-changelog
+Version: 0.8.0
+Summary: Generate a changelog file from a local git checkout
+Home-page: https://github.com/coordt/generate_changelog
+Author: Corey Oordt
+Author-email: coreyoordt@gmail.com
+License: MIT
+Project-URL: Documentation, https://coordt.github.io/generate-changelog/
+Project-URL: Source, https://github.com/coordt/generate-changelog
+Keywords: changelog,change,git,commit
+Classifier: Environment :: Console
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Topic :: Software Development :: Version Control :: Git
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: GitPython
+Requires-Dist: jinja2
+Requires-Dist: more-itertools
+Requires-Dist: ruamel.yaml
+Requires-Dist: typer
+Requires-Dist: typing-extensions ; python_version < "3.10"
+Requires-Dist: backports.cached-property ; python_version < "3.8"
+Provides-Extra: dev
+Requires-Dist: GitPython ; extra == 'dev'
+Requires-Dist: jinja2 ; extra == 'dev'
+Requires-Dist: more-itertools ; extra == 'dev'
+Requires-Dist: ruamel.yaml ; extra == 'dev'
+Requires-Dist: typer ; extra == 'dev'
+Requires-Dist: coverage (>=6.1.2) ; extra == 'dev'
+Requires-Dist: faker ; extra == 'dev'
+Requires-Dist: pre-commit (>=2.15.0) ; extra == 'dev'
+Requires-Dist: pytest (>=6.0.0) ; extra == 'dev'
+Requires-Dist: pytest-cov (>=3.0.0) ; extra == 'dev'
+Requires-Dist: pytest-mock (>=3.6.1) ; extra == 'dev'
+Requires-Dist: twine (>=3.6.0) ; extra == 'dev'
+Requires-Dist: wheel (>=0.37.0) ; extra == 'dev'
+Requires-Dist: furo ; extra == 'dev'
+Requires-Dist: ghp-import ; extra == 'dev'
+Requires-Dist: linkify-it-py ; extra == 'dev'
+Requires-Dist: myst-parser ; extra == 'dev'
+Requires-Dist: Sphinx ; extra == 'dev'
+Requires-Dist: sphinx-autodoc-typehints ; extra == 'dev'
+Requires-Dist: sphinx-click ; extra == 'dev'
+Requires-Dist: sphinx-copybutton ; extra == 'dev'
+Requires-Dist: bump2version (>=1.0.1) ; extra == 'dev'
+Requires-Dist: git-fame (>=1.12.2) ; extra == 'dev'
+Requires-Dist: typing-extensions ; (python_version < "3.10") and extra == 'dev'
+Requires-Dist: backports.cached-property ; (python_version < "3.8") and extra == 'dev'
+Provides-Extra: test
+Requires-Dist: GitPython ; extra == 'test'
+Requires-Dist: jinja2 ; extra == 'test'
+Requires-Dist: more-itertools ; extra == 'test'
+Requires-Dist: ruamel.yaml ; extra == 'test'
+Requires-Dist: typer ; extra == 'test'
+Requires-Dist: coverage (>=6.1.2) ; extra == 'test'
+Requires-Dist: faker ; extra == 'test'
+Requires-Dist: pre-commit (>=2.15.0) ; extra == 'test'
+Requires-Dist: pytest (>=6.0.0) ; extra == 'test'
+Requires-Dist: pytest-cov (>=3.0.0) ; extra == 'test'
+Requires-Dist: pytest-mock (>=3.6.1) ; extra == 'test'
+Requires-Dist: twine (>=3.6.0) ; extra == 'test'
+Requires-Dist: wheel (>=0.37.0) ; extra == 'test'
+Requires-Dist: typing-extensions ; (python_version < "3.10") and extra == 'test'
+Requires-Dist: backports.cached-property ; (python_version < "3.8") and extra == 'test'
+
+# Generate Changelog
+
+<!-- start badges -->
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/coordt/generate-changelog/master.svg)](https://results.pre-commit.ci/latest/github/coordt/generate-changelog/master)
+[![Coverage Status](https://coveralls.io/repos/github/coordt/generate-changelog/badge.svg?branch=master)](https://coveralls.io/github/coordt/generate-changelog?branch=master)
+Use your commit log to make a beautiful changelog file.
+<!-- end badges -->
+
+- [Documentation](https://coordt.github.io/generate-changelog/)
+- [GitHub](https://github.com/coordt/generate-changelog)
+
+`generate-changelog` does what it says: it generates a full changelog, or updates an existing one. Git tags and commits are the inputs by which `generate-changelog` performs its task.
+
+The primary goal of this tool was to provide the benefits of [conventional commits](https://www.conventionalcommits.org/) without requiring a strict syntax. `generate-changelog` accomplishes this using configurable regular expressions or commit metadata matching. The thought is natural language is easier for developers to remember and requires less tooling to enforce.
+
+## Features
+
+### Commit and tag processing
+
+- Filter out commits and tags based on regular expression matching.
+- Classify commit messages into sections such as "New", "Fixes", and "Changes" using configurable regular expressions, metadata, or custom criteria.
+- Rewrite commit summary or commit body using pipelines of actions.
+- Extract parts of the commit summary or body into metadata available for templates and filters.
+- Built-in issue parsers for Jira, GitHub, Azure DevOps Board.
+- Built-in conventional commit parser
+
+### Changelog rendering
+
+- Templated using [Jinja](https://jinja.palletsprojects.com/en/3.0.x/) templates.
+- Each template has a large amount of metadata that allows linking to a commit, a version diff, and issue trackers.
+- Easily customize just the template you want.
+- Supports full or incremental changelog generation.
+
+### Release hints
+
+- Can use user-defined rules to suggest a release type for use in another part of your CI pipeline.
+
+### Git support
+
+- Supports your merge or rebase workflows and complicated git histories.
+- Supports of multi-authors for one commit through configurable [trailers key values](https://git.wiki.kernel.org/index.php/CommitMessageConventions).
+- Built-in parser for turning [trailers key values](https://zerokspot.com/weblog/2020/10/24/git-commit-messages-with-attributes/) into metadata.
+
+## Requirements
+
+Python 3.7 or higher.
+
+## Installation
+
+```bash
+$ pip install generate-changelog
+```
+
+## Usage
+
+Create a default configuration file.
+
+```bash
+$ generate-changelog --generate-config
+```
+
+This creates a file named `.changelog-config.yaml`. You can make changes to the default configuration.
+
+Generate your changelog via:
+
+```bash
+$ generate-changelog
+```
