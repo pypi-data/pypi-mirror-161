@@ -1,0 +1,57 @@
+[project]
+name = "ticket_cross_check"
+description = "Gitlab issue cross checker. Checks for gitlab tickets to appear in the source and vice versa."
+authors = [
+    { name = "Christoph Becker", email = "christoph.becker@exb.de" },
+]
+dependencies = [
+    "loguru==0.6.0",
+    "pydantic==1.9.1",
+    "requests>=2.28.1",
+    "flit>=3.7.1",
+    "python-gitlab==3.7.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+dynamic = []
+version = "0.6.1"
+
+[project.license]
+text = "MIT"
+
+[project.optional-dependencies]
+
+[project.scripts]
+discover = "ticket_cross_check:discover"
+
+[build-system]
+requires = [
+    "pdm-pep517>=1.0.0",
+]
+build-backend = "pdm.pep517.api"
+
+[tool.pdm.build]
+includes = [
+    "ticket_cross_check/",
+    "resource/",
+    "CHANGELOG.md",
+]
+
+[tool.pdm.version]
+source = "file"
+path = "ticket_cross_check/__version__.py"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "flake8>=4.0.1",
+    "pytest>=7.1.2",
+    "pytest-cov>=3.0.0",
+    "python-semantic-release>=7.31.2",
+]
+
+[tool.semantic_release]
+version_source = "tag"
+version_variable = "ticket_cross_check/__version__.py:__version__"
+branch = "main"
+build_command = "pdm build"
+hvcs = "gitlab"

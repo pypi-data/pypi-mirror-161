@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Requirement matching</title>
+    <style>
+        td {
+            width: auto;
+        }
+
+        th.min {
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        .header-space {
+            margin-top: 10px;
+        }
+
+        .dataTables_info {
+            position: fixed;
+            bottom: 15px;
+        }
+
+        .dataTables_paginate {
+            position: fixed;
+            bottom: 15px;
+            right: 40px;
+        }
+
+        table.dataTable tbody th, table.dataTable tbody td {
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr {
+            /*height: 65px;*/
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item" href="index.html">
+                Ticketlist
+            </a>
+            <a class="navbar-item" href="matrix.html">
+                Matrix
+            </a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h3 class="title is-2 block header-space">Issue Matching</h3>
+    <table id="example" class="block table">
+        <thead>
+        <tr>
+            <th class="min">ID</th>
+            <th>Title</th>
+            <th>Path</th>
+            <th class="min">LineNr</th>
+            <th>Status</th>
+            <th>Dir</th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Path</th>
+            <th>LineNr</th>
+            <th>Status</th>
+            <th>Dir</th>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+<script>
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            vars[key] = decodeURIComponent(value);
+        });
+        return vars;
+
+    }
+
+    $(document).ready(function () {
+        // add search bar to table footer
+        // $('#example tfoot th').each(function () {
+        //     var title = $(this).text();
+        //     $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        // });
+        $('#example').DataTable({
+            ajax: 'allinone.json',
+            order: [[0, 'asc']],
+            pagingType: 'full_numbers',
+            pageLength: 10,
+            columnDefs: [{
+                targets: 4,
+                render: function (data, type, row) {
+                    if (data === 'problem') {
+                        return '<span class="tag is-danger">' + data + '</span>';
+                    } else if (data === 'unsolved') {
+                        return '<span class="tag is-warning">' + data + '</span>';
+                    } else if (data === 'solved') {
+                        return '<span class="tag is-success">' + data + '</span>';
+                    }
+                }
+            }],
+            initComplete: function () {
+                // search from url
+                this.api().search(getUrlVars()['search']).draw();
+                // Apply the search
+                this.api()
+                    .columns()
+                    .every(function () {
+                        var that = this;
+
+                        $('input', this.footer()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that.search(this.value).draw();
+                            }
+                        });
+                    });
+            },
+        });
+    });
+</script>
+
+</body>
+</html>
