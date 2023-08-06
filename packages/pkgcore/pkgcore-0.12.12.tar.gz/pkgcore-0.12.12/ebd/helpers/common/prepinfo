@@ -1,0 +1,63 @@
+#!/usr/bin/env pkgcore-ebuild-helper
+
+shopt -s extdebug
+
+if ! ${PKGCORE_PREFIX_SUPPORT:=false}; then
+	ED=${D}
+elif [[ ${ED:-unset} == "unset" ]]; then
+	__helper_exit -1 "The variable ED is missing from the environment, but is required for prefix mode; failing."
+fi
+
+if [[ -z $1 ]]; then
+	z=${ED}/usr/share/info
+else
+	if [[ -d ${ED}/$1/share/info ]]; then
+		z=${ED}/$1/share/info
+	else
+		z=${ED}/$1/info
+	fi
+fi
+
+[[ ! -d ${z} ]] && return
+
+rm -f "${z}"/dir{,.old}{,.info{,.gz,.bz2,.xz,.Z}}
+
+if [[ -z ${PORTAGE_COMPRESS_SUFFIX} ]]; then
+	case ${PORTAGE_COMPRESS} in
+		gzip)  suffix="gz";;
+		bzip2) suffix="bz2";;
+		xz)    suffix="xz";;
+		*)     die "prepinfo: error fixing links: please set PORTAGE_COMPRESS_SUFFIX in make.conf";;
+	esac
+fi
+
+echo "info: ${PORTAGE_COMPRESS} ${PORTAGE_COMPRESS_FLAGS}"
+
+for x in $(find "${z}"/ \( -type f -or -type l \) -maxdepth 1 -mindepth 1 2>/dev/null); do
+	if [[ -L ${x} ]]; then
+		# Symlink ...
+		mylink=${x}
+		linkto=$(readlink "${x}")
+
+		if [[ ${linkto##*.} != ${suffix} ]]; then
+			linkto=${linkto}.${suffix}
+		fi
+		if [[ ${mylink##*.} != ${suffix} ]]; then
+			mylink=${mylink}.${suffix}
+		fi
+
+		echo "  fixing GNU info symlink: ${mylink##*/}"
+		ln -snf "${linkto}" "${mylink}"
+		if [[ ${x} != ${mylink} ]]; then
+			echo "  removing old symlink: ${x##*/}"
+			rm -f "${x}"
+		fi
+	else
+		if [[ ${x##*.} != ${suffix} ]]; then
+			echo "  compressing GNU info page: ${x##*/}"
+			"${PORTAGE_COMPRESS}" ${PORTAGE_COMPRESS_FLAGS} -f "${x}"
+		fi
+	fi
+done
+
+:

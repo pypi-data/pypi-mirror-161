@@ -1,0 +1,306 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PCLEAN" "1" "Jul 29, 2022" "0.12.12" "pkgcore"
+.SH NAME
+pclean \- system cleaning utility
+.SH SYNOPSIS
+.sp
+pclean [\-h] [\-\-version] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-\-config CONFIG_PATH] [\-\-domain DOMAIN] {config,dist,pkg,tmp} ...
+.SH BASE OPTIONS
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-version
+show this program\(aqs version info and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SH CONFIG OPTIONS
+.INDENT 0.0
+.TP
+.BI \-\-config \ CONFIG_PATH
+use custom config or skip loading system config
+.TP
+.BI \-\-domain \ DOMAIN
+custom pkgcore domain to use for this operation
+.UNINDENT
+.SH SUBCOMMANDS
+.sp
+cleaning applets
+.SS pclean config \- remove config file settings
+.SS Synopsis
+.sp
+pclean config [\-p] [\-x EXCLUDE] [\-X EXCLUDE_FILE] [\-S PKGSET] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [TARGET ...]
+.SS Generic Cleaning Options
+.INDENT 0.0
+.TP
+.B TARGET
+packages to target for cleaning
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-p\fP,\fB  \-\-pretend
+dry run without performing any changes
+.TP
+.BI \-x \ EXCLUDE\fR,\fB \ \-\-exclude \ EXCLUDE
+list of packages to exclude from removal
+.TP
+.BI \-X \ EXCLUDE_FILE\fR,\fB \ \-\-exclude\-file \ EXCLUDE_FILE
+path to exclusion file
+.TP
+.BI \-S \ PKGSET\fR,\fB \ \-\-pkgsets \ PKGSET
+list of pkgsets to include or exclude from removal
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SS pclean dist \- remove distfiles
+.SS Synopsis
+.sp
+pclean dist [\-p] [\-x EXCLUDE] [\-X EXCLUDE_FILE] [\-S PKGSET] [\-m TIME] [\-s SIZE] [\-I] [\-E] [\-f] [\-r REPO] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [TARGET ...]
+.SS Generic Cleaning Options
+.INDENT 0.0
+.TP
+.B TARGET
+packages to target for cleaning
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-p\fP,\fB  \-\-pretend
+dry run without performing any changes
+.TP
+.BI \-x \ EXCLUDE\fR,\fB \ \-\-exclude \ EXCLUDE
+list of packages to exclude from removal
+.TP
+.BI \-X \ EXCLUDE_FILE\fR,\fB \ \-\-exclude\-file \ EXCLUDE_FILE
+path to exclusion file
+.TP
+.BI \-S \ PKGSET\fR,\fB \ \-\-pkgsets \ PKGSET
+list of pkgsets to include or exclude from removal
+.UNINDENT
+.SS File Cleaning Options
+.INDENT 0.0
+.TP
+.BI \-m \ TIME\fR,\fB \ \-\-modified \ TIME
+skip files that have been modified since a given time
+.TP
+.BI \-s \ SIZE\fR,\fB \ \-\-size \ SIZE
+skip files bigger than a given size
+.UNINDENT
+.SS Repo Cleaning Options
+.INDENT 0.0
+.TP
+.B  \-I\fP,\fB  \-\-installed
+skip files for packages that are currently installed
+.TP
+.B  \-E\fP,\fB  \-\-exists
+skip files for packages that relate to ebuilds in the tree
+.TP
+.B  \-f\fP,\fB  \-\-fetch\-restricted
+skip fetch\-restricted files
+.TP
+.BI \-r \ REPO\fR,\fB \ \-\-repo \ REPO
+target repository
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SS pclean pkg \- remove binpkgs
+.SS Synopsis
+.sp
+pclean pkg [\-p] [\-x EXCLUDE] [\-X EXCLUDE_FILE] [\-S PKGSET] [\-m TIME] [\-s SIZE] [\-I] [\-E] [\-f] [\-r REPO] [\-\-source\-repo REPO] [\-b] [\-c CHANGED] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [TARGET ...]
+.SS Generic Cleaning Options
+.INDENT 0.0
+.TP
+.B TARGET
+packages to target for cleaning
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-p\fP,\fB  \-\-pretend
+dry run without performing any changes
+.TP
+.BI \-x \ EXCLUDE\fR,\fB \ \-\-exclude \ EXCLUDE
+list of packages to exclude from removal
+.TP
+.BI \-X \ EXCLUDE_FILE\fR,\fB \ \-\-exclude\-file \ EXCLUDE_FILE
+path to exclusion file
+.TP
+.BI \-S \ PKGSET\fR,\fB \ \-\-pkgsets \ PKGSET
+list of pkgsets to include or exclude from removal
+.UNINDENT
+.SS File Cleaning Options
+.INDENT 0.0
+.TP
+.BI \-m \ TIME\fR,\fB \ \-\-modified \ TIME
+skip files that have been modified since a given time
+.TP
+.BI \-s \ SIZE\fR,\fB \ \-\-size \ SIZE
+skip files bigger than a given size
+.UNINDENT
+.SS Repo Cleaning Options
+.INDENT 0.0
+.TP
+.B  \-I\fP,\fB  \-\-installed
+skip files for packages that are currently installed
+.TP
+.B  \-E\fP,\fB  \-\-exists
+skip files for packages that relate to ebuilds in the tree
+.TP
+.B  \-f\fP,\fB  \-\-fetch\-restricted
+skip fetch\-restricted files
+.TP
+.BI \-r \ REPO\fR,\fB \ \-\-repo \ REPO
+target repository
+.UNINDENT
+.SS Binpkg Cleaning Options
+.INDENT 0.0
+.TP
+.BI \-\-source\-repo \ REPO
+remove binpkgs with matching source repo
+.TP
+.B  \-b\fP,\fB  \-\-bindist
+only remove binpkgs that restrict distribution
+.TP
+.BI \-c \ CHANGED\fR,\fB \ \-\-changed \ CHANGED
+comma separated list of package attributes to check for ebuild changes
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SS pclean tmp \- remove tmpdir entries
+.SS Synopsis
+.sp
+pclean tmp [\-p] [\-x EXCLUDE] [\-X EXCLUDE_FILE] [\-S PKGSET] [\-h] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-a] [TARGET ...]
+.SS Generic Cleaning Options
+.INDENT 0.0
+.TP
+.B TARGET
+packages to target for cleaning
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-p\fP,\fB  \-\-pretend
+dry run without performing any changes
+.TP
+.BI \-x \ EXCLUDE\fR,\fB \ \-\-exclude \ EXCLUDE
+list of packages to exclude from removal
+.TP
+.BI \-X \ EXCLUDE_FILE\fR,\fB \ \-\-exclude\-file \ EXCLUDE_FILE
+path to exclusion file
+.TP
+.BI \-S \ PKGSET\fR,\fB \ \-\-pkgsets \ PKGSET
+list of pkgsets to include or exclude from removal
+.UNINDENT
+.SS Base Options
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SS Tmpfile Options
+.INDENT 0.0
+.TP
+.B  \-a\fP,\fB  \-\-all
+wipe the entire tmpdir
+.UNINDENT
+.SH COPYRIGHT
+2006-2019, pkgcore contributors
+.\" Generated by docutils manpage writer.
+.

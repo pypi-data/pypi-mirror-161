@@ -1,0 +1,297 @@
+__econf_options_eapi4 () 
+{ 
+    if [[ $1 == *"--disable-dependency-tracking"* ]]; then
+        echo --disable-dependency-tracking;
+    fi
+}
+__econf_options_eapi5 () 
+{ 
+    if [[ $1 == *"--disable-silent-rules"* ]]; then
+        echo --disable-silent-rules;
+    fi
+}
+__econf_options_eapi6 () 
+{ 
+    if [[ $1 == *"--docdir"* ]]; then
+        echo --docdir="${EPREFIX}"/usr/share/doc/${PF};
+    fi;
+    if [[ $1 == *"--htmldir"* ]]; then
+        echo --htmldir="${EPREFIX}"/usr/share/doc/${PF}/html;
+    fi
+}
+best_version () 
+{ 
+    __ebd_ipc_cmd ${FUNCNAME} "" "$@"
+}
+debug-print () 
+{ 
+    :
+}
+debug-print-function () 
+{ 
+    :
+}
+debug-print-section () 
+{ 
+    :
+}
+default () 
+{ 
+    if __is_function default_pkg_${EBUILD_PHASE}; then
+        default_pkg_${EBUILD_PHASE};
+    else
+        if __is_function default_src_${EBUILD_PHASE}; then
+            default_src_${EBUILD_PHASE};
+        else
+            die "default is not available in ebuild phase '${EBUILD_PHASE}'";
+        fi;
+    fi
+}
+default_src_configure () 
+{ 
+    __phase_src_configure
+}
+ebegin () 
+{ 
+    local msg="$* ...";
+    einfon "${msg}";
+    echo;
+    PKGCORE_RC_LAST_CMD="ebegin";
+    return 0
+}
+econf () 
+{ 
+    local ret;
+    ECONF_SOURCE=${ECONF_SOURCE:-.};
+    if [[ ! -x ${ECONF_SOURCE}/configure ]]; then
+        [[ -f ${ECONF_SOURCE}/configure ]] && die "configure script isn't executable";
+        die "no configure script found";
+    fi;
+    if [[ -d /usr/share/gnuconfig ]]; then
+        local x;
+        find "${WORKDIR}" -type f \( -name config.guess -o -name config.sub \) | while read x; do
+            echo "econf: replacing ${x} with /usr/share/gnuconfig/${x##*/}";
+            cp -f "/usr/share/gnuconfig/${x##*/}" "${x}";
+        done;
+    fi;
+    local CONF_LIBDIR=$(__get_libdir);
+    if [[ -n ${CONF_LIBDIR} && $* != *"--libdir="* ]]; then
+        if [[ $* == *"--exec-prefix="* ]]; then
+            local args=$(echo $*);
+            local -a prefix=($(echo ${args/*--exec-prefix[= ]}));
+            CONF_PREFIX=${prefix/--*};
+            [[ ${CONF_PREFIX} != /* ]] && CONF_PREFIX=/${CONF_PREFIX};
+        else
+            if [[ $* == *"--prefix="* ]]; then
+                local args=$(echo $*);
+                local -a prefix=($(echo ${args/*--prefix[= ]}));
+                CONF_PREFIX=${prefix/--*};
+                [[ ${CONF_PREFIX} != /* ]] && CONF_PREFIX=/${CONF_PREFIX};
+            else
+                CONF_PREFIX=/usr;
+            fi;
+        fi;
+        export CONF_PREFIX;
+        [[ ${CONF_LIBDIR} != /* ]] && CONF_LIBDIR=/${CONF_LIBDIR};
+        set -- --libdir="$(__strip_duplicate_slashes "${CONF_PREFIX}${CONF_LIBDIR}")" "$@";
+    fi;
+    local help_text=$("${ECONF_SOURCE}/configure" --help 2> /dev/null);
+    set -- $(__run_eapi_funcs --override __econf_options "${help_text}") "$@";
+    local IFS=' 	
+';
+    set -- "${ECONF_SOURCE}/configure" --prefix="${EPREFIX}"/usr ${CBUILD:+--build="${CBUILD}"} --host="${CHOST}" ${CTARGET:+--target="${CTARGET}"} --mandir="${EPREFIX}"/usr/share/man --infodir="${EPREFIX}"/usr/share/info --datadir="${EPREFIX}"/usr/share --sysconfdir="${EPREFIX}"/etc --localstatedir="${EPREFIX}"/var/lib "$@" ${EXTRA_ECONF};
+    echo "$@";
+    if ! "$@"; then
+        if [[ -s config.log ]]; then
+            echo;
+            echo "!!! Please attach the config.log to your bug report:";
+            echo "!!! ${PWD}/config.log";
+        fi;
+        die "econf failed";
+    fi;
+    return $?
+}
+eend () 
+{ 
+    local retval=${1:-0};
+    shift;
+    local msg;
+    if [[ ${retval} == 0 ]]; then
+        msg="${PKGCORE_RC_BRACKET}[ ${PKGCORE_RC_GOOD}ok${PKGCORE_RC_BRACKET} ]${PKGCORE_RC_NORMAL}";
+    else
+        if [[ $# -ne 0 ]]; then
+            eerror "$*";
+        fi;
+        msg="${PKGCORE_RC_BRACKET}[ ${PKGCORE_RC_BAD}!!${PKGCORE_RC_BRACKET} ]${PKGCORE_RC_NORMAL}";
+    fi;
+    echo -e "${PKGCORE_RC_ENDCOL} ${msg}" 1>&2;
+    return ${retval}
+}
+eerror () 
+{ 
+    __elog_base ERROR "$*";
+    printf " ${PKGCORE_RC_BAD}*${PKGCORE_RC_NORMAL} %b\n" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="eerror";
+    return 0
+}
+einfo () 
+{ 
+    printf " ${PKGCORE_RC_GOOD}*${PKGCORE_RC_NORMAL} %b\n" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="einfo";
+    return 0
+}
+einfon () 
+{ 
+    __elog_base INFO "$*";
+    printf " ${PKGCORE_RC_GOOD}*${PKGCORE_RC_NORMAL} %b" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="einfon";
+    return 0
+}
+elog () 
+{ 
+    __elog_base LOG "$*";
+    printf " ${PKGCORE_RC_GOOD}*${PKGCORE_RC_NORMAL} %b\n" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="elog";
+    return 0
+}
+eqawarn () 
+{ 
+    __elog_base QA "$*";
+    printf " ${PKGCORE_RC_WARN}*${PKGCORE_RC_NORMAL} %b\n" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="eqawarn";
+    return 0
+}
+ewarn () 
+{ 
+    __elog_base WARN "$*";
+    printf " ${PKGCORE_RC_WARN}*${PKGCORE_RC_NORMAL} %b\n" "${*}" 1>&2;
+    PKGCORE_RC_LAST_CMD="ewarn";
+    return 0
+}
+get_libdir () 
+{ 
+    __get_libdir lib
+}
+has () 
+{ 
+    local needle=$1;
+    shift;
+    local IFS='';
+    [[ "${IFS}${*}${IFS}" != *"${IFS}${needle}${IFS}"* ]] && return 1;
+    IFS=' ';
+    [[ *''* != $* ]] && return 0;
+    __shopt_push +x;
+    local x;
+    for x in "$@";
+    do
+        if [[ ${x} == ${needle} ]]; then
+            __shopt_pop;
+            return 0;
+        fi;
+    done;
+    __shopt_pop;
+    return 1
+}
+has_version () 
+{ 
+    return $(__ebd_ipc_cmd ${FUNCNAME} "" "$@")
+}
+hasq () 
+{ 
+    has ${EBUILD_PHASE} prerm postrm || eqawarn "QA Notice: The 'hasq' function is deprecated (replaced by 'has')";
+    has "$@"
+}
+hasv () 
+{ 
+    has "$@" && echo "$1"
+}
+in_iuse () 
+{ 
+    [[ $1 =~ ${PKGCORE_IUSE_EFFECTIVE} ]]
+}
+nonfatal () 
+{ 
+    PKGCORE_NONFATAL=true "$@"
+}
+unpack () 
+{ 
+    __ebd_ipc_cmd ${FUNCNAME} "" "$@"
+}
+use () 
+{ 
+    if [[ ! ${1#!} =~ ${PKGCORE_IUSE_EFFECTIVE} ]]; then
+        die "USE flag '${1#!}' not in IUSE for ${CATEGORY}/${PF}";
+    fi;
+    local IFS=' 	
+';
+    if [[ ${1:0:1} == "!" ]]; then
+        ! __safe_has "${1#!}" ${USE};
+    else
+        __safe_has "$1" ${USE};
+    fi
+}
+use_enable () 
+{ 
+    if [[ -z $1 ]]; then
+        echo "!!! use_enable() called without a parameter." 1>&2;
+        echo "!!! use_enable <USEFLAG> [<flagname> [value]]" 1>&2;
+        return;
+    fi;
+    local ue_suffix="";
+    if __safe_has "${EAPI}" 0 1 2 3; then
+        ue_suffix=${3:+=$3};
+    else
+        ue_suffix=${3+=$3};
+    fi;
+    local uword=$2;
+    if [[ -z ${uword} ]]; then
+        uword=$1;
+    fi;
+    if use "$1"; then
+        echo "--enable-${uword}${ue_suffix}";
+        return 0;
+    fi;
+    echo "--disable-${uword}";
+    return 1
+}
+use_with () 
+{ 
+    if [[ -z $1 ]]; then
+        echo "!!! use_with() called without a parameter." 1>&2;
+        echo "!!! use_with <USEFLAG> [<flagname> [value]]" 1>&2;
+        return;
+    fi;
+    local uw_suffix="";
+    if __safe_has "${EAPI}" 0 1 2 3; then
+        uw_suffix=${3:+=$3};
+    else
+        uw_suffix=${3+=$3};
+    fi;
+    local uword=$2;
+    if [[ -z ${uword} ]]; then
+        uword=$1;
+    fi;
+    if use "$1"; then
+        echo "--with-${uword}${uw_suffix}";
+        return 0;
+    fi;
+    echo "--without-${uword}";
+    return 1
+}
+useq () 
+{ 
+    use "$@"
+}
+usev () 
+{ 
+    if use "$1"; then
+        echo "${1#!}";
+        return 0;
+    fi;
+    return 1
+}
+usex () 
+{ 
+    use "$1" && echo "${2-yes}$4" || echo "${3-no}$5";
+    return 0
+}

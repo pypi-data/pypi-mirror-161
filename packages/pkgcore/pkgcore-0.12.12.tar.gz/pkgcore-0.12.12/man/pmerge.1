@@ -1,0 +1,228 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PMERGE" "1" "Jul 29, 2022" "0.12.12" "pkgcore"
+.SH NAME
+pmerge \- package merging and unmerging interface
+.SH SYNOPSIS
+.sp
+pmerge [\-h] [\-\-version] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-\-config CONFIG_PATH] [\-\-domain DOMAIN] [\-u | \-d | \-C | \-\-clean | \-\-list\-sets] [\-p] [\-a] [\-f] [\-1] [\-D] [\-N] [\-i] [\-\-with\-bdeps] [\-O] [\-o] [\-n] [\-b] [\-k] [\-K] [\-S] [\-e] [\-x TARGET[,TARGET,...]] [\-\-ignore\-failures] [\-\-force] [\-\-preload\-vdb\-state] [\-\-quiet\-repo\-display] [\-F FORMATTER] [TARGET ...]
+.SH PORTAGE COMPATIBILITY
+.sp
+With regards to portage compatibility, pmerge provides much of the same
+functionality that \fBemerge\fP(1) does. In general, it should be possible to use
+both pmerge and emerge on the same system in a sane fashion. For example,
+pmerge can be used to install packages and then emerge should be able to
+upgrade or uninstall them, or vice versa. Also, binary packages created using
+pmerge should be able to be installed properly using emerge. Any major
+compatibility issue that arises when trying to use both package managers is
+probably a bug and should be reported.
+.sp
+In terms of option naming, pmerge tries to remain somewhat compatible to
+portage so running \fBpmerge \-1av\fP should work the same as \fBemerge \-1av\fP when
+using portage. However, pmerge doesn\(aqt implement nearly the same amount of
+options that portage provides so many of the more obscure ones are missing. In
+addition, pmerge defaults to a portage compatible output format that closely
+matches the default colors and output structure that portage uses.
+.SH POSITIONAL ARGUMENTS
+.INDENT 0.0
+.TP
+.B TARGET
+extended package matching
+.UNINDENT
+.SH BASE OPTIONS
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-version
+show this program\(aqs version info and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SH CONFIG OPTIONS
+.INDENT 0.0
+.TP
+.BI \-\-config \ CONFIG_PATH
+use custom config or skip loading system config
+.TP
+.BI \-\-domain \ DOMAIN
+custom pkgcore domain to use for this operation
+.UNINDENT
+.SH OPERATIONS
+.INDENT 0.0
+.TP
+.B  \-u\fP,\fB  \-\-upgrade
+try to upgrade installed pkgs/deps
+.TP
+.B  \-d\fP,\fB  \-\-downgrade
+try to downgrade installed pkgs/deps
+.TP
+.B  \-C\fP,\fB  \-\-unmerge
+unmerge packages
+.TP
+.B  \-\-clean
+remove installed packages not referenced by any target pkgs/sets
+.TP
+.B  \-\-list\-sets
+display the list of available package sets
+.UNINDENT
+.SH RESOLVER OPTIONS
+.INDENT 0.0
+.TP
+.B  \-p\fP,\fB  \-\-pretend
+only perform the dep resolution
+.TP
+.B  \-a\fP,\fB  \-\-ask
+ask for user confirmation after dep resolution
+.TP
+.B  \-f\fP,\fB  \-\-fetchonly
+do only the fetch steps of the resolved plan
+.TP
+.B  \-1\fP,\fB  \-\-oneshot
+do not record changes in the world file
+.TP
+.B  \-D\fP,\fB  \-\-deep
+force the resolver to verify installed deps
+.TP
+.B  \-N\fP,\fB  \-\-newuse
+add installed pkgs with changed useflags to targets
+.TP
+.B  \-i\fP,\fB  \-\-ignore\-cycles
+ignore unbreakable dep cycles
+.TP
+.B  \-\-with\-bdeps
+process build deps for built packages
+.TP
+.B  \-O\fP,\fB  \-\-nodeps
+disable dependency resolution
+.TP
+.B  \-o\fP,\fB  \-\-onlydeps
+only merge the deps of the specified packages
+.TP
+.B  \-n\fP,\fB  \-\-noreplace
+don\(aqt reinstall target pkgs that are already installed
+.TP
+.B  \-b\fP,\fB  \-\-buildpkg
+build binpkgs
+.TP
+.B  \-k\fP,\fB  \-\-usepkg
+prefer to use binpkgs
+.TP
+.B  \-K\fP,\fB  \-\-usepkgonly
+use only binpkgs
+.TP
+.B  \-S\fP,\fB  \-\-source\-only
+use only ebuilds, no binpkgs
+.TP
+.B  \-e\fP,\fB  \-\-empty
+force rebuilding of all involved packages
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-x TARGET[,TARGET,...], \-\-exclude TARGET[,TARGET,...]
+inject packages into the installed set
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-\-ignore\-failures
+ignore failures while running all types of tasks
+.TP
+.B  \-\-force
+force changes to a repo, regardless of if it\(aqs frozen
+.TP
+.B  \-\-preload\-vdb\-state
+enable preloading of the installed packages database
+.UNINDENT
+.SH OUTPUT OPTIONS
+.INDENT 0.0
+.TP
+.B  \-\-quiet\-repo\-display
+use indexes instead of ::repo suffixes in dep resolution output
+.TP
+.BI \-F \ FORMATTER\fR,\fB \ \-\-formatter \ FORMATTER
+output formatter to use
+.UNINDENT
+.SH EXAMPLE USAGE
+.sp
+Merge pkgcore from the gentoo repo:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pmerge sys\-apps/pkgcore::gentoo
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output a simple list of package atoms that would be updated for a global
+update:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pmerge \-uDp \-\-formatter basic @world
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Force new binpkgs to be built for the entire system set using a custom
+configuration directory:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pmerge \-uDSeb \-\-config /home/foo/portage @system
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.sp
+\fBemerge\fP(1)
+.SH COPYRIGHT
+2006-2019, pkgcore contributors
+.\" Generated by docutils manpage writer.
+.

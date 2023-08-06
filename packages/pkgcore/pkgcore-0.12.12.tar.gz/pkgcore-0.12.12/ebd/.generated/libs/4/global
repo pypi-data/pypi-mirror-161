@@ -1,0 +1,67 @@
+__phase_pkg_nofetch () 
+{ 
+    [[ -z ${SRC_URI} ]] && return;
+    echo "!!! The following are listed in SRC_URI for ${PN}:";
+    local fp;
+    __shopt_push -f;
+    for fp in ${SRC_URI};
+    do
+        echo "!!! ${fp}";
+    done;
+    __shopt_pop
+}
+__phase_src_compile () 
+{ 
+    if [[ -f Makefile || -f GNUmakefile || -f makefile ]]; then
+        emake || die "emake failed";
+    fi
+}
+__phase_src_configure () 
+{ 
+    if [[ -x ${ECONF_SOURCE:-.}/configure ]]; then
+        econf;
+    fi
+}
+__phase_src_install () 
+{ 
+    if [[ -f Makefile || -f GNUmakefile || -f makefile ]]; then
+        emake DESTDIR="${D}" install;
+    fi;
+    local docs PKGCORE_DOCDESTTREE=;
+    if ! docs=$(declare -p DOCS 2> /dev/null); then
+        for docs in README* ChangeLog AUTHORS NEWS TODO CHANGES THANKS BUGS FAQ CREDITS CHANGELOG;
+        do
+            [[ -s ${docs} ]] && dodoc "${docs}";
+        done;
+    else
+        if [[ ${docs} == "declare -a "* ]]; then
+            dodoc "${DOCS[@]}";
+        else
+            dodoc ${DOCS};
+        fi;
+    fi
+}
+__phase_src_prepare () 
+{ 
+    :
+}
+__phase_src_test () 
+{ 
+    addpredict /;
+    local extra_args=(${EXTRA_EMAKE} -j1);
+    if make check -n &> /dev/null; then
+        echo ">>> Test phase [check]: ${CATEGORY}/${PF}";
+        emake "${extra_args[@]}" check || die "make check failed, see above for details";
+    else
+        if make test -n &> /dev/null; then
+            emake "${extra_args[@]}" test || die "make test failed, see above for details";
+        else
+            echo ">>> Test phase [none]: ${CATEGORY}/${PF}";
+        fi;
+    fi;
+    SANDBOX_PREDICT=${SANDBOX_PREDICT%:/}
+}
+__phase_src_unpack () 
+{ 
+    [[ -n ${A} ]] && unpack ${A}
+}

@@ -1,0 +1,393 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PQUERY" "1" "Jul 29, 2022" "0.12.12" "pkgcore"
+.SH NAME
+pquery \- package querying interface
+.SH SYNOPSIS
+.sp
+pquery [\-h] [\-\-version] [\-\-debug] [\-q] [\-v] [\-\-color BOOLEAN] [\-\-config CONFIG_PATH] [\-\-domain DOMAIN] [\-\-raw] [\-\-unfiltered] [\-\-virtuals {only,disable}] [\-r REPO | \-E | \-B | \-I | \-A] [\-\-all] [\-\-has\-use has_use] [\-\-license license] [\-\-revdep REVDEP] [\-\-revdep\-pkgs REVDEP_PKGS] [\-\-restrict\-revdep restrict_revdep] [\-\-restrict\-revdep\-pkgs restrict_revdep_pkgs] [\-S description] [\-\-eapi eapi] [\-\-owns owns] [\-\-owns\-re owns_re] [\-\-maintainer maintainer] [\-\-maintainer\-name maintainer_name] [\-\-maintainer\-email maintainer_email] [\-\-environment environment] [\-\-pkgset pkgset] [\-u] [\-1] [\-a] [\-\-cpv] [\-R] [\-\-slot] [\-n | \-\-min | \-\-max] [\-\-blame] [\-\-size] [\-\-contents] [\-\-highlight\-dep HIGHLIGHT_DEP] [\-\-print\-revdep PRINT_REVDEP] [\-\-attr attribute] [\-\-force\-attr attribute] [\-\-one\-attr attribute | \-\-force\-one\-attr attribute] [TARGET ...]
+.SH BASE OPTIONS
+.INDENT 0.0
+.TP
+.B  \-h\fP,\fB  \-\-help
+show this help message and exit
+.TP
+.B  \-\-version
+show this program\(aqs version info and exit
+.TP
+.B  \-\-debug
+enable debugging checks
+.TP
+.B  \-q\fP,\fB  \-\-quiet
+suppress non\-error messages
+.TP
+.B  \-v\fP,\fB  \-\-verbose
+show verbose output
+.TP
+.BI \-\-color \ BOOLEAN
+enable/disable color support
+.UNINDENT
+.SH CONFIG OPTIONS
+.INDENT 0.0
+.TP
+.BI \-\-config \ CONFIG_PATH
+use custom config or skip loading system config
+.TP
+.BI \-\-domain \ DOMAIN
+custom pkgcore domain to use for this operation
+.UNINDENT
+.SH REPOSITORY MATCHING OPTIONS
+.sp
+options controlling which repos to inspect
+.INDENT 0.0
+.TP
+.B  \-\-raw
+disable configuration filtering
+.TP
+.B  \-\-unfiltered
+disable all license and visibility filtering
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-virtuals {only,disable}
+only match virtuals or disable virtuals matching entirely
+.UNINDENT
+.INDENT 0.0
+.TP
+.BI \-r \ REPO\fR,\fB \ \-\-repo \ REPO
+repo to search (default from domain if omitted)
+.TP
+.B  \-E\fP,\fB  \-\-ebuild\-repos
+search all ebuild repos
+.TP
+.B  \-B\fP,\fB  \-\-binary\-repos
+search all binary repos
+.TP
+.B  \-I\fP,\fB  \-\-installed
+search installed packages
+.TP
+.B  \-A\fP,\fB  \-\-all\-repos
+search all repos
+.UNINDENT
+.SH PACKAGE MATCHING OPTIONS
+.INDENT 0.0
+.TP
+.B TARGET
+extended atom matching of pkgs
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-\-all
+match all packages
+.TP
+.BI \-\-has\-use \ has_use
+exact string match on a USE flag
+.TP
+.BI \-\-license \ license
+exact match on a license
+.TP
+.BI \-\-revdep \ REVDEP
+shorthand for \-\-restrict\-revdep atom \-\-print\-revdep atom
+.TP
+.BI \-\-revdep\-pkgs \ REVDEP_PKGS
+shorthand for \-\-restrict\-revdep\-pkgs atom \-\-print\-revdep atom
+.TP
+.BI \-\-restrict\-revdep \ restrict_revdep
+dependency on an atom
+.TP
+.BI \-\-restrict\-revdep\-pkgs \ restrict_revdep_pkgs
+dependency on pkgs that match a specific atom
+.TP
+.BI \-S \ description\fR,\fB \ \-\-description \ description
+regexp search on description and longdescription
+.TP
+.BI \-\-eapi \ eapi
+match packages using a given EAPI
+.TP
+.BI \-\-owns \ owns
+exact match on an owned file/dir
+.TP
+.BI \-\-owns\-re \ owns_re
+like \(dqowns\(dq but using a regexp for matching
+.TP
+.BI \-\-maintainer \ maintainer
+comma\-separated list of regexes to search for maintainers
+.TP
+.BI \-\-maintainer\-name \ maintainer_name
+comma\-separated list of maintainer name regexes to search for
+.TP
+.BI \-\-maintainer\-email \ maintainer_email
+comma\-separated list of maintainer email regexes to search for
+.TP
+.BI \-\-environment \ environment
+regexp search in environment.bz2
+.TP
+.BI \-\-pkgset \ pkgset
+find packages that match the given package set (world for example)
+.TP
+.B  \-u\fP,\fB  \-\-upgrade
+match installed packages without best slotted version
+.UNINDENT
+.SH OUTPUT OPTIONS
+.INDENT 0.0
+.TP
+.B  \-1\fP,\fB  \-\-first
+stop when first match is found
+.TP
+.B  \-a\fP,\fB  \-\-atom
+print =cat/pkg\-3 instead of cat/pkg\-3.
+.TP
+.B  \-\-cpv
+print the category/package\-version
+.TP
+.B  \-R
+print the repo of the package
+.TP
+.B  \-\-slot
+print the slot of the package
+.TP
+.B  \-n\fP,\fB  \-\-no\-version
+collapse multiple matching versions together
+.TP
+.B  \-\-min
+show only the lowest version for each package
+.TP
+.B  \-\-max
+show only the highest version for each package
+.TP
+.B  \-\-blame
+shorthand for \-\-attr maintainers
+.TP
+.B  \-\-size
+display size of all files owned by the package
+.TP
+.B  \-\-contents
+list files owned by the package
+.TP
+.BI \-\-highlight\-dep \ HIGHLIGHT_DEP
+highlight dependencies matching this atom
+.TP
+.BI \-\-print\-revdep \ PRINT_REVDEP
+print what condition(s) trigger a dep
+.TP
+.BI \-\-attr \ attribute
+print this attribute\(aqs value (can be specified more than once)
+.TP
+.BI \-\-force\-attr \ attribute
+like \-\-attr but accepts any string as attribute name instead of only explicitly supported names
+.TP
+.BI \-\-one\-attr \ attribute
+print one attribute, suppresses other output
+.TP
+.BI \-\-force\-one\-attr \ attribute
+like \-\-one\-attr but accepts any string as attribute name instead of only explicitly supported names
+.UNINDENT
+.SH USAGE
+.sp
+Another switch that could do with some extra explanation is \fB\-\-raw\fP\&.
+Specifying \fB\-\-raw\fP makes your configuration not affect the results. Example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pquery \-\-attr alldepends sys\-apps/dbus \-\-max \-v
+* sys\-apps/dbus\-0.62\-r1
+    description: A message bus system, a simple way for applications to talk
+                 to each other
+    homepage: http://dbus.freedesktop.org/
+    depends: >=dev\-libs/glib\-2.6 || ( ( x11\-libs/libXt x11\-libs/libX11 )
+                 virtual/x11 ) >=x11\-libs/gtk+\-2.6 >=dev\-lang/python\-2.4
+                 >=dev\-python/pyrex\-0.9.3\-r2 >=dev\-libs/expat\-1.95.8
+                 dev\-util/pkgconfig sys\-devel/automake
+                 >=sys\-devel/autoconf\-2.59 sys\-devel/libtool
+    rdepends: >=dev\-libs/glib\-2.6 || ( ( x11\-libs/libXt x11\-libs/libX11 )
+                 virtual/x11 ) >=x11\-libs/gtk+\-2.6 >=dev\-lang/python\-2.4
+                 >=dev\-python/pyrex\-0.9.3\-r2 >=dev\-libs/expat\-1.95.8
+    post_rdepends:
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This is the highest unmasked package on the system. Also notice there are no
+references to USE flags or qt in the dependencies. That is because qt is not in
+USE for this configuration, so those dependencies do not apply.:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pquery \-\-attr alldepends sys\-apps/dbus \-\-max \-v \-\-raw
+* sys\-apps/dbus\-0.91
+    description: Meta package for D\-Bus
+    homepage: http://dbus.freedesktop.org/
+    depends:
+    rdepends: >=sys\-apps/dbus\-core\-0.91 python? (
+                 >=dev\-python/dbus\-python\-0.71 ) qt3? (
+                 >=dev\-libs/dbus\-qt3\-old\-0.70 ) gtk? (
+                 >=dev\-libs/dbus\-glib\-0.71 ) !<sys\-apps/dbus\-0.91
+    post_rdepends:
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This version is in \fBpackage.mask\fP, and we can see the use\-conditional flags now.
+.sp
+The \fB\-\-verbose\fP or \fB\-v\fP flag tries to print human\-readable output (although
+some things like the formatting of depend strings need some improvement).
+Without \fB\-v\fP the output is usually a single line per package in a hopefully
+machine\-parseable format (usable in pipelines). There are some extras like
+\fB\-\-atom\fP meant for shell pipeline use. If you have some useful shell pipeline
+in mind that pquery\(aqs output could be better formatted for please open an issue.
+.sp
+Adding short options is planned but there are some features to add first (want
+most of the features in place to avoid name clashes).
+.SH EXAMPLES
+.TS
+center;
+|l|l|l|.
+_
+T{
+Other tool
+T}	T{
+pquery
+T}	T{
+Comments
+T}
+_
+T{
+\fBequery belongs /bin/ls\fP
+T}	T{
+\fBpquery \-\-owns /bin/ls\fP
+T}	T{
+T}
+_
+T{
+\fBequery check\fP
+T}	T{
+not implemented (yet?)
+T}	T{
+T}
+_
+T{
+\fBequery depends python\fP
+T}	T{
+\fBpquery \-I \-\-revdep dev\-lang/python\fP
+T}	T{
+omitting \fB\-I\fP makes it equivalent to \fBequery depends \-a\fP
+T}
+_
+T{
+\fBequery depgraph\fP
+T}	T{
+not implemented (yet?)
+T}	T{
+T}
+_
+T{
+\fBequery files python\fP
+T}	T{
+\fBpquery \-\-contents python\fP
+T}	T{
+\fB\-\-contents\fP is an output option, can be combined with any restriction
+T}
+_
+T{
+\fBequery hasuse python\fP
+T}	T{
+\fBpquery \-I \-\-has\-use python\fP
+T}	T{
+T}
+_
+T{
+\fBequery list python\fP
+T}	T{
+\fBpquery \-I \(aq*python*\(aq\fP
+T}	T{
+this is in ExtendedAtomSyntax
+T}
+_
+T{
+\fBequery size python\fP
+T}	T{
+\fBpquery \-\-size python\fP
+T}	T{
+T}
+_
+T{
+\fBequery uses python\fP
+T}	T{
+\fBpquery \-\-attr use python\fP
+T}	T{
+less information, but is an output option so mixes with any restriction
+T}
+_
+T{
+\fBemerge \-s python\fP
+T}	T{
+\fBpquery \-vn \(aq*python*\(aq\fP
+T}	T{
+T}
+_
+T{
+\fBemerge \-S python\fP
+T}	T{
+\fBpquery \-vnS python\fP
+T}	T{
+searches through longdescription (from metadata.xml) too
+T}
+_
+T{
+no equivalent
+T}	T{
+\fBpquery \-\-license GPL\-2 \-I\fP
+T}	T{
+list all installed GPL\-2 packages
+T}
+_
+T{
+no equivalent
+T}	T{
+\fBpquery \-\-maintainer radhermit\fP
+T}	T{
+list all packages that are maintained by radhermit
+T}
+_
+.TE
+.sp
+It can also do some things equery/emerge do not let you do, like restricting
+based on maintainer or herd and printing various other package attributes. See
+\fB\-\-help\fP for those. If you miss a query open an issue.
+.SH COPYRIGHT
+2006-2019, pkgcore contributors
+.\" Generated by docutils manpage writer.
+.

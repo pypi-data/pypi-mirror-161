@@ -1,0 +1,47 @@
+#!/usr/bin/env pkgcore-sh-helper
+# open a package's homepage in a browser
+#
+# For queries returning multiple packages, a list of options is presented to
+# the user to choose from. In the same manner, if a package has multiple
+# homepages listed, a list of homepages is outputted for selection.
+#
+# Note that this requires xdg-utils to be installed for xdg-open.
+
+# Default to the current working directory if no argument is passed so this can
+# be run with no arguments from within an ebuild's directory.
+if [[ $# -eq 0 ]]; then
+	set -- "${PWD}" "$@"
+elif [[ $1 == "-h" || $1 == "--help" ]]; then
+	cat <<-EOF
+		${SCRIPT}: open a package's homepage in a browser
+		usage: ${SCRIPT} pkg [repo]
+		example: ${SCRIPT} gcc -- open gcc's homepage
+		example: ${SCRIPT} coreutils gentoo -- open the coreutils::gentoo homepage
+	EOF
+	exit
+fi
+
+homepage=( $(_pkgattr homepage "$@") )
+[[ $? -ne 0 ]] && exit 1
+
+if [[ -z ${homepage[@]} ]]; then
+	echo "${SCRIPT}: no homepage found: $1" >&2
+	exit 1
+elif [[ ${#homepage[@]} -gt 1 ]]; then
+	echo "${SCRIPT}: multiple homepages found:" >&2
+	choice=$(_choose "${homepage[@]}")
+	[[ $? -ne 0 ]] && exit 1
+	homepage=${homepage[choice]}
+fi
+
+# fallback to xdg-open if $BROWSER is unset
+if [[ -z ${BROWSER} ]]; then
+	BROWSER=xdg-open
+fi
+
+if ! _which ${BROWSER}; then
+	echo "${SCRIPT}: ${BROWSER} not available" >&2
+	return 1
+fi
+
+${BROWSER} "${homepage}" &>/dev/null &
