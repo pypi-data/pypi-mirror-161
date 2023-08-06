@@ -1,0 +1,291 @@
+{% extends 'moonstuff/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load evelinks %}
+
+{% block moon_title %} {% translate 'Dashboard' %} {% endblock %}
+
+{% block moon_block %}
+    <div class="container-fluid">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#extractions">Upcoming Extractions</a></li>
+            {% if perms.moonstuff.access_moon_list %}<li><a data-toggle="tab" href="#moons">List Moons</a></li>{% endif %}
+        </ul>
+        <div class="tab-content panel panel-default" style="border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;">
+            <div id="extractions" class="tab-pane fade in active panel-default">
+                <div style="margin-left: 15px; margin-top: 10px;">
+                    <ul class="nav nav-pills">
+                        {% if default_view == "Calendar" %}
+                        <li class="active"><a data-toggle="tab" href="#exCal">Calendar View</a></li>
+                        <li><a data-toggle="tab" href="#exCard">Card View</a></li>
+                        {% else %}
+                        <li class="active"><a data-toggle="tab" href="#exCard">Card View</a></li>
+                        <li><a data-toggle="tab" href="#exCal">Calendar View</a></li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div id="exCal" class="tab-pane fade in {% if default_view == "Calendar" %}active{% endif %} panel-default">
+                        <div class="panel-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                    <div id="exCard" class="tab-pane fade in {% if default_view == "Card" %}active{% endif %} panel-default">
+                        <div class="panel-body">
+                            <p style="padding-left: 15px;"><i>All times are UTC</i></p>
+                            <div class="flex-container">{% for ext in extractions %}
+                                {% if ext|check_visibility %}
+                                {% else %}
+                                <div class="col-md-4">
+                                    <div class="panel panel-ext text-center" {% if ext.jackpot %} style="box-shadow: 1px 1px 10px #6ae766, 1px 1px 10px #8dd279;" {% endif %}>
+                                        {% if ext.jackpot %}
+                                            <div class="ribbon">
+                                                <span>JACKPOT</span>
+                                            </div>
+                                        {% endif %}
+                                        <div class="panel-heading">
+                                            <a class="info-link" href="#" data-toggle="modal" data-target="#moonModal" data-url="{% url 'moonstuff:view_moon' ext.moon.id %}">
+                                                <h4 style="margin-top: 0;">
+                                                    {{ ext.refinery.name }}
+                                                </h4>
+                                                <h5>{{ ext.moon.name }}</h5>
+                                            </a>
+                                        </div>
+                                        <div class="panel-body">
+                                            {% for res in ext.moon.resources.all|card_labels %}
+                                                <span class="label bg-R{{ res }}">R{{ res }}</span>
+                                            {% endfor %}
+                                            <hr/>
+                                            <ul style="list-style-type: none; padding-left: 0;">
+                                                <li><strong>Chunk Time: {{ ext|chunk_time }} days</strong></li>
+                                                {% if not ext.active %}
+                                                <li>Chunk Arrival: {{ ext.arrival_time|date:"Y-n-j h:i" }}</li>
+                                                <li>Self Destructs: {{ ext.decay_time|date:"Y-n-j h:i" }}</li>
+                                                {% else %}
+                                                <li>
+                                                    <div class="alert alert-info">
+                                                        <strong>MINING ACTIVE</strong>
+                                                    </div>
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                            <hr />
+                                            {% for res in ext.moon.resources.all|order_quantity %}
+                                                <img src="{{ res.ore.id|type_icon_url:32 }}" /> {{ res.ore.name }} <span class="label bg-R{{ res.rarity }}">R{{ res.rarity }}</span> <i style="font-size: 80% !important">{{ resources|get_item:res.ore.id|floatformat:2|intcomma }} isk/m<sup>3</sup></small></i>
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{ res.quantity|percent }}%;">
+                                                        <h5 class="media-heading percent">{{ res.quantity|percent }}% </h5>
+                                                    </div>
+                                                </div>
+                                                <br />
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if perms.moonstuff.access_moon_list %}
+            <div id="moons" class="tab-pane fade in panel-default">
+                <div class="panel-body">
+                    <table id="moonList" class="table table-striped" style="width: 100% !important;">
+                        <thead>
+                            <th>Moon</th>
+                            <th>Refinery</th>
+                            <th>Owner</th>
+                            <th>System</th>
+                            <th>Region</th>
+                            <th>Next Extraction</th>
+                            <th>Rarity</th>
+                            <th>Utilities</th>
+                            <th>Ores</th>
+                        </thead>
+                        <tbody>
+                            {% for moon in moons %}
+                                <tr>
+                                    <td>{{ moon.name }}</td>
+                                    <td>{{ moon|get_refinery_name }}</td>
+                                    <td><img src="{{ moon|get_refinery_owner_id|corporation_logo_url:32 }}">{{ moon|get_refinery_owner_name}}</td>
+                                    <td><a href="https://evemaps.dotlan.net/system/{{ moon.eve_planet.eve_solar_system.name}}">{{ moon.eve_planet.eve_solar_system.name }}</a></td>
+                                    <td>{{ moon.eve_planet.eve_solar_system.eve_constellation.eve_region.name }}</td>
+                                    <td>{{ moon|get_next_extraction }}</td>
+                                    <td>{% for res in moon.resources.all|card_labels %} <span class="label bg-R{{ res }}">R{{ res }}</span> {% endfor %}</td>
+                                    <td><a href="{% url 'moonstuff:view_moon' moon.id %}" class="btn btn-primary"><span class="far fa-eye"></span></a></td>
+                                    <td>{% for ore in moon.resources.all %}{{ ore.ore.name }}{% endfor %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {# Modal #}
+    <div class="modal fade" tabindex="-1" role="dialog" id="moonModal" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid" id="moonModalBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# End Modal #}
+{% endblock %}
+
+{% block extra_javascript %}
+    {% include 'bundles/datatables-js.html' %}
+    {% include 'bundles/moment-js.html' %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/fullcalendar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/locale-all.min.js"></script>
+{% endblock %}
+{% block extra_css %}
+    {% include 'bundles/datatables-css.html' %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/fullcalendar.min.css">
+    <link rel="stylesheet" href="/static/moonstuff/css/style.css">
+{% endblock %}
+
+<script>
+{% block extra_script %}
+$(function() {
+    // Define calendar color key
+    let rarColors = {
+        "R0": "bg-R0",
+        "R4": "bg-R4",
+        "R8": "bg-R8",
+        "R16": "bg-R16",
+        "R32": "bg-R32",
+        "R64": "bg-R64",
+    };
+
+    // Build calendar color key
+    let key = "<p style='margin: -1px;'><i>All times are UTC</i></p><br >"
+    for (const [k, v] of Object.entries(rarColors)){
+        key += "<span class='label fc-lbl "+v+"'>"+k+"</span>"
+    }
+
+    // Define the locale for the calendar
+    let cookie = Object.fromEntries(document.cookie.split('; ').map(v=>v.split('=').map(decodeURIComponent)));
+    try{
+        locale = cookie.django_language.substr(0,2);
+    }
+    catch (RefrenceError) {
+        locale = "en";
+    }
+
+    // Build Calendar
+    $('#calendar').fullCalendar({
+        locale: locale,
+        timezone: 'UTC',
+        now: moment.utc(),
+        defaultView: 'month',
+        themeSystem: 'bootstrap3',
+        events: {{ events|safe }},
+        header: {
+            left: '',
+            center: 'title',
+            right: 'today prev,next',
+        },
+        eventRender: function(event, element, view) {
+            if(event.rarity.length == 0){
+                rarity = "R0";
+            }
+            else {
+               rarity = "R"+Math.max(...event.rarity);
+            }
+
+            element.popover({
+                title: event.moon,
+                content: "Click for more details!",
+                trigger: 'hover',
+                placement: 'top',
+                container: 'body'
+            })
+
+            element.css({
+                backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--'+rarity),
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--'+rarity),
+            })
+
+            element.attr('data-toggle', 'modal');
+            element.attr('data-target', '#moonModal');
+            element.attr('data-url', '/moons/info/'+event.moon_id);
+            element.attr('href', '#');
+
+        },
+        dayRender: function(day, cell) {
+          if(day.isSame(moment.utc(), 'day')){
+              cell[0].classList.remove('alert');
+              cell[0].classList.remove('alert-info');
+              cell[0].classList.add('bgd');
+          }
+        },
+        timeFormat: 'H(:mm)'
+    })
+    // Add the key to the calendar
+    $('#calendar > div.fc-toolbar.fc-header-toolbar > div.fc-left').html(key);
+
+    $('#extractions').on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+        if (e.target.hash === '#exCal') {
+            $('#calendar').fullCalendar('render');
+        }
+    });
+
+    {% if perms.moonstuff.access_moon_list %}
+    // DataTable
+    $('#moonList').DataTable({
+        columnDefs: [
+            {
+                targets: [ 8 ],
+                visible: false
+            }
+        ]
+    });
+    {% endif %}
+
+    // Ajax Modals
+    $('#moonModal').on('show.bs.modal', function (e) {
+       var modal = $(e.target);
+       var title = modal.find('.modal-title').empty();
+       var head = modal.find('.modal-header');
+       var body = modal.find('#moonModalBody').empty();
+
+       $.ajax($(e.relatedTarget).data('url'))
+         .done(function (data){
+             modal.find('.modal-body').removeClass('bg-danger')
+             title.html($(data).find('#title'));
+             body.html($(data).find('#content'));
+         })
+         .fail(function (xhr, status, errorThrown) {
+             head.addClass('bg-danger');
+             modal.find('.modal-body').addClass('bg-danger');
+             title.html("Error!");
+             body.html("There was an error loading the data for the requested moon.");
+         });
+
+    });
+
+    // Activate datatables in modals.
+    $('#moonModal').on('shown.bs.modal', function() {
+        $('#pastTable').DataTable({
+            'bFilter': false,
+            "sScrollY": "220px",
+            "bPaginate": false
+        });
+    })
+
+})
+{% endblock %}
+</script>
