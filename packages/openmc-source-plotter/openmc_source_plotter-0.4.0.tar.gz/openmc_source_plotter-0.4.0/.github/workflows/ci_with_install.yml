@@ -1,0 +1,50 @@
+
+# This CI will launch a Docker image that contains all the dependencies required
+# within that image the pytest test suite is run 
+
+name: CI with install
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.cff'
+      - 'LICENSE.txt'
+      - 'readthedocs.yml'
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: openmc/openmc:develop
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: install package
+        run: |
+          pip install .
+          python -c "import openmc_source_plotter"
+
+      - name: Run examples
+        run: |
+          python examples/example_get_particle_data.py
+          python examples/example_plot_source_direction.py
+          python examples/example_plot_source_energy.py
+          python examples/example_plot_source_position.py
+          python examples/example_plot_two_source_energies.py
+          pip install openmc_plasma_source
+          python examples/example_plot_plasma_source_position.py
+
+      - name: Run test_utils
+        run: |
+          pip install .[tests]
+          pytest tests -v --cov=openmc_source_plotter --cov-append --cov-report term --cov-report xml
+
+      - name: Upload to codecov
+        uses: codecov/codecov-action@v2
