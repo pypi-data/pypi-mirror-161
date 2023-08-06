@@ -1,0 +1,67 @@
+{% load i18n %}
+{% load static %}
+{% load navactive %}
+{% load evelinks %}
+<nav class="navbar navbar-default navbar-static-top auth-navbar-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".auth-menus-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">
+                <img src="{{ 99000102|alliance_logo_url:32 }}" style="display: inline-block;" height="32" width="32" alt="Yulai Federation"/>
+                {{ SITE_NAME }}
+            </a>
+        </div>
+        <div class="collapse navbar-collapse auth-menus-collapse">
+            <ul class="nav navbar-nav navbar-right navbar-pills">
+                    <li>
+                        {% include 'allianceauth/night-toggle.html' %}
+                    </li>
+                    <li class="{% navactive request 'notifications:' %}" id="menu_item_notifications">
+                        {% include 'allianceauth/notifications_menu_item.html' %}
+                    </li>
+
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <li><a href="{% url 'admin:index' %}" target="_blank">{% translate "Admin" %}</a></li>
+                    {% endif %}
+
+                    <!-- YF specific menu items -->
+                    <li><a href="https://yulaifederation.net" target="_blank" rel="noopener noreferer">YF Website</a></li>
+                    <li><a href="https://forum.yulaifederation.net" target="_blank" rel="noopener noreferer">YF Forums</a></li>
+                    <li><a href="https://wiki.yulaifederation.net" target="_blank" rel="noopener noreferer">YF Wiki</a></li>
+
+                    <li><a href="{% url 'logout' %}">{% translate "Logout" %}</a></li>
+                {% else %}
+                    <li><a href="{% url 'authentication:login' %}">{% translate "Login" %}</a></li>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                    <li>
+                        <a class="navbar-brand" style="margin-left: -4px;" href="https://allianceauth.readthedocs.io/" target="_blank">
+                            <i class="fas fa-question-circle fa-fw"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            <form id="f-lang-select" class="navbar-form navbar-right" action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <select onchange="this.form.submit()" class="form-control" id="lang-select" name="language">
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %}
+                                    selected="selected"{% endif %}>
+                                {{ language.name_local }} ({{ language.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+</nav>
