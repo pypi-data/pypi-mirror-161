@@ -1,0 +1,3 @@
+from gettext import install
+from setuptools import setup
+setup(name='nearest_neighbor_preprocessor', version='0.1', description='Simple kNN based preprocessor that converts adverserial images to clean images. This can be used during test time in neural network pipelines.', author='Krishnan Pallikkattu Gopakumar', packages=['nearest_neighbor_preprocessor'], install_requires = ['numpy', 'pynndescent'],  zip_safe=False)
