@@ -1,0 +1,109 @@
+[tool.poetry]
+name = "monitor-commander"
+version = "0.2.0"
+description = "Control your monitors using ddc/ci"
+authors = ["Vincent Meurisse <dev@meurisse.org>"]
+license = "MIT"
+readme = "Readme.md"
+homepage = "https://gitlab.com/vmeurisse/monitor-commander"
+repository = "https://gitlab.com/vmeurisse/monitor-commander"
+keywords = ["monitor", "ddc", "ddc/ci", "vcp"]
+classifiers = [
+  "Environment :: Console",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Desktop Environment",
+  "Topic :: Home Automation",
+  "Topic :: Other/Nonlisted Topic",
+  "Topic :: System :: Hardware",
+  "Topic :: Utilities",
+]
+include = [
+  "LICENSE",
+]
+
+[tool.poetry.scripts]
+monitor-commander = 'monitor_commander.monitor_commander:main'
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+argcomplete = "^2.0.0"
+PyYAML = "^6.0"
+typedload = "^2.12"
+
+[tool.poetry.dev-dependencies]
+black = "21.10b0"
+autoflake = "1.4"
+bandit = "1.7.1"
+isort = "5.10.0"
+pylint = "2.11.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.bandit]
+skips = [
+  # Subprocess module
+  "B404",
+  # subprocess_without_shell_equals_true
+  "B603",
+  # start_process_with_no_shell
+  "B606",
+  # start_process_with_partial_path
+  "B607",
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py38']
+
+[tool.isort]
+profile = 'black'
+line_length = 120
+py_version = 'auto'
+
+[tool.pylint.config]
+score = 'n'
+output-format = 'colorized'
+enable = ['useless-suppression']
+
+# https://pylint.pycqa.org/en/latest/technical_reference/features.html
+disable = [
+    'fixme',
+
+    # Else is important for readability
+    'no-else-break',
+    'no-else-continue',
+    'no-else-raise',
+    'no-else-return',
+
+    # Format is ensured by black
+    'format',
+
+    # Not all files are modules. This causes a lot of false positive
+    'invalid-name',
+    'missing-module-docstring',
+    'missing-class-docstring',
+    'missing-function-docstring',
+
+    # Imports are checked by pyright
+    'unused-import',
+    'import-error',
+    'relative-beyond-top-level',
+
+    # Order is checked by isort
+    'wrong-import-order',
+
+    # Causes issues with subclasses that don't modify public methods
+    'too-few-public-methods',
+
+    # Complaining on dataclasses
+    'too-many-instance-attributes',
+
+    # Needed for caches
+    'global-statement',
+]
+
+[tool.pyright]
+typeCheckingMode = 'strict'
