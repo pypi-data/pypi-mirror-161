@@ -1,0 +1,150 @@
+{
+  "name": "jupyhai",
+  "version": "1.4.0",
+  "description": "Jupyter notebook / JupyterLab extension to execute notebooks remotely on Minihai or Valohai host.",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/valohai/jupyhai",
+  "bugs": {
+    "url": "https://github.com/valohai/jupyhai/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "valohai",
+    "email": "info@valohai.com"
+  },
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/src/lab/index.js",
+  "types": "lib/src/lab/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valohai/jupyhai.git"
+  },
+  "scripts": {
+    "build": "jlpm run build:lib && jlpm run build:labextension:dev && jlpm run build:nbextension:dev",
+    "build:prod": "jlpm run clean && jlpm run build:lib && jlpm run build:labextension && jlpm run build:nbextension",
+    "build:nbextension": "yarn webpack --config=nbextension.webpack.config.js --mode=production",
+    "build:nbextension:dev": "yarn webpack --config=nbextension.webpack.config.js --mode=development",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc",
+    "clean": "jlpm run clean:lib",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:labextension": "rimraf jupyhai/labextension",
+    "clean:nbextension": "rimraf jupyhai/nbextension",
+    "clean:all": "run-s clean:lib clean:labextension clean:nbextension",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:src": "tsc -w",
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:nbextension": "yarn build:nbextension:dev --watch",
+    "prettify": "prettier --write ."
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^3.4.3",
+    "@jupyterlab/apputils": "^3.4.3",
+    "@jupyterlab/coreutils": "^5.4.3",
+    "@jupyterlab/docregistry": "^3.4.3",
+    "@jupyterlab/mainmenu": "^3.4.3",
+    "@jupyterlab/notebook": "^3.4.3",
+    "@jupyterlab/services": "^6.4.3",
+    "@lumino/disposable": "^1.10.1",
+    "@lumino/widgets": "^1.33.0",
+    "@popperjs/core": "^2.11.5",
+    "axios": "^0.26.1",
+    "classnames": "^2.3.1",
+    "date-fns": "^2.25.0",
+    "filesize": "^6.3.0",
+    "lodash": "^4.17.21",
+    "p-queue": "<7.0.0",
+    "path": "^0.12.7",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-popper": "^2.3.0",
+    "react-use": "^17.4.0",
+    "strip-ansi": "^7.0.0",
+    "swr": "^0.5.6"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^3.4.3",
+    "@types/jest": "^27.0.2",
+    "@types/jquery": "^3.5.14",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^16.4.11",
+    "@types/react": "^17.0.15",
+    "@types/react-dom": "^17.0.9",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "css-loader": "^6.4.0",
+    "eslint": "8.19.0",
+    "eslint-config-airbnb": "19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "jest": "^27.0.6",
+    "mkdirp": "^1.0.3",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "style-loader": "^3.3.0",
+    "ts-jest": "^27.0.4",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.3.5",
+    "webpack": "^5.58.1",
+    "webpack-cli": "^4.9.0"
+  },
+  "styleModule": "src/lab/style/index.js",
+  "jupyterlab": {
+    "discovery": {
+      "server": {
+        "managers": [
+          "pip"
+        ],
+        "base": {
+          "name": "jupyhai"
+        }
+      }
+    },
+    "extension": true,
+    "outputDir": "jupyhai/labextension",
+    "_build": {
+      "load": "static/remoteEntry.ada35c138d41d7fcd722.js",
+      "extension": "./extension",
+      "style": "./style"
+    }
+  },
+  "jupyter-releaser": {
+    "hooks": {
+      "before-build-npm": [
+        "python -m pip install jupyterlab~=3.1",
+        "jlpm"
+      ]
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "arrowParens": "always",
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "printWidth": 100
+  },
+  "browserslist": [
+    "chrome >= 1 and last 3 years",
+    "firefox >= 1 and last 3 years",
+    "safari >= 1 and last 3 years",
+    "firefox esr"
+  ]
+}

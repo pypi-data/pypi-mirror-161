@@ -1,0 +1,32 @@
+#!/bin/bash
+if ! pip list --disable-pip-version-check --format freeze | grep papermill=={PAPERMILL_VERSION} 2>/dev/null; then
+>&2 echo "Installing papermill=={PAPERMILL_VERSION}"
+
+# Pip will warn about running as root and no way to suppress it.
+# Thus, we will output pip logs to a file and print it into stderr on errors
+if pip install --disable-pip-version-check papermill=={PAPERMILL_VERSION} &>/tmp/pip_papermill.log; then
+    >&2 echo "Installation successful."
+else
+    >&2 cat /tmp/pip_papermill.log
+fi
+fi
+
+if ! pip list --disable-pip-version-check --format freeze | grep ipykernel=={IPYKERNEL_VERSION} 2>/dev/null; then
+>&2 echo "Installing ipykernel<={IPYKERNEL_VERSION},>5.0"
+
+if pip install --disable-pip-version-check --upgrade 'ipykernel<={IPYKERNEL_VERSION},>5.0' &>/tmp/pip_ipykernel.log; then
+    >&2 echo "Installation successful."
+else
+    >&2 cat /tmp/pip_ipykernel.log
+fi
+fi
+
+if ! pip list --disable-pip-version-check --format freeze | grep valohai-utils=={VALOHAIUTILS_VERSION} 2>/dev/null; then
+>&2 echo "Installing valohai-utils=={VALOHAIUTILS_VERSION}"
+
+if pip install --disable-pip-version-check valohai-utils=={VALOHAIUTILS_VERSION} &>/tmp/pip_valohaiutils.log; then
+    >&2 echo "Installation successful."
+else
+    >&2 cat /tmp/pip_valohaiutils.log
+fi
+fi
