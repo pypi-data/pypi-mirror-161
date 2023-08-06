@@ -1,0 +1,145 @@
+[tool.black]
+line-length = 100
+include = '(mypy_boto3_builder|types_s3transfer|tests)/.*\.pyi?$'
+target-version = [
+    'py37',
+    'py38',
+    'py39',
+    'py310',
+]
+preview = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_third_party = [
+    "botocore",
+    "boto3",
+    "aiobotocore",
+]
+known_first_party = [
+    "mypy_boto3_builder",
+    "tests",
+]
+src_paths = []
+
+[tool.poetry]
+name = "mypy-boto3-builder"
+version = "7.11.2"
+description = "Builder for boto3-stubs and types-aiobotocore"
+authors = ["Vlad Emelianov <vlad.emelianov.nz@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://youtype.github.io/mypy_boto3_builder/"
+repository = "https://github.com/youtype/mypy_boto3_builder"
+documentation = "https://youtype.github.io/mypy_boto3_builder/"
+keywords = ["boto3", "type-annotations", "pyright", "mypy", "boto3-stubs"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Typing :: Typed",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+    { include = "mypy_boto3_builder" },
+]
+include = [
+    "mypy_boto3_builder/py.typed",
+    "mypy_boto3_builder/templates/*/*.jinja2",
+    "mypy_boto3_builder/templates/*/*/*.jinja2",
+    "mypy_boto3_builder/templates/*/*/*/*.jinja2",
+    "mypy_boto3_builder/stubs_static/*.pyi",
+    "mypy_boto3_builder/stubs_static/*/*.pyi",
+    "mypy_boto3_builder/stubs_static/*/*.py",
+    "mypy_boto3_builder/stubs_static/*/*/*.pyi",
+    "mypy_boto3_builder/stubs_static/*/*/*.py",
+]
+
+[tool.poetry.scripts]
+mypy_boto3_builder = 'mypy_boto3_builder.main:main'
+
+[tool.poetry.urls]
+"Documentation" = "https://youtype.github.io/mypy_boto3_builder/"
+"Source" = "https://github.com/youtype/mypy_boto3_builder"
+"Bug Tracker" = "https://github.com/youtype/mypy_boto3_builder/issues"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pip = "*"
+boto3 = "*"
+black = "*"
+isort = "*"
+jinja2 = "*"
+pyparsing = "*"
+mdformat = "*"
+newversion = "*"
+requests = "*"
+
+[tool.poetry.dev-dependencies]
+codecov = "*"
+handsdown = "*"
+mypy = "*"
+flake8 = "*"
+flake8-docstrings = "*"
+pytest-cov = "*"
+pytest = "*"
+vulture = "*"
+twine = "*"
+types-requests = "*"
+types-pkg-resources = "*"
+types-six = "*"
+types-certifi = "*"
+types-python-dateutil = "*"
+types-urllib3 = "*"
+types-s3transfer = "*"
+types-awscrt = "*"
+boto3-stubs = "*"
+botocore-stubs = "*"
+awscrt = "*"
+istub = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@overload",
+]
+ignore_errors = true
+omit = [
+    "tests/*",
+]
+
+[tool.pyright]
+include = [
+    "mypy_boto3_builder",
+]
+exclude = [
+    "**/__pycache__",
+    "tests",
+    "**/build",
+    "typestubs",
+    "mypy_boto3_builder/stubs_static/aioboto3",
+    "mypy_boto3_builder/stubs_static/botocore/crt",
+]
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+reportMissingTypeArgument = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportUnknownParameterType = "error"
+pythonVersion = "3.10"

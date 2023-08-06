@@ -1,0 +1,52 @@
+{% for import_record in package.get_session_required_import_records() -%}
+    {% include "common/import_record.py.jinja2" with context %}
+{% endfor -%}
+
+{% for literal in package.literals -%}
+    {% include "common/literal.py.jinja2" with context -%}
+    {{ "\n" -}}
+{% endfor -%}
+
+class Session:
+    def __init__(
+        self,
+        aws_access_key_id: Optional[str] = None,
+        aws_secret_access_key: Optional[str] = None,
+        aws_session_token: Optional[str] = None,
+        region_name: Optional[str] = None,
+        botocore_session: Optional[BotocoreSession] = None,
+        profile_name: Optional[str] = None,
+    ) -> None:
+        self._session: BotocoreSession
+        self.resource_factory: ResourceFactory
+        self._loader: Loader
+
+    def __repr__(self) -> str: ...
+    @property
+    def profile_name(self) -> str: ...
+    @property
+    def region_name(self) -> {{ package.literals[0].render() if package.literals else 'str' }}: ...
+    @property
+    def events(self) -> List[Any]: ...
+    @property
+    def available_profiles(self) -> List[Any]: ...
+    def _setup_loader(self) -> None: ...
+    def get_available_services(self) -> List[str]: ...
+    def get_available_resources(self) -> List[str]: ...
+    def get_available_partitions(self) -> List[str]: ...
+    def get_available_regions(
+        self,
+        service_name: str,
+        partition_name: str = "aws",
+        allow_non_regional: bool = False,
+    ) -> List[str]: ...
+    def get_credentials(self) -> Credentials: ...
+    def get_partition_for_region(self, region_name: str) -> str: ...
+    def _register_default_handlers(self) -> None: ...
+
+{% filter indent(4, True) -%}
+    {% for method in package.session_class.methods -%}
+        {% include "common/method.py.jinja2" with context -%}
+        {{ '\n' -}}
+    {% endfor -%}
+{% endfilter -%}

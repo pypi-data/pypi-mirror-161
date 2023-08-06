@@ -1,0 +1,3 @@
+from botocore.args import ClientArgsCreator
+
+class AioClientArgsCreator(ClientArgsCreator): ...
