@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import traceback
+import click
+import numpy as np
+import pandas as pd
+
+# Load assets
+from enrichsdk.lib.customer import load_customer_assets
+load_customer_assets()
+
+pd.set_option('mode.chained_assignment', None)
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def error():
+    return bcolors.FAIL + u"\u274C" + " "
+
+def audit():
+    return bcolors.WARNING + u"\u21D2" + " "
+
+def success():
+    return bcolors.OKGREEN + u"\u2714" + " "
+
+def reset():
+    return bcolors.ENDC
+
+@click.group()
+def process():
+    """
+    Write something 
+    """
+    pass
+
+@process.command("check")
+def _check():
+    """ 
+    Check something
+    """
+    print(success(), "Replace this", reset())
+
+if __name__ == "__main__":
+    process()

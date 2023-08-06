@@ -1,0 +1,44 @@
+{
+    "name": "{{pipeline_name}}",
+    "description": "{{pipeline_description}}",
+    "computation": "{{realtime_or_batch}}",
+    "usecase_root": "%(enrich_customers_dir)s/{{customer}}/{{usecase}}",
+    "data_root": "%(enrich_data_dir)s/{{customer}}/{{usecase}}",
+    "runid": "{{runid_prefix}}-%Y%m%d-%H%M%S",
+    "output": "%(data_root)s/output/%(name)s",
+    "doc": "%(usecase_root)s/docs/test.md",
+    "log": "%(output)s/%(runid)s/log.json",
+    "enable_extra_args": true,
+    "imports": [
+    ],
+    "paths": {
+        "libraries": [
+            "%(usecase_root)s/transforms",
+            "%(usecase_root)s/pipelines/lib",
+            "%(enrich_customers_dir)s/scribble/Contrib/transforms",
+            "%(enrich_customers_dir)s/scribble/Discover/transforms"
+        ],
+        "packages": [
+            "%(usecase_root)s/pkg"
+        ]
+    },
+    "notification": {
+        "enable": true,
+        "email": [
+             "{{notification_email}}"
+        ]
+    },
+    "transforms": {
+        "enabled": [
+            {
+                "transform": "{{transform}}",
+                "enable": true,
+                "dependencies": {
+                },
+                "args": {
+                }
+            }
+        ]
+    },
+    "skins": []
+}

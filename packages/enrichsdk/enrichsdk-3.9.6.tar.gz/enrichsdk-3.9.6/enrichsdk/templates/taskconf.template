@@ -1,0 +1,28 @@
+{
+    "name": "{{taskdag_name}}",
+    "description": "{{taskdag_description}}",
+    "usecase_root": "%(enrich_customers_dir)s/{{customer}}/{{usecase}}",
+    "data_root": "%(enrich_data_dir)s/{{customer}}/{{usecase}}",
+    "runid": "{{runid_prefix}}-%Y%m%d-%H%M%S",
+    "output": "%(data_root)s/output/tasks/%(name)s", 
+    "log": "%(output)s/%(runid)s/log.json", 
+    "paths": { 
+	"libraries": ["%(usecase_root)s/tasks/lib"]
+    },
+    "notification": {
+	"enable": true, 
+	"email": []
+    },
+    "tasks": [
+	{
+	    "name": "{{task_name}}",
+	    "args": { 
+		"aws": {
+		    "credentials": "datalake", 
+		    "bucket": "bucketname",
+		    "path": "/path/to/raw"
+		}
+	    }
+	}
+    ]
+}

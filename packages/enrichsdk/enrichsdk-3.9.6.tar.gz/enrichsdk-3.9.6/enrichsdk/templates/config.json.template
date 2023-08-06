@@ -1,0 +1,63 @@
+{
+    "name": "{{pipeline_name}}",
+    "description": "{{pipeline_description}}",
+    "dataframe": "pandas",
+    "usecase_root": "%(enrich_customers_dir)s/{{customername}}",
+    "data_root": "%(enrich_data_dir)s/{{customername}}",
+    "runid": "testing-%Y%m%d-%H%M%S",
+    "output": "%(data_root)s/output/%(name)s",
+    "log": "%(output)s/%(runid)s/log.json",
+    "paths": {
+	"libraries": ["%(usecase_root)s/transforms",
+		      "%(usecase_root)s/skins"],
+	"packages": ["%(usecase_root)s/pkg"]
+    },
+    "transforms": {
+	"enabled": [
+	    { 
+		"transform": "TableSource",
+		"enable": true,
+		"args": { 
+		    "inputframe1": {
+			"type": "table", 
+			"filename": "%(data_root)s/data/inputframe1.csv", 
+			"params": {
+			    "delimiter": "|",
+			    "dtype": { 
+				"sku": "category", 
+				"sknum": "int64"
+			    }
+			}
+		    }
+		}
+	    },
+	    {
+		"transform": "Core",
+		"enable": true, 
+		"dependencies": {
+		    "inputframe1": "TableSource"
+		},
+                "args": {
+                }                
+	    },
+	    {
+		"transform": "TableSink",
+		"enable": true,
+		"dependencies": {
+		    "outputframe1": "Core"
+		},
+		"args": {
+		    "outputframe1": {
+			"type": "table",
+			"filename": "%(output)s/%(runid)s/outputs/outputframe1.csv", 
+			"params": {
+			    "sep": "|"
+			} 
+		    }
+		}
+	    }
+	]
+    },
+    "skins": [
+    ]    
+}

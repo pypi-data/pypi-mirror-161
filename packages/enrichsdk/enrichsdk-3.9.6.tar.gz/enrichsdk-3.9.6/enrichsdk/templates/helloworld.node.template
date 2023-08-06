@@ -1,0 +1,35 @@
+import logging
+
+import pandas as pd
+
+from enrichsdk import Compute
+from enrichsdk.utils import note
+
+logger = logging.getLogger('app')
+
+class My{{transform_name}}(Compute):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = "{{transform_name}}"
+        self.description = "{{transform_description}}"
+        self.author = "{{author_name}}"
+
+    def process(self, state):
+
+        logger.debug("started",extra={
+            'transform': self.name
+        })
+
+        df = pd.DataFrame([{'what': 'hello'}, {'what': 'world'}])
+        logger.debug("Hello world!", extra={
+            'transform': self.name,
+            'data': note(df, "helloworld")
+        })
+
+        logger.debug("completed",extra={
+            'transform': self.name
+        })
+        return state
+
+provider = My{{transform_name}}

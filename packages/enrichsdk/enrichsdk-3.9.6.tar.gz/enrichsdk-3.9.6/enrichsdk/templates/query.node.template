@@ -1,0 +1,181 @@
+import os
+import sys
+import json
+import glob
+import time
+import copy
+import re
+import traceback
+import pandas as pd
+from enrichsdk import Compute, S3Mixin
+import logging
+import s3fs
+from datetime import date, timedelta, datetime
+from sqlalchemy import create_engine
+
+from enrichsdk.contrib.lib.transforms import InMemoryQueryExecutorBase
+
+logger = logging.getLogger("app")
+
+thisdir = os.path.abspath(os.path.dirname(__file__))
+sqldir = os.path.join(thisdir, "SQL")
+
+def get_yesterday():
+    yesterday = date.today() + timedelta(days=-1)
+    return yesterday.isoformat()
+
+def get_today():
+    return date.today().isoformat()
+
+class My{{transform_name}}(InMemoryQueryExecutorBase):
+    """
+    Implement the query engine
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = "{{transform_name}}"
+        self.description = "{{transform_description}}"
+        self.author = "{{author_name}}"
+
+        test_root = os.environ['ENRICH_TEST']
+        self.testdata = {
+            'data_root': os.path.join(test_root, self.name),
+            'inputdir': test_root,
+            'outputdir': os.path.join(test_root, self.name, 'output'),
+            'statedir': os.path.join(test_root, self.name, 'state'),
+            'conf': {
+                'args': {
+                    "dbcred": "tdb",
+                    "s3cred": "demouser",
+                    "s3root": "scribble-demodata/{{org_name}}/%(node)s/rawdata/queries",
+                    "targets": "quotes_raw",
+                    "start_date":  "2021-09-10",
+                    "end_date": "2021-09-21"
+                }
+            },
+            'data': {
+            }
+        }
+
+    @classmethod
+    def instantiable(cls):
+        return True
+
+    def preload_clean_args(self, args):
+
+        args = super().preload_clean_args(args)
+
+        for var in ['dbcred', 's3cred', 's3root']:
+            if var not in args:
+                raise Exception("Missing arg: {}".format(var))
+
+        args['dbcred'] = self.get_credentials(args['dbcred'])
+        args['s3root'] = self.get_file(args['s3root'], abspath=False)
+        
+        args['s3cred'] = s3cred = self.get_credentials(args['s3cred'])
+        args['s3'] = s3fs.S3FileSystem(anon=False,
+                                       key=s3cred['access_key'],
+                                       secret=s3cred['secret_key'])
+
+        return args
+
+
+    
+    def configure(self, conf):
+        """
+        Initialize the engines
+        """
+
+        super().configure(conf)
+
+        # GUI is processing...
+        readonly = self.config.readonly
+        if readonly:
+            return
+
+        # Complete the configuration here..
+        dburl_template = "postgresql+psycopg2://%(USER)s:%(PASSWORD)s@%(HOST)s:%(PORT)s/"
+
+        # Connect to db
+        dburl = dburl_template % self.args['dbcred']
+        connect_args = {'client_encoding': 'utf8'}
+        engines = {
+            "core": create_engine(dburl + "DBNAME", connect_args=connect_args),
+        }
+
+        self.engines = engines
+
+    def get_engine(self, spec):
+        return self.engines[spec.get('engine', 'core')]
+
+    def store(self, segmentcol, segment, df1, spec):
+
+        s3 = self.args['s3']
+        s3root = self.args['s3root']
+
+        # gather basic metadata
+        metadata = self.get_default_metadata(self.state)
+
+        name = spec['name']
+        specroot = os.path.join(s3root, name)
+        datapath = os.path.join(specroot, segment, 'data.csv')
+        metadatapath = os.path.join(specroot, segment, 'metadata.json')
+        successpath = os.path.join(specroot, segment, '_SUCCESS')
+        with s3.open(datapath, 'w') as fd:
+            df1.to_csv(fd, index=False)
+        with s3.open(metadatapath, 'w') as fd:
+            fd.write(json.dumps(metadata, indent=4))
+        with s3.open(successpath, 'w') as fd:
+            pass
+
+        # Now construct a response.
+        dependencies = [
+            {
+                "type": "file",
+                'nature': 'output',
+                'objects': [datapath]
+            }
+        ]
+        msg = f"Stored: {datapath}\n"
+
+        return msg, dependencies
+
+    def get_specs(self):
+        """
+        Returned prepared specifications...
+        """
+
+        sample_sql = """\
+--
+-- segment:: txn_date_alt
+-- name:: txn_raw
+-- engine:: core
+
+select *,
+          DATE(created_on) as txn_date_alt
+from 
+     transactions
+        """
+        
+        specs = []
+        
+        files = glob.glob(sqldir + "/*.sql")
+        for f in files:
+            name = os.path.basename(f).replace(".sql","")
+            sql = open(f).read()
+
+            # Specify the split in the SQL itself..
+            segment = None
+            match = re.search(r"-- segment:: (\S+)", sql)
+            if match is not None:
+                segment = match.group(0).strip()
+            
+            specs.append({
+                'name': name,
+                'sql': sql,
+                'segment': segment
+            })
+
+        return specs
+
+provider = My{{transform_name}}    

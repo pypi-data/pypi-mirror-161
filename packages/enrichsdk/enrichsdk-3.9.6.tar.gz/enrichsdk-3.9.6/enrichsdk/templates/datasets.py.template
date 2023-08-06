@@ -1,0 +1,221 @@
+import os
+import sys
+import json
+import hashlib
+import pandas as pd
+import random
+from datetime import datetime, timedelta
+
+from enrichsdk.datasets.discover import Dataset, DatabaseTable, \
+           DatasetRegistry
+
+########################
+# Global variables.
+########################
+datasets = []
+
+########################
+# Helper functions...
+########################
+def obfuscate(s):
+    """ 
+    Call back to hash some value..
+    """
+    if ((s is None) or (pd.isnull(s))):
+        return None
+
+    if not isinstance(s, str):
+        s = str(s)
+
+    return hashlib.sha256(s.encode('utf-8')).hexdigest()[:16]
+
+class AnonymizedDataset(Dataset):
+    """
+    Special case of a data where we anonymize the sample. You can
+    extend other methods as well.
+    """
+
+    def sample(self, *args, **kwargs):
+
+        safe = kwargs.get('safe', True)
+
+        df = super().sample(*args, **kwargs)
+
+        if not safe:
+            return df
+
+        # Anonymize some subset of columns...
+        checkcols = ['col1', 'col2']
+        for c in df.columns:
+            if len([check for check in checkcols if check in c]) > 0:
+                df[c] = df[c]*random.randint(1,5)
+
+        return df
+
+
+#######################################
+# Anonymized datasets that are likely result of queries. Make sure
+# you edit the paths
+#######################################
+for name,desc,sql in [
+        #("TxnValues", "Summarizing queries of transactions (value)", "txn_value"),
+]:
+    d = AnonymizedDataset({
+        "name": name,
+        "alt_names": [sql],
+        'description': desc,
+        "paths": [
+            {
+                "nature": "s3",
+                "name": "default",
+                "path": "%(s3root)s/backup/%(node)s/rawdata/queries/" + sql
+            },
+        ],
+        "match": {
+            "generate": "generate_datetime_daily",
+            "compare": "compare_datetime_pattern_match_range",
+            "pattern": "%Y-%m-%d"
+        },
+        "subsets": [
+            {
+                "name": "Data",
+                "pattern": f".*/{sql}/.*data.csv$"
+            }
+        ]
+    })
+    datasets.append(d)
+
+###########################################
+# Add non-anonymized datasets that are also result of queries
+###########################################
+for name,desc,sql in [
+        #("Kyc","Customer KYC Profile", "kyc"),
+]:
+    d = Dataset({
+        "name": name,
+        "alt_names": [sql],
+        'description': desc,
+        "paths": [
+            {
+                "nature": "s3",
+                "name": "default",
+                "path": "%(s3root)s/backup/%(node)s/rawdata/queries/" + sql
+            },
+        ],
+        "match": {
+            "generate": "generate_datetime_daily",
+            "compare": "compare_datetime_pattern_match_range",
+            "pattern": "%Y-%m-%d",
+        },
+        "subsets": [
+            {
+                "name": "Data",
+                "pattern": ".*data.csv$"
+            }
+        ]
+    })
+    datasets.append(d)
+
+###########################################
+# Custom datasets with multiple files 
+###########################################
+if False:
+    d = Dataset({
+        "name": "Remittances",
+        "alt_names": [],
+        'description': "Knomad remittances data (May 2022)",
+        "paths": [
+            {
+                "nature": "s3",
+                "name": "default",
+                "path": "%(s3root)s/backup/aip.acme.com/rawdata/remittances"
+            },
+        ],
+        "match": {
+            # Some function that takes start and end dates and return
+            # a list of dictionaries with timestamp and name. The
+            # timestamp is also just a string.
+            "generate": lambda start, end: [{ 'timestamp': 'May-22', 'name': 'May-22' }],
+            "pattern": "*"
+        },
+
+        # Various files within this dataset. This ensures that we dont
+        # have to use too many dataset objects...
+        "subsets": [
+            {
+                "name": "Outward",
+                "pattern": ".*outward.csv$"
+            },
+            {
+                "name": "Inward",
+                "pattern": ".*inward.csv$"
+            },
+            {
+                "name": "Bilateral",
+                "pattern": "*bilateralremittancematrix2017Apr2018.csv$"
+            }
+        ]
+    })
+    datasets.append(d)
+
+###########################################
+# Database tables. The accessor of the dataset object will have to
+# figure out how to access the db. 
+###########################################    
+tables = [
+    #"bkash_deliverytimes_sendpartner",
+]
+if len(tables) > 0:
+    datasets.append(DatabaseTable({
+        "name": "DashboardQuery",
+        'description': "Query Engine Outputs",
+        "paths": [
+            {
+                # Paths are specified as /db/schema/table
+                "nature": "db",
+                "name": "default",
+                "path": f"/acmedb/public/",
+            }
+        ],
+        "subsets": [
+            {
+                "name": t,
+                "pattern": f".*/public/{t}"
+            } for t in tables
+        ]
+    }))
+
+#############################    
+# Helper functions...
+#############################    
+def get_datasets(names=None):
+
+    if names is not None and isinstance(names, list):
+        return [ d for d in datasets if d.matches(names)]
+    else:
+        return datasets
+
+def get_dataset(name):
+    """
+    Get the dataset object by name
+    """
+    for d in datasets:
+        if d.matches(name):
+            return d
+
+    raise Exception("Unknown dataset: {}".format(name))
+
+def get_registry(transform=None, state=None):
+    """
+    Replace the paths below...
+    """
+    registry = DatasetRegistry(transform=transform, state=state)
+    registry.set_params({
+        'enrich_data_dir': '/home/scribble/enrich/data',
+        's3root': 'enrich-acme',
+        'node': 'aip.acme.com',
+        'remote_data_root': '/home/scribble/enrich'
+    })
+
+    registry.add_datasets(datasets)
+    return registry
