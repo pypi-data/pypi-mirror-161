@@ -1,0 +1,102 @@
+Metadata-Version: 2.1
+Name: preheat-open
+Version: 1.33
+Summary: Python wrapper for Neogrid Technologies' REST API
+Home-page: https://gitlab.com/neogrid-technologies-public/preheat-open-python
+Author: Neogrid and contributors
+Author-email: analytics@neogrid.dk
+License: UNKNOWN
+Project-URL: Bug Tracker, https://gitlab.com/neogrid-technologies-public/preheat-open-python/-/issues
+Project-URL: Documentation, https://neogrid-technologies-public.gitlab.io/preheat-open-python
+Project-URL: Source Code, https://gitlab.com/neogrid-technologies-public/preheat-open-python
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: dateutils
+Requires-Dist: requests
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: networkx
+Requires-Dist: urllib3
+Provides-Extra: dev
+Requires-Dist: setuptools (>=42) ; extra == 'dev'
+Requires-Dist: wheel ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: pytest-xdist ; extra == 'dev'
+Requires-Dist: Sphinx ; extra == 'dev'
+Requires-Dist: m2r2 ; extra == 'dev'
+Requires-Dist: sphinx-autodoc-typehints ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme ; extra == 'dev'
+Requires-Dist: nbsphinx ; extra == 'dev'
+Requires-Dist: pandoc ; extra == 'dev'
+Provides-Extra: doc
+Requires-Dist: Sphinx ; extra == 'doc'
+Requires-Dist: m2r2 ; extra == 'doc'
+Requires-Dist: sphinx-autodoc-typehints ; extra == 'doc'
+Requires-Dist: sphinx-rtd-theme ; extra == 'doc'
+Requires-Dist: nbsphinx ; extra == 'doc'
+Requires-Dist: pandoc ; extra == 'doc'
+
+# PreHEAT Open Python Package
+
+This is the open Python package to consume Neogrids REST API.
+
+For a quick introduction to how to use it on real-world data, see the [**quick start guide**](https://gitlab.com/neogrid-technologies-public/preheat-open-python/-/blob/master/docs/source/tutorials/demo.ipynb).
+
+## Installation and configuration
+
+### Simple installation:
+Install the package directly from [PyPi](https://pypi.org/project/preheat-open/) using:
+
+    pip install preheat_open
+
+
+
+### Configuring the toolbox
+First, make sure that you have created an API key for your user. This can be done on your [user profile page](https://app.neogrid.dk/icebear/#!/app/user/profile) in the PreHEAT App.
+
+Now, you can store the API key in a configuration file. This user configuration file should be created in the following places:
+
+| OS      | User level (recommended)                  | Machine level                  |  
+|---------|-------------------------------------------|--------------------------------|
+| Windows | C:/Users/[your user]/.preheat/config.json | (unsupported)                  |
+| Linux   | ~/.preheat/config.json                    | /etc[/opt]/preheat/config.json |
+
+The configuration files are read in the following priority order (using the first available):
+
+1- User level
+
+2- Machine level (Linux only): */etc/opt/preheat/config.json*
+
+3- Machine level (Linux only): */etc/preheat/config.json*
+
+And then add the following content in this file (adjusting with your API key):
+
+
+```
+{
+  "PREHEAT_API_KEY": "YOUR_API_KEY_HERE"
+}
+```
+
+Alternatively, you can also just import it explicitly in your code using the following command in your code 
+(this is however not recommended, as you risk compromising your API key when sharing your code with others) :
+
+```
+from preheat_open import set_api_key
+
+set_api_key("YOUR_API_KEY_HERE")
+```
+
+## Additional Information
+You can find additional information about the [PreHeat API here](https://neogrid-technologies.gitlab.io/neogrid-api/).
+
+## Contributions
+
+We encourage pull requests if you have developed new interesting features.
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
+
