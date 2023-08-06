@@ -1,0 +1,92 @@
+[tool.poetry]
+name = "pontos"
+version = "22.8.1"
+description = "Common utilities and tools maintained by Greenbone Networks"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+
+classifiers=[
+  # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # pylint: disable=line-too-long
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+packages = [
+  { include = "pontos"},
+  { include = "tests", format = "sdist" },
+  { include = "poetry.lock", format = "sdist" },
+  { include = "poetry.toml", format = "sdist" },
+]
+include = [
+  "pontos/updateheader/templates/",
+  "pontos/github/pr_template.md"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+colorful = "^0.5.4"
+tomlkit = ">=0.5.11"
+packaging = ">=20.3"
+httpx = "^0.23.0"
+rich = "^12.4.4"
+
+[tool.poetry.dev-dependencies]
+autohooks = ">=22.7.0"
+autohooks-plugin-pylint = ">=21.6.0"
+autohooks-plugin-black = ">=22.7.0"
+autohooks-plugin-isort = ">=22.3.0"
+rope = "^1.3.0"
+coverage = "^6.4"
+myst-parser = "^0.18.0"
+Sphinx = "^5.0.2"
+sphinx-autodoc-typehints = "^1.19.1"
+
+[tool.black]
+line-length = 80
+target-version = ['py37', 'py38', 'py39', 'py310']
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.venv
+  | \.circleci
+  | \.github
+  | \.vscode
+  | _build
+  | build
+  | dist
+  | docs
+)/
+'''
+
+[tool.autohooks]
+pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.isort', 'autohooks.plugins.pylint']
+mode = "poetry"
+
+[tool.isort]
+profile = "black"
+line_length = 80
+
+[tool.pontos.version]
+version-module-file = "pontos/version/__version__.py"
+
+[tool.poetry.scripts]
+pontos = 'pontos:main'
+pontos-version = 'pontos.version:main'
+pontos-release = 'pontos.release:main'
+pontos-update-header = 'pontos.updateheader:main'
+pontos-changelog = 'pontos.changelog:main'
+pontos-github = 'pontos.github:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
