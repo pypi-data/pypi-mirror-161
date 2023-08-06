@@ -1,0 +1,5 @@
+DATA_EXPORT_KIND = 'smart-feeds-data-exports'
+DATA_INGESTION_KIND = 'smart-feeds-data-ingestions'
+DATA_PROCESSING_KIND = 'smart-feeds-data-processings'
+PROTECTION_KIND = 'protection-file-size'
+ALERT_KIND = 'alert-file-change'

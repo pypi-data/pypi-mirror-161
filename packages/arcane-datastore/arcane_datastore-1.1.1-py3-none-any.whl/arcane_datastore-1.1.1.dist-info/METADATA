@@ -1,0 +1,50 @@
+Metadata-Version: 2.1
+Name: arcane-datastore
+Version: 1.1.1
+Summary: Override datastore client
+Author: Arcane
+Author-email: product@arcane.run
+Requires-Python: >=3.6,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: arcane-core (>=1.6.0,<2.0.0)
+Requires-Dist: backoff (>=1.10.0,<2.0.0)
+Requires-Dist: google-cloud-datastore (>=2.5.1,<3.0.0)
+Description-Content-Type: text/markdown
+
+# Arcane Datastore
+
+This package is based on [google-cloud-datastore](https://pypi.org/project/google-cloud-datastore/).
+
+## Get Started
+
+```sh
+pip install arcane-datastore
+```
+
+## Example Usage
+
+```python
+from arcane import datastore
+client = datastore.Client()
+
+entity = client.get_entity('kind-id-here', 1)
+```
+
+or
+
+```python
+from arcane import datastore
+
+# Import your configs
+from configure import Config
+
+client = datastore.Client.from_service_account_json(Config.KEY, project=Config.GCP_PROJECT)
+
+entity = client.get_entity('kind-id-here', 1)
+```
+
