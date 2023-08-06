@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+import "common.proto";
+import "integration_source.proto";
+
+option java_package = "io.calixa.domain.billing";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.billing;
+
+message Product {
+  reserved 1, 2, 8, 9, 500, 501, 510, 511;
+  bool active = 3;
+  string name = 4;
+  string description = 5;
+  string type = 6;
+  string triggering_event_id = 7 [deprecated = true];
+}
+
+message InvoiceLineItem {
+  reserved 1, 4, 6, 7, 14, 500, 501, 510, 511;
+  string invoice_id = 2; // should be considered as external_id - for creating an edge
+  string invoice_item_id = 5;
+  string description = 8;
+  google.protobuf.Struct properties = 9;
+  google.protobuf.Timestamp period_start = 10;
+  google.protobuf.Timestamp period_end = 11;
+  calixa.domain.common.Amount total_amount = 12;
+  int32 quantity = 13;
+  calixa.domain.integration.IntegrationSource integration_source = 15 [deprecated = true];
+}
+
+message SubscriptionItem {
+  reserved 3, 4, 7, 500, 501, 510, 511;
+  string subscription_id = 1 [deprecated = true];
+  string plan_id = 5 [deprecated = true];
+  google.protobuf.Struct properties = 6;
+  calixa.domain.integration.IntegrationSource integration_source = 8 [deprecated = true];
+}
+
+message Subscription {
+  reserved 1, 3, 10, 200, 500, 501, 510, 511;
+  bool cancel_at_period_end = 4;
+  SubscriptionStatus status = 5;
+  google.protobuf.Struct properties = 6;
+  google.protobuf.Timestamp period_start = 7;
+  google.protobuf.Timestamp period_end = 8;
+  string triggering_event_id = 9 [deprecated = true];
+  calixa.domain.integration.IntegrationSource integration_source = 11 [deprecated = true];
+
+  double application_fee_percent = 12;
+  google.protobuf.Timestamp billing_cycle_anchor = 13;
+  google.protobuf.Timestamp cancel_at = 14;
+  google.protobuf.Timestamp canceled_at = 15;
+  SubscriptionCollectionMethod collection_method = 16;
+  int32 days_until_due = 17;
+  google.protobuf.Timestamp ended_at = 18;
+  google.protobuf.Timestamp next_pending_invoice_item_invoice = 19;
+  google.protobuf.Timestamp start_date = 20;
+  google.protobuf.Timestamp trial_start = 21;
+  google.protobuf.Timestamp trial_end = 22;
+  SubscriptionPauseCollection pause_collection = 23;
+  SubscriptionPendingInvoiceItemInterval pending_invoice_item_interval = 24;
+
+  // Owner external Id
+  common.ExternalId external_owner_id = 25;
+}
+
+message SubscriptionPauseCollection {
+  SubscriptionPauseCollectionBehavior behavior = 1;
+  google.protobuf.Timestamp resumes_at = 2;
+}
+
+message SubscriptionPendingInvoiceItemInterval {
+  InvoiceFrequency interval = 1;
+  int32 interval_count = 2;
+}
+
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
+  INCOMPLETE = 1;
+  INCOMPLETE_EXPIRED = 2;
+  TRIALING = 3;
+  ACTIVE = 4;
+  PAST_DUE = 5;
+  CANCELED = 6;
+  UNPAID = 7;
+}
+
+enum SubscriptionCollectionMethod {
+  SUBSCRIPTION_COLLECTION_METHOD_UNSPECIFIED = 0;
+  SUBSCRIPTION_COLLECTION_METHOD_CHARGE_AUTOMATICALLY = 1;
+  SUBSCRIPTION_COLLECTION_METHOD_SEND_INVOICE = 2;
+}
+
+enum SubscriptionPauseCollectionBehavior {
+  SUBSCRIPTION_PAUSE_COLLECTION_BEHAVIOR_UNSPECIFIED = 0;
+  SUBSCRIPTION_PAUSE_COLLECTION_BEHAVIOR_KEEP_AS_DRAFT = 1;
+  SUBSCRIPTION_PAUSE_COLLECTION_BEHAVIOR_MARK_UNCOLLECTIBLE = 2;
+  SUBSCRIPTION_PAUSE_COLLECTION_BEHAVIOR_BEHAVIOR_VOID = 3;
+}
+
+enum InvoiceStatus {
+  INVOICE_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  DELETED = 2;
+  OPEN = 3;
+  PAID = 4;
+  UNCOLLECTIBLE = 5;
+  VOID = 6;
+}
+
+enum InvoiceFrequency {
+  INVOICE_FREQUENCY_UNSPECIFIED = 0;
+  INVOICE_FREQUENCY_DAY = 1;
+  INVOICE_FREQUENCY_WEEK = 2;
+  INVOICE_FREQUENCY_MONTH = 3;
+  INVOICE_FREQUENCY_YEAR = 4;
+}
+
+message Invoice {
+
+  reserved 1, 2, 5, 17, 18, 200, 500, 501, 510, 511;
+  reserved 30; // was "stripe_customer_id"
+
+  bool auto_advance = 4;
+  string subscription_id = 6;
+  string description = 7;
+  string hosted_invoice_url = 8;
+  google.protobuf.Struct properties = 9;
+  google.protobuf.Timestamp period_start = 10;
+  google.protobuf.Timestamp period_end = 11;
+  calixa.domain.common.Amount total_amount = 12;
+  InvoiceStatus status = 13;
+  string number = 14;
+  reserved 15; // previously address_id
+  string triggering_event_id = 16 [deprecated = true];
+  common.Address address = 19;
+
+  common.ExternalId external_owner_id = 31;
+}
+
+message Plan {
+  reserved 1, 2, 3, 13, 14, 500, 501, 510, 511;
+  bool active = 4;
+  string interval = 5;
+  int32 interval_count = 6;
+  calixa.domain.common.Amount amount = 7;
+  google.protobuf.Struct properties = 8;
+  string billing_scheme = 9;
+  string usage_type = 10;
+  string name = 11;
+  string triggering_event_id = 12 [deprecated = true];
+}
+
+enum PaymentMethodType {
+  PAYMENT_METHOD_TYPE_UNSPECIFIED = 0;
+  PAYMENT_METHOD_TYPE_CARD = 1;
+}
+
+enum ChargeStatus {
+  CHARGE_STATUS_UNSPECIFIED = 0;
+  CHARGE_STATUS_CREATED = 1;
+  CHARGE_STATUS_EXPIRED = 2;
+  CHARGE_STATUS_FAILED = 3;
+  CHARGE_STATUS_PENDING = 4;
+  CHARGE_STATUS_REFUNDED = 5;
+  CHARGE_STATUS_PARTIALLY_REFUNDED = 6;
+  CHARGE_STATUS_SUCCEEDED = 7;
+}
+
+enum ChargeRefundStatus {
+  CHARGE_REFUND_STATUS_UNSPECIFIED = 0;
+  CHARGE_REFUND_STATUS_SUCCEEDED = 1;
+  CHARGE_REFUND_STATUS_FAILED = 2;
+  CHARGE_REFUND_STATUS_PENDING = 3;
+}
+
+message SavedPaymentMethod {
+  reserved 1, 2, 3, 6, 7, 500, 501, 510, 511;
+  PaymentMethodType type = 4;
+  google.protobuf.Struct saved_payment_method_details = 5;
+}
+
+message Charge {
+  reserved 1, 2, 9, 13, 200, 500, 501, 510, 511;
+  string invoice_id = 4 [deprecated = true];
+  calixa.domain.common.Amount amount = 5;
+  calixa.domain.common.Amount amount_refunded = 6;
+  ChargeStatus status = 7;
+  string saved_payment_method_id = 8 [deprecated = true];
+  google.protobuf.Struct properties = 10;
+  calixa.domain.integration.IntegrationSource integration_source = 11 [deprecated = true];
+  string triggering_event_id = 12 [deprecated = true];
+  common.Address address = 14;
+  common.ExternalId external_owner_id = 15;
+}
+
+message Refund {
+  reserved 1, 2, 7, 500, 501, 510, 511;
+  string charge_id = 3 [deprecated = true];
+  calixa.domain.common.Amount amount = 4;
+  ChargeRefundStatus status = 5;
+  calixa.domain.integration.IntegrationSource integration_source = 8 [deprecated = true];
+}

@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+import "integration_source.proto";
+
+option java_package = "io.calixa.domain.common";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.common;
+
+message Amount {
+  int64 micros = 1;
+  string currency = 2;
+}
+
+message Property {
+  string key = 1;
+  string value = 2;
+}
+
+enum ExternalIdType {
+  EXTERNAL_ID_TYPE_UNSPECIFIED = 0;
+  EXTERNAL_ID_TYPE_PRIMARY = 1;
+  // A link to an external ID that has a relationship to the PRIMARY Id
+  EXTERNAL_ID_TYPE_RELATIONSHIP = 2;
+  // Special case to identify EMAIL external-id going forward.
+  // We will use this when EMAIL is a primary id. We are not using the existing
+  // primary-id because EMAIL can be more than one for an external-entity and we
+  // want to handle it special.
+  EXTERNAL_ID_TYPE_EMAIL = 3;
+}
+
+/**
+
+ExternalId represents one of several things:
+
+1) The ID by which the Entity is known by a 3rd party vendor. For instance,
+   Stripe will identify an invoice with an ID (like "inv_badkfjsadfkjasdf") and
+   we must retain the external ID so that future updates to the Entity can
+   be resolved by this key. In this case, we store the ExternalId as follows:
+
+   external_id={
+     source=INTEGRATION_SOURCE_STRIPE,
+     id="inv_badkfjsadfkjasdf",
+     id_type=EXTERNAL_ID_TYPE_PRIMARY,
+     entity_type=INVOICE
+   }
+
+   When the Invoice is updated via the Stripe App, we usually receive metadata
+   that describes the Customer to which it belongs. In this case, we add a
+   related ExternalId to indicate that the Entity is related to an AccountUser:
+
+   external_id={
+     source=INTEGRATION_SOURCE_UNIVERSAL_EMAIL,
+     id="user@host.com",                        // The normalized email for the user
+     id_type=EXTERNAL_ID_TYPE_RELATIONSHIP,
+     entity_type=ACCOUNT_USER
+   }
+
+   When this ExternalId is observed on the incoming Invoice Entity, we eagerly
+   save (that is, create or update) the related AccountUser Entity. This
+   AccountUser Entity has a PRIMARY key as follows:
+
+   external_id={
+     source=INTEGRATION_SOURCE_UNIVERSAL_EMAIL,
+     id="user@host.com",
+     id_type=EXTERNAL_ID_TYPE_PRIMARY,
+     entity_type=ACCOUNT_USER
+   }
+
+   Next an edge between the Invoice and AccountUser are created using the
+   BELONGS_TO edge type.
+
+   This logic applies to the Billing Entities: Invoice, Charge and Subscription.
+
+2) A relationship to another Entity in the Graph (that might not yet exist).
+
+
+
+
+
+Invariants for ExternalID:
+If the external_id is a PRIMARY (that is, id_type==EXTERNAL_ID_TYPE_PRIMARY)
+then
+  entity_type must be the same as the Entity on which this external_id
+  exists
+
+For reference, see the Data model here:
+https://miro.com/app/board/o9J_koBKhyQ=/
+
+**/
+message ExternalId {
+  calixa.domain.integration.IntegrationSource source = 1;
+  string id = 2;
+  ExternalIdType id_type = 3;
+  EntityType entity_type = 4;
+}
+
+message Address {
+  string organization_id = 1 [deprecated = true];
+  reserved 2; // previously address_id
+  string line1 = 3;
+  string line2 = 4;
+  string city = 5;
+  string state = 6;
+  string postal_code = 7;
+  string country = 8;
+
+  google.protobuf.Timestamp created_at = 500 [deprecated = true];
+  google.protobuf.Timestamp updated_at = 501 [deprecated = true];
+}
+
+message RequestContext {
+
+  // always populated fields
+  calixa.domain.integration.IntegrationSource source = 1;
+  string organization_id = 2;
+
+  // present iff the request originated through the Console. This captures the
+  // OrganizationUser#id that invoked the call.
+  string organization_user_id = 3;
+  reserved 4; // string account_id = 4;
+  reserved 5; // string account_user_id = 5;
+
+  // present iff the request originated through a home-grown Python App like,
+  // Stripe, Segment, etc.
+  string wal_id = 6;
+
+  // present iff the request originated through Airbyte. This captures the UUID
+  // from external service that extracted entity.
+  string external_extraction_id = 7;
+
+  calixa.domain.integration.IntegrationChannel channel = 8; //;
+  calixa.domain.integration.IntegrationStore store = 9; //;
+
+  // Flag 'Request' or 'Event' objects that might have been create during an
+  // integration's backfilling flow. This flag can be used to let the respective
+  // requested methods or subscribers to optionally skip those event.
+  // (e.g.: Automations should ignore events backfilled events to avoid spam)
+  bool is_backfill_event = 1000;
+  string instance_id = 1001;
+  // Used to more easily inspect the Airbyte sync from Airbyte Web UI.
+  // E.g.: http://localhost:9876/workspaces/<workspace_id>/connections/<airbyte_connection_id>
+  string airbyte_connection_id = 1002;
+}
+
+// Domain of all entity types supported in the platform; Keep the proto field numbers in
+// sync with calixa.domain.event.Entity.
+enum EntityType {
+
+  // These fields have been removed from the Proto
+  reserved 103, 104, 303, 304, 2007, 2008;
+
+  ENTITY_TYPE_UNSPECIFIED = 0;
+
+  ORGANIZATION = 1;
+  ORGANIZATION_USER = 2;
+  reserved 3; // previously PUSH_NOTIFICATION_CONFIG
+  ACCESS_KEY = 4;
+  AUTOMATION = 5;
+
+  TREND_SEARCH = 20;
+
+  NOTE_THREAD = 50;
+  NOTE_MESSAGE = 51;
+
+  ACCOUNT = 100;
+  ACCOUNT_USER = 101;
+  reserved 102; // ACCOUNT_USER_ROLE = 102;
+  OPPORTUNITY = 105;
+  TEAMMATE = 106;
+
+  INVOICE = 200;
+  PRODUCT = 201;
+  PLAN = 202;
+  SUBSCRIPTION = 203;
+  INVOICE_LINE_ITEM = 204;
+  SUBSCRIPTION_ITEM = 205;
+  CHARGE = 206;
+  SAVED_PAYMENT_METHOD = 207;
+  REFUND = 208;
+
+  CONVERSATION = 300;
+  MESSAGE = 301;
+  ATTACHMENT = 302;
+
+  TAG = 305;
+
+  EVENT = 400;
+
+  ACTION_CONFIG = 500;
+
+  CUSTOM_ENTITY = 600;
+  CUSTOM_ENTITY_DEFINITION = 601;
+
+  // External Domain Model Entities
+  SALESFORCE_ACCOUNT = 2000;
+  SALESFORCE_CONTACT = 2001;
+  INTERCOM_COMPANY = 2002;
+  INTERCOM_CONTACT = 2003;
+  ZENDESK_ORGANIZATION = 2004;
+  ZENDESK_USER = 2005;
+  STRIPE_CUSTOMER = 2006;
+  reserved 2009;   //COGNITO_USER = 2009;
+  API_ACCOUNT = 2010;
+  API_USER = 2011;
+  HUBSPOT_COMPANY = 2012;
+  HUBSPOT_CONTACT = 2013;
+  HUBSPOT_OWNER = 2014;
+  SALESFORCE_USER = 2015;
+  SALESFORCE_LEAD = 2017;
+
+  INTERCOM_TAG = 2016;
+  HUBSPOT_DEAL_STAGE = 2018;
+  SALESLOFT_USER = 2019;
+  SALESLOFT_CADENCE = 2020;
+  SALESLOFT_PERSON = 2021;
+  SALESLOFT_CADENCE_MEMBERSHIP = 2022;
+  OUTREACH_PROSPECT = 2023;
+  OUTREACH_SEQUENCE = 2024;
+  OUTREACH_SEQUENCE_STATE = 2025;
+
+  CLEARBIT_PERSON = 2026;
+  CLEARBIT_COMPANY = 2027;
+
+  SALESFORCE_CUSTOM_PROPERTY = 2028 [deprecated = true];
+  SALESFORCE_CUSTOM_PROPERTY_DEFINITION = 2029;
+
+  DATA_WAREHOUSE_SYNC = 3000;
+
+  reserved 9000; // previously PUSH_NOTIFICATION_LOG;
+}
+
+message HealthCheckRequest {
+  string service = 1;
+}
+
+enum ServingStatus {
+  UNKNOWN = 0;
+  SERVING = 1;
+  NOT_SERVING = 2;
+  SERVICE_UNKNOWN = 3; // Used only by the Watch method.
+}
+
+message HealthCheckResponse {
+  ServingStatus status = 1;
+}
+
+service GrpcHealthCheckService {
+  rpc Check (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+enum TaskStatus {
+  TASK_STATUS_UNDEFINED = 0;
+  TASK_STATUS_PENDING   = 1;
+  TASK_STATUS_STARTED   = 2;
+  TASK_STATUS_DONE      = 3;
+  TASK_STATUS_ERROR     = 4;
+  TASK_STATUS_TIMED_OUT = 5;
+}
+

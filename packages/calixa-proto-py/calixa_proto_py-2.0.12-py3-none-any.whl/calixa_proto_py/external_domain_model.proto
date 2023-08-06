@@ -1,0 +1,968 @@
+syntax = "proto3";
+
+package calixa.domain.external;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "account.proto";
+import "common.proto";
+
+option java_package = "io.calixa.domain.external";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+message CustomProperty {
+  // Unordered map of dynamically typed values.
+  map<string, CustomPropertyValue> fields = 1;
+}
+
+enum CustomPropertyType {
+  CUSTOM_PROPERTY_TYPE_UNSPECIFIED = 0;
+
+  // String, Int, Float, Boolean, Struct
+  CUSTOM_PROPERTY_TYPE_SCALAR = 1;
+
+  // used to model foreign keys to other entities.
+  CUSTOM_PROPERTY_TYPE_RELATIONSHIP = 2;
+}
+
+message CustomPropertyValue {
+  // The kind of value.
+  oneof kind {
+    // Represents a null value.
+    google.protobuf.NullValue null_value = 1;
+    // Represents a double value.
+    double number_value = 2;
+    // Represents a string value.
+    string string_value = 3;
+    // Represents a boolean value.
+    bool bool_value = 4;
+    // Represents a structured value.
+    google.protobuf.Struct struct_value = 5;
+    // Represents a repeated `Value`.
+    google.protobuf.ListValue list_value = 6;
+    // Reference
+    CustomReference reference = 7;
+  }
+
+  CustomPropertyType type = 100;
+
+  string display_value = 101;
+}
+
+message CustomReference {
+  string id = 1;
+  string type = 2;
+}
+
+// https://developers.intercom.com/intercom-api-reference/reference#list-tags-of-contact
+message IntercomTag {
+  string id = 1;
+  string name = 2;
+}
+
+message IntercomCompany {
+  // https://developers.intercom.com/intercom-api-reference/reference#company-model
+  string id = 1;
+  google.protobuf.Timestamp remote_created_at = 2;
+  google.protobuf.Timestamp last_request_at = 3;
+  string company_id = 4;
+  string name = 5;
+  int32 session_count = 6;
+  int32 monthly_spend = 7;
+  int32 user_count = 8;
+  string plan_id = 9;
+  string plan_name = 10;
+  int32 size = 11;
+  string website = 12;
+  string industry = 13;
+}
+
+message IntercomContact {
+  // https://developers.intercom.com/intercom-api-reference/reference#contacts-model
+  string id = 1;
+  string workspace_id = 2;
+  string external_id = 3;
+  string role = 4;
+  string email = 5;
+  string phone = 6;
+  string name = 7;
+  string avatar = 8;
+  string owner_id = 9;
+  bool has_hard_bounced = 10;
+  bool marked_email_as_spam = 11;
+  bool unsubscribed_from_emails = 12;
+  google.protobuf.Timestamp signed_up_at = 13;
+  google.protobuf.Timestamp last_seen_at = 14;
+  google.protobuf.Timestamp last_replied_at = 15;
+  google.protobuf.Timestamp last_contacted_at = 16;
+  google.protobuf.Timestamp last_email_opened_at = 17;
+  google.protobuf.Timestamp last_email_clicked_at = 18;
+  string language_override = 19;
+  repeated string company_ids = 20;
+
+  // With Airbyte, this field is left blank when the entity is serialized for
+  // persistence. In AccountAndAccountUserRenderer#applyPreferredSources, however,
+  // this field is populated based on Tag Ids present in the list below.
+  repeated string tags = 21;
+
+  // With Airbyte, we receive the external tag_id during a backfill or incremental
+  // update. We store the tag_ids in this local array and perform a runtime
+  // hydration in AccountAndAccountUserRenderer#applyPreferredSources
+  repeated string tag_ids = 22;
+}
+
+message SalesforceAccount {
+  // https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_account.htm
+  string id = 1;
+  bool is_deleted = 2;
+  string master_record_id = 3;
+  string name = 4;
+  string parent_id = 5;
+  string billing_street = 6;
+  string billing_city = 7;
+  string billing_state = 8;
+  string billing_postal_code = 9;
+  string billing_country = 10;
+  string phone = 11;
+  string fax = 12;
+  string account_number = 13;
+  string website = 14;
+  string owner_id = 15;
+  string created_by_id = 16;
+  string type = 17;
+  string industry = 18;
+  int32 number_of_employees = 19;
+
+  // This is the bag of custom properties that is modeled by an Organization's
+  // Salesforce admins for Accounts.
+  google.protobuf.Struct properties = 100 [deprecated=true];
+  // Custom properties in Salesforce are field names ending with "__c"
+  CustomProperty custom_properties = 101;
+}
+
+message SalesforceContact {
+  // https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_contact.htm
+  string id = 1;
+  bool is_deleted = 2;
+  string master_record_id = 3;
+  string account_id = 4;
+  string first_name = 5;
+  string last_name = 6;
+  string name = 7;
+  string mailing_street = 8;
+  string mailing_city = 9;
+  string mailing_state = 10;
+  string mailing_postal_code = 11;
+  string mailing_country = 12;
+  string other_street = 13;
+  string other_city = 14;
+  string other_state = 15;
+  string other_postal_code = 16;
+  string other_country = 17;
+  string phone = 18;
+  string fax = 19;
+  string mobile_phone = 20;
+  string home_phone = 21;
+  string other_phone = 22;
+  string assistant_phone = 23;
+  string email = 24;
+  string owner_id = 25;
+  string created_by_id = 26;
+  string title = 27;
+
+  // This is the bag of custom properties that is modeled by an Organization's
+  // Salesforce admins for Contacts.
+  google.protobuf.Struct properties = 100 [deprecated=true];
+  // Custom properties in Salesforce are field names ending with "__c"
+  CustomProperty custom_properties = 101;
+}
+
+message SalesforceLead {
+  // https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_lead.htm
+  string id = 1;
+  string action_cadence_assignee_id = 2;
+  string action_cadence_id = 3;
+  string activity_metric_id = 4;
+  // annual_revenue + currency_iso_code
+  calixa.domain.common.Amount annual_revenue = 5;
+  string city = 6;
+  string connection_received_id = 7;
+  string connection_sent_id = 8;
+  string converted_account_id = 9;
+  string converted_contact_id = 10;
+  google.protobuf.Timestamp converted_date = 11;
+  string converted_opportunity_id = 12;
+  string country = 13;
+  string description = 14;
+  string division = 15;
+  string email = 16;
+  google.protobuf.Timestamp email_bounced_date = 17;
+  string email_bounced_reason = 18;
+  string fax = 19;
+  google.protobuf.Timestamp first_call_datetime = 20;
+  google.protobuf.Timestamp first_email_datetime = 21;
+  string first_name = 22;
+  bool has_opted_out_of_email = 23;
+  string individual_id = 24;
+  string industry = 25;
+  bool is_converted = 26;
+  bool is_deleted = 27;
+  bool is_unread_by_owner = 28;
+  google.protobuf.Timestamp last_activity_date = 29;
+  string last_name = 30;
+  google.protobuf.Timestamp last_referenced_date = 31;
+  google.protobuf.Timestamp last_viewed_date = 32;
+  string lead_source = 33;
+  string master_record_id = 34;
+  string middle_name = 35;
+  string mobile_phone = 36;
+  string name = 37;
+  int64 number_of_employees = 38;
+  string owner_id = 39;
+  string partner_account_id = 40;
+  string phone = 41;
+  string postal_code = 42;
+  string state = 43;
+  string status = 44;
+  string street = 45;
+  string title = 46;
+  string website = 47;
+  // Custom properties in Salesforce are field names ending with "__c"
+  CustomProperty custom_properties = 101;
+}
+
+message SalesforceUser {
+  // https://developer.salesforce.com/docs/atlas.en-us.sfFieldRef.meta/sfFieldRef/salesforce_field_reference_User.htm
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string full_name = 7;
+  string email = 4;
+  string username = 5;
+  bool is_active = 6;
+}
+
+enum SalesforceCustomPropertyType {
+  SALESFORCE_CUSTOM_PROPERTY_UNSPECIFIED = 0;
+  SALESFORCE_CUSTOM_PROPERTY_STRING = 1;
+  SALESFORCE_CUSTOM_PROPERTY_BOOLEAN = 2;
+  SALESFORCE_CUSTOM_PROPERTY_INT = 3;
+  SALESFORCE_CUSTOM_PROPERTY_DOUBLE = 4;
+  SALESFORCE_CUSTOM_PROPERTY_DATE = 5;
+  SALESFORCE_CUSTOM_PROPERTY_DATETIME = 6;
+  SALESFORCE_CUSTOM_PROPERTY_BASE64 = 7;
+  SALESFORCE_CUSTOM_PROPERTY_ID = 8;
+  SALESFORCE_CUSTOM_PROPERTY_REFERENCE = 9;
+  SALESFORCE_CUSTOM_PROPERTY_CURRENCY = 10;
+  SALESFORCE_CUSTOM_PROPERTY_TEXTAREA = 11;
+  SALESFORCE_CUSTOM_PROPERTY_PERCENT = 12;
+  SALESFORCE_CUSTOM_PROPERTY_PHONE = 13;
+  SALESFORCE_CUSTOM_PROPERTY_URL = 14;
+  SALESFORCE_CUSTOM_PROPERTY_EMAIL = 15;
+  SALESFORCE_CUSTOM_PROPERTY_COMBOBOX = 16;
+  SALESFORCE_CUSTOM_PROPERTY_PICKLIST = 17;
+  SALESFORCE_CUSTOM_PROPERTY_MULTI_PICKLIST = 18;
+  SALESFORCE_CUSTOM_PROPERTY_ANY_TYPE = 19;
+  SALESFORCE_CUSTOM_PROPERTY_LOCATION = 20;
+}
+
+message SalesforceCustomPropertyDefinition {
+  string salesforce_entity_type = 1;
+  map<string, SalesforceCustomProperty> custom_properties = 2;
+}
+
+message SalesforceCustomProperty {
+  // https://developer.salesforce.com/docs/atlas.en-us.236.0.api.meta/api/sforce_api_calls_describesobjects_describesobjectresult.htm#field
+  string id = 1;  // This is the key that SFDC uses to identify a custom property
+  string label = 2;
+  SalesforceCustomPropertyType type = 3;
+  string reference_to = 4;
+}
+
+message ZendeskOrganization {
+  // https://developer.zendesk.com/rest_api/docs/support/organizations
+  string id = 1;
+  string external_id = 2;
+  string name = 3;
+  repeated string domain_names = 4;
+  string details = 5;
+  string notes = 6;
+  int64 group_id = 7;
+  bool shared_tickets = 8;
+  bool shared_comments = 9;
+  repeated string tags = 10;
+}
+
+message ZendeskUser {
+  // https://developer.zendesk.com/rest_api/docs/support/users
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string alias = 4;
+  bool chat_only = 5;
+  int32 custom_role_id = 6;
+  int32 role_type = 7;
+  string details = 8;
+  string external_id = 9;
+  google.protobuf.Timestamp last_login_at = 10;
+  string locale = 11;
+  int32 locale_id = 12;
+  bool moderator = 13;
+  string notes = 14;
+  bool only_private_comments = 15;
+  string organization_id = 16;
+  int64 default_group_id = 17;
+  string phone = 18;
+  bool shared_phone_number = 19;
+  string role = 20;
+  repeated string tags = 21;
+  bool verified = 22;
+}
+
+message StripeCustomer {
+  // https://stripe.com/docs/api/customers/object
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string description = 4;
+  string phone = 5;
+  string customer_street = 6;
+  string customer_city = 7;
+  string customer_state = 8;
+  string customer_postal_code = 9;
+  string customer_country = 10;
+  string shipping_street = 11;
+  string shipping_city = 12;
+  string shipping_state = 13;
+  string shipping_postal_code = 14;
+  string shipping_country = 15;
+  int32 balance = 16;
+  string currency = 17;
+  string default_source = 18;
+  bool delinquent = 19;
+  string invoice_prefix = 20;
+  int32 next_invoice_sequence = 21;
+  string tax_exempt = 22;
+  google.protobuf.Struct properties = 23;
+}
+
+message ApiAccountIds {
+  repeated string ids = 1;
+}
+
+message ApiUser {
+  // https://readme.calixa.io/reference#create-a-user
+  string id = 1;
+  string email = 2; // No validation. These are sometimes totally broken.
+
+  // This will (ultimately) replace the "email" (singular) field above; DO NOT USE W/O TALKING TO FRED
+  repeated string emails = 10;
+
+  // These are ApiAccount IDs to which this user is connected. For ApiUser, we
+  // handle these associations specially. That is, when api_account_ids is present,
+  // we will create edges in the graph via the shell AccountUser and Account
+  // which, in turn, gives the customer the experience that the user is "on
+  // the account". Via Segment, this field is never set. Instead, the Segment
+  // pathway makes incremental updates to relationships using:
+  //
+  //   EntityService#AddExternalAccountUserForExternalAccount
+  //   EntityService#RemoveExternalAccountUserForExternalAccount
+  //
+  // Those APIs will both set the edge and update this array below.
+  //
+  // Since Proto3 does not support "optional repeated fields", we've modelled
+  // these relationships using a Message. This allows us to test
+  // ApiUser#hasApiAccountIds which will tell the saver object if there are
+  // relationships to modify.
+  reserved 11; // repeated string account_ids = 11;
+  ApiAccountIds api_account_ids = 12;
+
+  string first_name = 3;
+  string last_name = 4;
+  calixa.domain.account.AccountUserStatus status = 5;
+  reserved 6;
+  google.protobuf.Timestamp last_active_at = 8;
+  google.protobuf.Timestamp signed_up_at = 9;
+  google.protobuf.Struct properties = 7;
+}
+
+message ApiAccount {
+  // https://readme.calixa.io/reference#create-account
+  string id = 1;
+  string name = 2;
+  string domain_name = 3;
+  calixa.domain.account.AccountStatus status = 4;
+  google.protobuf.Struct properties = 5;
+  google.protobuf.Timestamp last_active_at = 6;
+  google.protobuf.Timestamp signed_up_at = 7;
+}
+
+enum HubSpotCompanyType {
+  HUBSPOT_COMPANY_TYPE_UNSPECIFIED = 0;
+  HUBSPOT_COMPANY_TYPE_PROSPECT = 1;
+  HUBSPOT_COMPANY_TYPE_PARTNER = 2;
+  HUBSPOT_COMPANY_TYPE_RESELLER = 3;
+  HUBSPOT_COMPANY_TYPE_VENDOR = 4;
+  HUBSPOT_COMPANY_TYPE_OTHER = 5;
+}
+
+message HubSpotCompany {
+  // https://knowledge.hubspot.com/companies/hubspot-crm-default-company-properties
+  string id = 1;
+  string name = 2;
+  string owner_email = 3;
+  string owner_name = 4;
+  string phone = 5;
+  string address = 6;
+  string address2 = 7;
+  string city = 8;
+  string state = 9;
+  string zip = 10;
+  string country = 11;
+  string owner_id = 12;
+  string team_id = 13;
+  string website = 14;
+  string domain = 15;
+  HubSpotCompanyType type = 16;
+  google.protobuf.Timestamp created_at = 17;
+  google.protobuf.Timestamp last_modified_at = 18;
+
+  // all properties we receive are captured here
+  google.protobuf.Struct properties = 19;
+}
+
+message HubSpotContact {
+  // https://knowledge.hubspot.com/contacts/hubspots-default-contact-properties
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string work_email = 5;
+  string mobile_phone = 6;
+  string phone = 7;
+  string city = 8;
+  string state = 9;
+  string zip = 10;
+  string country = 11;
+  string job_title = 12;
+  string company = 13;
+  string owner_id = 14;
+  string associated_company_id = 15;
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp last_modified_at = 17;
+
+  google.protobuf.Timestamp last_contacted_at = 18;
+  google.protobuf.Timestamp last_activity_at = 19;
+  google.protobuf.Timestamp next_activity_at = 20;
+  int32 contacted_count = 21;
+  string employee_count = 22;
+  string full_name = 23;
+
+  // all properties we receive are captured here
+  google.protobuf.Struct properties = 24;
+}
+
+message HubSpotOwner {
+  // https://developers.hubspot.com/docs/api/crm/owners
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string full_name = 7;
+  string email = 4;
+  string user_id = 5;
+  bool archived = 6;
+}
+
+message HubSpotDealStage {
+  // https://developers.hubspot.com/docs/api/crm/pipelines
+  string id = 1;
+  string label = 2;
+}
+
+message SalesloftUser {
+  // https://developers.salesloft.com/api.html#!/Users/get_v2_users_json
+  reserved 25; // string external_feature_flags = 25;
+
+  string id = 1; // NOTE: This is an integer in Salesloft but modeled as string to fit the external ID model
+  string guid = 2;
+  string name = 3;
+  string first_name = 4;
+  string last_name = 5;
+  string job_role = 6;
+  bool active = 7;
+  string time_zone = 8;
+  string slack_username = 9;
+  string twitter_handle = 10;
+  string email = 11;
+  string email_client_email_address = 12;
+  string sending_email_address = 13;
+  string from_address = 14;
+  string full_email_address = 15;
+  string bcc_email_address = 16;
+  string email_signature = 17;
+  string email_signature_type = 18;
+  bool email_signature_click_tracking_disabled = 19;
+  bool team_admin = 20;
+  bool local_dial_enabled = 21;
+  bool click_to_call_enabled = 22;
+  bool email_client_configured = 23;
+  bool crm_connected = 24;
+
+  SalesloftEmbeddedResource phone_client = 26;
+}
+
+message SalesloftCadence {
+  // https://developers.salesloft.com/api.html#!/Cadences/get_v2_cadences_json
+
+  string id = 1; // NOTE: This is an integer in Salesloft but modeled as string to fit the external ID model
+  string guid = 2;
+  google.protobuf.Timestamp archived_at = 3;
+  bool team_cadence = 4;
+  bool shared = 5;
+  bool remove_bounces_enabled = 6;
+  bool remove_replies_enabled = 7;
+  bool opt_out_link_included = 8;
+  string name = 9;
+  repeated string tags = 10;
+  SalesloftEmbeddedResource creator = 11;
+  SalesloftEmbeddedResource owner = 12;
+}
+
+message SalesloftPerson {
+  // https://developers.salesloft.com/api.html#!/People/get_v2_people_json
+
+  string id = 1; // NOTE: This is an integer in Salesloft but modeled as string to fit the external ID model
+  google.protobuf.Timestamp last_contacted_at = 2;
+  google.protobuf.Timestamp last_replied_at = 3;
+  string first_name = 4;
+  string last_name = 5;
+  string display_name = 6;
+  string email_address = 7;
+  string full_email_address = 8;
+  string secondary_email_address = 9;
+  string personal_email_address = 10;
+  string phone = 11;
+  string phone_extension = 12;
+  string home_phone = 13;
+  string mobile_phone = 14;
+  string linkedin_url = 15;
+  string title = 16;
+  string city = 17;
+  string state = 18;
+  string country = 19;
+  string work_city = 20;
+  string work_state = 21;
+  string work_country = 22;
+  string crm_url = 23;
+  string crm_id = 24;
+  string crm_object_type = 25;
+  string owner_crm_id = 26;
+  string person_company_name = 27;
+  string person_company_website = 28;
+  string person_company_industry = 29;
+  bool do_not_contact = 30;
+  bool bouncing = 31;
+  string locale = 32;
+  string personal_website = 33;
+  string twitter_handle = 34;
+  string last_contacted_type = 35;
+  string job_seniority = 36;
+  google.protobuf.Struct custom_fields = 37;
+  repeated string tags = 38;
+  SalesloftPersonCounts counts = 39;
+  SalesloftEmbeddedResource owner = 40;
+  SalesloftEmbeddedResource most_recent_cadence = 41;
+  repeated string external_cadence_ids = 42;
+}
+
+message SalesloftCadenceMembership {
+  // https://developers.salesloft.com/api.html#!/Cadence_Memberships/get_v2_cadence_memberships_json
+
+  string id = 1; // NOTE: This is an integer in Salesloft but modeled as string to fit the external ID model
+  google.protobuf.Timestamp added_at = 2;
+  bool person_deleted = 4;
+  bool currently_on_cadence = 5;
+  SalesloftCurrentState current_state = 6 ;
+  SalesloftEmbeddedResource cadence = 7;
+  SalesloftEmbeddedResource person = 8;
+  SalesloftEmbeddedResource user = 9;
+  SalesloftEmbeddedResource latest_action = 10;
+  SalesloftCadenceMembershipCounts counts = 11;
+}
+
+// Nested object/complex objects from various Salesloft schemas
+message SalesloftEmbeddedResource {
+  string href = 1;
+  string id = 2;
+}
+
+message SalesloftPersonCounts {
+  int64 emails_sent = 1;
+  int64 emails_viewed = 2;
+  int64 emails_clicked = 3;
+  int64 emails_replied_to = 4;
+  int64 emails_bounced = 5;
+  int64 calls = 6;
+}
+
+message SalesloftCadenceCounts {
+  int64 cadence_people = 1;
+  int64 target_daily_people = 2;
+}
+
+message SalesloftCadenceMembershipCounts {
+  int64 views = 1;
+  int64 clicks = 2;
+  int64 replies = 3;
+  int64 calls = 4;
+  int64 sent_emails = 5;
+  int64 bounces = 6;
+}
+
+enum SalesloftCurrentState {
+  // 'current_state' is of type 'string' in Salesloft and its values is pre-defined enum
+  // Check the nesting object definition for the acceptable values of this enum and proto-validate accordingly
+  // Different objects accepts different types of 'current_states'
+  SALESLOFT_CURRENT_STATE_UNSPECIFIED = 0;
+  SALESLOFT_CURRENT_STATE_PROCESSING = 1;
+  SALESLOFT_CURRENT_STATE_STAGED = 2;
+  SALESLOFT_CURRENT_STATE_ACTIVE = 3;
+  SALESLOFT_CURRENT_STATE_SCHEDULED = 4;
+  SALESLOFT_CURRENT_STATE_COMPLETED = 5;
+  SALESLOFT_CURRENT_STATE_REMOVED = 6;
+  SALESLOFT_CURRENT_STATE_REMOVED_NO_ACTION = 7;
+  SALESLOFT_CURRENT_STATE_REASSIGNED = 8;
+}
+
+message OutreachProspect {
+  // https://api.outreach.io/api/v2/docs#prospect
+
+  string id = 1; // NOTE: This is an integer in Outreach but modeled as string to fit the external ID model
+  google.protobuf.Timestamp added_at = 2;
+  string address_street = 3;
+  string address_street_2 = 4;
+  string address_city = 5;
+  string address_state = 6;
+  string address_country = 7;
+  string address_zip = 8;
+  string angel_list_url = 9;
+  google.protobuf.Timestamp available_at = 10;
+  bool call_opted_out = 11;
+  string calls_opt_status = 12;
+  google.protobuf.Timestamp calls_opted_at = 13;
+  string campaign_name = 14;
+  int64 click_count = 15;
+  string company = 16;
+  google.protobuf.Struct custom_fields = 27;
+  google.protobuf.Timestamp date_of_birth = 28;
+  string degree = 29;
+  bool email_opted_out = 30;
+  repeated string emails = 31;
+  string emails_opt_status = 32;
+  google.protobuf.Timestamp emails_opted_at = 33;
+  google.protobuf.Timestamp engaged_at = 34;
+  double engaged_score = 35;
+  string event_name = 36;
+  string external_id = 37;
+  string external_owner = 38;
+  string external_source = 39;
+  string facebook_url = 40;
+  string first_name = 41;
+  string gender = 42;
+  string github_username = 43;
+  string github_url = 44;
+  string google_plus_url = 45;
+  google.protobuf.Timestamp graduation_date = 46;
+  repeated string home_phones = 47;
+  google.protobuf.Timestamp job_start_date = 48;
+  string last_name = 49;
+  int64 linked_in_connections = 50;
+  string linked_in_id = 51;
+  string linked_in_slug = 52;
+  string linked_in_url = 53;
+  string middle_name = 54;
+  repeated string mobile_phones = 55;
+  string name = 56;
+  string nickname = 57;
+  string occupation = 58;
+  int64 open_count = 59;
+  bool opted_out = 60;
+  google.protobuf.Timestamp opted_out_at = 61;
+  repeated string other_phones = 62;
+  string personal_note_1 = 63;
+  string personal_note_2 = 64;
+  string preferred_contact = 65;
+  string quora_url = 66;
+  string region = 67;
+  int64 reply_count = 68;
+  string school = 69;
+  double score = 70;
+  string sharing_team_id = 71;
+  string source = 72;
+  string specialties = 73;
+  string stack_overflow_id = 74;
+  string stack_overflow_url = 75;
+  repeated string tags = 76;
+  string time_zone = 77;
+  string time_zone_iana = 78;
+  string time_zone_inferred = 79;
+  string title = 80;
+  google.protobuf.Timestamp touched_at = 81;
+  google.protobuf.Timestamp trashed_at = 82;
+  string twitter_url = 83;
+  string twitter_username = 84;
+  repeated string voip_phones = 85;
+  string website_url_1 = 86;
+  string website_url_2 = 87;
+  string website_url_3 = 88;
+  repeated string work_phones = 89;
+  repeated calixa.domain.common.ExternalId external_sequence_ids = 90;
+}
+
+message OutreachSequence {
+  // https://api.outreach.io/api/v2/docs#sequence
+
+  string id = 1; // NOTE: This is an integer in Outreach but modeled as string to fit the external ID model
+  double automation_percentage = 2;
+  int64 bounce_count = 3;
+  int64 click_count = 4;
+  int64 deliver_count = 5;
+  string description = 6;
+  int32 duration_in_days = 7;
+  bool enabled = 8;
+  google.protobuf.Timestamp enabled_at = 9;
+  int64 failure_count = 10;
+  bool finished_on_reply = 11;
+  google.protobuf.Timestamp last_used_at = 12;
+  bool locked = 13;
+  google.protobuf.Timestamp locked_at = 14;
+  int64 max_activations = 15;
+  string name = 16;
+  int64 negative_reply_count = 17;
+  int64 num_contacted_prospects = 18;
+  int64 num_replied_prospects = 19;
+  int64 open_count = 20;
+  int64 opt_out_count = 21;
+  int64 positive_reply_count = 22;
+  string primary_reply_action = 23;
+  int64 primary_reply_pause_duration = 24;
+  int64 reply_count = 25;
+  int64 schedule_count = 26;
+  string schedule_interval_type = 27;
+  string secondary_reply_action = 28;
+  int64 secondary_reply_pause_duration = 29;
+  int64 sequence_step_count = 30;
+  string sequence_type = 31;
+  string share_type = 32;
+  repeated string tags = 33;
+  int64 throttle_capacity = 34;
+  int64 throttle_max_adds_per_day = 35;
+  bool throttle_paused = 36;
+  google.protobuf.Timestamp throttle_paused_at = 37;
+  bool transactional = 38;
+}
+
+message OutreachSequenceState {
+  // https://api.outreach.io/api/v2/docs#sequenceState
+
+  string id = 1; // NOTE: This is an integer in Outreach but modeled as string to fit the external ID model
+  google.protobuf.Timestamp active_at = 2;
+  int64 bounce_count = 3;
+  google.protobuf.Timestamp call_completed_at = 4;
+  int64 click_count = 5;
+  int64 deliver_count = 6;
+  string error_reason = 7;
+  int64 failure_count = 8;
+  int64 negative_reply_count = 9;
+  int64 neutral_reply_count = 10;
+  int64 open_count = 11;
+  int64 opt_out_count = 12;
+  string pause_reason = 13;
+  int64 positive_reply_count = 14;
+  google.protobuf.Timestamp replied_at = 15;
+  int64 reply_count = 16;
+  int64 schedule_count = 17;
+  string state = 18;
+  google.protobuf.Timestamp state_changed_at = 19;
+
+  OutreachRelationship sequence = 20;
+  OutreachRelationship prospect = 21;
+}
+
+message OutreachRelationship {
+  OutreachRelationshipType type = 1;
+  string id = 2;
+}
+
+enum OutreachRelationshipType {
+  OUTREACH_RELATIONSHIP_TYPE_UNSPECIFIED = 0;
+  OUTREACH_RELATIONSHIP_TYPE_PROSPECT = 1;
+  OUTREACH_RELATIONSHIP_TYPE_SEQUENCE = 2;
+}
+
+message ClearbitPerson {
+  // https://dashboard.clearbit.com/docs#enrichment-api-person-api-attributes
+
+  // common/direct
+  string id = 1;
+  string email = 50;
+  string location = 5;
+  string time_zone = 6;
+  int32 utc_offset = 7;
+  string bio = 15;
+  string site = 16;
+  string avatar = 17;
+  bool fuzzy = 45;
+  bool email_provider = 46;
+  google.protobuf.Timestamp indexed_at = 47;
+
+  // name
+  string given_name = 2;
+  string family_name = 3;
+  string full_name = 4;
+
+  //geo
+  string geo_city = 8;
+  string geo_state = 9;
+  string geo_state_code = 10;
+  string geo_country = 11;
+  string geo_country_code = 12;
+  double geo_lat = 13;
+  double geo_lng = 14;
+
+  // employment
+  string employment_domain = 18;
+  string employment_name = 19;
+  string employment_title = 20;
+  string employment_role = 21;
+  string employment_sub_role = 22;
+  string employment_seniority = 23;
+
+  // facebook
+  string facebook_handle = 24;
+
+  // github
+  string github_id = 25;
+  string github_handle = 26;
+  string github_avatar = 27;
+  string github_company = 28;
+  string github_blog = 29;
+  int32 github_followers = 30;
+  int32 github_following = 31;
+
+  // twitter
+  string twitter_handle = 32;
+  string twitter_id = 33;
+  string twitter_bio = 34;
+  int32 twitter_followers = 35;
+  int32 twitter_following = 36;
+  string twitter_location = 37;
+  string twitter_site = 38;
+  int32 twitter_statuses = 39;
+  int32 twitter_favorites = 40;
+  string twitter_avatar = 41;
+
+  // linkedin
+  string linkedin_handle = 42;
+
+  // google plus - but really?
+  string googleplus_handle = 43;
+
+  //gravatar
+  string gravatar_handle = 44;
+  string gravatar_avatar = 49;
+  // skipping gravar urls - seems to be list, can add if its absolutely needed
+
+  // ClearbitCompany id associated with this person
+  string company_id = 48;
+}
+
+message ClearbitCompany {
+  // https://dashboard.clearbit.com/docs#enrichment-api-company-api-attributes
+
+  // common/direct
+  string id = 1;
+  string name = 2;
+  string legal_name = 3;
+  string domain = 4;
+  repeated string domain_aliases = 5;
+  repeated string tags = 8;
+  string description = 9;
+  string time_zone = 10;
+  int32 utc_offset = 11;
+  int32 founded_year = 12;
+  string location = 13;
+  string logo = 43;
+  bool email_provider = 53;
+  string type = 54;
+  string phone = 55;
+  repeated string techs = 56;
+  repeated string tech_categories = 57;
+  google.protobuf.Timestamp indexed_at = 58;
+
+  // site
+  repeated string site_phone_numbers = 6;
+  repeated string site_email_addresses = 7;
+
+  // category
+  string category_sector = 14;
+  string category_industry_group = 15;
+  string category_industry = 16;
+  string category_sub_industry = 17;
+  string category_sic_code = 18;
+  string category_naics_code = 19;
+
+  // geo
+  string geo_street_number = 20;
+  string geo_street_name = 21;
+  string geo_sub_premise = 22;
+  string geo_city = 23;
+  string geo_state = 24;
+  string geo_state_code = 25;
+  string geo_postal_code = 26;
+  string geo_country = 27;
+  string geo_country_code = 28;
+  double geo_lat = 29;
+  double geo_lng = 30;
+
+  // identifiers
+  string identifiers_us_ein = 31;
+
+  // metrics
+  int32 metrics_raised = 32;
+  int32 metrics_alexa_us_rank = 33;
+  int32 metrics_alexa_global_rank = 34;
+  int32 metrics_employees = 35;
+  string metrics_employees_range = 36;
+  int64 metrics_market_cap = 37;
+  int32 metrics_annual_revenue = 38;
+  string metrics_estimated_annual_revenue = 39;
+  int32 metrics_fiscal_year_end = 40;
+
+  // facebook
+  string facebook_handle = 41;
+
+  // linkedin
+  string linkedin_handle = 42;
+
+  // twitter
+  string twitter_handle = 44;
+  string twitter_id = 45;
+  string twitter_bio = 46;
+  int32 twitter_followers = 47;
+  int32 twitter_following = 48;
+  string twitter_location = 49;
+  string twitter_site = 50;
+  string twitter_avatar = 51;
+
+  // crunchbase
+  string crunchbase_handle = 52;
+
+  // parent
+  string parent_domain = 59;
+
+  // ultimate parent
+  string ultimate_parent_domain = 60;
+}

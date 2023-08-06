@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package calixa.domain.relateddata;
+
+
+option java_package = "io.calixa.domain.relateddata";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+enum RelatedDataType {
+  RELATED_DATA_TYPE_UNSPECIFIED = 0;
+
+  RELATED_DATA_TYPE_COUPON = 1;       // Retrieve Coupon IDs + Names from Str ipe
+  RELATED_DATA_TYPE_SUBSCRIPTION = 2; // Retrieve Subscription IDs (internally)
+  RELATED_DATA_TYPE_OPPORTUNITY = 3;  // Retrieve Opportunity Stage Name + Owner ID
+  RELATED_DATA_TYPE_TASK = 4;         // Retrieve Task Owner ID
+  RELATED_DATA_TYPE_CADENCE = 5;      // Retrieve Available Cadence
+  RELATED_DATA_TYPE_SEQUENCE = 6;     // Retrieve Available Sequences + Mailboxes
+
+  RELATED_DATA_TYPE_SLACK_CHANNEL = 10000;  // EXPERIMENTAL: Retrieve channel Slack channel names
+  RELATED_DATA_TYPE_CONTACT_LIST = 7; // Retrieve contact lists 
+}
+
+/*
+ * Types of fields supported by Related Data API
+ */
+enum RelatedDataFieldType {
+  RELATED_DATA_FIELD_TYPE_UNSPECIFIED = 0;
+
+  RELATED_DATA_FIELD_TYPE_AMOUNT = 1;
+  RELATED_DATA_FIELD_TYPE_BOOLEAN = 2;
+  RELATED_DATA_FIELD_TYPE_COUNTRY = 3;
+  RELATED_DATA_FIELD_TYPE_CURRENCY = 4;
+  RELATED_DATA_FIELD_TYPE_DATE = 5;
+  RELATED_DATA_FIELD_TYPE_ENUM = 6;
+  RELATED_DATA_FIELD_TYPE_MICROS = 7;
+  RELATED_DATA_FIELD_TYPE_NUMBER = 8;
+  RELATED_DATA_FIELD_TYPE_PERCENTAGE = 9;
+  RELATED_DATA_FIELD_TYPE_STRING = 10;
+  RELATED_DATA_FIELD_TYPE_RENDERABLE = 11;
+  RELATED_DATA_FIELD_TYPE_HIDDEN = 12;
+}
+
+/**
+ * This represents arbitrary data that can be fetch from 3rd party APIs
+ * 'field' should match the name of the field in 'action.proto' params.
+ * For instance: field = 'coupon_id' -> CouponApplyParams.coupon_id.
+ * This allows the FE to render a screen in which the coupon_id, fetched from
+ * the related data in Stripe, populates the respective field in an action that
+ * invokes/requires CouponApplyParams.
+ */
+message RelatedData {
+  string field = 1;
+  string display = 2; // The rendered value in the UI for this field
+  RelatedDataFieldType field_type = 3; // The type of this field
+  bool has_other = 4; // marks if there are more fields to be retrieved
+  repeated Value values = 5; // The values of the data requested (the coupon IDs)
+  string associated_with = 6; // Lookup key that associate properties with other related data
+  map<string, Property> properties = 7; // Properties of a data for display purposes (coupon description, expiry date, etc);
+}
+
+/**
+ * Value represents an arbitrary value, chosen by the Integration apps, from a
+ * foreign related entity that is not necessarily captured internally by Calixa
+ * One example is Coupon in Stripe – The foreign_key is the Coupon ID in Stripe
+ */
+message Value {
+  string foreign_key = 1;
+  string display_name = 2;
+  int32 display_order = 3;
+}
+
+message Property {
+  RelatedDataFieldType field_type = 1;
+  string value = 2;
+  repeated Value values = 3;
+}
+
+message Exception {
+  int32 error_code = 1;
+  string error_key = 2;
+  string message = 3;
+}
+

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "io.calixa.domain.segment";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.segment;
+
+// TODO(freds): Delete this proto when Segment is migrated from Python to Java
+// using LoadedEntity.
+// See https://linear.app/calixa/issue/CAL-1051/migrate-segment-to-use-loadedentryreceiver
+message SegmentEvent {
+
+  option deprecated = true;
+
+  string id = 1;
+  string organizationId = 2;
+  string instance_id = 300;
+  string accountId = 3;
+  string accountUserId = 4;
+  string raw = 5;
+
+  google.protobuf.Timestamp received_at = 8;
+
+  // Field 100 used to be "EventSource". This was removed as it was trivially always "segment"
+  reserved 100;
+
+  string type = 101;
+  string event = 102;
+
+  // The anonymous ID in the message (possibly empty)
+  string anonymous_id = 103;
+}
+

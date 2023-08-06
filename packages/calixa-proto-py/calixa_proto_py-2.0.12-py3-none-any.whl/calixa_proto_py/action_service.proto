@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+import "entity.proto";
+import "action.proto";
+import "google/protobuf/struct.proto";
+import "integration_source.proto";
+import "common.proto";
+import "integration.proto";
+import "related_data.proto";
+
+option java_package = "io.calixa.domain.action";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+package calixa.domain.action;
+
+enum CleanupStatus {
+  CLEANUP_STATUS_UNSPECIFIED = 0;
+  CLEANUP_STATUS_SUCCESS = 1;
+  CLEANUP_STATUS_FAILURE = 2;
+}
+
+enum ActionOrigin {
+  ACTION_ORIGIN_UNSPECIFIED = 0;
+  ACTION_ORIGIN_USER = 1; // Console UI manual user action invocation
+  ACTION_ORIGIN_AUTOMATION = 2; // Automation Actions 
+  ACTION_ORIGIN_INTERNAL = 3; // Ownership Actions that are called internally
+}
+
+message GetActionsRequest {
+  ActionOrigin action_origin = 1;
+}
+
+message InvokeActionRequest {
+  string action_canonical_id = 1;
+  string entity_canonical_id = 2;
+  calixa.domain.action.ActionParams override_action_params = 3;
+  ActionOrigin action_origin = 4;
+}
+
+message InvokeActionResponse {
+  ActionInvocationStatus action_invocation_status = 1;
+  calixa.domain.action.ThirdPartyActionInvocationResponse raw_response_payload = 2;
+  calixa.domain.relateddata.Exception exception_response = 3;
+}
+
+service ActionService {
+  rpc ListActions (GetActionsRequest) returns (stream calixa.domain.entity.Entity);
+  rpc InvokeAction (InvokeActionRequest) returns (InvokeActionResponse);
+
+  // Fetches information related to an Action based on the data type request.
+  // This information can be either internal (e.g.: Subscription IDs)
+  // or external (e.g.: Stripe Coupon IDs)
+  rpc GetRelatedData(GetRelatedDataRequest) returns (GetRelatedDataResponse);
+
+  // delete action configs after integration has been remove
+  rpc HandleIntegrationRemovalCleanup(IntegrationRemovalCleanupRequest) returns (IntegrationRemovalCleanupResponse);
+}
+
+/**
+ * NOTE: The effective integration details based on the 'source' field is going to be
+ * determined in a best-effort kind of way until 'EntityOrigin' is properly backfilled
+ * for all entities in the graph
+ */
+message GetRelatedDataRequest {
+  calixa.domain.relateddata.RelatedDataType related_data_type = 1;
+  calixa.domain.integration.IntegrationSource source = 2;
+  ActionOrigin action_origin = 3;
+}
+
+message GetRelatedDataResponse {
+  repeated calixa.domain.relateddata.RelatedData related_data = 1;
+  calixa.domain.relateddata.Exception exception_response = 2;
+}
+
+message IntegrationRemovalCleanupRequest {
+  calixa.domain.integration.IntegrationSource source = 1;
+}
+
+message IntegrationRemovalCleanupResponse {
+  CleanupStatus status = 1;
+}

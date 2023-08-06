@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "entity.proto";
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.inbox";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.inbox;
+
+enum InboxItemState {
+  INBOX_ITEM_STATE_UNSPECIFIED = 0;
+  INBOX_ITEM_STATE_OPEN = 1;
+  INBOX_ITEM_STATE_ARCHIVED = 2;
+  INBOX_ITEM_STATE_COMPLETED = 3;
+}
+
+message InboxItem {
+  string organization_id = 1;
+  string inbox_item_id = 2;
+  InboxItemState state = 3;
+
+  // a reference to the automation ID that added this item to the inbox
+  string invoked_by_automation_id = 4;
+
+  // The user/account/blah that invoked
+  string invoked_by_canonical_id = 5  [(calixa.oltp.oltp_field) = {nullable: false}];
+  calixa.domain.common.EntityType invoked_by_entity_type = 6  [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // In v1, it appears we will only have InboxItems for accounts, but to future proof this
+  // feature, we should capture the entity type and canonical id formally:
+  string canonical_id = 7;
+  calixa.domain.common.EntityType entity_type = 8;
+
+  // This is a pointer to the playbook ID that is associate with the inbox item.
+  string playbook_id = 9;
+
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  string owner_organization_user_id = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  // The timestamp at which a state change is invoked, for instance.
+  google.protobuf.Timestamp updated_at = 12 [(calixa.oltp.oltp_field) = {nullable: false}];
+}
+
+message SummaryResponseForInbox {
+  calixa.domain.entity.EntityWithRelationships entity_with_relationships = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+}
+
+message InboxSummaryResultSet {
+  string canonical_id = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+}
+
+service InboxService {
+  rpc CreateInboxItem(InboxItem) returns (InboxItem);
+  rpc PutInboxItem(InboxItem) returns (InboxItem);
+  rpc GetInboxSummaryByPages(GetInboxSummaryRequest) returns (GetInboxSummaryResponse);
+  rpc GetInboxItemsForEntity(GetInboxItemsRequest) returns (stream GetInboxItemsResponse);
+}
+
+message GetInboxItemsRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string canonical_id = 2;
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  string owner_id = 3;
+}
+
+message GetInboxSummaryRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string owner_id = 2;
+  InboxItemState state = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+  // the page number. one-based index, page starts from 1
+  int32 page = 6;
+  // number of items to be returned in the page
+  int32 results_per_page = 7;
+}
+
+message GetInboxSummaryResponse {
+  repeated SummaryResponseForInbox summary_response = 1;
+  // total number of items on all pages
+  int32 total_hits = 2;
+  int32 page = 3;
+  // next available page. -1 indicates no page is available next.
+  int32 next_available_page = 4;
+  // total number of available pages
+  int32 total_pages = 5;
+  int32 hits_per_page = 6;
+}
+
+message GetInboxItemsResponse {
+  string inbox_item_id = 1;
+  InboxItemState state = 2;
+  string playbook_id = 3;
+  //the automation that fired to add this item
+  calixa.domain.entity.EntitySnapshot invoked_by_automation = 4;
+  //user/account that fired the automation
+  calixa.domain.entity.EntitySnapshot invoked_by_entity = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  string canonical_id = 8;
+  string owner_organization_user_id = 9;
+  calixa.domain.common.EntityType entity_type = 10;
+}
+

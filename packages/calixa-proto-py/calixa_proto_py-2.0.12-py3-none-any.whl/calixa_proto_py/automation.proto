@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+import "common.proto";
+import "event_label.proto";
+import "push_notification.proto";
+import "condition.proto";
+import "action.proto";
+import "entity_reference.proto";
+
+option java_package = "io.calixa.domain.automation";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.automation;
+
+enum AutomationStatus {
+  AUTOMATION_STATUS_UNSPECIFIED = 0;
+  AUTOMATION_STATUS_ENABLED = 1;
+  AUTOMATION_STATUS_PAUSED = 2;
+}
+
+enum AutomationType {
+  AUTOMATION_TYPE_UNSPECIFIED = 0;
+  AUTOMATION_TYPE_AUTOMATION = 1;
+  AUTOMATION_TYPE_ALERT = 2;
+}
+
+// suppression period for automation actions, used on suppression mechanisms
+// there is a reasoning to this being here, not all automations will have
+// frequency, so we must add to the specific ActionParams in order for the UI
+// to be able to show the fields
+enum AutomationActionSuppressionPeriod {
+  AUTOMATION_SUPPRESSION_PERIOD_UNSPECIFIED = 0;
+  AUTOMATION_SUPPRESSION_PERIOD_HOURLY = 1;
+  AUTOMATION_SUPPRESSION_PERIOD_DAILY = 2;
+  AUTOMATION_SUPPRESSION_PERIOD_WEEKLY = 3;
+  AUTOMATION_SUPPRESSION_PERIOD_MONTHLY = 4;
+  AUTOMATION_SUPPRESSION_PERIOD_QUARTERLY = 5;
+  AUTOMATION_SUPPRESSION_PERIOD_YEARLY = 6;
+
+  AUTOMATION_SUPPRESSION_PERIOD_ALL_TIME = 1000;
+}
+
+message EventTrigger {
+  calixa.domain.entity.EventLabel event_label = 1;
+  calixa.domain.condition.ConditionGroup trigger = 2;
+}
+
+message MetricTrigger {
+  calixa.domain.condition.ConditionGroup trigger = 1;
+}
+
+message Trigger {
+  oneof trigger {
+    EventTrigger event_trigger = 100;
+    MetricTrigger metric_trigger = 101;
+  }
+}
+
+message AutomationActionConfig {
+  calixa.domain.action.ActionParams action_params = 1;
+  string action_id = 2;
+}
+
+message SendToInboxAction {
+  entity.EntityReference entity_reference = 1;
+
+  string playbook_id = 2;
+
+  // this owner_id follow the same logic as Actions, if current_owner
+  // then get it from Ownership, otherwise set the value specified by UI
+  string owner_id = 3;
+}
+
+message AutomationAction {
+  oneof automationAction {
+    calixa.domain.notification.Notification notification = 1;
+    AutomationActionConfig action = 3; // represents Standard and Custom Actions
+    SendToInboxAction send_to_inbox = 6;
+  }
+  reserved 2; // UpdateEntityAction update_entity = 2;
+  reserved 5; // string task_owner = 5;
+
+  AutomationActionSuppressionPeriod suppression_period = 4; // field used for automations
+
+  string time_zone = 52;
+}
+
+message AutomationActionResult {
+  oneof automationAction_Result {
+    bool sent = 1;
+    HttpResponses http_responses = 2;
+
+    string error = 1000;
+    bool suppressed = 1001;
+    bool rate_limited = 1002;
+  }
+}
+
+// Responses related to an Entity (canonical ID) from AutomationAction invoked through automations
+message HttpResponses {
+  map<string, action.ThirdPartyActionInvocationResponse> http_response = 1;
+}
+
+message Automation {
+  string title = 1;
+  AutomationStatus status = 2;
+  Trigger trigger = 3;
+  AutomationAction automation_action = 4;
+  common.EntityType entity_type = 5;
+  string created_by_organization_user_id = 6;
+  AutomationType type = 7;
+}

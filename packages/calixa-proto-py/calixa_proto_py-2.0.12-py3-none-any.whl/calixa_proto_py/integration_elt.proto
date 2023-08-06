@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "entity.proto";
+import "common.proto";
+import "integration_source.proto";
+
+option java_package = "io.calixa.integration.elt";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.integration.elt;
+
+//
+// This namespace captures messages/types necessary to perform Loading (the L from the ELT process).
+//
+
+// Captures domain of possible load types
+enum LoadMutationType {
+  LOAD_MUTATION_TYPE_UNSPECIFIED = 0;
+
+  // Performs a FULL update -- replaces whatever was there previously
+  LOAD_MUTATION_TYPE_PUT_ENTITY = 1;
+
+  // Performs a incremental update -- replaces the fields specified in LoadedEntity.field_mask
+  LOAD_MUTATION_TYPE_PATCH_ENTITY = 2;
+
+  // For Amplitude et al -- adds an event to the event log for an ApiUser
+  LOAD_MUTATION_TYPE_EVINCE_EVENT = 3;
+}
+
+// Captures a single JSON update received from Airbyte. This is the
+// extract portion of the process.
+message ExtractedEntity {
+  string organization_id = 1;
+  string instance_id = 2;
+  string data_warehouse_sync_id = 11;
+  calixa.domain.integration.IntegrationSource source = 3;
+  google.protobuf.Timestamp emitted_at = 4;
+  string extraction_id = 5;
+  string namespace = 6;
+  string stream = 7;
+  string payload = 10;
+
+  // TODO(freds): better to model RequestContext in here?
+}
+
+message LoadedEntity {
+  reserved 5; // repeated string api_account_external_ids = 5;
+
+  // If mutation_type is DELETE, then entity will be blank
+  calixa.domain.entity.Entity entity = 1;
+
+  calixa.domain.common.ExternalId external_id = 2;
+  LoadMutationType mutation_type = 3;
+  calixa.domain.common.RequestContext request_context = 4;
+
+  // The timestamp at which the loaded entity was emitted and made available for
+  // processing.
+  google.protobuf.Timestamp emitted_at = 6;
+
+  // When mutation_type is PATCH, this field captures the properties that have
+  // been changed in the Entity and must be modified.
+  google.protobuf.FieldMask update_field_mask = 7;
+
+  // When mutation_type is PATCH, this field captures the properties that have
+  // been removed from the Entity.
+  google.protobuf.FieldMask delete_field_mask = 8;
+
+  // TODO(freds): Ensure that "delete" and "update" are disjoint sets
+  // TODO(freds): "delete" and "update" masks must be empty on PUT operation
+
+}

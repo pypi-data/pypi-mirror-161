@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common.proto";
+import "integration_source.proto";
+
+option java_package = "io.calixa.domain.conversation";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.conversation;
+
+enum MessageSource {
+  MESSAGE_SOURCE_UNSPECIFIED = 0;
+  MESSAGE_SOURCE_WEBFORM = 1;
+  MESSAGE_SOURCE_WEBCHAT = 2;
+  MESSAGE_SOURCE_EMAIL = 3;
+  MESSAGE_SOURCE_SMS = 4;
+}
+
+enum MessageVisibility {
+  MESSAGE_VISIBILITY_UNSPECIFIED = 0;
+  /* Public messages are shared with and published to the end-user. */
+  MESSAGE_VISIBILITY_PUBLIC = 1;
+  /* Internal messages may be notes, status updates, or private messages that the end-user does not see. */
+  MESSAGE_VISIBILITY_INTERNAL = 2;
+}
+
+enum MessageDirection {
+  MESSAGE_DIRECTION_UNSPECIFIED = 0;
+  MESSAGE_DIRECTION_INBOUND = 1;
+  MESSAGE_DIRECTION_OUTBOUND = 2;
+}
+
+enum MessageType {
+  MESSAGE_TYPE_UNSPECIFIED = 0;
+  MESSAGE_TYPE_CALL = 1;
+  MESSAGE_TYPE_CUSTOM = 2;
+  MESSAGE_TYPE_EMAIL = 3;
+  MESSAGE_TYPE_FACEBOOK = 4;
+  MESSAGE_TYPE_INTERCOM = 5;
+  MESSAGE_TYPE_SMOOCH = 6;
+  MESSAGE_TYPE_SMS = 7;
+  MESSAGE_TYPE_TWEET = 8;
+  MESSAGE_TYPE_TWEET_DM = 9;
+  MESSAGE_TYPE_WHATSAPP = 10;
+  MESSAGE_TYPE_ZENDESK = 11;
+}
+
+message UserLite {
+  // RESERVED string account_user_id = 1;
+  string external_user_id = 2;
+  string name = 3;
+  string email = 4;
+}
+
+message Conversation {
+  reserved 1; // previously organization_id
+  reserved 2; // previously conversation_id
+  reserved 3; // previously follower_user_ids
+  reserved 4; // previously collaborator_user_ids
+  reserved 5; // previously message_ids
+  reserved 8; // previously canonical_id
+  reserved 9; // previously IntegrationSource.integration_source
+  reserved 500; // previously created_at
+  reserved 501; // previously updated_at
+  reserved 510; // previously external_created_at
+  reserved 511; // previously external_updated_at
+
+  string external_conversation_url = 6;
+  string subject = 7;
+
+  // computed during hydration
+  int64 message_count = 10;
+  UserLite author = 11;
+  repeated UserLite participants = 12;
+}
+
+message Message {
+  reserved 1; // previously organization_id
+  reserved 2; // previously message_id
+  reserved 15; // previously canonical_id
+  reserved 16; // previously integration_source
+  reserved 500; // previously created_at
+  reserved 501; // previously updated_at
+  reserved 510; // previously external_created_at
+  reserved 511; // previously external_updated_at
+
+  // TODO(pras): DO NO DROP THIS FIELD UNTIL WE HAVE A SOLUTION FOR
+  //  https://github.com/calixa-io/integrations/issues/150
+  // WE RELY ON THIS FOR HYDRATING MESSAGE AND THIS IS THE ONLY FIELD
+  // THAT RESTRICTS US GETTING JUST ONE CONVERSATION FOR A MESSAGE
+  string conversation_id = 3;
+
+  // TODO(freds): CAN THIS BE REMOVED? HOW DO WE USE THIS FIELD?
+  string author_user_id = 4; // ??
+
+  // TODO(freds): AUTHOR SHOULD BE AN ACCOUNT_USER WITH AN EDGE. NOT HERE.
+  // Temporarily inline author names into messages.
+
+  // TODO(freds): Note, these fields are used by Automations when filtering
+  // via Conditions
+  string author_name = 11;
+  string author_email = 12;
+
+  MessageVisibility visibility = 5;
+  MessageDirection message_direction = 8;
+  /* Just the text */
+  string body = 6;
+  /* sms, email, twitter, web form, app */
+  MessageSource message_source = 7;
+
+  /* link to the message that the Console can load */
+  string external_message_url = 10;
+
+  // TODO(freds): THIS SHOULD NOT BE CAPTURED HERE. THIS DATA CAN BE
+  //              SENT VIA THE SAVE API and then we will create the appropriate
+  //              nodes/edges in the graph.
+  repeated UserLite tos = 13;
+  repeated UserLite ccs = 14;
+
+  MessageType message_type = 17;
+}
+
+message Attachment {
+  reserved 1; // previously organization_id
+  reserved 2; // previously attachment_id
+  reserved 9; // previously canonical_id
+  reserved 10; // previously integration_source
+  reserved 500; // previously created_at
+  reserved 501; // previously updated_at
+  reserved 510; // previously external_created_at
+  reserved 511; // previously external_updated_at
+
+  // TODO(freds): REMOVE THESE FIELD
+  // Note: depending on the platform, attachments can be either related to the conversation or message.
+  string conversation_id = 3; // should be considered as external_id - for creating an edge
+  string message_id = 4; // should be considered as external_id - for creating an edge
+
+  string url = 5; /* Calixa-internal storage */
+  string original_url = 6; /* Stores original payload */
+  string file_name = 7;
+  string content_type = 8;
+}

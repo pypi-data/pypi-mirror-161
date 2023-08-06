@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "integration_source.proto";
+import "integration.proto";
+import "common.proto";
+import "entity.proto";
+import "metric.proto";
+import "console_string.proto";
+
+option java_package = "io.calixa.domain.datawarehouse";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.warehouse;
+
+message QueryContext {
+
+  string organization_id = 1;
+  string query = 2;
+
+  // The mappers that translate the fields from the output to an Entity.
+  repeated entity.FieldMapper field_mappers = 3;
+  metric.MetricDescriptor metric_descriptor = 9;
+  string custom_entity_definition_id = 10;
+
+  // The type of that should be produced from this query
+  oneof output {
+    common.EntityType output_entity_type = 4;
+    string metric_descriptor_id = 7;
+  }
+
+  // Set the IntegrationSource for the query
+  domain.integration.IntegrationSource source = 5;
+  domain.integration.IntegrationStore store = 8;
+
+  // ... some number of bookkeeping fields...
+  google.protobuf.Timestamp last_run_at = 6;
+}
+
+/*********************************************************************** RPC */
+
+message VerifyCredentialsRequest {
+  string organization_id = 2;
+  integration.Credentials credentials = 1;
+}
+
+message VerifyCredentialsResponse {
+  integration.CredentialsStatus credentials_status = 1;
+  string error_message = 2;
+}
+
+message SaveCredentialsRequest {
+  integration.Credentials credentials = 1;
+}
+
+message SaveCredentialsResponse {
+  integration.Integration integration = 1;
+}
+
+service DataWarehouseService {
+  rpc VerifyCredentials(VerifyCredentialsRequest) returns (VerifyCredentialsResponse);
+  rpc SaveCredentials(SaveCredentialsRequest) returns (SaveCredentialsResponse);
+  rpc GetSchemas(GetSchemasRequest) returns (GetSchemasResponse);
+  rpc GetTables(GetTablesRequest) returns (GetTablesResponse);
+  rpc GetTable(GetTableRequest) returns (DataWarehouseTable);
+  rpc CreateSync(CreateSyncRequest) returns (CreateSyncResponse);
+  rpc GetSyncs(GetSyncsRequest) returns (GetSyncsResponse);
+  rpc GetSync(GetSyncRequest) returns (GetSyncResponse);
+  rpc SaveSync(SaveSyncRequest) returns (SaveSyncResponse);
+  rpc ReplaceSync(ReplaceSyncRequest) returns (ReplaceSyncResponse);
+  rpc PreviewSync(PreviewSyncRequest) returns (PreviewSyncResponse);
+  rpc GetServiceAccountCredentials(GetServiceAccountCredentialsRequest) returns (ServiceAccountCredentialsResponse);
+}
+
+message DataWarehouseColumn {
+  string column_name = 1;
+  entity.DataWarehouseFieldType type = 2;
+  string description = 3;
+  bool is_repeated = 4;
+}
+
+message DataWarehouseTable {
+  string schema = 1;
+  string table_name = 2;
+  repeated DataWarehouseColumn columns = 3;
+}
+
+message SaveSyncRequest {
+  entity.Entity entity = 1;
+}
+
+message SaveSyncResponse {
+  entity.Entity entity = 1;
+}
+
+message GetSchemasRequest {
+  calixa.domain.integration.Integration integration = 1;
+}
+
+message GetSchemasResponse {
+  repeated string schemas = 1;
+}
+
+message GetTablesRequest {
+  string schema = 1;
+  calixa.domain.integration.Integration integration = 2;
+}
+
+message GetTablesResponse {
+  repeated DataWarehouseTable tables = 1;
+}
+
+message GetTableRequest {
+  calixa.domain.integration.Integration integration = 1;
+  string schema = 2;
+  string table_name = 3;
+}
+
+message GetTableResponse {
+  DataWarehouseTable table = 1;
+}
+
+message CreateSyncRequest{
+  string instance_id = 1;
+  string schema = 2;
+  string table = 3;
+  repeated entity.FieldMapper field_mappers = 4;
+}
+
+message CreateSyncResponse{
+  entity.DataWarehouseSync sync = 1;
+}
+
+message GetSyncsRequest {
+
+}
+
+message GetSyncsResponse {
+  repeated entity.DataWarehouseSync sync = 1;
+}
+
+message GetSyncRequest {
+  string canonical_id = 1;
+}
+
+message GetSyncResponse {
+  entity.DataWarehouseSync sync = 1;
+}
+
+message ReplaceSyncRequest {
+  string canonical_id = 1;
+}
+
+message ReplaceSyncResponse {
+  entity.DataWarehouseSync sync = 1;
+}
+
+message PreviewSyncRequest{
+  entity.DataWarehouseSync sync = 1;
+  integration.Integration integration = 2;
+}
+
+message PreviewSyncResponse {
+  repeated entity.EntityWithRelationships entities = 1;
+  DataWarehouseTable table = 2;
+  map<string, string> errors = 3;
+  repeated MetricPreview observations = 4;
+  map<string, consolestring.ConsoleString> warnings = 5;
+}
+
+message MetricPreview {
+  google.protobuf.Timestamp measured_at = 1;
+  metric.MetricValue metric_value = 2;
+  metric.MetricValueType metric_value_type = 3;
+  repeated string account_ids = 4;
+  repeated string user_ids = 5;
+}
+
+message GetServiceAccountCredentialsRequest {
+  string organization_id = 1;
+}
+
+message GcpServiceAccount {
+  string service_account_email = 1;
+  string service_account_key = 2;
+}
+
+message ServiceAccountCredentialsResponse {
+  GcpServiceAccount gcp_service_account = 1;
+}

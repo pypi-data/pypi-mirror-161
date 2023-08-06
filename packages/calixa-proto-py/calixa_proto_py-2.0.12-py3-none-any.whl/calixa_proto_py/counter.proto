@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "io.calixa.counter";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.counter;
+
+enum CounterType {
+  COUNTER_TYPE_UNSPECIFIED = 0;
+  COUNTER_TYPE_METRIC = 1;
+}
+
+message CounterKey {
+
+  string organization_id = 1;
+  string key = 2;
+
+  CounterType counter_type = 3;
+
+  // Optional parameter that qualifies the feature computation to a specific
+  // value.
+  string param = 4;
+}
+
+message CounterObservation {
+  CounterKey key = 1;
+  google.protobuf.Timestamp observed_at = 2;
+  int64 amount = 3;
+  int64 count = 4;
+}
+
+enum GroupBy {
+  GROUP_BY_UNSPECIFIED = 0;
+  GROUP_BY_HOUR = 1;
+  GROUP_BY_DAY = 2;
+  GROUP_BY_WEEK = 3;
+  GROUP_BY_MONTH = 4;
+  GROUP_BY_YEAR = 5;
+}
+
+enum AggregateOperation {
+  AGGREGATE_OPERATION_UNSPECIFIED = 0;
+  AGGREGATE_OPERATION_SUM = 1;
+  AGGREGATE_OPERATION_AVG = 2;
+  AGGREGATE_OPERATION_COUNT = 3;
+}
+
+message CounterValueAtTime {
+  bool valuePresent = 1;
+  int64 value = 2;
+  google.protobuf.Timestamp time = 3;
+}

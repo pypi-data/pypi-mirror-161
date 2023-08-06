@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+
+import "organization.proto";
+import "account.proto";
+import "billing.proto";
+import "common.proto";
+import "counter.proto";
+import "conversation.proto";
+import "collaboration_entity.proto";
+import "external_domain_model.proto";
+import "automation.proto";
+import "event_label.proto";
+import "integration_source.proto";
+import "push_notification.proto";
+import "tag.proto";
+import "action.proto";
+import "custom_entity.proto";
+
+option java_package = "io.calixa.domain.domaindata";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.domaindata;
+
+enum DomainDataType {
+  DOMAIN_DATA_TYPE_UNSPECIFIED = 0;
+  DOMAIN_DATA_TYPE_INVOICE_CURRENCY = 1;
+  DOMAIN_DATA_TYPE_CHARGE_CURRENCY = 2;
+
+  DOMAIN_DATA_TYPE_ACCOUNT_METRIC_DESCRIPTOR_ID = 3;
+  DOMAIN_DATA_TYPE_ACCOUNT_USER_METRIC_DESCRIPTOR_ID = 4;
+
+  DOMAIN_DATA_TYPE_ACCOUNT_TAG = 5;
+  DOMAIN_DATA_TYPE_ACCOUNT_USER_TAG = 6;
+  DOMAIN_DATA_TYPE_ACCOUNT_AND_ACCOUNT_USER_SALESFORCE_OWNERS = 7;
+  DOMAIN_DATA_TYPE_ACCOUNT_AND_ACCOUNT_USER_HUBSPOT_OWNERS = 8;
+  DOMAIN_DATA_TYPE_ACCOUNT_AND_ACCOUNT_USER_ORGANIZATION_USERS_OWNERS = 9;
+
+}
+
+message DomainValue {
+  string organization_id = 1;
+  DomainDataType type = 2;
+  string domain_value = 3;
+}

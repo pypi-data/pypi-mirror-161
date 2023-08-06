@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common.proto";
+import "collaboration_entity.proto";
+import "entity.proto";
+
+option java_package = "io.calixa.domain.collaboration";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.collaboration;
+
+message SaveThreadRequest {
+  calixa.domain.entity.Entity thread = 1;
+}
+
+message SaveMessageRequest {
+  calixa.domain.entity.Entity message = 1;
+}
+
+message ThreadReference {
+  string organization_id = 1;
+  string thread_id = 2;
+}
+
+message MessageReference {
+  string organization_id = 1;
+  string message_id = 2;
+}
+
+message NotificationReference {
+  string organization_id = 1;
+  string notification_id = 2;
+}
+
+message OrganizationUserNotificationRequest {
+  string organization_id = 1;
+  string organization_user_id = 2;
+  string thread_id = 3;
+}
+
+message GetThreadRequest {
+  string organization_id = 1;
+  string thread_id = 2;
+  // flag only checked if thread id is set
+  bool include_messages = 3;
+}
+
+message GetAssociatedThreadsRequest {
+  string organization_id = 1;
+  calixa.domain.common.EntityType for_entity_type = 2;
+  string for_canonical_id = 3;
+}
+
+message GetMessageRequest {
+  string organization_id = 1;
+  string thread_id = 2;
+  string message_id = 3;
+}
+
+message GetOrganizationUserNotificationsRequest {
+  string organization_id = 1;
+  string organization_user_id = 2;
+}
+
+message GetThreadNotificationsRequest {
+  string organization_id = 1;
+  string thread_id = 2;
+}
+
+service NoteService {
+  rpc SaveThread (calixa.domain.entity.SaveEntityRequest) returns (calixa.domain.entity.Entity) {
+  }
+  rpc GetAssociatedThreads (GetAssociatedThreadsRequest) returns (stream calixa.domain.entity.Entity) {
+  }
+  rpc SaveMessage (calixa.domain.entity.SaveEntityRequest) returns (calixa.domain.entity.Entity) {
+  }
+  rpc GetMessages (GetMessageRequest) returns (stream calixa.domain.entity.Entity) {
+  }
+  rpc GetLatestMessage (ThreadReference) returns (calixa.domain.entity.Entity) {
+  }
+  rpc AddOrganizationUserNotification (OrganizationUserNotificationRequest) returns (OrganizationUserNotification) {
+  }
+  rpc MarkNotificationRead (NotificationReference) returns (google.protobuf.Empty) {
+  }
+  rpc GetOrganizationUserNotifications (GetOrganizationUserNotificationsRequest) returns (stream OrganizationUserNotification) {
+  }
+  rpc GetThreadNotifications (GetThreadNotificationsRequest) returns (stream OrganizationUserNotification) {
+  }
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "common.proto";
+
+option java_package = "io.calixa.domain.entity";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.entity;
+
+// Defines a reference (unique locatable instance) to an Entity within the
+// graph. This can be either a canonical ID (internally known) or an ExternalId.
+message EntityReference {
+  string organization_id = 1;
+  oneof id {
+    calixa.domain.common.ExternalId external_id = 2;
+    string canonical_id = 3;
+  }
+  calixa.domain.common.EntityType entity_type = 4;
+}

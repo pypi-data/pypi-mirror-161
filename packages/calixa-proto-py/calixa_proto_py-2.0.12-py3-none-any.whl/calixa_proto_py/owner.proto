@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+
+option java_package = "io.calixa.domain.owner";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.owner;
+
+message Owner {
+  // id can use one of the following canonical IDs:
+  //   - ou_  - Organization user
+  //   - how_ - HubSpot owner
+  //   - sfu_ - Salesforce user
+  //   - <empty_string> - for unspecified
+  string id = 1;
+  OwnershipType type = 2;
+}
+
+enum OwnershipType {
+  OWNERSHIP_TYPE_UNSPECIFIED = 0;
+  OWNERSHIP_TYPE_CALIXA = 1;
+  OWNERSHIP_TYPE_HUBSPOT = 2;
+  OWNERSHIP_TYPE_SALESFORCE = 3;
+}

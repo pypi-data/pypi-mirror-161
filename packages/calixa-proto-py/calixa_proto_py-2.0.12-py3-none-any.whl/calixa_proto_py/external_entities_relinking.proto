@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package calixa.domain.graph.linking;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "entity.proto";
+import "entity_reference.proto";
+
+option java_package = "io.calixa.domain.graph.linking";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+message ExternalEntityRelinkTask {
+  string organization_id = 1;
+  // Supporting SalesforceAccount and HubspotCompany only:
+  calixa.domain.common.EntityType entity_type = 2;
+  // If this timestamp matches 'Organization#Settings#CrmLinkingDefinition#updated_at'
+  // then we proceed with processing such relink task,
+  // else, log.warn():
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+message RelinkEntityTask {
+  // Stores organization_id, canonical_id and entity_type:
+  calixa.domain.entity.EntityReference entity_reference = 1;
+  // If this timestamp matches 'Organization#Settings#CrmLinkingDefinition#updated_at'
+  // then, we proceed with relinking the entity,
+  // else, log.warn():
+  google.protobuf.Timestamp updated_at = 2;
+}
