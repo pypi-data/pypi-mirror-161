@@ -1,0 +1,84 @@
+{% load crispy_forms_tags %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <a data-toggle="collapse" class="collapsed" href="#toggleForm" data-target="#rerun_form" id="toggle_form">
+                <i class="fa fa-chevron-right"></i> Re-run reduction job
+            </a>
+        </div>
+    </div>
+    <div class="card-body collapse" id="rerun_form">
+        <form id="run_variables" method="POST"
+        {% if not batch_run %}
+        action="{% url 'runs:run_confirmation' instrument=instrument %}"
+        {% else %}
+        action="{% url 'runs:configure_batch_run' instrument=instrument %}"
+        {% endif %}
+        class="form-horizontal">
+            {% csrf_token %}
+            <input type="hidden" name="runs" value="{{ runs }}">
+            <input type="hidden" name="run_version" value="{{ run_version }}">
+            <div class="row">
+                <div class="col-md-9">
+                    {% include "snippets/variables/form_warnings.html" %}
+                    <div class="form-group">
+                        <label for="run_description" class="col-form-label col-md-6">
+                            Re-run description
+                            <a href="#" data-toggle="popover"
+                               data-content="This will be appended onto the run number for you and others to identify the reason for re-submitting."
+                               data-trigger="hover" data-placement="top" data-container="body" aria-label="This will be appended onto the run number for you and others to identify the reason for re-submitting.">
+                                <i class="fa fa-info-circle"></i>
+                            </a>
+                        </label>
+                        <div class="col-md-10">
+                            <input type="text" name="run_description" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="js-variables-container">
+                        {% include "snippets/variables/form.html" with standard_variables=standard_variables advanced_variables=advanced_variables variable_help=variable_help instrument=instrument.name only %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>Additional Actions</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <ul class="js-form-actions">
+                                {% include "snippets/reset_buttons.html" %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 js-action-explaination"></div>
+                    </div>
+                </div>
+            </div>
+            {% crispy rerun_form %}
+            <div class="form-group variables-buttons">
+                    {% if not has_reduce_script %}
+                        <div class="alert alert-warning">
+                            <p class="text-center " id="script_warning_message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                    &nbsp;&nbsp;The reduce.py script is missing for this instrument. You may only re-run with the previous script used for this Run.
+                                    Please create it if you wish to re-run with a different script.
+                            </p>
+                        </div>
+                    {% endif %}
+                    {% if not has_reduce_vars %}
+                        <div class="alert alert-warning">
+                            <p class="text-center " id="vars_warning_message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                    &nbsp;&nbsp;The reduce_vars.py script is missing for this instrument. Please create it before being able to submit re-runs.
+                            </p>
+                        </div>
+                    {% endif %}
+                <div class="col-md-9">
+                    <input type="submit" value="Re-run with new variables" class="btn btn-success {% if not has_reduce_vars %} disabled {% endif %}" id="variableSubmit"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

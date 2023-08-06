@@ -1,0 +1,199 @@
+name: Tests
+on: [push]
+
+jobs:
+  selenium-pages:
+    name: Selenium pages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+
+      - uses: autoreduction/autoreduce-actions/build@main
+        with:
+          package_name: autoreduce_frontend
+
+      - name: Remote dotenv to Environment (configserver alike)
+        uses: Steph0/dotenv-configserver@v1.2.0
+        with:
+          repository: "autoreduction/autoreduce-workspace"
+
+      - name: Start Selenium docker daemon
+        run: docker run --name selenium --rm -d --network=host -v /dev/shm:/dev/shm selenium/standalone-chrome:4.1.2-20220217
+
+      - name: Wait until the Selenium instance is ready
+        run: until nc -w 1 127.0.0.1 4444; do sleep 1; done
+
+      - name: Run tests
+        run: |
+          SELENIUM_REMOTE=1 RUNNING_VIA_PYTEST=true pytest autoreduce_frontend --cov-report=xml --cov=autoreduce_frontend --ignore=autoreduce_frontend/selenium_tests/tests/integration --showlocals -v
+
+      - uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          name: codecov-umbrella
+          flags: webapp-pages
+          fail_ci_if_error: true
+          verbose: true
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: screenshots_and_reports
+          path: |
+            ~/.autoreduce/selenium_tests/screenshots
+            ~/.autoreduce/selenium_tests/a11y_reports
+
+      - name: Build package for publishing
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: python3 -m pip install --upgrade build wheel && python -m build
+
+      - name: Publish distribution 📦 to PyPI
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  selenium-integration:
+    name: Selenium integration
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+
+      - uses: autoreduction/autoreduce-actions/build@main
+        with:
+          package_name: autoreduce_frontend
+
+      - name: Remote dotenv to Environment (configserver alike)
+        uses: Steph0/dotenv-configserver@v1.2.0
+        with:
+          repository: "autoreduction/autoreduce-workspace"
+
+      - name: Run MySQL Docker
+        run: docker run --rm --name mysql-ar -e MYSQL_ROOT_PASSWORD=password -d --network=host mysql:latest
+
+      - name: Wait until MySQL is ready
+        run: until nc -w 1 127.0.0.1 3306; do sleep 1; done
+
+      - name: Start Autoreduce REST API
+        run: gunicorn autoreduce_rest_api.autoreduce_django.wsgi:application -b 127.0.0.1:8001 -e TESTING_MYSQL_DB=true &
+
+      - name: Start Selenium docker daemon
+        run: docker run --name selenium --rm -d --network=host -v /dev/shm:/dev/shm selenium/standalone-chrome:4.1.2-20220217
+
+      - name: Wait until the Selenium instance is ready
+        run: until nc -w 1 127.0.0.1 4444; do sleep 1; done
+
+      - name: Run tests
+        run: |
+          env
+          SELENIUM_REMOTE=1 RUNNING_VIA_PYTEST=true TESTING_MYSQL_DB=true pytest autoreduce_frontend/selenium_tests/tests/integration --cov-report=xml --cov=autoreduce_frontend --showlocals -v
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          name: codecov-umbrella
+          flags: webapp-integration
+          fail_ci_if_error: true
+          verbose: true
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: screenshots_and_reports
+          path: |
+            ~/.autoreduce/selenium_tests/screenshots
+            ~/.autoreduce/selenium_tests/a11y_reports
+
+  dependency-check:
+    name: Dependency-Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ job.container.image }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ job.container.image }}-pip-
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+
+  Inspection:
+    name: Code Inspection
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Pip install
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+
+      - uses: autoreduction/autoreduce-actions/build@main
+        with:
+          package_name: autoreduce_frontend
+
+      - uses: autoreduction/autoreduce-actions/code_inspection@main
+        with:
+          package_name: autoreduce_frontend

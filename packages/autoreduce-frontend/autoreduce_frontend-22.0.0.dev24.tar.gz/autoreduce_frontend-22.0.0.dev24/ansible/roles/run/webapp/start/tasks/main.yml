@@ -1,0 +1,21 @@
+---
+
+- name: Start the container
+  community.docker.docker_container:
+    name: webapp
+    image: ghcr.io/autoreduction/autoreduce-frontend:latest
+    state: started
+    pull: true
+    env:
+      AUTOREDUCTION_PRODUCTION: "true"
+    volumes:
+      - /home/{{ autoreduction_user }}/.autoreduce:/home/{{ autoreduction_user }}/.autoreduce:rw
+      - /instrument:/instrument:rw
+      - /isis:/isis
+      - /shared-config:/shared-config
+      - /staticfiles:/staticfiles:rw
+    detach: yes
+    comparisons:
+      image: strict
+    published_ports:
+      - 8000:8000

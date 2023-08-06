@@ -1,0 +1,9 @@
+# ############################################################################### #
+# Autoreduction Repository : https://github.com/autoreduction/autoreduce
+#
+# Copyright &copy; 2020 ISIS Rutherford Appleton Laboratory UKRI
+# SPDX - License - Identifier: GPL-3.0-or-later
+# ############################################################################### #
+# pylint:skip-file
+standard_vars = {'test': 'test'}
+advanced_vars = {'advanced_test': 'advance'}

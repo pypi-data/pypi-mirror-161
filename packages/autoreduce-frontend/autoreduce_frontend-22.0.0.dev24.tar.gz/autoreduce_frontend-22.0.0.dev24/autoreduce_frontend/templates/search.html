@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% load static %}
+{% include crispy_tags %}
+{% load crispy_forms_tags %}
+{% load render_table from django_tables2 %}
+
+{% block body %}
+
+    <h1>Search Page</h1>
+
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="pills-runs-tab" data-toggle="pill" href="#pills-runs" role="tab" aria-controls="pills-runs" aria-selected="true">Runs</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="pills-experiments-tab" data-toggle="pill" href="#pills-experiments" role="tab" aria-controls="pills-experiments" aria-selected="false">Experiments</a>
+  </li>
+</ul>
+<div class="tab-content" id="pills-tabContent">
+  <div class="tab-pane fade show active" id="pills-runs" role="tabpanel" aria-labelledby="pills-runs-tab">
+      <form action="" method="get">
+        {{ run_filter.form.run_number|as_crispy_field }}
+
+        {{ run_filter.form.instrument|as_crispy_field }}
+
+        {{ run_filter.form.run_description|as_crispy_field }}
+
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="run_description_qualifier" id="contains" value="contains" {% if run_description_qualifier == 'contains' %} checked {% endif %}>
+            <label class="form-check-label" for="contains">Contains</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="run_description_qualifier" id="exact" value="exact" {% if run_description_qualifier == 'exact' %} checked {% endif %}>
+            <label class="form-check-label" for="exact">Exact</label>
+        </div>
+
+        {{ run_filter.form.created|as_crispy_field }}
+
+        {{ run_filter.form.status|as_crispy_field }}
+
+        <button id="search-button" type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <hr/>
+        <div>
+        {% if run_table.rows %}
+            {{ options_form.pagination|as_crispy_field }} 
+        {% endif %}
+    </div>
+    
+    <br>
+
+{% if not run_table.rows %}
+    <h4 id="run_message">{{run_message}}</h4>
+{% else %}
+    {% render_table run_table %}
+{% endif %}
+  </div>
+  <div class="tab-pane fade" id="pills-experiments" role="tabpanel" aria-labelledby="pills-experiments-tab">
+      <form action="" method="get">
+
+        {{ experiment_filter.form.reference_number|as_crispy_field }}
+
+        <button id="search-button" type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <hr/>
+        <div>
+        {% if experiment_table.rows %}
+            {{ options_form.pagination|as_crispy_field }} 
+        {% endif %}
+    </div>
+
+        {% if not experiment_table.rows %}
+            <h4 id="experiment_message">{{ experiment_message }}</h4>
+        {% else %}
+            {% render_table experiment_table %}
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static "css/vendor/bootstrap-tourist.css" %}">
+{% endblock %}
+{% block scripts %}
+    <script src="{% static "javascript/vendor/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "javascript/search.js" %}"></script>
+    <script src="{% static "javascript/tours/search_tour.js" %}"></script>
+    <script src="{% static "javascript/create_tour.js" %}"></script>
+{% endblock %}

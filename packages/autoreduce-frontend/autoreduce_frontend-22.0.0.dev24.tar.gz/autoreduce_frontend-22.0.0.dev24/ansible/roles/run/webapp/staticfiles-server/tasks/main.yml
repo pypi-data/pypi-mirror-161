@@ -1,0 +1,36 @@
+# Installs and configures nginx to serve static files from the webapp host
+---
+- name: Install nginx
+  yum:
+    name: nginx
+    state: latest
+
+- name: Copy over the nginx statisfiles configuration
+  template:
+    src: autoreduce-static.conf
+    dest: /etc/nginx/default.d/autoreduce-static.conf
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+
+- name: Copy over the nginx main configuration
+  template:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+
+- name: Add staticfiles folder
+  file:
+    path: /staticfiles
+    state: directory
+    mode: '0755'
+    owner: "{{ autoreduction_user }}"
+    group: "{{ autoreduction_user }}"
+
+- name: Start service nginx
+  ansible.builtin.service:
+    name: nginx
+    enabled: true
+    state: restarted

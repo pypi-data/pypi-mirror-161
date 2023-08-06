@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Tokens{% endblock %}
+{% load static %}
+
+{% block body %}
+
+<a id="generate-token" class="btn btn-primary" href="{% url 'token:generate' %}">Generate a new token</a>
+
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript">
+    function copyToClipboard(message) {
+        var textArea = document.createElement("textarea");
+        textArea.value = message;
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+
+        try {
+            return document.execCommand('copy');
+        } catch (err) {}
+
+        document.body.removeChild(textArea);
+    }
+
+    function copyWithSuccessCheck(elem){
+        copyToClipboard(elem.parentElement.dataset.tokenValue) ? elem.dataset.content='Copied to clipboard.' : elem.dataset.content='Failed to copy.';
+        setTimeout(()=> Array.prototype.slice.call(document.getElementsByClassName("popover")).forEach(element => {
+            document.body.removeChild(element);
+        }), 1500);
+    }
+</script>
+
+{% if error_message %}
+<div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">User</th>
+            <th scope="col">Token</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for token in token_list %}
+        <tr>
+            <td class="token-user">{{ token.user.first_name }} {{ token.user.last_name }} ({{ token.user.username }})</td>
+            <td class="token-value" data-token-value="{{ token }}">Click eye to reveal <a onclick="this.parentElement.textContent=this.parentElement.dataset.tokenValue"><i class="fas fa-eye pointer" aria-hidden="true"></i></a>
+                    or copy to clipboard <a data-toggle="popover" data-html="true" data-content="" data-trigger="click" data-placement="top" data-container="body" tabindex="0" onclick="copyWithSuccessCheck(this)"><i class="fas fa-clipboard pointer" aria-hidden="true"></i></a></td>
+            <td><a type="button" class="btn btn-danger token-delete" href="{% url 'token:delete' pk=token.pk %}">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

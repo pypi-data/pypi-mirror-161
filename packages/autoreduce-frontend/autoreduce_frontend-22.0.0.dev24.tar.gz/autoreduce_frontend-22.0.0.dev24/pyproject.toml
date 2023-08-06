@@ -1,0 +1,75 @@
+[build-system]
+requires = ["wheel", "setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoreduce_frontend"
+version = "22.0.0.dev24"
+description = "The frontend of the ISIS Autoreduction service"
+readme = "README.md"
+license = { text = "GNU General Public License" }
+classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+dependencies = [
+    "autoreduce_qp==22.0.0.dev38",
+    "Django==4.0.6",
+    "django_extensions==3.1.5",
+    "djangorestframework==3.13.1",
+    "django-filter==21.1",
+    "django-crispy-forms==1.14.0",
+    "django-tables2==2.4.1",
+    "requests==2.27.1",
+    "httpagentparser==1.9.2",
+    "django-hurricane",
+]
+
+[project.optional-dependencies]
+dev = [
+    "axe-selenium-python==2.1.6",
+    "django-debug-toolbar==3.4.0",
+    "autoreduce-rest-api",
+    "gunicorn",
+    "mysqlclient==2.1.0",
+    "selenium",
+]
+
+[project.urls]
+"Repository" = "https://github.com/autoreduction/frontend"
+"Wiki" = "https://github.com/autoreduction/queue-processor/wiki"
+
+[project.scripts]
+autoreduce-webapp-manage = "autoreduce_frontend.manage:main"
+
+[tool.setuptools]
+packages = ["autoreduce_frontend"]
+
+[tool.yapf]
+column_limit = 120
+based_on_style = "pep8"
+
+[tool.yapfignore]
+ignore_patterns = ["setup.py", "**/migrations", "venv/", "venv3/"]
+
+[tool.pylint.MAIN]
+load-plugins = ["pylint_django"]
+django-settings-module = "autoreduce_webapp.settings"
+extension-pkg-whitelist = ["pydantic"]
+disable = [
+    "R0901", # too-many-ancestors
+    "R0904", # too-many-public-methods
+    "R0902", # too-many-instance-attributes
+    "R0903", # too-few-public-methods
+    "R1705", # no-else-return
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "W0221", # arguments-differ
+]
+ignore = [".git", "migrations"]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.pylint.DESIGN]
+max-args = 8
+
+[tool.pylint.SIMILARITIES]
+min-similarity-lines = 10
