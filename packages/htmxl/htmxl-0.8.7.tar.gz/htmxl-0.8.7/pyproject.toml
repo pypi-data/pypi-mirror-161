@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "htmxl"
+version = "0.8.7"
+description = "Produce Excel files from HTML templates."
+authors = [
+    "Hunter Senft-Grupp <hunter@janux.io>",
+    "Dan Cardin <ddcardin@gmail.com>",
+    "Luke Mino-Altherr  <lminoaltherr@gmail.com>",
+]
+license = "MIT"
+keywords = [ "excel", "openpyxl", "jinja", "html", "template" ]
+repository = "https://github.com/schireson/htmxl"
+packages = [
+    { include = "htmxl", from = "src" },
+]
+readme = 'README.md'
+include = [
+    "*.md",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6, <4"
+
+typing_extensions = {version = "*", python = "<3.8"}
+openpyxl = {version = ">=2.5"}
+jinja2 = {version = ">=2.10"}
+pendulum = {version = ">=1.0"}
+
+lxml = {version = ">= 4.6", optional = true}
+beautifulsoup4 = {version = ">= 4.6", optional = true}
+
+[tool.poetry.extras]
+beautifulsoup = ["beautifulsoup4"]
+lxml = ["lxml"]
+
+[tool.poetry.dev-dependencies]
+black = {version = "=>19.10b0", allow-prereleases = true}
+flake8 = "^3.7.9"
+isort = ">=5"
+mypy = "^0.902"
+pydocstyle = "^6.1.1"
+pytest = ">=6.2.4"
+coverage = {version = ">=5", extras = ["toml"]}
+bumpversion = "^0.6.0"
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.isort]
+profile = 'black'
+known_first_party = 'htmxl,tests'
+line_length = 100
+float_to_top=true
+order_by_type = false
+use_parentheses = true
+
+[tool.pydocstyle]
+ignore = 'D1,D200,D202,D203,D204,D213,D406,D407,D413'
+match_dir = '^[^\.{]((?!igrations).)*'
+
+[tool.pytest.ini_options]
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL ELLIPSIS"
+addopts = "--doctest-modules -vv --ff --strict-markers"
+norecursedirs = ".* build dist *.egg"
+markers = [
+    'this'
+]
+
+[tool.black]
+line_length = 100
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
