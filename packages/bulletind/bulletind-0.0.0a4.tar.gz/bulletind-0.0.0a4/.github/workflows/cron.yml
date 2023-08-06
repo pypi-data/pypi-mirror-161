@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2021 Jeff Epler
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: Update Bulletin D data
+
+on:
+  schedule:
+    - cron: '0 10 2 * *'
+  workflow_dispatch:
+
+jobs:
+  update-dut1:
+    runs-on: ubuntu-20.04
+    if: startswith(github.repository, 'jepler/')
+    steps:
+
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
+    - uses: actions/checkout@v2.2.0
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.x"
+
+    - name: Install package in development mode
+      run: pip install -e '.[dev]'
+
+    - name: Update DUT1 data
+      run: bulletind --update-package-data
+
+    - name: Commit updates
+      id: commit
+      run: |
+        git config user.name "${GITHUB_ACTOR} (github actions cron)"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git remote set-url --push origin https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        if git commit -m"update Bulletin D data" bulletind/data; then
+          git push origin HEAD:main
+          echo "::set-output name=updated::true"
+          echo "::set-output name=ver::(pysemver bump patch $(git describe --tags))"
+        else
+          echo "::set-output name=updated::false"
+        fi
+
+    - name: Release updates
+      if: steps.commit.updated == 'true'
+      uses: avakar/tag-and-release@v1
+      with:
+        tag_name: ${{steps.commit.ver}}
+        commit: main
+        body: "Automatic update of Bulletin D data"
