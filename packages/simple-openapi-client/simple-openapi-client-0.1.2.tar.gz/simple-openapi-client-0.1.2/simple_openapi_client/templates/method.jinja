@@ -1,0 +1,108 @@
+    def {{ FUNCTION_NAME }}(
+            self,
+            {% if FUNCTION_PARAMETERS %}{% for param in FUNCTION_PARAMETERS %}{{ param }},
+            {% endfor -%}
+            {%- endif -%}
+            {%- if REQUEST_BODY.content -%}content: RequestContent = None,
+            {% endif -%}
+            {%- if REQUEST_BODY.files -%}files: RequestFiles = None,
+            {% endif -%}
+            {%- if REQUEST_BODY.data -%}data: RequestData = None,
+            {% endif -%}
+            {%- if REQUEST_BODY.json -%}json: Any = None,
+            {% endif -%}
+            {%- if QUERY_PARAMETERS -%}params: QueryParamTypes = None,
+            {% endif -%}
+            {%- if HEADERS -%}headers: HeaderTypes = None,
+            {% endif -%}
+            ) -> {% if METHOD not in ['delete', 'put'] %}Union[Dict, List, str, bytes, int]{% else %}None{% endif %}:
+        """{{ OPERATION.summary }}
+
+        {{ OPERATION.description }}
+        Tags: {{ ','.join(OPERATION.tags) }}
+        {%- if OPERATION.externalDocs %}ExternaDocs: {{ OPERATION.externalDocs }}{% endif %}
+
+        Parameters
+        ----------
+        {% if PATH_PARAMETERS -%}
+        {% for name, description in PATH_PARAMETERS.items() -%}
+        {{ name }}
+            {{ description }}
+        {% endfor -%}
+        {% endif -%}
+
+        {% if REQUEST_BODY.json %}json
+        {%- for request_data in REQUEST_BODY.json %}
+            {% if request_data -%}
+            Dictionary with the following keys:
+            {%- for property_name, property in request_data.properties.items() %}
+            "{{ property_name }}": {{ property['description'] }}
+            {%- endfor %}
+            {%- endif -%}
+        {% endfor -%}
+        {% endif -%}
+
+        {% if REQUEST_BODY.files %}files
+        {%- for request_data in REQUEST_BODY.files %}
+            {% if request_data -%}Files:
+            {%- for property_name, property in request_data.properties.items() %}
+                "{{ property_name }}": {{ property['description'] }}
+            {%- endfor %}
+            {%- endif -%}
+        {% endfor -%}
+        {% endif -%}
+
+        {% if REQUEST_BODY.data %}
+        data
+        {%- for request_data in REQUEST_BODY.data %}
+            {{ request_data.description }}
+        {% endfor -%}
+        {% endif -%}
+
+        {% if REQUEST_BODY.content %}content
+        {%- for request_data in REQUEST_BODY.content %}
+            - (Content-Type: "{{ request_data.content_type }}") {{ request_data.description }}
+        {% endfor -%}
+        {% endif -%}
+
+        {% if QUERY_PARAMETERS -%}
+        params
+            Dictionary of optional parameters:
+        {%- for name, query in QUERY_PARAMETERS.items() %}
+            "{{ name }}" ({{ query.type }}): {{ query.description }}
+        {%- endfor -%}
+        {% endif -%}
+
+        {% if HEADERS -%}
+        headers
+            Dictionary of optional headers:
+            {% for name, header in HEADERS.items() -%}
+                "{{ name }}" ({{ header.type }}): {{ header.description }}
+            {% endfor -%}
+        {% endif %}
+
+        Returns
+        -------
+        Union[Dict, List, str, bytes, int]
+        {%- for response in RESPONSES %}
+            {{ response.description }}
+        {%- endfor %}
+        """
+        {% if OPERATION.deprecated %}warnings.warn('This method is deprecated.', DeprecationWarning, stacklevel=2)
+
+        {% endif -%}
+        return self._{{ METHOD }}(
+            route=f'{self.url}{{ ROUTE }}',
+            {% if REQUEST_BODY.content -%}content=content,
+            {% endif -%}
+            {%- if REQUEST_BODY.files -%}files=files,
+            {% endif -%}
+            {%- if REQUEST_BODY.data -%}data=data,
+            {% endif -%}
+            {%- if REQUEST_BODY.json -%}json=json,
+            {% endif -%}
+            {%- if QUERY_PARAMETERS -%}params=params,
+            {% endif -%}
+            {%- if HEADERS -%}headers=headers,
+            {% endif -%}
+        )
