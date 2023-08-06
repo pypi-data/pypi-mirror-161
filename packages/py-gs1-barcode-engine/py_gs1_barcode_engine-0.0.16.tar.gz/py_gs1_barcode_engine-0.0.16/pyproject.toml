@@ -1,0 +1,45 @@
+
+# TODO pre install script that does things
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel.force-include]
+"./build_artifacts" = "./py_gs1_barcode_engine/build_artifacts"
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+
+[project]
+name = "py_gs1_barcode_engine"
+version = "0.0.16"
+authors = [
+  { name="Edward Ong", email="edward93@gmail.com" },
+]
+description = "A thin Python wrapper of https://github.com/gs1/gs1-barcode-engine."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pydantic==1.9.1",  # keep in sync with requirements.txt
+]
+
+[project.entry-points]
+pyinstaller40 = {hook-dirs="py_gs1_barcode_engine._pyinstaller:get_hook_dirs"}
+
+
+[project.urls]
+"Homepage" = "https://bitbucket.org/stolmen/gs1-wrapper"
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src/py_gs1_barcode_engine"]
+filterwarnings = [
+  'ignore:invalid escape sequence \\:DeprecationWarning'
+]
