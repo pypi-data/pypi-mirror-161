@@ -1,0 +1,2 @@
+import piperider_cli.assertion_engine.recommended_rules.table_assertions as RecommendedRules
+from piperider_cli.assertion_engine.recommended_rules.recommender_assertion import RecommendedAssertion
