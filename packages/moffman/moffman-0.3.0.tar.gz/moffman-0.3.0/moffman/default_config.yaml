@@ -1,0 +1,88 @@
+general:
+    log_level: INFO  # Logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+    manual_calendar_check_interval:  # Interval to check for manually added events.
+        oc_default: 7200
+        oc_schema:
+            type: integer
+
+    storage_path:  # Path to a persistant storage file (for storing tokens etc.). Keep null not to use persistent storage.
+        oc_default: "moffman_store.dbm"
+        oc_schema:
+            type: string
+            nullable: true
+
+google_api:
+    service_account_key_path: # Path to the Google API credentials JSON file
+        oc_default: null
+        oc_schema:
+            type: string
+            nullable: false
+
+manual_users:  # = External users that have access only to the Google Docs/Calendar.
+    user_list: []  # List of items in format {id: <user_email>, first_name: <xx>, last_name: <yy>, employee_number: <number>}
+    google_config:
+        sheet_id: # Google Drive ID of the Google spreadsheet file
+            oc_default: null
+            oc_schema:
+                type: string
+                nullable: true
+        range: # Google sheet range notation, see https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells
+            oc_default: null
+            oc_schema:
+                type: string
+                nullable: true
+        update_interval:  # Min. interval between updates [seconds], null if automatic update is not necessary
+            oc_default: null
+            oc_schema:
+                type: integer
+                nullable: true
+        oc_schema_id: google_config_item
+
+offices:  # Offices managed by this application
+    office_list: []  # List of items in format {name: <office name>, id: <Google calendar id>}
+    google_config:
+        sheet_id: null
+        range: null
+        update_interval: null
+        oc_schema: google_config_item
+
+forms:  # Byroapi (https://github.com/calcite/byroapi) form-filler configuration
+    template: null
+    url: null
+    date_format: "DD.MM.YYYY"
+    cc_to_creator: true
+    email:  # Following variables are available: first_name, last_name, user_name (=first_name last_name), date_from, date_to, date_approved, employee_number
+        from: {}
+        to: {}
+        cc: {}
+        subject: ""
+        contents: ""
+        attachments: null
+
+calendar:
+#    calendar_id:  # ID of the calendar to be used for attendance.
+#        oc_default: null
+#        oc_schema:
+#            type: string
+#            nullable: false
+    colors: # Event colors (defined as indexes to the Google calendar color palette)
+        unapproved:  # Color of approval-pending registration event.
+            oc_default: 4
+            oc_schema:
+                type: integer
+        approved: # Color of approved registration event.
+            oc_default: 5
+            oc_schema:
+                type: integer
+    checking_range: # Checking range for event lookup in the manual update. The values are relative to the time of update, and are defined as Arrow shift arguments (https://arrow.readthedocs.io/en/latest/#arrow.arrow.Arrow.shift)
+        min:
+            weeks: -1
+        max:
+            weeks: 2
+    date_format: "YYYY-MM-DD"
+    end_date_corrective:
+        days: -1
+
+rest_api:  # Configuration of the REST API endpoint
+    addr: 0.0.0.0
+    port: 8080
