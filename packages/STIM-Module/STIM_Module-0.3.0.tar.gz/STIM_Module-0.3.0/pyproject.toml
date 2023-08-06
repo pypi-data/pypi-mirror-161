@@ -1,0 +1,68 @@
+[build-system]
+requires = ["wheel", "setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "STIM_Module"
+version = "0.3.0"
+authors = [
+    { name = "Jaxton 'Jax' Willman", email =  "jaxtonwillman@ufl.edu" },
+    { name = "Benjamin 'Ben' Covert", email = "benjamin.covert@ufl.edu" },
+    { name = "David 'Sandy' Hutchins", email = "davidhutchins@ufl.edu" },
+]
+description = "League of Legends STIM Module"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+]
+dependencies = [
+  "sphinx",
+  "matplotlib",
+  "tk",
+  "pandas",
+  "numpy",
+  "requests",
+  "datetime",
+  "twisted",
+]
+
+[project.optional-dependencies]
+dev = ["build", "bumpver", "twine", "pip-tools", "pytest"]
+
+[project.urls]
+"Homepage" = "https://jaxjaxw.github.io/STIM_Module/index.html"
+"Issues" = "https://github.com/ben-covert2020/STIM_Module/issues"
+"Documentation" = "https://jaxjaxw.github.io/STIM_Module/documentation/index.html"
+"Source Code" = "https://github.com/ben-covert2020/STIM_Module"
+"Funding" = "https://www.patreon.com/jaxjaxw"
+
+[tool.setuptools.packages.find]
+where = ["src"]  # ["."] by default
+# include = ["STIM_Module*"]  # ["*"] by default
+# exclude = ["STIM_Module.tests*"]  # empty by default
+
+[project.scripts]
+lolstats = "STIM_Module.application:main"
+
+[project.gui-scripts]
+startapp = "STIM_Module.application:main"
+
+[tool.bumpver]
+current_version = "0.3.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "Bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"README.md" = ['dist/STIM_Module-{version}-py3-none-any.whl']
+"makefile" = ['VERSION = {version}']
+"src/STIM_Module/__init__.py" = ['__version__ = "{version}"']
