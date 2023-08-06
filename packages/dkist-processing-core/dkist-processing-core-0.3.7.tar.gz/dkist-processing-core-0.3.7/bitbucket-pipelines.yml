@@ -1,0 +1,66 @@
+image: python:3.10
+definitions:
+  steps:
+    - step: &lint
+        caches:
+          - pip
+        name: Lint
+        script:
+          - pip install pre-commit
+          - pre-commit install
+          - pre-commit run --all-files
+    - step: &changelog
+        caches:
+          - pip
+        name: Changelog
+        script:
+          - pip install towncrier
+          # We need to fetch the main branch to compare against
+          - git remote set-branches --add origin main
+          - git fetch origin main
+          - towncrier check --compare-with origin/main
+    - step: &scan
+        caches:
+          - pip
+        name: Scan
+        script:
+          - pip install .
+          - pip install safety
+          - safety check --full-report ${SAFETY_IGNORE}
+    - step: &test
+        caches:
+          - pip
+        name: Test
+        script:
+          - pip install .[test]
+          - pytest -m "not development" --cov dkist_processing_core
+    - step: &push
+        caches:
+          - pip
+        name: Push
+        script:
+          - python setup.py sdist
+          - pip install twine
+          - twine upload dist/*
+    - step: &check_changelog
+        name: Check for updated CHANGELOG
+        script:
+          - ./check_changelog_updated.sh
+
+pipelines:
+  default:
+    - parallel:
+      - step: *lint
+      - step: *changelog
+    - parallel:
+      - step: *scan
+      - step: *test
+  tags:
+    'v*':
+      - parallel:
+        - step: *check_changelog
+        - step: *lint
+      - parallel:
+        - step: *scan
+        - step: *test
+      - step: *push
