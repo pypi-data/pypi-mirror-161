@@ -1,0 +1,1 @@
+from madookan.madoo import Look
