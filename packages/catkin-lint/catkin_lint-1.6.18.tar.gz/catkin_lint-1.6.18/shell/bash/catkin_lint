@@ -1,0 +1,69 @@
+# *-* mode: shell-script;-*-
+# Copyright 2013-2022 Fraunhofer FKIE
+# SPDX-License-Identifier: BSD-3-Clause
+
+if type catkin_lint &> /dev/null; then
+
+_catkin_lint_complete()
+{
+	local arg="${COMP_WORDS[COMP_CWORD]}"
+	local prev="${COMP_WORDS[COMP_CWORD-1]}"
+	local documented_args=(
+		"-h" "--help" "--help-problem"
+		"--version"
+		"--quiet" "-q" "--no-quiet"
+		"--severity-level" "-W0" "-W1" "-W2"
+		"--config"
+		"--ignore" "--error" "--warning" "--notice"
+		"--strict" "--no-strict"
+		"--show-ignored"
+		"--pkg"
+		"--skip-pkg"
+		"--skip-path"
+		"--package-path"
+		"--rosdistro"
+		"--resolve-env" "--no-resolve-env"
+		"--output" "--text" "--explain" "--xml" "--json"
+		"--color"
+		"--offline" "--no-offline"
+		"--clear-cache"
+	)
+	case "$prev" in
+		--pkg|--skip-pkg)
+			COMPREPLY=($(compgen -W "$(rospack list-names 2>/dev/null)" -- "$arg"))
+			;;
+		--package-path|--skip-path)
+			compopt -o filenames 2>/dev/null
+			COMPREPLY=($(compgen -d -- "$arg"))
+			;;
+		--rosdistro)
+			COMPREPLY=($(compgen -W "groovy hydro indigo jade kinetic lunar melodic noetic $ROS_DISTRO" -- "$arg"))
+			;;
+		--ignore|--error|--warning|--notice|--help-problem)
+			COMPREPLY=($(compgen -W "$(catkin_lint --list-check-ids)" -- "$arg"))
+			;;
+		--color)
+			COMPREPLY=($(compgen -W "always auto never" -- "$arg"))
+			;;
+		--output)
+			COMPREPLY=($(compgen -W "explain json text xml" -- "$arg"))
+			;;
+		--severity-level|-W)
+			COMPREPLY=($(compgen -W "0 1 2" -- "$arg"))
+			;;
+		--config)
+			compopt -o filenames 2>/dev/null
+			COMPREPLY=($(compgen -f -- "$arg"))
+			;;
+		*)
+			compopt -o filenames 2>/dev/null
+			COMPREPLY=($(compgen -W "${documented_args[*]}" -- "$arg"))
+			COMPREPLY+=($(compgen -d -- "$arg"))
+			;;
+	esac
+	return 0
+}
+
+complete -F _catkin_lint_complete catkin_lint
+
+fi
