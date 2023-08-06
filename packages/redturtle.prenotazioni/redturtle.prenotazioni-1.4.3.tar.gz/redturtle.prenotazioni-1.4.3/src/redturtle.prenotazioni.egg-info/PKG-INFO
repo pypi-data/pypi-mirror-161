@@ -1,0 +1,431 @@
+Metadata-Version: 2.1
+Name: redturtle.prenotazioni
+Version: 1.4.3
+Summary: An add-on for Plone
+Home-page: https://github.com/redturtle/redturtle.prenotazioni
+Author: Daniele Andreotti
+Author-email: daniele.andreotti@redturtle.it
+License: GPL version 2
+Project-URL: PyPI, https://pypi.org/project/redturtle.prenotazioni
+Project-URL: Source, https://github.com/redturtle/redturtle.prenotazioni
+Project-URL: Tracker, https://github.com/redturtle/redturtle.prenotazioni/issues
+Description: ======================
+        redturtle.prenotazioni
+        ======================
+        
+        A **booking product for Plone** which allows to reserve time slots throughout the week.
+        
+        .. contents::
+        
+        Installation
+        ============
+        
+        Add **redturtle.prenotazioni** to the egg section of your instance:
+        
+        ::
+        
+          [instance]
+          eggs=
+              ...
+              redturtle.prenotazioni
+        
+        There is a recaptcha validation for anonymous users.
+        
+        You need to set recaptcha keys in **@@recaptcha-settings** control panel.
+        
+        Introduction
+        ============
+        
+        This product introduces two new `content types`_ to your Plone site:
+        
+        .. _content types: http://developer.plone.org/content/types.html
+        
+        - `Booking`
+        - `Booking Folder`
+        
+        Booking content
+        ---------------
+        
+        **Booking** is a `content type` used to store information about reservation.
+        
+        The product interface provides a way to add new booking elements, by clicking on one of the plus signs available in the slots calendar.
+        
+        Each booking element once created is storerd into its own **Booking Folder**.
+        
+        
+        Booking Folder content
+        ----------------------
+        
+        **Booking Folder** is a folderish content type which store your **Booking** objects.
+        
+        
+        Using redturtle.prenotazioni
+        ============================
+        
+        Creating a new Booking Folder
+        -----------------------------
+        
+        If the product is correctly installed the **Booking Folder** entry is available on the `add new` action menu.
+        
+        You can configure:
+        
+        - more then one gate
+        - booking vacations
+        - custom duration for booking types
+        - week schedule for morning and afternoon time tables
+        
+        Creating a new booking content
+        ------------------------------
+        
+        Anonymous and authenticated users are allowed to add new booking content
+        by clicking on the plus signs on the default booking folder view.
+        
+        After its creation the slot will be displayed as "busy" for anonymous user
+        and the slot won't be available anymore.
+        
+        Back-end users can see and manage the reservation according to the assigned Plone roles.
+        
+        
+        Workflow
+        --------
+        
+        The product comes with its own workflow "prenotazioni_workflow".
+        
+        Here below a list of all the states available:
+        
+        **Private**: booking object initial state:
+        
+        * `submit` (Automatic transition to pending)
+        
+        **Pending**
+        
+        Transaction available:
+        
+        * `publish` (to published)
+        * `refuse` (to refused)
+        
+        **Published**
+        
+        Transaction available:
+        
+        * `refuse` (to refused)
+        
+        **Refused**
+        
+        Transaction available:
+        
+        * `restore` (to pending)
+        
+        Managers can confirm a Booking using workflow transitions.
+        The workflow transition triggers an email to be sent to the booker (see below).
+        
+        
+        Content Rules (mail notifications)
+        ----------------------------------
+        
+        There are additional content rules that can be used to notify booking owner when his booking has been created, accepted
+        or re-scheduled.
+        
+        Rules are **NOT automatically** enabled in every Booking Folder.
+        If you want to send some notification, you only need to enable them from rules link in Booking folder.
+        
+        If you set "Responsible email" field, an email will be sent each time a new Booking has been submitted.
+        
+        Vacations
+        ---------
+        
+        You can specify days when the Booking Folder will not accept
+        bookings.
+        Those days are called "Vacation days".
+        
+        Vacation days can be specified compiling the "Vacation days"
+        field in the Booking Folder edit form.
+        Values are allowed in the format DD/MM/YYYY.
+        Instead of the year you can put an asterisk, in this case every here
+        the day DD of month MM will be considered a vacation day.
+        
+        It is also possible to specify a vacation period
+        for a single gate using the vacation booking form with a link that you can see in the toolbar.
+        
+        
+        Searching
+        ---------
+        
+        Using the prenotazioni_search view it is possible to search
+        bookings within a given time interval.
+        You can also filter the results specifying a searchable text,
+        a gate or a review state.
+        
+        Contribute
+        ==========
+        
+        - Issue Tracker: https://github.com/RedTurtle/redturtle.prenotazioni/issues
+        - Source Code: https://github.com/RedTurtle/redturtle.prenotazioni
+        
+        
+        Notes
+        =====
+        
+        **redturtle.prenotazioni** has been tested with Plone 5.2 and works with Python 3.
+        
+        This is a merge from other two booking products:
+        
+        - `rg.prenotazioni`__.
+        - `pd.prenotazioni`__.
+        
+        __ https://github.com/PloneGov-IT/rg.prenotazioni/
+        __ https://github.com/PloneGov-IT/pd.prenotazioni/
+        
+        
+        Credits
+        =======
+        
+        Developed with the support of:
+        
+        * `Unione Reno Galliera`__
+        
+          .. image:: http://blog.redturtle.it/pypi-images/redturtle.prenotazioni/logo-urg.jpg/image_mini
+             :alt: Logo Unione Reno Galliera
+        
+        * `S. Anna Hospital, Ferrara`__
+        
+          .. image:: http://www.ospfe.it/ospfe-logo.jpg
+             :alt: S. Anna Hospital - logo
+        
+        * `Comune di Padova`__;
+        
+          .. image:: https://raw.githubusercontent.com/PloneGov-IT/pd.prenotazioni/master/docs/logo-comune-pd-150x200.jpg
+             :alt: Comune di Padova's logo
+        
+        All of them supports the `PloneGov initiative`__.
+        
+        __ http://www.renogalliera.it/
+        __ http://www.ospfe.it/
+        __ http://www.padovanet.it/
+        __ http://www.plonegov.it/
+        
+        Authors
+        =======
+        
+        This product was developed by **RedTurtle Technology** team.
+        
+        .. image:: https://avatars1.githubusercontent.com/u/1087171?s=100&v=4
+           :alt: RedTurtle Technology Site
+           :target: http://www.redturtle.it/
+        
+        
+        Contributors
+        ============
+        
+        - Daniele Andreotti, daniele.andreotti@redturtle.it
+        
+        
+        Changelog
+        =========
+        
+        
+        1.4.3 (2022-08-01)
+        ------------------
+        
+        - Add caching profile and enable it on install.
+          [cekk]
+        
+        
+        1.4.2 (2022-05-22)
+        ------------------
+        
+        - Disable check_valid_fiscalcode constraint.
+          [cekk]
+        
+        
+        1.4.1 (2022-05-04)
+        ------------------
+        
+        - Standardize fields between schema and creation form.
+          [cekk]
+        - Improve extensibility of add form and required fields.
+          [cekk]
+        - Handle (do not broke) non existent fiscalcode member field.
+          [cekk]
+        
+        1.4.0 (2022-01-13)
+        ------------------
+        
+        - Better manage fiscalcode.
+          [cekk]
+        - Add github actions for code quality and fix black/zpretty/flake8 linting.
+          [cekk]
+        
+        1.3.5 (2021-10-15)
+        ------------------
+        
+        - [new] Added field "Note prenotante" e "Note del personale" inside the
+          exported .ods file.
+          [arsenico13]
+        
+        
+        1.3.4 (2021-09-08)
+        ------------------
+        
+        - [chg] only editor/manager can view booking data
+          [mamico]
+        - [fix] fix check title on vacation booking
+          [eikichi18]
+        
+        
+        1.3.3 (2021-08-09)
+        ------------------
+        
+        - [chg] autofill data from user context
+          [mamico]
+        
+        
+        1.3.2 (2021-06-17)
+        ------------------
+        
+        - Prevented booking without gate
+          [eikichi18]
+        
+        
+        1.3.1 (2021-06-14)
+        ------------------
+        
+        - Booking tipology as required
+          [eikichi18]
+        
+        
+        1.3.0 (2021-06-07)
+        ------------------
+        
+        - [fix] translations
+          [nzambello]
+        - [chg] prenotazioni slot as required
+          [nzambello]
+        - [fix] slot prenotazione search button
+          [nzambello]
+        
+        
+        1.2.0 (2021-05-31)
+        ------------------
+        
+        - [fix] handle reservation move without any gate set
+          [cekk]
+        - [new] dependency with collective.z3cform.datagridfield>=2.0
+          [cekk]
+        
+        1.1.8 (2021-05-27)
+        ------------------
+        
+        - [fix] project urls in setup.py
+        
+        
+        1.1.7 (2021-05-27)
+        ------------------
+        
+        - [fix] changelog syntax
+        - [chg] project urls in setup.py
+        
+        
+        1.1.6 (2021-04-26)
+        ------------------
+        
+        - [fix] fix reservation download. ods writer can't cast none to empty string
+        
+        
+        1.1.5 (2021-04-26)
+        ------------------
+        
+        - [fix] force gate on authenticated reservation
+        - [fix] fix slot dimension in case of confirmed reservation
+        - [fix] Reindex subject on move
+        - [fix] download reservation after search give error calculating review_state
+        
+        
+        1.1.4 (2021-03-10)
+        ------------------
+        
+        - [fix] fix translations
+        - [chg] change prenotazioni search adding phone number and removing state
+        - [fix] fix problem with sending mail if mail not compiled
+        - [fix] allow to not use not required fields
+          [lucabel]
+        
+        1.1.3 (2021-02-22)
+        ------------------
+        
+        - [fix] fix search reservation accessing by gate icon
+        
+        
+        1.1.2 (2021-02-22)
+        ------------------
+        
+        - [chg] change 'sportello' label with 'postazione'
+        - [fix] now we can handle more gates and layout is safe
+        - [fix] fix insufficient permission deleting reservation
+        - [fix] pauses are spread over more gate if more gate are available
+        - [fix] hide "download" link in search reservation print
+        
+        
+        1.1.1 (2021-02-19)
+        ------------------
+        
+        - [chg] tuning permission to allow reader to see everything
+        - [chg] tuning css for mobile
+        - [new] add pause to prenotazioni folder
+        - [chg] add some accessibility to prenotazioni folder
+        - [new] add logic to delete reservation using a link sendable by mail
+        
+        1.1.0 (2020-12-15)
+        ------------------
+        
+        - feat: tooltip on add button
+          [nzambello]
+        
+        
+        1.0.3 (2020-12-10)
+        ------------------
+        
+        - Fix return url when click Cancel button.
+          [cekk]
+        
+        
+        1.0.2 (2020-12-09)
+        ------------------
+        
+        - Changed fields order for prenotazione ct.
+          [daniele]
+        
+        1.0.1 (2020-12-09)
+        ------------------
+        
+        - Added logic to generate booking code on the fly.
+          This code is calculated on the basis of the booking date and time.
+          [daniele]
+        - Add new stringinterp for prenotazione print url and update contentrules.
+          [cekk]
+        - Added fiscal code field to required fields. Added widget for visible fields.
+          Updated views and templates.
+          [daniele]
+        
+        1.0.0 (2020-11-23)
+        ------------------
+        
+        - Initial release.
+          [cekk]
+        
+Keywords: Python Plone
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Plone
+Classifier: Framework :: Plone :: Addon
+Classifier: Framework :: Plone :: 5.2
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: GNU General Public License v2 (GPLv2)
+Requires-Python: ==2.7, >=3.6
+Provides-Extra: test
+Provides-Extra: app_io

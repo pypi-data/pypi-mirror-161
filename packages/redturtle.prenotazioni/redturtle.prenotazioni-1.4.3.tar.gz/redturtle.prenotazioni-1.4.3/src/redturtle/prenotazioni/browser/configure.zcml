@@ -1,0 +1,230 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:z3c="http://namespaces.zope.org/z3c"
+    i18n_domain="redturtle.prenotazioni"
+    >
+
+  <!-- Set overrides folder for Just-a-Bunch-Of-Templates product -->
+  <include
+      package="z3c.jbot"
+      file="meta.zcml"
+      />
+  <browser:jbot
+      directory="overrides"
+      layer="redturtle.prenotazioni.interfaces.IRedturtlePrenotazioniLayer"
+      />
+
+  <!-- Publish static files -->
+  <plone:static
+      directory="static"
+      name="redturtle.prenotazioni"
+      type="plone"
+      />
+
+  <include package=".stats" />
+
+
+  <browser:page
+      name="edit"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".add_edit_view.DefaultEditView"
+      permission="cmf.ModifyPortalContent"
+      />
+
+  <adapter
+      factory=".add_edit_view.DefaultAddView"
+      provides="zope.publisher.interfaces.browser.IBrowserPage"
+      for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot
+           zope.publisher.interfaces.browser.IDefaultBrowserLayer
+           plone.dexterity.interfaces.IDexterityFTI"
+      name="PrenotazioniFolder"
+      />
+
+  <include package="plone.app.contentmenu" />
+
+
+  <!-- macros to be used in a prenotazione -->
+  <browser:page
+      name="prenotazione_macros"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      template="templates/prenotazione_macros.pt"
+      permission="zope2.View"
+      />
+
+  <!-- dedicated portal_state -->
+  <browser:page
+      name="prenotazioni_portal_state"
+      for="*"
+      class=".prenotazioni_portal_state.PrenotazioniPortalState"
+      permission="zope.Public"
+      />
+
+  <!-- dedicated context_state_view -->
+  <browser:page
+      name="prenotazioni_context_state"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".prenotazioni_context_state.PrenotazioniContextState"
+      permission="zope2.View"
+      />
+
+  <!-- reservation folder week view -->
+  <browser:page
+      name="prenotazioni_week_view"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".week.View"
+      template="templates/week.pt"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="prenotazione_add"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".prenotazione_add.WrappedAddForm"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="prenotazioni_search"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".prenotazioni_search.WrappedSearchForm"
+      permission="zope.Public"
+      />
+
+  <browser:page
+      name="delete_reservation"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".delete_reservation.DeleteReservation"
+      template="templates/delete_reservation.pt"
+      permission="zope.Public"
+      />
+
+  <browser:page
+      name="vacation-booking-show"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".vacations.VacationBookingShow"
+      permission="cmf.ModifyPortalContent"
+      />
+
+
+  <browser:page
+      name="prenotazione_print"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".prenotazione_print.PrenotazionePrint"
+      template="templates/prenotazione_print.pt"
+      permission="zope2.View"
+      />
+
+
+  <browser:page
+      name="vacation-booking"
+      for="..content.prenotazioni_folder.IPrenotazioniFolder"
+      class=".vacations.VacationBooking"
+      permission="cmf.ModifyPortalContent"
+      />
+
+
+  <!-- prenotazione view -->
+  <browser:page
+      name="prenotazione_view"
+      for="..content.prenotazione.IPrenotazione"
+      class=".prenotazione.PrenotazioneView"
+      template="templates/prenotazione.pt"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="prenotazione_move"
+      for="..content.prenotazione.IPrenotazione"
+      class=".prenotazione_move.MoveForm"
+      template="templates/prenotazione_move.pt"
+      permission="cmf.ModifyPortalContent"
+      />
+
+
+  <!--
+    NEL CODICE NON VEDO NESSUNO CHE LA CHIAMI.
+    LA LASCIAMO QUI COMMENTATA
+  -->
+  <!--browser:page
+    for="..interfaces.IPrenotazione"
+    name="prenotazione_reset_duration"
+    class=".prenotazione.ResetDuration"
+    permission="cmf.ModifyPortalContent"
+  /-->
+
+
+  <browser:page
+      name="goto-prenotazioni"
+      for="*"
+      class=".base.RedirectToPrenotazioniFolderView"
+      permission="zope2.View"
+      />
+
+  <!-- Do not add Prenotazione through content menu -->
+  <configure package="plone.app.content">
+    <browser:page
+        name="folder_factories"
+        for="redturtle.prenotazioni.content.prenotazioni_day.IPrenotazioniDay"
+        class="redturtle.prenotazioni.browser.folderfactories.FolderFactoriesView"
+        template="browser/folderfactories.pt"
+        permission="cmf.AddPortalContent"
+        />
+  </configure>
+
+  <include package="plone.app.layout" />
+
+  <browser:viewlet
+      name="redturtle.prenotazioni.nofollow"
+      view="redturtle.prenotazioni.browser.interfaces.IDontFollowMe"
+      manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
+      template="templates/nofollow.pt"
+      permission="zope.Public"
+      />
+
+  <class class=".z3c_custom_widget.CustomRadioWidget">
+    <require
+        permission="zope.Public"
+        interface=".z3c_custom_widget.ICustomRadioWidget"
+        />
+  </class>
+
+  <browser:page
+      name="ploneform-render-widget"
+      for=".z3c_custom_widget.CustomRadioWidget"
+      class=".z3c_custom_widget.RenderWidget"
+      permission="zope.Public"
+      layer="plone.app.z3cform.interfaces.IPloneFormLayer"
+      />
+
+  <adapter
+      factory=".z3c_custom_widget.CustomRadioFieldWidget"
+      for="zope.schema.interfaces.IBool
+           z3c.form.interfaces.IFormLayer"
+      />
+
+  <z3c:widgetTemplate
+      widget=".z3c_custom_widget.ICustomRadioWidget"
+      template="custom_radio_input.pt"
+      layer="z3c.form.interfaces.IFormLayer"
+      mode="input"
+      />
+
+
+  <browser:page
+      name="manager_notification_mail"
+      for="*"
+      template="templates/manager_notification_mail.pt"
+      permission="zope2.View"
+      layer="z3c.form.interfaces.IFormLayer"
+      />
+
+  <browser:page
+      name="download_reservation"
+      for="*"
+      class=".prenotazioni_search.DownloadReservation"
+      permission="redturtle.prenotazioni.SearchPrenotazioni"
+      />
+
+</configure>

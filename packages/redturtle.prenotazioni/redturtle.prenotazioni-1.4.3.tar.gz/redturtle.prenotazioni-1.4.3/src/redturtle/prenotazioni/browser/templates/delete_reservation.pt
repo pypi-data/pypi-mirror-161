@@ -1,0 +1,137 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+xmlns:tal="http://xml.zope.org/namespaces/tal"
+xmlns:metal="http://xml.zope.org/namespaces/metal"
+xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+lang="en"
+metal:use-macro="context/main_template/macros/master"
+i18n:domain="redturtle.prenotazioni">
+
+    <head>
+        <metal:block fill-slot="top_slot"
+        tal:define="dummy python:request.set('disable_border',1);
+        disable_column_one python:request.set('disable_plone.leftcolumn',1);
+        disable_column_two python:request.set('disable_plone.rightcolumn',1);" />
+    </head>
+    <body>
+
+        <metal:content fill-slot="main"
+                       tal:define="prenotazione nocall:view/prenotazione;
+                                   toLocalizedTime nocall:context/@@plone/toLocalizedTime"
+        >
+        <tal:no_prenotazione tal:condition="not:prenotazione">
+            <div tabindex="0">
+                <h1 i18n:translate="damn"></h1>
+                <p class="documentFirstHeading" tal:content="view/no_reservation_label">
+                    Seems we are not able to find your reservation
+                </p>
+            </div>
+        </tal:no_prenotazione>
+        <tal:prenotazione tal:condition="prenotazione">
+            <div tabindex="0" tal:condition="view/deleted_procedure_ended">
+                <tal:not_delete tal:condition="not:view/reservation_deleted">
+                    <h1 class="documentFirstHeading" i18n:translate="">
+                        Is not possible to delete your reservation
+                    </h1>
+                    <p i18n:translate="">
+                        It's not possbile to delete your reservation. The url is broken or it's to late to delete it
+                    </p>
+                </tal:not_delete>
+                <h1 class="documentFirstHeading" tal:condition="view/reservation_deleted" tal:content="view/deleted_label">
+                    Your booking has been deleted
+                </h1>
+            </div>
+            <div tabindex="0" tal:condition="not:view/deleted_procedure_ended">
+                <h1 class="documentFirstHeading" tal:content="view/label">
+                Booking request
+                </h1>
+                <!-- <div class="documentDescription" tal:content="view/description">
+                Booking description
+                </div> -->
+                <p>
+                    Gentile <b tal:content="prenotazione/Title">Fullname</b>,
+                    di seguito sono elencati i dati relativi alla sua prenotazione.<br/>
+                    Verifichi se si tratta della prenotazione corretta e confermi la cancellazione.
+                </p>
+                <table class="listing">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_booking_type">Booking type</b>
+                            </td>
+                            <td tal:content="prenotazione/getBooking_type"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_booking_email">Email</b>
+                            </td>
+                            <td tal:content="prenotazione/getEmail"></td>
+                        </tr>
+                        <tr tal:condition="prenotazione/getPhone">
+                            <td>
+                                <b i18n:translate="label_booking_phone">Phone number</b>
+                            </td>
+                            <td tal:content="prenotazione/getPhone"></td>
+                        </tr>
+                        <tr tal:condition="prenotazione/company">
+                            <td>
+                                <b i18n:translate="label_booking_company">Company</b>
+                            </td>
+                            <td tal:content="prenotazione/company"></td>
+                        </tr>
+                        <tr tal:condition="prenotazione/getFiscalcode">
+                            <td>
+                                <b i18n:translate="label_booking_fiscalcode">Fiscal code</b>
+                            </td>
+                            <td tal:content="prenotazione/getFiscalcode"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_booking_description">Subject</b>
+                            </td>
+                            <td tal:content="prenotazione/description"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_booking_date">Booking date</b>
+                            </td>
+                            <td tal:define="booking_date prenotazione/getBooking_date|nothing;
+                                            booking_expiration_date python:getattr(prenotazione, 'booking_expiration_date', '');
+                                            toLocalizedTime nocall:context/@@plone/toLocalizedTime">
+                                <span i18n:translate="label_booking_date_range">
+                                <tal:from_date i18n:name="from_date" tal:content="python:toLocalizedTime(booking_date)"></tal:from_date>
+                                from <tal:from i18n:name="from" tal:content="python:toLocalizedTime(booking_date, time_only=True)"></tal:from>
+                                to <tal:to i18n:name="to" tal:content="python:toLocalizedTime(booking_expiration_date, time_only=True)"></tal:to>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_gate">Gate</b>
+                            </td>
+                            <td tal:content="prenotazione/gate"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b i18n:translate="label_booking_code">Booking code</b>
+                            </td>
+                            <td tal:content="prenotazione/getBookingCode"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </tal:prenotazione>
+        <div class="actions">
+            <div class="actions" tal:condition="python:view.deleted_procedure_ended or not prenotazione">
+                    <a title="Prenotazioni" href="prenotazioni" class="button btn btn-default"
+                    tal:attributes="href string:${context/absolute_url}?data=${request/data|nothing}">Ritorna alle prenotazioni</a>
+            </div>
+            <tal:not_deleted tal:condition="python:not view.deleted_procedure_ended and prenotazione">
+                <a tal:condition="request/delete_token|nothing"
+                    title="Cancella Prenotazione" href="delete" class="button btn btn-danger"
+                    tal:define="url string:${context/absolute_url}/@@delete_reservation?${request/QUERY_STRING}&confirm=True"
+                    tal:attributes="href python:view.protect_url(url)">Cancella questa prenotazione</a>
+            </tal:not_deleted>
+        </div>
+        </metal:content>
+    </body>
+</html>
