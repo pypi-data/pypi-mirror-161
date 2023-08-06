@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "har2tree"
+version = "1.13.3"
+description = "HTTP Archive (HAR) to ETE Toolkit generator"
+authors = ["Raphaël Vinot <raphael.vinot@circl.lu>"]
+license = "BSD-3-Clause"
+repository = "https://github.com/Lookyloo/har2tree"
+documentation = "https://har2tree.readthedocs.io/en/latest/"
+
+readme = "README.md"
+
+classifiers = [
+    'License :: OSI Approved :: BSD License',
+	'Operating System :: POSIX :: Linux',
+	'Intended Audience :: Science/Research',
+	'Intended Audience :: Telecommunications Industry',
+	'Intended Audience :: Information Technology',
+	'Programming Language :: Python :: 3',
+	'Topic :: Security',
+	'Topic :: Internet'
+]
+
+include = ['README.md']
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+ete3 = "^3.1.2"
+beautifulsoup4 = "^4.11.1"
+lxml = "^4.9.1"
+six = "^1.16.0"
+publicsuffix2 = "^2.20191221"
+filetype = "^1.1.0"
+numpy = "^1.23.1"
+w3lib = "^1.22.0"
+Sphinx = { version = "^5.1.1", optional = true }
+cchardet = "^2.1.7"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+ipython = "^8.4.0"
+jupyterlab = "^3.4.4"
+pytest-cov = "^3.0.0"
+types-beautifulsoup4 = "^4.11.4"
+types-setuptools = "^63.2.2"
+
+[tool.poetry.extras]
+docs = ["Sphinx", "myst-parser"]
+
+[build-system]
+requires = ["poetry_core>=1.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_any_generics = true
+python_version = 3.8
+ignore_errors = false
+ignore_missing_imports = false
+strict_optional = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+
+show_error_context = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = "docs.source.*"
+ignore_errors = true
