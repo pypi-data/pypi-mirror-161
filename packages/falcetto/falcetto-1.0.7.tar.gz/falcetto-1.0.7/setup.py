@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['falcetto']
+
+package_data = \
+{'': ['*']}
+
+setup_kwargs = {
+    'name': 'falcetto',
+    'version': '1.0.7',
+    'description': 'Just a dummy project.',
+    'long_description': None,
+    'author': 'stefanondisponibile',
+    'author_email': None,
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': None,
+    'packages': packages,
+    'package_data': package_data,
+    'python_requires': '>=3.6,<4.0',
+}
+
+
+setup(**setup_kwargs)
