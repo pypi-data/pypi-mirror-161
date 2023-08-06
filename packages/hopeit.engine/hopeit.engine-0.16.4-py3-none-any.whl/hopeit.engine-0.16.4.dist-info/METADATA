@@ -1,0 +1,155 @@
+Metadata-Version: 2.1
+Name: hopeit.engine
+Version: 0.16.4
+Summary: Hopeit Engine: Microservices with Streams
+Home-page: https://github.com/hopeit-git/hopeit.engine
+Author: Leo Smerling and Pablo Canto
+Author-email: contact@hopeit.com.ar
+License: Apache 2
+Project-URL: CI: GitHub Actions, https://github.com/hopeit-git/hopeit.engine/actions?query=workflow
+Project-URL: Docs: RTD, https://hopeitengine.readthedocs.io/en/latest/
+Project-URL: GitHub: issues, https://github.com/hopeit-git/hopeit.engine/issues
+Project-URL: GitHub: repo, https://github.com/hopeit-git/hopeit.engine
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: AsyncIO
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: lz4 (<4,>=3.1.10)
+Requires-Dist: stringcase (<2,>=1.2.0)
+Requires-Dist: PyJWT[crypto] (<3,>=2.4.0)
+Requires-Dist: deepdiff (>=5.8.1)
+Requires-Dist: typing-inspect (>=0.7.1)
+Requires-Dist: multidict (>=6.0.2)
+Requires-Dist: dataclasses-jsonschema[fast-validation] (<3,>=2.15.0)
+Requires-Dist: fastjsonschema (>=2.15.3)
+Provides-Extra: apps-client
+Requires-Dist: hopeit.apps-client (==0.16.4) ; extra == 'apps-client'
+Provides-Extra: apps-visualizer
+Requires-Dist: hopeit.apps-visualizer (==0.16.4) ; extra == 'apps-visualizer'
+Provides-Extra: cli
+Requires-Dist: click (>=8.1.3) ; extra == 'cli'
+Provides-Extra: config-manager
+Requires-Dist: hopeit.config-manager (==0.16.4) ; extra == 'config-manager'
+Provides-Extra: fs-storage
+Requires-Dist: hopeit.fs-storage (==0.16.4) ; extra == 'fs-storage'
+Provides-Extra: log-streamer
+Requires-Dist: hopeit.log-streamer (==0.16.4) ; extra == 'log-streamer'
+Provides-Extra: redis-storage
+Requires-Dist: hopeit.redis-storage (==0.16.4) ; extra == 'redis-storage'
+Provides-Extra: redis-streams
+Requires-Dist: hopeit.redis-streams (==0.16.4) ; extra == 'redis-streams'
+Provides-Extra: web
+Requires-Dist: aiohttp (<4,>=3.8.1) ; extra == 'web'
+Requires-Dist: aiohttp-cors (>=0.7.0) ; extra == 'web'
+Requires-Dist: aiohttp-swagger3 (<0.8,>=0.7.0) ; extra == 'web'
+
+## hopeit.engine
+
+Docs: https://hopeitengine.readthedocs.io/en/latest/
+
+
+### Engine development README
+
+#### Install locally for apps or plugins development:
+- Install Python 3.8, recommended (you can use 3.7 to 3.10)
+- Create and activate a virtual environment (recommended)
+- Run from hopeit.engine project root
+```
+    make dev-deps && make install
+```
+- Now hopeit.engine package should be installed into your virtual/conda env linked to the source code in ./src
+- Then you can create your apps or plugins and run the server
+
+#### Install from Python Package Index
+
+- Install Python 3.8, recommended (you can use 3.7 to 3.10)
+- Create and activate a virtual environment (recommended)
+- Install hopeit.engine
+
+Install core hopeit.engine lib:
+```
+pip install "hopeit.engine"
+```
+Install extras needed to run as a server and command line tools:
+```
+pip install "hopeit.engine[web,cli]"
+```
+
+#### Configure
+- Create server configuration json file
+    - See [configuration examples](./config/)
+- Create apps configuration and python files
+    - See [apps examples](../apps/examples/)
+- Optionally you can develop plugins, similar to apps but can be shared
+    - See available [plugins](../plugins/)
+
+#### Start http server
+- Example starting a single app/microservice
+```
+    python -m hopeit.server.web --config-files=server-config.json,app-folder/config/app-config.json
+```
+
+- Additional options:
+```
+    --config-files: comma-separated file of config files to load, starting with server config, then plugins, then apps
+    --api-file: path to openapi complaint json specification
+    --host: server host address or name, default is --host=0.0.0.0
+    --port: indicates to listen on another port number, default is --port=8020
+    --path: indicates to listen in a unix socket path, default is disabled    
+    --start-streams: indicates to auomatically start events of type STREAM when starting server
+    
+```
+
+- Example starting a single app that depends on plugins:
+```
+    python engine/server/web.py --config-files=server-config.json,plugin-foler/config/plugin-config.json,app-folder/config/app-config.json
+```
+
+### Tools for Engine Development
+
+- To install development dependencies, from engine folder run:
+```
+    make dev
+```
+
+- To run tests
+```
+    make test
+```
+
+- To run static code checks (types, style)
+```
+    make check
+```
+
+- To create distribution library (hopeit.engine)
+```
+    make dist
+```
+
+- To install engine in local python environment
+```
+    make install
+```
+
+- Examples: to install plugin or app in virtual environment
+    - to use existing app and plugins, you will need to obtain also a configuration file for each app and plugin. install-app will only install source code.
+```
+    make PLUGINFOLDER=plugins/auth/basic-auth install-plugin
+    make APPFOLDER=apps/examples/simple-example install-app
+```
+
+
