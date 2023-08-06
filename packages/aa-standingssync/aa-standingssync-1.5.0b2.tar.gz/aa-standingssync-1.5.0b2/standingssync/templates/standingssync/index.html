@@ -1,0 +1,102 @@
+{% extends 'standingssync/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block details %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading" style="display:flex;">
+            <h3 class="panel-title">{% translate 'Alliance for Sync' %}</h3>
+        </div>
+        <div class="panel-body">
+
+            <img class="ra-avatar img-circle" src="{{ alliance.logo_url }}">
+            &nbsp;&nbsp;
+            {{ alliance.alliance_name }}
+            &nbsp;
+            (
+            {% if alliance_contacts_count != None %}
+                {{ alliance_contacts_count }} contacts
+                {% if alliance_war_targets_count != None %}
+                    ,
+                {% endif %}
+            {% endif %}
+            {% if alliance_war_targets_count != None %}
+                {{ alliance_war_targets_count }} war targets
+            {% endif %}
+            )
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading" style="display:flex;">
+            <h3 class="panel-title">{% translate 'Your Synced Characters' %}</h3>
+        </div>
+        <div class="panel-body">
+            {% if has_synced_chars %}
+                <table class="table table-striped" id="tab_standingssync">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Organization</th>
+                            <th>Status</th>
+                            <th>Disable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for character in synced_characters|dictsort:"name" %}
+                            {% if character.has_error %}
+                                <tr class="danger">
+                            {% else %}
+                                <tr>
+                            {% endif %}
+                                    <td>{{ character.name_html }}</td>
+                                    <td>{{ character.organization }}</td>
+                                    <td>{{ character.status_message }}</td>
+                                    <td><a class="btn btn-warning" href="{% url 'standingssync:remove_character' character.pk %}" role="button">
+                                        <i class="far fa-trash-alt"></i>
+                                    </a></td>
+                                </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>None</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <a id="standingssyncBtnAddSyncChar" class="btn btn-primary" href="{% url 'standingssync:add_character' %}">
+        Add Character to Sync
+    </a>
+
+    {% if perms.standingssync.add_syncmanager %}
+        <span class="pull-right">
+            <a class="btn btn-default" href="{% url 'standingssync:add_alliance_manager' %}">
+                Set Alliance Character
+            </a>
+        </span>
+        <div class="clearfix"></div>
+    {% endif %}
+
+    <div class="bs-callout bs-callout-warning">
+        <h3>Read Me First</h3>
+        <p>Once activated this app will automatically update the personal contacts of your synced characters. Note that you can only sync out-of-alliance alts.</p>
+        {% if alliance_contacts_count != None %}
+            <h4>Alliance Contacts</h4>
+            <p>
+                All personal contacts will be replaced with alliance contacts allowing you to see alliance standings on your synced characters.
+            </p>
+            <p>
+                <i class="fas fa-exclamation-triangle"></i> You will loose all personal contacts on your synced characters.
+            </p>
+        {% endif %}
+        {% if alliance_war_targets_count != None %}
+            <h4>War Targets</h4>
+            <p>Adds current alliance war targets as personal contacts with -10 standing a personal contact to your synced characters. If the contact already exists it will be overwritten. War targets can be distinguished by having the war targets contact label.</p>
+            <p><i class="fas fa-info-circle"></i>
+                Please make sure to create a contact label with the name "{{ war_targets_label_name }}" on all your synced characters.
+            </p>
+        {% endif %}
+    </div>
+
+{% endblock %}
