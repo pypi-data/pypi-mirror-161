@@ -1,0 +1,187 @@
+Metadata-Version: 2.1
+Name: pyviewfactor
+Version: 0.0.6
+Summary: A python library to calculate numerically exact radiation view factors between planar faces.
+Home-page: https://gitlab.com/arep-dev/pyViewFactor/
+Author: Mateusz BOGDAN, Edouard WALTHER, Marc ALECIAN, Mina CHAPON
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# PyViewFactor
+ [![Latest Release](https://gitlab.com/arep-dev/pyViewFactor/-/badges/release.svg)](https://gitlab.com/arep-dev/pyViewFactor/-/releases) 
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+ [![Pypi Version](https://img.shields.io/pypi/v/pyviewfactor)](https://pypi.org/project/pyviewfactor/)
+ 
+A python library to compute exact view factors between planar faces. 
+
+This code computes the radiation view factor between polygons using the double contour integral method.
+It uses the handy [Pyvista](https://docs.pyvista.org/) package to deal with geometrical aspects of such problems.
+
+##  Minimum working example : facet to face view factor computation 
+
+Suppose we want to compute the radiation view factor between a triangle and a rectangle.
+
+<img src="./img/mwe.png" alt="Triangle and rectangle configuration" width="350"/>
+
+You are now 18 lines of code away from your first view factor computation:
+
+```python
+pointa = [1, 0, 0] # first define a rectangle...
+pointb = [1, 1, 0]
+pointc = [0, 1, 0]
+pointd = [0, 0, 0]
+rectangle = pv.Rectangle([pointa, pointb, pointc, pointd])
+
+pointa = [1, 0, 1] # ... then a triangle
+pointb = [1, 1, 1]
+pointc = [0, 1, 1]
+liste_pts=[pointa, pointb, pointc]
+liste_pts.reverse() # let'us put the normal the other way around (facing the rectangle)
+triangle = pv.Triangle(liste_pts) # ... done with geometry.
+
+# preliminary check for visibility
+if get_visibility(rectangle , triangle):
+    F=compute_viewfactor(rectangle, triangle)
+    print("View factor from triangle to rectangle = ", F)
+else:
+    print("Not facing each other")
+```
+
+## Example with a closed geometry and the VTK file format
+
+We will now compute the view factors within a more complex geometry: a  closed sphere (clipped in half below), with inwards facing normals, so the faces can "see" each other. Note that the face-to-face visibility is unobstructed (for obstructed geometries, see next section).
+
+The field of view factors from one facet to all others will be computed and stored in a VTK file, which you can explore with the open source [Paraview software](https://www.paraview.org/download/).
+<img src="./img/demi_sphere.png" alt="Sphere" width="350"/>
+
+Following snippet can be reused as a kickstart for your own purposes:
+```python
+import pyvista as pv
+import numpy as np
+from pyviewfactor import  compute_viewfactor, fc_unstruc2poly # viewfactor + a useful conversion function
+from tqdm import tqdm # for a fancy progress bar
+
+# create a raw sphere with pyvista
+sphere=pv.Sphere(radius=50, center=(0, 0, 0), direction=(0, 0, 1),
+                 theta_resolution=9, phi_resolution=9)
+# and put the normals inwards please
+sphere.flip_normals()
+
+# let us chose a cell to compute view factors from
+chosen_face=sphere.extract_cells(10)
+# convert the face from UnstructuredGrid to PolyData
+chosen_face=fc_unstruc2poly(chosen_face)
+# "one array to contain them all" -> the results will be stored there
+F=np.zeros(sphere.n_cells) 
+
+# now let us compute the view factor to all other faces
+# (with a fancy progress bar, iterating over the mesh's faces)
+for i in tqdm(range(sphere.n_cells), total=sphere.n_cells):
+    face=sphere.extract_cells(i) # other facet
+    face=fc_unstruc2poly(face) # convert to PolyData
+    F[i]=compute_viewfactor(face, chosen_face) # compute VF
+
+print("Complementarity check: \n (e.g. is \sum_{i=0}^n F_i =? 1)", np.sum(F))
+
+# put the scalar values in the geometry
+sphere.cell_data["F"]=F
+sphere.save("./sphere.vtk") # ... and save.
+```
+The results look as per following images showing the view factor from the chosen cell to all others.
+
+<img src="./img/F_sphere.png" alt="VF to other faces inside the sphere" width="240"/>
+<img src="./img/F_sphere_clip.png" alt="Clipped result" width="240"/>
+
+## Understanding the obstruction check function
+
+In real life problems, obstacles may well hinder the radiation heat transfer between surfaces. We make use here of [pyvista's raytrace function](https://docs.pyvista.org/examples/01-filter/poly-ray-trace.html) to perform obstruction tests, as per following example, much inspired from pyvista's online documentation.
+
+<img src="./img/intersection_simple.png" alt="Obstruction check between rectangles" width="350"/>
+
+The code snippet below shows how the ray tracing function works and allows to understand its usage in the pyviewfactor `get_visibility_raytrace` function.
+```python
+# let us first create two rectangles
+pointa = [1, 0, 0]
+pointb = [1, 1, 0]
+pointc = [0, 1, 0]
+pointd = [0, 0, 0]
+rectangle_down = pv.Rectangle([pointa, pointb, pointc, pointd])
+pointa = [1, 0, 1]
+pointb = [1, 1, 1]
+pointc = [0, 1, 1]
+pointd = [0, 0, 1]
+rectangle_up = pv.Rectangle([pointa, pointb, pointc, pointd])
+
+# a circle will be the obstruction
+z_translation,r=0.5,2
+obstacle= pv.Circle(radius=r,resolution=10)
+# we translate the obstruction right between both rectangles
+obstacle.translate([0,0,z_translation],inplace=True)
+# Define line segment
+start = rectangle_down.cell_centers().points[0]
+stop = rectangle_up.cell_centers().points[0]
+# Perform ray trace
+points, ind = obstacle.ray_trace(start, stop)
+
+# Create geometry to represent ray trace
+ray = pv.Line(start, stop)
+intersection = pv.PolyData(points)
+
+# Render the result
+p = pv.Plotter(notebook=True)
+p.add_mesh(obstacle, show_edges=True, opacity=0.5, color="red", lighting=False, label="obstacle")
+p.add_mesh(rectangle_up, color="blue", line_width=5, opacity=0.5, label="rect up")
+p.add_mesh(rectangle_down, color="yellow", line_width=5,opacity=0.5, label="rect down")
+p.add_mesh(ray, color="green", line_width=5, label="ray trace")
+
+# if any intersection
+if intersection.n_cells>0:
+    p.add_mesh(intersection, color="green", point_size=25, label="Intersection Points")
+p.add_legend()
+p.show(cpos="yz")
+
+#now a call to the obstruction check function
+print (get_visibility_raytrace(rectangle_up, rectangle_down, obstacle))
+```
+
+More complex scenes can then be treated with the function `get_visibility_raytrace`.
+<img src="./img/intersection.png" alt="Obstruction within an enclosure" width="350"/>
+
+## Installation
+pyViewFactor can be installed from [PyPi](https://pypi.org/project/pyviewfactor/) using `pip` on Python >= 3.7:
+```
+pip install pyviewfactor
+```
+You can also visit [PyPi](https://pypi.org/project/pyviewfactor/) or [Gitlab](https://gitlab.com/arep-dev/pyViewFactor) to download the source. 
+
+Requirements: 
+```
+numpy==1.17.4
+pandas==1.4.2
+pyvista==0.35.2
+scipy==1.8.1
+```
+The code will probably work with lower versions of the required packages, however this has not been tested. 
+
+## Authors and acknowledgment
+Mateusz BOGDAN, Edouard WALTHER, Marc ALECIAN, Mina CHAPON
+
+## Citation
+There is even a [conference paper](https://www.researchgate.net/publication/360835982_Calcul_des_facteurs_de_forme_entre_polygones_-Application_a_la_thermique_urbaine_et_aux_etudes_de_confort), showing analytical validations.
+
+Bibtex entry:
+``` latex
+@inproceedings{pyViewFactor22bogdan,
+  authors      = "Mateusz BOGDAN and Edouard WALTHER and Marc ALECIAN and Mina CHAPON",
+  title        = "Calcul des facteurs de forme entre polygones - Application à la thermique urbaine et aux études de confort",
+  year         = "2022",
+  organization = "IBPSA France",
+  venue        = "Châlons-en-Champagne, France"
+  note         = "IBPSA France 2022",
+}
+```
+
+## License
+MIT License - Copyright (c) AREP 2022
+
+
