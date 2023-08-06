@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>The API &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proposed/index.html">Proposed Specifications</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>The API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-api">
+<h1>The API<a class="headerlink" href="#the-api" title="Permalink to this headline">¶</a></h1>
+<p>The Magic Folder Daemon provides an HTTP-based API. Most other <cite>magic-folder</cite> sub-commands interact with the Daemon by using this API. Other kinds of UIs or local programs can use the HTTP API directly or the Python command-line as they see fit.</p>
+<div class="section" id="authentication">
+<h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<p>Users must be able to prove that they have read access to a local file stored in the Magic Folder Daemon configuration. This file is <cite>api_token</cite> at the root of a Magic Folder Daemon configuration.</p>
+<p>A client wishing to communicate to the Magic Folder Daemon encodes the token in an <cite>Authorization: ` header sent to the Web server. This header’s value is `Bearer &lt;token&gt;</cite>. The <cite>api_token</cite> file is already encoded correctly for inclusion directly in this header.</p>
+</div>
+<div class="section" id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
+<p>In general, endpoints accept and return JSON data. The <cite>GET</cite> HTTP verb is used for retieving information and <cite>POST</cite> is used when modifying information. Details are shown in particular endpoints. Everything is rooted at <cite>/v1/</cite>.</p>
+<div class="section" id="get-v1-magic-folder">
+<h3>GET <cite>/v1/magic-folder</cite><a class="headerlink" href="#get-v1-magic-folder" title="Permalink to this headline">¶</a></h3>
+<p>List all magic-folders currently configured.
+An optional query-argument (<cite>?include_secret_information=1</cite>) may be included to request the secret capabilities to be included as well.
+Returns JSON like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;folders: [</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;funny-pictures&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;verify_key&quot;</span><span class="p">:</span> <span class="s2">&quot;base32-encoded key&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;stash_path&quot;</span><span class="p">:</span> <span class="s2">&quot;local/filesystem/path&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;magic_path&quot;</span><span class="p">:</span> <span class="s2">&quot;local/magic/folder/path&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;poll_interval&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+            <span class="s2">&quot;is_admin&quot;</span><span class="p">:</span> <span class="n">true</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If <cite>?include_secret_information=1</cite> is included then each magic-folder will also include <cite>author[“signing_key”]</cite>, <cite>collective_dircap</cite> and <cite>upload_dircap</cite> keys.</p>
+</div>
+<div class="section" id="get-v1-snapshot">
+<h3>GET <cite>/v1/snapshot</cite><a class="headerlink" href="#get-v1-snapshot" title="Permalink to this headline">¶</a></h3>
+<p>Lits all snapshots in all configured magic-folders. Returns JSON like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;folder-name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cat.jpeg&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;bob&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;verify_key&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;content-path&quot;</span><span class="p">:</span> <span class="s2">&quot;.../bob-magic/funny-pictures/cat.jpeg&quot;</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-v1-snapshot-folder-name">
+<h3>GET <cite>/v1/snapshot/&lt;folder-name&gt;</cite><a class="headerlink" href="#get-v1-snapshot-folder-name" title="Permalink to this headline">¶</a></h3>
+<p>Lits all snapshots in a particular magic-folders. Returns JSON like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;cat.jpeg&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;bob&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;verify_key&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;content-path&quot;</span><span class="p">:</span> <span class="s2">&quot;.../bob-magic/funny-pictures/cat.jpeg&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="post-v1-snapshot-folder-name-path-file-name">
+<h3>POST <cite>/v1/snapshot/&lt;folder-name&gt;?path=&lt;file-name&gt;</cite><a class="headerlink" href="#post-v1-snapshot-folder-name-path-file-name" title="Permalink to this headline">¶</a></h3>
+<p>Creates a new snapshot for a particular file inside a particluar magic-folder.
+The POST body should be empty in this version of the API.
+The <cite>?path=</cite> query argument is required.
+<cite>?path=</cite> must point to a file inside the directory of the referenced magic-folder.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

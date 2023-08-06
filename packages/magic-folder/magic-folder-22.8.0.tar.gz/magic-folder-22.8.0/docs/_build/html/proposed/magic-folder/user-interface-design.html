@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Magic Folder user interface design &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Multi-party Conflict Detection" href="multi-party-conflict-detection.html" />
+    <link rel="prev" title="Magic Folder design for remote-to-local sync" href="remote-to-local-sync.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Proposed Specifications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="filesystem-integration.html">Magic Folder local filesystem integration design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remote-to-local-sync.html">Magic Folder design for remote-to-local sync</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Magic Folder user interface design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scope">Scope</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#glossary">Glossary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#design-constraints">Design Constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#proposed-design">Proposed Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#discussion">Discussion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html">Multi-party Conflict Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#summary-and-definitions">Summary and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#leif-s-proposal-magic-folder-single-file-snapshot-design">Leif’s Proposal: Magic-Folder “single-file” snapshot design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#zooko-s-design-as-interpreted-by-daira">Zooko’s Design (as interpreted by Daira)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html">Magic-Folder discovers new files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#alternatives-considered">Alternatives considered</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#detailed-design">Detailed design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#data-integrity">Data integrity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#security">Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#backwards-compatibility">Backwards compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#performance-and-scalability">Performance and scalability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Proposed Specifications</a> &raquo;</li>
+        
+      <li>Magic Folder user interface design</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/proposed/magic-folder/user-interface-design.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="magic-folder-user-interface-design">
+<h1>Magic Folder user interface design<a class="headerlink" href="#magic-folder-user-interface-design" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="scope">
+<h2>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h2>
+<p>In this Objective we will design a user interface to allow users to conveniently
+and securely indicate which folders on some devices should be “magically” linked
+to which folders on other devices.</p>
+<p>This is a critical usability and security issue for which there is no known perfect
+solution, but which we believe is amenable to a “good enough” trade-off solution.
+This document explains the design and justifies its trade-offs in terms of security,
+usability, and time-to-market.</p>
+<p>Tickets on the Tahoe-LAFS trac with the <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/query?status=!closed&amp;keywords=~otf-magic-folder-objective6">otf-magic-folder-objective6</a>
+keyword are within the scope of the user interface design.</p>
+<div class="section" id="glossary">
+<h3>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h3>
+<p>Object: a file or directory</p>
+<p>DMD: distributed mutable directory</p>
+<p>Folder: an abstract directory that is synchronized between clients.
+(A folder is not the same as the directory corresponding to it on
+any particular client, nor is it the same as a DMD.)</p>
+<p>Collective: the set of clients subscribed to a given Magic Folder.</p>
+<p>Diminishing: the process of deriving, from an existing capability,
+another capability that gives less authority (for example, deriving a
+read cap from a read/write cap).</p>
+</div>
+</div>
+<div class="section" id="design-constraints">
+<h2>Design Constraints<a class="headerlink" href="#design-constraints" title="Permalink to this headline">¶</a></h2>
+<p>The design of the Tahoe-side representation of a Magic Folder, and the
+polling mechanism that the Magic Folder clients will use to detect remote
+changes was discussed in <a class="reference internal" href="remote-to-local-sync.html"><span class="doc">remote-to-local-sync</span></a>,
+and we will not revisit that here. The assumption made by that design was
+that each client would be configured with the following information:</p>
+<ul class="simple">
+<li>a write cap to its own <em>client DMD</em>.</li>
+<li>a read cap to a <em>collective directory</em>.</li>
+</ul>
+<p>The collective directory contains links to each client DMD named by the
+corresponding client’s nickname.</p>
+<p>This design was chosen to allow straightforward addition of clients without
+requiring each existing client to change its configuration.</p>
+<p>Note that each client in a Magic Folder collective has the authority to add,
+modify or delete any object within the Magic Folder. It is also able to control
+to some extent whether its writes will be treated by another client as overwrites
+or as conflicts. However, there is still a reliability benefit to preventing a
+client from accidentally modifying another client’s DMD, or from accidentally
+modifying the collective directory in a way that would lose data. This motivates
+ensuring that each client only has access to the caps above, rather than, say,
+every client having a write cap to the collective directory.</p>
+<p>Another important design constraint is that we cannot violate the
+<a class="reference external" href="https://tahoe-lafs.readthedocs.io/en/latest/write_coordination.html">write coordination directive</a>; that is, we cannot write to the same
+mutable directory from multiple clients, even during the setup phase
+when adding a client.</p>
+<p>Within these constraints, for usability we want to minimize the number of steps
+required to configure a Magic Folder collective.</p>
+</div>
+<div class="section" id="proposed-design">
+<h2>Proposed Design<a class="headerlink" href="#proposed-design" title="Permalink to this headline">¶</a></h2>
+<p>Three <code class="docutils literal notranslate"><span class="pre">tahoe</span></code> subcommands are added:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>tahoe magic-folder create MAGIC: [MY_NICKNAME LOCAL_DIR]
+
+  Create an empty Magic Folder. The MAGIC: local alias is set
+  to a write cap which can be used to refer to this Magic Folder
+  in future ``tahoe magic-folder invite`` commands.
+
+  If MY_NICKNAME and LOCAL_DIR are given, the current client
+  immediately joins the newly created Magic Folder with that
+  nickname and local directory.
+
+
+tahoe magic-folder invite MAGIC: THEIR_NICKNAME
+
+  Print an &quot;invitation&quot; that can be used to invite another
+  client to join a Magic Folder, with the given nickname.
+
+  The invitation must be sent to the user of the other client
+  over a secure channel (e.g. PGP email, OTR, or ssh).
+
+  This command will normally be run by the same client that
+  created the Magic Folder. However, it may be run by a
+  different client if the ``MAGIC:`` alias is copied to
+  the ``private/aliases`` file of that other client, or if
+  ``MAGIC:`` is replaced by the write cap to which it points.
+
+
+tahoe magic-folder join INVITATION LOCAL_DIR
+
+  Accept an invitation created by ``tahoe magic-folder invite``.
+  The current client joins the specified Magic Folder, which will
+  appear in the local filesystem at the given directory.
+</pre></div>
+</div>
+<p>There are no commands to remove a client or to revoke an
+invitation, although those are possible features that could
+be added in future. (When removing a client, it is necessary
+to copy each file it added to some other client’s DMD, if it
+is the most recent version of that file.)</p>
+<div class="section" id="implementation">
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
+<p>For “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">magic-folder</span> <span class="pre">create</span> <span class="pre">MAGIC:</span> <span class="pre">[MY_NICKNAME</span> <span class="pre">LOCAL_DIR]</span></code>” :</p>
+<ol class="arabic">
+<li><p class="first">Run “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">create-alias</span> <span class="pre">MAGIC:</span></code>”.</p>
+</li>
+<li><p class="first">If <code class="docutils literal notranslate"><span class="pre">MY_NICKNAME</span></code> and <code class="docutils literal notranslate"><span class="pre">LOCAL_DIR</span></code> are given, do the equivalent of:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INVITATION=`tahoe invite-magic-folder MAGIC: MY_NICKNAME`
+tahoe join-magic-folder INVITATION LOCAL_DIR
+</pre></div>
+</div>
+</li>
+</ol>
+<p>For “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">magic-folder</span> <span class="pre">invite</span> <span class="pre">COLLECTIVE_WRITECAP</span> <span class="pre">NICKNAME</span></code>” :</p>
+<p>(<code class="docutils literal notranslate"><span class="pre">COLLECTIVE_WRITECAP</span></code> can, as a special case, be an alias such as <code class="docutils literal notranslate"><span class="pre">MAGIC:</span></code>.)</p>
+<ol class="arabic simple">
+<li>Create an empty client DMD. Let its write URI be <code class="docutils literal notranslate"><span class="pre">CLIENT_WRITECAP</span></code>.</li>
+<li>Diminish <code class="docutils literal notranslate"><span class="pre">CLIENT_WRITECAP</span></code> to <code class="docutils literal notranslate"><span class="pre">CLIENT_READCAP</span></code>, and
+diminish <code class="docutils literal notranslate"><span class="pre">COLLECTIVE_WRITECAP</span></code> to <code class="docutils literal notranslate"><span class="pre">COLLECTIVE_READCAP</span></code>.</li>
+<li>Run “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">ln</span> <span class="pre">CLIENT_READCAP</span> <span class="pre">COLLECTIVE_WRITECAP/NICKNAME</span></code>”.</li>
+<li>Print “<code class="docutils literal notranslate"><span class="pre">COLLECTIVE_READCAP+CLIENT_WRITECAP</span></code>” as the invitation,
+accompanied by instructions on how to accept the invitation and
+the need to send it over a secure channel.</li>
+</ol>
+<p>For “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">magic-folder</span> <span class="pre">join</span> <span class="pre">INVITATION</span> <span class="pre">LOCAL_DIR</span></code>” :</p>
+<ol class="arabic simple">
+<li>Parse <code class="docutils literal notranslate"><span class="pre">INVITATION</span></code> as <code class="docutils literal notranslate"><span class="pre">COLLECTIVE_READCAP+CLIENT_WRITECAP</span></code>.</li>
+<li>Write <code class="docutils literal notranslate"><span class="pre">CLIENT_WRITECAP</span></code> to the file <code class="docutils literal notranslate"><span class="pre">magic_folder_dircap</span></code>
+under the client’s <code class="docutils literal notranslate"><span class="pre">private</span></code> directory.</li>
+<li>Write <code class="docutils literal notranslate"><span class="pre">COLLECTIVE_READCAP</span></code> to the file <code class="docutils literal notranslate"><span class="pre">collective_dircap</span></code>
+under the client’s <code class="docutils literal notranslate"><span class="pre">private</span></code> directory.</li>
+<li>Edit the client’s <code class="docutils literal notranslate"><span class="pre">tahoe.cfg</span></code> to set
+<code class="docutils literal notranslate"><span class="pre">[magic_folder]</span> <span class="pre">enabled</span> <span class="pre">=</span> <span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[magic_folder]</span> <span class="pre">local.directory</span> <span class="pre">=</span> <span class="pre">LOCAL_DIR</span></code>.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this headline">¶</a></h2>
+<p>The proposed design has a minor violation of the
+<a class="reference external" href="http://www.eros-os.org/papers/secnotsep.pdf">Principle of Least Authority</a> in order to reduce the number
+of steps needed. The invoker of “<code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">magic-folder</span> <span class="pre">invite</span></code>”
+creates the client DMD on behalf of the invited client, and
+could retain its write cap (which is part of the invitation).</p>
+<p>A possible alternative design would be for the invited client
+to create its own client DMD, and send it back to the inviter
+to be linked into the collective directory. However this would
+require another secure communication and another command
+invocation per client. Given that, as mentioned earlier, each
+client in a Magic Folder collective already has the authority
+to add, modify or delete any object within the Magic Folder,
+we considered the potential security/reliability improvement
+here not to be worth the loss of usability.</p>
+<p>We also considered a design where each client had write access to the
+collective directory. This would arguably be a more serious violation
+of the Principle of Least Authority than the one above (because all
+clients would have excess authority rather than just the inviter). In
+any case, it was not clear how to make such a design satisfy the
+<a class="reference external" href="https://tahoe-lafs.readthedocs.io/en/latest/write_coordination.html">write coordination directive</a>, because the collective directory
+would have needed to be written to by multiple clients.</p>
+<p>The reliance on a secure channel to send the invitation to its
+intended recipient is not ideal, since it may involve additional
+software such as clients for PGP, OTR, ssh etc. However, we believe
+that this complexity is necessary rather than incidental, because
+there must be some way to distinguish the intended recipient from
+potential attackers who would try to become members of the Magic
+Folder collective without authorization. By making use of existing
+channels that have likely already been set up by security-conscious
+users, we avoid reinventing the wheel or imposing substantial extra
+implementation costs.</p>
+<p>The length of an invitation will be approximately the combined
+length of a Tahoe-LAFS read cap and write cap. This is several
+lines long, but still short enough to be cut-and-pasted successfully
+if care is taken. Errors in copying the invitation can be detected
+since Tahoe-LAFS cap URIs are self-authenticating.</p>
+<p>The implementation of the <code class="docutils literal notranslate"><span class="pre">tahoe</span></code> subcommands is straightforward
+and raises no further difficult design issues.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="multi-party-conflict-detection.html" class="btn btn-neutral float-right" title="Multi-party Conflict Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="remote-to-local-sync.html" class="btn btn-neutral float-left" title="Magic Folder design for remote-to-local sync" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

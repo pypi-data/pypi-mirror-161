@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Using Magic Folder &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How invites work" href="invites.html" />
+    <link rel="prev" title="Magic Folder" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using Magic Folder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-magic-folder-daemon-configuration">Creating a Magic Folder Daemon Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-magic-folder-process">Running a Magic Folder process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-magic-folders">Creating Magic Folders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#listing-magic-folders">Listing Magic Folders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inviting-participant-devices">Inviting Participant Devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#joining-a-magic-folder">Joining a Magic Folder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#leaving-a-magic-folder">Leaving a Magic Folder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-quick-test">A quick test</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proposed/index.html">Proposed Specifications</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Using Magic Folder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-magic-folder">
+<span id="configuration"></span><h1>Using Magic Folder<a class="headerlink" href="#using-magic-folder" title="Permalink to this headline">¶</a></h1>
+<p>Magic-Folder is used in two ways.  To interact with configuration, the
+<code class="docutils literal notranslate"><span class="pre">magic-folder</span></code> command line tool is used.  For details of this, see
+the section on <span class="xref std std-ref">config-file</span>.  For additional information see
+<a class="reference external" href="../proposed/magic-folder/user-interface-design">Magic Folder CLI design</a>.</p>
+<p>To interact with content, use your normal filesystem-based tools.  The
+folder which Magic-Folder synchronizes is a normal folder in the
+filesystem.  The platform’s filesystem change notification features
+are used to detect changes.</p>
+<p>We think of participants in the system as “devices”. A single human
+may control many devices (in case they are synchronizing files between
+them, for example). It is possible that a magic-folder setup serves
+just a single human or it may serve many. Each human may have one or
+many devices. When we talk about “an author” below (equivalent to the
+<code class="docutils literal notranslate"><span class="pre">--author</span></code> CLI option, usally) this means a single device. A single
+human may control many “authors”.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>You must have one or more Tahoe-LAFS client nodes configured to be
+able to store objects somewhere.  They must be able to reach their
+configured storage nodes.  The client nodes must all share the same
+storage nodes.  The nodes must be running.</p>
+</div>
+<div class="section" id="creating-a-magic-folder-daemon-configuration">
+<h2>Creating a Magic Folder Daemon Configuration<a class="headerlink" href="#creating-a-magic-folder-daemon-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The “Magic Folder Daemon” is a long-running process that accomplishes
+the task of synchronizing all the “magic folders” that are configured
+in it.</p>
+<p>A Magic Folder Daemon needs to have some configuration to start. There
+are two ways to create this: from scratch; or from a “legacy”
+magic-folder (when <code class="docutils literal notranslate"><span class="pre">magic-folder</span></code> was a sub-command of <code class="docutils literal notranslate"><span class="pre">tahoe</span></code> in
+version 1.14.0 and earlier).</p>
+<p>No matter the method used, there are some pieces of information
+required and two decisions to be made. You need to know:</p>
+<ul class="simple">
+<li>the <code class="docutils literal notranslate"><span class="pre">node-directory</span></code> of the Tahoe-LAFS client this magic folder daemon shall use.</li>
+</ul>
+<p>You need to decide:</p>
+<ul class="simple">
+<li>The network endpoint the API will listen on. This is how CLI
+commands and front-ends communicate to the magic-folder daemon and
+is expressed as a Twisted “server endpoint string”. For example,
+<code class="docutils literal notranslate"><span class="pre">tcp:4321:interface=localhost</span></code> to listen locally on port 4321.</li>
+<li>If you wish to specify where to store the configuration. By default
+it will be in an appropriate location for your OS (like
+<code class="docutils literal notranslate"><span class="pre">~/.config/magic-folder</span></code> on Debian).</li>
+</ul>
+<p>To create a magic folder daemon configuration from scratch:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder init --config ./foo --listen-endpoint tcp:4321:interface<span class="o">=</span>localhost --node-directory ./tahoe-client
+</pre></div>
+</div>
+<p>This will store configuration in <code class="docutils literal notranslate"><span class="pre">./foo</span></code>; listen on <code class="docutils literal notranslate"><span class="pre">localhost</span></code>
+port <code class="docutils literal notranslate"><span class="pre">4321</span></code> for API commands; and talk to the Tahoe-LAFS client in
+<code class="docutils literal notranslate"><span class="pre">./tahoe-client</span></code> (which must itself be running).</p>
+<p>To create a magic folder daemon configuration by migrating an existing
+Tahoe-LAFS-based magic-folder, do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder migrate --config ./foo --listen-endpoint tcp:4321:interface<span class="o">=</span>localhost --node-directory ./tahoe-client --author alice
+</pre></div>
+</div>
+<p>The main difference is the <code class="docutils literal notranslate"><span class="pre">--author</span></code> argument. This is required
+when creating signing keys for each configured magic-folder that is
+migrated over to the new daemon. Note that the Tahoe-LAFS
+configuration (<code class="docutils literal notranslate"><span class="pre">./tahoe-client</span></code> in the example) will be left alone.</p>
+<p>From now on, we will assume there is a valid magic folder daemon
+configuration in <code class="docutils literal notranslate"><span class="pre">./foo</span></code>. This is usually provided to all
+sub-commands like so: <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">--config</span> <span class="pre">./foo</span>
+<span class="pre">&lt;subcommand&gt;</span></code>. The default location is used if <code class="docutils literal notranslate"><span class="pre">--config</span></code> is not
+specified.</p>
+</div>
+<div class="section" id="running-a-magic-folder-process">
+<h2>Running a Magic Folder process<a class="headerlink" href="#running-a-magic-folder-process" title="Permalink to this headline">¶</a></h2>
+<p>Our magic folder daemon has a configuration location so now it can be
+started. It must be running for most of the other magic-folder
+commands to work as they use the API.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder --config ./foo run
+</pre></div>
+</div>
+<p>Remember that the Tahoe-LAFS node which the daemon uses to upload and
+download items from the Grid must also be running.</p>
+</div>
+<div class="section" id="creating-magic-folders">
+<h2>Creating Magic Folders<a class="headerlink" href="#creating-magic-folders" title="Permalink to this headline">¶</a></h2>
+<p>A new magic folder is added using the <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">add</span></code>
+command.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder --config ./foo add --author alice-laptop --name example ~/Documents
+</pre></div>
+</div>
+<p>There are some other options that can be specified. The above will
+create a new magic-folder named <code class="docutils literal notranslate"><span class="pre">example</span></code> (we could decide
+differently with <code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">docs</span></code> for example). Any changes we make
+locally will be signed as <code class="docutils literal notranslate"><span class="pre">alice-laptop</span></code>. Files from other devices
+are downloaded into <code class="docutils literal notranslate"><span class="pre">~/Documents</span></code> and any files we add or change in
+that local directory will be uploaded. Note that deleting a file in
+<code class="docutils literal notranslate"><span class="pre">~/Documents</span></code> will record a new “deleted” version in Tahoe Grid and
+not actually remove data.</p>
+<p>It is also possible to specify <code class="docutils literal notranslate"><span class="pre">--poll-interval</span></code> to control how
+often the daemon will check for updates if the default seems wrong.</p>
+<p>This device will be the administrator for a magic folder created in
+this manner (that is, only this device can invite new participants).</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">create</span> <span class="pre">--help</span></code> for specific usage details.</p>
+</div>
+<div class="section" id="listing-magic-folders">
+<h2>Listing Magic Folders<a class="headerlink" href="#listing-magic-folders" title="Permalink to this headline">¶</a></h2>
+<p>Existing magic folders can be listed using the <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">list</span></code>
+command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder --config ./foo list
+<span class="go">This client has the following magic-folders:</span>
+<span class="go">example:</span>
+<span class="go">    location: /home/alice/Documents</span>
+<span class="go">   stash-dir: /home/alice/foo/example/stash</span>
+<span class="go">      author: alice-laptop (public_key: KSYPPXN3HTCSEJC56RRYXDEO2TZX5LO743Q3E2M7NA7UP2W3OK2A====)</span>
+<span class="go">     updates: every 60s</span>
+</pre></div>
+</div>
+<p>To get JSON output, pass <code class="docutils literal notranslate"><span class="pre">--json</span></code>.  You can include sensitive secret
+information by passing <code class="docutils literal notranslate"><span class="pre">--include-secret-information</span></code> flag. Someone
+who obtains this information can impersonate this device and
+participate as it in the magic folder (if they also gain access to the
+Tahoe-LAFS Grid being used).</p>
+</div>
+<div class="section" id="inviting-participant-devices">
+<h2>Inviting Participant Devices<a class="headerlink" href="#inviting-participant-devices" title="Permalink to this headline">¶</a></h2>
+<p>A new participant device is invited to collaborate on a magic folder
+using the <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">invite</span></code> command. This produces an “invite
+code” which is a one-time code. This code should be communicated
+securely to the invitee. The code will allow the invitee’s device to
+establish a connection to this device and exchange details. Thus, the
+code can only be used while this device is connected to the
+Internet. The code may only be used once, for a single invitee.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder --config ./foo invite --name example
+</pre></div>
+</div>
+<p>An invitation code is created using an existing magic folder (<code class="docutils literal notranslate"><span class="pre">--name</span>
+<span class="pre">example</span></code> above). The magic-folder identified must have been created on
+this device.</p>
+<p>Once the invitee runs <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">join</span></code> (see below) the two
+devices will connect and exchange some information; this will complete
+the invitation. The “invite” command won’t exit until the invitee has
+actually completed and will print out some details. If you pass
+<code class="docutils literal notranslate"><span class="pre">--no-wait</span></code> then the command will exit immediately (although the
+invite will still be valid).</p>
+<p>XXX DECIDE: should the default be to wait, or to not? Developers are
+split on this; maybe some UX research or discussion can solve it? No
+matter what, the HTTP API will have to be two-part (“start invite -&gt;
+X” and “status of invite X” or “wait for invite X”)</p>
+<p>Invites are valid until the magic-folder daemon stops running or until
+the default number of minutes pass (whichever is sooner). See the
+<code class="docutils literal notranslate"><span class="pre">--timeout</span></code> options for the default (or you can pass a different
+number of mintues if you prefer).</p>
+</div>
+<div class="section" id="joining-a-magic-folder">
+<h2>Joining a Magic Folder<a class="headerlink" href="#joining-a-magic-folder" title="Permalink to this headline">¶</a></h2>
+<p>A participant device accepts an invitation using the <code class="docutils literal notranslate"><span class="pre">magic-folder</span>
+<span class="pre">join</span></code> command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> magic-folder --config ./foo join <span class="nv">$INVITECODE</span> /home/bob/Documents/Shared
+</pre></div>
+</div>
+<p>The first argument required is an invitation code, as described in
+<a class="reference internal" href="#inviting-participant-devices">Inviting Participant Devices</a>.  The second argument
+required is the path to a local directory.  This is the directory to
+which content will be downloaded and from which it will be uploaded.</p>
+<p>You must choose a name to identify content from this device with
+<code class="docutils literal notranslate"><span class="pre">--author</span></code>. The device which has invited you must also be connected
+to the internet for the invite to work: once a connection is
+established, the two devices exchange some information and the invite
+is complete.</p>
+<p>Further options are documented in <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">join</span> <span class="pre">--help</span></code>.</p>
+</div>
+<div class="section" id="leaving-a-magic-folder">
+<h2>Leaving a Magic Folder<a class="headerlink" href="#leaving-a-magic-folder" title="Permalink to this headline">¶</a></h2>
+<p>A participant device can reverse the action of joining a magic folder
+using the <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">leave</span></code> command.</p>
+<p>You must supply the name of the magic folder to leave with <code class="docutils literal notranslate"><span class="pre">--name</span></code>.
+Once a device has left a magic folder, further changes to files in the
+folder will not be synchronized.  The local synchronized directory
+itself is not removed. <strong>All configuration and state for the
+magic-folder is destroyed</strong>.</p>
+<p>Note that by default you cannot leave a folder that this device has
+created as it has the only copy of the write-capability which allows
+one to change the list of participants. If you really do want to
+<code class="docutils literal notranslate"><span class="pre">leave</span></code> such a folder you can indicate this desire and override the
+error with <code class="docutils literal notranslate"><span class="pre">--really-delete-write-capability</span></code>.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">leave</span> <span class="pre">--help</span></code> for details.</p>
+</div>
+<div class="section" id="a-quick-test">
+<h2>A quick test<a class="headerlink" href="#a-quick-test" title="Permalink to this headline">¶</a></h2>
+<p>If you want to test that things work as expected using a single
+machine, you can create two separate Tahoe-LAFS nodes, and assign
+corresponding magic folders with them, like so:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">export</span> <span class="nv">ALICE_NODE</span><span class="o">=</span>./grid/alice
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">ALICE_FOLDER</span><span class="o">=</span>./alice-sync-dir
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">ALICE_MAGIC</span><span class="o">=</span>./grid/alice-magic
+
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">BOB_NODE</span><span class="o">=</span>./grid/bob
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">BOB_FOLDER</span><span class="o">=</span>./bob-sync-dir
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">BOB_MAGIC</span><span class="o">=</span>./grid/bob-magic
+
+<span class="gp">#</span> create magic-folder daemons and run them <span class="k">for</span> alice+bob
+<span class="gp">$</span> mkdir -p <span class="nv">$ALICE_FOLDER</span>
+<span class="gp">$</span> mkdir -p <span class="nv">$BOB_FOLDER</span>
+<span class="gp">$</span> magic-folder init --node-directory <span class="nv">$ALICE_NODE</span> --listen-endpoint tcp:4000:interface<span class="o">=</span>localhost --config <span class="nv">$ALICE_MAGIC</span>
+<span class="gp">$</span> magic-folder init --node-directory <span class="nv">$BOB_NODE</span> --listen-endpoint tcp:4001:interface<span class="o">=</span>localhost --config <span class="nv">$BOB_MAGIC</span>
+<span class="gp">$</span> daemonize magic-folder --config <span class="nv">$ALICE_MAGIC</span> run
+<span class="gp">$</span> daemonize magic-folder --config <span class="nv">$BOB_MAGIC</span> run
+
+<span class="gp">#</span> alice creates a magic-folder and invites bob
+<span class="gp">$</span> magic-folder --config <span class="nv">$ALICE_MAGIC</span> add --name example alice <span class="nv">$ALICE_FOLDER</span>
+<span class="gp">$</span> magic-folder --config <span class="nv">$ALICE_MAGIC</span> invite --name example bob &gt;invitecode
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">INVITECODE</span><span class="o">=</span><span class="k">$(</span>cat invitecode<span class="k">)</span>
+<span class="gp">$</span> magic-folder --config <span class="nv">$BOB_MAGIC</span> join --name example <span class="s2">&quot;</span><span class="nv">$INVITECODE</span><span class="s2">&quot;</span> <span class="nv">$BOB_FOLDER</span>
+</pre></div>
+</div>
+<p>You can now experiment with creating files and directories in
+<code class="docutils literal notranslate"><span class="pre">./alice-magic</span></code> and <code class="docutils literal notranslate"><span class="pre">./bob-magic</span></code>.  Any changes in one should be
+propagated to the other directory.</p>
+<p>Note that when a file is deleted, the corresponding file in the other
+directory will be renamed to a filename ending in <code class="docutils literal notranslate"><span class="pre">.backup</span></code>.
+Deleting a directory will have no effect.</p>
+<p>For other known issues and limitations, see <a class="reference internal" href="limitations.html#known-issues-in-magic-folder"><span class="std std-ref">Known Issues and Limitations</span></a>.</p>
+<p>It is also possible to run the nodes on different machines, to
+synchronize between three or more clients, to mix Windows and Linux
+clients, and to use multiple servers (as long as the Tahoe-LAFS
+encoding parameters are changed).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="invites.html" class="btn btn-neutral float-right" title="How invites work" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Magic Folder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

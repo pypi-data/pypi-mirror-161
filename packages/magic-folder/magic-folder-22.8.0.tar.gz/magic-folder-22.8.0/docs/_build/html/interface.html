@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Interface &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proposed/index.html">Proposed Specifications</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/interface.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="interface">
+<h1>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="http-api">
+<h2>HTTP API<a class="headerlink" href="#http-api" title="Permalink to this headline">¶</a></h2>
+<p>Magic-Folder exposes all of its supported functionality in an HTTP API.
+The address of the HTTP server is part of the <a class="reference external" href=":ref:`config`">daemon configuration</a>.</p>
+<div class="section" id="authorization">
+<h3>Authorization<a class="headerlink" href="#authorization" title="Permalink to this headline">¶</a></h3>
+<p>The HTTP API is protected by Bearer token-style authorization scheme.
+Only requests which include the correct token will receive successful responses.
+Other requests will receive <strong>401 Unauthorized</strong> responses which omit the requested resource.
+The token value should be included with the <strong>Bearer</strong> scheme in the <strong>Authorization</strong> header element.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="n">abcdefghijklmnopqrstuvwxyz</span>
+</pre></div>
+</div>
+<p>The correct token value can be found in the <em>api_token</em> file inside the Magic-Folder daemon configuration directory.
+The token value is periodically rotated so clients must be prepared to receive an <strong>Unauthorized</strong> response even when supplying the token.
+In this case,
+the client should re-read the token from the filesystem to determine if the value held in memory has become stale.</p>
+</div>
+<div class="section" id="get-v1-magic-folder">
+<h3><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/magic-folder</span></code><a class="headerlink" href="#get-v1-magic-folder" title="Permalink to this headline">¶</a></h3>
+<p>This endpoint returns a dict of all individual magic-folders managed
+by this daemon. The keys of the dict are the folder name and the
+values are themselves dicts.</p>
+<p>You may include the query argument <code class="docutils literal notranslate"><span class="pre">?include_secret_information=1</span></code> to
+include values for each folder which should be kept hidden (and are
+not shown by default). These are: <code class="docutils literal notranslate"><span class="pre">upload_dircap</span></code>,
+<code class="docutils literal notranslate"><span class="pre">collective_dircap</span></code>, and the <code class="docutils literal notranslate"><span class="pre">signing_key</span></code> inside <code class="docutils literal notranslate"><span class="pre">author</span></code>.</p>
+<p>The response code <strong>OK</strong> and the <strong>Content-Type</strong> is <code class="docutils literal notranslate"><span class="pre">application/json</span></code>.
+The response body follows the form of this example (containing a single
+magic-folder named “documents”):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;documents&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;documents&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;verify_key&quot;</span><span class="p">:</span> <span class="s2">&quot;OY7FCVPCOJXDNHQLSDTTJFONTROMQQED5Q6K33T3NBGGQHKLV73Q====&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;poll_interval&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+        <span class="s2">&quot;is_admin&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;stash_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/alice/.config/magic-folder/documents&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;magic_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/alice/Documents&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-v1-snapshot">
+<h3><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/snapshot</span></code><a class="headerlink" href="#get-v1-snapshot" title="Permalink to this headline">¶</a></h3>
+<p>Retrieve information about all snapshots known to exist.</p>
+<p>The response is <strong>OK</strong> with an <code class="docutils literal notranslate"><span class="pre">application/json</span></code> <strong>Content-Type</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;folder name&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;foo/bar&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;local&quot;</span>
+      <span class="p">,</span> <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;06be2d83-2d86-402d-ae2a-81b3779d72d9&quot;</span>
+      <span class="p">,</span> <span class="s2">&quot;parents&quot;</span><span class="p">:</span>
+        <span class="p">[</span> <span class="p">{</span><span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="s2">&quot;30803885-ef3c-4645-85e6-6b1c9dfd50c3&quot;</span><span class="p">}</span>
+        <span class="p">,</span> <span class="p">{</span><span class="s2">&quot;remote&quot;</span><span class="p">:</span> <span class="s2">&quot;URI:...&quot;</span><span class="p">}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}}</span>
+</pre></div>
+</div>
+<p>Properties of the top-level object map the name of a magic-folder to second-level objects describing snapshots for each file in that folder.
+Properties of second-level objects map relative file paths to lists of snapshots for that magic-folder.
+Elements of the list are objects with describe a single snapshot.</p>
+<p>Local snapshots are represented like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;local&quot;</span>
+<span class="p">,</span> <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;0d585a0e-c39c-4dec-affb-cbab34245370&quot;</span>
+<span class="p">,</span> <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="s2">&quot;a3eb3d57-5272-45f3-ba5f-04a52024785b&quot;</span><span class="p">}]</span>
+<span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The parents property gives a list of references to snapshots which are parents of the containing snapshot.
+A local snapshot reference in this list is represented like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="s2">&quot;a3eb3d57-5272-45f3-ba5f-04a52024785b&quot;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>The values for the <code class="docutils literal notranslate"><span class="pre">local</span></code> property can be resolved against the <code class="docutils literal notranslate"><span class="pre">identifier</span></code> described above.</p>
+<p>In the future,
+this this may also contain remote snapshot references.
+A remote snapshot reference in this list is represented like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;remote&quot;</span><span class="p">:</span> <span class="s2">&quot;URI:...&quot;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>The value is a Tahoe-LAFS capability string for a stored object representing the snapshot.</p>
+</div>
+<div class="section" id="get-v1-snapshot-folder-name">
+<h3><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/snapshot/&lt;folder-name&gt;</span></code><a class="headerlink" href="#get-v1-snapshot-folder-name" title="Permalink to this headline">¶</a></h3>
+<p>Not yet implemented.
+Get all snapshots for one folder.</p>
+</div>
+<div class="section" id="get-v1-snapshot-folder-name-path-some-path">
+<h3><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/snapshot/&lt;folder-name&gt;?path=&lt;some-path&gt;</span></code><a class="headerlink" href="#get-v1-snapshot-folder-name-path-some-path" title="Permalink to this headline">¶</a></h3>
+<p>Not yet implemented.
+Get all snapshots for one folder beneath a certain path.</p>
+</div>
+<div class="section" id="post-v1-snapshot-folder-name-path-some-path">
+<h3><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/snapshot/&lt;folder-name&gt;?path=&lt;some-path&gt;</span></code><a class="headerlink" href="#post-v1-snapshot-folder-name-path-some-path" title="Permalink to this headline">¶</a></h3>
+<p>Create a new snapshot for a certain file in a certain magic-folder.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">path</span></code> query argument is required.
+It must be a filesystem path relative to the selected magic-folder.
+A new snapshot will be created for the file it identifies.</p>
+<p>The response is delayed until the local state tracking the snapshot has been created.</p>
+<p>The response code <strong>CREATED</strong> and the <strong>Content-Type</strong> is <code class="docutils literal notranslate"><span class="pre">application/json</span></code>.
+The response body follows the form of this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="status-api">
+<h2>Status API<a class="headerlink" href="#status-api" title="Permalink to this headline">¶</a></h2>
+<p>There is a WebSocket-based status API located at <code class="docutils literal notranslate"><span class="pre">/v1/status</span></code>.
+This is authenticated the same way as the HTTP API with an <code class="docutils literal notranslate"><span class="pre">Authorization:</span></code> header (see above).</p>
+<p>All messages are JSON.
+Upon connecting, a new client will immediately receive a “state” message:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;synchronizing&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>After that the client may receive further state updates with a <code class="docutils literal notranslate"><span class="pre">&quot;state&quot;</span></code> message like the above.
+Currently the only valid kind of message is <code class="docutils literal notranslate"><span class="pre">&quot;state&quot;</span></code>.</p>
+<p>The state consists of the following information:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">&quot;synchronizing&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. When <code class="docutils literal notranslate"><span class="pre">true</span></code> the
+magic-folder daemon is uploading data to or downloading data from
+Tahoe-LAFS.</li>
+</ul>
+<p>Clients should be tolerant of keys in the state they don’t understand.
+Unknown state keys should be ignored.</p>
+<p>The client doesn’t send any messages to the server; it is an error to do so.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

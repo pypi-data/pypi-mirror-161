@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Multi-party Conflict Detection &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Magic-Folder discovers new files" href="../scanning-for-changes.html" />
+    <link rel="prev" title="Magic Folder user interface design" href="user-interface-design.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Proposed Specifications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="filesystem-integration.html">Magic Folder local filesystem integration design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remote-to-local-sync.html">Magic Folder design for remote-to-local sync</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-interface-design.html">Magic Folder user interface design</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Multi-party Conflict Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary-and-definitions">Summary and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#leif-s-proposal-magic-folder-single-file-snapshot-design">Leif’s Proposal: Magic-Folder “single-file” snapshot design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#abstract">Abstract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#motivation">Motivation:</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#no-spofs-no-admins">no SPOFs, no admins</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#glossary">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tahoe-lafs-snapshot-objects">Tahoe-LAFS snapshot objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#snapshot-author-identity">Snapshot Author Identity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conflict-resolution">Conflict Resolution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#detection-of-conflicts">detection of conflicts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#a-possible-ui-for-resolving-conflicts">a possible UI for resolving conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#deletion-propagation-and-eventual-garbage-collection">Deletion propagation and eventual Garbage Collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#local-changes">local changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#remote-changes">remote changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conflict-detection-and-local-caching">conflict detection and local caching</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#local-cache-purging-policy">local cache purging policy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#local-merge-property">Local Merge Property</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#zooko-s-design-as-interpreted-by-daira">Zooko’s Design (as interpreted by Daira)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html">Magic-Folder discovers new files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#alternatives-considered">Alternatives considered</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#detailed-design">Detailed design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#data-integrity">Data integrity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#security">Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#backwards-compatibility">Backwards compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#performance-and-scalability">Performance and scalability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Proposed Specifications</a> &raquo;</li>
+        
+      <li>Multi-party Conflict Detection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/proposed/magic-folder/multi-party-conflict-detection.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="multi-party-conflict-detection">
+<h1>Multi-party Conflict Detection<a class="headerlink" href="#multi-party-conflict-detection" title="Permalink to this headline">¶</a></h1>
+<p>The current Magic-Folder remote conflict detection design does not properly detect remote conflicts
+for groups of three or more parties. This design is specified in the “Fire Dragon” section of this document:
+<a class="reference external" href="https://github.com/tahoe-lafs/tahoe-lafs/blob/2551.wip.2/docs/proposed/magic-folder/remote-to-local-sync.rst#fire-dragons-distinguishing-conflicts-from-overwrites">https://github.com/tahoe-lafs/tahoe-lafs/blob/2551.wip.2/docs/proposed/magic-folder/remote-to-local-sync.rst#fire-dragons-distinguishing-conflicts-from-overwrites</a></p>
+<p>This Tahoe-LAFS trac ticket comment outlines a scenario with
+three parties in which a remote conflict is falsely detected:</p>
+</div>
+<div class="section" id="summary-and-definitions">
+<h1>Summary and definitions<a class="headerlink" href="#summary-and-definitions" title="Permalink to this headline">¶</a></h1>
+<p>Abstract file: a file being shared by a Magic Folder.</p>
+<p>Local file: a file in a client’s local filesystem corresponding to an abstract file.</p>
+<p>Relative path: the path of an abstract or local file relative to the Magic Folder root.</p>
+<p>Version: a snapshot of an abstract file, with associated metadata, that is uploaded by a Magic Folder client.</p>
+<p>A version is associated with the file’s relative path, its contents, and
+mtime and ctime timestamps. Versions also have a unique identity.</p>
+<p>Follows relation:
+* If and only if a change to a client’s local file at relative path F that results in an upload of version V’,
+was made when the client already had version V of that file, then we say that V’ directly follows V.
+* The follows relation is the irreflexive transitive closure of the “directly follows” relation.</p>
+<p>The follows relation is transitive and acyclic, and therefore defines a DAG called the
+Version DAG. Different abstract files correspond to disconnected sets of nodes in the Version DAG
+(in other words there are no “follows” relations between different files).</p>
+<p>The DAG is only ever extended, not mutated.</p>
+<p>The desired behaviour for initially classifying overwrites and conflicts is as follows:</p>
+<ul class="simple">
+<li>if a client Bob currently has version V of a file at relative path F, and it sees a new version V’
+of that file in another client Alice’s DMD, such that V’ follows V, then the write of the new version
+is initially an overwrite and should be to the same filename.</li>
+<li>if, in the same situation, V’ does not follow V, then the write of the new version should be
+classified as a conflict.</li>
+</ul>
+<p>The existing <a class="reference internal" href="remote-to-local-sync.html"><span class="doc">Magic Folder design for remote-to-local sync</span></a> document defines when an initial
+overwrite should be reclassified as a conflict.</p>
+<p>The above definitions completely specify the desired solution of the false
+conflict behaviour described in the <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2551#comment:22">ticket comment</a>. However, they do not give
+a concrete algorithm to compute the follows relation, or a representation in the
+Tahoe-LAFS file store of the metadata needed to compute it.</p>
+<p>We will consider two alternative designs, proposed by Leif Ryge and
+Zooko Wilcox-O’Hearn, that aim to fill this gap.</p>
+</div>
+<div class="section" id="leif-s-proposal-magic-folder-single-file-snapshot-design">
+<h1>Leif’s Proposal: Magic-Folder “single-file” snapshot design<a class="headerlink" href="#leif-s-proposal-magic-folder-single-file-snapshot-design" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="abstract">
+<h2>Abstract<a class="headerlink" href="#abstract" title="Permalink to this headline">¶</a></h2>
+<p>We propose a relatively simple modification to the initial Magic Folder design which
+adds merkle DAGs of immutable historical snapshots for each file. The full history
+does not necessarily need to be retained, and the choice of how much history to retain
+can potentially be made on a per-file basis.</p>
+</div>
+<div class="section" id="motivation">
+<h2>Motivation:<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="no-spofs-no-admins">
+<h3>no SPOFs, no admins<a class="headerlink" href="#no-spofs-no-admins" title="Permalink to this headline">¶</a></h3>
+<p>Additionally, the initial design had two cases of excess authority:</p>
+<ol class="arabic simple">
+<li>The magic folder administrator (inviter) has everyone’s write-caps and is thus essentially “root”</li>
+<li>Each client shares ambient authority and can delete anything or everything and
+(assuming there is not a conflict) the data will be deleted from all clients. So, each client
+is effectively “root” too.</li>
+</ol>
+<p>Thus, while it is useful for file synchronization, the initial design is a much less safe place
+to store data than in a single mutable tahoe directory (because more client computers have the
+possibility to delete it).</p>
+</div>
+</div>
+<div class="section" id="glossary">
+<h2>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>merkle DAG: like a merkle tree but with multiple roots, and with each node potentially having multiple parents</li>
+<li>magic folder: a logical directory that can be synchronized between many clients
+(devices, users, …) using a Tahoe-LAFS storage grid</li>
+<li>client: a Magic-Folder-enabled Tahoe-LAFS client instance that has access to a magic folder</li>
+<li>DMD: “distributed mutable directory”, a physical Tahoe-LAFS mutable directory.
+Each client has the write cap to their own DMD, and read caps to all other client’s DMDs
+(as in the original Magic Folder design).</li>
+<li>snapshot: a reference to a version of a file; represented as an immutable directory containing
+an entry called “content” (pointing to the immutable file containing the file’s contents),
+and an entry called “parent0” (pointing to a parent snapshot), and optionally parent1 through
+parentN pointing at other parents. The Magic Folder snapshot object is conceptually very similar
+to a git commit object, except for that it is created automatically and it records the history of an
+individual file rather than an entire repository. Also, commits do not need to have authors
+(although an author field could be easily added later).</li>
+<li>deletion snapshot: immutable directory containing no content entry (only one or more parents)</li>
+<li>capability: a Tahoe-LAFS diminishable cryptographic capability</li>
+<li>cap: short for capability</li>
+<li>conflict: the situation when another client’s current snapshot for a file is different than our current snapshot, and is not a descendant of ours.</li>
+<li>overwrite: the situation when another client’s current snapshot for a file is a (not necessarily direct) descendant of our current snapshot.</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This new design will track the history of each file using “snapshots” which are
+created at each upload. Each snapshot will specify one or more parent snapshots,
+forming a directed acyclic graph. A Magic-Folder user’s DMD uses a flattened directory
+hierarchy naming scheme, as in the original design. But, instead of pointing directly
+at file contents, each file name will link to that user’s latest snapshot for that file.</p>
+<p>Inside the dmd there will also be an immutable directory containing the client’s subscriptions
+(read-caps to other clients’ dmds).</p>
+<p>Clients periodically poll each other’s DMDs. When they see the current snapshot for a file is
+different than their own current snapshot for that file, they immediately begin downloading its
+contents and then walk backwards through the DAG from the new snapshot until they find their own
+snapshot or a common ancestor.</p>
+<p>For the common ancestor search to be efficient, the client will need to keep a local store (in the magic folder db) of all of the snapshots
+(but not their contents) between the oldest current snapshot of any of their subscriptions and their own current snapshot.
+See “local cache purging policy” below for more details.</p>
+<p>If the new snapshot is a descendant of the client’s existing snapshot, then this update
+is an “overwrite” - like a git fast-forward. So, when the download of the new file completes it can overwrite
+the existing local file with the new contents and update its dmd to point at the new snapshot.</p>
+<p>If the new snapshot is not a descendant of the client’s current snapshot, then the update is a
+conflict. The new file is downloaded and named $filename.conflict-$user1,$user2 (including a list
+of other subscriptions who have that version as their current version).</p>
+<p>Changes to the local .conflict- file are not tracked. When that file disappears
+(either by deletion, or being renamed) a new snapshot for the conflicting file is
+created which has two parents - the client’s snapshot prior to the conflict, and the
+new conflicting snapshot. If multiple .conflict files are deleted or renamed in a short
+period of time, a single conflict-resolving snapshot with more than two parents can be created.</p>
+<p>! I think this behavior will confuse users.</p>
+</div>
+<div class="section" id="tahoe-lafs-snapshot-objects">
+<h2>Tahoe-LAFS snapshot objects<a class="headerlink" href="#tahoe-lafs-snapshot-objects" title="Permalink to this headline">¶</a></h2>
+<p>These Tahoe-LAFS snapshot objects only track the history of a single file, not a directory hierarchy.
+Snapshot objects contain only two field types:
+- <code class="docutils literal notranslate"><span class="pre">Content</span></code>: an immutable capability of the file contents (omitted if deletion snapshot)
+- <code class="docutils literal notranslate"><span class="pre">Parent0..N</span></code>: immutable capabilities representing parent snapshots</p>
+<p>Therefore in this system an interesting side effect of this Tahoe snapshot object is that there is no
+snapshot author. The only notion of an identity in the Magic-Folder system is the write capability of the user’s DMD.</p>
+<p>The snapshot object is an immutable directory which looks like this:
+content -&gt; immutable cap to file content
+parent0 -&gt; immutable cap to a parent snapshot object
+parent1..N -&gt; more parent snapshots</p>
+</div>
+<div class="section" id="snapshot-author-identity">
+<h2>Snapshot Author Identity<a class="headerlink" href="#snapshot-author-identity" title="Permalink to this headline">¶</a></h2>
+<p>Snapshot identity might become an important feature so that bad actors
+can be recognized and other clients can stop “subscribing” to (polling for) updates from them.</p>
+<p>Perhaps snapshots could be signed by the user’s Magic-Folder write key for this purpose? Probably a bad idea to reuse the write-cap key for this. Better to introduce ed25519 identity keys which can (optionally) sign snapshot contents and store the signature as another member of the immutable directory.</p>
+</div>
+<div class="section" id="conflict-resolution">
+<h2>Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="detection-of-conflicts">
+<h3>detection of conflicts<a class="headerlink" href="#detection-of-conflicts" title="Permalink to this headline">¶</a></h3>
+<p>A Magic-Folder client updates a given file’s current snapshot link to a snapshot which is a descendent
+of the previous snapshot. For a given file, let’s say “file1”, Alice can detect that Bob’s DMD has a “file1”
+that links to a snapshot which conflicts. Two snapshots conflict if one is not an ancestor of the other.</p>
+</div>
+<div class="section" id="a-possible-ui-for-resolving-conflicts">
+<h3>a possible UI for resolving conflicts<a class="headerlink" href="#a-possible-ui-for-resolving-conflicts" title="Permalink to this headline">¶</a></h3>
+<p>If Alice links a conflicting snapshot object for a file named “file1”,
+Bob and Carole will see a file in their Magic-Folder called “file1.conflicted.Alice”.
+Alice conversely will see an additional file called “file1.conflicted.previous”.
+If Alice wishes to resolve the conflict with her new version of the file then
+she simply deletes the file called “file1.conflicted.previous”. If she wants to
+choose the other version then she moves it into place:</p>
+<blockquote>
+<div>mv file1.conflicted.previous file1</div></blockquote>
+<p>This scheme works for N number of conflicts. Bob for instance could choose
+the same resolution for the conflict, like this:</p>
+<blockquote>
+<div>mv file1.Alice file1</div></blockquote>
+</div>
+</div>
+<div class="section" id="deletion-propagation-and-eventual-garbage-collection">
+<h2>Deletion propagation and eventual Garbage Collection<a class="headerlink" href="#deletion-propagation-and-eventual-garbage-collection" title="Permalink to this headline">¶</a></h2>
+<p>When a user deletes a file, this is represented by a link from their DMD file
+object to a deletion snapshot. Eventually all users will link this deletion
+snapshot into their DMD. When all users have the link then they locally cache
+the deletion snapshot and remove the link to that file in their DMD.
+Deletions can of course be undeleted; this means creating a new snapshot
+object that specifies itself a descent of the deletion snapshot.</p>
+<p>Clients periodically renew leases to all capabilities recursively linked
+to in their DMD. Files which are unlinked by ALL the users of a
+given Magic-Folder will eventually be garbage collected.</p>
+<p>Lease expirey duration must be tuned properly by storage servers such that
+Garbage Collection does not occur too frequently.</p>
+</div>
+<div class="section" id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="local-changes">
+<h3>local changes<a class="headerlink" href="#local-changes" title="Permalink to this headline">¶</a></h3>
+<p>Our old scheme requires two remote Tahoe-LAFS operations per local file modification:
+1. upload new file contents (as an immutable file)
+2. modify mutable directory (DMD) to link to the immutable file cap</p>
+<p>Our new scheme requires three remote operations:
+1. upload new file contents (as in immutable file)
+2. upload immutable directory representing Tahoe-LAFS snapshot object
+3. modify mutable directory (DMD) to link to the immutable snapshot object</p>
+</div>
+<div class="section" id="remote-changes">
+<h3>remote changes<a class="headerlink" href="#remote-changes" title="Permalink to this headline">¶</a></h3>
+<p>Our old scheme requires one remote Tahoe-LAFS operation per remote file modification (not counting the polling of the dmd):
+1. Download new file content</p>
+<p>Our new scheme requires a minimum of two remote operations (not counting the polling of the dmd) for conflicting downloads, or three remote operations for overwrite downloads:
+1. Download new snapshot object
+2. Download the content it points to
+3. If the download is an overwrite, modify the DMD to indicate that the downloaded version is their current version.</p>
+<p>If the new snapshot is not a direct descendant of our current snapshot or the other party’s previous snapshot we saw, we will also need to download more snapshots to determine if it is a conflict or an overwrite. However, those can be done in
+parallel with the content download since we will need to download the content in either case.</p>
+<p>While the old scheme is obviously more efficient, we think that the properties provided by the new scheme make it worth the additional cost.</p>
+<p>Physical updates to the DMD overiouslly need to be serialized, so multiple logical updates should be combined when an update is already in progress.</p>
+</div>
+<div class="section" id="conflict-detection-and-local-caching">
+<h3>conflict detection and local caching<a class="headerlink" href="#conflict-detection-and-local-caching" title="Permalink to this headline">¶</a></h3>
+<p>Local caching of snapshots is important for performance.
+We refer to the client’s local snapshot cache as the <code class="docutils literal notranslate"><span class="pre">magic-folder</span> <span class="pre">db</span></code>.</p>
+<p>Conflict detection can be expensive because it may require the client
+to download many snapshots from the other user’s DMD in order to try
+and find it’s own current snapshot or a descendent. The cost of scanning
+the remote DMDs should not be very high unless the client conducting the
+scan has lots of history to download because of being offline for a long
+time while many new snapshots were distributed.</p>
+</div>
+<div class="section" id="local-cache-purging-policy">
+<h3>local cache purging policy<a class="headerlink" href="#local-cache-purging-policy" title="Permalink to this headline">¶</a></h3>
+<p>The client’s current snapshot for each file should be cached at all times.
+When all clients’ views of a file are synchronized (they all have the same
+snapshot for that file), no ancestry for that file needs to be cached.
+When clients’ views of a file are <em>not</em> synchronized, the most recent
+common ancestor of all clients’ snapshots must be kept cached, as must
+all intermediate snapshots.</p>
+</div>
+</div>
+<div class="section" id="local-merge-property">
+<h2>Local Merge Property<a class="headerlink" href="#local-merge-property" title="Permalink to this headline">¶</a></h2>
+<p>Bob can in fact, set a pre-existing directory (with files) as his new Magic-Folder directory, resulting
+in a merge of the Magic-Folder with Bob’s local directory. Filename collisions will result in conflicts
+because Bob’s new snapshots are not descendent’s of the existing Magic-Folder file snapshots.</p>
+<p>Example: simultaneous update with four parties:</p>
+<ol class="arabic simple">
+<li>A, B, C, D are in sync for file “foo” at snapshot X</li>
+<li>A and B simultaneously change the file, creating snapshots XA and XB (both descendants of X).</li>
+<li>C hears about XA first, and D hears about XB first. Both accept an overwrite.</li>
+<li>All four parties hear about the other update they hadn’t heard about yet.</li>
+<li><dl class="first docutils">
+<dt>Result:</dt>
+<dd><ul class="first last">
+<li>everyone’s local file “foo” has the content pointed to by the snapshot in their DMD’s “foo” entry</li>
+<li>A and C’s DMDs each have the “foo” entry pointing at snapshot XA</li>
+<li>B and D’s DMDs each have the “foo” entry pointing at snapshot XB</li>
+<li>A and C have a local file called foo.conflict-B,D with XB’s content</li>
+<li>B and D have a local file called foo.conflict-A,C with XA’s content</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Later:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Everyone ignores the conflict, and continue updating their local “foo”. but slowly enough that there are no further conflicts, so that A and C remain in sync with eachother, and B and D remain in sync with eachother.</li>
+<li>A and C’s foo.conflict-B,D file continues to be updated with the latest version of the file B and D are working on, and vice-versa.</li>
+<li>A and C edit the file at the same time again, causing a new conflict.</li>
+<li>Local files are now:</li>
+</ul>
+<p>A: “foo”, “foo.conflict-B,D”, “foo.conflict-C”</p>
+<p>C: “foo”, “foo.conflict-B,D”, “foo.conflict-A”</p>
+<p>B and D: “foo”, “foo.conflict-A”, “foo.conflict-C”</p>
+<ul class="simple">
+<li>Finally, D decides to look at “foo.conflict-A” and “foo.conflict-C”, and they manually integrate (or decide to ignore) the differences into their own local file “foo”.</li>
+<li>D deletes their conflict files.</li>
+<li>D’s DMD now points to a snapshot that is a descendant of everyone else’s current snapshot, resolving all conflicts.</li>
+<li>The conflict files on A, B, and C disappear, and everyone’s local file “foo” contains D’s manually-merged content.</li>
+</ul>
+</div></blockquote>
+<p>Daira: I think it is too complicated to include multiple nicknames in the .conflict files
+(e.g. “foo.conflict-B,D”). It should be sufficient to have one file for each other client,
+reflecting that client’s latest version, regardless of who else it conflicts with.</p>
+</div>
+</div>
+<div class="section" id="zooko-s-design-as-interpreted-by-daira">
+<h1>Zooko’s Design (as interpreted by Daira)<a class="headerlink" href="#zooko-s-design-as-interpreted-by-daira" title="Permalink to this headline">¶</a></h1>
+<p>A version map is a mapping from client nickname to version number.</p>
+<p>Definition: a version map M’ strictly-follows a mapping M iff for every entry c-&gt;v
+in M, there is an entry c-&gt;v’ in M’ such that v’ &gt; v.</p>
+<p>Each client maintains a ‘local version map’ and a ‘conflict version map’ for each file
+in its magic folder db.
+If it has never written the file, then the entry for its own nickname in the local version
+map is zero. The conflict version map only contains entries for nicknames B where
+“$FILENAME.conflict-$B” exists.</p>
+<p>When a client A uploads a file, it increments the version for its own nickname in its
+local version map for the file, and includes that map as metadata with its upload.</p>
+<p>A download by client A from client B is an overwrite iff the downloaded version map
+strictly-follows A’s local version map for that file; in this case A replaces its local
+version map with the downloaded version map. Otherwise it is a conflict, and the
+download is put into “$FILENAME.conflict-$B”; in this case A’s
+local version map remains unchanged, and the entry B-&gt;v taken from the downloaded
+version map is added to its conflict version map.</p>
+<p>If client A deletes or renames a conflict file “$FILENAME.conflict-$B”, then A copies
+the entry for B from its conflict version map to its local version map, deletes
+the entry for B in its conflict version map, and performs another upload (with
+incremented version number) of $FILENAME.</p>
+<dl class="docutils">
+<dt>Example:</dt>
+<dd>A, B, C = (10, 20, 30) everyone agrees.
+A updates: (11, 20, 30)
+B updates: (10, 21, 30)</dd>
+</dl>
+<p>C will see either A or B first. Both would be an overwrite, if considered alone.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../scanning-for-changes.html" class="btn btn-neutral float-right" title="Magic-Folder discovers new files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user-interface-design.html" class="btn btn-neutral float-left" title="Magic Folder user interface design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

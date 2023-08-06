@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Audience &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proposed/index.html">Proposed Specifications</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Audience</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/snapshots.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="audience">
+<span id="snapshots"></span><h1>Audience<a class="headerlink" href="#audience" title="Permalink to this headline">¶</a></h1>
+<p>This document is aimed at programmers and advanced users who want to
+explore the inner working of the magic-folder feature that preserves
+file history.</p>
+</div>
+<div class="section" id="motivation">
+<h1>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h1>
+<p>It would be beneficial to maintain different versions of a file that
+uses are sharing with other parties. Another benefit is for better
+detection of conflicts. Even though not a direct motivation, it would
+be nice to get rid of the “root” privileges of the user who creates
+the folder and invites other users.</p>
+<p>To address these concerns, Leif Ryge proposed an alternative design on
+which we base our design of snapshots.</p>
+</div>
+<div class="section" id="id1">
+<h1>Snapshots<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Information about files in a Magic Folder are encapsulated in a
+logical “Snapshot” object. We distinguish between a “local” Snapshot
+and a “remote” Snapshot (in code, these are <cite>LocalSnapshot</cite> and
+<cite>RemoteSnapshot</cite>).</p>
+<p>The difference is that a Remote Snapshot has been signed and uploaded
+into the Tahoe-LAFS Grid. A Local Snapshot exists only on one device’s
+local disk (so other participants cannot see it yet).</p>
+<p>A Snapshot has zero or more parents, forming a Directed Acyclic Graph
+(DAG). Snapshots are signed “as” they are uploaded into the Grid:
+first the actual content is uploaded as an immutable, yielding a
+read-only capability-string; then this string and other metadata is
+signed. The signature, metadata and pointer to the content constitutes
+the Remote Snapshot and itself is uploaded into the Tahoe Grid,
+represented as an immutable directory.</p>
+<div class="section" id="content-and-metadata">
+<h2>Content and Metadata<a class="headerlink" href="#content-and-metadata" title="Permalink to this headline">¶</a></h2>
+<p>Snapshots consist of two main pieces: the content and the
+metadata. Both of these are immutable documents in Tahoe-LAFS. The
+content is straightforward: it is an immutable-capability of the bytes
+that the user had on disk when the Snapshot was created.</p>
+<p>The “metadata” is a valid JSON document which is a dict. It is also
+represented as an immutable capability. The metadata dict must contain
+the following information:</p>
+<ul class="simple">
+<li>snapshot_version: an integer, 1 or bigger</li>
+<li>name: same as LocalSnapshot.name</li>
+<li>author: a dict containing:
+- name: arbitrary name of the author
+- verify_key: base64-encoded public-key of the author</li>
+<li>parents: a list containing immutable directory capability-strings, one for each parent (will be empty if there are no parents)</li>
+</ul>
+</div>
+<div class="section" id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<p>Internally in the daemon we have a <cite>LocalSnapshotService</cite> instance
+(which is a Twisted <cite>IService</cite> provider). This service consumes a
+<cite>DeferredQueue</cite> of file-paths. These paths are given in turn to a
+<cite>LocalSnapshotCreator</cite> object. This creates the actual <cite>LocalSnapshot</cite>
+instances and serializes them. This causes the content to be copied to
+a unique file in the “stash directory” and causes a new row in the
+local-snapshots database table to be created.</p>
+<p>After the database entry is created, we have completely captured the
+Snapshot locally. A local Snapshot can have other local Snapshots as
+parents (and of course Remote Snapshots can be parents too).</p>
+<p>New file-paths appear in the queue according to other services in the
+magic-folder daemon (XXX add details as they’re implemented).</p>
+<p>Once a new Local Snapshot is created it is added to the upload queue.</p>
+</div>
+<div class="section" id="uploading-signing">
+<h2>Uploading, Signing<a class="headerlink" href="#uploading-signing" title="Permalink to this headline">¶</a></h2>
+<p>We attempt uploads of Snapshots only after they are safely in our
+local state. This allows failed uploads to re-start (even if our local
+daemon crashes or is shut off during upload). It also allows for
+proper offline operation where we can continue to create Snapshots
+even if we can’t communicate to Tahoe-LAFS.</p>
+<p>The upload is a multi-part process:</p>
+<ul class="simple">
+<li>upload the content yielding an immutable read-capability</li>
+<li>upload the metadata yielding an immutable read-capability</li>
+<li>use the local keypair to sign the snapshot (requires the
+read-capabilities from the first two steps)</li>
+<li>create an immutable directory to represent the Snapshot (which
+encapsulates the metadata, content pointer and signature)</li>
+<li>modify our Personal DMD to link to this latest Snapshot</li>
+<li>delete the local snapshot from our database</li>
+</ul>
+<p>After this, we call this Snapshot a “Remote Snapshot” because it is
+represented in the Tahoe-LAFS Grid. Other users will discover it when
+they next poll our Personal DMD.</p>
+<p>We cannot sign local Snapshots because we don’t yet have the
+capability-string for the content. The capability-string is only known
+after we upload the content to Tahoe-LAFS.</p>
+</div>
+<div class="section" id="signature-details">
+<h2>Signature Details<a class="headerlink" href="#signature-details" title="Permalink to this headline">¶</a></h2>
+<p>As above, we upload the content and metadata as two distinct immutable
+capabilities. There is also the “name” of the file. A mangled version
+of this name is also used to point at the Snapshot from the
+Personal DMD.</p>
+<p>The signature scheme is to concatenate a fixed string
+(<code class="docutils literal notranslate"><span class="pre">magic-folder-snapshot-v1</span></code>), then the content capability, then the
+metadata capability, then the name – all with trailing newlines. This
+is encoded to bytes with UTF8 and the author’s signing key is used to
+produce a signature. The signing key is a <cite>nacl.signing.SigningKey</cite>
+from the PyNaCl library (using <code class="docutils literal notranslate"><span class="pre">libsodium</span></code> under the hood). See
+<a class="reference external" href="https://pynacl.readthedocs.io/en/latest/signing/">https://pynacl.readthedocs.io/en/latest/signing/</a></p>
+<p>For example, a particular Snapshot might be represented like this for
+signing (the newlines are shown escaped for clarity):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">magic</span><span class="o">-</span><span class="n">folder</span><span class="o">-</span><span class="n">snapshot</span><span class="o">-</span><span class="n">v1</span>\<span class="n">n</span>
+<span class="n">URI</span><span class="p">:</span><span class="n">CHK2</span><span class="p">:</span><span class="n">aaaaaaaaaaaaaaaa</span><span class="p">:</span><span class="n">bbbbbbbbbbbbbbbb</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">256</span>\<span class="n">n</span>
+<span class="n">URI</span><span class="p">:</span><span class="n">CHK2</span><span class="p">:</span><span class="n">yyyyyyyyyyyyyyyy</span><span class="p">:</span><span class="n">zzzzzzzzzzzzzzzz</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">256</span>\<span class="n">n</span>
+<span class="n">arbitrary_name</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>The resulting signature is base64-encoded and included in the “tahoe
+metadata” for the “metadata capability” entry in the Snapshot’s
+immutable directory.</p>
+<p>To verify the signature, a client has the content and metadata
+capability-strings when they download the Snapshot object and the
+mangled name from that participant’s Personal DMD. They can thus
+re-form the above text and verify the signature using the
+participant’s public-key before downloading the content or metadata.</p>
+<p><strong>Note</strong>: “metadata” is used in two ways above; Tahoe allows you to
+add arbitrary metadata for each entry in a directory. This is where
+we locate the base64-encoded signature itself. The “metadata about
+the Snapshot” is its own capability (consisting of JSON-encoded
+metadata).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

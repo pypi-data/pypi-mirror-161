@@ -1,0 +1,1176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Magic Folder design for remote-to-local sync &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Magic Folder user interface design" href="user-interface-design.html" />
+    <link rel="prev" title="Magic Folder local filesystem integration design" href="filesystem-integration.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Proposed Specifications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="filesystem-integration.html">Magic Folder local filesystem integration design</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Magic Folder design for remote-to-local sync</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scope">Scope</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#glossary">Glossary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#representing-the-magic-folder-in-tahoe-lafs">Representing the Magic Folder in Tahoe-LAFS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluation-of-designs">Evaluation of designs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#conflict-detection-and-resolution">Conflict Detection and Resolution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#earth-dragons-collisions-between-local-filesystem-operations-and-downloads">Earth Dragons: Collisions between local filesystem operations and downloads</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fire-dragons-distinguishing-conflicts-from-overwrites">Fire Dragons: Distinguishing conflicts from overwrites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#air-dragons-collisions-between-local-writes-and-uploads">Air Dragons: Collisions between local writes and uploads</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#water-dragons-handling-deletion-and-renames">Water Dragons: Handling deletion and renames</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-interface-design.html">Magic Folder user interface design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html">Multi-party Conflict Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#summary-and-definitions">Summary and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#leif-s-proposal-magic-folder-single-file-snapshot-design">Leif’s Proposal: Magic-Folder “single-file” snapshot design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-party-conflict-detection.html#zooko-s-design-as-interpreted-by-daira">Zooko’s Design (as interpreted by Daira)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html">Magic-Folder discovers new files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#alternatives-considered">Alternatives considered</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#detailed-design">Detailed design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#data-integrity">Data integrity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#security">Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#backwards-compatibility">Backwards compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#performance-and-scalability">Performance and scalability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scanning-for-changes.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Proposed Specifications</a> &raquo;</li>
+        
+      <li>Magic Folder design for remote-to-local sync</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/proposed/magic-folder/remote-to-local-sync.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="magic-folder-design-for-remote-to-local-sync">
+<h1>Magic Folder design for remote-to-local sync<a class="headerlink" href="#magic-folder-design-for-remote-to-local-sync" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="scope">
+<h2>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h2>
+<p>In this Objective we will design remote-to-local synchronization:</p>
+<ul class="simple">
+<li>How to efficiently determine which objects (files and directories) have
+to be downloaded in order to bring the current local filesystem into sync
+with the newly-discovered version of the remote filesystem.</li>
+<li>How to distinguish overwrites, in which the remote side was aware of
+your most recent version and overwrote it with a new version, from
+conflicts, in which the remote side was unaware of your most recent
+version when it published its new version. The latter needs to be raised
+to the user as an issue the user will have to resolve and the former must
+not bother the user.</li>
+<li>How to overwrite the (stale) local versions of those objects with the
+newly acquired objects, while preserving backed-up versions of those
+overwritten objects in case the user didn’t want this overwrite and wants
+to recover the old version.</li>
+</ul>
+<p>Tickets on the Tahoe-LAFS trac with the <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/query?status=!closed&amp;keywords=~otf-magic-folder-objective4">otf-magic-folder-objective4</a>
+keyword are within the scope of the remote-to-local synchronization
+design.</p>
+<div class="section" id="glossary">
+<h3>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h3>
+<p>Object: a file or directory</p>
+<p>DMD: distributed mutable directory</p>
+<p>Folder: an abstract directory that is synchronized between clients.
+(A folder is not the same as the directory corresponding to it on
+any particular client, nor is it the same as a DMD.)</p>
+<p>Collective: the set of clients subscribed to a given Magic Folder.</p>
+<p>Descendant: a direct or indirect child in a directory or folder tree</p>
+<p>Subfolder: a folder that is a descendant of a magic folder</p>
+<p>Subpath: the path from a magic folder to one of its descendants</p>
+<p>Write: a modification to a local filesystem object by a client</p>
+<p>Read: a read from a local filesystem object by a client</p>
+<p>Upload: an upload of a local object to the Tahoe-LAFS file store</p>
+<p>Download: a download from the Tahoe-LAFS file store to a local object</p>
+<p>Pending notification: a local filesystem change that has been detected
+but not yet processed.</p>
+</div>
+</div>
+<div class="section" id="representing-the-magic-folder-in-tahoe-lafs">
+<h2>Representing the Magic Folder in Tahoe-LAFS<a class="headerlink" href="#representing-the-magic-folder-in-tahoe-lafs" title="Permalink to this headline">¶</a></h2>
+<p>Unlike the local case where we use inotify or ReadDirectoryChangesW to
+detect filesystem changes, we have no mechanism to register a monitor for
+changes to a Tahoe-LAFS directory. Therefore, we must periodically poll
+for changes.</p>
+<p>An important constraint on the solution is Tahoe-LAFS’ “<a class="reference external" href="https://tahoe-lafs.readthedocs.io/en/latest/write_coordination.html">write
+coordination directive</a>”, which prohibits concurrent writes by
+different storage clients to the same mutable object:</p>
+<blockquote>
+<div>Tahoe does not provide locking of mutable files and directories. If
+there is more than one simultaneous attempt to change a mutable file
+or directory, then an UncoordinatedWriteError may result. This might,
+in rare cases, cause the file or directory contents to be accidentally
+deleted.  The user is expected to ensure that there is at most one
+outstanding write or update request for a given file or directory at
+a time.  One convenient way to accomplish this is to make a different
+file or directory for each person or process that wants to write.</div></blockquote>
+<p>Since it is a goal to allow multiple users to write to a Magic Folder,
+if the write coordination directive remains the same as above, then we
+will not be able to implement the Magic Folder as a single Tahoe-LAFS
+DMD. In general therefore, we will have multiple DMDs —spread across
+clients— that together represent the Magic Folder. Each client in a
+Magic Folder collective polls the other clients’ DMDs in order to detect
+remote changes.</p>
+<p>Six possible designs were considered for the representation of subfolders
+of the Magic Folder:</p>
+<p>1. All subfolders written by a given Magic Folder client are collapsed
+into a single client DMD, containing immutable files. The child name of
+each file encodes the full subpath of that file relative to the Magic
+Folder.</p>
+<p>2. The DMD tree under a client DMD is a direct copy of the folder tree
+written by that client to the Magic Folder. Not all subfolders have
+corresponding DMDs; only those to which that client has written files or
+child subfolders.</p>
+<p>3. The directory tree under a client DMD is a <code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">backup</span></code> structure
+containing immutable snapshots of the folder tree written by that client
+to the Magic Folder. As in design 2, only objects written by that client
+are present.</p>
+<p>4. <em>Each</em> client DMD contains an eventually consistent mirror of all
+files and folders written by <em>any</em> Magic Folder client. Thus each client
+must also copy changes made by other Magic Folder clients to its own
+client DMD.</p>
+<p>5. <em>Each</em> client DMD contains a <code class="docutils literal notranslate"><span class="pre">tahoe</span> <span class="pre">backup</span></code> structure containing
+immutable snapshots of all files and folders written by <em>any</em> Magic
+Folder client. Thus each client must also create another snapshot in its
+own client DMD when changes are made by another client. (It can potentially
+batch changes, subject to latency requirements.)</p>
+<p>6. The write coordination problem is solved by implementing <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1755">two-phase
+commit</a>. Then, the representation consists of a single DMD tree which is
+written by all clients.</p>
+<p>Here is a summary of advantages and disadvantages of each design:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="2">Key</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>++</td>
+<td>major advantage</td>
+</tr>
+<tr class="row-odd"><td>+</td>
+<td>minor advantage</td>
+</tr>
+<tr class="row-even"><td>‒</td>
+<td>minor disadvantage</td>
+</tr>
+<tr class="row-odd"><td>‒ ‒</td>
+<td>major disadvantage</td>
+</tr>
+<tr class="row-even"><td>‒ ‒ ‒</td>
+<td>showstopper</td>
+</tr>
+</tbody>
+</table>
+<p>123456+: All designs have the property that a recursive add-lease
+operation starting from a <em>collective directory</em> containing all of the
+client DMDs, will find all of the files and directories used in the
+Magic Folder representation. Therefore the representation is
+compatible with <a class="reference external" href="https://tahoe-lafs.readthedocs.io/en/latest/garbage-collection.html">garbage collection</a>, even when a pre-Magic-Folder
+client does the lease marking.</p>
+<p>123456+: All designs avoid “breaking” pre-Magic-Folder clients that read
+a directory or file that is part of the representation.</p>
+<p>456++: Only these designs allow a readcap to one of the client
+directories —or one of their subdirectories— to be directly shared
+with other Tahoe-LAFS clients (not necessarily Magic Folder clients),
+so that such a client sees all of the contents of the Magic Folder.
+Note that this was not a requirement of the OTF proposal, although it
+is useful.</p>
+<p>135+: A Magic Folder client has only one mutable Tahoe-LAFS object to
+monitor per other client. This minimizes communication bandwidth for
+polling, or alternatively the latency possible for a given polling
+bandwidth.</p>
+<p>1236+: A client does not need to make changes to its own DMD that repeat
+changes that another Magic Folder client had previously made. This reduces
+write bandwidth and complexity.</p>
+<p>1‒: If the Magic Folder has many subfolders, their files will all be
+collapsed into the same DMD, which could get quite large. In practice a
+single DMD can easily handle the number of files expected to be written
+by a client, so this is unlikely to be a significant issue.</p>
+<p>123‒ ‒: In these designs, the set of files in a Magic Folder is
+represented as the union of the files in all client DMDs. However,
+when a file is modified by more than one client, it will be linked
+from multiple client DMDs. We therefore need a mechanism, such as a
+version number or a monotonically increasing timestamp, to determine
+which copy takes priority.</p>
+<p>35‒ ‒: When a Magic Folder client detects a remote change, it must
+traverse an immutable directory structure to see what has changed.
+Completely unchanged subtrees will have the same URI, allowing some of
+this traversal to be shortcutted.</p>
+<p>24‒ ‒ ‒: When a Magic Folder client detects a remote change, it must
+traverse a mutable directory structure to see what has changed. This is
+more complex and less efficient than traversing an immutable structure,
+because shortcutting is not possible (each DMD retains the same URI even
+if a descendant object has changed), and because the structure may change
+while it is being traversed. Also the traversal needs to be robust
+against cycles, which can only occur in mutable structures.</p>
+<p>45‒ ‒: When a change occurs in one Magic Folder client, it will propagate
+to all the other clients. Each client will therefore see multiple
+representation changes for a single logical change to the Magic Folder
+contents, and must suppress the duplicates. This is particularly
+problematic for design 4 where it interacts with the preceding issue.</p>
+<p>4‒ ‒ ‒, 5‒ ‒: There is the potential for client DMDs to get “out of sync”
+with each other, potentially for long periods if errors occur. Thus each
+client must be able to “repair” its client directory (and its
+subdirectory structure) concurrently with performing its own writes. This
+is a significant complexity burden and may introduce failure modes that
+could not otherwise happen.</p>
+<p>6‒ ‒ ‒: While two-phase commit is a well-established protocol, its
+application to Tahoe-LAFS requires significant design work, and may still
+leave some corner cases of the write coordination problem unsolved.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="57%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Design Property</th>
+<th class="head" colspan="6">Designs Proposed</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>advantages</strong></td>
+<td><em>1</em></td>
+<td><em>2</em></td>
+<td><em>3</em></td>
+<td><em>4</em></td>
+<td><em>5</em></td>
+<td><em>6</em></td>
+</tr>
+<tr class="row-odd"><td>Compatible with garbage collection</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+</tr>
+<tr class="row-even"><td>Does not break old clients</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+</tr>
+<tr class="row-odd"><td>Allows direct sharing</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>++</td>
+<td>++</td>
+<td>++</td>
+</tr>
+<tr class="row-even"><td>Efficient use of bandwidth</td>
+<td>+</td>
+<td>&#160;</td>
+<td>+</td>
+<td>&#160;</td>
+<td>+</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>No repeated changes</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>+</td>
+</tr>
+<tr class="row-even"><td><strong>disadvantages</strong></td>
+<td><em>1</em></td>
+<td><em>2</em></td>
+<td><em>3</em></td>
+<td><em>4</em></td>
+<td><em>5</em></td>
+<td><em>6</em></td>
+</tr>
+<tr class="row-odd"><td>Can result in large DMDs</td>
+<td>‒</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Need version number to determine priority</td>
+<td>‒ ‒</td>
+<td>‒ ‒</td>
+<td>‒ ‒</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Must traverse immutable directory structure</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>‒ ‒</td>
+<td>&#160;</td>
+<td>‒ ‒</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Must traverse mutable directory structure</td>
+<td>&#160;</td>
+<td>‒ ‒ ‒</td>
+<td>&#160;</td>
+<td>‒ ‒ ‒</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Must suppress duplicate representation changes</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>‒ ‒</td>
+<td>‒ ‒</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>“Out of sync” problem</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>‒ ‒ ‒</td>
+<td>‒ ‒</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Unsolved design problems</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>‒ ‒ ‒</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="evaluation-of-designs">
+<h3>Evaluation of designs<a class="headerlink" href="#evaluation-of-designs" title="Permalink to this headline">¶</a></h3>
+<p>Designs 2 and 3 have no significant advantages over design 1, while
+requiring higher polling bandwidth and greater complexity due to the need
+to create subdirectories. These designs were therefore rejected.</p>
+<p>Design 4 was rejected due to the out-of-sync problem, which is severe
+and possibly unsolvable for mutable structures.</p>
+<p>For design 5, the out-of-sync problem is still present but possibly
+solvable. However, design 5 is substantially more complex, less efficient
+in bandwidth/latency, and less scalable in number of clients and
+subfolders than design 1. It only gains over design 1 on the ability to
+share directory readcaps to the Magic Folder (or subfolders), which was
+not a requirement. It would be possible to implement this feature in
+future by switching to design 6.</p>
+<p>For the time being, however, design 6 was considered out-of-scope for
+this project.</p>
+<p>Therefore, design 1 was chosen. That is:</p>
+<blockquote>
+<div>All subfolders written by a given Magic Folder client are collapsed
+into a single client DMD, containing immutable files. The child name
+of each file encodes the full subpath of that file relative to the
+Magic Folder.</div></blockquote>
+<p>Each directory entry in a DMD also stores a version number, so that the
+latest version of a file is well-defined when it has been modified by
+multiple clients.</p>
+<p>To enable representing empty directories, a client that creates a
+directory should link a corresponding zero-length file in its DMD,
+at a name that ends with the encoded directory separator character.</p>
+<p>We want to enable dynamic configuration of the membership of a Magic
+Folder collective, without having to reconfigure or restart each client
+when another client joins. To support this, we have a single collective
+directory that links to all of the client DMDs, named by their client
+nicknames. If the collective directory is mutable, then it is possible
+to change its contents in order to add clients. Note that a client DMD
+should not be unlinked from the collective directory unless all of its
+files are first copied to some other client DMD.</p>
+<p>A client needs to be able to write to its own DMD, and read from other DMDs.
+To be consistent with the <a class="reference external" href="http://www.eros-os.org/papers/secnotsep.pdf">Principle of Least Authority</a>, each client’s
+reference to its own DMD is a write capability, whereas its reference
+to the collective directory is a read capability. The latter transitively
+grants read access to all of the other client DMDs and the files linked
+from them, as required.</p>
+<p>Design and implementation of the user interface for maintaining this
+DMD structure and configuration will be addressed in Objectives 5 and 6.</p>
+<p>During operation, each client will poll for changes on other clients
+at a predetermined frequency. On each poll, it will reread the collective
+directory (to allow for added or removed clients), and then read each
+client DMD linked from it.</p>
+<p>“Hidden” files, and files with names matching the patterns used for backup,
+temporary, and conflicted files, will be ignored, i.e. not synchronized
+in either direction. A file is hidden if it has a filename beginning with
+“.” (on any platform), or has the hidden or system attribute on Windows.</p>
+</div>
+</div>
+<div class="section" id="conflict-detection-and-resolution">
+<h2>Conflict Detection and Resolution<a class="headerlink" href="#conflict-detection-and-resolution" title="Permalink to this headline">¶</a></h2>
+<p>The combination of local filesystems and distributed objects is
+an example of shared state concurrency, which is highly error-prone
+and can result in race conditions that are complex to analyze.
+Unfortunately we have no option but to use shared state in this
+situation.</p>
+<p>We call the resulting design issues “dragons” (as in “Here be dragons”),
+which as a convenient mnemonic we have named after the classical
+Greek elements Earth, Fire, Air, and Water.</p>
+<p>Note: all filenames used in the following sections are examples,
+and the filename patterns we use in the actual implementation may
+differ. The actual patterns will probably include timestamps, and
+for conflicted files, the nickname of the client that last changed
+the file.</p>
+<div class="section" id="earth-dragons-collisions-between-local-filesystem-operations-and-downloads">
+<h3>Earth Dragons: Collisions between local filesystem operations and downloads<a class="headerlink" href="#earth-dragons-collisions-between-local-filesystem-operations-and-downloads" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="write-download-collisions">
+<h4>Write/download collisions<a class="headerlink" href="#write-download-collisions" title="Permalink to this headline">¶</a></h4>
+<p>Suppose that Alice’s Magic Folder client is about to write a
+version of <code class="docutils literal notranslate"><span class="pre">foo</span></code> that it has downloaded in response to a remote
+change.</p>
+<p>The criteria for distinguishing overwrites from conflicts are
+described later in the <a class="reference external" href="#fire-dragons-distinguishing-conflicts-from-overwrites">Fire Dragons</a> section. Suppose that the
+remote change has been initially classified as an overwrite.
+(As we will see, it may be reclassified in some circumstances.)</p>
+<p>Note that writing a file that does not already have an entry in the
+<a class="reference internal" href="filesystem-integration.html#filesystem-integration-local-scanning-and-database"><span class="std std-ref">magic folder db</span></a> is
+initially classed as an overwrite.</p>
+<p>A <em>write/download collision</em> occurs when another program writes
+to <code class="docutils literal notranslate"><span class="pre">foo</span></code> in the local filesystem, concurrently with the new
+version being written by the Magic Folder client. We need to
+ensure that this does not cause data loss, as far as possible.</p>
+<p>An important constraint on the design is that on Windows, it is
+not possible to rename a file to the same name as an existing
+file in that directory. Also, on Windows it may not be possible to
+delete or rename a file that has been opened by another process
+(depending on the sharing flags specified by that process).
+Therefore we need to consider carefully how to handle failure
+conditions.</p>
+<p>In our proposed design, Alice’s Magic Folder client follows
+this procedure for an overwrite in response to a remote change:</p>
+<ol class="arabic simple">
+<li>Write a temporary file, say <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>.</li>
+<li>Use the procedure described in the <cite>Fire Dragons_</cite> section
+to obtain an initial classification as an overwrite or a
+conflict. (This takes as input the <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code>
+field from the directory entry of the changed <code class="docutils literal notranslate"><span class="pre">foo</span></code>.)</li>
+<li>Set the <code class="docutils literal notranslate"><span class="pre">mtime</span></code> of the replacement file to be at least <em>T</em> seconds
+before the current local time. Stat the replacement file
+to obtain its <code class="docutils literal notranslate"><span class="pre">mtime</span></code> and <code class="docutils literal notranslate"><span class="pre">ctime</span></code> as stored in the local
+filesystem, and update the file’s last-seen statinfo in
+the magic folder db with this information. (Note that the
+retrieved <code class="docutils literal notranslate"><span class="pre">mtime</span></code> may differ from the one that was set due
+to rounding.)</li>
+<li>Perform a ‘’file replacement’’ operation (explained below)
+with backup filename <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>, replaced file <code class="docutils literal notranslate"><span class="pre">foo</span></code>,
+and replacement file <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>. If any step of this
+operation fails, reclassify as a conflict and stop.</li>
+</ol>
+<p>To reclassify as a conflict, attempt to rename <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code> to
+<code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>, suppressing errors.</p>
+<p>The implementation of file replacement differs between Unix
+and Windows. On Unix, it can be implemented as follows:</p>
+<ul class="simple">
+<li>4a. Stat the replaced path, and set the permissions of the
+replacement file to be the same as the replaced file,
+bitwise-or’d with octal 600 (<code class="docutils literal notranslate"><span class="pre">rw-------</span></code>). If the replaced
+file does not exist, set the permissions according to the
+user’s umask. If there is a directory at the replaced path,
+fail.</li>
+<li>4b. Attempt to move the replaced file (<code class="docutils literal notranslate"><span class="pre">foo</span></code>) to the
+backup filename (<code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>). If an <code class="docutils literal notranslate"><span class="pre">ENOENT</span></code> error
+occurs because the replaced file does not exist, ignore this
+error and continue with steps 4c and 4d.</li>
+<li>4c. Attempt to create a hard link at the replaced filename
+(<code class="docutils literal notranslate"><span class="pre">foo</span></code>) pointing to the replacement file (<code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>).</li>
+<li>4d. Attempt to unlink the replacement file (<code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>),
+suppressing errors.</li>
+</ul>
+<p>Note that, if there is no conflict, the entry for <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+recorded in the <a class="reference internal" href="filesystem-integration.html#filesystem-integration-local-scanning-and-database"><span class="std std-ref">magic folder
+db</span></a> will
+reflect the <code class="docutils literal notranslate"><span class="pre">mtime</span></code> set in step 3. The move operation in step
+4b will cause a <code class="docutils literal notranslate"><span class="pre">MOVED_FROM</span></code> event for <code class="docutils literal notranslate"><span class="pre">foo</span></code>, and the link
+operation in step 4c will cause an <code class="docutils literal notranslate"><span class="pre">IN_CREATE</span></code> event for
+<code class="docutils literal notranslate"><span class="pre">foo</span></code>. However, these events will not trigger an upload,
+because they are guaranteed to be processed only after the file
+replacement has finished, at which point the last-seen statinfo
+recorded in the database entry will exactly match the metadata
+for the file’s inode on disk. (The two hard links — <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+and, while it still exists, <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code> — share the same inode
+and therefore the same metadata.)</p>
+<p>On Windows, file replacement can be implemented by a call to
+the <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> API (with the
+<code class="docutils literal notranslate"><span class="pre">REPLACEFILE_IGNORE_MERGE_ERRORS</span></code> flag). If an error occurs
+because the replaced file does not exist, then we ignore this
+error and attempt to move the replacement file to the replaced
+file.</p>
+<p>Similar to the Unix case, the <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> operation will
+cause one or more change notifications for <code class="docutils literal notranslate"><span class="pre">foo</span></code>. The replaced
+<code class="docutils literal notranslate"><span class="pre">foo</span></code> has the same <code class="docutils literal notranslate"><span class="pre">mtime</span></code> as the replacement file, and so any
+such notification(s) will not trigger an unwanted upload.</p>
+<p>To determine whether this procedure adequately protects against data
+loss, we need to consider what happens if another process attempts to
+update <code class="docutils literal notranslate"><span class="pre">foo</span></code>, for example by renaming <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code>.
+This requires us to analyze all possible interleavings between the
+operations performed by the Magic Folder client and the other process.
+(Note that atomic operations on a directory are totally ordered.)
+The set of possible interleavings differs between Windows and Unix.</p>
+<p>On Unix, for the case where the replaced file already exists, we have:</p>
+<ul class="simple">
+<li>Interleaving A: the other process’ rename precedes our rename in
+step 4b, and we get an <code class="docutils literal notranslate"><span class="pre">IN_MOVED_TO</span></code> event for its rename by
+step 2. Then we reclassify as a conflict; its changes end up at
+<code class="docutils literal notranslate"><span class="pre">foo</span></code> and ours end up at <code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>. This avoids data
+loss.</li>
+<li>Interleaving B: its rename precedes ours in step 4b, and we do
+not get an event for its rename by step 2. Its changes end up at
+<code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>, and ours end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code> after being linked there
+in step 4c. This avoids data loss.</li>
+<li>Interleaving C: its rename happens between our rename in step 4b,
+and our link operation in step 4c of the file replacement. The
+latter fails with an <code class="docutils literal notranslate"><span class="pre">EEXIST</span></code> error because <code class="docutils literal notranslate"><span class="pre">foo</span></code> already
+exists. We reclassify as a conflict; the old version ends up at
+<code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>, the other process’ changes end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code>, and
+ours at <code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>. This avoids data loss.</li>
+<li>Interleaving D: its rename happens after our link in step 4c, and
+causes an <code class="docutils literal notranslate"><span class="pre">IN_MOVED_TO</span></code> event for <code class="docutils literal notranslate"><span class="pre">foo</span></code>. Its rename also changes
+the <code class="docutils literal notranslate"><span class="pre">mtime</span></code> for <code class="docutils literal notranslate"><span class="pre">foo</span></code> so that it is different from the <code class="docutils literal notranslate"><span class="pre">mtime</span></code>
+calculated in step 3, and therefore different from the metadata
+recorded for <code class="docutils literal notranslate"><span class="pre">foo</span></code> in the magic folder db.  (Assuming no system
+clock changes, its rename will set an <code class="docutils literal notranslate"><span class="pre">mtime</span></code> timestamp
+corresponding to a time after step 4c, which is after the timestamp
+<em>T</em> seconds before step 4a, provided that <em>T</em> seconds is
+sufficiently greater than the timestamp granularity.)  Therefore, an
+upload will be triggered for <code class="docutils literal notranslate"><span class="pre">foo</span></code> after its change, which is
+correct and avoids data loss.</li>
+</ul>
+<p>If the replaced file did not already exist, an <code class="docutils literal notranslate"><span class="pre">ENOENT</span></code> error
+occurs at step 4b, and we continue with steps 4c and 4d. The other
+process’ rename races with our link operation in step 4c. If the
+other process wins the race then the effect is similar to
+Interleaving C, and if we win the race this it is similar to
+Interleaving D. Either case avoids data loss.</p>
+<p>On Windows, the internal implementation of <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> is similar
+to what we have described above for Unix; it works like this:</p>
+<ul class="simple">
+<li>4a′. Copy metadata (which does not include <code class="docutils literal notranslate"><span class="pre">mtime</span></code>) from the
+replaced file (<code class="docutils literal notranslate"><span class="pre">foo</span></code>) to the replacement file (<code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>).</li>
+<li>4b′. Attempt to move the replaced file (<code class="docutils literal notranslate"><span class="pre">foo</span></code>) onto the
+backup filename (<code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>), deleting the latter if it
+already exists.</li>
+<li>4c′. Attempt to move the replacement file (<code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>) to the
+replaced filename (<code class="docutils literal notranslate"><span class="pre">foo</span></code>); fail if the destination already
+exists.</li>
+</ul>
+<p>Notice that this is essentially the same as the algorithm we use
+for Unix, but steps 4c and 4d on Unix are combined into a single
+step 4c′. (If there is a failure at steps 4c′ after step 4b′ has
+completed, the <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> call will fail with return code
+<code class="docutils literal notranslate"><span class="pre">ERROR_UNABLE_TO_MOVE_REPLACEMENT_2</span></code>. However, it is still
+preferable to use this API over two <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365240%28v=vs.85%29.aspx">MoveFileExW</a> calls, because
+it retains the attributes and ACLs of <code class="docutils literal notranslate"><span class="pre">foo</span></code> where possible.
+Also note that if the <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> call fails with
+<code class="docutils literal notranslate"><span class="pre">ERROR_FILE_NOT_FOUND</span></code> because the replaced file does not exist,
+then the replacment operation ignores this error and continues with
+the equivalent of step 4c′, as on Unix.)</p>
+<p>However, on Windows the other application will not be able to
+directly rename <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> onto <code class="docutils literal notranslate"><span class="pre">foo</span></code> (which would fail because
+the destination already exists); it will have to rename or delete
+<code class="docutils literal notranslate"><span class="pre">foo</span></code> first. Without loss of generality, let’s say <code class="docutils literal notranslate"><span class="pre">foo</span></code> is
+deleted. This complicates the interleaving analysis, because we
+have two operations done by the other process interleaving with
+three done by the magic folder process (rather than one operation
+interleaving with four as on Unix).</p>
+<p>So on Windows, for the case where the replaced file already exists,
+we have:</p>
+<ul>
+<li><p class="first">Interleaving A′: the other process’ deletion of <code class="docutils literal notranslate"><span class="pre">foo</span></code> and its
+rename of <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code> both precede our rename in
+step 4b. We get an event corresponding to its rename by step 2.
+Then we reclassify as a conflict; its changes end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+and ours end up at <code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>. This avoids data loss.</p>
+</li>
+<li><p class="first">Interleaving B′: the other process’ deletion of <code class="docutils literal notranslate"><span class="pre">foo</span></code> and its
+rename of <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code> both precede our rename in
+step 4b. We do not get an event for its rename by step 2.
+Its changes end up at <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>, and ours end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+after being moved there in step 4c′. This avoids data loss.</p>
+</li>
+<li><p class="first">Interleaving C′: the other process’ deletion of <code class="docutils literal notranslate"><span class="pre">foo</span></code> precedes
+our rename of <code class="docutils literal notranslate"><span class="pre">foo</span></code> to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code> done by <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a>,
+but its rename of <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code> does not, so we get
+an <code class="docutils literal notranslate"><span class="pre">ERROR_FILE_NOT_FOUND</span></code> error from <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> indicating
+that the replaced file does not exist. We ignore this error and
+attempt to move <code class="docutils literal notranslate"><span class="pre">foo.tmp</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code>, racing with the other
+process which is attempting to move <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code>.
+If we win the race, then our changes end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code>, and the
+other process’ move fails. If the other process wins the race,
+then its changes end up at <code class="docutils literal notranslate"><span class="pre">foo</span></code>, our move fails, and we
+reclassify as a conflict, so that our changes end up at
+<code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>. Either possibility avoids data loss.</p>
+</li>
+<li><p class="first">Interleaving D′: the other process’ deletion and/or rename happen
+during the call to <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a>, causing the latter to fail.
+There are two subcases:</p>
+<ul class="simple">
+<li>if the error is <code class="docutils literal notranslate"><span class="pre">ERROR_UNABLE_TO_MOVE_REPLACEMENT_2</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">foo</span></code> is renamed to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code> and <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code> remains
+at its original name after the call.</li>
+<li>for all other errors, <code class="docutils literal notranslate"><span class="pre">foo</span></code> and <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code> both remain at
+their original names after the call.</li>
+</ul>
+<p>In both subcases, we reclassify as a conflict and rename <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code>
+to <code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>. This avoids data loss.</p>
+</li>
+<li><p class="first">Interleaving E′: the other process’ deletion of <code class="docutils literal notranslate"><span class="pre">foo</span></code> and attempt
+to rename <code class="docutils literal notranslate"><span class="pre">foo.other</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code> both happen after all internal
+operations of <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> have completed. This causes deletion
+and rename events for <code class="docutils literal notranslate"><span class="pre">foo</span></code> (which will in practice be merged due
+to the pending delay, although we don’t rely on that for
+correctness).  The rename also changes the <code class="docutils literal notranslate"><span class="pre">mtime</span></code> for <code class="docutils literal notranslate"><span class="pre">foo</span></code> so
+that it is different from the <code class="docutils literal notranslate"><span class="pre">mtime</span></code> calculated in step 3, and
+therefore different from the metadata recorded for <code class="docutils literal notranslate"><span class="pre">foo</span></code> in the
+magic folder db. (Assuming no system clock changes, its rename will
+set an <code class="docutils literal notranslate"><span class="pre">mtime</span></code> timestamp corresponding to a time after the
+internal operations of <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> have completed, which is
+after the timestamp <em>T</em> seconds before <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> is called,
+provided that <em>T</em> seconds is sufficiently greater than the timestamp
+granularity.) Therefore, an upload will be triggered for <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+after its change, which is correct and avoids data loss.</p>
+</li>
+</ul>
+<p>If the replaced file did not already exist, we get an
+<code class="docutils literal notranslate"><span class="pre">ERROR_FILE_NOT_FOUND</span></code> error from <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a>, and attempt to
+move <code class="docutils literal notranslate"><span class="pre">foo.tmp</span></code> to <code class="docutils literal notranslate"><span class="pre">foo</span></code>. This is similar to Interleaving C, and
+either possibility for the resulting race avoids data loss.</p>
+<p>We also need to consider what happens if another process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+and writes to it directly, rather than renaming another file onto it:</p>
+<ul class="simple">
+<li>On Unix, open file handles refer to inodes, not paths. If the other
+process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code> before it has been renamed to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>,
+and then closes the file, changes will have been written to the file
+at the same inode, even if that inode is now linked at <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>.
+This avoids data loss.</li>
+<li>On Windows, we have two subcases, depending on whether the sharing
+flags specified by the other process when it opened its file handle
+included <code class="docutils literal notranslate"><span class="pre">FILE_SHARE_DELETE</span></code>. (This flag covers both deletion and
+rename operations.)<ol class="lowerroman">
+<li>If the sharing flags <em>do not</em> allow deletion/renaming, the
+<a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> operation will fail without renaming <code class="docutils literal notranslate"><span class="pre">foo</span></code>.
+In this case we will end up with <code class="docutils literal notranslate"><span class="pre">foo</span></code> changed by the other
+process, and the downloaded file still in <code class="docutils literal notranslate"><span class="pre">foo.tmp</span></code>.
+This avoids data loss.</li>
+<li>If the sharing flags <em>do</em> allow deletion/renaming, then
+data loss or corruption may occur. This is unavoidable and
+can be attributed to other process making a poor choice of
+sharing flags (either explicitly if it used <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858%28v=vs.85%29.aspx">CreateFile</a>, or
+via whichever higher-level API it used).</li>
+</ol>
+</li>
+</ul>
+<p>Note that it is possible that another process tries to open the file
+between steps 4b and 4c (or 4b′ and 4c′ on Windows). In this case the
+open will fail because <code class="docutils literal notranslate"><span class="pre">foo</span></code> does not exist. Nevertheless, no data
+will be lost, and in many cases the user will be able to retry the
+operation.</p>
+<p>Above we only described the case where the download was initially
+classified as an overwrite. If it was classed as a conflict, the
+procedure is the same except that we choose a unique filename
+for the conflicted file (say, <code class="docutils literal notranslate"><span class="pre">foo.conflicted_unique</span></code>). We write
+the new contents to <code class="docutils literal notranslate"><span class="pre">.foo.tmp</span></code> and then rename it to
+<code class="docutils literal notranslate"><span class="pre">foo.conflicted_unique</span></code> in such a way that the rename will fail
+if the destination already exists. (On Windows this is a simple
+rename; on Unix it can be implemented as a link operation followed
+by an unlink, similar to steps 4c and 4d above.) If this fails
+because another process wrote <code class="docutils literal notranslate"><span class="pre">foo.conflicted_unique</span></code> after we
+chose the filename, then we retry with a different filename.</p>
+</div>
+<div class="section" id="read-download-collisions">
+<h4>Read/download collisions<a class="headerlink" href="#read-download-collisions" title="Permalink to this headline">¶</a></h4>
+<p>A <em>read/download collision</em> occurs when another program reads
+from <code class="docutils literal notranslate"><span class="pre">foo</span></code> in the local filesystem, concurrently with the new
+version being written by the Magic Folder client. We want to
+ensure that any successful attempt to read the file by the other
+program obtains a consistent view of its contents.</p>
+<p>On Unix, the above procedure for writing downloads is sufficient
+to achieve this. There are three cases:</p>
+<ul class="simple">
+<li>A. The other process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code> for reading before it is
+renamed to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>. Then the file handle will continue to
+refer to the old file across the rename, and the other process
+will read the old contents.</li>
+<li>B. The other process attempts to open <code class="docutils literal notranslate"><span class="pre">foo</span></code> after it has been
+renamed to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code>, and before it is linked in step c.
+The open call fails, which is acceptable.</li>
+<li>C. The other process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code> after it has been linked to
+the new file. Then it will read the new contents.</li>
+</ul>
+<p>On Windows, the analysis is very similar, but case A′ needs to
+be split into two subcases, depending on the sharing mode the other
+process uses when opening the file for reading:</p>
+<ul class="simple">
+<li>A′. The other process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code> before the Magic Folder
+client’s attempt to rename <code class="docutils literal notranslate"><span class="pre">foo</span></code> to <code class="docutils literal notranslate"><span class="pre">foo.backup</span></code> (as part
+of the implementation of <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a>). The subcases are:<ol class="lowerroman">
+<li>The other process uses sharing flags that deny deletion and
+renames. The <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> call fails, and the download is
+reclassified as a conflict. The downloaded file ends up at
+<code class="docutils literal notranslate"><span class="pre">foo.conflicted</span></code>, which is correct.</li>
+<li>The other process uses sharing flags that allow deletion
+and renames. The <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> call succeeds, and the
+other process reads inconsistent data. This can be attributed
+to a poor choice of sharing flags by the other process.</li>
+</ol>
+</li>
+<li>B′. The other process attempts to open <code class="docutils literal notranslate"><span class="pre">foo</span></code> at the point
+during the <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa365512%28v=vs.85%29.aspx">ReplaceFileW</a> call where it does not exist.
+The open call fails, which is acceptable.</li>
+<li>C′. The other process opens <code class="docutils literal notranslate"><span class="pre">foo</span></code> after it has been linked to
+the new file. Then it will read the new contents.</li>
+</ul>
+<p>For both write/download and read/download collisions, we have
+considered only interleavings with a single other process, and
+only the most common possibilities for the other process’
+interaction with the file. If multiple other processes are
+involved, or if a process performs operations other than those
+considered, then we cannot say much about the outcome in general;
+however, we believe that such cases will be much less common.</p>
+</div>
+</div>
+<div class="section" id="fire-dragons-distinguishing-conflicts-from-overwrites">
+<h3>Fire Dragons: Distinguishing conflicts from overwrites<a class="headerlink" href="#fire-dragons-distinguishing-conflicts-from-overwrites" title="Permalink to this headline">¶</a></h3>
+<p>When synchronizing a file that has changed remotely, the Magic Folder
+client needs to distinguish between overwrites, in which the remote
+side was aware of your most recent version (if any) and overwrote it
+with a new version, and conflicts, in which the remote side was unaware
+of your most recent version when it published its new version. Those two
+cases have to be handled differently — the latter needs to be raised
+to the user as an issue the user will have to resolve and the former
+must not bother the user.</p>
+<p>For example, suppose that Alice’s Magic Folder client sees a change
+to <code class="docutils literal notranslate"><span class="pre">foo</span></code> in Bob’s DMD. If the version it downloads from Bob’s DMD
+is “based on” the version currently in Alice’s local filesystem at
+the time Alice’s client attempts to write the downloaded file ‒or if
+there is no existing version in Alice’s local filesystem at that time‒
+then it is an overwrite. Otherwise it is initially classified as a
+conflict.</p>
+<p>This initial classification is used by the procedure for writing a
+file described in the <a class="reference external" href="#earth-dragons-collisions-between-local-filesystem-operations-and-downloads">Earth Dragons</a> section above. As explained
+in that section, we may reclassify an overwrite as a conflict if an
+error occurs during the write procedure.</p>
+<p>In order to implement this policy, we need to specify how the
+“based on” relation between file versions is recorded and updated.</p>
+<p>We propose to record this information:</p>
+<ul class="simple">
+<li>in the <a class="reference internal" href="filesystem-integration.html#filesystem-integration-local-scanning-and-database"><span class="std std-ref">magic folder
+db</span></a>, for
+local files;</li>
+<li>in the Tahoe-LAFS directory metadata, for files stored in the
+Magic Folder.</li>
+</ul>
+<p>In the magic folder db we will add a <em>last-downloaded record</em>,
+consisting of <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> and <code class="docutils literal notranslate"><span class="pre">last_downloaded_timestamp</span></code>
+fields, for each path stored in the database. Whenever a Magic Folder
+client downloads a file, it stores the downloaded version’s URI and
+the current local timestamp in this record. Since only immutable
+files are used, the URI will be an immutable file URI, which is
+deterministically and uniquely derived from the file contents and
+the Tahoe-LAFS node’s <a class="reference external" href="https://tahoe-lafs.readthedocs.io/en/latest/convergence-secret.html">convergence secret</a>.</p>
+<p>(Note that the last-downloaded record is updated regardless of
+whether the download is an overwrite or a conflict. The rationale
+for this to avoid “conflict loops” between clients, where every
+new version after the first conflict would be considered as another
+conflict.)</p>
+<p>Later, in response to a local filesystem change at a given path, the
+Magic Folder client reads the last-downloaded record associated with
+that path (if any) from the database and then uploads the current
+file. When it links the uploaded file into its client DMD, it
+includes the <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> field in the metadata of the
+directory entry, overwriting any existing field of that name. If
+there was no last-downloaded record associated with the path, this
+field is omitted.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> field does <em>not</em> record the URI of
+the uploaded file (which would be redundant); it records the URI of
+the last download before the local change that caused the upload.
+The field will be absent if the file has never been downloaded by
+this client (i.e. if it was created on this client and no change
+by any other client has been detected).</p>
+<p>A possible refinement also takes into account the
+<code class="docutils literal notranslate"><span class="pre">last_downloaded_timestamp</span></code> field from the magic folder db, and
+compares it to the timestamp of the change that caused the upload
+(which should be later, assuming no system clock changes).
+If the duration between these timestamps is very short, then we
+are uncertain about whether the process on Bob’s system that wrote
+the local file could have taken into account the last download.
+We can use this information to be conservative about treating
+changes as conflicts. So, if the duration is less than a configured
+threshold, we omit the <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> field from the
+metadata. This will have the effect of making other clients treat
+this change as a conflict whenever they already have a copy of the
+file.</p>
+<div class="section" id="conflict-overwrite-decision-algorithm">
+<h4>Conflict/overwrite decision algorithm<a class="headerlink" href="#conflict-overwrite-decision-algorithm" title="Permalink to this headline">¶</a></h4>
+<p>Now we are ready to describe the algorithm for determining whether a
+download for the file <code class="docutils literal notranslate"><span class="pre">foo</span></code> is an overwrite or a conflict (refining
+step 2 of the procedure from the <a class="reference external" href="#earth-dragons-collisions-between-local-filesystem-operations-and-downloads">Earth Dragons</a> section).</p>
+<p>Let <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> be the field of that name obtained from
+the directory entry metadata for <code class="docutils literal notranslate"><span class="pre">foo</span></code> in Bob’s DMD (this field
+may be absent). Then the algorithm is:</p>
+<ul>
+<li><p class="first">2a. Attempt to “stat” <code class="docutils literal notranslate"><span class="pre">foo</span></code> to get its <em>current statinfo</em> (size
+in bytes, <code class="docutils literal notranslate"><span class="pre">mtime</span></code>, and <code class="docutils literal notranslate"><span class="pre">ctime</span></code>). If Alice has no local copy
+of <code class="docutils literal notranslate"><span class="pre">foo</span></code>, classify as an overwrite.</p>
+</li>
+<li><p class="first">2b. Read the following information for the path <code class="docutils literal notranslate"><span class="pre">foo</span></code> from the
+local magic folder db:</p>
+<ul class="simple">
+<li>the <em>last-seen statinfo</em>, if any (this is the size in
+bytes, <code class="docutils literal notranslate"><span class="pre">mtime</span></code>, and <code class="docutils literal notranslate"><span class="pre">ctime</span></code> stored in the <code class="docutils literal notranslate"><span class="pre">local_files</span></code>
+table when the file was last uploaded);</li>
+<li>the <code class="docutils literal notranslate"><span class="pre">last_uploaded_uri</span></code> field of the <code class="docutils literal notranslate"><span class="pre">local_files</span></code> table
+for this file, which is the URI under which the file was last
+uploaded.</li>
+</ul>
+</li>
+<li><p class="first">2c. If any of the following are true, then classify as a conflict:</p>
+<ul class="simple">
+<li><ol class="first lowerroman">
+<li>there are pending notifications of changes to <code class="docutils literal notranslate"><span class="pre">foo</span></code>;</li>
+</ol>
+</li>
+<li>ii. the last-seen statinfo is either absent (i.e. there is
+no entry in the database for this path), or different from the
+current statinfo;</li>
+<li>iii. either <code class="docutils literal notranslate"><span class="pre">last_downloaded_uri</span></code> or <code class="docutils literal notranslate"><span class="pre">last_uploaded_uri</span></code>
+(or both) are absent, or they are different.</li>
+</ul>
+<p>Otherwise, classify as an overwrite.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="air-dragons-collisions-between-local-writes-and-uploads">
+<h3>Air Dragons: Collisions between local writes and uploads<a class="headerlink" href="#air-dragons-collisions-between-local-writes-and-uploads" title="Permalink to this headline">¶</a></h3>
+<p>Short of filesystem-specific features on Unix or the <a class="reference external" href="https://technet.microsoft.com/en-us/library/ee923636%28v=ws.10%29.aspx">shadow copy service</a>
+on Windows (which is per-volume and therefore difficult to use in this
+context), there is no way to <em>read</em> the whole contents of a file
+atomically. Therefore, when we read a file in order to upload it, we
+may read an inconsistent version if it was also being written locally.</p>
+<p>A well-behaved application can avoid this problem for its writes:</p>
+<ul class="simple">
+<li>On Unix, if another process modifies a file by renaming a temporary
+file onto it, then we will consistently read either the old contents
+or the new contents.</li>
+<li>On Windows, if the other process uses sharing flags to deny reads
+while it is writing a file, then we will consistently read either
+the old contents or the new contents, unless a sharing error occurs.
+In the case of a sharing error we should retry later, up to a
+maximum number of retries.</li>
+</ul>
+<p>In the case of a not-so-well-behaved application writing to a file
+at the same time we read from it, the magic folder will still be
+eventually consistent, but inconsistent versions may be visible to
+other users’ clients.</p>
+<p>In Objective 2 we implemented a delay, called the <em>pending delay</em>,
+after the notification of a filesystem change and before the file is
+read in order to upload it (Tahoe-LAFS ticket <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1440">#1440</a>). If another
+change notification occurs within the pending delay time, the delay
+is restarted. This helps to some extent because it means that if
+files are written more quickly than the pending delay and less
+frequently than the pending delay, we shouldn’t encounter this
+inconsistency.</p>
+<p>The likelihood of inconsistency could be further reduced, even for
+writes by not-so-well-behaved applications, by delaying the actual
+upload for a further period —called the <em>stability delay</em>— after the
+file has finished being read. If a notification occurs between the
+end of the pending delay and the end of the stability delay, then
+the read would be aborted and the notification requeued.</p>
+<p>This would have the effect of ensuring that no write notifications
+have been received for the file during a time window that brackets
+the period when it was being read, with margin before and after
+this period defined by the pending and stability delays. The delays
+are intended to account for asynchronous notification of events, and
+caching in the filesystem.</p>
+<p>Note however that we cannot guarantee that the delays will be long
+enough to prevent inconsistency in any particular case. Also, the
+stability delay would potentially affect performance significantly
+because (unlike the pending delay) it is not overlapped when there
+are multiple files on the upload queue. This performance impact
+could be mitigated by uploading files in parallel where possible
+(Tahoe-LAFS ticket <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1459">#1459</a>).</p>
+<p>We have not yet decided whether to implement the stability delay, and
+it is not planned to be implemented for the OTF objective 4 milestone.
+Ticket <a class="reference external" href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2431">#2431</a> has been opened to track this idea.</p>
+<p>Note that the situation of both a local process and the Magic Folder
+client reading a file at the same time cannot cause any inconsistency.</p>
+</div>
+<div class="section" id="water-dragons-handling-deletion-and-renames">
+<h3>Water Dragons: Handling deletion and renames<a class="headerlink" href="#water-dragons-handling-deletion-and-renames" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="deletion-of-a-file">
+<h4>Deletion of a file<a class="headerlink" href="#deletion-of-a-file" title="Permalink to this headline">¶</a></h4>
+<p>When a file is deleted from the filesystem of a Magic Folder client,
+the most intuitive behavior is for it also to be deleted under that
+name from other clients. To avoid data loss, the other clients should
+actually rename their copies to a backup filename.</p>
+<p>It would not be sufficient for a Magic Folder client that deletes
+a file to implement this simply by removing the directory entry from
+its DMD. Indeed, the entry may not exist in the client’s DMD if it
+has never previously changed the file.</p>
+<p>Instead, the client links a zero-length file into its DMD and sets
+<code class="docutils literal notranslate"><span class="pre">deleted:</span> <span class="pre">true</span></code> in the directory entry metadata. Other clients
+take this as a signal to rename their copies to the backup filename.</p>
+<p>Note that the entry for this zero-length file has a version number as
+usual, and later versions may restore the file.</p>
+<p>When the downloader deletes a file (or renames it to a filename
+ending in <code class="docutils literal notranslate"><span class="pre">.backup</span></code>) in response to a remote change, a local
+filesystem notification will occur, and we must make sure that this
+is not treated as a local change. To do this we have the downloader
+set the <code class="docutils literal notranslate"><span class="pre">size</span></code> field in the magic folder db to <code class="docutils literal notranslate"><span class="pre">None</span></code> (SQL NULL)
+just before deleting the file, and suppress notifications for which
+the local file does not exist, and the recorded <code class="docutils literal notranslate"><span class="pre">size</span></code> field is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>When a Magic Folder client restarts, we can detect files that had
+been downloaded but were deleted while it was not running, because
+their paths will have last-downloaded records in the magic folder db
+with a <code class="docutils literal notranslate"><span class="pre">size</span></code> other than <code class="docutils literal notranslate"><span class="pre">None</span></code>, and without any corresponding
+local file.</p>
+</div>
+<div class="section" id="deletion-of-a-directory">
+<h4>Deletion of a directory<a class="headerlink" href="#deletion-of-a-directory" title="Permalink to this headline">¶</a></h4>
+<p>Local filesystems (unlike a Tahoe-LAFS filesystem) normally cannot
+unlink a directory that has any remaining children. Therefore a
+Magic Folder client cannot delete local copies of directories in
+general, because they will typically contain backup files. This must
+be done manually on each client if desired.</p>
+<p>Nevertheless, a Magic Folder client that deletes a directory should
+set <code class="docutils literal notranslate"><span class="pre">deleted:</span> <span class="pre">true</span></code> on the metadata entry for the corresponding
+zero-length file. This avoids the directory being recreated after
+it has been manually deleted from a client.</p>
+</div>
+<div class="section" id="renaming">
+<h4>Renaming<a class="headerlink" href="#renaming" title="Permalink to this headline">¶</a></h4>
+<p>It is sufficient to handle renaming of a file by treating it as a
+deletion and an addition under the new name.</p>
+<p>This also applies to directories, although users may find the
+resulting behavior unintuitive: all of the files under the old name
+will be renamed to backup filenames, and a new directory structure
+created under the new name. We believe this is the best that can be
+done without imposing unreasonable implementation complexity.</p>
+</div>
+</div>
+</div>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>This completes the design of remote-to-local synchronization.
+We realize that it may seem very complicated. Anecdotally, proprietary
+filesystem synchronization designs we are aware of, such as Dropbox,
+are said to incur similar or greater design complexity.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user-interface-design.html" class="btn btn-neutral float-right" title="Magic Folder user interface design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="filesystem-integration.html" class="btn btn-neutral float-left" title="Magic Folder local filesystem integration design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

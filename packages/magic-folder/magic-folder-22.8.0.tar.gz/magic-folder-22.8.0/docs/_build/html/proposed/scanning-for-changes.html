@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Magic-Folder discovers new files &mdash; Magic-Folder 1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Multi-party Conflict Detection" href="magic-folder/multi-party-conflict-detection.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Magic-Folder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Using Magic Folder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../invites.html">How invites work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../limitations.html">Known Issues and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backdoors.html">Statement on Backdoors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Magic-Folder Development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Proposed Specifications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/filesystem-integration.html">Magic Folder local filesystem integration design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/remote-to-local-sync.html">Magic Folder design for remote-to-local sync</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/user-interface-design.html">Magic Folder user interface design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/multi-party-conflict-detection.html">Multi-party Conflict Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/multi-party-conflict-detection.html#summary-and-definitions">Summary and definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/multi-party-conflict-detection.html#leif-s-proposal-magic-folder-single-file-snapshot-design">Leif’s Proposal: Magic-Folder “single-file” snapshot design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="magic-folder/multi-party-conflict-detection.html#zooko-s-design-as-interpreted-by-daira">Zooko’s Design (as interpreted by Daira)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Magic-Folder discovers new files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-stories">User stories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#start-magic-folders-a-second-time">Start magic-folders a Second Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discover-the-state-of-synchronization">Discover the State of Synchronization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#constraints-and-requirements">Constraints and requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#must">Must</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nice-to-have">Nice to have</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#must-not">Must not</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#out-of-scope">Out of scope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#success">Success</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-will-we-measure-how-well-we-have-done">How will we measure how well we have done?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alternatives-considered">Alternatives considered</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detailed-design">Detailed design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-integrity">Data integrity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#security">Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backwards-compatibility">Backwards compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-and-scalability">Performance and scalability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Magic-Folder</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Proposed Specifications</a> &raquo;</li>
+        
+      <li>Magic-Folder discovers new files</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/proposed/scanning-for-changes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="magic-folder-discovers-new-files">
+<h1>Magic-Folder discovers new files<a class="headerlink" href="#magic-folder-discovers-new-files" title="Permalink to this headline">¶</a></h1>
+<p>Contacts: meejah
+Date:2021-06-03</p>
+<p>When starting up the software, magic-folders should find new or changed
+files since the last time it ran in every Magic Folder it is tracking.</p>
+<div class="section" id="rationale">
+<h2>Rationale<a class="headerlink" href="#rationale" title="Permalink to this headline">¶</a></h2>
+<p>This is a core function of magic-folders.</p>
+</div>
+<div class="section" id="user-stories">
+<h2>User stories<a class="headerlink" href="#user-stories" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="start-magic-folders-a-second-time">
+<h3>Start magic-folders a Second Time<a class="headerlink" href="#start-magic-folders-a-second-time" title="Permalink to this headline">¶</a></h3>
+<p>As a user, I want local filesystem changes to be discovered and uploaded
+so that the Snapshots in Tahoe represent my local filesystem state</p>
+</div>
+<div class="section" id="discover-the-state-of-synchronization">
+<h3>Discover the State of Synchronization<a class="headerlink" href="#discover-the-state-of-synchronization" title="Permalink to this headline">¶</a></h3>
+<p>As a user, I wish to know whether magic-folders has currently queued
+more work to do and how long ago it was since it checked for more work
+to do.</p>
+</div>
+</div>
+<div class="section" id="constraints-and-requirements">
+<h2>Constraints and requirements<a class="headerlink" href="#constraints-and-requirements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="must">
+<h3>Must<a class="headerlink" href="#must" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>New files are discovered (a “new file” is one that wasn’t present
+when magic-folders was last turned off). Note that this includes
+files in sub-directories (recursively) below our Magic Folder.</li>
+<li>Local files that are different from the Tahoe representation are
+discovered</li>
+<li>Deleted files are discovered (a “deleted file” is one that was
+present when magic-folders was last turned off but is no longer
+present).</li>
+</ul>
+</div>
+<div class="section" id="nice-to-have">
+<h3>Nice to have<a class="headerlink" href="#nice-to-have" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="must-not">
+<h3>Must not<a class="headerlink" href="#must-not" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Files that are not changed should not be re-uploaded (a “not
+changed” file is one that was present when magic-folders was last
+turned off and is still present with the same bytes as content)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="out-of-scope">
+<h2>Out of scope<a class="headerlink" href="#out-of-scope" title="Permalink to this headline">¶</a></h2>
+<p>Things that are definitely not included that people ask about.</p>
+</div>
+<div class="section" id="success">
+<h2>Success<a class="headerlink" href="#success" title="Permalink to this headline">¶</a></h2>
+<p>The state of our Personal DMD in Tahoe should match the state of our
+local filesystem at some point after we re-start the magic-folders
+software. “Match the state” here means:</p>
+<ul class="simple">
+<li>Any file present below our Magic Folder has a Snapshot present in
+Tahoe</li>
+<li>The “content” subdir of that Snapshot points at an immutable
+capability that matches the bytes we have on disk</li>
+<li>Any file that used to be present but no longer exists locally
+should have an empty / missing “content” subdir in its Snapshot on
+Tahoe (that is, there will still be an entry in Tahoe but it will
+indicate that the corresponding local file is deleted).</li>
+</ul>
+<p>There is some vagueness above about knowing when the synchronization is
+completed. It should be possible to use the status API to discover if
+magic-folders has work queued. The above checks should be valid after:</p>
+<ul class="simple">
+<li>Magic-folders has started up successfully</li>
+<li><dl class="first docutils">
+<dt>The status-API indicates there is no (upload) work in progress</dt>
+<dd>(<code class="docutils literal notranslate"><span class="pre">synchronizing=false</span></code>)</dd>
+</dl>
+</li>
+<li>The status-API indicates a “last-scan” time completed after the
+time when magic-folders was re-started.</li>
+</ul>
+</div>
+<div class="section" id="how-will-we-measure-how-well-we-have-done">
+<h2>How will we measure how well we have done?<a class="headerlink" href="#how-will-we-measure-how-well-we-have-done" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="alternatives-considered">
+<h2>Alternatives considered<a class="headerlink" href="#alternatives-considered" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Watchman (<a class="reference external" href="https://facebook.github.io/watchman/">https://facebook.github.io/watchman/</a>). A client/server
+c++ daemon. Monitors the filesystem (using native APIs like inotify)
+and supports queries etc via a client CLI or API.</li>
+</ul>
+</div>
+<div class="section" id="detailed-design">
+<h2>Detailed design<a class="headerlink" href="#detailed-design" title="Permalink to this headline">¶</a></h2>
+<p>When triggered, the scanning system walks the entire tree of files below
+the Magic Folder.</p>
+<p>As we use <code class="docutils literal notranslate"><span class="pre">twisted.python.filepath.FilePath</span></code> for many other
+operations within magic-folder we will use <code class="docutils literal notranslate"><span class="pre">FilePath.walk()</span></code> to
+traverse the files.  This produces a generator; we should take care to
+yield control back to the reactor occasionally so that we don’t starve
+network reads/writes if we are descending a lot of files.</p>
+<p>For each file found:</p>
+<ul>
+<li><p class="first">Mangle / flatten the name to a Snapshot name</p>
+</li>
+<li><p class="first">Check if we already have a Snapshot for this name:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">As a LocalSnapshot</p>
+<blockquote>
+<div><ul class="simple">
+<li>We can compare directly the stashed contents to the file
+contents</li>
+<li>If different, produce a new LocalSnapshot as a child of this
+one</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">..or a RemoteSnashot</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Compare the file contents to the Snapshot:</p>
+<blockquote>
+<div><ul class="simple">
+<li>include st_mtime in the remotesnapshot table (or a new
+table) representing the modification time of the local file
+when we last uploaded (or downloaded) this Snapshot.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">If the st_mtime is different, produce a new LocalSnapshot as
+a child of the RemoteSnapshot</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">..or no snapshots at all yet</p>
+<blockquote>
+<div><ul class="simple">
+<li>Create a new LocalSnapshot with no parent</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="data-integrity">
+<h2>Data integrity<a class="headerlink" href="#data-integrity" title="Permalink to this headline">¶</a></h2>
+<p>Do not do overlapping scans. There should be either zero or one scans
+happening at any given time for any given Magic Folder.</p>
+<p>Consider the uploader: it may be turning LocalSnapshots into
+RemoteSnapshots at the moment.</p>
+<ul class="simple">
+<li>If LocalSnapshots for a given file are currently being uploaded
+there is a window between when they were deserialized but before the
+local data is deleted when a newly added LocalSnapshot will be
+dropped (see the ticket for this though:
+<a class="reference external" href="https://github.com/LeastAuthority/magic-folder/issues/385">https://github.com/LeastAuthority/magic-folder/issues/385</a> ). Fixing
+that ticket should handle this problem.</li>
+</ul>
+<p>Consider the downloader: it may be discovering new RemoteSnapshots and
+downloading them.</p>
+<ul>
+<li><p class="first">Is there any point where the scanner may be confused by a
+newly-appearing file from the downloader and falsely believe it
+should upload it?</p>
+<blockquote>
+<div><ul class="simple">
+<li>The file is first downloaded to a stash area and then moved into
+place. So I think the scanner will only see the updated file
+(along with the corresponding st_mtime in the database) or not.
+Both cases should result in no change detected.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>Consider the user: they may be changing or adding files at any moment
+(e.g. during the scan).</p>
+<ul class="simple">
+<li>I think the only possible consequence here is that a file is
+discovered later than it might otherwise be. E.g. the user makes a
+new file appear in a directory we already walked</li>
+<li>The old magic-folder did take some pains to consider the case where
+a user is actively editing a file or otherwise making rapid changes.
+However, this was using inotify too so changes were discovered more
+rapidly (e.g. on file creation and save). I don’t see a compelling
+case to duplicate any such logic here.</li>
+</ul>
+</div>
+<div class="section" id="security">
+<h2>Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
+<p>We must not “discover” a file outside the magic-folder directory.</p>
+</div>
+<div class="section" id="backwards-compatibility">
+<h2>Backwards compatibility<a class="headerlink" href="#backwards-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>None.</p>
+</div>
+<div class="section" id="performance-and-scalability">
+<h2>Performance and scalability<a class="headerlink" href="#performance-and-scalability" title="Permalink to this headline">¶</a></h2>
+<p>When scanning a large directory we must take care not to pause the
+reactor for “too long”</p>
+</div>
+<div class="section" id="further-reading">
+<h2>Further reading<a class="headerlink" href="#further-reading" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="magic-folder/multi-party-conflict-detection.html" class="btn btn-neutral float-left" title="Multi-party Conflict Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright The Tahoe-LAFS Developers, The Magic-Folder Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
