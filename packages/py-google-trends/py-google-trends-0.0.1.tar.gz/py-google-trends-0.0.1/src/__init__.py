@@ -1,0 +1,1 @@
+from .google_trend_request import GoogleTrendRequestBuilder as Builder
