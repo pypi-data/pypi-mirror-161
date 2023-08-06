@@ -1,0 +1,132 @@
+Metadata-Version: 2.1
+Name: AtomicPuppy
+Version: 1.5.2.4
+Summary: A service-activator component for eventstore
+Home-page: https://github.com/madedotcom/atomicpuppy
+Author: Bob Gregory
+Author-email: bob@made.com
+License: MIT
+Keywords: eventstore
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: aiohttp
+Requires-Dist: chardet
+Requires-Dist: gevent
+Requires-Dist: pybreaker
+Requires-Dist: PyYAML
+Requires-Dist: redis
+Requires-Dist: retrying
+Requires-Dist: requests
+
+[![Build Status](https://travis-ci.org/madedotcom/atomicpuppy.svg?branch=master)](https://travis-ci.org/madedotcom/atomicpuppy)
+# atomicpuppy
+A service-activator component for eventstore, written in Python
+
+
+## A Brief and Mostly Useless Quickstart:
+
+```yaml
+# config.yaml
+atomicpuppy:
+    host: localhost
+    port: 2113
+    # each stream will be polled by a separate async http client
+    streams:
+        - stream_a
+        - stream_b
+        - stream_with_a_#date#
+    # the counter keeps track of which messages have been processed
+    counter:
+        redis:
+            host: localhost
+            port: 6379
+```
+
+
+```python
+# main.py
+# AtomicPuppy uses asyncio coroutines for concurrent IO
+import asyncio
+import logging
+import signal
+from atomicpuppy import AtomicPuppy
+
+# AtomicPuppy needs a callback to pass you messages.
+def handle(msg):
+  print(msg)
+
+# Config is read from yaml files.
+ap = AtomicPuppy('config.yaml', handle)
+loop = asyncio.get_event_loop()
+
+# to kill the puppy, call stop()
+def stop():
+    logging.debug("SIGINT received, shutting down")
+    ap.stop()
+
+loop.add_signal_handler(signal.SIGINT, stop)
+
+# and to start it call start.
+loop.run_until_complete(ap.start())
+```
+
+
+## Run the tests
+
+A `tox.ini` file is provided to run the tests with different versions of Python.
+
+To run the tests:
+
+1. Make sure you have the Python 3.6, 3.7, 3,8, 3.9 and 3.10 headers installed (for Ubuntu please refer to https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa)
+2. `pip install -r test-requirements.txt` from the root folder of the repository
+3. Run `tox` from the root folder of the repository
+
+### Prepare and run the tests on Mac with pyenv
+
+#### Install pyenv and pyenv-virtualenv and python versions
+
+```
+brew install pyenv pyenv-virtualenv
+```
+
+Add the following lines to your `.zshrc` (check latest pyenv doc):
+
+```
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+```
+
+```
+pyenv install 3.6.15
+pyenv install 3.7.12
+pyenv install 3.8.12
+pyenv install 3.9.9
+pyenv install 3.10.1
+```
+Check the latest versions, install the latest minor from each major version.
+
+#### Create a virtual environment
+```
+pyenv virtualenv 3.10.1 atomicpuppy
+pyenv activate atomicpuppy
+pip install tox-pyenv
+pip install -r test-requirements.txt
+```
+
+#### Run the tests
+
+```
+pyenv local atomicpuppy 3.6.13 3.7.10 3.8.10 3.9.5
+
+tox
+```
+
+## About python version
+
+There is a bug in asyncio for python3.4 that was fixed in other versions.
+This is the bug report: https://bugs.python.org/issue23812
+Because of that we have dropped support for python3.4 and we recommend to use
+python3.7.
