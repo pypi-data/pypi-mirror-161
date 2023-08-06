@@ -1,0 +1,83 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "python-gvm"
+version = "22.7.0"
+description = "Library to communicate with remote servers over GMP or OSP"
+license = "GPL-3.0-or-later"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+readme = "README.md"
+homepage = "https://github.com/greenbone/python-gvm"
+repository = "https://github.com/greenbone/python-gvm"
+documentation = "https://python-gvm.readthedocs.io/"
+classifiers = [
+  # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+  { include = "gvm" },
+  { include = "tests", format = "sdist" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.7.0"
+paramiko = "^2.7.1"
+lxml = "^4.5.0"
+defusedxml = ">=0.6,<0.8"
+
+
+[tool.poetry.dev-dependencies]
+coverage = "^6.4"
+pylint = "^2.13"
+sphinx = "^5.0.2"
+sphinx-autodoc-typehints = "^1.18.3"
+autohooks = ">=22.7.2"
+autohooks-plugin-pylint = ">=21.6.0"
+autohooks-plugin-black = ">=22.7.0"
+autohooks-plugin-isort = ">=22.3.0"
+black = ">=22.6.0"
+pontos = ">=22.7.2"
+
+[tool.black]
+line-length = 80
+target-version = ['py37', 'py38', 'py39', 'py310']
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.venv
+  | \.circleci
+  | \.github
+  | \.vscode
+  | _build
+  | build
+  | dist
+  | docs
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 80
+
+[tool.autohooks]
+mode = "poetry"
+pre-commit = [
+  'autohooks.plugins.black',
+  'autohooks.plugins.isort',
+  'autohooks.plugins.pylint',
+]
+
+[tool.pontos.version]
+version-module-file = "gvm/__version__.py"
