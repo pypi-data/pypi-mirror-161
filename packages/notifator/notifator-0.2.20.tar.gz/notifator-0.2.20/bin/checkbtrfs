@@ -1,0 +1,329 @@
+#!/usr/bin/python3
+
+"""
+ When btrfs RAID collapses:
+
+btrfs fi sh
+
+mount -o degraded /mnt/sdc1 /mnt/raid
+
+#-----------IF PROBLEM WITH SIZE----------
+# check the sizes of the raid components
+ blockdev --getsize64 /dev/sdb1
+ blockdev --getsize64 /dev/sdc1
+
+ btrfs fi res 1:... /mnt/usb_raid/
+
+# 39998980096   i f-uped the size
+# 500106788864  sdb1 degraded
+# 480102055936  sdc1 empty
+# resize
+btrfs fi res 1:480102055936 /mnt/usb_raid/
+
+
+sudo btrfs replace start 7 /dev/sdf1 /mnt
+"""
+
+
+logfile="/tmp/btrfscheck.log"
+#with open(logfile,"a") as f:
+#    f.write("Ahoj1-----------------------------------\n")
+
+import os
+import socket
+import requests
+import subprocess as sp
+import sys
+
+from notifator import telegram
+from fire import Fire
+
+
+def btrfssh():
+    """
+    Show details about btrfs mounts and / and /home smartctl
+    """
+    output=[]
+    output.append("##### mounted BTRFS ####")
+    # #======== extract UUIDS, remember datafree
+    # CMD='sudo btrfs fi show'
+    # r=sp.check_output(CMD.split()).decode("utf8")
+    # #print(r)
+    # r=r.split("\n")
+    # r=[ x for x in r if x.find("uuid:")>0 ]
+    # uuids=[ x.split()[-1] for x in r ]
+    # #print(uuids)
+
+    #==========mounted?
+    #print("D... MOUNTED")
+    CMD='mount'
+    r=sp.check_output(CMD.split()).decode("utf8")
+    #print(r)
+    r=r.split("\n")
+    r=[ x for x in r if x.find("type btrfs")>0 ]
+    # docker creates a line with btrfs....
+    r=[ x for x in r if x.find("/var/lib/")<0 ]
+
+    #print("D...", r)
+    devs=[ x.split()[0] for x in r ]
+    mpoints=[ x.split()[2] for x in r ]
+    #print(devs)
+    #print(mpoints)
+    #print("D..")
+    for i in range(len(devs)):
+        output.append( "{:14s} : {}".format(devs[i],mpoints[i])  )
+        # print("D...    ",devs[i])
+
+    #print()
+    # #=========== datafree: data for each mount
+    # for i in range(len(mpoints)):
+    #     print("===={}====".format(devs[i]))
+    #     CMD='sudo btrfs fi df '+mpoints[i]
+    #     r=sp.check_output(CMD.split()).decode("utf8")
+    #     #r=r.split("\n")
+    #     print(r)
+
+    #========== USAGE
+    #print("D... btrfs FI SHOW")
+    output.append("##### fi show BTRFS ####")
+    CMD="sudo btrfs fi show"
+    quitme =  False
+    try:
+        r=sp.check_output(CMD.split()).decode("utf8").split("\n")
+    except Exception as e:
+        quitme = True
+    if quitme:
+        print("D... error on  BTRFS FI SH: No btrfs?")
+        sys.exit(0)
+    activeuuid=""
+    if len(r)==0:
+        print("D... NO BTRFS partitions found mounted.")
+        sys.exit(0)
+
+    for i in r:
+        if i.find("uuid:")>0:
+            activeuuid=i.split()[-1]
+        if activeuuid=="":
+            continue
+        else:
+            if i.find("Total devices")>0:
+                ndevices = int(i.strip().split()[2])
+                if ndevices>1:
+                    output.append("RAID found {}".format(path))
+            if i.find("size")>0 and i.find("used")>0:
+                size=i.strip().split()[3]
+                used=i.strip().split()[5]
+                path=i.strip().split()[-1]
+                #print()
+                output.append("{:14s} {} / {}".format(path,used,size))
+                #print("D...    ",path)
+    #print(r)
+    #print()
+    output.append("")
+
+    #print("D... DEV STAT","_"*30)
+    #=========== ERRORCHECK
+    for i in range(len(mpoints)):
+        #print()
+        output.append("====stats {}====".format(devs[i]) )
+        CMD='sudo btrfs device stats '+mpoints[i]
+        r=sp.check_output(CMD.split()).decode("utf8")
+        #r=r.split("\n")
+        #print(r)
+        for i in r.split("\n"):
+            output.append(i)
+    # print("D...         ","_"*30)
+    return output,mpoints,devs
+
+
+
+
+def smartctl(output):
+    #print()
+    #print("D... SMARTCTL","_"*30)
+    output.append("######## SMARTCTL ######")
+    #=========smartctl - look at df first
+    CMD="df"
+    # can happen that pcloud is not connected... error...
+    #try:
+    #r=sp.check_output(CMD, shell=True).decode("utf8")
+    er, r = sp.getstatusoutput(CMD)
+    #except:
+    #    print("X... there was an error in '{}' ... maybe pcloud mount?".format(CMD))
+    # print("D... result = /{}/".format(r) )
+    r = r.rstrip().split("\n")
+    root=[x for x in r if x.split()[-1]=="/"]
+    #print("D...    root==", root)
+    home=[x for x in r if x.split()[-1]=="/home"]
+    #print("D...    home==", home)
+    roothome=[root[0].split()[0]]
+    if len(home)>0:
+        roothome.append(home[0].split()[0])
+    #print("D...    roothome==", roothome)
+    output.append("root;home: {}".format(roothome))
+
+    #============ smartctl: i had -l error -H .... not enough i think
+    #
+    for i in list(set(roothome)):
+        #print("D... == root/home== :",i)
+        output.append("=====r/h: {}======".format(i) )
+
+
+        # ---- i used "-l error" , but some disk didnt understand logfile #1...
+        # CMD="sudo smartctl -l error -H "+i
+        # ---- i used no -d ... some disks didnt know they were ata ....
+        if i.find("nvme")>0:
+            disktype="nvme"
+        else:
+            disktype="ata"
+        CMD="sudo smartctl -H -d " + disktype + " "+i
+        ok = False
+        try:
+            r=sp.check_output(CMD.split()).decode("utf8").strip().split("\n")
+            ok = True
+        except Exception as ex:
+            print("X... smartctl ended with error ",ex)
+            output.append("=== smartctl crashed ===")
+        if not ok:
+            return output
+
+        r=[x for x in r if x.find("smartctl ")<0]
+        r=[x for x in r if x.find("Copyright")<0]
+        r=[x for x in r if x.find("START OF READ")<0]
+        r=[x for x in r if x.find("SMART Error Log Version")<0]
+        r=[x.replace("overall-health self-assessment","") for x in r if len(x)>0]
+        r=[x.replace("Error Information","") for x in r ]
+        for j in r:
+            output.append(j)
+
+        print("D... [Laun]smartctl -t LONG",i)
+        CMD="sudo smartctl -t long "+i
+        try:
+            r=sp.check_output(CMD.split()).decode("utf8").strip().split("\n")
+        except:
+            print("X.. long test may be running")
+
+
+        #print("D... [R] smartctl -l error -l selftest",i)
+        CMD="sudo smartctl -l error -l selftest "+i
+        try:
+            r=sp.check_output(CMD.split()).decode("utf8").strip().split("\n")
+        except sp.CalledProcessError as grepexc:
+            print("X... ERROR DETECTED in  l error l selftest")
+            r = grepexc.output.decode("utf8").strip().split("\n")
+        r = [x for x in r if x.find("#")==0 ]
+        r = [x for x in r if x.find("Completed without error")<0 ]
+
+        for j in r:
+            output.append(j)
+        #print("\n".join(r) )
+    return output
+
+
+def scrub(output,mpoints,devs):
+    print("D... SCRUB","_"*30)
+    # ------------scrub------------------
+    output.append("######## BTRFS SCRUB ######")
+    if len(mpoints)==0:
+        print("X... no mountpoints for scrub")
+        output.append("=== no btrfs no scrub  ===")
+        return output
+    if len(devs)==0:
+        print("X... no devs        for scrub")
+        output.append("=== no devs no scrub  ===")
+        return output
+    #=========== ERRORCHECK
+    #print(mpoints,  devs)
+
+    scrudevs = []
+
+
+    for i in range(len(mpoints)):
+        if devs[i] in scrudevs:
+            continue
+        output.append("====scrubbing {}====".format(devs[i]) )
+        CMD='sudo btrfs scrub start -Bd -c 3 '+mpoints[i]
+        r  ="no scrub happened"
+        scrudevs.append( devs[i] )
+        try:
+            r=sp.check_output(CMD.split()).decode("utf8").strip().split("\n")
+        except:
+            print("X... error on",CMD)
+        r = [x for x in r if x.find("Error")==0 ] # get a line from the result
+        print(r)
+        for j in r:
+            output.append(j)
+
+    return output
+
+
+
+
+def normal_run(tele=False):
+    host=socket.gethostname()
+    rhost="?"
+    user="?"
+
+    #r=sp.check_output( "/usr/local/bin/btrfs.sh" ).decode("utf8")
+    #r=r.split("\n")
+    #print(r)
+    #out="\n".join(r)
+
+    out,mountpoints,devs = btrfssh()
+    print("D... 1 ",mountpoints,devs)
+    out = smartctl(out)
+    out = scrub(out, mountpoints,devs)
+
+    out="\n".join(out)
+    print("D...","_"*40)
+
+    # out=out.replace("\t"," ")
+    # out=out.replace("_","\_")
+    # out=out.replace("total=","T=")
+    # out=out.replace("used=","U=")
+    # out=out.replace(".00GiB","G")
+    # out=out.replace(".00MiB","M")
+    # out=out.replace("GiB","G")
+    # out=out.replace("MiB","M")
+
+    # out=out.replace("Total devices","DEV:")
+
+    # out=out.replace("System","Syst")
+    # out=out.replace("Metadata","Meta")
+    # out=out.replace("GlobalReserve","Reserv")
+
+
+    # out=out.replace("devid","#")
+    # out=out.replace("path","")
+    # out=out.replace("size","")
+    # out=out.replace("used","u:")
+
+
+    #bot_send( "@"+host+": "+out)
+
+    #=================================== final shape of out ======
+    out=out.replace("/dev/","")
+    out=out.replace("Error summary:","")
+    out=out.replace("START OF SMART","SMART")
+    out=out.replace("test result:","")
+    out=out.replace("_","\_")
+    out=out.replace("[","{")
+    out=out.replace("]","}")
+    out=out.replace("{nvme","{")
+    print("################################## SCREEN PRINT BEG")
+    print(out)
+    print("################################## SCREEN PRINT END")
+    if tele:
+        print("D... SENDING TELEGRAM BOT")
+        telegram.bot_send("Btrfs", "@"+host+": "+out)
+
+    #with open(logfile,"a") as f:
+    #    f.write(user+host+rhost+"FINALE===============\n")
+
+
+
+
+
+if __name__=="__main__":
+    #Fire()
+    Fire( normal_run )
