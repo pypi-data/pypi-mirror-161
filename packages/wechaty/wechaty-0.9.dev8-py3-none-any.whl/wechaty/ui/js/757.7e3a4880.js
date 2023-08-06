@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwechaty_ui=self.webpackChunkwechaty_ui||[]).push([[757],{9024:(e,u,t)=>{t.r(u),t.d(u,{default:()=>r});var n=t(6252),c=t(2262),a=t(2201);const r={__name:"404",setup:function(e){return function(e,u){return(0,n.wg)(),(0,n.j4)((0,c.SU)(a.Z))}}}}}]);
