@@ -1,0 +1,78 @@
+Metadata-Version: 2.1
+Name: wxc-sdk
+Version: 1.5.2
+Summary: SDK for Webex APIs with special focus on Webex Calling specific endpoints
+Home-page: https://github.com/jeokrohn/wxc_sdk
+License: MIT
+Author: Johannes Krohn
+Author-email: jkrohn@cisco.com
+Requires-Python: >=3.9,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: aiohttp (>=3.8.1,<4.0.0)
+Requires-Dist: backoff (>=2.0.1,<3.0.0)
+Requires-Dist: pydantic (>=1.9.0,<2.0.0)
+Requires-Dist: pytz
+Requires-Dist: requests (>=2.27.1,<3.0.0)
+Requires-Dist: requests-toolbelt (>=0.9.1,<0.10.0)
+Project-URL: Documentation, http://wxc_sdk.readthedocs.io
+Description-Content-Type: text/x-rst
+
+=======
+wxc_sdk
+=======
+
+A simple SDK to work with `Webex APIs <https://developer.webex.com>`_, special focus on Webex Calling specific API
+endpoints.
+
+----------------------------------------------
+
+This is how easy it is to use the SDK. The example code list all calling enabled users within the org.
+
+.. code-block:: Python
+
+    from wxc_sdk import WebexSimpleApi
+
+    api = WebexSimpleApi()
+
+    # if a user is enabled for calling, then the location_id attribute is set
+    calling_users = [user for user in api.people.list(calling_data=True)
+                     if user.location_id]
+    print(f'{len(calling_users)} users:')
+    print('\n'.join(user.display_name for user in calling_users))
+
+
+Installation
+------------
+
+Installing and upgrading wxc_sdk is easy:
+
+**Install via PIP**
+
+.. code-block:: bash
+
+    $ pip install wxc-sdk
+
+**Upgrade to the latest version**
+
+.. code-block:: bash
+
+    $ pip install wxc-sdk --upgrade
+
+Documentation
+-------------
+
+Documentation is available at:
+http://wxc_sdk.readthedocs.io
+
+Examples
+--------
+
+Sample scripts are available in the examples_ folder.
+
+.. _examples: https://github.com/jeokrohn/wxc_sdk/tree/master/examples
+
+
+
