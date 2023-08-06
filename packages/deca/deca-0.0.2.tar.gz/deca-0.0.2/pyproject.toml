@@ -1,0 +1,50 @@
+[project]
+name = "deca"
+description = "Exponential Decay library"
+dynamic = ["version"]
+authors = [{ name="Jasper Spaans", email="j@jasper.es"}]
+license = {file = "LICENSE" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Typing :: Typed",
+]
+dependencies = [
+    "attrs"
+]
+requires-python = ">= 3.10"
+
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+# To enable version inference, add this section
+[tool.setuptools_scm]
+
+[tool.black]
+line-length = 104
+target-version = ["py310"]
+include = '\.pyi?$'
+skip-string-normalization = 1
+
+[tool.darker]
+line-length = 104
+target-version = ["py310"]
+include = '\.pyi?$'
+skip-string-normalization = 1
+isort = 1
+
+[tool.isort]
+py_version = 310
+line_length = 104
+known_first_party = ["deca"]
+# needed until python 3.11
+add_imports = ["from __future__ import annotations"]
+profile = "black"
+
+[tool.pylint]
+max-line-length = 104
+
+[tool.mypy]
+strict = 1
