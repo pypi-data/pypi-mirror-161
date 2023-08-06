@@ -1,0 +1,137 @@
+[tool.poetry]
+name = "mlcvzoo_base"
+version = "4.0.0"
+license = "Open Logistics License Version 1.0"
+description = "MLCVZoo Base Package"
+readme = "README.md"
+homepage = "https://git.openlogisticsfoundation.org/silicon-economy/base/ml-toolbox/mlcvzoo"
+repository = "https://git.openlogisticsfoundation.org/silicon-economy/base/ml-toolbox/mlcvzoo"
+documentation = "https://git.openlogisticsfoundation.org/silicon-economy/base/ml-toolbox/mlcvzoo/-/blob/main/documentation/index.adoc"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+]
+authors = [
+    "Maximilian Otten <maximilian.otten@iml.fraunhofer.de>",
+    "Christian Hoppe <christian.hoppe@iml.fraunhofer.de>",
+    "Oliver Bredtmann <oliver.bredtmann@dbschenker.com>",
+    "Thilo Bauer <thilo.bauer@dbschenker.com>",
+    "Oliver Urbann <oliver.urbann@iml.fraunhofer.de>",
+    "Jan Basrawi <jan.basrawi@dbschenker.com>",
+    "Luise Weickhmann <luise.weickhmann@iml.fraunhofer.de>",
+    "Luca Kotulla <luca.kotulla@iml.fraunhofer.de>",
+]
+
+exclude = ["mlcvzoo_base/tests/**/*"]
+
+packages = [
+    { include = "mlcvzoo_base" },
+]
+
+[tool.poetry.scripts]
+mlcvzoo-cvat-handler = "mlcvzoo_base.tools.cvat_annotation_handler:main"
+mlcvzoo-preannotator = "mlcvzoo_base.tools.pre_annotation_tool:main"
+mlcvzoo-modeltimer = "mlcvzoo_base.tools.model_timer:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+yaml-config-builder = { version = "^6.0" }
+related-mltoolbox = { version = "^1.0" }
+
+# 1.19.2 is oldest available on aarch64 but 1.19.5 leads to unbuildable pytorch there, all is well on amd64
+numpy = { version = ">=1.19.2,!=1.19.5" }
+opencv-python = { version = "^4.5,!=4.5.5.64" }
+opencv-contrib-python = { version = "^4.5,!=4.5.5.64" }
+scikit-learn = { version = "^1.0" }
+dataclasses-json = { version = "^0.5" }
+tqdm = { version = "^4.61" }
+imageio = { version = "^2.9" }
+pillow = { version = "^8.2" }
+mlflow = { version = "^1.22" }
+terminaltables = { version = "^3.1" }
+tensorboardX = { version="^2.5" }
+nptyping = { version="^2.0" }
+# TODO: remove when fixed by tensorboard: https://github.com/tensorflow/tensorboard/issues/5703
+protobuf =  {version="<=3.20"}
+"backports.strenum" = {version="^1.1", python="<3.10"}
+
+[tool.poetry.dev-dependencies]
+mock = { version = "^4.0" }
+pytest = { version = "^7.0" }
+pytest-cov = { version = "^3.0.0" }
+black = { version = "^22" }
+mypy = { version = ">=0.961" }
+pylint = { version = "^2.9.6" }
+isort = { version = "^5.9" }
+pytest-mock = "^3.7"
+
+[build-system]
+# NOTE: Don't remove setuptools, therefore require it from the build system
+requires = ["setuptools", "poetry_core>=1.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 99
+
+[tool.pylint.master]
+extension-pkg-whitelist = ["numpy", "cv2"]
+ignore=["third_party"]
+jobs = 0
+
+[tool.pytest.ini_options]
+log_cli = 1
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s | %(filename)s:%(funcName)s:%(lineno)s"
+log_cli_date_format= "%Y-%m-%d %H:%M:%S"
+
+[tool.mypy]
+python_version = 3.8
+exclude = ['mlcvzoo_base/tests', 'mlcvzoo_base/third_party']
+
+junit_xml = "xunit-reports/xunit-result-mypy.xml"
+
+# output style configuration
+show_column_numbers = true
+show_error_codes = true
+pretty = true
+
+# additional warnings
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_no_return = true
+
+no_implicit_optional = true
+# unreachable code checking produces practically only false positives
+warn_unreachable = false
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+# disallow_any_explicit = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+ignore_missing_imports = false
+# plugins = "numpy.typing.mypy_plugin"
+
+# ignores that library has no typing information with it
+[[tool.mypy.overrides]]
+module = [
+    "cv2", # https://github.com/opencv/opencv/issues/14590
+    "imageio.*",
+    "mlflow.*",
+    "numpy.*",
+    "pandas.*",
+    "PIL.*",
+    "related.*",
+    "scipy.*",
+    "sklearn.*",
+    "tensorboardX.*",
+    "terminaltables.*",
+    "tqdm.*",
+]
+ignore_missing_imports = true
