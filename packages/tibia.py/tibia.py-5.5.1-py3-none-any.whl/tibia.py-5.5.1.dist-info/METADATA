@@ -1,0 +1,119 @@
+Metadata-Version: 2.1
+Name: tibia.py
+Version: 5.5.1
+Summary: API that parses website content into python data.
+Home-page: https://github.com/Galarzaa90/tibia.py
+Author: Galarzaa90
+Author-email: allan.galarza@gmail.com
+License: Apache 2.0
+Project-URL: GitHub: Repo, https://github.com/Galarzaa90/tibia.py
+Project-URL: GitHub: Issues, https://github.com/Galarzaa90/tibia.py/issues
+Project-URL: Docs: RTD, https://tibiapy.readthedocs.io/en/stable/
+Project-URL: Docs: Changelog, https://tibiapy.readthedocs.io/en/stable/changelog.html
+Project-URL: Coverage: Codecov, https://app.codecov.io/gh/Galarzaa90/tibia.py
+Project-URL: Docker Hub: Repo, https://hub.docker.com/repository/docker/galarzaa90/tibia.py
+Project-URL: SonarCloud, https://sonarcloud.io/dashboard?id=Galarzaa90_tibia.py
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Games/Entertainment :: Role-Playing
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Classifier: Topic :: Utilities
+Classifier: Typing :: Typed
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: beautifulsoup4
+Requires-Dist: lxml
+Requires-Dist: aiohttp
+Requires-Dist: aiohttp-socks
+Requires-Dist: html5lib
+Provides-Extra: docs
+Requires-Dist: sphinx ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: asynctest ; extra == 'test'
+Requires-Dist: aioresponses ; extra == 'test'
+Requires-Dist: coverage ; extra == 'test'
+
+# Tibia.py
+An API to parse Tibia.com content into object oriented data.
+
+No fetching is done by this module, you must provide the html content.
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Galarzaa90/tibia.py/Build)
+[![codecov](https://codecov.io/gh/Galarzaa90/tibia.py/branch/master/graph/badge.svg?token=mS9Wxv6O2F)](https://codecov.io/gh/Galarzaa90/tibia.py)
+[![PyPI](https://img.shields.io/pypi/v/tibia.py.svg)](https://pypi.python.org/pypi/tibia.py/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tibia.py.svg)
+![PyPI - License](https://img.shields.io/pypi/l/tibia.py.svg)
+
+
+**Features:**
+
+- Converts data into well-structured Python objects.
+- Type consistent attributes.
+- All objects can be converted to JSON strings.
+- Can be used with any networking library.
+- Support for characters, guilds, houses and worlds, tournaments, forums, etc.
+
+## Installing
+Install and update using pip
+
+```commandline
+pip install tibia.py
+```
+
+Installing the latest version form GitHub
+
+```commandline
+pip install git+https://github.com/Galarzaa90/tibia.py.git -U
+```
+
+## Usage
+This library is composed of two parts, parsers and an asynchronous request client.
+
+The asynchronous client (`tibiapy.Client`) contains methods to obtain information from Tibia.com.
+
+The parsing methods allow you to get Python objects given the html content of a page.
+
+```python
+import tibiapy
+
+# Asynchronously
+import aiohttp
+
+async def get_character(name):
+    url = tibiapy.Character.get_url(name)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            content = await resp.text()
+    character = tibiapy.Character.from_content(content)
+    return character
+
+# Synchronously
+import requests
+
+def get_character_sync(name):
+    url = tibiapy.Character.get_url(name)
+    
+    r = requests.get(url)
+    content = r.text
+    character = tibiapy.Character.from_content(content)
+    return character
+
+```
+
+## Documentation
+https://tibiapy.readthedocs.io/
+
+
