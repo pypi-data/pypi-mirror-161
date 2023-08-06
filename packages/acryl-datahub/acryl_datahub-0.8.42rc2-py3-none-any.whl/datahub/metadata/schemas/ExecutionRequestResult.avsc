@@ -1,0 +1,78 @@
+{
+  "type": "record",
+  "name": "ExecutionRequestResult",
+  "namespace": "com.linkedin.pegasus2avro.execution",
+  "doc": "The result of an execution request",
+  "fields": [
+    {
+      "name": "status",
+      "type": "string",
+      "doc": "The status of the execution request"
+    },
+    {
+      "name": "report",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "The pretty-printed execution report.",
+      "default": null
+    },
+    {
+      "name": "structuredReport",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "StructuredExecutionReport",
+          "doc": "A flexible carrier for structured results of an execution request.\nThe goal is to allow for free flow of structured responses from execution tasks to the orchestrator or observer.\nThe full spectrum of different execution report types is not intended to be modeled by this object.",
+          "fields": [
+            {
+              "name": "type",
+              "type": "string",
+              "doc": "The type of the structured report. (e.g. INGESTION_REPORT, TEST_CONNECTION_REPORT, etc.)"
+            },
+            {
+              "name": "serializedValue",
+              "type": "string",
+              "doc": "The serialized value of the structured report"
+            },
+            {
+              "name": "contentType",
+              "type": "string",
+              "doc": "The content-type of the serialized value (e.g. application/json, application/json;gzip etc.)"
+            }
+          ]
+        }
+      ],
+      "doc": "A structured report if available.",
+      "default": null
+    },
+    {
+      "name": "startTimeMs",
+      "type": [
+        "null",
+        "long"
+      ],
+      "doc": "Time at which the request was created",
+      "default": null,
+      "Searchable": {
+        "fieldName": "startTimeMs",
+        "fieldType": "COUNT",
+        "queryByDefault": false
+      }
+    },
+    {
+      "name": "durationMs",
+      "type": [
+        "null",
+        "long"
+      ],
+      "doc": "Duration in milliseconds",
+      "default": null
+    }
+  ],
+  "Aspect": {
+    "name": "dataHubExecutionRequestResult"
+  }
+}
