@@ -1,0 +1,76 @@
+[tool.towncrier]
+package = "galaxy_ng"
+filename = "CHANGES.rst"
+directory = "CHANGES/"
+title_format = "{version} ({project_date})"
+template = "CHANGES/.TEMPLATE.rst"
+issue_format = "`AAH-{issue} <https://issues.redhat.com/browse/AAH-{issue}>`_"
+
+
+[tool.black]
+line-length = 100
+target-version = ["py36", "py37"]
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.venv
+  | _build
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+
+[tool.darker]
+src = [
+    "galaxy_ng",
+]
+revision = "master"
+isort = true
+lint = [
+    "flake8 --config flake8.cfg",
+]
+log_level = "INFO"
+line_length = 100
+
+
+[tool.check-manifest]
+ignore = [
+    ".gitleaks.toml",
+    ".bumpversion.cfg",
+    "CHANGES/**",
+    "CONTRIBUTING.rst",
+    "HISTORY.rst",
+    "dev_requirements.txt",
+    "doc_requirements.txt",
+    "functest_requirements.txt",
+    "unittest_requirements.txt",
+    "requirements/**",
+    "docs/**",
+    "galaxy_ng/tests/assets/**",
+    "flake8.cfg",
+    "template_config.yml",
+    ".travis/**",
+    ".travis.yml",
+    ".flake8",
+    ".pep8speaks.yml",
+    ".ci/**",
+    ".github/**",
+    "dev/**",
+    "docker/**",
+    "openshift/**",
+    "galaxy_ng/app/static/**",
+    ".compose.env.example",
+    ".dockerignore",
+    "COMMITMENT",
+    "Dockerfile",
+    "Dockerfile.rhel8",
+    "Makefile",
+    "ROADMAP.rst",
+    "ansible.cfg",
+    "build_deploy.sh",
+    "compose",
+    "pr_check.sh",
+]
