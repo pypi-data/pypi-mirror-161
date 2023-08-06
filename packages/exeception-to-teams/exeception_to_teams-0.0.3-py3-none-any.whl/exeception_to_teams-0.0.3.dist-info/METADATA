@@ -1,0 +1,71 @@
+Metadata-Version: 2.1
+Name: exeception-to-teams
+Version: 0.0.3
+Summary: Notification/Alert for django users
+Author: Ideabreed Technology (Milann Malla)
+Author-email: <hello@itsmilann.com>
+Project-URL: exception to teams, https://github.com/ItsMilann/exeception-to-teams/tree/release
+Keywords: python,django,middleware,exception,ideabreed,teams,microsoft
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Description-Content-Type: text/markdown
+License-File: LICENCE
+Requires-Dist: requests
+Requires-Dist: django
+
+
+### ExeceptionMiddeware
+
+Exception to teams middleware is a simple django app that
+contains only a middelware that is resposible for sending logs
+to your teams channel using webhook in any event of internal server error.
+
+[How to create webhook for teams channel](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
+
+
+### Tools
+
+- [Django 3.2.12](https://djangoproject.com)
+
+### Installation
+
+On your terminal/shell
+
+```bash
+
+pip3 install exeception-to-teams
+
+```
+
+### Quiz setup
+
+---
+
+In your project's settings.py file. Add exeception_to_teams in your `INTALLLED_APPS` list, configure middleware as following. You must define `TEAMS_CHANNEL_URL`
+
+```python
+# settings.py
+
+INSTALLED_APPS = [
+  ...,
+  "exeception_to_teams",
+]
+
+
+MIDDLEWARES =[
+...
+'exeception_to_teams.middlewares.ExeceptionMiddleware'
+]
+
+TEAMS_CHANNEL_URL = os.envion.get("TEAMS_CHANNEL_URL")
+
+PROJECT_NAME = "Project X" # Uses this value in card title.
+```
+
+Generate an exeception intentionally in your django application and check log in your teams channel.
+
+**Have a great day!**
