@@ -1,0 +1,65 @@
+[tool.black]
+line-length = 79
+target-version = ['py37', 'py38', 'py39', 'py310']
+
+[tool.cibuildwheel]
+skip = "*-manylinux_i686 *-musllinux_* *-win32"
+test-requires = "-rrequirements/tests.txt"
+test-command = "pytest {project}/tests"
+
+[tool.cibuildwheel.linux]
+before-all = '''
+./scripts/download-mbedtls.sh $VERSION ~/.local/src \
+&& ./scripts/install-mbedtls.sh ~/.local/src
+'''
+
+[tool.cibuildwheel.macos]
+before-all = '''
+./scripts/download-mbedtls.sh $VERSION ~/.local/src \
+&& ./scripts/install-mbedtls.sh ~/.local/src \
+&& cp /usr/local/lib/libmbed*dylib .
+'''
+
+[tool.cibuildwheel.windows]
+before-all = """
+powershell -Command Get-Host \
+&& powershell %CD%\\scripts\\download-mbedtls.ps1 %VERSION% %TEMP%\\mbedtls \
+&& powershell %CD%\\scripts\\install-mbedtls.ps1 -ConfigurationType StaticLibrary %TEMP%\\mbedtls \
+&& powershell %CD%\\scripts\\install-mbedtls.ps1 -ConfigurationType DynamicLibrary %TEMP%\\mbedtls \
+&& dir %LIB%
+"""
+
+[tool.coverage.report]
+exclude_lines = [
+  'pragma: no cover',
+  'def __repr__',
+  'raise MemoryError()',
+  'raise NotImplementedError',
+  'free(\w)',
+]
+include = ['src/*']
+
+[tool.coverage.run]
+plugins = ['Cython.Coverage']
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 79
+
+[tool.mypy]
+show_error_codes = true
+strict = true
+
+[tool.pylint.master]
+extension-pkg-whitelist='mbedtls'
+
+[tool.pylint.messages_control]
+disable = "C0103, C0326, C0330"
+
+[tool.pylint.similarities]
+ignore-comments = "yes"
+ignore-docstrings = "yes"
+min-similarity-lines = "8"

@@ -1,0 +1,433 @@
+[2.3.1] - 2022-07-29
+
+* tls: Fix argument to `_enable_debug_output()`.  The function
+now takes a configured context instead of a MbedTLSConfiguration.
+* typing: Add type annotations to more modules.
+
+[2.3.0] - 2022-07-20
+
+* tls: Improve typing and remove base class to TLSConfiguration
+and DTLSConfiguration.
+* Update wheels to mbedtls 2.28.1
+
+[2.2.0] - 2022-06-18
+
+* pk: Fix choice of the curve in ECC (PR 63).  Before this, the
+curve chosen was ignored and the `ECC.generate()` would always
+use the same one.
+
+* pk: Improve handling of CURVE25519 and CURVE448 in ECC (PR 63).
+* pk: ECDHClient and ECDHServer take an ECC key in `__init__()`.
+* pk: Remove `to_ECDH_{client,server}` methods from ECC.
+* pk: Make key accessors public (and remove the private ones).
+
+* docs: Resurrect gh-pages.
+
+* *: Add typing information.  The typing information is in an alpha
+stage, incomplete, and subject to change.  We also welcome pull requests.
+
+[2.1.0] - 2022-04-28
+
+* tls: Add TLS 1.3 support.
+* tls: TLSWrappedBuffer.shutdown() does not raise anymore when
+the connection is already closed.
+* tls: Make TLSWrappedBuffer picklable in the limited cases documented
+under `mbedtls_ssl_context_load` and `mbedtls_ssl_context_save` in
+the backend.
+* mpi: Remove is_prime() method.
+
+[2.0.1] - 2022-04-12
+
+* tls: Fix check of arguments to TLSWrappedSocket.sendto().
+
+[2.0.0] - 2022-04-07
+
+* tls: Context and TLSWrappedBuffer are now entirely separated.
+** The contexts are now picklable.
+** The contexts do not support TLSWrappedBuffer API anymore.
+* tls: TLSSession currently *unsupported*!
+* tls: Improved handshake logic with more appropriate signaling
+over WantReadError and WantWriteError.
+* Update wheels to mbedtls 2.28.0 (current LTS).
+
+[1.7.0] - 2022-03-23
+
+* cipher: CBC does not use PKCS7 padding by default and now requires a full
+block.  Encoding will raise ValueError otherwise.
+* tls: Add support for session caching.
+* tls: Implement `context.getpeercert()`.
+* tls: Add context manager to `TLSWrappedSocket`
+* programs: Add example DTLS and TLS client and server.
+* ci: Drop CircleCI.
+* Update wheels to mbedtls 2.16.12
+* Add support for Python 3.10.
+* Drop Python 3.6 (EOL).
+
+[1.6.0] - 2021-10-03
+
+* tls: Fix arguments of TLSWrappedSocket.sendto() method.
+* *: Add MacOS support and tests on GitHub.
+* *: Add Windows support and tests on GitHub.
+* *: Remove Travis-CI job: The main CI is moved to GitHub
+Actions because of the less FOSS-friendly policy by Travis CI.
+* *: Implement the pickling protocol (PEP 307).
+RingBuffer, ciphers, TLSConfiguration and DTLSConfiguration,
+and x509 certificates are copyable.  The other Cython classes
+are non-copyable.
+* tls: Fix missing DTLS-only parameters in DTLSConfiguration
+`__repr__()` and `__eq__()`.  Equality, especially, could
+have returned True for two configuration differing only on
+some parameters.
+* tls: Fix handling of min and max handshake timeout
+when set independently.
+* tls: Fix exception raised when unwrapping a
+`TLSWrappedSocket` before opening it.
+* tls: Augment size of the accept buffer for DTLS (nicho2).
+* Update wheels to mbedtls 2.16.11.
+
+[1.5.1] - 2020-12-30
+
+* doc: Do not document Python 2.7-3.5 as documented ;p
+
+[1.5.0] - 2020-12-30
+
+* ci: Drop Python < 3.6.
+* hashlib: Drop hash alias to hashlib.
+* cipher,tls,x509: Unsupported ciphers now consistently
+raise NotImplementedError.
+* upstream: The size of the IV in ECB mode is consistently 0.
+* Update wheels to mbedtls 2.16.9.
+* cython: Get rid of compilation warnings.
+
+[1.4.1] - 2020-11-30
+
+* *: The '*.pyx' files were missing from the archive
+on pypi.
+
+[1.4.0] - 2020-10-17
+
+* tls: Add accessors to min/max timeout DTLS handshake.
+* ci: Support Python 3.9 final.
+* ci: update wheels to mbedtls 2.16.8.
+* ci: Prepare experimental support for Python 3.10.
+
+[1.3.1] - 2020-07-23
+
+* *: Add support for Python 3.9.
+* update wheels to mbedtls 2.16.7.
+
+[1.3.0] - 2020-06-04
+
+* hash -> hashlib: Importing from `hash` is now deprecated.
+Import from `mbedtls.hashlib` now instead.
+* tls: fix bug (typo) in `tls.recvfrom_into()` that would make
+the method crash.
+
+[1.2.1]
+
+* update wheels to mbedtls 2.16.6
+
+[1.2.0] - 2020-03-10
+
+* ci: Partial support to Python 3.9
+* ci: Upgrade manylinux from 1 to 2010.
+* *: Drop Python 3.4
+
+[1.1.0] - 2020-02-22
+
+* tls: Add support to PSK for (D)TLS
+* tls: Fixup `access()` method for DTLS on Python 2.7 and 3.4.
+* tls: Ensure that the `ciphers` parameter is a tuple and let
+`ciphers` accessors return tuples.
+* update wheels to mbedtls 2.16.5
+
+[1.0.0] - 2020-01-05
+
+* ci: Add support to Python 3.8.
+* md: Support MD2 and MD4 algo.
+* ci: Update dependencies.
+
+[0.18.3]
+
+* setup.py: Refuse to build if mbedtls is too old.
+
+[0.18.2]
+
+* cipher: Increase test coverage and fix minor bugs.
+* tests: Do not assume that havege is missing as it could be included
+in some configurations.
+* tests: Make error reporting with memoryviews closer to pytest
+reporting for bytes.
+
+[0.18.1]
+
+* update wheels with 2.16.3.
+* version: Make `has_feature()` public.
+* tests: Skip tests to features that are not compiled in.
+* tests: Improve error reporting with memoryviews.
+
+[0.18.0] - 2019-05-11
+
+* secrets: Add PEP-506 conform secrets module for generating secrets.
+* cipher/hash/hmac: These modules and packages are now pure-Python.
+* mpi: Add bitwise operations.
+
+API Changes
+
+* pk.ECDHNaive: `generate()` returns the public key as an ECPoint and
+`import_peers_public()` now takes an ECPoint.  `import_peer_public(MPI)`
+is deprecated and will be removed in a future release.  Further note
+the `s` in `import_peers_public()`.
+* pk: Make `ECDH*.{public_key,private_key,peers_public_key}` public.  The
+private equivalents with a `_*` prefix are deprecated and will be removed in a
+future release.  Further note the `s` in `peers_public_key`.
+* _random: Privatize `Entropy` and refactor `Random` class.
+
+Bugfixes
+
+* mpi: Fix bug in `mpi.to_bytes()`.
+
+Misc.
+
+* *: Format Python files with `black`
+* ci: Check that the docs build in CI.
+* ci: Repair test coverage measurements on coveralls.
+* mpi: Simplify code for comparisons.
+* mpi: Add tests and better exceptions for `__pow__()`.
+
+
+[0.17.1] - 2019-04-16
+
+This is a bugfix release fixing several TLS issues.
+
+Misc.
+
+* Split download and install scripts.
+
+Bugfixes
+
+* tls: Split input and output buffers for TLS/TCP.
+* tls: Fixes issue with TLSv1 by reading greedily from the buffer.
+
+
+[0.17.0] - 2019-04-12
+
+* Add support to HKDF (HMAC key derivation function).
+
+Misc.
+
+* Change branching model to fast-forward merge on the master branch.
+* Change directive `language_level` from 2 to 3 for Cython.
+
+Bugfixes
+
+* *: Fixup handling of empty and `None` buffers (#20: Roman (inpos)).
+* hmac: Hmac now accepts the empty key (b"").
+
+
+[0.16.0] - 2019-04-04
+
+Add Chacha20/Poly1305 support (Stephen.Y).
+
+* cipher: Add support for the ARIA family.
+* cipher: Add OFB, XFB, and CHACHA/POLY modes and support for
+AEAD ciphers (Stephen.Y).
+* Update wheels with mbedtls 2.16.1.
+
+[0.15.0] - 2019-03-15
+
+Add DTLS support.  Both client side and server side are implemented.
+Setting the cookie on the server side is *not* optional in `python-mbedtls`.
+
+* pk: Add support for curves 448 and 25519 (Stephen.Y).
+
+Misc.
+
+* Update wheels with mbedtls 2.14.1.
+* version: Add accessors to the version of mbed TLS in use.
+* tls: Allow configuration of libmbedtls debug level.
+
+[0.14.1] - 2019-01-10
+
+Update wheels with mbedtls 2.7.9.
+
+[0.14.0] - 2019-01-08
+
+* Build and test on `manylinux1` (PEP 513) to distribute linux
+wheels with Mbed TLS.  It is not necessary anymore to install
+mbed TLS separately.
+* x509/CRL: Add support for upstream Mbed TLS version 2.7.2 and above.
+Note that this did not require changes in the library but only
+in the tests.
+* The library now internally uses a single global `Random` instance.
+This instance is not accessible from Python.
+* pk/DHServer, pk/DHClient: Increase test entropy to avoid
+flakey tests.
+
+API Changes
+
+* random: `Random()` now takes an optional `entropy` object
+as argument.
+* random: `Random.reseed()` now takes optional data that can be used
+to increase entropy.
+
+Bugfixes
+
+* mpi: Let MPI built from an empty byte (b"") be 0 as regular ints.
+
+[0.13.0] - 2018-10-25
+
+Add TLS support.  Both client side and server side are implemented.
+SSLv3 is not supported.  Session management and SNI callbacks are
+not implemented.
+
+API Changes
+
+* x509: `ca` and `max_path_length` basic constraints are now
+grouped into a `BasicConstraints` namedtuple.  It is possible
+to leave the basic constraints unset by passing None
+to `CRT.new(..., basic_constraints=None)`.
+* random: `random` module renamed `_random`.
+
+Bugfixes
+
+* mpi: GC now actually overwrites keys with random data.
+
+Misc.
+
+* pk: Improved error handling.
+* Declare mbedtls functions nogil.
+* The install script uses cmake to install mbedtls.
+
+[0.12.2] - 2018-09-10
+
+Misc.
+
+* New `property` syntax from Cython 0.24.
+* Fixup rendering on Pypi.
+* Update required deps.
+
+[0.12.1] - 2018-08-27
+
+Update version in `setup.py`.  No change in the code.
+
+[0.12.0] - 2018-08-27
+
+* x509: Add accessors to most fields of CRT, CSR, and CRL.
+The `x509` module can now be used to inspect existing certificates.
+* x509: The module now offers basic signing and
+verification capabilities.
+
+API Changes
+
+* pk: `from_{PEM,DER,buffer}` are now `classmethod`s to
+comply with PEP 543.
+* x509: `Certificate` class renamed `CRT`.
+* x509: `start` and `end` arguments renamed `not_before` and
+`not_after`; `md_alg` argument is now `digestmod`.
+* x509: Re-order the arguments of the `new()` methods.
+* exceptions: Rename `MbedTLSError` -> `TLSError` to comply
+with PEP 543.
+
+Misc
+
+* pk: `__eq__()` now also accepts DER (bytes) or PEM (str) formats.
+* x509: `__bytes__()` returns the certificates in the DER format.
+* x509: `__str__()` now returns a human-readable string.
+
+
+[0.11.1] - 2018-07-04
+
+Update changelog.  No changes in the code.
+
+
+[0.11.0] - 2018-07-01
+
+* Support Diffie-Hellman-Merkle key exchange.
+* MPIs (multi-precision integers) now implement the full
+`numbers.Integral` API.
+* MPIs are erased from memory upon garbage collection.
+* The `mpi` library is now public (renamed `_mpi` -> `mpi`).
+
+API Changes
+
+* pk: Methods that were previously returning a long integer now
+return an MPI.
+* exceptions: Rename `_ErrorBase` -> `MbedTLSError`.  It is now
+the only new exception.
+* exceptions: `mbedtls_strerror()` generates the error message.
+
+
+[0.10.0] - 2018-05-07
+
+Support elliptic curve cryptography
+
+* pk/ECC: Elliptic curve digital signature algorithm.
+* pk/ECDHServer, pk/ECDHClient: Elliptic curve Diffie-Hellman.
+The two classes together support ECDHE (ephemeral) as well.
+
+API Changes
+
+* pk/RSA: generate() returns the private key.
+* pk/RSA: to_DER() and to_PEM() are obsolete and will be removed.
+Users should call export_key() and export_public_key() instead.
+* pk/RSA: has_public() and has_private() are now private.
+Test if export_key() and export_public_key() are truthy
+or falsy instead.
+* pk/RSA: __str__() now returns the private key in PEM format.
+* pk/RSA: to_bytes() and __bytes__() now return the private key
+in DER format.
+
+Bugfix
+
+* pk: Increase the size of the buffer for sign, encrypt, decrypt
+
+Misc.
+
+* Use const memoryviews supported by Cython 0.28.0.
+* pk: pk is now a module instead of a package.
+
+[0.9.0] - 2018-03-14
+
+Misc.
+
+* Switch to semantic versioning.
+* Add pxd files to source distribution.
+
+
+[0.9] - 2018-03-13
+
+API Changes
+
+* x509/Certificate: next() returns the next certificate in a chain.
+* md: Implement block_size property.
+
+Misc.
+
+* Clean up imports.
+* Fix tests and packaging.
+* Change git merge policy to fast-forward on develop.
+
+
+[0.8 withdrawn] - 2018-02-24
+
+Support X.509 Certificates
+
+* x509/Certificate: X.509 certificate writer and parser.
+* x509/CSR: X.509 certificate signing request writer and parser.
+* x509/CRL: X.509 certificate revocation list and validation.
+
+API Changes
+
+* CipherBase/RSA: import_() method renamed from_buffer() for PEP 543.
+* CipherBase/RSA: export(format="PEM") method renamed to_PEM()
+* CipherBase/RSA: export(format="DER") method renamed to_DER()
+* CipherBase/RSA: from_DER(), from_PEM() to import from DER or PEM.
+* CipherBase/RSA: to_bytes() alias to_DER()
+
+
+[0.7] - 2018-02-04
+
+* Add support for Python 2.7, 3.5, and 3.6.
+* Tests ported from nosetest to pytest.
+* Setup continuous integration.
