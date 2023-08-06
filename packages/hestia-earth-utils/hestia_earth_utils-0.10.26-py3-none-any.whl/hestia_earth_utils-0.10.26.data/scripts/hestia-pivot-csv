@@ -1,0 +1,17 @@
+#!python
+
+import sys
+from hestia_earth.utils.table import pivot_csv
+
+
+def main(args: list):
+    if len(args) != 2:
+        sys.exit('Usage: hestia-pivot-csv source.csv dest.csv')
+
+    src, dest = args
+    pd = pivot_csv(src)
+    pd.to_csv(dest, index=None)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
