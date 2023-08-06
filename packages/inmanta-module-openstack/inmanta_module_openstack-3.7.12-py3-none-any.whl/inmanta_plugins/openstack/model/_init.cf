@@ -1,0 +1,532 @@
+"""
+    Copyright 2019 Inmanta
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: code@inmanta.com
+"""
+import ip
+import ip::services
+import net
+import platform
+import ssh
+import std
+
+entity OpenStackResource extends std::PurgeableResource, std::ManagedResource:
+    """ Base class for all openstack resources
+
+        :param send_event: Forced to default true. This means that all resources that subscribe to this
+                           resource will run their process events / reload.
+    """
+    bool send_event=true
+end
+
+entity Provider:
+    """
+        The configuration for accessing an Openstack based IaaS
+
+        :param verify_cert: Indicates whether the SSL/TLS certificate should be verified.
+    """
+    string name
+    string connection_url
+    bool verify_cert=true
+    string username
+    string password
+    string tenant
+    string token=""
+    string admin_url=""
+    bool auto_agent=true
+end
+
+index Provider(name)
+
+implementation agentConfig for Provider:
+    std::AgentConfig(autostart=true, agentname=name, uri="local:", provides=self)
+end
+
+implement Provider using std::none
+implement Provider using agentConfig when auto_agent
+
+implementation providerRequire for OpenStackResource:
+    self.requires += self.provider.requires
+end
+
+## Keystone config
+entity Project extends OpenStackResource:
+    """
+        A project / tenant in openstack
+    """
+    string name
+    bool enabled=true
+    string description=""
+end
+index Project(provider, name)
+
+Project.provider [1] -- Provider.projects [0:]
+
+implement Project using providerRequire
+
+entity User extends OpenStackResource:
+    """
+        A user in openstack. A handler for this entity type is loaded by agents.
+
+        :param name             The name of the user. The name of the user has to be unique on a specific IaaS. The handler will
+                                use this name to query for the exact user and its ID.
+        :param email            The email address of the user to use.
+        :param enabled          Enable or disable this user
+        :param password         The password for this user. The handler will always reset back to this password. The handler
+                                will ignore this attribute when an empty string is set.
+        :param purged           Set this attribute to true if the user has to be purged.
+        :param purge_on_delete  Purge the resource when it is deleted from the configuration model.
+    """
+    string name
+    string email
+    bool enabled=true
+    string password=""
+end
+index User(provider, name)
+User.provider [1] -- Provider.users [0:]
+implement User using providerRequire
+
+entity Role extends OpenStackResource:
+    """
+        A role in openstack. A role defines membership of a user in a project.
+        This entity is used to connect users to projects. With this, it
+        implicitly defines the role.
+
+        :param id A unique id (generated in the implementation with a template)
+    """
+    string role_id
+    string role
+end
+Role.provider [1] -- Provider.roles [0:]
+implement Role using roleImpl, providerRequire
+
+"""
+    Each project can have multiple roles
+"""
+Role.project [1] -- Project.roles [0:]
+
+"""
+    Each user can have multiple roles
+"""
+Role.user [1] -- User.roles [0:]
+
+implementation roleImpl for Role:
+    if not self.purged:
+        if not self.project.purged:
+            self.requires = self.project
+        end
+        if not self.user.purged:
+            self.requires = self.user
+        end
+    end
+    self.provider = self.user.provider
+
+    self.role_id = "{{ project.name }}_{{ user.name }}_{{ role }}"
+end
+
+entity Service extends OpenStackResource:
+    string name
+    string type
+    string description
+end
+implement Service using providerRequire
+Service.provider [1] -- Provider.services [0:]
+index Service(provider, name, type)
+
+entity EndPoint extends OpenStackResource:
+    string region
+    string internal_url
+    string public_url
+    string admin_url
+    string service_id
+end
+implement EndPoint using endPoint, providerRequire
+Service.endpoint [0:1] -- EndPoint.service [1]
+EndPoint.provider [1] -- Provider.endpoints [0:]
+
+implementation endPoint for EndPoint:
+    self.provider = self.service.provider
+
+    self.service_id = "{{ service.type }}_{{ service.name }}"
+end
+
+## Neutron config
+typedef admin_state as string matching self == "up" or self == "down"
+
+entity Network extends OpenStackResource:
+    """
+        A neutron network owned by a project
+    """
+    string name
+    bool external=false
+    string physical_network=""
+    string network_type=""
+    number segmentation_id=0
+    bool shared=false
+    bool? vlan_transparent=null
+end
+
+Network.provider [1] -- Provider.networks [0:]
+Project.networks [0:] -- Network.project [1]
+
+index Network(provider, name)
+
+implement Network using providerRequire
+
+entity Port extends OpenStackResource:
+    """
+        A port on a network
+    """
+    ip::ip address
+end
+
+entity AddressPair:
+    """
+        An address pair that is added to a host port
+
+        :attr address: The address range that is allowed on this port (network interface)
+        :attr mac_addr: An optional mac address. When omitted, the mac address of this port is used by neutron.
+    """
+    ip::cidr address
+    net::mac_addr? mac
+end
+
+implement AddressPair using std::none
+
+Port.provider [1] -- Provider.ports [0:]
+Port.project [1] -- Project.ports [0:]
+Port.allowed_address_pairs [0:] -- AddressPair
+
+entity RouterPort extends Port:
+    """
+        A port attached to a router
+    """
+    string name
+end
+
+index RouterPort(router, subnet)
+
+implement RouterPort using providerRequire
+
+RouterPort.subnet [1] -- Subnet.routers [0:]
+
+entity HostPort extends Port:
+    """
+        A port attached to a VM
+
+        :param name: The name of the host port.
+        :param portsecurity: Enable or disable port security (security groups and spoofing filters)
+        :param dhcp: Enable dhcp for this port or not for this port
+        :param port_index: The index of the port. This determines the order of the interfaces on the virtual machine. 0 means no specific order.
+        :param retries: A hostport can only be attached to a VM when it is in an active state. The handler will skip this port when the VM is not ready. To
+                        speed up deployments, the handler can retry this number of times before skipping the resource.
+        :param wait: The number of seconds to wait between retries.
+    """
+    string name
+    bool portsecurity=true
+    bool dhcp=true
+    number port_index=0
+    number retries=20
+    number wait=5
+end
+
+implement HostPort using providerRequire
+
+HostPort.subnet [1] -- Subnet.host_ports [0:]
+HostPort.vm [1] -- VirtualMachine.ports [0:]
+
+index HostPort(provider, vm, name)
+
+entity Subnet extends OpenStackResource:
+    """
+        A neutron network subnet
+
+        :attr gateway_ip: The gateway IP to set on this subnet. If set to null, the first IP in the subnet will be used
+                          as the gateway_ip. Example: 192.168.0.1 will be used for the network 192.168.0.0/24.
+        :attr disable_gateway_ip: When set to true, no gateway IP will be set for the subnet. As such,
+                                  the gateway_ip parameter will be ignored.
+    """
+    ip::cidr network_address
+    bool dhcp
+    string name
+    string allocation_start=""
+    string allocation_end=""
+    ip::ip[] dns_servers=[]
+    ip::ip? gateway_ip=null
+    bool disable_gateway_ip=false
+end
+
+implement Subnet using providerRequire
+
+index Subnet(network, name)
+
+Subnet.provider [1] -- Provider.subnets [0:]
+Subnet.project [1] -- Project.subnets [0:]
+Subnet.network [1] -- Network.subnets [0:]
+
+entity Route:
+    """
+        A routing rule to add
+    """
+    ip::cidr destination
+    ip::ip nexthop
+end
+implement Route using std::none
+
+entity Router extends OpenStackResource:
+    """
+        A router
+    """
+    admin_state admin_state="up"
+    string name
+    bool ha=false
+    bool distributed=false
+end
+
+index Router(provider, name)
+
+implement Router using providerRequire
+
+Router.provider [1] -- Provider.routers [0:]
+Router.project [1] -- Project.routers [0:]
+Router.ports [0:] -- RouterPort.router [1]
+Router.subnets [0:] -- Subnet.router [0:1]
+Router.ext_gateway [0:1] -- Network.routers [0:]
+Router.routes [0:] -- Route.router [0:1]
+
+## Nova config
+typedef direction as string matching self == "ingress" or self == "egress"
+
+entity SecurityGroup extends OpenStackResource:
+    """
+        :param retries: A security group can only be deleted when it is no longer in use. The API confirms the delete of a virtual machine for example, but
+                        it might still be in progress. This results in a failure to delete the security group. To speed up deployments, the handler can
+                        retry this number of times before skipping the resource.
+        :param wait: The number of seconds to wait between retries.
+    """
+    string description=""
+    string name
+    bool manage_all=true
+    number retries=10
+    number wait=5
+end
+
+index SecurityGroup(project, name)
+
+implement SecurityGroup using sg, providerRequire
+
+implementation sg for SecurityGroup:
+    self.requires = self.project
+end
+
+SecurityGroup.provider [1] -- Provider.security_groups [0:]
+SecurityGroup.project [1] -- Project.security_groups [0:]
+SecurityGroup.virtual_machines [0:] -- VirtualMachine.security_groups [0:]
+
+entity SecurityRule:
+    """
+        A filter rule in the a security group
+
+        :param ip_protocol The type of ip protocol to allow. Currently this support tcp/udp/icmp/sctp or all
+    """
+    ip::protocol ip_protocol
+    ip::port port_min=0
+    ip::port port_max=0
+    ip::port port=0
+    direction direction
+end
+
+entity IPrule extends SecurityRule:
+    ip::cidr remote_prefix
+end
+
+entity GroupRule extends SecurityRule:
+end
+
+GroupRule.remote_group [1] -- SecurityGroup.remote_group_rules [0:]
+
+implement IPrule using std::none
+implement GroupRule using std::none
+
+SecurityRule.group [1] -- SecurityGroup.rules [0:]
+
+entity FloatingIP extends OpenStackResource:
+    string name
+    ip::ip address
+    bool force_ip=false
+end
+
+implementation fipName for FloatingIP:
+    # We need a consistent and unique name to identity the fip
+    self.name = "{{external_network.name}}_{{port.name}}"
+end
+index FloatingIP(external_network, port)
+
+implementation fipAddr for FloatingIP:
+    self.address = std::getfact(self, "ip_address")
+end
+
+implement FloatingIP using fipName, providerRequire
+implement FloatingIP using fipAddr when not force_ip
+
+FloatingIP.project [1] -- Project.floating_ips [0:]
+FloatingIP.provider [1] -- Provider.floating_ips [0:]
+FloatingIP.external_network [1] -- Network.floating_ips [0:]
+FloatingIP.port [1] -- HostPort.floating_ips [0:]
+
+entity VMAttributes extends platform::UserdataVM:
+    """
+        Entity with vm attributes that can be used for a virtual machine and a host
+
+        :param flavor: The name of the flavor
+        :param image: The uuid of the image
+        :param user_data: The user_data script to pass
+        :param metadata: A dict of metadata items
+        :param personality: A dict of files (personality)
+        :param config_drive: Attach a configuration drive to the vm
+        :param install_agent: Create a script and pass it as user_data to install the inmanta agent at boot time.
+    """
+    string flavor
+    string image
+    string user_data
+    dict metadata={}
+    dict personality={}
+    bool config_drive=false
+    bool install_agent=false
+end
+
+entity VirtualMachine extends OpenStackResource, VMAttributes:
+    string name
+end
+
+implement VirtualMachine using providerRequire
+
+index VirtualMachine(provider, name)
+
+VirtualMachine.eth0_port [1] -- HostPort
+VirtualMachine.key_pair [1] -- ssh::Key
+VirtualMachine.project [1] -- Project
+VirtualMachine.provider [1] -- Provider.virtual_machines [0:]
+
+entity Host extends ip::Host, VMAttributes:
+    """
+        :attr purged: Set whether this Host should exist or not.
+        :attr purge_on_delete: Purge this Host when it is deleted from the configuration model.
+    """
+    bool purged=false
+    bool purge_on_delete=false
+end
+
+Host.vm [1] -- VirtualMachine.host [0:1]
+Host.subnet [0:1] -- Subnet
+Host.key_pair [1] -- ssh::Key
+Host.project [1] -- Project
+Host.provider [1] -- Provider
+Host.security_groups [0:] -- SecurityGroup
+
+implementation eth0Port for Host:
+    port = HostPort(provider=provider, vm=self.vm, subnet=subnet, name="{{name}}_eth0", address=std::getfact(self.vm, "ip_address"),
+                    project=project, port_index=1, purged=purged, purge_on_delete=self.purge_on_delete)
+    self.vm.eth0_port = port
+    self.ip = port.address
+end
+
+implement Host using eth0Port when subnet is defined
+
+implementation openstackVM for Host:
+    self.vm = VirtualMachine(name=name, key_pair=key_pair, project=project, provider=provider, user_data=user_data, image=image,
+                             flavor=flavor, purged=purged, security_groups=security_groups, config_drive=config_drive,
+                             metadata=self.metadata, personality=self.personality, purge_on_delete=self.purge_on_delete)
+    self.requires = self.vm
+end
+
+implement Host using std::hostDefaults, openstackVM
+
+implementation userData for platform::UserdataVM:
+    platform::UserdataBootstrap(vm=self)
+end
+
+implement VirtualMachine using userData when install_agent
+implement Host using userData when install_agent
+
+index Flavor (provider, name)
+Flavor.provider [1] -- Provider.flavors [0:]
+entity Flavor extends OpenStackResource:
+    """
+        A machine flavor for OpenStack VMs
+
+        :attr name: Descriptive name of the flavor. While OpenStack does not consider the name unique, this module does.
+        :attr ram: Memory in MB for the flavor
+        :attr vcpus: Number of VCPUs for the flavor
+        :attr disk: Size of local disk in GB
+        :attr flavor_id: OpenStack unique ID. You can use the reserved value \"auto\" to have Nova generate a UUID for the flavor in cases where you cannot simply pass null.
+        :attr ephemeral: Ephemeral disk size in GB
+        :attr swap: Swap space in MB
+        :attr rxtx_factor: RX/TX factor
+        :attr is_public: Whether the flavor is publicly visible
+        :attr extra_specs: Set extra specs on a flavor. See https://docs.openstack.org/nova/rocky/admin/flavors.html
+    """
+    string name
+    number ram
+    number vcpus
+    number disk
+    string? flavor_id = null
+    number ephemeral = 0
+    number swap = 0
+    number rxtx_factor = 1.0
+    bool is_public = true
+    dict extra_specs = {}
+end
+
+implement Flavor using providerRequire
+
+index Image(provider, name)
+Image.provider [1] -- Provider.images [0:]
+
+typedef container_format as string matching self in ["ami", "ari", "aki", "bare", "ovf", "ova", "docker"]
+typedef disk_format as string matching self in ["ami", "ari", "aki", "vhd", "vhdx", "vmdk", "raw", "qcow2", "vdi", "iso", "ploop"]
+# TODO: add support for "shared" and "community"
+# see: https://wiki.openstack.org/wiki/Glance-v2-community-image-visibility-design
+typedef visibility as string matching self in ["public", "private"]
+
+entity Image extends OpenStackResource:
+    """
+        A machine image for OpenStack VMs
+
+        :attr name: Name for the flavor. Inmanta treats image names as unique per provider.
+        :attr uri: a link to the download location of the image.
+        :attr container_format: Must be one of [null, ami, ari, aki, bare, ovf, ova, docker].
+        :attr disk_format: Must be one of [null, ami, ari, aki, vhd, vhdx, vmdk, raw, qcow2, vdi, iso, ploop].
+        :attr image_id: uuid to identify the image. Auto set by OpenStack if not set.
+        :attr visibility: Whether the image is visible across all projects. Can either be public or private. Shared and community are currently not implemented.
+        :attr protected: Whether the image can be deleted or not. Inmanta will never delete protected images.
+        :attr metadata: Various metadata passed as a dict.
+        :attr skip_on_deploy: When set, inmanta will not wait for the image to be deployed and mark it as skipped.
+        :attr purge_on_delete: When set to true, the image will be removed when no longer present in the model.
+    """
+    string name
+    string uri
+    container_format? container_format = "bare"
+    disk_format? disk_format = "qcow2"
+    std::uuid? image_id = null
+    visibility visibility = "public"
+    bool protected = false
+    dict metadata = {}
+    bool skip_on_deploy = true
+    bool purge_on_delete = false
+end
+
+implement Image using providerRequire
+
