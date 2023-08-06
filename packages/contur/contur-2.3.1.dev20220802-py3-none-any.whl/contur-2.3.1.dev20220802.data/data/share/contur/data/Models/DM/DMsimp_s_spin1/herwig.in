@@ -1,0 +1,48 @@
+# This is the user template for Herwig running on the DMsimp_s_spin1 UFO model
+# 
+# Only the model specific parts are here. The rest is generated auotmatically
+# by Contur.
+
+# Read in the Feynrules model
+read FRModel.model
+
+# set the masses which we dont want to change
+set /Herwig/FRModel/Particles/Xc:NominalMass 4000.*GeV
+set /Herwig/FRModel/Particles/Xc~:NominalMass 4000.*GeV
+set /Herwig/FRModel/Particles/Xr:NominalMass 4000.*GeV
+
+# templating for the masses we do want to change
+set /Herwig/FRModel/Particles/Xd:NominalMass {mXd}*GeV
+set /Herwig/FRModel/Particles/Xd~:NominalMass {mXd}*GeV
+set /Herwig/FRModel/Particles/Y1:NominalMass {mY1}*GeV
+
+# templating for the couplings we want to change
+set /Herwig/FRModel/FRModel:gVXd {gVXd}
+set /Herwig/FRModel/FRModel:gVd11 {gVq}
+set /Herwig/FRModel/FRModel:gVu11 {gVq}
+set /Herwig/FRModel/FRModel:gVd22 {gVq}
+set /Herwig/FRModel/FRModel:gVu22 {gVq}
+set /Herwig/FRModel/FRModel:gVd33 {gVq}
+set /Herwig/FRModel/FRModel:gVu33 {gVq}
+
+set /Herwig/FRModel/FRModel:gAXd {gAXd}
+set /Herwig/FRModel/FRModel:gAd11 {gAq}
+set /Herwig/FRModel/FRModel:gAu11 {gAq}
+set /Herwig/FRModel/FRModel:gAd22 {gAq}
+set /Herwig/FRModel/FRModel:gAu22 {gAq}
+set /Herwig/FRModel/FRModel:gAd33 {gAq}
+set /Herwig/FRModel/FRModel:gAu33 {gAq}
+
+set /Herwig/FRModel/FRModel:gVl11 {gVl}
+set /Herwig/FRModel/FRModel:gVl22 {gVl}
+set /Herwig/FRModel/FRModel:gVl33 {gVl}
+
+cd /Herwig/NewPhysics
+# set the outgoing particles for the inclusive process
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xd
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xd~
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Y1
+
+# set the intermediate particles for the resonant process
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/Y1
+

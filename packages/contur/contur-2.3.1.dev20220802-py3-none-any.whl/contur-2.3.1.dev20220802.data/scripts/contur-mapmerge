@@ -1,0 +1,54 @@
+#!python
+
+import os
+import pickle
+import sys
+from argparse import ArgumentParser
+import contur.scan
+import contur.config.config as cfg
+import contur.util.utils as cutil
+import logging
+
+parser = ArgumentParser(description="Concatenate multiple .map files.")
+parser.add_argument('map_files', nargs='*', metavar='map_files',
+                    help='Specify .map files to concatenate.')
+parser.add_argument('-o', '--output_path', metavar='out_path', type=str,
+                    default='merged.map',
+                    help='Output path to write new .map file to.')
+parser.add_argument("-d", "--debug", action="store_true", dest="DEBUG", default=False,
+                    help="Switch on Debug to all, written to log file")
+
+args = parser.parse_args()
+
+cfg.setup_logger(filename="contur_mapmerge.log")
+print("Writing log to {}".format(cfg.logfile_name))
+
+
+if args.DEBUG:
+    cfg.contur_log.setLevel(logging.DEBUG)
+
+
+if os.path.isfile(args.output_path):
+
+
+    if not cutil.permission_to_continue("Output file {} already exists. Do you want to overwrite it?".format(args.output_path)):
+        sys.exit()
+
+
+cfg.setup_logger(filename="contur_mapmerge.log")
+print("Writing log to {}".format(cfg.logfile_name))
+
+combined_object = []	
+target = None	
+for map_file in args.map_files:
+    with open(map_file, 'rb') as f:
+        print("Loading ", map_file)
+        if not target:
+            target = pickle.load(f)
+        else:
+            candidate = pickle.load(f)
+            print("Merging ", map_file)
+            target.merge(candidate)
+
+with open(args.output_path, 'wb') as f:
+    pickle.dump(target, f, protocol=2)

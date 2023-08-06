@@ -1,0 +1,205 @@
+#!python
+
+"""\
+%(prog)s [options] 
+
+Make web pages from data files written out from a Contur run.
+(Initially adapted from rivet-mkhtml.)
+
+Reference data, analysis metadata, and plot style information should be found
+automatically (if not, set the RIVET_ANALYSIS_PATH or similar variables
+appropriately).
+
+Contur data is read from -i INPUTDIR (default ./ANALYSIS)
+
+Output will be written to -o OUTPUDIR (default ./contur-plots )
+
+Any existing output directory of the same name will be overwritten.
+
+"""
+
+import shutil, glob, datetime
+from subprocess import Popen
+import sys, os
+
+import contur
+import contur.plot.html_utils 
+
+from contur.run.arg_utils import get_args
+import contur.config.config as cfg
+import contur.data.static_db as cdb
+
+args = get_args(sys.argv[1:],"html")
+
+## Start main program: ########################################
+
+contur.run.arg_utils.setup_common(args)
+
+if args['ANAPATTERNS']:
+    print("Only (re)making plots for these analyses:{}".format(args['ANAPATTERNS']))
+
+if args['ANAUNPATTERNS']:
+    print("Not (re)making plots for these analyses:{}".format(args['ANAUNPATTERNS']))
+
+# Prepare output directories:
+# Check the input directory
+inputdir = args['INPUTDIR']   #< TODO: Use os.path.abspath(args['INPUTDIR'])?
+plotinputdir = os.path.join(inputdir, "plots")
+if not os.path.exists(plotinputdir):
+    print("Error: required plot input directory {} does not exist. Did you run contur first?".format(plotinputdir))
+    print("A non-standard ANALYSIS dir can be specified using the --indir flag")
+    sys.exit(1)
+    
+# Remove the output directory if it already exists
+if os.path.exists(args['OUTPUTDIR']) and not os.path.realpath(args['OUTPUTDIR']) == os.getcwd():
+    shutil.rmtree(args['OUTPUTDIR'])
+# Copy the plots dir from the contur run into the output location
+try:
+    shutil.copytree(plotinputdir, args['OUTPUTDIR'])
+except:
+    print("Error: failed to copy to directory '{}'".format(args['OUTPUTDIR']))
+    sys.exit(1)
+
+# Make web pages before the plot so that we can load them locally in
+# a browser to view the output before all plots are made
+# ------------------------------------------------------------------
+
+
+# some template strings
+style = '''
+<style>
+      html { font-family: sans-serif; font-size: large; }
+      img { border: 0; }
+      a { text-decoration: none; font-weight: bold; }
+      h2 { margin-top: 1.5em; margin-bottom: 1ex; }
+      h2:first-child { margin-top: 0em; }
+
+      div.plot{ float: left; margin-right: 40px; font-size:smaller; font-weight:bold;}
+      div.pool{ border:1px solid black; background-color:lightblue;}
+      div.pool:before,
+      div.pool:after {
+          content: "";
+          display: table;  }
+      div.pool:after { clear: both; } 
+
+
+      div.stattype{ float: left; padding: 5px; }
+      div.stattype:before,
+      div.stattype:after {
+          content: "";
+          display: table;  }
+      div.stattype:after { clear: both; } 
+}
+
+
+</style>
+    '''
+# Include MathJax configuration
+script = ''
+if not args['OFFLINE']:
+    script = '''
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [["$","$"]]}
+        });
+    </script>
+    <script type="text/javascript"
+          src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>'''
+    
+# A timestamp HTML fragment to be used on each page:
+timestamp = '<p>Generated at {}</p>\n'.format(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
+
+# Open the top-level index file
+index = open(os.path.join(args['OUTPUTDIR'], "index.html"), "w")
+
+# when we arent just drawing all plots, this list contains the list we will draw.
+reduced_list_of_plots=[]
+
+# Write title
+index.write('<html>\n<head>\n<title>{}</title>\n{}\n{}\n</head>\n<body>'.format(args['TITLE'], style,script))
+index.write('<h1><img width=10% style="vertical-align:top;" src="{}">'.format(os.path.join(contur.config.paths.data_path(),"data/Plotting/logo.png")))
+index.write('{}</h1>\n\n'.format(args['TITLE']))
+
+try:
+    summary = open(os.path.join(inputdir,"Summary.txt"), "r")
+    reduced_list_of_plots = contur.plot.html_utils.write_summary(index, summary,args['FORVISUALISER'],args['ANAPATTERNS'],args['ANAUNPATTERNS'])
+except IOError as e:
+    print("No Contur summary file found: Summary info omitted")
+
+# Get the make-plots command ready
+mp_cmd = ["make-plots"]
+if args['NUMTHREADS']:
+    mp_cmd.append("--num-threads={}".format(args['NUMTHREADS']))
+if args['NO_CLEANUP']:
+    mp_cmd.append("--no-cleanup")
+if args['NO_SUBPROC']:
+    mp_cmd.append("--no-subproc")
+if args['OUTPUT_FONT']:
+    mp_cmd.append("--font={}".format(args['OUTPUT_FONT']))
+if args['ALL_ERRBARS']:
+    mp_cmd.append("--config={}/data/Plotting/allErrorBars.dat".format(os.environ['CONTUR_ROOT']))
+if args['CONFIG']:
+    mp_cmd.append("--config={}".format(args['CONFIG']))
+mp_cmd.append("--pdfpng")
+
+
+index.write("<h2>List of all analyses considered:</h2>\n")
+
+if not args['ALLPLOTS']:
+    index.write("<p>Note that graphics have only been generated for the measurements that contribute to the final likelihoods.</p>\n")
+    index.write("<p>(To generate graphics for all plots, use the <tt>--all</tt> flag)</p>")
+    index.write("<ul>")
+
+datfiledirs = glob.glob(args['OUTPUTDIR']+"/*/*")
+
+# loop over all directories containing dat files. (One per analysis/option combination)
+for datdir in datfiledirs:
+
+    plotdir, poolid, analysisid = datdir.split("/")
+
+    # skip analyses if unselected.
+    if analysisid in args['ANAUNPATTERNS'] or (args['ANAPATTERNS'] and analysisid not in args['ANAPATTERNS']):
+        continue
+
+    analysis = cdb.get_analyses(analysisid,poolid,filter=False)[0]
+
+    anapath = os.path.join(args['OUTPUTDIR'], poolid, analysis.name)
+
+    # set off the production of the graphics files.
+    adatfiles_tmp = glob.glob(anapath+"/*.dat")
+    adatfiles=[]
+    for adf in adatfiles_tmp:
+        if not args['ALLPLOTS']:
+            for rp in reduced_list_of_plots:
+                if rp in adf:
+                    adatfiles+=[adf]
+                    break
+        else:
+            adatfiles+=[adf]
+
+    if not os.path.exists(anapath):
+        os.makedirs(anapath)
+
+    if len(adatfiles) > 0:
+        # make the pdf and png files
+        mp_this = mp_cmd + adatfiles
+        if args['DEBUG']:
+            mp_this.append("--verbose")
+            print("Calling make-plots with the following options:")
+            print(" ".join(mp_this))
+        Popen(mp_this).wait()
+
+    # write link and for each analysis/pool combination
+    index.write('\n<li><a href="{}/{}/index.html" style="text-decoration:none;">{} ({})</a></li>\n'.format(poolid, analysis.name, analysis.summary(), analysis.name))
+
+    anaindex = open(os.path.join(anapath, "index.html"), 'w')
+    analysis.toHTML(anaindex,adatfiles,style+script,timestamp)
+    anaindex.close()
+
+index.write("</ul>")
+
+index.write('<br>{}</body>\n</html>'.format(timestamp))
+index.close()
+
+

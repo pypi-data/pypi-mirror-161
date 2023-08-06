@@ -1,0 +1,108 @@
+read FRModel.model
+
+####################################
+# Run finals states involved W, Z, gamma (including top)
+####################################
+
+
+do /Herwig/Particles/W+:SelectDecayModes W+->nu_e,e+; W+->nu_mu,mu+;
+do /Herwig/Particles/W+:PrintDecayModes
+
+do /Herwig/Particles/W-:SelectDecayModes W-->nu_ebar,e-; W-->nu_mubar,mu-;
+do /Herwig/Particles/W-:PrintDecayModes
+
+do /Herwig/Particles/Z0:SelectDecayModes Z0->e-,e+; Z0->mu-,mu+;
+do /Herwig/Particles/Z0:PrintDecayModes
+
+####################################
+#
+# Modify the required process here
+#
+####################################
+
+cd /Herwig/NewPhysics
+
+insert HPConstructor:Incoming 0 /Herwig/Particles/u
+insert HPConstructor:Incoming 0 /Herwig/Particles/ubar
+insert HPConstructor:Incoming 0 /Herwig/Particles/d
+insert HPConstructor:Incoming 0 /Herwig/Particles/dbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/g
+insert HPConstructor:Incoming 0 /Herwig/Particles/s
+insert HPConstructor:Incoming 0 /Herwig/Particles/sbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/b
+insert HPConstructor:Incoming 0 /Herwig/Particles/bbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/c
+insert HPConstructor:Incoming 0 /Herwig/Particles/cbar
+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h-
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h1
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h2
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h3
+
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/u
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/ubar
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/d
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/dbar
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/g
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/s
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/sbar
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/b
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/bbar
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/c
+insert HPConstructor:ExcludedExternal 0 /Herwig/Particles/cbar
+
+set HPConstructor:Processes SingleParticleInclusive
+
+
+#############################################################
+## Additionally, you can use new particles as intermediates
+## with the ResConstructor:
+## Only doing this for outgoing top. The other quarks will lead
+## to purely hadronic signals, and are done in the Hadron run.
+#############################################################
+#insert ResConstructor:Incoming 0 /Herwig/Particles/u
+#insert ResConstructor:Incoming 0 /Herwig/Particles/ubar
+#insert ResConstructor:Incoming 0 /Herwig/Particles/d
+#insert ResConstructor:Incoming 0 /Herwig/Particles/dbar
+#insert ResConstructor:Incoming 0 /Herwig/Particles/s
+#insert ResConstructor:Incoming 0 /Herwig/Particles/sbar
+#insert ResConstructor:Incoming 0 /Herwig/Particles/c
+#insert ResConstructor:Incoming 0 /Herwig/Particles/cbar
+#insert ResConstructor:Incoming 0 /Herwig/Particles/b
+#insert ResConstructor:Incoming 0 /Herwig/Particles/bbar
+
+#insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/Y1
+
+#insert ResConstructor:Outgoing 0 /Herwig/Particles/t
+#insert ResConstructor:Outgoing 0 /Herwig/Particles/tbar
+
+####################################
+####################################
+
+read snippets/PPCollider.in
+
+# Intrinsic pT tune extrapolated to LHC energy
+set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV
+
+# disable default cuts if required
+# cd /Herwig/EventHandlers
+# create ThePEG::Cuts   /Herwig/Cuts/NoCuts
+# set EventHandler:Cuts /Herwig/Cuts/NoCuts
+
+# Other parameters for run
+cd /Herwig/Generators
+set EventGenerator:EventHandler:LuminosityFunction:Energy 7000.0
+set EventGenerator:NumberOfEvents 10000000
+set EventGenerator:RandomNumberGenerator:Seed 31122001
+set EventGenerator:DebugLevel 0
+set EventGenerator:EventHandler:StatLevel Full
+set EventGenerator:PrintEvent 100
+set EventGenerator:MaxErrors 10000
+
+create ThePEG::RivetAnalysis Rivet RivetAnalysis.so
+insert EventGenerator:AnalysisHandlers 0 Rivet
+
+read 7_WEAK.ana
+
+saverun LHC EventGenerator

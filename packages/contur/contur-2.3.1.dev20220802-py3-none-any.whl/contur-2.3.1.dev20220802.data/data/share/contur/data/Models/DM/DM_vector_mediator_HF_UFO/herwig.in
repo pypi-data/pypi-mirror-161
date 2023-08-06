@@ -1,0 +1,14 @@
+read FRModel.model 
+set /Herwig/FRModel/Particles/Y1:NominalMass {mY1}*GeV 
+set /Herwig/FRModel/Particles/Xm:NominalMass {mXm}*GeV 
+set /Herwig/FRModel/FRModel:gYXm {gYXm}
+set /Herwig/FRModel/FRModel:gYq  {gYq}
+
+cd /Herwig/NewPhysics
+# set the outgoing particles for the inclusive process
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Y1
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xm
+
+# set the intermediate particles for the resonant process
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/Y1
+

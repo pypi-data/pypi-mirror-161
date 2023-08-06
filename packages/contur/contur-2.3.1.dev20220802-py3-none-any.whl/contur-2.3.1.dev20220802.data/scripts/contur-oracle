@@ -1,0 +1,31 @@
+#!python
+
+from __future__ import print_function
+from contur.oracle.cli import *
+import os
+import click
+
+
+@click.group()
+def contur_oracle():
+    pass
+
+
+@contur_oracle.command(help='Initializes the directory for running the Oracle, creating the required folders and '
+                            'config file.')
+def init():
+    initialize_directory(os.getcwd())
+
+
+@contur_oracle.command()
+def start():
+    start_oracle(working_dir=pathlib.Path(os.getcwd()))
+
+
+@contur_oracle.command()
+def generate():
+    generate_results(working_dir=pathlib.Path(os.getcwd()))
+
+
+if __name__ == '__main__':
+    contur_oracle()

@@ -1,0 +1,34 @@
+#!python
+
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from contur.scan.zoom_params import generate_zoom_params
+
+if __name__ == "__main__":
+  parser = ArgumentParser(description="Generate new parameter file to exclude inactive regions",
+                          formatter_class=ArgumentDefaultsHelpFormatter)
+  parser.add_argument('-m', '--m_path', default='contur.map',
+                      help='Name of map file')
+  parser.add_argument('-t', '--thresh', default='0.25',
+                      help='Threshold for average change in adjacent points to consider inactive')
+  parser.add_argument('-r','--replace',action='store_true',
+                      help='Use to replace old param file with newly generated file')
+  parser.add_argument('-o', '--o_path', default='../param_file.dat',
+                      help='Name of original param file being used')
+  parser.add_argument('-n', '--n_path', default='../param_zoom.dat',
+                      help='Name of new param file to generate')
+  parser.add_argument('-p','--param',
+                      help='Name single parameter you would like to change')
+  parser.add_argument('-sp','--skipPoints',action='store_true',
+                      help='Use to make param file which individually excludes inactive points')
+  parser.add_argument('-ns','--nEventScalings',action='store_true',
+                      help='Use to make param file which scales number of Monte Carlo events to' +
+                      ' generate based on level of activity')
+  parser.add_argument('-rb','--rebin',action='store_true',
+                      help='Use to rebin search area, focusing on areas of high activity' +
+                      ' generate based on level of activity')
+  parser.add_argument('-v','--vals', nargs='+', 
+                      help='Name specific CLs values of particular importance, and ensure these' +
+                      ' points are maintained. For example, using \'-v .66\' will ensure that' +
+                      ' CLs values from .65 to .67 are maintained')
+  args = parser.parse_args()
+  generate_zoom_params(args)

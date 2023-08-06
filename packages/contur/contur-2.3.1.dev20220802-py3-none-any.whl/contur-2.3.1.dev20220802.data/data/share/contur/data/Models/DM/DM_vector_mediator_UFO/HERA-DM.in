@@ -1,0 +1,101 @@
+# -*- ThePEG-repository -*-
+
+read FRModel.model
+set /Herwig/FRModel/Particles/Y1:NominalMass 1280*GeV 
+set /Herwig/FRModel/Particles/Xm:NominalMass 400*GeV 
+set /Herwig/FRModel/FRModel:gYXm 1.0
+set /Herwig/FRModel/FRModel:gYq  0.25
+
+cd /Herwig/NewPhysics
+
+####################################
+#
+# Modify the required process here
+#
+####################################
+
+insert HPConstructor:Incoming 0 /Herwig/Particles/d
+insert HPConstructor:Incoming 0 /Herwig/Particles/dbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/u
+insert HPConstructor:Incoming 0 /Herwig/Particles/ubar
+insert HPConstructor:Incoming 0 /Herwig/Particles/s
+insert HPConstructor:Incoming 0 /Herwig/Particles/sbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/c
+insert HPConstructor:Incoming 0 /Herwig/Particles/cbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/b
+insert HPConstructor:Incoming 0 /Herwig/Particles/bbar
+insert HPConstructor:Incoming 0 /Herwig/Particles/g
+insert HPConstructor:Incoming 0 /Herwig/Particles/e-
+
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/H
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xm
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Y1
+
+set HPConstructor:Processes SingleParticleInclusive
+
+#############################################################
+## Additionally, you can use new particles as intermediates
+## with the ResConstructor:
+#############################################################
+# insert ResConstructor:Incoming 0 /Herwig/Particles/d
+# insert ResConstructor:Incoming 0 /Herwig/Particles/dbar
+# insert ResConstructor:Incoming 0 /Herwig/Particles/u
+# insert ResConstructor:Incoming 0 /Herwig/Particles/ubar
+# insert ResConstructor:Incoming 0 /Herwig/Particles/s
+# insert ResConstructor:Incoming 0 /Herwig/Particles/sbar
+# insert ResConstructor:Incoming 0 /Herwig/Particles/c
+# insert ResConstructor:Incoming 0 /Herwig/Particles/cbar
+# insert ResConstructor:Incoming 0 /Herwig/Particles/b
+# insert ResConstructor:Incoming 0 /Herwig/Particles/bbar
+# insert ResConstructor:Incoming 0 /Herwig/Particles/g
+# insert ResConstructor:Incoming 0 /Herwig/Particles/e-
+#
+# insert ResConstructor:Intermediates 0 [PARTICLE_NAME]
+#
+# insert ResConstructor:Outgoing 0 /Herwig/Particles/e+
+# insert ResConstructor:Outgoing 1 /Herwig/Particles/W+
+# insert ResConstructor:Outgoing 2 /Herwig/Particles/Z0
+# insert ResConstructor:Outgoing 3 /Herwig/Particles/gamma
+
+#####################################################
+#####################################################
+
+read snippets/EPCollider.in
+
+# Intrinsic pT tune extrapolated to LHC energy 
+# HERA: what does this mean for HERA experiments
+# set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV
+
+# disable default cuts if required
+cd /Herwig/EventHandlers
+create ThePEG::Cuts   /Herwig/Cuts/NoCuts
+set EventHandler:Cuts /Herwig/Cuts/NoCuts
+
+## EP collider parameters
+cd /Herwig/EventHandlers
+set EventHandler:BeamA /Herwig/Particles/e-
+set Luminosity:BeamEMaxA 27.5*GeV
+set EventHandler:BeamB /Herwig/Particles/p+
+set Luminosity:BeamEMaxB 920*GeV
+set /Herwig/Cuts/NeutralCurrentCut:MaxQ2 20000
+set /Herwig/Cuts/NeutralCurrentCut:MinQ2 5
+
+
+# Other parameters for run - from LHC input files
+cd /Herwig/Generators
+set EventGenerator:NumberOfEvents 10000000
+set EventGenerator:RandomNumberGenerator:Seed 31122001
+set EventGenerator:DebugLevel 0
+set EventGenerator:EventHandler:StatLevel Full
+set EventGenerator:PrintEvent 1
+set EventGenerator:MaxErrors 10000
+
+# prepare for Rivet analysis
+read snippets/Rivet.in
+insert /Herwig/Analysis/Rivet:Analyses 0 ZEUS_2010_I875006
+
+# save run, make .run card by using Herwig run ...
+cd /Herwig/Generators
+saverun HERA-DM EventGenerator
+
+

@@ -1,0 +1,84 @@
+read FRModel.model
+
+cd /Herwig/Cuts
+set JetKtCut:MinKT 50*GeV
+
+set /Herwig/FRModel/Particles/Zp:NominalMass {mZp}*GeV 
+set /Herwig/FRModel/Particles/Wp+:NominalMass 100000*GeV 
+set /Herwig/FRModel/Particles/Wp-:NominalMass 100000*GeV 
+
+# {cotH} dictates the couplings below. 
+
+set /Herwig/FRModel/FRModel:kWL 0.0
+set /Herwig/FRModel/FRModel:kWR 0.0
+set /Herwig/FRModel/FRModel:kZL 1.0
+set /Herwig/FRModel/FRModel:kZR 1.0
+
+set /Herwig/FRModel/FRModel:CZdL1x1 {CZdL1x1} 
+set /Herwig/FRModel/FRModel:CZdL1x2 0.0
+set /Herwig/FRModel/FRModel:CZdL1x3 0.0
+set /Herwig/FRModel/FRModel:CZdL2x1 0.0
+set /Herwig/FRModel/FRModel:CZdL2x2 0.0
+set /Herwig/FRModel/FRModel:CZdL2x3 0.0
+set /Herwig/FRModel/FRModel:CZdL3x1 0.0
+set /Herwig/FRModel/FRModel:CZdL3x2 0.0
+set /Herwig/FRModel/FRModel:CZdL3x3 {CZdL3x3}
+
+set /Herwig/FRModel/FRModel:CZuL1x1 {CZuL1x1}
+set /Herwig/FRModel/FRModel:CZuL1x2 0.0
+set /Herwig/FRModel/FRModel:CZuL1x3 0.0
+set /Herwig/FRModel/FRModel:CZuL2x1 0.0
+set /Herwig/FRModel/FRModel:CZuL2x2 0.0
+set /Herwig/FRModel/FRModel:CZuL2x3 0.0
+set /Herwig/FRModel/FRModel:CZuL3x1 0.0
+set /Herwig/FRModel/FRModel:CZuL3x2 0.0
+set /Herwig/FRModel/FRModel:CZuL3x3 {CZuL3x3}
+
+set /Herwig/FRModel/FRModel:CZdR1x1 0.0
+set /Herwig/FRModel/FRModel:CZdR1x2 0.0
+set /Herwig/FRModel/FRModel:CZdR1x3 0.0
+set /Herwig/FRModel/FRModel:CZdR2x1 0.0
+set /Herwig/FRModel/FRModel:CZdR2x2 0.0
+set /Herwig/FRModel/FRModel:CZdR2x3 0.0
+set /Herwig/FRModel/FRModel:CZdR3x1 0.0
+set /Herwig/FRModel/FRModel:CZdR3x2 0.0
+set /Herwig/FRModel/FRModel:CZdR3x3 0.0
+
+set /Herwig/FRModel/FRModel:CZuR1x1 {CZuR1x1} 
+set /Herwig/FRModel/FRModel:CZuR1x2 0.0
+set /Herwig/FRModel/FRModel:CZuR1x3 0.0
+set /Herwig/FRModel/FRModel:CZuR2x1 0.0
+set /Herwig/FRModel/FRModel:CZuR2x2 0.0
+set /Herwig/FRModel/FRModel:CZuR2x3 0.0
+set /Herwig/FRModel/FRModel:CZuR3x1 0.0
+set /Herwig/FRModel/FRModel:CZuR3x2 0.0
+set /Herwig/FRModel/FRModel:CZuR3x3 {CZuR3x3}
+
+set /Herwig/FRModel/FRModel:CZlR1x1 0.0
+set /Herwig/FRModel/FRModel:CZlR1x2 0.0
+set /Herwig/FRModel/FRModel:CZlR1x3 0.0
+set /Herwig/FRModel/FRModel:CZlR2x1 0.0
+set /Herwig/FRModel/FRModel:CZlR2x2 0.0
+set /Herwig/FRModel/FRModel:CZlR2x3 0.0
+set /Herwig/FRModel/FRModel:CZlR3x1 0.0
+set /Herwig/FRModel/FRModel:CZlR3x2 0.0
+set /Herwig/FRModel/FRModel:CZlR3x3 0.0
+
+set /Herwig/FRModel/FRModel:CZlL1x1 0.0
+set /Herwig/FRModel/FRModel:CZlL1x2 0.0
+set /Herwig/FRModel/FRModel:CZlL1x3 0.0
+set /Herwig/FRModel/FRModel:CZlL2x1 0.0
+set /Herwig/FRModel/FRModel:CZlL2x2 0.0
+set /Herwig/FRModel/FRModel:CZlL2x3 0.0
+set /Herwig/FRModel/FRModel:CZlL3x1 0.0
+set /Herwig/FRModel/FRModel:CZlL3x2 0.0
+set /Herwig/FRModel/FRModel:CZlL3x3 0.0
+
+cd /Herwig/NewPhysics
+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Zp
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Wp+
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Wp-
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/H
+
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/Zp

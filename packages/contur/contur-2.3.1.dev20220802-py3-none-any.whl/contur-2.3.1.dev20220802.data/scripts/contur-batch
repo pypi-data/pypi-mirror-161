@@ -1,0 +1,22 @@
+#!python
+
+
+import os
+import sys
+
+from contur.run.run_batch_submit import (batch_submit, batch_submit_analyse)
+from contur.run.arg_utils import get_args
+import contur.config
+
+
+if __name__ == '__main__':
+
+    # specify the default log name for this exec
+    contur.config.logfile_name="contur_batch.log"
+
+    args = get_args(sys.argv[1:],'batchsub')
+
+    if args["analyse_grid"]:
+        batch_submit_analyse(args)
+    else:
+        batch_submit(args)

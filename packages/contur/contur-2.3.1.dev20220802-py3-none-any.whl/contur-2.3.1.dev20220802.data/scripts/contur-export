@@ -1,0 +1,25 @@
+#!python
+
+from __future__ import print_function
+import os
+import sys
+from contur.export.contur_export import export
+import argparse
+
+input_file_help = 'Input path to load the Contur Map file from, relative to the current working directory or absolute'
+output_file_help = 'Output path to save the CSV file to, relative to the current working directory or absolute'
+dominant_pools_help = 'Add a column to the exported CSV that includes the dominant pool for the confidence level calculation of each point.'
+per_pool_cls_help = 'Add a column for each analysis pool with the per-pool CLs value to the exported CSV'
+description = 'contur-export converts a Contur Map file (a pickled Depot class instance) into a CSV that includes the values for each parameter, the CL, and optionally the dominant pool.'
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('-i', '--input', help=input_file_help, required=True)
+    parser.add_argument('-o', '--output', help=output_file_help, required=True)
+    parser.add_argument('-dp', '--dominant-pools',
+                        help=dominant_pools_help, action="store_true")
+    parser.add_argument('-pp', '--per_pool_cls',
+                        help=per_pool_cls_help, action="store_true")
+    args = parser.parse_args()
+
+    export(args.input, args.output, include_dominant_pools=args.dominant_pools, include_per_pool_cls=args.per_pool_cls)

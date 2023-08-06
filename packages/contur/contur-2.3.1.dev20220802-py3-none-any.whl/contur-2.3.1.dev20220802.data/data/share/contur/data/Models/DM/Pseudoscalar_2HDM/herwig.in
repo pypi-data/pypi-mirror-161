@@ -1,0 +1,36 @@
+read FRModel.model
+set /Herwig/FRModel/Particles/Xd:NominalMass {mXd}*GeV
+set /Herwig/FRModel/Particles/Xd~:NominalMass {mXd}*GeV
+set /Herwig/FRModel/Particles/h2:NominalMass {mh2}*GeV
+set /Herwig/FRModel/Particles/h3:NominalMass {mh3}*GeV
+set /Herwig/FRModel/Particles/h+:NominalMass {mhc}*GeV
+set /Herwig/FRModel/Particles/h-:NominalMass {mhc}*GeV
+set /Herwig/FRModel/Particles/h4:NominalMass {mh4}*GeV
+set /Herwig/FRModel/FRModel:gPXd {gPXd}
+set /Herwig/FRModel/FRModel:tanbeta {tanbeta}
+set /Herwig/FRModel/FRModel:sinbma {sinbma}
+set /Herwig/FRModel/FRModel:sinp {sinp}
+set /Herwig/FRModel/FRModel:lam3 {lam3}
+set /Herwig/FRModel/FRModel:laP1 {laP1}
+set /Herwig/FRModel/FRModel:laP2 {laP2}
+
+cd /Herwig/Cuts
+set JetKtCut:MinKT 50*GeV
+
+
+cd /Herwig/NewPhysics
+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h-
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h1
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h2
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h3
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/h4
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xd
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/Xd~
+
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/h+
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/h-
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/h2
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/h3
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/h4

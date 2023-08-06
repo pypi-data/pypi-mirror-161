@@ -1,0 +1,71 @@
+read FRModel.model 
+
+# Parameters specified in param_file.dat
+## See also https://feynrules.irmp.ucl.ac.be/wiki/VLQ
+
+## Nominal masses of the T, X, B and Y VLQs
+set /Herwig/FRModel/Particles/tp:NominalMass {mtp} 
+set /Herwig/FRModel/Particles/x:NominalMass {mx}
+set /Herwig/FRModel/Particles/bp:NominalMass {mbp}
+set /Herwig/FRModel/Particles/y:NominalMass {my}
+
+## VB Branching fractions of the VLQs, ie T,B->H, T,B->Z, T,B->W 
+set /Herwig/FRModel/FRModel:xitph {xitph} 
+set /Herwig/FRModel/FRModel:xitpz {xitpz} 
+set /Herwig/FRModel/FRModel:xitpw {xitpw}
+set /Herwig/FRModel/FRModel:xibpw {xibpw}
+set /Herwig/FRModel/FRModel:xibpz {xibpz}
+set /Herwig/FRModel/FRModel:xibph {xibph}
+
+## Coupling strength of the VLQs. Affects single production, and the total lifetime.
+set /Herwig/FRModel/FRModel:KX {kappa}
+set /Herwig/FRModel/FRModel:KY {kappa}
+set /Herwig/FRModel/FRModel:KT {kappa}
+set /Herwig/FRModel/FRModel:KB {kappa}
+
+## These set which generation quarks are produced in the VB decays.
+## via the convention zeta[VLQ][quark flavour]L 
+## Most studies set the 1st and 2nd gen to zero (zetaXuL,zetaTcL, etc...)
+set /Herwig/FRModel/FRModel:zetaXuL {zetaXuL}
+set /Herwig/FRModel/FRModel:zetaXcL {zetaXcL} 
+set /Herwig/FRModel/FRModel:zetaXtL {zetaXtL} 
+set /Herwig/FRModel/FRModel:zetaTuL {zetaTuL} 
+set /Herwig/FRModel/FRModel:zetaTcL {zetaTcL} 
+set /Herwig/FRModel/FRModel:zetaTtL {zetaTtL} 
+set /Herwig/FRModel/FRModel:zetaBdL {zetaBdL} 
+set /Herwig/FRModel/FRModel:zetaBsL {zetaBsL} 
+set /Herwig/FRModel/FRModel:zetaBbL {zetaBbL} 
+set /Herwig/FRModel/FRModel:zetaYdL {zetaYdL} 
+set /Herwig/FRModel/FRModel:zetaYsL {zetaYsL} 
+set /Herwig/FRModel/FRModel:zetaYbL {zetaYbL} 
+
+
+####################################
+#
+# Modify the required process here
+#
+####################################
+
+
+cd /Herwig/NewPhysics
+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/x
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/x~
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/tp
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/tp~
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/bp
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/bp~
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/y
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/y~
+
+set HPConstructor:Processes SingleParticleInclusive
+
+#
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/x
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/x~
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/y
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/y~
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/bp
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/bp~
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/tp
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/tp~

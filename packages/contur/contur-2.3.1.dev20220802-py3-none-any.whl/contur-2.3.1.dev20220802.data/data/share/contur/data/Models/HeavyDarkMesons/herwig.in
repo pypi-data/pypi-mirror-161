@@ -1,0 +1,24 @@
+read FRModel.model
+
+set /Herwig/FRModel/FRModel:NDark {NDark}
+set /Herwig/FRModel/FRModel:PionMass {PionMass}
+set /Herwig/FRModel/FRModel:FermionEta {FermionEta}
+set /Herwig/FRModel/FRModel:VPi {VPi}
+set /Herwig/FRModel/FRModel:Xi {Xi}
+
+
+cd /Herwig/NewPhysics
+
+
+## turning on all the new particles as possible outgoing
+## uncomment the charged rhos if they exist in the model
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/rho0_UFO
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/rho+_UFO
+# insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/rho-_UFO
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/DP+
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/DP-
+insert HPConstructor:Outgoing 0 /Herwig/FRModel/Particles/DP0
+
+## turning on all the BSM rho0 as a possible resonance (intermediate particle)
+insert ResConstructor:Intermediates 0 /Herwig/FRModel/Particles/rho0_UFO
+

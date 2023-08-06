@@ -1,0 +1,89 @@
+
+# Set emission to POWHEG for radiation in decays
+set /Herwig/Shower/ShowerHandler:HardEmission POWHEG
+
+# read model
+# MSSM
+read MSSM.model
+cd /Herwig/NewPhysics
+
+setup MSSM/Model {slha_file}
+
+##################################################
+#
+# This section contains the user defined settings
+#
+##################################################
+# --- Hard Process ----
+# The particle name can be found in the relevant model file
+# by searching for its PDG code and noting the text 
+# '/Herwig/Particles/###' where the hashes denote the name
+
+
+# Example hard process: Incoming proton, outgoing squarks
+insert HPConstructor:Incoming 0 /Herwig/Particles/g
+insert HPConstructor:Incoming 1 /Herwig/Particles/u
+insert HPConstructor:Incoming 2 /Herwig/Particles/ubar
+insert HPConstructor:Incoming 3 /Herwig/Particles/d
+insert HPConstructor:Incoming 4 /Herwig/Particles/dbar
+insert HPConstructor:Incoming 3 /Herwig/Particles/s
+insert HPConstructor:Incoming 4 /Herwig/Particles/sbar
+insert HPConstructor:Incoming 3 /Herwig/Particles/b
+insert HPConstructor:Incoming 4 /Herwig/Particles/bbar
+
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~chi_30
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~chi_40
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~chi_2+
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~tau_1-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~mu_R-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~e_R-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~nu_tauL
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~nu_muL
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~nu_eL
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~tau_2-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~mu_L-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~e_L-
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~t_1
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~b_1
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~t_2
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~b_2
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~s_R
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~d_R
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~c_R
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~u_R
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~c_L
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~s_L
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~u_L
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~d_L
+
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~u_Lbar
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~d_Lbar
+
+insert HPConstructor:Outgoing 0 /Herwig/Particles/~g
+insert HPConstructor:Outgoing 0 /Herwig/Particles/A0
+insert HPConstructor:Outgoing 0 /Herwig/Particles/H0
+insert HPConstructor:Outgoing 0 /Herwig/Particles/H+ 
+
+
+# To set a minimum allowed branching fraction (the default is shown)
+#set NewModel:MinimumBR 1e-6
+
+##################################################
+## prepare for Rivet analysis or HepMC output
+## when running with parton shower
+##################################################
+
+read snippets/PPCollider.in
+
+# Intrinsic pT tune extrapolated to LHC energy
+set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV
+
+# Other parameters for run
+cd /Herwig/Generators
+set EventGenerator:NumberOfEvents 10000000
+set EventGenerator:RandomNumberGenerator:Seed 31122001
+set EventGenerator:DebugLevel 0
+set EventGenerator:EventHandler:StatLevel Full
+set EventGenerator:PrintEvent 100
+set EventGenerator:MaxErrors 10000
+
