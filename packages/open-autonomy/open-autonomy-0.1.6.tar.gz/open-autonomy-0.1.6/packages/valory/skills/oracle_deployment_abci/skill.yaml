@@ -1,0 +1,120 @@
+name: oracle_deployment_abci
+author: valory
+version: 0.1.0
+type: skill
+description: ABCI application for oracle deployments.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeigdmgak364qwhiqhho74vamospzu6rzzc57rtqz63qhdhozhu2hxq
+  __init__.py: bafybeieijwltt7imihiqtk73oqlcrh4b4bx3g4sty5q326enfronlbkwye
+  behaviours.py: bafybeignfpe2iafxqcniiz2fwrdrtlgpxigj2vjbsxn6iitcwcoupgrsji
+  dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
+  fsm_specification.yaml: bafybeifdcsw6pe3h4trvie2v7osyvugdxl3exu2kgtmnsgbf3kqo6ebilm
+  handlers.py: bafybeigftrxptud4meihmxh26xe32hjtdiookz7r5lssih7tduq75mcqre
+  models.py: bafybeib4a4lcnfqr6ori3xohff4h4yxm7c7vl6sgqk2oqrypqgf2iybinu
+  payloads.py: bafybeigj4llomatxlisjynutrh6elg2j7tc6z5q5ia35cuk2ccrzlz4pgy
+  rounds.py: bafybeifhxfvv6pygzuropc4xyj4fy3j2a6eh3acci4fav2mt4wmy54jltq
+fingerprint_ignore_patterns: []
+connections: []
+contracts:
+- valory/offchain_aggregator:0.1.0:bafybeiexr4ggkzocdz3cojmwzhkgmx3fjnvisvbnh7jumlz32lsm4hp7ii
+protocols:
+- valory/contract_api:1.0.0:bafybeigkedpmqhm7lrqusnkyfcapyx3dlkz2djfq74hou5pwtrskxgvuxu
+skills:
+- valory/abstract_round_abci:0.1.0:bafybeievrok3xa3foeay3d3xoscunhbgnqiu6jyse6yck4td76dxsbvsiu
+behaviours:
+  main:
+    args: {}
+    class_name: OracleDeploymentRoundBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: ABCIHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      cleanup_history_depth: 1
+      cleanup_history_depth_current: null
+      consensus:
+        max_participants: 1
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      keeper_allowed_retries: 3
+      keeper_timeout: 30.0
+      max_healthcheck: 120
+      observation_interval: 10
+      on_chain_service_id: null
+      oracle:
+        min_answer: 1000000000000000000
+        max_answer: 1000000000000000000000000
+        decimals: 18
+        description: BTC
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 30.0
+      service_id: registration
+      service_registry_address: null
+      share_tm_config_on_startup: false
+      sleep_time: 1
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_url: http://localhost:26657
+    class_name: Params
+  randomness_api:
+    args:
+      api_id: cloudflare
+      headers: []
+      method: GET
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: https://drand.cloudflare.com/public/latest
+    class_name: RandomnessApi
+  requests:
+    args: {}
+    class_name: Requests
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  state:
+    args: {}
+    class_name: SharedState
+  tendermint_dialogues:
+    args: {}
+    class_name: TendermintDialogues
+dependencies: {}
+is_abstract: true
