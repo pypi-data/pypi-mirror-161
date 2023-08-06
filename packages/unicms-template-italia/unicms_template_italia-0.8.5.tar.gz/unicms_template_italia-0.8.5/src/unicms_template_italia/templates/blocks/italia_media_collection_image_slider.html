@@ -1,0 +1,34 @@
+{% load unicms_templates %}
+
+{% random_id as id %}
+
+{% if collection.get_items %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
+<div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols">
+    <div class="it-carousel-all owl-carousel it-img-card">
+        {% for item in collection.get_items %}
+        <div class="it-single-slide-wrapper">
+            <div class="card-wrapper">
+                <div class="card card-img no-after">
+                    <div class="img-responsive-wrapper">
+                        <div class="img-responsive">
+                            <a href="{{ item.media.get_media_path }}" data-lightbox="{{ id }}_gallery" aria-label="{{ item.media.title }}">
+                                <img src="{{ item.media.get_media_path }}"
+                                     title="{{ item.media.title }}"
+                                     alt="{{ item.media.description }}">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block slider_custom %}
+{% endblock slider_custom %}
+
+{% endif %}
