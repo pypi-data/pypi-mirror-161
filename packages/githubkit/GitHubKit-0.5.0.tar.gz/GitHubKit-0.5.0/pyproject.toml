@@ -1,0 +1,68 @@
+[tool.poetry]
+name = "GitHubKit"
+version = "0.5.0"
+description = "GitHub SDK for Python"
+authors = ["yanyongyu <yyy@yyydl.top>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/yanyongyu/githubkit"
+repository = "https://github.com/yanyongyu/githubkit"
+documentation = "https://github.com/yanyongyu/githubkit"
+keywords = ["github", "octokit"]
+include = ["githubkit/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = "^1.9.1"
+httpx = ">=0.23.0, <1.0.0"
+typing-extensions = "^4.3.0"
+PyJWT = { version = "^2.4.0", optional = true }
+cryptography = { version = "^37.0.4", optional = true }
+
+[tool.poetry.dev-dependencies]
+tomli = "^2.0.1"
+isort = "^5.10.1"
+black = "^22.3.0"
+Jinja2 = "^3.1.2"
+nonemoji = "^0.1.2"
+jsonpointer = "^2.3"
+pre-commit = "^2.16.0"
+openapi-schema-pydantic = "^1.2.4"
+
+[tool.poetry.extras]
+app = ["PyJWT", "cryptography"]
+jwt = ["PyJWT", "cryptography"]
+all = ["PyJWT", "cryptography"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310"]
+include = '\.pyi?$'
+extend-exclude = '''
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+length_sort = true
+skip_gitignore = true
+force_sort_within_sections = true
+extra_standard_library = ["typing_extensions"]
+
+[tool.pyright]
+reportPrivateImportUsage = false
+
+[tool.codegen]
+rest-descrition-source = "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions-next/api.github.com/api.github.com.json"
+webhook-schema-source = "https://unpkg.com/@octokit/webhooks-schemas/schema.json"
+client-output = "githubkit/rest/"
+webhooks-output = "githubkit/webhooks/models.py"
+webhook-types-output = "githubkit/webhooks/types.py"
+
+[tool.codegen.field-overrides]
+"+1" = "plus_one"
+"-1" = "minus_one"
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
