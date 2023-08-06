@@ -1,0 +1,2 @@
+# matches SEMVER
+VERSION = "0.1.0a20220801003"
