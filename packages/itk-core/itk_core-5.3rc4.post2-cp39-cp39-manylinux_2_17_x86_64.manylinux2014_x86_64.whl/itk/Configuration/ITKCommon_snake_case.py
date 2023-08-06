@@ -1,0 +1,1 @@
+snake_case_functions = ('extract_image_filter', 'image_duplicator', 'image_source', 'image_to_image_filter', 'import_image_filter', 'in_place_image_filter', 'point_set_to_image_filter', 'streaming_image_filter', )
