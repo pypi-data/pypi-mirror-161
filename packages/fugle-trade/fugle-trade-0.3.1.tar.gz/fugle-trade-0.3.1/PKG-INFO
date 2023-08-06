@@ -1,0 +1,65 @@
+Metadata-Version: 2.1
+Name: fugle-trade
+Version: 0.3.1
+Summary: 
+Home-page: https://github.com/fugle-dev/fugle-trade-python#readme
+License: MIT
+Keywords: fugle,trade,stock
+Author: Fortuna Intelligence Co., Ltd.
+Author-email: development@fugle.tw
+Requires-Python: >=3.7,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: fugle-trade-core (==0.3.1)
+Requires-Dist: keyring (==23.5.0)
+Requires-Dist: keyrings.cryptfile (==1.3.8)
+Requires-Dist: websocket-client (==1.2.1)
+Project-URL: Documentation, https://developer.fugle.tw/docs/trading/intro
+Project-URL: Repository, https://github.com/fugle-dev/fugle-trade-python
+Description-Content-Type: text/markdown
+
+# Fugle Trade Python SDK
+
+## 事前準備
+
+可以參考 https://developer.fugle.tw/docs/trading/prerequisites 完成申請金鑰相關步驟
+
+## QuickStart
+
+```python
+from configparser import ConfigParser
+from fugle_trade.sdk import SDK
+from fugle_trade.order import OrderObject
+from fugle_trade.constant import (APCode, Trade, PriceFlag, BSFlag, Action)
+
+config = ConfigParser()
+config.read('./config.ini')
+sdk = SDK(config)
+sdk.login()
+
+order = OrderObject(
+    buy_sell = Action.Buy,
+    price = 28.00,
+    stock_no = "2884",
+    quantity = 2,
+    ap_code = APCode.Common
+)
+sdk.place_order(order)
+
+```
+
+## Detail
+
+所有 function 跟 response 可以在專屬文件頁查到相關資訊
+
+https://developer.fugle.tw/docs/trading/reference/python
+
+
+## License
+
+[MIT](LICENSE)
+
