@@ -1,0 +1,1 @@
+# strawberry django graphiql voyager
