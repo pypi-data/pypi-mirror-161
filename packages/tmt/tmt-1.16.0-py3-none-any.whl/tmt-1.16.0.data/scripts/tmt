@@ -1,0 +1,31 @@
+#!python
+
+import click
+
+import tmt.cli
+
+try:
+    tmt.cli.main()
+
+# Show detailed output upon command execution errors
+except tmt.utils.RunError as error:
+    for name, output in (('stdout', error.stdout), ('stderr', error.stderr)):
+        if not output:
+            continue
+        lines = output.strip().split('\n')
+        displayed = min(len(lines), tmt.utils.OUTPUT_LINES)
+        print(
+            f"\n{name} ({displayed}/{len(lines)} lines)"
+            f"\n{tmt.utils.OUTPUT_WIDTH * '~'}\n" +
+            '\n'.join(lines[-tmt.utils.OUTPUT_LINES:]))
+    print()
+    click.echo(click.style(error.message, fg='red'), err=True)
+    raise SystemExit(2)
+
+# Basic error message for general errors
+except tmt.utils.GeneralError as error:
+    click.echo(click.style(str(error), fg='red'), err=True)
+    # Mention also the original exception if provided
+    if error.original:
+        click.echo(f"The exception was: {error.original}", err=True)
+    raise SystemExit(2)
