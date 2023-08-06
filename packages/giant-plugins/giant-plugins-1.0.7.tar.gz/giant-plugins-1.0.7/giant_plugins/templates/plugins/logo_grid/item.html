@@ -1,0 +1,14 @@
+{% load thumbnail %}
+
+<div class="logo-block__logo three-col__col">
+    <div class="logo-block__logo__content">
+        {% if instance.get_absolute_url %}
+            <a href="{{ instance.get_absolute_url }}" title="{{ instance.name }}"{% if instance.external_url %} target="_blank" rel="noreferrer noopener"{% endif %}>
+        {% endif %}
+        <img src="{% thumbnail instance.logo 'plugins:logo_grid' subject_location=instance.logo.subject_location %}" alt="{{ instance.name }}" />
+        {% if instance.name %}<h4>{{ instance.name }}</h4>{% endif %}
+        {% if instance.get_absolute_url %}
+            </a>
+        {% endif %}
+    </div>
+</div>

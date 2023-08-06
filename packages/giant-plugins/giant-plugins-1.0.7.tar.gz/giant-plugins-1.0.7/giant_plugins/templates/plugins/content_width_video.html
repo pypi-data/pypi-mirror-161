@@ -1,0 +1,17 @@
+{% load thumbnail thumbnail_position %}
+
+{% thumbnail instance.image 150x150 crop upscale quality=50 as thumb %}
+
+<section class="image-block image-block--quote">
+    <div class="wrapper wrapper--mid">
+        <a href="{{ instance.youtube_url }}" class="image-block__image video-popup" title="{% if instance.alt_title %}{{ instance.alt_title }}{% else %}Play video{% endif %}">
+            <div class="play-video"></div>
+            <img src="{{ thumb.url }}" alt="Alt text" />
+            {% if instance.title %}
+                <div class="quote">
+                    <p>{{ instance.title }}</p>
+                </div>
+            {% endif %}
+        </a>
+    </div>
+</section>
