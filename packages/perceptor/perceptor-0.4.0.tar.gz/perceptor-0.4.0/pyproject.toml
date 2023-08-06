@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "perceptor"
+version = "0.4.0"
+description = ""
+authors = ["Richard Löwenström <samedii@gmail.com>", "dribnet"]
+readme = "README.md"
+repository = "https://github.com/samedii/perceptor"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.11.0"
+torchvision = "^0.12.0"
+numpy = "^1.22.2"
+tqdm = "^4.62.3"
+einops = "^0.4.0"
+imageio = "^2.14.1"
+kornia = "^0.6.3"
+Pillow = "^9.0.1"
+timm = "^0.5.4"
+resmem = "^1.1.4"
+basicsr = "1.3.4.9"
+opencv-python = "^4.5.4,!=4.6.0.66"
+transformers = "^4.16.2"
+ftfy = "^6.0.3"
+omegaconf = "^2.1.1"
+youtokentome = "^1.0.6"
+more-itertools = "^8.12.0"
+dill = "^0.3.4"
+ninja = "^1.10.2"
+lpips = "^0.1.4"
+open-clip-torch = "^1.3.0"
+pytorch-lantern = "^0.12.0"
+taming-transformers-rom1504 = "^0.0.6"
+clip-anytorch = "^2.4.0"
+
+[tool.poetry.dev-dependencies]
+ipykernel = "^6.8.0"
+pytest = "^7.0.0"
+black = "^22.1.0"
+flake8 = "^4.0.1"
+poethepoet = "^0.12.2"
+ipywidgets = "^7.6.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+cuda11 = "poetry run pip uninstall torch torchvision -y && poetry run pip install torch==1.11.0 torchvision==0.12.0 --extra-index-url https://download.pytorch.org/whl/cu113"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+norecursedirs = ".venv __pycache__ .git .pytest_cache"
+testpaths = [
+    "perceptor",
+]
+python_files = "*.py"
