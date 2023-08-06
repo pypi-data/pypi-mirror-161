@@ -1,0 +1,129 @@
+
+// PRE Workbench
+// Copyright (C) 2022 Mira Weller
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+start: field*
+
+params: ("[" expr_value "]")? ("(" [parampair ("," parampair)*] ")")?
+parampair: IDENTIFIER "=" value
+opt_comment: MULTILINE_COMMENT?
+
+?anytype: variantfi
+    | structfi
+    | repeatfi
+    | switchfi
+    | unionfi
+    | explicitnamedfi
+    | namedfi
+    | bitstructfi
+
+variantfi: "variant" params "{" variantchildren "}"
+variantchildren: anytype+
+structfi: "struct" params "{" structfields "}"
+bitstructfi: "bits" params "{" bitstructfields "}"
+unionfi: "union" params "{" structfields "}"
+structfields: field*
+field: opt_comment IDENTIFIER anytype ";"?
+bitstructfields: bitstructfield*
+bitstructfield: IDENTIFIER ":" number ";"?
+
+switchfi: "switch" expr_value params "{" switchcases "}"
+switchcases: switchcase*
+switchcase: "case" expr_value ":" anytype
+repeatfi: "repeat" params anytype
+namedfi: IDENTIFIER params
+explicitnamedfi: "&" namedfi
+
+?value: dict
+      | list
+      | string
+      | number
+      | "true"             -> true
+      | "false"            -> false
+      | "null"             -> null
+      | namedfi
+      | "(" expr_value ")"
+expr_value: expression
+
+list : "[" [value ("," value)*] "]"
+
+dict : "{" [pair ("," pair)*] "}"
+pair : string ":" value
+
+number: NUMBER
+string : ESCAPED_STRING
+
+IDENTIFIER: (LETTER | "_") [LETTER | DIGIT | "_"]*
+MULTILINE_COMMENT: /\/\*(\*(?!\/)|[^*])*\*\//
+
+?expression: conjunction_expression
+
+?conjunction_expression: conjunction_expression CONJ_OP equality_expression -> math_expr
+            | equality_expression
+
+?equality_expression: equality_expression EQ_OP comparison_expression -> compare_expr
+            | comparison_expression
+
+?comparison_expression: comparison_expression COMP_OP term_expression -> compare_expr
+            | term_expression
+
+?term_expression: term_expression STRICH_OP factor_expression -> math_expr
+            | factor_expression
+
+?factor_expression: factor_expression PUNKT_OP primary_expression -> math_expr
+            | primary_expression
+
+// ?unary_expression
+?primary_expression: fun_expr
+            | param_expr
+            | "true"             -> true_expr
+            | "false"            -> false_expr
+            | "null"             -> null_expr
+            | number_expr
+            | anyfield_expr
+            | hierarchy_expr
+            | string_expr
+            | paren_expr
+            | array_expr
+            | member_expr
+
+paren_expr: "(" expression ")"
+compare_expr: expression COMP_OP expression
+param_expr: "$" IDENTIFIER | "${" expression "}"
+fun_expr: IDENTIFIER "(" expression ")"
+DOTS: "´"+
+hierarchy_expr: DOTS
+array_expr: primary_expression "[" expression "]"
+member_expr: primary_expression "." IDENTIFIER
+anyfield_expr: IDENTIFIER
+CONJ_OP.5: "||" | "&&"
+PUNKT_OP: "*" | "/" | "<<" | ">>"
+STRICH_OP: "+" | "-" | "&" | "|" | "^"
+EQ_OP: "==" | "!="
+COMP_OP: "<" | ">" | "<=" | ">="
+number_expr: NUMBER
+string_expr: ESCAPED_STRING
+
+NUMBER: /-?(0x[0-9a-fA-F]+|[0-9]+)/
+
+%import common.ESCAPED_STRING
+%import common.LETTER
+%import common.DIGIT
+%import common.HEXDIGIT
+%import common.WS
+%ignore WS

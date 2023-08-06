@@ -1,0 +1,34 @@
+---
+name: JSON Packet List
+input_type: DATA_SOURCE
+output_type: BYTE_BUFFER_LIST
+options:
+- id: fileName
+  title: File name
+  fieldType: text
+  params:
+    fileselect: open
+    filter: JSON file (*.json)
+- id: payload_key
+  title: Payload key
+  fieldType: text
+  params: {}
+- id: payload_decoder
+  title: Decode Payload as
+  fieldType: select
+  params:
+    options:
+    - - HEX
+      - Hex
+    - - BASE64
+      - Base64
+    - - PLAIN
+      - Keep as is
+metadata: {}
+code: "import json, binascii, base64, re\n\nfrom pre_workbench.objects import ByteBuffer,\
+  \ ByteBufferList, ReloadRequired\n\nwith open(fileName,\"r\") as file:\n\tlst =\
+  \ json.load(file)\n\nif payload_decoder == 'HEX':\n\tdecoder = lambda x: binascii.unhexlify(re.sub(\"\
+  \\s\", \"\", x))\nelif payload_decoder == 'BASE64':\n\tdecoder = lambda x: base64.b64decode(re.sub(\"\
+  \\s\", \"\", x))\nelse:\n\tdecoder = lambda x: x.encode('utf8')\n\nplist = ByteBufferList()\n\
+  for item in lst:\n\tpayload = item[payload_key]\n\tpayload_decoded = decoder(payload)\n\
+  \tplist.add(ByteBuffer(payload_decoded, metadata=item))\n\noutput = plist\n\n\n"
