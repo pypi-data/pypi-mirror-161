@@ -1,0 +1,77 @@
+Metadata-Version: 2.1
+Name: upathlib
+Version: 0.6.5
+Summary: upathlib
+Author-email: Zepu Zhang <zepu.zhang@gmail.com>
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: filelock >=3.3.0
+Requires-Dist: opnieuw
+Requires-Dist: orjson >=3.6.0
+Requires-Dist: overrides
+Requires-Dist: tqdm
+Requires-Dist: zstandard >=0.18.0
+Requires-Dist: azure-storage-blob >=12.9.0,<13.0 ; extra == "abs"
+Requires-Dist: google-api-python-client >=2.13.9,<3.0 ; extra == "gcs"
+Requires-Dist: google-cloud-storage >=2.0,<3.0 ; extra == "gcs"
+Requires-Dist: bandit ; extra == "test"
+Requires-Dist: coverage[toml] ; extra == "test"
+Requires-Dist: Faker ; extra == "test"
+Requires-Dist: flake8 ; extra == "test"
+Requires-Dist: mypy ; extra == "test"
+Requires-Dist: numpy ; extra == "test"
+Requires-Dist: pylint ; extra == "test"
+Requires-Dist: pytest ; extra == "test"
+Requires-Dist: pytest-mock ; extra == "test"
+Project-URL: Source, https://github.com/zpz/upathlib
+Provides-Extra: abs
+Provides-Extra: gcs
+Provides-Extra: test
+
+# upathlib
+
+This package defines some APIs for working with a cloud blob store (aka "object store"). The motivation is to provide a "unified" or "universal" API for blob store clients.
+
+The APIs follow the style of the standard library
+[`pathlib`](https://docs.python.org/3/library/pathlib.html) where appropriate.
+Attention is focused on identifying the *most essential* functionalities
+while working with a blob store for data processing.
+Functionalities in a local file system that are non-essential in these tasks---such
+as symbolic links, fine-grained permissions,
+ and various access modes---are ignored.
+
+End user should look to the class `Upath` for documentation on the API.
+
+Local (POSIX) file system is treated as one particular case with the same API,
+and is implemented by `LocalUpath`, which subclasses `Upath`.
+
+Client for Google Cloud Storage (i.e. blob store on GCP) is implemented by a `Upath` subclass
+`GcpBlobUpath`. Users may want to
+add very thin wrappers in their application code to handle credentials for their cloud accounts.
+
+One use case is the package [`biglist`](https://github.com/zpz/biglist).
+The class `Biglist` takes a `Upath` object to indicate its location of storage.
+It does not care whether the storage is local, or in Azure or GCP or AWS S3 or other
+cloud blob stores---it simply uses the common API to operate the storage.
+
+This package is published to `pypi`. To install, do one of the following:
+
+```
+$ pip3 install upathlib
+$ pip3 install upathlib[gcs]
+```
+
+(`gcs` means Google Cloud Storage, which is its official branding.)
+
+
+## Status
+
+The style of the API is largely stable. The implementations for local file system and for Google Cloud storage
+are production ready.
+
+The implementation for Azure was once in production use, but not anymore by myself, hence is unreliable.
+There is a much older implementation for AWS, which was moved to "archive", because it was not updated to the current API.
+
