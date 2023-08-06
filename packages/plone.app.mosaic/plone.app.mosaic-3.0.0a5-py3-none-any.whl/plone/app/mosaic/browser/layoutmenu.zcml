@@ -1,0 +1,61 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    >
+
+  <!-- Define ++layout++ traverser -->
+  <adapter
+      factory=".layoutmenu.DisplayLayoutTraverser"
+      name="layout"
+      />
+
+  <!-- Define the layout menu -->
+  <browser:menu
+      id="plone_contentmenu_layout"
+      title="The 'layout' menu - allows the user to select the predefined layout of an object"
+      class=".layoutmenu.DisplayLayoutMenu"
+      />
+
+  <!-- Hide the default -->
+  <adapter
+      factory=".layoutmenu.HiddenDisplaySubMenuItem"
+      provides="plone.app.contentmenu.interfaces.IContentMenuItem"
+      for="plone.app.blocks.layoutbehavior.ILayoutBehaviorAdaptable
+           ..interfaces.IMosaicLayer"
+      name="plone.contentmenu.display"
+      />
+
+  <!-- Display the custom menu -->
+  <adapter
+      factory=".layoutmenu.DisplayLayoutSubMenuItem"
+      provides="plone.app.contentmenu.interfaces.IContentMenuItem"
+      for="plone.app.blocks.layoutbehavior.ILayoutBehaviorAdaptable
+           ..interfaces.IMosaicLayer"
+      name="plone.contentmenu.layout"
+      />
+
+  <!-- Fix default view selection to allow ++layout++-traverser -->
+  <configure package="plone.app.content.browser">
+
+    <browser:page
+        name="select_default_view"
+        for="plone.app.blocks.layoutbehavior.ILayoutBehaviorAdaptable"
+        class="plone.app.mosaic.browser.layoutmenu.LayoutAwareDefaultViewSelectionView"
+        template="templates/select_default_view.pt"
+        permission="cmf.ModifyViewTemplate"
+        layer="plone.app.mosaic.interfaces.IMosaicLayer"
+        />
+
+    <browser:page
+        name="selectViewTemplate"
+        for="plone.app.blocks.layoutbehavior.ILayoutBehaviorAdaptable"
+        class="plone.app.mosaic.browser.layoutmenu.LayoutAwareDefaultViewSelectionView"
+        attribute="selectViewTemplate"
+        permission="cmf.ModifyViewTemplate"
+        layer="plone.app.mosaic.interfaces.IMosaicLayer"
+        />
+
+  </configure>
+
+</configure>

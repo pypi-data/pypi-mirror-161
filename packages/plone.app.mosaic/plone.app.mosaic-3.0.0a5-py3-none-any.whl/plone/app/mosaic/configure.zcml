@@ -1,0 +1,141 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain="plone"
+    >
+
+  <!-- Include dependencies -->
+  <include package="plone.tiles" />
+  <include package="plone.app.tiles" />
+  <include package="plone.app.standardtiles" />
+  <include package="plone.app.blocks" />
+  <include package="plone.app.drafts" />
+
+  <genericsetup:registerProfile
+      name="default"
+      title="Mosaic"
+      description="Installs Mosaic layout support."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      directory="profiles/default"
+      post_handler="plone.app.mosaic.setuphandlers.post_handler"
+      />
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="plone.app.mosaic:uninstall"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      directory="profiles/uninstall"
+      />
+
+  <utility
+      factory=".setuphandlers.HiddenProfiles"
+      name="plone.app.mosaic-hiddenprofiles"
+      />
+
+  <!-- View method auto-enabler -->
+  <subscriber
+      for="plone.app.dexterity.browser.behaviors.BehaviorConfigurationAdapter
+           zope.lifecycleevent.IObjectModifiedEvent"
+      handler=".handlers.toggleLayoutViewOnFTI"
+      />
+
+  <!-- Registry configuration for Mosaic Editor -->
+  <adapter factory=".registry.MosaicRegistry" />
+
+  <!-- Mosaic Editor Widget -->
+  <adapter factory=".widget.LayoutFieldWidget" />
+  <!-- Hide site layout fields when not enabled -->
+  <adapter
+      factory=".widget.HideSiteLayoutFields"
+      zcml:condition="not-have mosaic-sitelayouts"
+      />
+
+
+  <!-- customize default dexterity add form -->
+  <adapter
+      factory=".forms.MosaicDefaultAddView"
+      provides="zope.publisher.interfaces.browser.IBrowserPage"
+      for="Products.CMFCore.interfaces.IFolderish
+           .interfaces.IMosaicLayer
+           plone.dexterity.interfaces.IDexterityFTI"
+      />
+  <class class=".forms.MosaicDefaultAddView">
+    <require
+        permission="cmf.AddPortalContent"
+        interface="zope.publisher.interfaces.browser.IBrowserPage"
+        />
+  </class>
+
+  <!-- HTTPHeaders transform, because main_template may not be rendered -->
+  <adapter
+      factory=".transform.HTTPHeaders"
+      for="*
+           plone.app.blocks.interfaces.IBlocksTransformEnabled"
+      name="plone.app.mosaic.httpheaders"
+      />
+  <adapter
+      factory=".transform.HTTPHeaders"
+      for="plone.app.blocks.interfaces.IBlocksTransformEnabled
+           .interfaces.IMosaicLayer"
+      name="plone.app.mosaic.httpheaders"
+      />
+
+  <!-- HTML language transform to fix language attribute in site layout -->
+  <adapter
+      factory=".transform.HTMLLanguage"
+      for="*
+           plone.app.blocks.interfaces.IBlocksTransformEnabled"
+      name="plone.app.mosaic.language"
+      />
+  <adapter
+      factory=".transform.HTMLLanguage"
+      for="plone.app.blocks.interfaces.IBlocksTransformEnabled
+           .interfaces.IMosaicLayer"
+      name="plone.app.mosaic.language"
+      />
+
+  <!-- Body class transform to add traditional Plone body class -->
+  <adapter
+      factory=".transform.BodyClass"
+      for="*
+           plone.app.blocks.interfaces.IBlocksTransformEnabled"
+      name="plone.app.mosaic.bodyclass"
+      />
+  <adapter
+      factory=".transform.BodyClass"
+      for="plone.app.blocks.interfaces.IBlocksTransformEnabled
+           .interfaces.IMosaicLayer"
+      name="plone.app.mosaic.bodyclass"
+      />
+
+  <!-- Body data-pat-* transform to pattern settings -->
+  <adapter
+      factory=".transform.PatternSettings"
+      for="*
+           plone.app.blocks.interfaces.IBlocksTransformEnabled"
+      name="plone.app.mosaic.patternsettings"
+      />
+  <adapter
+      factory=".transform.PatternSettings"
+      for="plone.app.blocks.interfaces.IBlocksTransformEnabled
+           .interfaces.IMosaicLayer"
+      name="plone.app.mosaic.patternsettings"
+      />
+
+  <adapter
+      factory=".layoutpolicy.MosaicBodyClasses"
+      for="*
+           .interfaces.IMosaicLayer"
+      name="layout"
+      />
+
+  <include package=".browser" />
+
+  <!-- Register default layouts -->
+  <include file="layouts.zcml" />
+
+  <!-- Register upgrades -->
+  <include file="upgrades.zcml" />
+
+</configure>
