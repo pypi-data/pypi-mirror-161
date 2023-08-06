@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "wj_social_net_queries"
+version = "0.2.0"
+description = "this library is responsible for comunicating with social network API's for data interaction with Whale and Jaguar products"
+authors = ["w&j"]
+license = "private"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+certifi = "2022.6.15"
+charset-normalizer = "2.1.0"
+idna = "3.3"
+numpy = "1.21.1"
+pandas = "1.0.3"
+python-dateutil = "2.8.2"
+python-dotenv = "0.20.0"
+pytz = "2022.1"
+requests = "2.28.1"
+six = "1.16.0"
+urllib3 = "1.26.11"
+
+[tool.poetry.dev-dependencies]
+nox = ">=2021.6.12"
+python-semantic-release = "^7.29.1"
+gitlint = "0.15.1"
+isort = "5.9.3"
+black = "21.9b0"
+flake8 = "3.9.2"
+flake8-bugbear = "21.9.1"
+autoflake = "1.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = 'app/.venv/*'
+
+[tool.isort]
+profile = "black"
+
+[tool.semantic_release]
+version_variable = [
+    "__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "main"
+upload_to_pypi = true
+upload_to_release = true
+build_command = "poetry build"
