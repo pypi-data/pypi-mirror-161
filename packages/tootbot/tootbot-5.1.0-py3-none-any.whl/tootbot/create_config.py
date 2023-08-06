@@ -1,0 +1,106 @@
+# flake8: noqa
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+
+CONFIG_TEMPLATE = """
+# This is the config file for Tootbot! You must restart the bot for any changes to take
+# effect.
+
+# General settings
+[BotSettings]
+# File name for the cache spreadsheet (default is 'cache.csv')
+CacheFile: cache.csv
+# Minimum delay between social media posts, in seconds (default is '600')
+DelayBetweenPosts: 300
+# Run only once (for example when using cron to run tootbot on shedule)
+RunOnceOnly : false
+# Minimum position of post on subreddit front page that the bot will look at
+# (default is '10')
+PostLimit : 10
+# Allow NSFW Reddit posts to be posted by the bot
+NSFWPostsAllowed : false
+# NSFW media will be marked as sensitive
+NSFWPostsMarked : true
+# Allow Reddit posts marked as spoilers to be posted by the bot
+SpoilersAllowed : true
+# Allow Reddit self-posts to be posted by the bot
+SelfPostsAllowed : true
+# Allow Reddit stickied post to be posted by the bot
+StickiedPostsAllowed : false
+# List of hashtags to be used on EVERY post, separated by commas without # symbols
+# (example: hashtag1, hashtag2)
+# Hashtags in the Subreddits section of this config file will be added to the overall
+# hashtags defined here.
+# Leaving this blank will disable overall hashtags
+Hashtags :
+# Log level for messages printed to stdout
+# Possible values are CRITICAL, ERROR, WARNING, INFO, DEBUG
+# If not set the default is INFO
+LogLevel : INFO
+
+# Name of subreddits to take posts from (example: 'gaming')
+# Multireddits can be used like this: 'gaming+funny+news'
+# lines in the Subbreddits section are formated as:
+# subreddit: hashtags
+# Subreddit can also be a multireddit as per above
+# hashtags can be one or multiple hashtags sepeareted by commas without the "#" symbol
+# (e.g. hastag1, hashtag2)
+[Subreddits]
+cats: cats
+kittens+bodegacats: cats, kittens, bodegcats
+dogs: dogs
+puppies+goodboy: dogs, puppies, goodboy
+
+# Settings related to promotional messages
+[PromoSettings]
+# How often should the promotional message be added
+# Setting is for a promotional message to be added every x messages
+# I.e. 0 = no promotional messages added ever
+#      1 = promotional message added to every new post
+#      2 = promotional message added to every 2nd new post
+#      n = promotional message added to every nth new post
+PromoEvery: 0
+# Actual Promotional message to be added
+PromoMessage: Posted with tootbot (https://codeberg.org/MarvinsMastodonTools/tootbot)
+
+#Settings around Health Checks
+[HealthChecks]
+# This is the part of the URL before the unique id UID of the check. Could be
+# something like
+# https://hc-ping.com or https://hc.example.com:8000/ping/
+# To disable Healthchecks leave the BaseUrl empty
+BaseUrl:
+# This is the unique identifier for the health check you set-up in your
+# HealthChecks account.
+# It will be in the format: 123e4567-e89b-12d3-a456-426614174000
+UUID :
+
+# Settings related to media attachments
+[MediaSettings]
+# Folder name for media downloads (default is 'media')
+MediaFolder: media
+# Set the bot to only post Reddit posts that directly link to media
+# Links from Gfycat, Giphy, Imgur, i.redd.it, and i.reddituploads.com are
+# currently supported
+MediaPostsOnly: false
+
+# Mastodon settings
+[Mastodon]
+# Name of instance to log into (example: mastodon.social). This is mandatory
+InstanceDomain :
+# Sets all media attachments as sensitive media, this should be left on 'true'
+# in most cases (note: images from NSFW Reddit posts will always be marked as sensitive)
+# More info:
+# https://gist.github.com/joyeusenoelle/74f6e6c0f349651349a0df9ae4582969#what-does-cw-mean
+SensitiveMedia : true
+# With throttling enabled, tootbot will slow down posting toots more and more while
+# the Mastodon API is returning errors
+ThrottlingEnabled : true
+# Maximum delay in seconds between attempts to post a toot when throttling.
+ThrottlingMaxDelay : 86400
+"""
+
+
+def create() -> None:
+    with open(file="config.ini", mode="w+", encoding="UTF-8") as config_file:
+        config_file.writelines(CONFIG_TEMPLATE)
