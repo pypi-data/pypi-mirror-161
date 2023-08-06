@@ -1,0 +1,118 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "message_only": { "format": "%(message)s"},
+        "msformat": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "console_plain": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "message_only",
+            "stream": "ext://sys.stdout"
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "msformat",
+            "stream": "ext://sys.stderr"
+        },
+        "error_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "ERROR",
+            "formatter": "msformat",
+            "filename": "error.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+        "debug_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "msformat",
+            "filename": "debug.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        }
+    },
+    "loggers": {
+        "bb_parser": {
+            "level": "ERROR",
+            "handlers": [
+                "console",
+                "error_file_handler"
+            ],
+            "propagate": false
+        },
+        "create_run": {
+            "level": "DEBUG",
+            "handlers": [
+                "console_plain",
+                "error_file_handler",
+                "debug_file_handler"
+            ],
+            "propagate": false
+        },
+        "update_run": {
+            "level": "DEBUG",
+            "handlers": [
+                "console",
+                "error_file_handler",
+                "debug_file_handler"
+            ],
+            "propagate": false
+        },
+        "docker_run": {
+            "level": "DEBUG",
+            "handlers": [
+                "error_file_handler",
+                "console"
+            ],
+            "propagate": false
+        },
+        "embedops_cli": {
+            "level": "DEBUG",
+            "handlers": [
+                "error_file_handler",
+                "console"
+            ],
+            "propagate": false
+        },
+        "gl_parser": {
+            "level": "ERROR",
+            "handlers": [
+                "console",
+                "error_file_handler"
+            ],
+            "propagate": false
+        },
+        "log_utilities": {
+            "level": "INFO",
+            "handlers": [
+                "console",
+                "error_file_handler"
+            ],
+            "propagate": false
+        },
+        "parse": {
+            "level": "DEBUG",
+            "handlers": [
+                "console",
+                "error_file_handler",
+                "debug_file_handler"
+            ],
+            "propagate": false
+        },
+        "root": {
+            "level": "DEBUG",
+            "handlers": [
+                "console",
+                "error_file_handler"
+            ]
+        }
+    }
+}
