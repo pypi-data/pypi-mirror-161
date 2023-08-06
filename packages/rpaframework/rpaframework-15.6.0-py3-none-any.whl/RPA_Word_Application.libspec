@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keywordspec name="RPA.Word.Application" type="LIBRARY" format="REST" scope="GLOBAL" generated="2022-08-02T10:30:46Z" specversion="4" source="./RPA/Word/Application.py" lineno="24">
+<version/>
+<doc>`Word.Application` is a library for controlling a Word application.
+
+*Note*. Library works only Windows platform.
+
+**Examples**
+
+**Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Settings ***
+    Library                 RPA.Word.Application
+    Task Setup              Open Application
+    Suite Teardown          Quit Application
+
+    *** Tasks ***
+    Open existing file
+        Open File           old.docx
+        Write Text          Extra Line Text
+        Write Text          Another Extra Line of Text
+        Save Document AS    ${CURDIR}${/}new.docx
+        ${texts}=           Get all Texts
+        Close Document
+
+**Python**
+
+.. code-block:: python
+
+    from RPA.Word.Application import Application
+
+    app = Application()
+    app.open_application()
+    app.open_file('old.docx')
+    app.write_text('Extra Line Text')
+    app.save_document_as('new.docx')
+    app.quit_application()</doc>
+<tags>
+</tags>
+<inits>
+</inits>
+<keywords>
+<kw name="Close Document" lineno="93">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Close the active document (if open).</doc>
+<shortdoc>Close the active document (if open).</shortdoc>
+</kw>
+<kw name="Create New Document" lineno="124">
+<arguments repr="">
+</arguments>
+<doc>Create new document for Word application</doc>
+<shortdoc>Create new document for Word application</shortdoc>
+</kw>
+<kw name="Export To Pdf" lineno="129">
+<arguments repr="filename: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str">
+<name>filename</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Export active document into PDF file.
+
+:param filename: PDF to export WORD into</doc>
+<shortdoc>Export active document into PDF file.</shortdoc>
+</kw>
+<kw name="Get All Texts" lineno="216">
+<arguments repr="">
+</arguments>
+<doc>Get all texts from active document
+
+:return: texts</doc>
+<shortdoc>Get all texts from active document</shortdoc>
+</kw>
+<kw name="Open Application" lineno="76">
+<arguments repr="visible: bool = False, display_alerts: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="visible: bool = False">
+<name>visible</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="display_alerts: bool = False">
+<name>display_alerts</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Open the Word application.
+
+:param visible: show window after opening
+:param display_alerts: show alert popups</doc>
+<shortdoc>Open the Word application.</shortdoc>
+</kw>
+<kw name="Open File" lineno="105">
+<arguments repr="filename: str, read_only: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str">
+<name>filename</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="read_only: bool = True">
+<name>read_only</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Open Word document with filename.
+
+:param filename: Word document path</doc>
+<shortdoc>Open Word document with filename.</shortdoc>
+</kw>
+<kw name="Quit Application" lineno="98">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Quit the application.</doc>
+<shortdoc>Quit the application.</shortdoc>
+</kw>
+<kw name="Replace Text" lineno="151">
+<arguments repr="find: str, replace: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="find: str">
+<name>find</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="replace: str">
+<name>replace</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Replace text in active document
+
+:param find: text to replace
+:param replace: new text</doc>
+<shortdoc>Replace text in active document</shortdoc>
+</kw>
+<kw name="Save Document" lineno="177">
+<arguments repr="">
+</arguments>
+<doc>Save active document</doc>
+<shortdoc>Save active document</shortdoc>
+</kw>
+<kw name="Save Document As" lineno="187">
+<arguments repr="filename: str, fileformat: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str">
+<name>filename</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="fileformat: str | None = None">
+<name>fileformat</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Save document with filename and optionally with given fileformat
+
+:param filename: where to save document
+:param fileformat: see @FILEFORMATS dictionary for possible format,
+    defaults to None</doc>
+<shortdoc>Save document with filename and optionally with given fileformat</shortdoc>
+</kw>
+<kw name="Set Footer" lineno="168">
+<arguments repr="text: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Set footer for the active document
+
+:param text: footer text to set</doc>
+<shortdoc>Set footer for the active document</shortdoc>
+</kw>
+<kw name="Set Header" lineno="159">
+<arguments repr="text: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Set header for the active document
+
+:param text: header text to set</doc>
+<shortdoc>Set header for the active document</shortdoc>
+</kw>
+<kw name="Write Text" lineno="139">
+<arguments repr="text: str, newline: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="newline: bool = True">
+<name>newline</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Writes given text at the end of the document
+
+:param text: string to write
+:param newline: write text to newline if True, default to True</doc>
+<shortdoc>Writes given text at the end of the document</shortdoc>
+</kw>
+</keywords>
+<datatypes>
+</datatypes>
+<typedocs>
+<type name="boolean" type="Standard">
+<doc>Strings ``TRUE``, ``YES``, ``ON`` and ``1`` are converted to Boolean ``True``,
+the empty string as well as strings ``FALSE``, ``NO``, ``OFF`` and ``0``
+are converted to Boolean ``False``, and the string ``NONE`` is converted
+to the Python ``None`` object. Other strings and other accepted values are
+passed as-is, allowing keywords to handle them specially if
+needed. All string comparisons are case-insensitive.
+
+Examples: ``TRUE`` (converted to ``True``), ``off`` (converted to ``False``),
+``example`` (used as-is)
+</doc>
+<accepts>
+<type>string</type>
+<type>integer</type>
+<type>float</type>
+<type>None</type>
+</accepts>
+<usages>
+<usage>Close Document</usage>
+<usage>Open Application</usage>
+<usage>Open File</usage>
+<usage>Quit Application</usage>
+<usage>Write Text</usage>
+</usages>
+</type>
+<type name="None" type="Standard">
+<doc>String ``NONE`` (case-insensitive) is converted to Python ``None`` object.
+Other values cause an error.
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Save Document As</usage>
+</usages>
+</type>
+<type name="string" type="Standard">
+<doc>All arguments are converted to Unicode strings.</doc>
+<accepts>
+<type>Any</type>
+</accepts>
+<usages>
+<usage>Export To Pdf</usage>
+<usage>Open File</usage>
+<usage>Replace Text</usage>
+<usage>Save Document As</usage>
+<usage>Set Footer</usage>
+<usage>Set Header</usage>
+<usage>Write Text</usage>
+</usages>
+</type>
+</typedocs>
+</keywordspec>

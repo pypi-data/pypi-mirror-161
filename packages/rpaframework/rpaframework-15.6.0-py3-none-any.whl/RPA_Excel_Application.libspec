@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keywordspec name="RPA.Excel.Application" type="LIBRARY" format="REST" scope="GLOBAL" generated="2022-08-02T10:30:45Z" specversion="4" source="./RPA/Excel/Application.py" lineno="43">
+<version/>
+<doc>`Excel.Application` is a library for controlling an Excel application.
+
+*Note*. Library works only Windows platform.
+
+**Examples**
+
+**Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Settings ***
+    Library             RPA.Excel.Application
+    Task Setup          Open Application
+    Task Teardown       Quit Application
+
+    *** Tasks ***
+    Manipulate Excel application
+        Open Workbook           workbook.xlsx
+        Set Active Worksheet    sheetname=new stuff
+        Write To Cells          row=1
+        ...                     column=1
+        ...                     value=my data
+        Save Excel
+
+    Run Excel Macro
+        Open Workbook   orders_with_macro.xlsm
+        Run Macro       Sheet1.CommandButton1_Click
+
+    Export Workbook as PDF
+        Open Workbook           workbook.xlsx
+        Export as PDF           workbook.pdf
+
+**Python**
+
+.. code-block:: python
+
+    from RPA.Excel.Application import Application
+
+    app = Application()
+
+    app.open_application()
+    app.open_workbook('workbook.xlsx')
+    app.set_active_worksheet(sheetname='new stuff')
+    app.write_to_cells(row=1, column=1, value='new data')
+    app.save_excel()
+    app.quit_application()</doc>
+<tags>
+</tags>
+<inits>
+<init name="__init__" lineno="95">
+<arguments repr="autoexit: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="autoexit: bool = True">
+<name>autoexit</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Initialize self.  See help(type(self)) for accurate signature.</doc>
+<shortdoc>Initialize self.  See help(type(self)) for accurate signature.</shortdoc>
+</init>
+</inits>
+<keywords>
+<kw name="Add New Sheet" lineno="198">
+<arguments repr="sheetname: str, tabname: str | None = None, create_workbook: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="sheetname: str">
+<name>sheetname</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="tabname: str | None = None">
+<name>tabname</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="create_workbook: bool = True">
+<name>create_workbook</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Add new worksheet to workbook. Workbook is created by default if
+it does not exist.
+
+:param sheetname: name for sheet
+:param tabname: name for tab (deprecated)
+:param create_workbook: create workbook if True, defaults to True
+:raises ValueError: error is raised if workbook does not exist and
+    `create_workbook` is False</doc>
+<shortdoc>Add new worksheet to workbook. Workbook is created by default if it does not exist.</shortdoc>
+</kw>
+<kw name="Add New Workbook" lineno="149">
+<arguments repr="">
+</arguments>
+<doc>Adds new workbook for Excel application</doc>
+<shortdoc>Adds new workbook for Excel application</shortdoc>
+</kw>
+<kw name="Close Document" lineno="127">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Close the active document (if open).</doc>
+<shortdoc>Close the active document (if open).</shortdoc>
+</kw>
+<kw name="Export As Pdf" lineno="396">
+<arguments repr="pdf_filename: str, excel_filename: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="pdf_filename: str">
+<name>pdf_filename</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="excel_filename: str | None = None">
+<name>excel_filename</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Export Excel as PDF file
+
+If Excel filename is not given, the currently open workbook
+will be exported as PDF.
+
+:param pdf_filename: PDF filename to save
+:param excel_filename: Excel filename to open</doc>
+<shortdoc>Export Excel as PDF file</shortdoc>
+</kw>
+<kw name="Find First Available Cell" lineno="243">
+<arguments repr="worksheet: Any | None = None, row: int = 1, column: int = 1">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="worksheet: Any | None = None">
+<name>worksheet</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="row: int = 1">
+<name>row</name>
+<type typedoc="integer">int</type>
+<default>1</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="column: int = 1">
+<name>column</name>
+<type typedoc="integer">int</type>
+<default>1</default>
+</arg>
+</arguments>
+<doc>Find first available free cell
+
+:param worksheet: worksheet to handle, defaults to active worksheet if None
+:param row: starting row for search, defaults to 1
+:param column: starting column for search, defaults to 1
+:return: tuple (row, column) or (None, None) if not found</doc>
+<shortdoc>Find first available free cell</shortdoc>
+</kw>
+<kw name="Find First Available Row" lineno="228">
+<arguments repr="worksheet: Any | None = None, row: int = 1, column: int = 1">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="worksheet: Any | None = None">
+<name>worksheet</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="row: int = 1">
+<name>row</name>
+<type typedoc="integer">int</type>
+<default>1</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="column: int = 1">
+<name>column</name>
+<type typedoc="integer">int</type>
+<default>1</default>
+</arg>
+</arguments>
+<doc>Find first available free row
+
+:param worksheet: worksheet to handle, defaults to active worksheet if None
+:param row: starting row for search, defaults to 1
+:param column: starting column for search, defaults to 1
+:return: row or None</doc>
+<shortdoc>Find first available free row</shortdoc>
+</kw>
+<kw name="Open Application" lineno="108">
+<arguments repr="visible: bool = False, display_alerts: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="visible: bool = False">
+<name>visible</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="display_alerts: bool = False">
+<name>display_alerts</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Open the Excel application.
+
+:param visible: show window after opening
+:param display_alerts: show alert popups</doc>
+<shortdoc>Open the Excel application.</shortdoc>
+</kw>
+<kw name="Open Workbook" lineno="157">
+<arguments repr="filename: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str">
+<name>filename</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Open Excel by filename
+
+By default sets active worksheet to sheet number 1
+
+:param filename: path to filename</doc>
+<shortdoc>Open Excel by filename</shortdoc>
+</kw>
+<kw name="Quit Application" lineno="138">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Quit the application.</doc>
+<shortdoc>Quit the application.</shortdoc>
+</kw>
+<kw name="Read From Cells" lineno="305">
+<arguments repr="worksheet: Any | None = None, row: int | None = None, column: int | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="worksheet: Any | None = None">
+<name>worksheet</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="row: int | None = None">
+<name>row</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="column: int | None = None">
+<name>column</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Read value from cell.
+
+:param worksheet: worksheet to handle, defaults to active worksheet if None
+:param row: target row, defaults to None
+:param column: target row, defaults to None
+:raises ValueError: if cell is not given</doc>
+<shortdoc>Read value from cell.</shortdoc>
+</kw>
+<kw name="Run Macro" lineno="381">
+<arguments repr="macro_name: str, *args: Any">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="macro_name: str">
+<name>macro_name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="VAR_POSITIONAL" required="false" repr="*args: Any">
+<name>args</name>
+<type>Any</type>
+</arg>
+</arguments>
+<doc>Run Excel macro with given name
+
+:param macro_name: macro to run
+:param args: arguments to pass to macro</doc>
+<shortdoc>Run Excel macro with given name</shortdoc>
+</kw>
+<kw name="Save Excel" lineno="331">
+<arguments repr="">
+</arguments>
+<doc>Saves Excel file</doc>
+<shortdoc>Saves Excel file</shortdoc>
+</kw>
+<kw name="Save Excel As" lineno="339">
+<arguments repr="filename: str, autofit: bool = False, file_format=None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="filename: str">
+<name>filename</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="autofit: bool = False">
+<name>autofit</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="file_format=None">
+<name>file_format</name>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Save Excel with name if workbook is open
+
+:param filename: where to save file
+:param autofit: autofit cell widths if True, defaults to False
+:param file_format: format of file
+
+**Note:** Changing the file extension for the path does not
+affect the actual format. To use an older format, use
+the ``file_format`` argument with one of the following values:
+
+https://docs.microsoft.com/en-us/office/vba/api/excel.xlfileformat
+
+Examples:
+
+.. code-block:: robotframework
+
+    # Save workbook in modern format
+    Save excel as    orders.xlsx
+
+    # Save workbook in Excel 97 format (format from above URL)
+    Save excel as    legacy.xls   file_format=${56}</doc>
+<shortdoc>Save Excel with name if workbook is open</shortdoc>
+</kw>
+<kw name="Set Active Worksheet" lineno="181">
+<arguments repr="sheetname: str | None = None, sheetnumber: int | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="sheetname: str | None = None">
+<name>sheetname</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="sheetnumber: int | None = None">
+<name>sheetnumber</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Set active worksheet by either its sheet number or name
+
+:param sheetname: name of Excel sheet, defaults to None
+:param sheetnumber: index of Excel sheet, defaults to None</doc>
+<shortdoc>Set active worksheet by either its sheet number or name</shortdoc>
+</kw>
+<kw name="Write To Cells" lineno="267">
+<arguments repr="worksheet: Any | None = None, row: int | None = None, column: int | None = None, value: str | None = None, number_format: str | None = None, formula: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="worksheet: Any | None = None">
+<name>worksheet</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="row: int | None = None">
+<name>row</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="column: int | None = None">
+<name>column</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="value: str | None = None">
+<name>value</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="number_format: str | None = None">
+<name>number_format</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="formula: str | None = None">
+<name>formula</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Write value, number_format and/or formula into cell.
+
+:param worksheet: worksheet to handle, defaults to active worksheet if None
+:param row: target row, defaults to None
+:param column: target row, defaults to None
+:param value: possible value to set, defaults to None
+:param number_format: possible number format to set, defaults to None
+:param formula: possible format to set, defaults to None
+:raises ValueError: if cell is not given</doc>
+<shortdoc>Write value, number_format and/or formula into cell.</shortdoc>
+</kw>
+</keywords>
+<datatypes>
+</datatypes>
+<typedocs>
+<type name="boolean" type="Standard">
+<doc>Strings ``TRUE``, ``YES``, ``ON`` and ``1`` are converted to Boolean ``True``,
+the empty string as well as strings ``FALSE``, ``NO``, ``OFF`` and ``0``
+are converted to Boolean ``False``, and the string ``NONE`` is converted
+to the Python ``None`` object. Other strings and other accepted values are
+passed as-is, allowing keywords to handle them specially if
+needed. All string comparisons are case-insensitive.
+
+Examples: ``TRUE`` (converted to ``True``), ``off`` (converted to ``False``),
+``example`` (used as-is)
+</doc>
+<accepts>
+<type>string</type>
+<type>integer</type>
+<type>float</type>
+<type>None</type>
+</accepts>
+<usages>
+<usage>__init__</usage>
+<usage>Add New Sheet</usage>
+<usage>Close Document</usage>
+<usage>Open Application</usage>
+<usage>Quit Application</usage>
+<usage>Save Excel As</usage>
+</usages>
+</type>
+<type name="integer" type="Standard">
+<doc>Conversion is done using Python's [https://docs.python.org/library/functions.html#int|int]
+built-in function. Floating point
+numbers are accepted only if they can be represented as integers exactly.
+For example, ``1.0`` is accepted and ``1.1`` is not.
+
+Starting from RF 4.1, it is possible to use hexadecimal, octal and binary
+numbers by prefixing values with ``0x``, ``0o`` and ``0b``, respectively.
+
+Starting from RF 4.1, spaces and underscores can be used as visual separators
+for digit grouping purposes.
+
+Examples: ``42``, ``-1``, ``0b1010``, ``10 000 000``, ``0xBAD_C0FFEE``
+</doc>
+<accepts>
+<type>string</type>
+<type>float</type>
+</accepts>
+<usages>
+<usage>Find First Available Cell</usage>
+<usage>Find First Available Row</usage>
+<usage>Read From Cells</usage>
+<usage>Set Active Worksheet</usage>
+<usage>Write To Cells</usage>
+</usages>
+</type>
+<type name="None" type="Standard">
+<doc>String ``NONE`` (case-insensitive) is converted to Python ``None`` object.
+Other values cause an error.
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Add New Sheet</usage>
+<usage>Export As Pdf</usage>
+<usage>Find First Available Cell</usage>
+<usage>Find First Available Row</usage>
+<usage>Read From Cells</usage>
+<usage>Set Active Worksheet</usage>
+<usage>Write To Cells</usage>
+</usages>
+</type>
+<type name="string" type="Standard">
+<doc>All arguments are converted to Unicode strings.</doc>
+<accepts>
+<type>Any</type>
+</accepts>
+<usages>
+<usage>Add New Sheet</usage>
+<usage>Export As Pdf</usage>
+<usage>Open Workbook</usage>
+<usage>Run Macro</usage>
+<usage>Save Excel As</usage>
+<usage>Set Active Worksheet</usage>
+<usage>Write To Cells</usage>
+</usages>
+</type>
+</typedocs>
+</keywordspec>

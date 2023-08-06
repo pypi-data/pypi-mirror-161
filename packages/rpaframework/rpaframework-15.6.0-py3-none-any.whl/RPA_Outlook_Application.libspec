@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keywordspec name="RPA.Outlook.Application" type="LIBRARY" format="REST" scope="GLOBAL" generated="2022-08-02T10:30:46Z" specversion="4" source="./RPA/Outlook/Application.py" lineno="46">
+<version/>
+<doc>`Outlook.Application` is a library for controlling the Outlook application.
+
+*Note*. Library works only Windows platform.
+
+**About Email Filtering**
+
+Emails can be filtered according to specification set by Restrict method of the Item
+class https://docs.microsoft.com/en-us/office/vba/api/outlook.items.restrict.
+
+Couple of examples:
+
+.. code-block:: robotframework
+
+    Get Emails
+    ...   email_filter=[Subject]='test email'
+
+    Move Emails
+    ...   email_filter=[SenderEmailAddress]='hello@gmail.com'
+
+**Examples**
+
+**Robot Framework**
+
+.. code-block:: robotframework
+
+    *** Settings ***
+    Library                 RPA.Outlook.Application
+    Task Setup              Open Application
+    Suite Teardown          Quit Application
+
+    *** Variables ***
+    ${RECIPIENT}            address@domain.com
+
+    *** Tasks ***
+    Send message
+        Send Message       recipients=${RECIPIENT}
+        ...                subject=This is the subject
+        ...                body=This is the message body
+        ..                 attachments=approved.png
+
+**Python**
+
+.. code-block:: python
+
+    from RPA.Outlook.Application import Application
+
+    def send_message():
+        app = Application()
+        app.open_application()
+        app.send_message(
+            recipients='EMAILADDRESS_1, EMAILADDRESS_2',
+            subject='email subject',
+            body='email body message',
+            attachments='../orders.csv'
+
+For more information, see: https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2007/bb219950(v=office.12)</doc>
+<tags>
+</tags>
+<inits>
+<init name="__init__" lineno="109">
+<arguments repr="autoexit: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="autoexit: bool = True">
+<name>autoexit</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Initialize self.  See help(type(self)) for accurate signature.</doc>
+<shortdoc>Initialize self.  See help(type(self)) for accurate signature.</shortdoc>
+</init>
+</inits>
+<keywords>
+<kw name="Close Document" lineno="138">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Close the active document (if open).
+
+:param save_changes: if changes should be saved on close, default False</doc>
+<shortdoc>Close the active document (if open).</shortdoc>
+</kw>
+<kw name="Get Emails" lineno="340">
+<arguments repr="account_name: str | None = None, folder_name: str | None = None, email_filter: str | None = None, save_attachments: bool = False, attachment_folder: str | None = None, sort: bool = False, sort_key: str | None = None, sort_descending: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="account_name: str | None = None">
+<name>account_name</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="folder_name: str | None = None">
+<name>folder_name</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="email_filter: str | None = None">
+<name>email_filter</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_attachments: bool = False">
+<name>save_attachments</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="attachment_folder: str | None = None">
+<name>attachment_folder</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="sort: bool = False">
+<name>sort</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="sort_key: str | None = None">
+<name>sort_key</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="sort_descending: bool = True">
+<name>sort_descending</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Get emails from a specified email folder. Can be used to save attachments.
+
+:param account_name: needs to be given if there are shared accounts in use,
+ defaults to None
+:param folder_name: target folder where to get emails from, default Inbox
+:param email_filter: how to filter email, default no filter,
+ ie. all emails in folder
+:param save_attachments: if attachments should be saved, defaults to False
+:param attachment_folder: target folder where attachments are saved,
+ defaults to current directory
+:param sort: if emails should be sorted, defaults to False
+:param sort_key: needs to be given if emails are to be sorted
+:param sort_descending: set to False for ascending sort, defaults to True
+:return: list of emails (list of dictionaries)
+
+Example:
+
+.. code-block:: robotframework
+
+    ${emails}=  Get Emails
+    ...    email_folder=priority
+    ...    email_filter=[Subject]='incoming order'
+    ...    save_attachments=True
+    ...    attachment_folder=%{ROBOT_ROOT}${/}attachments
+    ...    sort=True
+    ...    sort_key=Received
+    ...    sort_descending=False</doc>
+<shortdoc>Get emails from a specified email folder. Can be used to save attachments.</shortdoc>
+</kw>
+<kw name="Mark Email As Read" lineno="490">
+<arguments repr="email: Any, read: bool = True">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="email: Any">
+<name>email</name>
+<type>Any</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="read: bool = True">
+<name>read</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+</arguments>
+<doc>Mark email 'read' property. Can be used to mark email as unread.
+
+:param email: target email
+:param read: True marks email as Read, False as Unread
+
+Example:
+
+.. code-block:: robotframework
+
+    ${emails}=  Get Emails
+    # Mark all as read
+    FOR  ${email}  IN  @{emails}
+        Mark Email As Read  ${email}
+    END
+
+    # Mark all as unread
+    FOR  ${email}  IN  @{emails}
+        Mark Email As Read  ${email}  False
+    END</doc>
+<shortdoc>Mark email 'read' property. Can be used to mark email as unread.</shortdoc>
+</kw>
+<kw name="Move Emails" lineno="519">
+<arguments repr="account_name: str | None = None, source_folder: str | None = None, email_filter: str | None = None, target_folder: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="account_name: str | None = None">
+<name>account_name</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="source_folder: str | None = None">
+<name>source_folder</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="email_filter: str | None = None">
+<name>email_filter</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="target_folder: str | None = None">
+<name>target_folder</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Move emails from source folder to target folder.
+
+Use of "account_name" is recommended if there are shared accounts in use.
+
+:param account_name: needs to be given if there are shared accounts in use,
+ defaults to None
+:param source_folder: folder where source emails exist
+:param email_filter: how to filter email, default no filter,
+ ie. all emails in folder
+:param target_folder: folder where emails are moved into
+:return: True if move operation was success, False if not
+
+Example:
+
+.. code-block:: robotframework
+
+    # moving messages from Inbox to target_folder
+    Move Emails
+    ...    target_folder=Processed Invoices
+    ...    email_filter=[Subject]='incoming invoice'
+
+    # moving messages from source_folder to target_folder
+    Move Emails
+    ...    source_folder=Incoming Invoices
+    ...    target_folder=Processed Invoices
+    ...    email_filter=[Subject]='incoming invoice'</doc>
+<shortdoc>Move emails from source folder to target folder.</shortdoc>
+</kw>
+<kw name="Open Application" lineno="120">
+<arguments repr="visible: bool = False, display_alerts: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="visible: bool = False">
+<name>visible</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="display_alerts: bool = False">
+<name>display_alerts</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Open the Outlook application.
+
+:param visible: show window after opening, default False
+:param display_alerts: show alert popups, default False</doc>
+<shortdoc>Open the Outlook application.</shortdoc>
+</kw>
+<kw name="Quit Application" lineno="148">
+<arguments repr="save_changes: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="save_changes: bool = False">
+<name>save_changes</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Quit the application.
+
+:param save_changes: if changes should be saved on quit, default False</doc>
+<shortdoc>Quit the application.</shortdoc>
+</kw>
+<kw name="Save Email Attachments" lineno="447">
+<arguments repr="attachments: Any, attachment_folder: str, overwrite: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="attachments: Any">
+<name>attachments</name>
+<type>Any</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="attachment_folder: str">
+<name>attachment_folder</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="overwrite: bool = False">
+<name>overwrite</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Save email attachments.
+
+Note. Keyword "Get Emails" can be also used to save attachments.
+
+:param attachments: all attachments from email or single attachment
+:param attachment_folder: target folder where attachments are saved,
+    defaults to current directory
+:param overwrite: overwrite existing file if True, defaults to False
+
+Example:
+
+.. code-block:: robotframework
+
+    ${emails} =  Get Emails
+    ...    email_folder=priority
+    FOR  ${email}  IN   @{emails}
+        FOR  ${attachment}  IN  @{email}[Attachments]
+            IF  ${attachment}[size] &lt; 100000   # bytes
+                Save Email Attachments
+                ...  ${attachment}
+                ...  ${CURDIR}${/}attachments
+            ELSE IF  ".pdf" in "${attachment}[filename]"
+                Save Email Attachments
+                ...  ${attachment}
+                ...  ${CURDIR}${/}attachments${/}pdf
+            END
+        END
+    END</doc>
+<shortdoc>Save email attachments.</shortdoc>
+</kw>
+<kw name="Send Email" lineno="183">
+<arguments repr="recipients: Any, subject: str, body: str, html_body: bool = False, attachments: Any | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="recipients: Any">
+<name>recipients</name>
+<type>Any</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="subject: str">
+<name>subject</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="body: str">
+<name>body</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="html_body: bool = False">
+<name>html_body</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="attachments: Any | None = None">
+<name>attachments</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Send email with Outlook
+
+:param recipients: list of addresses
+:param subject: email subject
+:param body: email body
+:param html_body: True if body contains HTML, defaults to False
+:param attachments: list of filepaths to include in the email, defaults to []
+:return: `True` if there were no errors
+
+Example:
+
+.. code-block:: robotframework
+
+    Send Email
+    ...    recipients=robocorp.tester@gmail.com
+    ...    subject=hello from Outlook
+    ...    body=empty body
+    ...    attachments=${CURDIR}${/}example.xlsx</doc>
+<shortdoc>Send email with Outlook</shortdoc>
+</kw>
+<kw name="Send Message" lineno="159">
+<arguments repr="recipients: Any, subject: str, body: str, html_body: bool = False, attachments: Any | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="recipients: Any">
+<name>recipients</name>
+<type>Any</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="subject: str">
+<name>subject</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="body: str">
+<name>body</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="html_body: bool = False">
+<name>html_body</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="attachments: Any | None = None">
+<name>attachments</name>
+<type>Any</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Send message with Outlook
+
+:param recipients: list of addresses
+:param subject: email subject
+:param body: email body
+:param html_body: True if body contains HTML, defaults to False
+:param attachments: list of filepaths to include in the email, defaults to []
+:return: `True` if there were no errors</doc>
+<shortdoc>Send message with Outlook</shortdoc>
+</kw>
+<kw name="Wait For Email" lineno="296">
+<arguments repr="criterion: str | None = None, timeout: float = 5.0, interval: float = 1.0">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="criterion: str | None = None">
+<name>criterion</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float = 5.0">
+<name>timeout</name>
+<type typedoc="float">float</type>
+<default>5.0</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="interval: float = 1.0">
+<name>interval</name>
+<type typedoc="float">float</type>
+<default>1.0</default>
+</arg>
+</arguments>
+<doc>Wait for email matching `criterion` to arrive into mailbox.
+
+:param criterion: email filter to wait for, defaults to ""
+:param timeout: total time in seconds to wait for email, defaults to 5.0
+:param interval: time in seconds for new check, defaults to 1.0
+:return: list of messages or False
+
+Possible wait criterias are: SUBJECT, SENDER and BODY
+
+Example:
+
+.. code-block:: robotframework
+
+    Wait for Email     SUBJECT:rpa task calling    timeout=300    interval=10</doc>
+<shortdoc>Wait for email matching `criterion` to arrive into mailbox.</shortdoc>
+</kw>
+<kw name="Wait For Message" lineno="271">
+<arguments repr="criterion: str | None = None, timeout: float = 5.0, interval: float = 1.0">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="criterion: str | None = None">
+<name>criterion</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: float = 5.0">
+<name>timeout</name>
+<type typedoc="float">float</type>
+<default>5.0</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="interval: float = 1.0">
+<name>interval</name>
+<type typedoc="float">float</type>
+<default>1.0</default>
+</arg>
+</arguments>
+<doc>Wait for email matching `criterion` to arrive into mailbox.
+
+:param criterion: message filter to wait for, defaults to ""
+:param timeout: total time in seconds to wait for email, defaults to 5.0
+:param interval: time in seconds for new check, defaults to 1.0
+:return: list of messages or False
+
+Possible wait criterias are: SUBJECT, SENDER and BODY
+
+Example:
+
+.. code-block:: robotframework
+
+    Wait for message     SUBJECT:rpa task calling    timeout=300    interval=10</doc>
+<shortdoc>Wait for email matching `criterion` to arrive into mailbox.</shortdoc>
+</kw>
+</keywords>
+<datatypes>
+</datatypes>
+<typedocs>
+<type name="boolean" type="Standard">
+<doc>Strings ``TRUE``, ``YES``, ``ON`` and ``1`` are converted to Boolean ``True``,
+the empty string as well as strings ``FALSE``, ``NO``, ``OFF`` and ``0``
+are converted to Boolean ``False``, and the string ``NONE`` is converted
+to the Python ``None`` object. Other strings and other accepted values are
+passed as-is, allowing keywords to handle them specially if
+needed. All string comparisons are case-insensitive.
+
+Examples: ``TRUE`` (converted to ``True``), ``off`` (converted to ``False``),
+``example`` (used as-is)
+</doc>
+<accepts>
+<type>string</type>
+<type>integer</type>
+<type>float</type>
+<type>None</type>
+</accepts>
+<usages>
+<usage>__init__</usage>
+<usage>Close Document</usage>
+<usage>Get Emails</usage>
+<usage>Mark Email As Read</usage>
+<usage>Open Application</usage>
+<usage>Quit Application</usage>
+<usage>Save Email Attachments</usage>
+<usage>Send Email</usage>
+<usage>Send Message</usage>
+</usages>
+</type>
+<type name="float" type="Standard">
+<doc>Conversion is done using Python's
+[https://docs.python.org/library/functions.html#float|float] built-in function.
+
+Starting from RF 4.1, spaces and underscores can be used as visual separators
+for digit grouping purposes.
+
+Examples: ``3.14``, ``2.9979e8``, ``10 000.000 01``
+</doc>
+<accepts>
+<type>string</type>
+<type>Real</type>
+</accepts>
+<usages>
+<usage>Wait For Email</usage>
+<usage>Wait For Message</usage>
+</usages>
+</type>
+<type name="None" type="Standard">
+<doc>String ``NONE`` (case-insensitive) is converted to Python ``None`` object.
+Other values cause an error.
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Get Emails</usage>
+<usage>Move Emails</usage>
+<usage>Send Email</usage>
+<usage>Send Message</usage>
+<usage>Wait For Email</usage>
+<usage>Wait For Message</usage>
+</usages>
+</type>
+<type name="string" type="Standard">
+<doc>All arguments are converted to Unicode strings.</doc>
+<accepts>
+<type>Any</type>
+</accepts>
+<usages>
+<usage>Get Emails</usage>
+<usage>Move Emails</usage>
+<usage>Save Email Attachments</usage>
+<usage>Send Email</usage>
+<usage>Send Message</usage>
+<usage>Wait For Email</usage>
+<usage>Wait For Message</usage>
+</usages>
+</type>
+</typedocs>
+</keywordspec>

@@ -1,0 +1,1357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keywordspec name="RPA.Dialogs" type="LIBRARY" format="REST" scope="GLOBAL" generated="2022-08-02T10:30:45Z" specversion="4" source="./RPA/Dialogs/library.py" lineno="18">
+<version/>
+<doc>The `Dialogs` library provides a way to display information to a user
+and request input while a robot is running. It allows building processes
+that require human interaction.
+
+Some examples of use-cases could be the following:
+
+- Displaying generated files after an execution is finished
+- Displaying dynamic and user-friendly error messages
+- Requesting passwords or other personal information
+- Automating based on files created by the user
+
+**Workflow**
+
+The library is used to create dialogs, i.e. windows, that can be composed
+on-the-fly based on the current state of the execution.
+
+The content of the dialog is defined by calling relevant keywords
+such as ``Add text`` or ``Add file input``. When the dialog is opened
+the content is generated based on the previous keywords.
+
+Depending on the way the dialog is started, the execution will either
+block or continue while the dialog is open. During this time the user
+can freely edit any possible input fields or handle other tasks.
+
+After the user has successfully submitted the dialog, any possible
+entered input will be returned as a result. The user also has the option
+to abort by closing the dialog window forcefully.
+
+**Results**
+
+Each input field has a required ``name`` argument that controls what
+the value will be called in the result object. Each input name should be
+unique, and must not be called ``submit`` as that is reserved for the submit
+button value.
+
+A result object is a Robot Framework DotDict, where each key
+is the name of the input field and the value is what the user entered.
+The data type of each field depends on the input. For instance,
+a text input will have a string, a checkbox will have a boolean, and
+a file input will have a list of paths.
+
+If the user closed the window before submitting or there was an internal
+error, the library will raise an exception and the result values will
+not be available.
+
+**Examples**
+
+.. code-block:: robotframework
+
+    Success dialog
+        Add icon      Success
+        Add heading   Your orders have been processed
+        Add files     *.txt
+        Run dialog    title=Success
+
+    Failure dialog
+        Add icon      Failure
+        Add heading   There was an error
+        Add text      The assistant failed to login to the Enterprise portal
+        Add link      https://robocorp.com/docs    label=Troubleshooting guide
+        Run dialog    title=Failure
+
+    Large dialog
+        Add heading    A real chonker   size=large
+        Add image      fat-cat.jpeg
+        Run dialog     title=Large    height=1024    width=1024
+
+    Confirmation dialog
+        Add icon      Warning
+        Add heading   Delete user ${username}?
+        Add submit buttons    buttons=No,Yes    default=Yes
+        ${result}=    Run dialog
+        IF   $result.submit == "Yes"
+            Delete user    ${username}
+        END
+
+    Input form dialog
+        Add heading       Send feedback
+        Add text input    email    label=E-mail address
+        Add text input    message
+        ...    label=Feedback
+        ...    placeholder=Enter feedback here
+        ...    rows=5
+        ${result}=    Run dialog
+        Send feedback message    ${result.email}  ${result.message}
+
+    Dialog as progress indicator
+        Add heading    Please wait while I open a browser
+        ${dialog}=     Show dialog    title=Please wait    on_top=${TRUE}
+        Open available browser    https://robocorp.com
+        Close dialog   ${dialog}</doc>
+<tags>
+<tag>dialog</tag>
+<tag>input</tag>
+</tags>
+<inits>
+</inits>
+<keywords>
+<kw name="Add checkbox" lineno="783">
+<arguments repr="name: str, label: str, default: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="label: str">
+<name>label</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="default: bool = False">
+<name>default</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Add a checkbox element
+
+:param name:    Name of result field
+:param label:   Label text for checkbox
+:param default: Default checked state
+
+Adds a checkbox that indicates a true or false value.
+The selection will be available in the ``name`` field of the result,
+and the ``label`` text will be shown next to the checkbox.
+
+The boolean ``default`` value will define the initial checked
+state of the element.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     Enable features
+    Add checkbox    name=vault        label=Enable vault       default=True
+    Add checkbox    name=triggers     label=Enable triggers    default=False
+    Add checkbox    name=assistants   label=Enable assistants  default=True
+    ${result}=      Run dialog
+    IF    $result.vault
+        Enable vault
+    END</doc>
+<shortdoc>Add a checkbox element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add Date Input" lineno="683">
+<arguments repr="name: str, default: date | str | None = None, label: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="default: date | str | None = None">
+<name>default</name>
+<type typedoc="date">date</type>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add a date input element
+
+:param name:    Name of the result field
+:param default: The default set date
+:param label:   Label for the date input field
+
+Displays a date input widget. The selection the user makes will be available
+as a ``date`` object in the ``name`` field of the result.
+The ``default`` argument can be a pre-set date as object or string in
+"YYYY-MM-DD" format, otherwise the current date is used.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading       Enter your birthdate
+    Add Date Input    birthdate    default=1993-04-26
+    ${result} =       Run dialog
+    Log To Console    User birthdate year should be: ${result.birthdate.year}</doc>
+<shortdoc>Add a date input element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add Dialog Next Page Button" lineno="825">
+<arguments repr="label: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="label: str">
+<name>label</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Add a next page button
+
+:param label: The text displayed on the button
+
+The next page button will delimit the next elements of
+the dialog in a separate view, so that they will only be displayed after
+pressing the button, creating a wizard experience in the dialog.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading       Send feedback
+    Add text input    email             label=E-mail address
+    Add dialog next page button         label=next
+    Add text input    name              label=Name
+    Add dialog next page button         label=next
+    Add checkbox      name=contact
+    ...     label=Do you want us to contact you?
+    ...     default=True
+    Add dialog next page button         label=next
+    Add text input    message
+    ...    label=Feedback
+    ...    placeholder=Enter feedback here
+    ...    rows=5
+    Add submit buttons  buttons=submit
+    ${result}=    Run dialog
+    Send feedback message    ${result.email}  ${result.message}
+    Run dialog</doc>
+<shortdoc>Add a next page button</shortdoc>
+</kw>
+<kw name="Add drop-down" lineno="634">
+<arguments repr="name: str, options: List[str] | str, default: str | None = None, label: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="options: List[str] | str">
+<name>options</name>
+<type typedoc="list">List[str]</type>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="default: str | None = None">
+<name>default</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add a drop-down element
+
+:param name:    Name of result field
+:param options: List of drop-down options
+:param default: The default selection
+:param label:   Label for input field
+
+Creates a drop-down menu with the given ``options``. The selection
+the user makes will be available in the ``name`` field of the result.
+
+The ``default`` argument can be one of the defined options,
+and the dialog automatically selects that option for the input.
+
+A custom ``label`` text can also be added.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     Select user type
+    Add drop-down
+    ...    name=user_type
+    ...    options=Admin,Maintainer,Operator
+    ...    default=Operator
+    ...    label=User type
+    ${result}=      Run dialog
+    Log    User type should be: ${result.user_type}</doc>
+<shortdoc>Add a drop-down element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add file" lineno="307">
+<arguments repr="path: str, label: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="path: str">
+<name>path</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add a file element, which links to a local file
+
+:param path:  The path to the file
+:param label: A custom label text for the file
+
+Adds a button which opens a local file with the corresponding
+default application. Can be used for instance to display generated
+files from the robot to the end-user.
+
+Optionally a custom ``label`` can be given for the button text.
+By default uses the filename of the linked file.
+
+Example:
+
+.. code-block:: robotframework
+
+    ${path}=   Generate order files
+    Add heading    Current orders
+    Add file    ${path}    label=Current
+    Run dialog</doc>
+<shortdoc>Add a file element, which links to a local file</shortdoc>
+</kw>
+<kw name="Add file input" lineno="558">
+<arguments repr="name: str, label: str | None = None, source: str | None = None, destination: str | None = None, file_type: str | None = None, multiple: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="source: str | None = None">
+<name>source</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="destination: str | None = None">
+<name>destination</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="file_type: str | None = None">
+<name>file_type</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="multiple: bool = False">
+<name>multiple</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Add a file input element
+
+:param name:        Name of result field
+:param label:       Label for input field
+:param source:      Default source directory
+:param destination: Target directory for selected files
+:param file_type:   Accepted file types
+:param multiple:    Allow selecting multiple files
+
+Adds a native file selection dialog for inputting one or more files.
+The list of selected files will be available in the ``name`` field
+of the result.
+
+By default opens up in the user's home directory, but it can be
+set to a custom path with the ``source`` argument.
+
+If the ``destination`` argument is not set, it returns the original
+paths to the selected files. If the ``destination`` directory
+is set, the files are copied there first and the new paths are
+returned.
+
+The argument ``file_type`` restricts the possible file extensions
+that the user can select. The format of the argument is as follows:
+``Description text (*.ext1;*.ext2;...)``. For instance, an argument
+to limit options to Excel files could be: ``Excel files (*.xls;*.xlsx)``.
+
+To allow selecting more than one file, the ``multiple`` argument
+can be enabled.
+
+Example:
+
+.. code-block:: robotframework
+
+    # This can be any one file
+    Add file input    name=anyting
+
+    # This can be multiple files
+    Add file input    name=multiple  multiple=True
+
+    # This opens the select dialog to a custom folder
+    Add file input    name=src       source=C:\Temp\Output\
+
+    # This copies selected files to a custom folder
+    Add file input    name=dest      destination=%{ROBOT_ROOT}
+
+    # This restricts files to certain types
+    Add file input    name=types     file_type=PDF files (*.pdf)
+
+    # Every file input result is a list of paths
+    ${result}=    Run dialog
+    FOR    ${path}    IN    @{result.multiple}
+        Log    Selected file: ${path}
+    END</doc>
+<shortdoc>Add a file input element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add files" lineno="348">
+<arguments repr="pattern: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="pattern: str">
+<name>pattern</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Add multiple file elements according to the given file pattern
+
+:param pattern: File matching pattern
+
+See the keyword ``Add file`` for information about the inserted
+element itself.
+
+The keyword uses Unix-style glob patterns for finding matching files,
+and the supported pattern expressions are as follow:
+
+========== ================================================
+Pattern    Meaning
+========== ================================================
+``*``      Match everything
+``?``      Match any single character
+``[seq]``  Match any character in seq
+``[!seq]`` Match any character not in seq
+``**``     Match all files, directories, and subdirectories
+========== ================================================
+
+If a filename has any of these special characters, they
+can be escaped by wrapping them with square brackets.
+
+Example:
+
+.. code-block:: robotframework
+
+    # Add all excel files
+    Add files    *.xlsx
+
+    # Add all log files in any subdirectory
+    Add files    **/*.log
+
+    # Add all PDFs between order0 and order9
+    Add files    order[0-9].pdf</doc>
+<shortdoc>Add multiple file elements according to the given file pattern</shortdoc>
+</kw>
+<kw name="Add heading" lineno="167">
+<arguments repr="heading: str, size: Size = Medium">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="heading: str">
+<name>heading</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="size: Size = Medium">
+<name>size</name>
+<type typedoc="Size">Size</type>
+<default>Medium</default>
+</arg>
+</arguments>
+<doc>Add a centered heading text element
+
+:param heading: The text content for the heading
+:param size:    The size of the heading
+
+Supported ``size`` values are Small, Medium, and Large. By default uses
+the value Medium.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     User information  size=Large
+    Add heading     Location          size=Small
+    Add text input  address           label=User address
+    Run dialog</doc>
+<shortdoc>Add a centered heading text element</shortdoc>
+</kw>
+<kw name="Add hidden input" lineno="523">
+<arguments repr="name: str, value: str">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="value: str">
+<name>value</name>
+<type typedoc="string">str</type>
+</arg>
+</arguments>
+<doc>Add a hidden input element
+
+:param name:  Name of result feild
+:param value: Value for input
+
+Adds a special hidden result field that is not visible
+to the user and always contains the given static value.
+
+Can be used to keep user input together with already known
+values such as user IDs, or to ensure that dialogs with differing
+elements all have the same fields in results.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add hidden input   user_id   ${USER_ID}
+    Add text input     username
+    ${result}=         Run dialog
+    Enter user information    ${result.user_id}    ${result.username}</doc>
+<shortdoc>Add a hidden input element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add icon" lineno="393">
+<arguments repr="variant: Icon, size: int = 48">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="variant: Icon">
+<name>variant</name>
+<type typedoc="Icon">Icon</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="size: int = 48">
+<name>size</name>
+<type typedoc="integer">int</type>
+<default>48</default>
+</arg>
+</arguments>
+<doc>Add an icon element
+
+:param variant: The icon type
+:param size:    The size of the icon
+
+Adds an icon which can be used to indicate status
+or the type of dialog being presented.
+
+The currently supported icon types are:
+
+======= ==========================
+Name    Description
+======= ==========================
+Success A green check mark
+Warning An orange warning triangle
+Failure A red cross or X mark
+======= ==========================
+
+The ``size`` of the icon can also be changed,
+to a given height/width of pixels.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add icon              Warning    size=64
+    Add heading           Do you want to delete this order?
+    Add submit buttons    buttons=No,Yes
+    ${result}=    Run dialog</doc>
+<shortdoc>Add an icon element</shortdoc>
+</kw>
+<kw name="Add image" lineno="267">
+<arguments repr="url_or_path: str, width: int | None = None, height: int | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="url_or_path: str">
+<name>url_or_path</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="width: int | None = None">
+<name>width</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="height: int | None = None">
+<name>height</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add an image element, from a local file or remote URL
+
+:param url_or_path: The location of the image
+:param width:       The static width of the image, in pixels
+:param height:      The static height of the image, in pixels
+
+Adds an inline image to the dialog, which can either
+point to a local file path on the executing machine or to
+a remote URL.
+
+By default the image is resized to fit the width of the dialog
+window, but the width and/or height can be explicitly defined
+to a custom value. If only one of the dimensions is given,
+the other is automatically changed to maintain the correct aspect ratio.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add image      company-logo.png
+    Add heading    To start, please press the Continue button   size=Small
+    Add submit buttons    Continue
+    Run dialog</doc>
+<shortdoc>Add an image element, from a local file or remote URL</shortdoc>
+</kw>
+<kw name="Add link" lineno="235">
+<arguments repr="url: str, label: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="url: str">
+<name>url</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add an external URL link element
+
+:param url:   The URL for the link
+:param label: A custom label text for the link
+
+Adds a clickable link element, which opens the user's default
+browser to the given ``url``. Optionally a ``label`` can be given
+which is shown as the link text, instead of the raw URL.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading    An error occurred
+    Add text       See link for documentation
+    Add link       https://robocorp.com/docs    label=Troubleshooting
+    Run dialog</doc>
+<shortdoc>Add an external URL link element</shortdoc>
+</kw>
+<kw name="Add password input" lineno="484">
+<arguments repr="name: str, label: str | None = None, placeholder: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="placeholder: str | None = None">
+<name>placeholder</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add a password input element
+
+:param name:        Name of result field
+:param label:       Label for field
+:param placeholder: Placeholder text in input field
+
+Adds a text field that hides the user's input. The entered
+content will be available in the ``name`` field of the result.
+
+For customizing the look of the input, the ``label`` text can be given
+to add a descriptive label and the ``placholder`` text can be given
+to act as an example of the input value.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading    Change password
+    Add text input        username    label=Current username
+    Add password input    password    label=New password
+    ${result}=    Run dialog
+    Change user password    ${result.username}  ${result.password}</doc>
+<shortdoc>Add a password input element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add radio buttons" lineno="735">
+<arguments repr="name: str, options: List[str] | str, default: str | None = None, label: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="options: List[str] | str">
+<name>options</name>
+<type typedoc="list">List[str]</type>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="default: str | None = None">
+<name>default</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add radio button elements
+
+:param name:    Name of result field
+:param options: List of drop-down options
+:param default: The default selection
+:param label:   Label for input field
+
+Creates a set of radio buttons with the given ``options``. The selection
+the user makes will be available in the ``name`` field of the result.
+
+The ``default`` argument can be one of the defined options,
+and the dialog automatically selects that option for the input.
+
+A custom ``label`` text can also be added.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     Select user type
+    Add radio buttons
+    ...    name=user_type
+    ...    options=Admin,Maintainer,Operator
+    ...    default=Operator
+    ...    label=User type
+    ${result}=      Run dialog
+    Log    User type should be: ${result.user_type}</doc>
+<shortdoc>Add radio button elements</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add submit buttons" lineno="867">
+<arguments repr="buttons: List[str] | str, default: str | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="buttons: List[str] | str">
+<name>buttons</name>
+<type typedoc="list">List[str]</type>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="default: str | None = None">
+<name>default</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add custom submit buttons
+
+:param buttons: Submit button options
+:param default: The primary button
+
+The dialog automatically creates a button for closing itself.
+If there are no input fields, the button will say "Close".
+If there are one or more input fields, the button will say "Submit".
+
+If the submit button should have a custom label or there should be
+multiple options to choose from  when submitting, this keyword can
+be used to replace the automatically generated ones.
+
+The result field will always be called ``submit`` and will contain
+the pressed button text as a value.
+
+If one of the custom ``options`` should be the preferred option,
+the ``default`` argument controls which one is highlighted with
+an accent color.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add icon      Warning
+    Add heading   Delete user ${username}?
+    Add submit buttons    buttons=No,Yes    default=Yes
+    ${result}=    Run dialog
+    IF   $result.submit == "Yes"
+        Delete user    ${username}
+    END</doc>
+<shortdoc>Add custom submit buttons</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Add text" lineno="201">
+<arguments repr="text: str, size: Size = Medium">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="text: str">
+<name>text</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="size: Size = Medium">
+<name>size</name>
+<type typedoc="Size">Size</type>
+<default>Medium</default>
+</arg>
+</arguments>
+<doc>Add a text paragraph element, for larger bodies of text
+
+:param text: The text content for the paragraph
+:param size: The size of the text
+
+Supported ``size`` values are Small, Medium, and Large. By default uses
+the value Medium.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading   An error occurred
+    Add text      There was an error while requesting user information
+    Add text      ${error}   size=Small
+    Run dialog</doc>
+<shortdoc>Add a text paragraph element, for larger bodies of text</shortdoc>
+</kw>
+<kw name="Add text input" lineno="436">
+<arguments repr="name: str, label: str | None = None, placeholder: str | None = None, rows: int | None = None">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="name: str">
+<name>name</name>
+<type typedoc="string">str</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="label: str | None = None">
+<name>label</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="placeholder: str | None = None">
+<name>placeholder</name>
+<type typedoc="string">str</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="rows: int | None = None">
+<name>rows</name>
+<type typedoc="integer">int</type>
+<type typedoc="None">None</type>
+<default>None</default>
+</arg>
+</arguments>
+<doc>Add a text input element
+
+:param name:        Name of result field
+:param label:       Label for field
+:param placeholder: Placeholder text in input field
+:param rows:        Number of input rows
+
+Adds a text field that can be filled by the user. The entered
+content will be available in the ``name`` field of the result.
+
+For customizing the look of the input, the ``label`` text can be given
+to add a descriptive label and the ``placholder`` text can be given
+to act as an example of the input value.
+
+If the ``rows`` argument is given as a number, the input is converted
+into a larger text area input with the given amount of rows by default.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading    Send feedback
+    Add text input    email    label=E-mail address
+    Add text input    message
+    ...    label=Feedback
+    ...    placeholder=Enter feedback here
+    ...    rows=5
+    ${result}=    Run dialog
+    Send feedback message    ${result.email}  ${result.message}</doc>
+<shortdoc>Add a text input element</shortdoc>
+<tags>
+<tag>input</tag>
+</tags>
+</kw>
+<kw name="Clear elements" lineno="148">
+<arguments repr="">
+</arguments>
+<doc>Remove all previously defined elements and start from a clean state
+
+By default this is done automatically when a dialog is created.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     Please input user information
+    FOR    ${user}   IN    @{users}
+        Run dialog    clear=False
+        Process page
+    END
+    Clear elements</doc>
+<shortdoc>Remove all previously defined elements and start from a clean state</shortdoc>
+</kw>
+<kw name="Close all dialogs" lineno="1124">
+<arguments repr="">
+</arguments>
+<doc>Close all dialogs opened by this library.
+
+See the keyword ``Close dialog`` for further information
+about usage and implications.
+
+Example:
+
+.. code-block:: robotframework
+
+    ${dialog1}=    Show dialog
+    A keyword which runs during the dialog
+
+    ${dialog2}=    Show dialog
+    A keyword that fails during the dialog
+
+    # Close all dialogs without knowing which have been created
+    [Teardown]    Close all dialogs</doc>
+<shortdoc>Close all dialogs opened by this library.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+<kw name="Close dialog" lineno="1098">
+<arguments repr="dialog: Dialog">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="dialog: Dialog">
+<name>dialog</name>
+<type>Dialog</type>
+</arg>
+</arguments>
+<doc>Close a dialog that has been created with the keyword
+``Show dialog``.
+
+:param dialog: An instance of a Dialog
+
+Calling this keyword is not required if the user correctly
+submits a dialog or closes it manually. However, it can be used
+to forcefully hide a dialog if the result is no longer relevant.
+
+If a forcefully closed dialog is waited, it will throw
+an exception to indicate that it was closed before receiving
+a valid result.
+
+Example:
+
+.. code-block:: robotframework
+
+    # Display notification dialog while operation runs
+    ${dialog}=    Show dialog    title=Please wait
+    Run process that takes a while
+    Close dialog    ${dialog}</doc>
+<shortdoc>Close a dialog that has been created with the keyword ``Show dialog``.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+<kw name="Run dialog" lineno="915">
+<arguments repr="timeout: int = 180, **options: Any">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: int = 180">
+<name>timeout</name>
+<type typedoc="integer">int</type>
+<default>180</default>
+</arg>
+<arg kind="VAR_NAMED" required="false" repr="**options: Any">
+<name>options</name>
+<type>Any</type>
+</arg>
+</arguments>
+<doc>Create a dialog from all the defined elements and block
+until the user has handled it.
+
+:param timeout: Time to wait for dialog to complete, in seconds
+:param options: Options for the dialog
+
+Returns a result object with all input values.
+This keyword is a shorthand for the following expression:
+
+.. code-block:: robotframework
+
+    Run dialog
+        [Arguments]  ${timeout}=180  &amp;{options}
+        ${dialog}=   Show dialog     &amp;{options}
+        ${result}=   Wait dialog     ${dialog}  timeout=${timeout}
+        [Return]     ${result}
+
+For more information about possible options for opening the dialog,
+see the documentation for the keyword ``Show dialog``.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add heading     Please enter your username
+    Add text input  name=username
+    ${result}=      Run dialog
+    Log    The username is: ${result.username}</doc>
+<shortdoc>Create a dialog from all the defined elements and block until the user has handled it.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+<kw name="Show dialog" lineno="949">
+<arguments repr="title: str = Dialog, height: int | str = AUTO, width: int = 480, on_top: bool = False, clear: bool = True, debug: bool = False">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="title: str = Dialog">
+<name>title</name>
+<type typedoc="string">str</type>
+<default>Dialog</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="height: int | str = AUTO">
+<name>height</name>
+<type typedoc="integer">int</type>
+<type typedoc="string">str</type>
+<default>AUTO</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="width: int = 480">
+<name>width</name>
+<type typedoc="integer">int</type>
+<default>480</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="on_top: bool = False">
+<name>on_top</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="clear: bool = True">
+<name>clear</name>
+<type typedoc="boolean">bool</type>
+<default>True</default>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="debug: bool = False">
+<name>debug</name>
+<type typedoc="boolean">bool</type>
+<default>False</default>
+</arg>
+</arguments>
+<doc>Create a new dialog with all the defined elements, and show
+it to the user. Does not block, but instead immediately returns
+a new ``Dialog`` instance.
+
+The return value can later be used to wait for
+the user to close the dialog and inspect the results.
+
+:param title:  Title of dialog
+:param height: Height of dialog (in pixels or 'AUTO')
+:param width:  Width of dialog (in pixels)
+:param on_top: Show dialog always on top of other windows
+:param clear:  Remove all defined elements
+:param debug:  Allow opening developer tools in Dialog window
+
+By default the window has the title ``Dialog``, but it can be changed
+with the argument ``title`` to any string.
+
+The ``height`` argument accepts a static number in pixels, but
+defaults to the string value ``AUTO``. In this mode the Dialog window
+tries to automatically resize itself to fit the defined content.
+
+In comparison, the ``width`` argument only accepts pixel values, as all
+element types by default resize to fit the given window width.
+
+With the ``clear`` argument it's possible to control if defined elements
+should be cleared after the dialog has been created. It can be set
+to ``False`` if the same content should be shown multiple times.
+
+In certain applications it's useful to have the dialog always be
+on top of already opened applications. This can be set with the
+argument ``on_top``, which is disabled by default.
+
+For development purposes the ``debug`` agument can be enabled to
+allow opening browser developer tools.
+
+If the dialog is still open when the execution ends, it's closed
+automatically.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add text input    name=username    label=Username
+    Add text input    name=address     label=Address
+    ${dialog}=    Show dialog    title=Input form
+    Open browser to form page
+    ${result}=    Wait dialog    ${dialog}
+    Insert user information      ${result.username}  ${result.address}</doc>
+<shortdoc>Create a new dialog with all the defined elements, and show it to the user. Does not block, but instead immediately returns a new ``Dialog`` instance.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+<kw name="Wait all dialogs" lineno="1056">
+<arguments repr="timeout: int = 300">
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: int = 300">
+<name>timeout</name>
+<type typedoc="integer">int</type>
+<default>300</default>
+</arg>
+</arguments>
+<doc>Wait for all opened dialogs to be handled by the user.
+
+:param timeout: Time to wait for dialogs to complete, in seconds
+
+Returns a list of results from all dialogs that have not been handled
+before calling this keyword, in the order the dialogs
+were originally created.
+
+If any dialog fails, this keyword throws the corresponding exception
+immediately and doesn't keep waiting for further results.
+
+Example:
+
+.. code-block:: robotframework
+
+    # Create multiple dialogs
+    Show dialog    title=One
+    Show dialog    title=Two
+    Show dialog    title=Three
+
+    # Wait for all of them to complete
+    @{results}=    Wait all dialogs
+
+    # Loop through results
+    FOR    ${result}    IN    @{results}
+        Log many    &amp;{result}
+    END</doc>
+<shortdoc>Wait for all opened dialogs to be handled by the user.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+<kw name="Wait dialog" lineno="1027">
+<arguments repr="dialog: Dialog, timeout: int = 300">
+<arg kind="POSITIONAL_OR_NAMED" required="true" repr="dialog: Dialog">
+<name>dialog</name>
+<type>Dialog</type>
+</arg>
+<arg kind="POSITIONAL_OR_NAMED" required="false" repr="timeout: int = 300">
+<name>timeout</name>
+<type typedoc="integer">int</type>
+<default>300</default>
+</arg>
+</arguments>
+<doc>Wait for a dialog to complete that has been created with the
+keyword ``Show dialog``.
+
+:param dialog:  An instance of a Dialog
+:param timeout: Time to wait for dialog to complete, in seconds
+
+Blocks until a user has closed the dialog or until ``timeout``
+amount of seconds has been reached.
+
+If the user submitted the dialog, returns a result object.
+If the user closed the dialog window or ``timeout`` was reached,
+raises an exception.
+
+Example:
+
+.. code-block:: robotframework
+
+    Add text input    name=username    label=Username
+    Add text input    name=address     label=Address
+    ${dialog}=    Show dialog    title=Input form
+    Open browser to form page
+    ${result}=    Wait dialog    ${dialog}
+    Insert user information      ${result.username}  ${result.address}</doc>
+<shortdoc>Wait for a dialog to complete that has been created with the keyword ``Show dialog``.</shortdoc>
+<tags>
+<tag>dialog</tag>
+</tags>
+</kw>
+</keywords>
+<datatypes>
+<enums>
+<enum name="Icon">
+<doc>Icon variants</doc>
+<members>
+<member name="Success" value="success"/>
+<member name="Warning" value="warning"/>
+<member name="Failure" value="failure"/>
+</members>
+</enum>
+<enum name="Size">
+<doc>Element size options</doc>
+<members>
+<member name="Small" value="small"/>
+<member name="Medium" value="medium"/>
+<member name="Large" value="large"/>
+</members>
+</enum>
+</enums>
+</datatypes>
+<typedocs>
+<type name="boolean" type="Standard">
+<doc>Strings ``TRUE``, ``YES``, ``ON`` and ``1`` are converted to Boolean ``True``,
+the empty string as well as strings ``FALSE``, ``NO``, ``OFF`` and ``0``
+are converted to Boolean ``False``, and the string ``NONE`` is converted
+to the Python ``None`` object. Other strings and other accepted values are
+passed as-is, allowing keywords to handle them specially if
+needed. All string comparisons are case-insensitive.
+
+Examples: ``TRUE`` (converted to ``True``), ``off`` (converted to ``False``),
+``example`` (used as-is)
+</doc>
+<accepts>
+<type>string</type>
+<type>integer</type>
+<type>float</type>
+<type>None</type>
+</accepts>
+<usages>
+<usage>Add checkbox</usage>
+<usage>Add file input</usage>
+<usage>Show dialog</usage>
+</usages>
+</type>
+<type name="date" type="Standard">
+<doc>Strings are expected to be a timestamp in
+[https://en.wikipedia.org/wiki/ISO_8601|ISO 8601] like date format
+``YYYY-MM-DD``, where any non-digit character can be used as a separator
+or separators can be omitted altogether. Possible time components are
+only allowed if they are zeros.
+
+Examples: ``2022-02-09``, ``2022-02-09 00:00``
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Add Date Input</usage>
+</usages>
+</type>
+<type name="Icon" type="Enum">
+<doc>Icon variants</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Add icon</usage>
+</usages>
+<members>
+<member name="Success" value="success"/>
+<member name="Warning" value="warning"/>
+<member name="Failure" value="failure"/>
+</members>
+</type>
+<type name="integer" type="Standard">
+<doc>Conversion is done using Python's [https://docs.python.org/library/functions.html#int|int]
+built-in function. Floating point
+numbers are accepted only if they can be represented as integers exactly.
+For example, ``1.0`` is accepted and ``1.1`` is not.
+
+Starting from RF 4.1, it is possible to use hexadecimal, octal and binary
+numbers by prefixing values with ``0x``, ``0o`` and ``0b``, respectively.
+
+Starting from RF 4.1, spaces and underscores can be used as visual separators
+for digit grouping purposes.
+
+Examples: ``42``, ``-1``, ``0b1010``, ``10 000 000``, ``0xBAD_C0FFEE``
+</doc>
+<accepts>
+<type>string</type>
+<type>float</type>
+</accepts>
+<usages>
+<usage>Add icon</usage>
+<usage>Add image</usage>
+<usage>Add text input</usage>
+<usage>Run dialog</usage>
+<usage>Show dialog</usage>
+<usage>Wait all dialogs</usage>
+<usage>Wait dialog</usage>
+</usages>
+</type>
+<type name="list" type="Standard">
+<doc>Strings must be Python [https://docs.python.org/library/stdtypes.html#list|list]
+literals. They are converted to actual lists using the
+[https://docs.python.org/library/ast.html#ast.literal_eval|ast.literal_eval]
+function. They can contain any values ``ast.literal_eval`` supports, including
+lists and other containers.
+
+Examples: ``['one', 'two']``, ``[('one', 1), ('two', 2)]``
+</doc>
+<accepts>
+<type>string</type>
+<type>Sequence</type>
+</accepts>
+<usages>
+<usage>Add drop-down</usage>
+<usage>Add radio buttons</usage>
+<usage>Add submit buttons</usage>
+</usages>
+</type>
+<type name="None" type="Standard">
+<doc>String ``NONE`` (case-insensitive) is converted to Python ``None`` object.
+Other values cause an error.
+</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Add Date Input</usage>
+<usage>Add drop-down</usage>
+<usage>Add file</usage>
+<usage>Add file input</usage>
+<usage>Add image</usage>
+<usage>Add link</usage>
+<usage>Add password input</usage>
+<usage>Add radio buttons</usage>
+<usage>Add submit buttons</usage>
+<usage>Add text input</usage>
+</usages>
+</type>
+<type name="Size" type="Enum">
+<doc>Element size options</doc>
+<accepts>
+<type>string</type>
+</accepts>
+<usages>
+<usage>Add heading</usage>
+<usage>Add text</usage>
+</usages>
+<members>
+<member name="Small" value="small"/>
+<member name="Medium" value="medium"/>
+<member name="Large" value="large"/>
+</members>
+</type>
+<type name="string" type="Standard">
+<doc>All arguments are converted to Unicode strings.</doc>
+<accepts>
+<type>Any</type>
+</accepts>
+<usages>
+<usage>Add checkbox</usage>
+<usage>Add Date Input</usage>
+<usage>Add Dialog Next Page Button</usage>
+<usage>Add drop-down</usage>
+<usage>Add file</usage>
+<usage>Add file input</usage>
+<usage>Add files</usage>
+<usage>Add heading</usage>
+<usage>Add hidden input</usage>
+<usage>Add image</usage>
+<usage>Add link</usage>
+<usage>Add password input</usage>
+<usage>Add radio buttons</usage>
+<usage>Add submit buttons</usage>
+<usage>Add text</usage>
+<usage>Add text input</usage>
+<usage>Show dialog</usage>
+</usages>
+</type>
+</typedocs>
+</keywordspec>
