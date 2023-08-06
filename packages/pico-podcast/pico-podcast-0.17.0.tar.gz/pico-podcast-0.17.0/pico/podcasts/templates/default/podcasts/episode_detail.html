@@ -1,0 +1,73 @@
+{% extends 'podcasts/base.html' %}
+{% load thumbnail podcasts miditags %}
+
+{% block main %}
+    <main class="o-wrapper">
+        <article>
+            <header class="c-post-hero">
+                <div class="c-post-header">
+                    <div class="o-grid">
+                        <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                            <div class="c-post-hero__content">
+                                <h1 class="c-post-header__title"><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h1>
+                                <div class="c-post-byline">
+                                    {% for host in object.hosts.all %}
+                                        <a href="{{ host.get_absolute_url }}" class="c-post-byline__author">
+                                            {% if host.photo %}
+                                                <div class="c-post-byline__image-wrap">
+                                                    <img class="c-post-byline__image lazyload" data-src="{% thumbnail host.photo '64x64' crop=True %}" alt="{{ host.name }}" width="32" height="32">
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                    {% endfor %}
+
+                                    <time class="c-post-byline__date" datetime="{{ object.published|date:'Y-m-d' }}" title="{{ object.published|date:'jS F Y' }}">{{ object.published|date:'Y.m.d' }}</time>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                            <div class="c-post-hero__media">
+                                <a href="{{ object.get_absolute_url }}">
+                                    {% if object.artwork %}
+                                        <img class="c-post-hero__image lazyload" data-src="{% thumbnail object.artwork '1156x1156' crop=True %}" alt="{{ object.title }}">
+                                    {% elif object.season and object.season.artwork %}
+                                        <img class="c-post-hero__image lazyload" data-src="{% thumbnail object.season.artwork '1156x1156' crop=True %}" alt="{{ object.title }}">
+                                    {% else %}
+                                        <img class="c-post-hero__image lazyload" data-src="{% thumbnail object.podcast.artwork '1156x1156' crop=True %}" alt="{{ object.title }}">
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="o-grid">
+                <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s">
+                    <div class="c-post tag-podcast">
+                        <div class="c-content">
+                            {{ object.player_html }}
+
+                            {% if object.body %}
+                                {{ object.body|miditags|markdown }}
+                            {% else %}
+                                {{ object.feed_description|miditags|markdown }}
+                            {% endif %}
+                        </div>
+
+                        {% if object.categories.exists %}
+                            <div class="c-tags">
+                                {% for category in object.categories.all %}
+                                    <a href="{{ base_url }}?category={{ category.slug|urlencode }}" rel="tag">{{ category.name }}</a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% include 'podcasts/share_buttons.html' %}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+{% endblock main %}

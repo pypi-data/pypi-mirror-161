@@ -1,0 +1,47 @@
+{% extends 'default/base.html' %}
+
+{% block main %}
+    <main class="o-wrapper">
+        <article>
+            <header class="c-post-hero">
+                <div class="c-post-header">
+                    <div class="o-grid">
+                        <div class="o-grid__col o-grid__col--4-4-s{% if object.image %} o-grid__col--2-4-m{% else %}o-grid__col--2-3-m o-grid__col--center{% endif %}">
+                            <div class="c-post-hero__content{% if not object.image %} c-post-hero__content--no-image{% endif %}">
+                                <h1 class="c-post-header__title"><a href="{% url 'create_message' %}">Contact us</a></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="o-grid">
+                <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s">
+                    <div class="c-post">
+                        <div class="c-content">
+                            <form method="post" action="{% url 'create_message' %}" class="c-subscribe-form{% if form.errors %} invalid{% endif %}" novalidate>
+                                {% for field in form %}
+                                    <div class="u-mb-16">
+                                        {% if field.name != 'captcha' %}
+                                            <label>{{ field.label }} {{ field }}</label>
+                                        {% else %}
+                                            {{ field }}
+                                        {% endif %}
+
+                                        {% for error in field.errors %}
+                                            <div class="u-alert u-alert--invalid">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+
+                                <button type="submit" class="c-btn">Send message</button>
+                                <input name="next" value="{{ next }}">
+                                {% csrf_token %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+{% endblock main %}

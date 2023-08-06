@@ -1,0 +1,40 @@
+{% extends 'podcasts/base.html' %}
+{% load thumbnail podcasts miditags %}
+
+{% block main %}
+    <main class="o-wrapper">
+        <article>
+            <header class="c-post-hero">
+                <div class="c-post-header">
+                    <div class="o-grid">
+                        <div class="o-grid__col o-grid__col--4-4-s{% if object.image %} o-grid__col--2-4-m{% else %}o-grid__col--2-3-m o-grid__col--center{% endif %}">
+                            <div class="c-post-hero__content{% if not object.image %} c-post-hero__content--no-image{% endif %}">
+                                <h1 class="c-post-header__title"><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h1>
+                            </div>
+                        </div>
+
+                        {% if object.image %}
+                            <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                                <div class="c-post-hero__media">
+                                    <a href="{{ object.get_absolute_url }}"><img class="c-post-hero__image lazyload" data-src="{% thumbnail object.image '1156x1156' crop=True %}" alt="{{ object.title }}"></a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <div class="o-grid">
+                <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s">
+                    <div class="c-post tag-podcast">
+                        <div class="c-content">
+                            {{ object.body|miditags|markdown }}
+                        </div>
+
+                        {% include 'podcasts/share_buttons.html' %}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+{% endblock main %}

@@ -1,0 +1,162 @@
+{% extends 'podcasts/base.html' %}
+{% load static thumbnail %}
+
+{% block head %}
+    {{ block.super }}
+    {% if page_obj.has_next %}
+        <link rel="next" href="{{ base_url }}?page={{ page_obj.next_page_number }}">
+    {% endif %}
+
+    <script>
+        {% if page_obj.has_next %}window.pagination_next_page_number = {{ page_obj.next_page_number }}{% endif %}
+        window.pagination_available_pages_number = {{ page_obj.paginator.num_pages }}
+        window.posts_total_number = {{ page_obj.paginator.count }}
+        window.pagination_loading_text = 'Loading'
+        window.pagination_more_posts_text = 'Load more'
+        window.clipboard_copied_text = 'Link copied to clipboard'
+    </script>
+{% endblock head %}
+
+{% block main %}
+    {% block hero %}
+        {% if page_obj.number == 1 and not category %}
+            <div class="c-hero">
+                <div class="o-grid c-hero__inner">
+                    <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                        <div class="c-hero__content">
+                            <div class="c-hero__description">
+                                <h2><a href="{{ base_url }}">{{ podcast.name }}</a></h2>
+                                {% if podcast.subtitle or podcast.about_page_id %}
+                                    <p>
+                                        {% if podcast.subtitle %}{{ podcast.subtitle }}{% endif %}
+                                        {% if podcast.about_page_id %}<a href="{{ podcast.about_page.get_absolute_url }}" class="u-link">{% if podcast.subtitle %}Find out more{% else %}{{ podcast.about_page.title }}{% endif %}</a>{% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <ul class="c-subscribe-list">
+                                {% for link in podcast.subscription_links.select_related|slice:':3' %}
+                                    <li class="c-subscribe-list__item">
+                                        <a href="{{ link.url }}" class="c-subscribe-list__link" target="_blank" rel="noopener noreferrer">
+                                            <div class="c-subscribe-list__media">
+                                                <img class="c-subscribe-list__icon lazyload" data-src="{{ link.directory.icon.url }}" alt="{{ link.directory.name }} icon" width="20" height="20">
+                                            </div>
+                                            <span class="c-subscribe-list__name">{{ link.directory.name }}</span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+
+                                <li class="c-subscribe-list__item">
+                                    <a href="{{ podcast.rss_feed_url }}" class="c-subscribe-list__link" target="_blank" rel="noopener noreferrer">
+                                        <div class="c-subscribe-list__media">
+                                            <img class="c-subscribe-list__icon lazyload" data-src="{% static 'icons/rss.svg' %}" alt="RSS icon" width="20" height="20">
+                                        </div>
+                                        <span class="c-subscribe-list__name">RSS feed</span>
+                                    </a>
+                                </li>
+                            </ul>
+
+                            {% comment %}<form data-members-form="subscribe" class="c-subscribe-form u-mt-8">
+                                <div class="form-group">
+                                    <label for="subscribe-email" class="u-hidden-visually">Your email address</label>
+                                    <input type="email" name="email" class="c-subscribe-form__input" id="subscribe-email" placeholder="Your email address" data-members-email>
+                                    <button type="submit" value="Subscribe" }}" class="c-btn c-btn--action c-subscribe-form__btn">Subscribe</button>
+                                </div>
+
+                                <div class="u-alert u-alert--success u-mt-16">Please check your inbox and click the link to confirm your subscription.</div>
+                                <div class="u-alert u-alert--invalid u-mt-16">Please enter a valid email address!</div>
+                                <div class="u-alert u-alert--error u-mt-16">An error occurred, please try again later.</div>
+                            </form>{% endcomment %}
+                        </div>
+                    </div>
+
+                    {% if podcast.artwork %}
+                        <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                            <a href="{{ base_url }}"><img class="c-hero-image lazyload" data-src="{{ podcast.artwork.url }}" alt="{{ podcast.name }}"></a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if object_list.exists %}
+                <div class="o-grid">
+                    <div class="o-grid__col o-grid__col--full">
+                        <div class="c-title-bar">
+                            <h3 class="c-title-bar__title">{% if podcast.ordering == 'r' %}Latest episodes{% else %}Episodes{% endif %}</h3>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% elif category and page_obj.number == 1 and object_list.exists %}
+            <div class="c-archive">
+                <div class="o-grid">
+                    <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l">
+                        <h1 class="c-archive__title">{{ category.name }}</h1>
+                    </div>
+                </div>
+            </div>
+        {% elif object_list.exists %}
+            <div class="c-archive">
+                <div class="o-grid">
+                    <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--3-4-m o-grid__col--2-4-l">
+                        <h1 class="c-archive__title">More episodes</h1>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock hero %}
+
+    {% if object_list.exists %}
+        <div class="o-grid js-grid c-loop">
+            {% for object in object_list %}
+                <div class="js-post-card-wrap c-post-card-wrap o-grid__col o-grid__col--initial-grow o-grid__col--4-4-s o-grid__col--2-4-m o-grid__col--2-4-l">
+                    <a href="{{ object.get_absolute_url }}" class="c-post-card {% if forloop.first %} c-post-card--featured {% endif %}">
+                        {% if object.artwork %}
+                            <div class="c-post-card__media">
+                                <img alt="{{ object.title }}" class="c-post-card__image lazyload" data-srcset="
+                                    {% thumbnail object.artwork '320x320' %} 320w,
+                                    {% thumbnail object.artwork '578x578' %} 578w,
+                                    {% thumbnail object.artwork '1156x1156' %} 1156w"
+                                    sizes="(min-width: 1360px) 578px, (min-width: 640px) calc(44.86vw - 23px), calc(100vw - 48px)"
+                                    data-src="{{ object.artwork.url }}">
+                            </div>
+                        {% endif %}
+
+                        <div class="c-post-card__content{% if not object.artwork %} c-post-card__content--no-image{% endif %}">
+                            <div class="c-post-card__meta">
+                                <span class="c-post-card__number"></span>
+                                <time class="c-post-card__date" datetime="{{ object.published|date:'Y-m-d' }}" title="{{ object.published|date:'jS F Y'}}">{{ object.published|date:'Y.m.d' }}</time>
+
+                                <div class="c-post-card__visibility c-post-card__visibility--public">
+                                    <span class="paid">Paid</span>
+                                    <span class="members">Members</span>
+                                    <span class="public">Public</span>
+                                </div>
+                            </div>
+
+                            <h2 class="c-post-card__title">{{ object.title }}</h2>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif not podcast.episodes.exists %}
+        <h3 class="u-text-center">There aren&rsquo;t any episodes available yet.</h3>
+        <p class="u-text-center">
+            To make sure you don&rsquo;t miss our first episode, follow the
+            podcast using one of the buttons above.
+        </p>
+    {% else %}
+        <p class="u-text-center">
+            Sorry, no episodes can be found matching these criteria.
+        </p>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        <div class="o-grid">
+            <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s o-grid__col--2-4-m o-grid__col--1-4-l">
+                <button class="c-btn c-btn--full js-load-posts">Load more</button>
+            </div>
+        </div>
+    {% endif %}
+{% endblock main %}
