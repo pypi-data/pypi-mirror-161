@@ -1,0 +1,24 @@
+name: moving_avg
+tags:
+  - column
+  - date_time
+  - feature_engineering
+description: generates moving averages per column and per window size
+arguments:
+  input_columns:
+    type: column_list
+    description: names of column(s) you want to moving average
+  window_sizes:
+    type: int_list
+    description: the integer values for window sizes you want to use in your moving average
+  order_by:
+    type: column_list
+    description: columns to order by, typically the date index of the table
+  partition:
+    type: column_list
+    description: columns to partition the moving average by
+example_code: |
+  ds = rasgo.get.dataset(id)
+
+  ds2 = ds.moving_avg(input_columns=['OPEN','CLOSE','HIGH','LOW'], window_sizes=[1,2,3,7], order_by=['DATE, 'TICKER'], partition=['TICKER'])
+  ds2.preview()
