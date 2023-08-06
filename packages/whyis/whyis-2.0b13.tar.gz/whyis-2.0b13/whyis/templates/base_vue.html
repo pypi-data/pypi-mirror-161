@@ -1,0 +1,203 @@
+{% macro title() %}
+{% block title %}{% endblock %}
+{% endmacro %}
+<html lang="{{config['default_language']}}"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <head>
+    <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{{ title() }} - {{ config['SITE_NAME'] }}</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-theme.min.css')}}">
+
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+<link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='images/apple-icon-57x57.png') }}">
+<link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='images/apple-icon-60x60.png') }}">
+<link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename='images/apple-icon-72x72.png') }}">
+<link rel="apple-touch-icon" sizes="76x76" href="{{ url_for('static', filename='images/apple-icon-76x76.png') }}">
+<link rel="apple-touch-icon" sizes="114x114" href="{{ url_for('static', filename='images/apple-icon-114x114.png') }}">
+<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='images/apple-icon-120x120.png') }}">
+<link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='images/apple-icon-144x144.png') }}">
+<link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='images/apple-icon-152x152.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-icon-180x180.png') }}">
+<link rel="icon" type="image/png" sizes="192x192"  href="{{ url_for('static', filename='images/android-icon-192x192.png') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32x32.png') }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='images/favicon-96x96.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16x16.png') }}">
+<meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/ms-icon-144x144.png') }}">
+
+<link href="{{ url_for('static', filename='css/lib/fileinput.css')}}" media="all" rel="stylesheet" type="text/css"/>
+
+<link href="{{ url_for('static', filename='css/lib/fileinput.css')}}" media="all" rel="stylesheet" type="text/css"/>
+<link href='//cdn.jsdelivr.net/npm/yasgui-yasqe@2.11.22/dist/yasqe.min.css' rel='stylesheet' type='text/css'/>
+<link href='//cdn.jsdelivr.net/yasr/2.10.8/yasr.min.css' rel='stylesheet' type='text/css'/>
+<link href='//cdn.jsdelivr.net/yasgui/2.5.0/yasgui.min.css' rel='stylesheet' type='text/css'/>
+    {% block styles %}
+    {% endblock %}
+
+  </head>
+<body>
+  <div >
+    <div id="page" v-cloak>
+{% block body %}
+      <upload-knowledge :active.sync="nav.showAddKnowledgeMenu"></upload-knowledge>
+      <upload-file :active.sync="nav.showUploadDialog" label="{{get_label(this)}}"></upload-file>
+      <md-toolbar class="md-primary ">
+        <div class="md-toolbar-row">
+          <div class="md-toolbar-section-start"  >
+            <md-menu md-size="medium" md-align-trigger>
+              <md-button md-menu-trigger class="md-icon-button" aria-label="Account menu" >
+                <md-icon>menu</md-icon>
+              </md-button>
+
+              <md-menu-content>
+                {% if current_user and not current_user.is_anonymous %}
+                <md-menu-item @click="nav.showAddKnowledgeMenu=true">
+                  Add Knowledge
+                </md-menu-item>
+                {% endif %}
+                <md-menu-item href="{{url_for('sparql_blueprint.sparql_view')}}">Query Data</md-menu-item>
+                <md-menu-item href="{{url_for('entity.view', uri='http://semanticscience.org/resource/Chart', view='new')}}">Create Visualization</md-menu-item>
+                <md-menu-item href="{{url_for('entity.view', uri='http://www.w3.org/ns/dcat#Dataset', view='new')}}">Upload Dataset</md-menu-item>
+              </md-menu-content>
+            </md-menu>
+            <md-button class="md-icon-button" aria-label="Home" href="{{url_for('entity.view',name='')}}">
+              <md-icon>home</md-icon>
+            </md-button>
+          </div>
+          <form class="md-layout-item"
+                novalidate
+                role="search"
+                action="{{url_for('entity.view',name='search')}}"
+                method="get"
+                 name="search" >
+            <search-autocomplete></search-autocomplete>
+          </form>
+          <div class="md-toolbar-section-end" >
+            {% if not current_user or current_user.is_anonymous %}
+            <md-button href="{{url_for('security.login')}}" aria-label="Log in" title="">Log in</md-button>
+            <md-button href="{{url_for('security.register')}}" aria-label="Register" title="">Register</md-button>
+            {% else %}
+
+            <md-menu md-size="medium" md-align-trigger>
+              <md-button md-menu-trigger aria-label="Account menu" >
+                Welcome, {{current_user.givenName}} <span class="caret"></span>
+              </md-button>
+
+              <md-menu-content>
+                <md-menu-item href="{{url_for('security.logout')}}" id="log-out">Log Out</md-menu-item>
+                <md-menu-item href="{{url_for('security.change_password')}}" id="change-password">Change Password</md-menu-item>
+              </md-menu-content>
+            </md-menu>
+            {% endif %}
+          </div>
+        </div>
+
+      </md-toolbar>
+      <md-content class="" >
+        <div layout="row">
+          {% block pageheader %}
+          <h1 style="margin-left:1em" property="rdfs:label">{{ title() }} <small>{% block subtitle %}{% endblock %}</small>
+          {% if this is defined %}
+
+          <section class="pull-right" layout="row" layout-sm="column" layout-align="center center" layout-wrap ng-cloak>
+            {% block actions %}
+            {% if g.current_user and g.current_user.is_authenticated %}
+            <md-button md-secondary @click="nav.showUploadDialog=true"  class="md-icon-button" aria-label="Upload File" title="Upload File">
+              <md-icon>file_upload</md-icon>
+            </md-button>
+            <md-button md-secondary href="{{url_for('entity.view',view='edit', uri=this.identifier)}}" class="md-icon-button" aria-label="Edit" title="Edit">
+              <md-icon>create</md-icon>
+            </md-button>
+            {% endif %}
+            {% if this.description().value(ns.whyis.hasFileID) %}
+            <md-button md-secondary href="{{url_for('entity.view',uri=this.identifier)}}" class="md-icon-button" aria-label="Download File" title="Download File">
+              <md-icon>file_download</md-icon>
+            </md-button>
+            {% endif %}
+            {% if not this.identifier.startswith(ns.local) %}
+            <md-button md-secondary href="{{this.identifier}}" class="md-icon-button" aria-label="Visit Page" title="Visit Page">
+              <md-icon>launch</md-icon>
+            </md-button>
+            {% endif %}
+            {% endblock %}
+          </section>
+          {% endif %}
+        </h1>
+        {% endblock %}
+      </div>
+      {% block content %}
+      {% endblock %}
+    </md-content>
+{% endblock %}
+{% include "footer.html" %}
+</div>
+  </div>
+
+  <script type="application/javascript">
+    LOD_PREFIX = '{{config.LOD_PREFIX}}';
+    {% if 'BASE_RATE_PROBABILITY' in config %}
+    BASE_RATE = {{config['BASE_RATE_PROBABILITY']}};
+    {% else %}
+    BASE_RATE = 0.5;
+    {% endif %}
+    {% if current_user and current_user.identifier %}
+    USER = {
+      uri: '{{current_user.identifier}}',
+      admin: "{{current_user.has_role('Admin')}}",
+      name: "{{current_user.givenName}}",
+      email: "{{current_user.email}}"
+    };
+    {% else %}
+    USER = { }
+    {% endif %}
+    {% if this is defined %}
+    NAVIGATION = {
+      showAddKnowledgeMenu : false,
+      showUploadDialog : false
+    };
+    NODE_URI = "{{this.identifier | safe}}";
+    ATTRIBUTES = {{ this | include('attributes') | safe }};
+    SUMMARY = {{ this | include('summary') | safe }};
+    DESCRIPTION = {{this.description().graph | serialize(format="json-ld") | safe}};
+    NODE = DESCRIPTION.filter(function(d) { return d['@id'] == NODE_URI});
+    if (NODE.length > 0)  NODE = NODE[0];
+    else NODE = {"@id" : NODE_URI};
+    {% endif %}
+    ROOT_URL = "{{url_for('entity.view',name='')}}";
+    LINKS = {
+      registerNav: "{{url_for('security.register')}}",
+      changePasswordNav: "{{url_for('security.change_password')}}"
+    }
+    CONFIGS = {
+      mongoBackup: "{{config.THIRD_PARTY_REST_BACKUP}}",
+      speedDialIcon: "{{config.DISABLE_VUE_SPEED_DIAL}}"
+    }
+  </script>
+
+    <script type="application/javascript" src="{{ url_for('static', filename='js/lib/jquery/dist/jquery.js')}}"></script>
+    <script type="application/javascript" src="{{ url_for('static', filename='js/lib/bootstrap.js')}}"></script>
+
+    <script type="application/javascript" src="{{ url_for('static', filename='js/lib/fileinput.js')}}" type="text/javascript"></script>
+
+    <!-- TODO see if we can use the non-bundled versions -->
+    <script type="application/javascript" src='//cdn.jsdelivr.net/npm/yasgui-yasqe@2.11.22/dist/yasqe.bundled.min.js'></script>
+    <script type="application/javascript" src='//cdn.jsdelivr.net/yasr/2.10.8/yasr.bundled.min.js'></script>
+    <script type="application/javascript" src='//cdn.jsdelivr.net/yasgui/2.5.0/yasgui.min.js'></script>
+    <script type="application/javascript" src="{{ url_for('static', filename='dist/whyis_vue_bundle.js')}}"></script>
+
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+{{'''select distinct (sample(?relation) as ?relation) ?node (sample(?label) as ?label) (sample(?type) as ?type) (coalesce(max(?frequency),1) as ?tf) (coalesce(max(?idf_stated),1) as ?idf) (?tf* ?idf as ?tfidf)
+where {
+    hint:Query hint:optimizer "Runtime" .
+    ?local_node ?relation ?node.
+    optional {
+      ?local_node sio:hasPart ?term.
+      ?term prov:specializationOf ?node;
+            sio:Frequency ?frequency.
+    }
+    ?node a ?type.
+    optional {
+      ?node sio:InverseDocumentFrequency ?idf_stated.
+    }
+    optional {
+      ?node rdfs:label|dc:title ?label.
+    }
+    FILTER NOT EXISTS { ?local_node sio:hasPart ?node }
+} group by ?node'''|query(values={"local_node":this.identifier}) | tojson }}
