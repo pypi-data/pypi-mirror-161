@@ -1,0 +1,161 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Edit Internal Users
+        <div class="btn-toolbar pull-right">
+            <div class="btn-group">
+                <div (click)="save()" class="btn btn-default btn-sm">Save</div>
+                <div (click)="load()" class="btn btn-default btn-sm">Reset</div>
+                <div (click)="addRow()" class="btn btn-default btn-sm">Add</div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="likeTitle">Title Search : </label>
+                    <input
+                        (change)="load()"
+                        [(ngModel)]="likeTitle"
+                        [ngModelOptions]="{ standalone: true }"
+                        class="form-control"
+                        id="likeTitle"
+                        type="text"
+                    />
+                </div>
+            </form>
+        </div>
+
+        <p *ngIf="needFilter()">Enter a filter with a length of 3 or more.</p>
+
+        <p *ngIf="!needFilter() && !haveItems()">No users found!</p>
+
+        <table *ngIf="haveItems()" class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Title</th>
+                    <th>Uuid</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody *ngFor="let item of items">
+                <tr>
+                    <td>
+                        <input
+                            [(ngModel)]="item.userName"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            [(ngModel)]="item.userTitle"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            [(ngModel)]="item.userUuid"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            [(ngModel)]="item.mobile"
+                            class="form-control input-sm"
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            [(ngModel)]="item.email"
+                            class="form-control input-sm"
+                            type="email"
+                        />
+                    </td>
+                    <td>
+                        <div
+                            (click)="setPassword(item)"
+                            class="btn btn-default btn-sm"
+                        >
+                            <span
+                                aria-hidden="true"
+                                class="glyphicon glyphicon-lock"
+                            ></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div
+                            (click)="removeRow(item)"
+                            class="btn btn-default btn-sm"
+                        >
+                            <span
+                                aria-hidden="true"
+                                class="glyphicon glyphicon-minus"
+                            ></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div
+                            (click)="addGroupRow(item)"
+                            class="btn btn-default btn-sm"
+                        >
+                            <span
+                                aria-hidden="true"
+                                class="glyphicon glyphicon-plus"
+                            ></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngFor="let groupId of item.groupIds; let i = index">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <th>Group</th>
+                    <td *ngIf="groupId == null">
+                        <select
+                            (change)="updateGroup(item, i, $event.target.value)"
+                            class="form-control input-sm"
+                        >
+                            <option value="">-- Select --</option>
+                            <option
+                                *ngFor="let group of groups"
+                                [value]="group.id"
+                            >
+                                {{ group.groupTitle }}
+                            </option>
+                        </select>
+                    </td>
+
+                    <td *ngIf="groupId != null">
+                        {{ groupTitleForId(groupId) }}
+                    </td>
+                    <td>
+                        <div
+                            (click)="removeGroupRow(item, i)"
+                            class="btn btn-default btn-sm"
+                        >
+                            <span
+                                aria-hidden="true"
+                                class="glyphicon glyphicon-minus"
+                            ></span>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

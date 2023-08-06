@@ -1,0 +1,108 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Edit Internal Groups
+        <div class="btn-toolbar pull-right">
+            <div class="btn-group">
+                <div (click)="save()" class="btn btn-default btn-sm">Save</div>
+                <div (click)="loader.load()" class="btn btn-default btn-sm">
+                    Reset
+                </div>
+                <div (click)="addRow()" class="btn btn-default btn-sm">Add</div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <tbody *ngFor="let item of items">
+                <tr>
+                    <td>
+                        Title
+                        <input
+                            [(ngModel)]="item.ldapTitle"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        URI
+                        <input
+                            [(ngModel)]="item.ldapUri"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        Domain
+                        <input
+                            [(ngModel)]="item.ldapDomain"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        <button
+                            (click)="removeRow(item)"
+                            [nzSize]="size"
+                            nz-button
+                            nzJustify="right"
+                            nzShape="circle"
+                            nzType="default"
+                        >
+                            <i nz-icon nzType="close"> </i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        CN Folders
+                        <input
+                            [(ngModel)]="item.ldapCNFolders"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        For Admin
+                        <nz-switch [(ngModel)]="item.adminEnabled"></nz-switch>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        OU Folders
+                        <input
+                            [(ngModel)]="item.ldapOUFolders"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        For Office
+                        <nz-switch
+                            [(ngModel)]="item.desktopEnabled"
+                        ></nz-switch>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        Groups
+                        <input
+                            [(ngModel)]="item.ldapGroups"
+                            class="form-control input-sm"
+                            required
+                            type="text"
+                        />
+                    </td>
+                    <td>
+                        For Field
+                        <nz-switch [(ngModel)]="item.mobileEnabled"></nz-switch>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

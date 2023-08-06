@@ -1,0 +1,95 @@
+<div class="peek-nav-section">
+    <!--
+        The following 'div' groups button to the left of the Nav Bar.
+        Can contain one to many buttons
+    -->
+    <div class="btn-group pull-left" role="group"></div>
+
+    <!--
+        The following 'div' groups button to the right of the Nav Bar.
+        Can contain one to many buttons
+    -->
+    <div class="btn-group pull-right" role="group">
+        <button
+            (click)="doLogin()"
+            [disabled]="!isLoginEnabled()"
+            class="nav-section-btn"
+            role="group"
+        >
+            <i nz-icon nzTheme="outline" nzType="login"></i>
+            {{loginText()}}
+        </button>
+    </div>
+</div>
+
+<div class="peek-nav-bar-padding">
+    <!-- This div provides padding for the screen under the Navigation Section -->
+</div>
+
+<div class="plugin-user">
+    <form (keyup.enter)="doLogin()" autocomplete="off" novalidate>
+        <fieldset [disabled]="isAuthenticating">
+            <div *ngFor="let error of errors" class="bg-danger">{{error}}</div>
+
+            <div *ngFor="let warning of warnings" class="bg-warning">
+                {{warning}}
+            </div>
+
+            <div
+                *ngIf="warnings != null && warnings.length != 0"
+                class="bg-info"
+            >
+                Click 'Login' a second time to ignore these warnings.
+            </div>
+
+            <div class="form-group">
+                <label class="user-message" for="username">User</label>
+
+                <!-- Login with user list selection -->
+                <select
+                    *ngIf="setting.showUsersAsList"
+                    [(ngModel)]="selectedUser.userName"
+                    class="form-control"
+                    id="username"
+                    name="userName"
+                >
+                    <option *ngFor="let user of users" [value]="user.userId">
+                        {{webDisplayText(user)}}
+                    </option>
+                </select>
+                <input
+                    *ngIf="!setting.showUsersAsList"
+                    [(ngModel)]="selectedUser.userName"
+                    class="form-control"
+                    id="username"
+                    name="password"
+                    type="text"
+                />
+            </div>
+
+            <!-- Login with user input box -->
+            <div class="form-group">
+                <label class="user-message" for="password">Password :</label>
+                <input
+                    [(ngModel)]="selectedUser.password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    type="password"
+                />
+            </div>
+            <div *ngIf="setting.showVehicleInput" class="form-group">
+                <label class="user-message" for="vehicleIdField"
+                    >Vehicle :</label
+                >
+                <input
+                    [(ngModel)]="selectedUser.vehicleId"
+                    class="form-control"
+                    id="vehicleIdField"
+                    name="vehicleId"
+                    type="text"
+                />
+            </div>
+        </fieldset>
+    </form>
+</div>

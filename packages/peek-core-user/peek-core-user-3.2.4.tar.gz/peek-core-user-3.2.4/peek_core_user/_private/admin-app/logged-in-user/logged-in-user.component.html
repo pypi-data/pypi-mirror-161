@@ -1,0 +1,50 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <th>User Name</th>
+                <th>User Title</th>
+                <th>Login Date</th>
+                <th>Vehicle</th>
+                <th>Device Type</th>
+                <th>Device Title</th>
+                <th>Last Online</th>
+                <th></th>
+            </tr>
+            <tr *ngFor="let item of items">
+                <td>
+                    {{ item.userName }}
+                </td>
+                <td>
+                    {{ item.userTitle }}
+                </td>
+                <td>
+                    <p>{{ item.loginDate | date: "HH:mm dd-MMM-yyyy" }}</p>
+                </td>
+                <td>
+                    {{ item.vehicle }}
+                </td>
+                <td>
+                    {{ item.deviceType }}
+                </td>
+                <td>
+                    {{ item.deviceDescription }}
+                </td>
+                <td>
+                    <p *ngIf="item.deviceIsOnline">Online Now</p>
+                    <p *ngIf="!item.deviceIsOnline && item.deviceLastOnline">
+                        {{ item.deviceLastOnline | date: "HH:mm dd-MMM-yyyy" }}
+                    </p>
+                    <p *ngIf="!item.deviceIsOnline && !item.deviceLastOnline">
+                        Never Connected
+                    </p>
+                </td>
+                <td>
+                    <button (click)="logoutUser(item)" class="btn btn-warning">
+                        Logout User
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
