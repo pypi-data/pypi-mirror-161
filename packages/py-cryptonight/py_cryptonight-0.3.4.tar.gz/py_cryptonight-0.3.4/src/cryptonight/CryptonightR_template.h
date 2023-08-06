@@ -1,0 +1,1047 @@
+#ifndef CRYPTONIGHTR_TEMPLATE_H
+#define CRYPTONIGHTR_TEMPLATE_H
+
+#include "CryptonightR_base.h"
+
+#if !defined(NO_JIT) && !defined(STATIC_JIT) && !defined(_MSC_VER) && defined(__x86_64__)
+#  define DEF_JIT_FNC(FNC) void FNC(void) __asm__ ("_"#FNC)
+#else
+#  define DEF_JIT_FNC(FNC) void FNC(void)
+#endif
+
+DEF_JIT_FNC(CryptonightR_instruction0);
+DEF_JIT_FNC(CryptonightR_instruction1);
+DEF_JIT_FNC(CryptonightR_instruction2);
+DEF_JIT_FNC(CryptonightR_instruction3);
+DEF_JIT_FNC(CryptonightR_instruction4);
+DEF_JIT_FNC(CryptonightR_instruction5);
+DEF_JIT_FNC(CryptonightR_instruction6);
+DEF_JIT_FNC(CryptonightR_instruction7);
+DEF_JIT_FNC(CryptonightR_instruction8);
+DEF_JIT_FNC(CryptonightR_instruction9);
+DEF_JIT_FNC(CryptonightR_instruction10);
+DEF_JIT_FNC(CryptonightR_instruction11);
+DEF_JIT_FNC(CryptonightR_instruction12);
+DEF_JIT_FNC(CryptonightR_instruction13);
+DEF_JIT_FNC(CryptonightR_instruction14);
+DEF_JIT_FNC(CryptonightR_instruction15);
+DEF_JIT_FNC(CryptonightR_instruction16);
+DEF_JIT_FNC(CryptonightR_instruction17);
+DEF_JIT_FNC(CryptonightR_instruction18);
+DEF_JIT_FNC(CryptonightR_instruction19);
+DEF_JIT_FNC(CryptonightR_instruction20);
+DEF_JIT_FNC(CryptonightR_instruction21);
+DEF_JIT_FNC(CryptonightR_instruction22);
+DEF_JIT_FNC(CryptonightR_instruction23);
+DEF_JIT_FNC(CryptonightR_instruction24);
+DEF_JIT_FNC(CryptonightR_instruction25);
+DEF_JIT_FNC(CryptonightR_instruction26);
+DEF_JIT_FNC(CryptonightR_instruction27);
+DEF_JIT_FNC(CryptonightR_instruction28);
+DEF_JIT_FNC(CryptonightR_instruction29);
+DEF_JIT_FNC(CryptonightR_instruction30);
+DEF_JIT_FNC(CryptonightR_instruction31);
+DEF_JIT_FNC(CryptonightR_instruction32);
+DEF_JIT_FNC(CryptonightR_instruction33);
+DEF_JIT_FNC(CryptonightR_instruction34);
+DEF_JIT_FNC(CryptonightR_instruction35);
+DEF_JIT_FNC(CryptonightR_instruction36);
+DEF_JIT_FNC(CryptonightR_instruction37);
+DEF_JIT_FNC(CryptonightR_instruction38);
+DEF_JIT_FNC(CryptonightR_instruction39);
+DEF_JIT_FNC(CryptonightR_instruction40);
+DEF_JIT_FNC(CryptonightR_instruction41);
+DEF_JIT_FNC(CryptonightR_instruction42);
+DEF_JIT_FNC(CryptonightR_instruction43);
+DEF_JIT_FNC(CryptonightR_instruction44);
+DEF_JIT_FNC(CryptonightR_instruction45);
+DEF_JIT_FNC(CryptonightR_instruction46);
+DEF_JIT_FNC(CryptonightR_instruction47);
+DEF_JIT_FNC(CryptonightR_instruction48);
+DEF_JIT_FNC(CryptonightR_instruction49);
+DEF_JIT_FNC(CryptonightR_instruction50);
+DEF_JIT_FNC(CryptonightR_instruction51);
+DEF_JIT_FNC(CryptonightR_instruction52);
+DEF_JIT_FNC(CryptonightR_instruction53);
+DEF_JIT_FNC(CryptonightR_instruction54);
+DEF_JIT_FNC(CryptonightR_instruction55);
+DEF_JIT_FNC(CryptonightR_instruction56);
+DEF_JIT_FNC(CryptonightR_instruction57);
+DEF_JIT_FNC(CryptonightR_instruction58);
+DEF_JIT_FNC(CryptonightR_instruction59);
+DEF_JIT_FNC(CryptonightR_instruction60);
+DEF_JIT_FNC(CryptonightR_instruction61);
+DEF_JIT_FNC(CryptonightR_instruction62);
+DEF_JIT_FNC(CryptonightR_instruction63);
+DEF_JIT_FNC(CryptonightR_instruction64);
+DEF_JIT_FNC(CryptonightR_instruction65);
+DEF_JIT_FNC(CryptonightR_instruction66);
+DEF_JIT_FNC(CryptonightR_instruction67);
+DEF_JIT_FNC(CryptonightR_instruction68);
+DEF_JIT_FNC(CryptonightR_instruction69);
+DEF_JIT_FNC(CryptonightR_instruction70);
+DEF_JIT_FNC(CryptonightR_instruction71);
+DEF_JIT_FNC(CryptonightR_instruction72);
+DEF_JIT_FNC(CryptonightR_instruction73);
+DEF_JIT_FNC(CryptonightR_instruction74);
+DEF_JIT_FNC(CryptonightR_instruction75);
+DEF_JIT_FNC(CryptonightR_instruction76);
+DEF_JIT_FNC(CryptonightR_instruction77);
+DEF_JIT_FNC(CryptonightR_instruction78);
+DEF_JIT_FNC(CryptonightR_instruction79);
+DEF_JIT_FNC(CryptonightR_instruction80);
+DEF_JIT_FNC(CryptonightR_instruction81);
+DEF_JIT_FNC(CryptonightR_instruction82);
+DEF_JIT_FNC(CryptonightR_instruction83);
+DEF_JIT_FNC(CryptonightR_instruction84);
+DEF_JIT_FNC(CryptonightR_instruction85);
+DEF_JIT_FNC(CryptonightR_instruction86);
+DEF_JIT_FNC(CryptonightR_instruction87);
+DEF_JIT_FNC(CryptonightR_instruction88);
+DEF_JIT_FNC(CryptonightR_instruction89);
+DEF_JIT_FNC(CryptonightR_instruction90);
+DEF_JIT_FNC(CryptonightR_instruction91);
+DEF_JIT_FNC(CryptonightR_instruction92);
+DEF_JIT_FNC(CryptonightR_instruction93);
+DEF_JIT_FNC(CryptonightR_instruction94);
+DEF_JIT_FNC(CryptonightR_instruction95);
+DEF_JIT_FNC(CryptonightR_instruction96);
+DEF_JIT_FNC(CryptonightR_instruction97);
+DEF_JIT_FNC(CryptonightR_instruction98);
+DEF_JIT_FNC(CryptonightR_instruction99);
+DEF_JIT_FNC(CryptonightR_instruction100);
+DEF_JIT_FNC(CryptonightR_instruction101);
+DEF_JIT_FNC(CryptonightR_instruction102);
+DEF_JIT_FNC(CryptonightR_instruction103);
+DEF_JIT_FNC(CryptonightR_instruction104);
+DEF_JIT_FNC(CryptonightR_instruction105);
+DEF_JIT_FNC(CryptonightR_instruction106);
+DEF_JIT_FNC(CryptonightR_instruction107);
+DEF_JIT_FNC(CryptonightR_instruction108);
+DEF_JIT_FNC(CryptonightR_instruction109);
+DEF_JIT_FNC(CryptonightR_instruction110);
+DEF_JIT_FNC(CryptonightR_instruction111);
+DEF_JIT_FNC(CryptonightR_instruction112);
+DEF_JIT_FNC(CryptonightR_instruction113);
+DEF_JIT_FNC(CryptonightR_instruction114);
+DEF_JIT_FNC(CryptonightR_instruction115);
+DEF_JIT_FNC(CryptonightR_instruction116);
+DEF_JIT_FNC(CryptonightR_instruction117);
+DEF_JIT_FNC(CryptonightR_instruction118);
+DEF_JIT_FNC(CryptonightR_instruction119);
+DEF_JIT_FNC(CryptonightR_instruction120);
+DEF_JIT_FNC(CryptonightR_instruction121);
+DEF_JIT_FNC(CryptonightR_instruction122);
+DEF_JIT_FNC(CryptonightR_instruction123);
+DEF_JIT_FNC(CryptonightR_instruction124);
+DEF_JIT_FNC(CryptonightR_instruction125);
+DEF_JIT_FNC(CryptonightR_instruction126);
+DEF_JIT_FNC(CryptonightR_instruction127);
+DEF_JIT_FNC(CryptonightR_instruction128);
+DEF_JIT_FNC(CryptonightR_instruction129);
+DEF_JIT_FNC(CryptonightR_instruction130);
+DEF_JIT_FNC(CryptonightR_instruction131);
+DEF_JIT_FNC(CryptonightR_instruction132);
+DEF_JIT_FNC(CryptonightR_instruction133);
+DEF_JIT_FNC(CryptonightR_instruction134);
+DEF_JIT_FNC(CryptonightR_instruction135);
+DEF_JIT_FNC(CryptonightR_instruction136);
+DEF_JIT_FNC(CryptonightR_instruction137);
+DEF_JIT_FNC(CryptonightR_instruction138);
+DEF_JIT_FNC(CryptonightR_instruction139);
+DEF_JIT_FNC(CryptonightR_instruction140);
+DEF_JIT_FNC(CryptonightR_instruction141);
+DEF_JIT_FNC(CryptonightR_instruction142);
+DEF_JIT_FNC(CryptonightR_instruction143);
+DEF_JIT_FNC(CryptonightR_instruction144);
+DEF_JIT_FNC(CryptonightR_instruction145);
+DEF_JIT_FNC(CryptonightR_instruction146);
+DEF_JIT_FNC(CryptonightR_instruction147);
+DEF_JIT_FNC(CryptonightR_instruction148);
+DEF_JIT_FNC(CryptonightR_instruction149);
+DEF_JIT_FNC(CryptonightR_instruction150);
+DEF_JIT_FNC(CryptonightR_instruction151);
+DEF_JIT_FNC(CryptonightR_instruction152);
+DEF_JIT_FNC(CryptonightR_instruction153);
+DEF_JIT_FNC(CryptonightR_instruction154);
+DEF_JIT_FNC(CryptonightR_instruction155);
+DEF_JIT_FNC(CryptonightR_instruction156);
+DEF_JIT_FNC(CryptonightR_instruction157);
+DEF_JIT_FNC(CryptonightR_instruction158);
+DEF_JIT_FNC(CryptonightR_instruction159);
+DEF_JIT_FNC(CryptonightR_instruction160);
+DEF_JIT_FNC(CryptonightR_instruction161);
+DEF_JIT_FNC(CryptonightR_instruction162);
+DEF_JIT_FNC(CryptonightR_instruction163);
+DEF_JIT_FNC(CryptonightR_instruction164);
+DEF_JIT_FNC(CryptonightR_instruction165);
+DEF_JIT_FNC(CryptonightR_instruction166);
+DEF_JIT_FNC(CryptonightR_instruction167);
+DEF_JIT_FNC(CryptonightR_instruction168);
+DEF_JIT_FNC(CryptonightR_instruction169);
+DEF_JIT_FNC(CryptonightR_instruction170);
+DEF_JIT_FNC(CryptonightR_instruction171);
+DEF_JIT_FNC(CryptonightR_instruction172);
+DEF_JIT_FNC(CryptonightR_instruction173);
+DEF_JIT_FNC(CryptonightR_instruction174);
+DEF_JIT_FNC(CryptonightR_instruction175);
+DEF_JIT_FNC(CryptonightR_instruction176);
+DEF_JIT_FNC(CryptonightR_instruction177);
+DEF_JIT_FNC(CryptonightR_instruction178);
+DEF_JIT_FNC(CryptonightR_instruction179);
+DEF_JIT_FNC(CryptonightR_instruction180);
+DEF_JIT_FNC(CryptonightR_instruction181);
+DEF_JIT_FNC(CryptonightR_instruction182);
+DEF_JIT_FNC(CryptonightR_instruction183);
+DEF_JIT_FNC(CryptonightR_instruction184);
+DEF_JIT_FNC(CryptonightR_instruction185);
+DEF_JIT_FNC(CryptonightR_instruction186);
+DEF_JIT_FNC(CryptonightR_instruction187);
+DEF_JIT_FNC(CryptonightR_instruction188);
+DEF_JIT_FNC(CryptonightR_instruction189);
+DEF_JIT_FNC(CryptonightR_instruction190);
+DEF_JIT_FNC(CryptonightR_instruction191);
+DEF_JIT_FNC(CryptonightR_instruction192);
+DEF_JIT_FNC(CryptonightR_instruction193);
+DEF_JIT_FNC(CryptonightR_instruction194);
+DEF_JIT_FNC(CryptonightR_instruction195);
+DEF_JIT_FNC(CryptonightR_instruction196);
+DEF_JIT_FNC(CryptonightR_instruction197);
+DEF_JIT_FNC(CryptonightR_instruction198);
+DEF_JIT_FNC(CryptonightR_instruction199);
+DEF_JIT_FNC(CryptonightR_instruction200);
+DEF_JIT_FNC(CryptonightR_instruction201);
+DEF_JIT_FNC(CryptonightR_instruction202);
+DEF_JIT_FNC(CryptonightR_instruction203);
+DEF_JIT_FNC(CryptonightR_instruction204);
+DEF_JIT_FNC(CryptonightR_instruction205);
+DEF_JIT_FNC(CryptonightR_instruction206);
+DEF_JIT_FNC(CryptonightR_instruction207);
+DEF_JIT_FNC(CryptonightR_instruction208);
+DEF_JIT_FNC(CryptonightR_instruction209);
+DEF_JIT_FNC(CryptonightR_instruction210);
+DEF_JIT_FNC(CryptonightR_instruction211);
+DEF_JIT_FNC(CryptonightR_instruction212);
+DEF_JIT_FNC(CryptonightR_instruction213);
+DEF_JIT_FNC(CryptonightR_instruction214);
+DEF_JIT_FNC(CryptonightR_instruction215);
+DEF_JIT_FNC(CryptonightR_instruction216);
+DEF_JIT_FNC(CryptonightR_instruction217);
+DEF_JIT_FNC(CryptonightR_instruction218);
+DEF_JIT_FNC(CryptonightR_instruction219);
+DEF_JIT_FNC(CryptonightR_instruction220);
+DEF_JIT_FNC(CryptonightR_instruction221);
+DEF_JIT_FNC(CryptonightR_instruction222);
+DEF_JIT_FNC(CryptonightR_instruction223);
+DEF_JIT_FNC(CryptonightR_instruction224);
+DEF_JIT_FNC(CryptonightR_instruction225);
+DEF_JIT_FNC(CryptonightR_instruction226);
+DEF_JIT_FNC(CryptonightR_instruction227);
+DEF_JIT_FNC(CryptonightR_instruction228);
+DEF_JIT_FNC(CryptonightR_instruction229);
+DEF_JIT_FNC(CryptonightR_instruction230);
+DEF_JIT_FNC(CryptonightR_instruction231);
+DEF_JIT_FNC(CryptonightR_instruction232);
+DEF_JIT_FNC(CryptonightR_instruction233);
+DEF_JIT_FNC(CryptonightR_instruction234);
+DEF_JIT_FNC(CryptonightR_instruction235);
+DEF_JIT_FNC(CryptonightR_instruction236);
+DEF_JIT_FNC(CryptonightR_instruction237);
+DEF_JIT_FNC(CryptonightR_instruction238);
+DEF_JIT_FNC(CryptonightR_instruction239);
+DEF_JIT_FNC(CryptonightR_instruction240);
+DEF_JIT_FNC(CryptonightR_instruction241);
+DEF_JIT_FNC(CryptonightR_instruction242);
+DEF_JIT_FNC(CryptonightR_instruction243);
+DEF_JIT_FNC(CryptonightR_instruction244);
+DEF_JIT_FNC(CryptonightR_instruction245);
+DEF_JIT_FNC(CryptonightR_instruction246);
+DEF_JIT_FNC(CryptonightR_instruction247);
+DEF_JIT_FNC(CryptonightR_instruction248);
+DEF_JIT_FNC(CryptonightR_instruction249);
+DEF_JIT_FNC(CryptonightR_instruction250);
+DEF_JIT_FNC(CryptonightR_instruction251);
+DEF_JIT_FNC(CryptonightR_instruction252);
+DEF_JIT_FNC(CryptonightR_instruction253);
+DEF_JIT_FNC(CryptonightR_instruction254);
+DEF_JIT_FNC(CryptonightR_instruction255);
+DEF_JIT_FNC(CryptonightR_instruction256);
+DEF_JIT_FNC(CryptonightR_instruction_mov0);
+DEF_JIT_FNC(CryptonightR_instruction_mov1);
+DEF_JIT_FNC(CryptonightR_instruction_mov2);
+DEF_JIT_FNC(CryptonightR_instruction_mov3);
+DEF_JIT_FNC(CryptonightR_instruction_mov4);
+DEF_JIT_FNC(CryptonightR_instruction_mov5);
+DEF_JIT_FNC(CryptonightR_instruction_mov6);
+DEF_JIT_FNC(CryptonightR_instruction_mov7);
+DEF_JIT_FNC(CryptonightR_instruction_mov8);
+DEF_JIT_FNC(CryptonightR_instruction_mov9);
+DEF_JIT_FNC(CryptonightR_instruction_mov10);
+DEF_JIT_FNC(CryptonightR_instruction_mov11);
+DEF_JIT_FNC(CryptonightR_instruction_mov12);
+DEF_JIT_FNC(CryptonightR_instruction_mov13);
+DEF_JIT_FNC(CryptonightR_instruction_mov14);
+DEF_JIT_FNC(CryptonightR_instruction_mov15);
+DEF_JIT_FNC(CryptonightR_instruction_mov16);
+DEF_JIT_FNC(CryptonightR_instruction_mov17);
+DEF_JIT_FNC(CryptonightR_instruction_mov18);
+DEF_JIT_FNC(CryptonightR_instruction_mov19);
+DEF_JIT_FNC(CryptonightR_instruction_mov20);
+DEF_JIT_FNC(CryptonightR_instruction_mov21);
+DEF_JIT_FNC(CryptonightR_instruction_mov22);
+DEF_JIT_FNC(CryptonightR_instruction_mov23);
+DEF_JIT_FNC(CryptonightR_instruction_mov24);
+DEF_JIT_FNC(CryptonightR_instruction_mov25);
+DEF_JIT_FNC(CryptonightR_instruction_mov26);
+DEF_JIT_FNC(CryptonightR_instruction_mov27);
+DEF_JIT_FNC(CryptonightR_instruction_mov28);
+DEF_JIT_FNC(CryptonightR_instruction_mov29);
+DEF_JIT_FNC(CryptonightR_instruction_mov30);
+DEF_JIT_FNC(CryptonightR_instruction_mov31);
+DEF_JIT_FNC(CryptonightR_instruction_mov32);
+DEF_JIT_FNC(CryptonightR_instruction_mov33);
+DEF_JIT_FNC(CryptonightR_instruction_mov34);
+DEF_JIT_FNC(CryptonightR_instruction_mov35);
+DEF_JIT_FNC(CryptonightR_instruction_mov36);
+DEF_JIT_FNC(CryptonightR_instruction_mov37);
+DEF_JIT_FNC(CryptonightR_instruction_mov38);
+DEF_JIT_FNC(CryptonightR_instruction_mov39);
+DEF_JIT_FNC(CryptonightR_instruction_mov40);
+DEF_JIT_FNC(CryptonightR_instruction_mov41);
+DEF_JIT_FNC(CryptonightR_instruction_mov42);
+DEF_JIT_FNC(CryptonightR_instruction_mov43);
+DEF_JIT_FNC(CryptonightR_instruction_mov44);
+DEF_JIT_FNC(CryptonightR_instruction_mov45);
+DEF_JIT_FNC(CryptonightR_instruction_mov46);
+DEF_JIT_FNC(CryptonightR_instruction_mov47);
+DEF_JIT_FNC(CryptonightR_instruction_mov48);
+DEF_JIT_FNC(CryptonightR_instruction_mov49);
+DEF_JIT_FNC(CryptonightR_instruction_mov50);
+DEF_JIT_FNC(CryptonightR_instruction_mov51);
+DEF_JIT_FNC(CryptonightR_instruction_mov52);
+DEF_JIT_FNC(CryptonightR_instruction_mov53);
+DEF_JIT_FNC(CryptonightR_instruction_mov54);
+DEF_JIT_FNC(CryptonightR_instruction_mov55);
+DEF_JIT_FNC(CryptonightR_instruction_mov56);
+DEF_JIT_FNC(CryptonightR_instruction_mov57);
+DEF_JIT_FNC(CryptonightR_instruction_mov58);
+DEF_JIT_FNC(CryptonightR_instruction_mov59);
+DEF_JIT_FNC(CryptonightR_instruction_mov60);
+DEF_JIT_FNC(CryptonightR_instruction_mov61);
+DEF_JIT_FNC(CryptonightR_instruction_mov62);
+DEF_JIT_FNC(CryptonightR_instruction_mov63);
+DEF_JIT_FNC(CryptonightR_instruction_mov64);
+DEF_JIT_FNC(CryptonightR_instruction_mov65);
+DEF_JIT_FNC(CryptonightR_instruction_mov66);
+DEF_JIT_FNC(CryptonightR_instruction_mov67);
+DEF_JIT_FNC(CryptonightR_instruction_mov68);
+DEF_JIT_FNC(CryptonightR_instruction_mov69);
+DEF_JIT_FNC(CryptonightR_instruction_mov70);
+DEF_JIT_FNC(CryptonightR_instruction_mov71);
+DEF_JIT_FNC(CryptonightR_instruction_mov72);
+DEF_JIT_FNC(CryptonightR_instruction_mov73);
+DEF_JIT_FNC(CryptonightR_instruction_mov74);
+DEF_JIT_FNC(CryptonightR_instruction_mov75);
+DEF_JIT_FNC(CryptonightR_instruction_mov76);
+DEF_JIT_FNC(CryptonightR_instruction_mov77);
+DEF_JIT_FNC(CryptonightR_instruction_mov78);
+DEF_JIT_FNC(CryptonightR_instruction_mov79);
+DEF_JIT_FNC(CryptonightR_instruction_mov80);
+DEF_JIT_FNC(CryptonightR_instruction_mov81);
+DEF_JIT_FNC(CryptonightR_instruction_mov82);
+DEF_JIT_FNC(CryptonightR_instruction_mov83);
+DEF_JIT_FNC(CryptonightR_instruction_mov84);
+DEF_JIT_FNC(CryptonightR_instruction_mov85);
+DEF_JIT_FNC(CryptonightR_instruction_mov86);
+DEF_JIT_FNC(CryptonightR_instruction_mov87);
+DEF_JIT_FNC(CryptonightR_instruction_mov88);
+DEF_JIT_FNC(CryptonightR_instruction_mov89);
+DEF_JIT_FNC(CryptonightR_instruction_mov90);
+DEF_JIT_FNC(CryptonightR_instruction_mov91);
+DEF_JIT_FNC(CryptonightR_instruction_mov92);
+DEF_JIT_FNC(CryptonightR_instruction_mov93);
+DEF_JIT_FNC(CryptonightR_instruction_mov94);
+DEF_JIT_FNC(CryptonightR_instruction_mov95);
+DEF_JIT_FNC(CryptonightR_instruction_mov96);
+DEF_JIT_FNC(CryptonightR_instruction_mov97);
+DEF_JIT_FNC(CryptonightR_instruction_mov98);
+DEF_JIT_FNC(CryptonightR_instruction_mov99);
+DEF_JIT_FNC(CryptonightR_instruction_mov100);
+DEF_JIT_FNC(CryptonightR_instruction_mov101);
+DEF_JIT_FNC(CryptonightR_instruction_mov102);
+DEF_JIT_FNC(CryptonightR_instruction_mov103);
+DEF_JIT_FNC(CryptonightR_instruction_mov104);
+DEF_JIT_FNC(CryptonightR_instruction_mov105);
+DEF_JIT_FNC(CryptonightR_instruction_mov106);
+DEF_JIT_FNC(CryptonightR_instruction_mov107);
+DEF_JIT_FNC(CryptonightR_instruction_mov108);
+DEF_JIT_FNC(CryptonightR_instruction_mov109);
+DEF_JIT_FNC(CryptonightR_instruction_mov110);
+DEF_JIT_FNC(CryptonightR_instruction_mov111);
+DEF_JIT_FNC(CryptonightR_instruction_mov112);
+DEF_JIT_FNC(CryptonightR_instruction_mov113);
+DEF_JIT_FNC(CryptonightR_instruction_mov114);
+DEF_JIT_FNC(CryptonightR_instruction_mov115);
+DEF_JIT_FNC(CryptonightR_instruction_mov116);
+DEF_JIT_FNC(CryptonightR_instruction_mov117);
+DEF_JIT_FNC(CryptonightR_instruction_mov118);
+DEF_JIT_FNC(CryptonightR_instruction_mov119);
+DEF_JIT_FNC(CryptonightR_instruction_mov120);
+DEF_JIT_FNC(CryptonightR_instruction_mov121);
+DEF_JIT_FNC(CryptonightR_instruction_mov122);
+DEF_JIT_FNC(CryptonightR_instruction_mov123);
+DEF_JIT_FNC(CryptonightR_instruction_mov124);
+DEF_JIT_FNC(CryptonightR_instruction_mov125);
+DEF_JIT_FNC(CryptonightR_instruction_mov126);
+DEF_JIT_FNC(CryptonightR_instruction_mov127);
+DEF_JIT_FNC(CryptonightR_instruction_mov128);
+DEF_JIT_FNC(CryptonightR_instruction_mov129);
+DEF_JIT_FNC(CryptonightR_instruction_mov130);
+DEF_JIT_FNC(CryptonightR_instruction_mov131);
+DEF_JIT_FNC(CryptonightR_instruction_mov132);
+DEF_JIT_FNC(CryptonightR_instruction_mov133);
+DEF_JIT_FNC(CryptonightR_instruction_mov134);
+DEF_JIT_FNC(CryptonightR_instruction_mov135);
+DEF_JIT_FNC(CryptonightR_instruction_mov136);
+DEF_JIT_FNC(CryptonightR_instruction_mov137);
+DEF_JIT_FNC(CryptonightR_instruction_mov138);
+DEF_JIT_FNC(CryptonightR_instruction_mov139);
+DEF_JIT_FNC(CryptonightR_instruction_mov140);
+DEF_JIT_FNC(CryptonightR_instruction_mov141);
+DEF_JIT_FNC(CryptonightR_instruction_mov142);
+DEF_JIT_FNC(CryptonightR_instruction_mov143);
+DEF_JIT_FNC(CryptonightR_instruction_mov144);
+DEF_JIT_FNC(CryptonightR_instruction_mov145);
+DEF_JIT_FNC(CryptonightR_instruction_mov146);
+DEF_JIT_FNC(CryptonightR_instruction_mov147);
+DEF_JIT_FNC(CryptonightR_instruction_mov148);
+DEF_JIT_FNC(CryptonightR_instruction_mov149);
+DEF_JIT_FNC(CryptonightR_instruction_mov150);
+DEF_JIT_FNC(CryptonightR_instruction_mov151);
+DEF_JIT_FNC(CryptonightR_instruction_mov152);
+DEF_JIT_FNC(CryptonightR_instruction_mov153);
+DEF_JIT_FNC(CryptonightR_instruction_mov154);
+DEF_JIT_FNC(CryptonightR_instruction_mov155);
+DEF_JIT_FNC(CryptonightR_instruction_mov156);
+DEF_JIT_FNC(CryptonightR_instruction_mov157);
+DEF_JIT_FNC(CryptonightR_instruction_mov158);
+DEF_JIT_FNC(CryptonightR_instruction_mov159);
+DEF_JIT_FNC(CryptonightR_instruction_mov160);
+DEF_JIT_FNC(CryptonightR_instruction_mov161);
+DEF_JIT_FNC(CryptonightR_instruction_mov162);
+DEF_JIT_FNC(CryptonightR_instruction_mov163);
+DEF_JIT_FNC(CryptonightR_instruction_mov164);
+DEF_JIT_FNC(CryptonightR_instruction_mov165);
+DEF_JIT_FNC(CryptonightR_instruction_mov166);
+DEF_JIT_FNC(CryptonightR_instruction_mov167);
+DEF_JIT_FNC(CryptonightR_instruction_mov168);
+DEF_JIT_FNC(CryptonightR_instruction_mov169);
+DEF_JIT_FNC(CryptonightR_instruction_mov170);
+DEF_JIT_FNC(CryptonightR_instruction_mov171);
+DEF_JIT_FNC(CryptonightR_instruction_mov172);
+DEF_JIT_FNC(CryptonightR_instruction_mov173);
+DEF_JIT_FNC(CryptonightR_instruction_mov174);
+DEF_JIT_FNC(CryptonightR_instruction_mov175);
+DEF_JIT_FNC(CryptonightR_instruction_mov176);
+DEF_JIT_FNC(CryptonightR_instruction_mov177);
+DEF_JIT_FNC(CryptonightR_instruction_mov178);
+DEF_JIT_FNC(CryptonightR_instruction_mov179);
+DEF_JIT_FNC(CryptonightR_instruction_mov180);
+DEF_JIT_FNC(CryptonightR_instruction_mov181);
+DEF_JIT_FNC(CryptonightR_instruction_mov182);
+DEF_JIT_FNC(CryptonightR_instruction_mov183);
+DEF_JIT_FNC(CryptonightR_instruction_mov184);
+DEF_JIT_FNC(CryptonightR_instruction_mov185);
+DEF_JIT_FNC(CryptonightR_instruction_mov186);
+DEF_JIT_FNC(CryptonightR_instruction_mov187);
+DEF_JIT_FNC(CryptonightR_instruction_mov188);
+DEF_JIT_FNC(CryptonightR_instruction_mov189);
+DEF_JIT_FNC(CryptonightR_instruction_mov190);
+DEF_JIT_FNC(CryptonightR_instruction_mov191);
+DEF_JIT_FNC(CryptonightR_instruction_mov192);
+DEF_JIT_FNC(CryptonightR_instruction_mov193);
+DEF_JIT_FNC(CryptonightR_instruction_mov194);
+DEF_JIT_FNC(CryptonightR_instruction_mov195);
+DEF_JIT_FNC(CryptonightR_instruction_mov196);
+DEF_JIT_FNC(CryptonightR_instruction_mov197);
+DEF_JIT_FNC(CryptonightR_instruction_mov198);
+DEF_JIT_FNC(CryptonightR_instruction_mov199);
+DEF_JIT_FNC(CryptonightR_instruction_mov200);
+DEF_JIT_FNC(CryptonightR_instruction_mov201);
+DEF_JIT_FNC(CryptonightR_instruction_mov202);
+DEF_JIT_FNC(CryptonightR_instruction_mov203);
+DEF_JIT_FNC(CryptonightR_instruction_mov204);
+DEF_JIT_FNC(CryptonightR_instruction_mov205);
+DEF_JIT_FNC(CryptonightR_instruction_mov206);
+DEF_JIT_FNC(CryptonightR_instruction_mov207);
+DEF_JIT_FNC(CryptonightR_instruction_mov208);
+DEF_JIT_FNC(CryptonightR_instruction_mov209);
+DEF_JIT_FNC(CryptonightR_instruction_mov210);
+DEF_JIT_FNC(CryptonightR_instruction_mov211);
+DEF_JIT_FNC(CryptonightR_instruction_mov212);
+DEF_JIT_FNC(CryptonightR_instruction_mov213);
+DEF_JIT_FNC(CryptonightR_instruction_mov214);
+DEF_JIT_FNC(CryptonightR_instruction_mov215);
+DEF_JIT_FNC(CryptonightR_instruction_mov216);
+DEF_JIT_FNC(CryptonightR_instruction_mov217);
+DEF_JIT_FNC(CryptonightR_instruction_mov218);
+DEF_JIT_FNC(CryptonightR_instruction_mov219);
+DEF_JIT_FNC(CryptonightR_instruction_mov220);
+DEF_JIT_FNC(CryptonightR_instruction_mov221);
+DEF_JIT_FNC(CryptonightR_instruction_mov222);
+DEF_JIT_FNC(CryptonightR_instruction_mov223);
+DEF_JIT_FNC(CryptonightR_instruction_mov224);
+DEF_JIT_FNC(CryptonightR_instruction_mov225);
+DEF_JIT_FNC(CryptonightR_instruction_mov226);
+DEF_JIT_FNC(CryptonightR_instruction_mov227);
+DEF_JIT_FNC(CryptonightR_instruction_mov228);
+DEF_JIT_FNC(CryptonightR_instruction_mov229);
+DEF_JIT_FNC(CryptonightR_instruction_mov230);
+DEF_JIT_FNC(CryptonightR_instruction_mov231);
+DEF_JIT_FNC(CryptonightR_instruction_mov232);
+DEF_JIT_FNC(CryptonightR_instruction_mov233);
+DEF_JIT_FNC(CryptonightR_instruction_mov234);
+DEF_JIT_FNC(CryptonightR_instruction_mov235);
+DEF_JIT_FNC(CryptonightR_instruction_mov236);
+DEF_JIT_FNC(CryptonightR_instruction_mov237);
+DEF_JIT_FNC(CryptonightR_instruction_mov238);
+DEF_JIT_FNC(CryptonightR_instruction_mov239);
+DEF_JIT_FNC(CryptonightR_instruction_mov240);
+DEF_JIT_FNC(CryptonightR_instruction_mov241);
+DEF_JIT_FNC(CryptonightR_instruction_mov242);
+DEF_JIT_FNC(CryptonightR_instruction_mov243);
+DEF_JIT_FNC(CryptonightR_instruction_mov244);
+DEF_JIT_FNC(CryptonightR_instruction_mov245);
+DEF_JIT_FNC(CryptonightR_instruction_mov246);
+DEF_JIT_FNC(CryptonightR_instruction_mov247);
+DEF_JIT_FNC(CryptonightR_instruction_mov248);
+DEF_JIT_FNC(CryptonightR_instruction_mov249);
+DEF_JIT_FNC(CryptonightR_instruction_mov250);
+DEF_JIT_FNC(CryptonightR_instruction_mov251);
+DEF_JIT_FNC(CryptonightR_instruction_mov252);
+DEF_JIT_FNC(CryptonightR_instruction_mov253);
+DEF_JIT_FNC(CryptonightR_instruction_mov254);
+DEF_JIT_FNC(CryptonightR_instruction_mov255);
+DEF_JIT_FNC(CryptonightR_instruction_mov256);
+
+const void* instructions[257] = {
+	CryptonightR_instruction0,
+	CryptonightR_instruction1,
+	CryptonightR_instruction2,
+	CryptonightR_instruction3,
+	CryptonightR_instruction4,
+	CryptonightR_instruction5,
+	CryptonightR_instruction6,
+	CryptonightR_instruction7,
+	CryptonightR_instruction8,
+	CryptonightR_instruction9,
+	CryptonightR_instruction10,
+	CryptonightR_instruction11,
+	CryptonightR_instruction12,
+	CryptonightR_instruction13,
+	CryptonightR_instruction14,
+	CryptonightR_instruction15,
+	CryptonightR_instruction16,
+	CryptonightR_instruction17,
+	CryptonightR_instruction18,
+	CryptonightR_instruction19,
+	CryptonightR_instruction20,
+	CryptonightR_instruction21,
+	CryptonightR_instruction22,
+	CryptonightR_instruction23,
+	CryptonightR_instruction24,
+	CryptonightR_instruction25,
+	CryptonightR_instruction26,
+	CryptonightR_instruction27,
+	CryptonightR_instruction28,
+	CryptonightR_instruction29,
+	CryptonightR_instruction30,
+	CryptonightR_instruction31,
+	CryptonightR_instruction32,
+	CryptonightR_instruction33,
+	CryptonightR_instruction34,
+	CryptonightR_instruction35,
+	CryptonightR_instruction36,
+	CryptonightR_instruction37,
+	CryptonightR_instruction38,
+	CryptonightR_instruction39,
+	CryptonightR_instruction40,
+	CryptonightR_instruction41,
+	CryptonightR_instruction42,
+	CryptonightR_instruction43,
+	CryptonightR_instruction44,
+	CryptonightR_instruction45,
+	CryptonightR_instruction46,
+	CryptonightR_instruction47,
+	CryptonightR_instruction48,
+	CryptonightR_instruction49,
+	CryptonightR_instruction50,
+	CryptonightR_instruction51,
+	CryptonightR_instruction52,
+	CryptonightR_instruction53,
+	CryptonightR_instruction54,
+	CryptonightR_instruction55,
+	CryptonightR_instruction56,
+	CryptonightR_instruction57,
+	CryptonightR_instruction58,
+	CryptonightR_instruction59,
+	CryptonightR_instruction60,
+	CryptonightR_instruction61,
+	CryptonightR_instruction62,
+	CryptonightR_instruction63,
+	CryptonightR_instruction64,
+	CryptonightR_instruction65,
+	CryptonightR_instruction66,
+	CryptonightR_instruction67,
+	CryptonightR_instruction68,
+	CryptonightR_instruction69,
+	CryptonightR_instruction70,
+	CryptonightR_instruction71,
+	CryptonightR_instruction72,
+	CryptonightR_instruction73,
+	CryptonightR_instruction74,
+	CryptonightR_instruction75,
+	CryptonightR_instruction76,
+	CryptonightR_instruction77,
+	CryptonightR_instruction78,
+	CryptonightR_instruction79,
+	CryptonightR_instruction80,
+	CryptonightR_instruction81,
+	CryptonightR_instruction82,
+	CryptonightR_instruction83,
+	CryptonightR_instruction84,
+	CryptonightR_instruction85,
+	CryptonightR_instruction86,
+	CryptonightR_instruction87,
+	CryptonightR_instruction88,
+	CryptonightR_instruction89,
+	CryptonightR_instruction90,
+	CryptonightR_instruction91,
+	CryptonightR_instruction92,
+	CryptonightR_instruction93,
+	CryptonightR_instruction94,
+	CryptonightR_instruction95,
+	CryptonightR_instruction96,
+	CryptonightR_instruction97,
+	CryptonightR_instruction98,
+	CryptonightR_instruction99,
+	CryptonightR_instruction100,
+	CryptonightR_instruction101,
+	CryptonightR_instruction102,
+	CryptonightR_instruction103,
+	CryptonightR_instruction104,
+	CryptonightR_instruction105,
+	CryptonightR_instruction106,
+	CryptonightR_instruction107,
+	CryptonightR_instruction108,
+	CryptonightR_instruction109,
+	CryptonightR_instruction110,
+	CryptonightR_instruction111,
+	CryptonightR_instruction112,
+	CryptonightR_instruction113,
+	CryptonightR_instruction114,
+	CryptonightR_instruction115,
+	CryptonightR_instruction116,
+	CryptonightR_instruction117,
+	CryptonightR_instruction118,
+	CryptonightR_instruction119,
+	CryptonightR_instruction120,
+	CryptonightR_instruction121,
+	CryptonightR_instruction122,
+	CryptonightR_instruction123,
+	CryptonightR_instruction124,
+	CryptonightR_instruction125,
+	CryptonightR_instruction126,
+	CryptonightR_instruction127,
+	CryptonightR_instruction128,
+	CryptonightR_instruction129,
+	CryptonightR_instruction130,
+	CryptonightR_instruction131,
+	CryptonightR_instruction132,
+	CryptonightR_instruction133,
+	CryptonightR_instruction134,
+	CryptonightR_instruction135,
+	CryptonightR_instruction136,
+	CryptonightR_instruction137,
+	CryptonightR_instruction138,
+	CryptonightR_instruction139,
+	CryptonightR_instruction140,
+	CryptonightR_instruction141,
+	CryptonightR_instruction142,
+	CryptonightR_instruction143,
+	CryptonightR_instruction144,
+	CryptonightR_instruction145,
+	CryptonightR_instruction146,
+	CryptonightR_instruction147,
+	CryptonightR_instruction148,
+	CryptonightR_instruction149,
+	CryptonightR_instruction150,
+	CryptonightR_instruction151,
+	CryptonightR_instruction152,
+	CryptonightR_instruction153,
+	CryptonightR_instruction154,
+	CryptonightR_instruction155,
+	CryptonightR_instruction156,
+	CryptonightR_instruction157,
+	CryptonightR_instruction158,
+	CryptonightR_instruction159,
+	CryptonightR_instruction160,
+	CryptonightR_instruction161,
+	CryptonightR_instruction162,
+	CryptonightR_instruction163,
+	CryptonightR_instruction164,
+	CryptonightR_instruction165,
+	CryptonightR_instruction166,
+	CryptonightR_instruction167,
+	CryptonightR_instruction168,
+	CryptonightR_instruction169,
+	CryptonightR_instruction170,
+	CryptonightR_instruction171,
+	CryptonightR_instruction172,
+	CryptonightR_instruction173,
+	CryptonightR_instruction174,
+	CryptonightR_instruction175,
+	CryptonightR_instruction176,
+	CryptonightR_instruction177,
+	CryptonightR_instruction178,
+	CryptonightR_instruction179,
+	CryptonightR_instruction180,
+	CryptonightR_instruction181,
+	CryptonightR_instruction182,
+	CryptonightR_instruction183,
+	CryptonightR_instruction184,
+	CryptonightR_instruction185,
+	CryptonightR_instruction186,
+	CryptonightR_instruction187,
+	CryptonightR_instruction188,
+	CryptonightR_instruction189,
+	CryptonightR_instruction190,
+	CryptonightR_instruction191,
+	CryptonightR_instruction192,
+	CryptonightR_instruction193,
+	CryptonightR_instruction194,
+	CryptonightR_instruction195,
+	CryptonightR_instruction196,
+	CryptonightR_instruction197,
+	CryptonightR_instruction198,
+	CryptonightR_instruction199,
+	CryptonightR_instruction200,
+	CryptonightR_instruction201,
+	CryptonightR_instruction202,
+	CryptonightR_instruction203,
+	CryptonightR_instruction204,
+	CryptonightR_instruction205,
+	CryptonightR_instruction206,
+	CryptonightR_instruction207,
+	CryptonightR_instruction208,
+	CryptonightR_instruction209,
+	CryptonightR_instruction210,
+	CryptonightR_instruction211,
+	CryptonightR_instruction212,
+	CryptonightR_instruction213,
+	CryptonightR_instruction214,
+	CryptonightR_instruction215,
+	CryptonightR_instruction216,
+	CryptonightR_instruction217,
+	CryptonightR_instruction218,
+	CryptonightR_instruction219,
+	CryptonightR_instruction220,
+	CryptonightR_instruction221,
+	CryptonightR_instruction222,
+	CryptonightR_instruction223,
+	CryptonightR_instruction224,
+	CryptonightR_instruction225,
+	CryptonightR_instruction226,
+	CryptonightR_instruction227,
+	CryptonightR_instruction228,
+	CryptonightR_instruction229,
+	CryptonightR_instruction230,
+	CryptonightR_instruction231,
+	CryptonightR_instruction232,
+	CryptonightR_instruction233,
+	CryptonightR_instruction234,
+	CryptonightR_instruction235,
+	CryptonightR_instruction236,
+	CryptonightR_instruction237,
+	CryptonightR_instruction238,
+	CryptonightR_instruction239,
+	CryptonightR_instruction240,
+	CryptonightR_instruction241,
+	CryptonightR_instruction242,
+	CryptonightR_instruction243,
+	CryptonightR_instruction244,
+	CryptonightR_instruction245,
+	CryptonightR_instruction246,
+	CryptonightR_instruction247,
+	CryptonightR_instruction248,
+	CryptonightR_instruction249,
+	CryptonightR_instruction250,
+	CryptonightR_instruction251,
+	CryptonightR_instruction252,
+	CryptonightR_instruction253,
+	CryptonightR_instruction254,
+	CryptonightR_instruction255,
+	CryptonightR_instruction256,
+};
+
+const void* instructions_mov[257] = {
+	CryptonightR_instruction_mov0,
+	CryptonightR_instruction_mov1,
+	CryptonightR_instruction_mov2,
+	CryptonightR_instruction_mov3,
+	CryptonightR_instruction_mov4,
+	CryptonightR_instruction_mov5,
+	CryptonightR_instruction_mov6,
+	CryptonightR_instruction_mov7,
+	CryptonightR_instruction_mov8,
+	CryptonightR_instruction_mov9,
+	CryptonightR_instruction_mov10,
+	CryptonightR_instruction_mov11,
+	CryptonightR_instruction_mov12,
+	CryptonightR_instruction_mov13,
+	CryptonightR_instruction_mov14,
+	CryptonightR_instruction_mov15,
+	CryptonightR_instruction_mov16,
+	CryptonightR_instruction_mov17,
+	CryptonightR_instruction_mov18,
+	CryptonightR_instruction_mov19,
+	CryptonightR_instruction_mov20,
+	CryptonightR_instruction_mov21,
+	CryptonightR_instruction_mov22,
+	CryptonightR_instruction_mov23,
+	CryptonightR_instruction_mov24,
+	CryptonightR_instruction_mov25,
+	CryptonightR_instruction_mov26,
+	CryptonightR_instruction_mov27,
+	CryptonightR_instruction_mov28,
+	CryptonightR_instruction_mov29,
+	CryptonightR_instruction_mov30,
+	CryptonightR_instruction_mov31,
+	CryptonightR_instruction_mov32,
+	CryptonightR_instruction_mov33,
+	CryptonightR_instruction_mov34,
+	CryptonightR_instruction_mov35,
+	CryptonightR_instruction_mov36,
+	CryptonightR_instruction_mov37,
+	CryptonightR_instruction_mov38,
+	CryptonightR_instruction_mov39,
+	CryptonightR_instruction_mov40,
+	CryptonightR_instruction_mov41,
+	CryptonightR_instruction_mov42,
+	CryptonightR_instruction_mov43,
+	CryptonightR_instruction_mov44,
+	CryptonightR_instruction_mov45,
+	CryptonightR_instruction_mov46,
+	CryptonightR_instruction_mov47,
+	CryptonightR_instruction_mov48,
+	CryptonightR_instruction_mov49,
+	CryptonightR_instruction_mov50,
+	CryptonightR_instruction_mov51,
+	CryptonightR_instruction_mov52,
+	CryptonightR_instruction_mov53,
+	CryptonightR_instruction_mov54,
+	CryptonightR_instruction_mov55,
+	CryptonightR_instruction_mov56,
+	CryptonightR_instruction_mov57,
+	CryptonightR_instruction_mov58,
+	CryptonightR_instruction_mov59,
+	CryptonightR_instruction_mov60,
+	CryptonightR_instruction_mov61,
+	CryptonightR_instruction_mov62,
+	CryptonightR_instruction_mov63,
+	CryptonightR_instruction_mov64,
+	CryptonightR_instruction_mov65,
+	CryptonightR_instruction_mov66,
+	CryptonightR_instruction_mov67,
+	CryptonightR_instruction_mov68,
+	CryptonightR_instruction_mov69,
+	CryptonightR_instruction_mov70,
+	CryptonightR_instruction_mov71,
+	CryptonightR_instruction_mov72,
+	CryptonightR_instruction_mov73,
+	CryptonightR_instruction_mov74,
+	CryptonightR_instruction_mov75,
+	CryptonightR_instruction_mov76,
+	CryptonightR_instruction_mov77,
+	CryptonightR_instruction_mov78,
+	CryptonightR_instruction_mov79,
+	CryptonightR_instruction_mov80,
+	CryptonightR_instruction_mov81,
+	CryptonightR_instruction_mov82,
+	CryptonightR_instruction_mov83,
+	CryptonightR_instruction_mov84,
+	CryptonightR_instruction_mov85,
+	CryptonightR_instruction_mov86,
+	CryptonightR_instruction_mov87,
+	CryptonightR_instruction_mov88,
+	CryptonightR_instruction_mov89,
+	CryptonightR_instruction_mov90,
+	CryptonightR_instruction_mov91,
+	CryptonightR_instruction_mov92,
+	CryptonightR_instruction_mov93,
+	CryptonightR_instruction_mov94,
+	CryptonightR_instruction_mov95,
+	CryptonightR_instruction_mov96,
+	CryptonightR_instruction_mov97,
+	CryptonightR_instruction_mov98,
+	CryptonightR_instruction_mov99,
+	CryptonightR_instruction_mov100,
+	CryptonightR_instruction_mov101,
+	CryptonightR_instruction_mov102,
+	CryptonightR_instruction_mov103,
+	CryptonightR_instruction_mov104,
+	CryptonightR_instruction_mov105,
+	CryptonightR_instruction_mov106,
+	CryptonightR_instruction_mov107,
+	CryptonightR_instruction_mov108,
+	CryptonightR_instruction_mov109,
+	CryptonightR_instruction_mov110,
+	CryptonightR_instruction_mov111,
+	CryptonightR_instruction_mov112,
+	CryptonightR_instruction_mov113,
+	CryptonightR_instruction_mov114,
+	CryptonightR_instruction_mov115,
+	CryptonightR_instruction_mov116,
+	CryptonightR_instruction_mov117,
+	CryptonightR_instruction_mov118,
+	CryptonightR_instruction_mov119,
+	CryptonightR_instruction_mov120,
+	CryptonightR_instruction_mov121,
+	CryptonightR_instruction_mov122,
+	CryptonightR_instruction_mov123,
+	CryptonightR_instruction_mov124,
+	CryptonightR_instruction_mov125,
+	CryptonightR_instruction_mov126,
+	CryptonightR_instruction_mov127,
+	CryptonightR_instruction_mov128,
+	CryptonightR_instruction_mov129,
+	CryptonightR_instruction_mov130,
+	CryptonightR_instruction_mov131,
+	CryptonightR_instruction_mov132,
+	CryptonightR_instruction_mov133,
+	CryptonightR_instruction_mov134,
+	CryptonightR_instruction_mov135,
+	CryptonightR_instruction_mov136,
+	CryptonightR_instruction_mov137,
+	CryptonightR_instruction_mov138,
+	CryptonightR_instruction_mov139,
+	CryptonightR_instruction_mov140,
+	CryptonightR_instruction_mov141,
+	CryptonightR_instruction_mov142,
+	CryptonightR_instruction_mov143,
+	CryptonightR_instruction_mov144,
+	CryptonightR_instruction_mov145,
+	CryptonightR_instruction_mov146,
+	CryptonightR_instruction_mov147,
+	CryptonightR_instruction_mov148,
+	CryptonightR_instruction_mov149,
+	CryptonightR_instruction_mov150,
+	CryptonightR_instruction_mov151,
+	CryptonightR_instruction_mov152,
+	CryptonightR_instruction_mov153,
+	CryptonightR_instruction_mov154,
+	CryptonightR_instruction_mov155,
+	CryptonightR_instruction_mov156,
+	CryptonightR_instruction_mov157,
+	CryptonightR_instruction_mov158,
+	CryptonightR_instruction_mov159,
+	CryptonightR_instruction_mov160,
+	CryptonightR_instruction_mov161,
+	CryptonightR_instruction_mov162,
+	CryptonightR_instruction_mov163,
+	CryptonightR_instruction_mov164,
+	CryptonightR_instruction_mov165,
+	CryptonightR_instruction_mov166,
+	CryptonightR_instruction_mov167,
+	CryptonightR_instruction_mov168,
+	CryptonightR_instruction_mov169,
+	CryptonightR_instruction_mov170,
+	CryptonightR_instruction_mov171,
+	CryptonightR_instruction_mov172,
+	CryptonightR_instruction_mov173,
+	CryptonightR_instruction_mov174,
+	CryptonightR_instruction_mov175,
+	CryptonightR_instruction_mov176,
+	CryptonightR_instruction_mov177,
+	CryptonightR_instruction_mov178,
+	CryptonightR_instruction_mov179,
+	CryptonightR_instruction_mov180,
+	CryptonightR_instruction_mov181,
+	CryptonightR_instruction_mov182,
+	CryptonightR_instruction_mov183,
+	CryptonightR_instruction_mov184,
+	CryptonightR_instruction_mov185,
+	CryptonightR_instruction_mov186,
+	CryptonightR_instruction_mov187,
+	CryptonightR_instruction_mov188,
+	CryptonightR_instruction_mov189,
+	CryptonightR_instruction_mov190,
+	CryptonightR_instruction_mov191,
+	CryptonightR_instruction_mov192,
+	CryptonightR_instruction_mov193,
+	CryptonightR_instruction_mov194,
+	CryptonightR_instruction_mov195,
+	CryptonightR_instruction_mov196,
+	CryptonightR_instruction_mov197,
+	CryptonightR_instruction_mov198,
+	CryptonightR_instruction_mov199,
+	CryptonightR_instruction_mov200,
+	CryptonightR_instruction_mov201,
+	CryptonightR_instruction_mov202,
+	CryptonightR_instruction_mov203,
+	CryptonightR_instruction_mov204,
+	CryptonightR_instruction_mov205,
+	CryptonightR_instruction_mov206,
+	CryptonightR_instruction_mov207,
+	CryptonightR_instruction_mov208,
+	CryptonightR_instruction_mov209,
+	CryptonightR_instruction_mov210,
+	CryptonightR_instruction_mov211,
+	CryptonightR_instruction_mov212,
+	CryptonightR_instruction_mov213,
+	CryptonightR_instruction_mov214,
+	CryptonightR_instruction_mov215,
+	CryptonightR_instruction_mov216,
+	CryptonightR_instruction_mov217,
+	CryptonightR_instruction_mov218,
+	CryptonightR_instruction_mov219,
+	CryptonightR_instruction_mov220,
+	CryptonightR_instruction_mov221,
+	CryptonightR_instruction_mov222,
+	CryptonightR_instruction_mov223,
+	CryptonightR_instruction_mov224,
+	CryptonightR_instruction_mov225,
+	CryptonightR_instruction_mov226,
+	CryptonightR_instruction_mov227,
+	CryptonightR_instruction_mov228,
+	CryptonightR_instruction_mov229,
+	CryptonightR_instruction_mov230,
+	CryptonightR_instruction_mov231,
+	CryptonightR_instruction_mov232,
+	CryptonightR_instruction_mov233,
+	CryptonightR_instruction_mov234,
+	CryptonightR_instruction_mov235,
+	CryptonightR_instruction_mov236,
+	CryptonightR_instruction_mov237,
+	CryptonightR_instruction_mov238,
+	CryptonightR_instruction_mov239,
+	CryptonightR_instruction_mov240,
+	CryptonightR_instruction_mov241,
+	CryptonightR_instruction_mov242,
+	CryptonightR_instruction_mov243,
+	CryptonightR_instruction_mov244,
+	CryptonightR_instruction_mov245,
+	CryptonightR_instruction_mov246,
+	CryptonightR_instruction_mov247,
+	CryptonightR_instruction_mov248,
+	CryptonightR_instruction_mov249,
+	CryptonightR_instruction_mov250,
+	CryptonightR_instruction_mov251,
+	CryptonightR_instruction_mov252,
+	CryptonightR_instruction_mov253,
+	CryptonightR_instruction_mov254,
+	CryptonightR_instruction_mov255,
+	CryptonightR_instruction_mov256,
+};
+
+#endif // CRYPTONIGHTR_TEMPLATE_H
