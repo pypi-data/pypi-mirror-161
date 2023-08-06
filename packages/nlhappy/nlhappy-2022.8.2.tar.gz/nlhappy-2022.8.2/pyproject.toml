@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "nlhappy"
+version = "2022.08.02"
+description = "😄让你爱上自然语言处理😄"
+authors = ["wangmengdi <ddream_ai@163.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+torch = "^1.11.0"
+pytorch-lightning = "^1.5.10"
+datasets = "^2.0.0"
+transformers = "^4.17.0"
+hydra-core = "1.1.1"
+hydra-colorlog = "1.1.0"
+oss2 = "^2.15.0"
+spacy = ">=3.3.0"
+rich = "^12.4.3"
+wandb = ">=0.12.18"
+googletrans = "4.0.0rc1"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.plugins."spacy_factories"]
+"span_classifier" = "nlhappy.components:make_spancat"
+
+[tool.poetry.scripts]
+nlhappy = "nlhappy.run:train"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# 添加清华镜像
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+default = true
