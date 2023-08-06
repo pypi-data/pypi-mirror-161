@@ -1,0 +1,158 @@
+variables:
+  PROJECT_DIR: $CI_PROJECT_DIR
+
+
+stages:
+- build-publish-ci-images
+- unit-tests
+- code-checks
+
+
+#############
+# Templates #
+#############
+.python:
+  image:
+    name: public.ecr.aws/lambda/python:3.9
+    entrypoint:
+    - "/usr/bin/env"
+    - "PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin"
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths: [.cache/pip]
+  before_script:
+  - yum install --assumeyes make
+  - python3 -V
+  - python3 -m pip install --upgrade virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+########
+# Test #
+########
+black:
+  extends: .python
+  stage: code-checks
+  script:
+  - python3 -m pip install --upgrade black
+  - make black
+
+pylint:
+  extends: .python
+  stage: code-checks
+  script:
+  - python3 -m pip install --upgrade pylint==2.6.0
+  - make pylint
+
+pytest:
+  extends: .python
+  stage: unit-tests
+  coverage: '/^TOTAL.+ (\d+)%$/'
+  script:
+  - yum install --assumeyes libyaml-devel git curl
+  - export REPO=$(mktemp /tmp/repo.XXXXXXXXX)
+  - mkdir -p ~/bin/ && export PATH=$PATH:~/bin/
+  - curl -o ${REPO} https://storage.googleapis.com/git-repo-downloads/repo
+  - install -m 755 ${REPO} ~/bin/repo
+  - python3 -m pip install --upgrade pytest pytest-cov tuxmake
+  - python3 -m pip install --upgrade -r requirements-dev.txt
+  - make test
+  artifacts:
+    paths:
+    - htmlcov/
+    reports:
+      junit: report.xml
+  allow_failure: true
+
+################
+# build images #
+################
+
+.build-image:
+  stage: build-publish-ci-images
+  image: docker:20.10
+  only:
+    refs:
+      - main
+    changes:
+      - dockerfiles/**/*
+
+  services:
+    - name: docker:20.10-dind
+  before_script:
+  - apk add --upgrade make
+  - docker login --username ${DOCKER_USER} --password-stdin < "${DOCKER_PASSWORD_FILE}"
+  script:
+    - make -B -C $PROJECT_DIR/dockerfiles/ list=$TARGET build publish
+
+
+centos-7:
+  extends: .build-image
+  variables:
+    TARGET: centos-7
+
+centos-8:
+  extends: .build-image
+  variables:
+    TARGET: centos-8
+
+debian-bullseye:
+  extends: .build-image
+  variables:
+    TARGET: debian-bullseye
+
+debian-buster:
+  extends: .build-image
+  variables:
+    TARGET: debian-buster
+
+debian-jessie:
+  extends: .build-image
+  variables:
+    TARGET: debian-jessie
+
+debian-stretch:
+  extends: .build-image
+  variables:
+    TARGET: debian-stretch
+
+fedora-33:
+  extends: .build-image
+  variables:
+    TARGET: fedora-33
+
+fedora-34:
+  extends: .build-image
+  variables:
+    TARGET: fedora-34
+
+opensuse-leap-15.1:
+  extends: .build-image
+  variables:
+    TARGET: opensuse-leap-15.1
+
+opensuse-leap-15.2:
+  extends: .build-image
+  variables:
+    TARGET: opensuse-leap-15.2
+
+ubuntu-16.04:
+  extends: .build-image
+  variables:
+    TARGET: ubuntu-16.04
+
+ubuntu-18.04:
+  extends: .build-image
+  variables:
+    TARGET: ubuntu-18.04
+
+ubuntu-20.04:
+  extends: .build-image
+  variables:
+    TARGET: ubuntu-20.04
+
+ubuntu-22.04:
+  extends: .build-image
+  variables:
+    TARGET: ubuntu-22.04
