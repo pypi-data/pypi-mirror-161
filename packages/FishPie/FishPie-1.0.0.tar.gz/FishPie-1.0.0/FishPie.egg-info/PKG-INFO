@@ -1,0 +1,64 @@
+Metadata-Version: 2.1
+Name: FishPie
+Version: 1.0.0
+Summary: File sharing web application
+Home-page: https://github.com/lamyj/fishpie
+Author: Julien Lamy
+Author-email: julien@seasofcheese.net
+License: GPL-3.0-or-later
+Keywords: File sharing,Web application,Flask
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Flask
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Internet :: WWW/HTTP
+Description-Content-Type: text/markdown
+Provides-Extra: wordpress-auth
+License-File: COPYING
+
+# Fishpie
+
+Fishpie is web application for sharing large files.
+
+## Installation
+
+Get the package from PyPI:
+
+```bash
+python3 -m pip install fishpie
+```
+
+Create a WSGI wrapper script:
+
+```python
+import datetime
+
+import fishpie
+import fishpie.wordpress
+
+app = fishpie.app
+app.secret_key = "SOME_VERY_SECRET_BINARY_DATA"
+app.permanent_session_lifetime = datetime.timedelta(days=1)
+app.config["DATABASE"] = "/my/root/directory/database"
+app.config["UPLOAD_DIR"] = "/my/root/directory/uploads"
+app.config["authenticate"] = fishpie.wordpress.authenticate
+app.config["authentication_data"] = ("host", "user", "password", "database")
+app.debug = True
+
+application = app
+```
+
+Configure Apache:
+
+```apache
+WSGIScriptAlias /transfer /somewhere/fishpie.wsgi
+<Directory /somewhere>
+  Require all granted
+</Directory>
+```
+
+
