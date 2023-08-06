@@ -1,0 +1,127 @@
+# Copyright 2016 Game Server Services, Inc. or its affiliates. All Rights
+# Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# or in the "license" file accompanying this file. This file is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied. See the License for the specific language governing
+# permissions and limitations under the License.
+from __future__ import annotations
+
+from core import Gs2RestSession
+from core.domain.access_token import AccessToken
+from script import Gs2ScriptRestClient, request as request_, result as result_
+from script.domain.iterator.namespaces import DescribeNamespacesIterator
+from script.domain.iterator.scripts import DescribeScriptsIterator
+from script.domain.cache.namespace import NamespaceDomainCache
+from script.domain.cache.script import ScriptDomainCache
+from script.domain.script import ScriptDomain
+
+
+class NamespaceDomain:
+    _session: Gs2RestSession
+    _client: Gs2ScriptRestClient
+    _namespace_cache: NamespaceDomainCache
+    _namespace_name: str
+    _script_cache: ScriptDomainCache
+
+    def __init__(
+        self,
+        session: Gs2RestSession,
+        namespace_cache: NamespaceDomainCache,
+        namespace_name: str,
+    ):
+        self._session = session
+        self._client = Gs2ScriptRestClient(
+            session,
+        )
+        self._namespace_cache = namespace_cache
+        self._namespace_name = namespace_name
+        self._script_cache = ScriptDomainCache()
+
+    def get_status(
+        self,
+        request: request_.GetNamespaceStatusRequest,
+    ) -> result_.GetNamespaceStatusResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.get_namespace_status(
+            request,
+        )
+        return r
+
+    def load(
+        self,
+        request: request_.GetNamespaceRequest,
+    ) -> result_.GetNamespaceResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.get_namespace(
+            request,
+        )
+        self._namespace_cache.update(r.item)
+        return r
+
+    def update(
+        self,
+        request: request_.UpdateNamespaceRequest,
+    ) -> result_.UpdateNamespaceResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.update_namespace(
+            request,
+        )
+        self._namespace_cache.update(r.item)
+        return r
+
+    def delete(
+        self,
+        request: request_.DeleteNamespaceRequest,
+    ) -> result_.DeleteNamespaceResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.delete_namespace(
+            request,
+        )
+        return r
+
+    def create_script(
+        self,
+        request: request_.CreateScriptRequest,
+    ) -> result_.CreateScriptResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.create_script(
+            request,
+        )
+        return r
+
+    def create_script_from_git_hub(
+        self,
+        request: request_.CreateScriptFromGitHubRequest,
+    ) -> result_.CreateScriptFromGitHubResult:
+        request.with_namespace_name(self._namespace_name)
+        r = self._client.create_script_from_git_hub(
+            request,
+        )
+        return r
+
+    def scripts(
+        self,
+    ) -> DescribeScriptsIterator:
+        return DescribeScriptsIterator(
+            self._script_cache,
+            self._client,
+            self._namespace_name,
+        )
+
+    def script(
+        self,
+        script_name: str,
+    ) -> ScriptDomain:
+        return ScriptDomain(
+            self._session,
+            self._script_cache,
+            self._namespace_name,
+            script_name,
+        )
