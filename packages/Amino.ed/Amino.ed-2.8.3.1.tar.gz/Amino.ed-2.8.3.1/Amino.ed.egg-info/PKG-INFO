@@ -1,0 +1,59 @@
+Metadata-Version: 2.1
+Name: Amino.ed
+Version: 2.8.3.1
+Summary: A library to create Amino bots.
+Home-page: https://github.com/Alert-Aigul/Amino.ed
+Author: Alert Aigul
+Author-email: alertaigul@gmail.com
+License: MIT
+Download-URL: https://github.com/Alert-Aigul/Amino.ed/archive/refs/heads/main.zip
+Keywords: aminoapps,amino-py,amino,amino-bot,amino.py,amino.ed,amino-ed,narvii,api,python,python3,python3.x,official,alert,fix,ed
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3.6
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Installing
+```
+pip install amino.ed
+```
+
+# Example
+```py
+import aminoed
+
+@aminoed.run_with_client()
+async def main(client: aminoed.Client):
+    await client.login("email", "password")
+
+```
+
+# Chat-bot example
+```py
+from aminoed import *
+
+bot = Client(prefix="!")
+
+@bot.execute() # Runs in the background, after bot.start()
+async def on_start():
+    print(f"Bot {bot.auth.user.nickname} working.")
+    
+@bot.command() # Comand name - function name
+async def help(event: Event):
+    await event.send_message("[c]Comands\n" \
+        "?chatmembers - members count.")
+
+@bot.command("chatmembers", "?") # Custom command and prefix
+async def chatmembers(event: Event):
+    chat = await event.client.get_chat_thread(event.threadId)
+    await event.send_message(f"Chat members count: {chat.membersCount}.")
+    
+bot.start("email", "password")
+
+
+```
+
+
