@@ -1,0 +1,295 @@
+Version 0.25.0::md
+  - Changes to Internal API
+  - Added <tt><tt</tt><tt>></tt>, which is shorter than <tt>code</tt>.
+Version 0.21 - 0.24::md
+  These are fake versions.
+Version 0.20.0::md
+  * Changed the python api.
+Version 0.19.0::md
+  * Changed the python api.
+Version 0.17.0::md
+  * Added deflist and def nodes. See the [reference].
+Version 0.15.0::md
+  * Removed the data node and data blob.
+    - This was used in one document and wasn't even the best way to solve that particular problem.
+  * Added checkboxes.
+Version 0.13.0::md
+  * Renamed toc node to nav node. nav is still an allowed alias to the toc node.
+  * Removed ctx.outname
+  * Introduced an "ast api" available from the python module or from the c library.
+Version 0.10.3::md
+  * <code><h</code><code>r></code> is now an allowed html
+    tag. The <code>:</code><code>:hr</code> node type
+    is deprecated.
+  * Added a new function `html_escape` to the js api for when you need to
+    procedurally build raw nodes with content that could contain tags.
+  * Fixed a bug for the order of nodes with a smaller number of children,
+    one of which is a js block.
+Version 0.10.2::md
+  * Python API is nicer now.
+  * Fixed an issue where #directives weren't being set by the formatter.
+Version 0.10.1::md
+  * Elide the wrapper div on the main content for real this time.
+Version 0.10.0::md
+  * Removed the @comment attribute. It wasn't actually useful
+    and its semantics were weird, especially for things
+    like expansion and reformatting.
+  * Separated user defined attributes and system specific
+    directives. User defined attributes or tags are prefixed
+    with '@', while system directives are prefixed with '#'.
+    This ensures that there will be no collision and also
+    cleaned some stuff up internally.
+  * Add ability to specify width, height and alt attributes
+    in Image tags.
+Version 0.9.3::md
+  * Deleted vestigial TEXT node type.
+  * Added reference document for all the nodes you can create
+    via the regular text format.
+  * Renamed EXAMPLE.dnd to OVERVIEW.dnd as it wasn't really an EXAMPLE.
+  * Added meta node for adding <meta> tags to documents.
+Version 0.9.2::md
+  * Big internal changes, which will be nice for future features, but not user visible.
+    - Might have introduced some bugs, but hopefully not.
+Version 0.9.1::md
+  * Improved performance of <code>FileSystem.list_dnd_files()</code> by
+    skipping directories starting with '<code>.</code>'. If you are using git
+    for version controlling your dnd files, this skips a lot of useless
+    directories.
+  * Removed undocumented <code>:</code><code>:dependencies</code> node.
+  * Added ability for links to be looked up by an alternative alias than their text.
+    - This is useful for if you want to have multiple links on the same page
+      that resolve to different targets.
+    - The syntax looks like <code>your text | alias</code>
+      inside of square brackets.
+    - The <code>|</code> character is the delimeter.
+    - The right hand side follows the normal rules for link look up.
+Version 0.9.0::md
+  * Changed semantics of script and css nodes - they
+    are now the equivelant of <code>@inline</code> by default. Tag
+    them with <code>@import</code> to have them loaded from a file.
+  * There is also one fewer wrapper node for imports in
+    general.
+Version 0.8.1::md
+  * Added syntax highlighter for javascript in the editor.
+  * Added documentation about the scripting API.
+Version 0.8.0::md
+  * Removed python blocks.
+  * Added FileSystem API to javascript.
+    - <code>FileSystem.exists</code> to check if a file exists
+    - <code>FileSystem.list_dnd_files(directory)</code> to list all dnd files in that folder and
+      all subfolders.
+    - <code>FileSystem.load_file(filepath)</code> to load a file as a string.
+    - <code>FileSystem.load_file_as_base64(filepath)</code> to load a file as
+      base64.
+Version 0.7.3::md
+  * A utility for converting dnd files to html without using the editor has
+    been included in the distribution. It's called "dndbatch" and should be
+    pretty self-explanatory.
+  * Parsing has been improved and is now much faster (although it was never
+    that slow to begin with).
+  * You can now use ctrl+1, ctrl+2, etc. to swap to the first, second, etc.
+    tab.
+  * Nav blocks now support classes and an id.
+Version 0.7.2::md
+  * Bug fixes
+  * A useless wrapper div will now be elided if the document's
+    root node has no attributes or classes and has exactly one
+    child node that is a legal root node.
+  * A new block type, "details", has been added. It is parsed
+    like a md block and generates a <details> tag.
+  * Added new methods to nodes in js and python blocks:
+    - <code>clone()</code>: returns an orphaned copy of the node.
+    - <code>insert_child(index, newchild)</code>: inserts the
+      node as a child at the given index, shifting the other
+      children down by 1.
+  * Previously only certain inline html tags were allowed.
+    The complete list is now: <code>&lt;s&gt;</code>,
+    <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>,
+    <code>&lt;br&gt;</code>, <code>&lt;code&gt;</code> and the
+    closing version of those tags.
+Version 0.7.1::md
+  * Fix bug in js api.
+  * Internal API changes.
+  * Tabs in editor look nicer.
+Version 0.7.0::md
+  * <code>js</code> blocks have been renamed to
+    <code>script</code> (which is what they used to be).
+  * A new scripting language has been added --- javascript.
+    - Use <code>js</code> blocks for them (thus why
+      <code>js</code> blocks were renamed).
+    - You can now use javascript instead of python to
+      programmatically interact with the document.
+    - Just like with the python blocks, you have access to the
+      document via a <code>ctx</code> variable and the block
+      itself via the <code>node</code> variable.
+    - Using the quickjs library to implement this.
+    - Implements ECMAscript 2020.
+  * Certain nodes can now be imported by tagging them with an
+    @import attribute.
+    - The nodes are:
+      + <code>python</code>
+      + <code>js</code>
+      + <code>raw</code>
+      + <code>pre</code>
+    - The block should contain a single line which is the path to
+      the file to be imported. That file will then be inserted
+      unparsed into the document.
+    - Effectively, this means you can reuse commonly used js or
+      python blocks by writing files.
+  * The reformat tool gives slightly different results.
+
+Version 0.6.2::md
+  * Scroll position within the document is now preserved between
+    refreshes in some cases.
+
+Version 0.6.1::md
+  * Internal API changes
+  * Bug fixes and performance improvements.
+
+Version 0.6.0::md
+  * Internal API changes
+  * Bug fixes and performance improvements.
+
+Version 0.5.2::md
+  * Fixed an issue where single item rows of tables were being
+    ignored.
+  * Nodes with ids but no heading will no longer be shown in the
+    generated toc.
+
+Version 0.5.1::md
+  * It is no longer possible to crash the formatter by having a
+    table with more
+    than 100 items in a single row.
+  * Data blobs are only generated if there is data to put in them
+    now.
+
+Version 0.5.0::md
+  * Internal API changes
+  * Bug fixes and performance improvements.
+
+Version 0.4.8::md
+  * Added replace_child method to nodes in python blocks.
+
+Version 0.4.7::md
+  * Bug fixes and performance improvements.
+
+Version 0.4.6::md
+  * Fixed bug that formatting the file with numbered lists of 10
+    or more would lead to lists formatted in a way that the
+    parser would reject the file.
+
+Version 0.4.5::md
+  * Bug fixes and performance improvements.
+
+Version 0.4.4::md
+  * Fixed bug that formatting the file would remove all leading
+    whitespace on inline js blocks.
+  * Fixed bug in new coord helper.
+
+Version 0.4.3::md
+  * Fixed minor bug in new coord helper.
+
+Version 0.4.2::md
+  * Added coord helper to make working with the map easier.
+    - Activate it by checking the new Coord Helper checkbox at
+      the bottom of the editor.
+    - When active and Read-only is not checked, you can click on
+      the map and you will be prompted to give a name to what you
+      are adding. Afterwards, it will append that room to your
+      .dnd file, with the appropriate @coord set.
+  * Added an hr block type. It is for adding
+    <code><h</code><code>r></code> elements.
+
+Version 0.4.1::md
+  * Implemented file caching so things like images don't have to
+    be read as often. The cache is invalidated based on the file
+    watching from last version.
+  * Added a checkbox to enable/disable auto-updating of the
+    rendered content as you type.
+  * Added a checkbox to make a file read-only to help with
+    accidental typing.
+  * Added a developer menu. It is undocumented.
+
+Version 0.4.0::md
+  * Implemented file watching. Before, if you changed a file
+    that your dnd document depended on (such as the img it loaded
+    as the map), the program would not redisplay until you made a
+    change in the dnd file itself. Now, through the magic of
+    modern technology, we get notifications from the OS if those
+    files change and so can redisplay without the user doing
+    anything.
+  * Added new examples:
+    - index.dnd in the root of the Examples. It shows using
+      links to link to other .dnd files
+    - Rules/religion.dnd. It shows linking to external sites.
+  * Clicking links to external urls now opens them in your
+    system's default browser instead of blocking the request.
+
+Version 0.3.15::md
+  * Implemented new syntax highlighter, is actually accurate now.
+    - The colors are kind of wonky. Idk I'm not a graphic
+      designer.
+  * There are some narrow circumstances where the highlighting
+    can become stale.  The underlying gui library only applies
+    new syntax to lines that have been edited. The highlighting
+    of a line of text can actually depend on previous lines. If
+    those lines change, dependent lines won't be updated, as they
+    did not change. To ameliorate this, a new action has been
+    added to the View menu to refresh the highlighting of the
+    entire document. In practice, this is rare, so you probably
+    won't notice.
+
+Version 0.3.14::md
+  * Files are now explicitly decoded as utf-8 instead of
+    guessing based on the user's locale settings. This caused
+    issues when weebs set their locale to some japanese locale.
+    - All .dnd files must now be utf-8 encoded. If you somehow
+      have a non-utf-8 encoded plain text file, you will need to
+      save it as utf-8. Notepad can do this.
+
+Version 0.3.13::md
+  * Fixed bug that closing a tab with the button would not save the file.
+  * Implemented Indent/Dedent actions.
+    - These actions can indent or dedent the selected text (or
+      the current line if no text is selected).
+    - They can be triggered in one of the following ways:
+      + By using Ctrl-> or Ctrl-< hotkeys.
+      + By the context menu when right clicking the text editor
+      + By selecting the actions in the Edit menu.
+
+Version 0.3.12::md
+  * Fixed bug that prevented the Format action of Edit from doing anything.
+
+Version 0.3.11::md
+  * Added this changelog
+  * Closing a tab with the button now closes the associated file.
+  * The splitter between the editor and the html display can now
+    be double-clicked in order to collapse/expand it.
+    - If you weren't aware before, the splitters could be
+      dragged to change their size and would collapse/expand
+      based on that.
+  * Failures to open files no longer leads to an empty document
+    being opened (which would then get auto-saved, generating a
+    new document or overwriting the real document!).
+  * There is now logging.
+    - Logs are written to logfiles.
+    - Use Help -> Open Logs Folder to see where they are logged.
+    - Use Help -> Compress Logs to zip the current log and open
+      that same folder.
+    - Logs are per day.
+    - You can delete the old logs if they get too fat.
+
+::links
+  reference = REFERENCE.dnd
+::css
+  body > div {
+    margin: auto;
+    max-width: 50em;
+    font-family: -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", Roboto,
+                 Oxygen-Sans, Ubuntu,
+                 Cantarell, "Helvetica Neue", sans-serif;
+  }
+  code {
+    background-color: #ddd;
+  }
