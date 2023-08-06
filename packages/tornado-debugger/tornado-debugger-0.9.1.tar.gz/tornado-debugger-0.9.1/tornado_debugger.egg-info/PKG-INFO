@@ -1,0 +1,72 @@
+Metadata-Version: 2.1
+Name: tornado-debugger
+Version: 0.9.1
+Summary: A better exception printer for Tornado web server.
+Home-page: https://www.github.com/bhch/tornado-debugger
+Author: Bharat Chauhan
+Author-email: tell.bhch@gmail.com
+License: BSD-3-Clause
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.4
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# tornado-debugger
+
+A debugger for Tornado server for a better development experience.
+
+Tornado's default exception reporter is very basic and primitive. `tornado-debugger` is
+a drop-in replacement for the built-in debugger.
+
+
+## Install
+
+```sh
+$ pip install tornado-debugger
+```
+
+
+## Usage
+
+Use the `DebuggerMixin` class to automatically add the debugger features.
+This mixin class overrides `RequestHandler.write_error` method and will display
+a detailed error page.
+
+```python
+from tornado import web
+from tornado_debugger import DebuggerMixin
+
+
+class IndexHandler(DebuggerMixin, web.RequestHandler):
+    # always inherit from mixin class BEFORE the base class
+
+    def get(self):
+        1/0
+```
+
+**Note:** The `DebuggerMixin` only works in debug mode (i.e. when `debug=True` in the Application settings).
+
+
+## Screenshot
+
+![tornado-debugger screenshot](https://raw.githubusercontent.com/bhch/tornado-debugger/master/screenshot.png)
+
+
+## License
+
+[BSD-3-Clause](LICENSE.txt)
