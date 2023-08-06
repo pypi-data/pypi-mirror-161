@@ -1,0 +1,254 @@
+Metadata-Version: 2.1
+Name: ganessa
+Version: 2.3.1
+Summary: Python interface to Piccolo and Picalor simulation kernel
+Home-page: UNKNOWN
+Author: Dr. Pierre Antoine Jarrige
+Author-email: ganessa@safege.fr
+License: commercial
+Keywords: Piccolo Picalor Ganessa
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: Free To Use But Restricted
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Fortran
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
+Requires-Python: >=3.5, <4
+Description-Content-Type: text/x-rst
+Requires-Dist: numpy (>=1.19.4)
+
+Piccolo5/Piccolo6/Picalor6 and Ganessa_SIM API python calling interface
+
+What is it?
+-----------
+A python package enabling users to call a set of Picwin32.dll or Ganessa_SIM.dll API functions and subroutines within python scripts. Initially provided for python 2.7 32 bits only. 1.9.x versions served as python 3.5 / 3.6 pre-release.
+
+Starting with version 2.0.0, the wheel package is provided for 32 bits version for python 2.7 / 3.5 / 3.6 / 3.7 (Piccolo kernel is a 32 bits application) and 64 bits version for python 3.6 / 3.7 (Ganessa_SIM is available as 32 and 64 bits).
+
+Starting with version 2.1.0, the wheel package is provided for 32 bits version for python 2.7 / 3.7 / 3.8 (Piccolo kernel is a 32 bits application) and 64 bits version for python 3.7 / 3.8 (Ganessa_SIM is available as 32 and 64 bits).
+
+Starting with version 2.1.8, the wheel package is provided for 32 bits version for python 2.7 / 3.7 / 3.8 / 3.9 (Piccolo kernel is a 32 bits application) and 64 bits version for python 3.7 / 3.8 / 3.9 (Ganessa_SIM is available as 32 and 64 bits).
+
+Version 2.1.9 is the last version that supported python 2.7.
+Version 2.2.4 is the last version for which a wheel is provided for python 3.7.
+
+Starting with version 2.2.5, the wheel package is provided for 32 bits version for python 3.8 / 3.9 / 3.10 (Piccolo kernel is a 32 bits application) and 64 bits version for python 3.8 / 3.9 / 3.10 (Ganessa_SIM is available as 32 and 64 bits).
+
+Installation
+------------
+*Windows only* :: 
+
+    pip install ganessa
+
+Obsolete Requirements (32 bits)
+-------------------------------
+  #) python 2.7, 3.5, 3.6, 3.7
+  #) obsolete python requirements: numpy 1.11 or above (python 2.7) / numpy 1.13.1 or above (python 3.5 - 3.6) / numpy 1.15.1 (python 3.7)
+  #) Piccolo or Picalor kernel library (picwin32.dll), starting from version 5 (141203) for python 2.7
+  #) valid Piccolo or Picalor or Ganessa_SIM license
+
+Requirements (32 bits)
+----------------------
+  #) python 3.8 or 3.9 or 3.10
+  #) numpy 1.15.1 (python 3.8) / numpy 1.19.4 (python 3.9) / numpy 1.21.3 (python 3.10)
+  #) Piccolo6 or Picalor6 kernel library (picwin32.dll), or Ganessa_SIM.dll
+  #) valid Piccolo or Picalor or Ganessa_SIM license (for commercial releases)
+
+Requirements (64 bits)
+----------------------
+  #) python 3.8 or 3.9 or 3.10
+  #) numpy 1.15.1 (python 3.8) / numpy 1.19.4 (python 3.9) / numpy 1.21.3 (python 3.10)
+  #) Ganessa_SIM_x64.dll (64 bit dll)
+  #) valid Ganessa_SIM license (for commercial releases)
+
+
+This tool expects Picwin32.dll to be in the PATH or in one of the following folders::
+
+                 %localappdata%/Programs/Safege/Piccolo_ or
+                 %localappdata%/Programs/Suez/Piccolo_ or
+                 %localappdata%/Programs/Gfi Progiciels/Piccolo6_ or
+                 %localappdata%/Programs/Inetum/Piccolo6_ or
+ [[E: or D:] or C:] / [
+                 'Program Files (x86)/Safege/Piccolo6_' or
+                 'Program Files (x86)/Gfi Progiciels/Piccolo6_'  or
+                 'Program Files (x86)/Inetum/Piccolo6_'  or
+                 'Program Files (x86)/Gfi Progiciels/Picalor6_' or
+                 'Program Files/Adelior/Piccolo5_'
+                ]
+              + ['fr' or 'uk' or 'esp' or 'eng'] + ['' or '_ck']
+
+Or one of Ganessa_SIM.dll or Ganessa_TH.dll or Ganessa_SIM_x64.dll in::
+
+            '%localappdata%/Programs/Safege/Ganessa_ or
+            '%localappdata%/Programs/Suez/Ganessa_ or
+ [[E: or D:] or C:] /Program Files (x86)/Safege/Ganessa_'
+              + ['fr' or 'uk' or 'esp' or 'eng']
+
+With custom installations, PICCOLO_DIR or GANESSA_DIR environment variables can be set to define the path. 
+
+Content
+-------
+
+The package provides:
+ #) 'sim' package:
+     - a few basic functions for reading or loading a model, running hydraulic and WQ simulations.
+     - 'getter' functions for individual objects and attributes, time series vectors, attribute vector of all object (attribute maps).
+     - iterators over links, nodes, tanks, demands, and tables, or over Piccolo command language selections.
+     - a Graph class built from the current model graph, with propagation functions.
+ #) 'th' package: same functions for Picalor except running extended period simulations and time series getters.
+ #) 'util' package: conversion and formatting and other miscellaneous functions.
+ #) 'OpenFileMMI' provides classes for opening dialog frame for a .dat/.bin model file, folder, and input/output (result) file. It should be imported after 'sim' or 'th'.
+ #) 'plot' provides easy multiple simulation vs reference graphs plot settings - requires matplotlib.
+ #) 'sort' provides a heapsort based on heapq.
+ #) 'midfile' provides minimal mif/mid functions similar to shp/dbf shapefile handler (pyshp package).
+ #) 'geojsonfile' provides minimal geojson functions similar to shp/dbf shapefile handler (pyshp package).
+ #) 'epanet' provides epanet2 python API for win32 (thanks to Assela Pathirana - mailto: assela@pathirana.net) similar to EpanetTools-0.4.0; with epanet.getlinknodes corrected (from 0.9.2).
+ #) 'parallel' provides a simple parallel simulations handling framework based on multiprocessing, returning either elementary or reduced results.
+
+Model objects and parameters can be modified using Piccolo command language (see cmd, cmdfile and execute).
+
+Recently introduced functions and classes may not be functional with old versions of Piccolo / Ganessa_SIM kernel.
+
+Documentation
+-------------
+Documentation is provided as pyGanessa.html in the intallation folder. It includes package history.
+
+History of the README document
+------------------------------
+ - Created 2013-07-04
+ - Revised 2015-05-03: since 2014-12-04 Picwin32.dll is compatible with this API.
+ - Revised 2016-07-07: provided as .rst.
+ - Revised 2017-08-08: install using pip; Piccolo/Ganessa dll folder search order.
+ - Revised 2017-09-12: split sim into core, core_sim, core_th.
+ - Revised 2017-11-13: added sort, midfile, epanet modules.
+ - Revised 2017-11-30: added parallel.
+ - Revised 2018-03-29: minor changes / extension to python 3.5-3.6.
+ - Revised 2018-06-08: OpenFileMMI and epanet details, added example.
+ - Revised 2018-08-16: 64 bits compatibility (Ganessa_SIM and python 3.7 / 3.8 only).
+ - Revised 2018-08-27: numpy requirements.
+ - Revised 2019-09-13: minor changes.
+ - Revised 2019-10-09: extension to python 3.8.
+ - Revised 2019-10-15: README rst fix.
+ - Revised 2020-02-05: added sim.Graph; README rst fix.
+ - Revised 2020-11-20: README rst fix.
+ - Revised 2021-04-29: extension to python 3.9.
+ - Revised 2021-06-17: python 2.7 compatibility removed since 2.2.0; folder lookup paths.
+ - Revised 2021-10-27: python 3.7 removed & python 3.10 added since 2.2.5.
+ - Revised 2022-04-21: dll lookup order as E:, D:, C:; example updated.
+
+Example
+-------
+
+::
+
+ # -*- coding: utf-8 -*-
+ """Test program for ganessa
+ requires a Piccolo model 'model.dat' in the current folder"""
+ from __future__ import print_function, unicode_literals
+ import os
+ import matplotlib.pyplot as plt
+ from mpl_toolkits.mplot3d import Axes3D
+ 
+ import ganessa.sim as pic
+ 
+ # This code sample runs under python 3.8 - 3.10
+ # but requires ganessa 2.3.0 or higher
+ 
+ if __name__ == "__main__":
+     wkfold = os.path.dirname(__file__)
+     if not wkfold:
+         wkfold = os.getcwd()
+         print("Current folder is:", wkfold)
+     os.chdir(wkfold)
+     # will create work files here
+     pic.init(wkfold)
+     # loads the model - change the name here...
+     pic.cmdfile("model.dat")
+     # select small pipe (diameter below 155)
+     # using iterator and D getter, by id
+     pipefilter = lambda d: (d > 0 and d < 155)
+     pipes = [p for p in pic.Links() if pipefilter(pic.linkattr(p, "D"))]
+     # using iterator and D getter, by index (less concise but slightly faster)
+     pipes = [
+         pic.getid(pic.LINK, k)
+         for k in range(1, pic.nbobjects(pic.LINK) + 1)
+         if pipefilter(pic.nlinkattr(k, "D"))
+     ]
+     # Most Piccoloic, using (french) command language selection
+     pic.setlang("French")
+     # Selectid has been introduced in 2.3.0; it is equivalent to Selected(..., False)
+     pipes = list(pic.Selectid("TUYAU (D < 155) FIN"))
+     # minimal setter functions for links, nodes, tanks attributes
+     pid = pipes[len(pipes) // 2]
+     diam = pic.linkattr(pid, "D")
+     pic.setlinkattr(pid, "D", diam * 2)
+     # language-independant commands
+     KWEND = pic.getkeyword(pic.DICT.END)
+     pic.gencmdw(pic.M.MOD, pic.M.MOD.MULT, pic.M.NONE, "D 2")
+     pic.gencmd(pic.M.LNK, pic.M.LNK.NONE, pic.M.NONE, pid + " " + KWEND, 1)
+     # Use command language to set / modify / delete objects
+     pic.execute("MODIF", "DETR ARC {} FIN".format(pid))
+     pic.execute("MODIF", "FUSION NOEU (AA = 1) FIN", "FUSION NOEU (AA = 1) FIN")
+     # or change parameters
+     pic.execute("SIMUL", "CRITX 0.05", "MXITER 75")
+     # get demand profile TS
+     nb = pic.tsdemandlen("DEFAUT", "HAUT")
+     print("Profile length for area HAUT:", nb)
+     res = pic.tsdemand("DEFAUT", "HAUT")
+     # Unlike epanet, first run simulation then browse/ query results
+     pic.full_solveH(silent=True, retry=True)
+     print("Simulation done.")
+     pic.browseH(3600 * 8.5)
+     fig = plt.figure(figsize=(16 - 1, 9 - 1))
+     # plot 3D elevation and hydraulic head
+     ax = fig.add_subplot(projection="3d")
+     for a in pic.Links():
+         x, y, z, v, nb = pic.linkXYZV(a, "CH")
+         if nb > 0:
+             ax.plot(x, y, z, "r-")
+             ax.plot(x, y, v, "b-")
+     plt.title("Plan de charge a t= 08:30")
+     plt.show()
+     # print min/max pressure over the EPS
+     attr = "P"
+     minpax_p = list(pic.getMinMax(pic.NODE, attr))
+     for nid, vmin, vmax, vmoy in minpax_p[:10]:
+         print(nid, attr + "min:", vmin, attr + "max:", vmax)
+     print("\t...")
+     for nid, vmin, vmax, vmoy in minpax_p[-10:]:
+         print(nid, attr + "min:", vmin, attr + "max:", vmax)
+     # get current volume simulation (internal variable steps) and measurement TS
+     for tid in pic.Tanks():
+         t1, v1, nb1 = pic.tsval(pic.TANK, tid, "VC")
+         t2, v2, nb2 = pic.msval(pic.TANK, tid, "VC")
+     # get current volume simulation results at measurement sampling
+     for tid in pic.Tanks():
+         t3, v3, nb3 = pic.tsvalbymts(pic.TANK, tid, "VC")
+     # export as Epanet .inp
+     pic.exportEpanet("model.inp")
+     pic.execute("XXMEM ARC : D")
+     pic.savemodel("model_xx.dat", extra_data=[("ARC (D > 149) FIN", "XX")])
+     # WQ source data optional argument is a specific node - not used here
+     print("\nWQ source data (input forcing and TS at nodes):")
+     for n, cd, attr, t, c, nb in pic.WQSources():
+         print(n, cd, attr, nb, t, c)
+     print("Done.")
+     # use reset() for switching model, close() to terminate
+     pic.close()
+
+
+
