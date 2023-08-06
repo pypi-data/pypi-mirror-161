@@ -1,0 +1,144 @@
+let((Str
+     (package_description "String functions")
+     (Package Import['Package])
+    )
+Str = let(()
+
+procedure(emptyp(in "g")
+	"Checks if the input is an empty string"
+	stringp(in) && strlen(in) == 0)
+
+
+procedure(split(in delim "tt")
+	"Similar to parseString, except multiple delim are not ignored. 
+	 Empty delimiter fields are returned as empty strings."
+	let(((out '()) (inTmp in) nextC)
+	while(nextC = nindex(inTmp,delim)
+		out = append1(out substring(inTmp 1 nextC-1))
+		inTmp = substring(index(inTmp delim) 2)
+	)
+	append1(out inTmp)
+))
+
+procedure(trimWhiteSpace(in "t")
+	"Trims both leading and trailing whitespace from the input string"
+	let((pcreLeadingWhiteSpace pcreTrailingWhiteSpace)
+		pcreLeadingWhiteSpace = pcreCompile( "\\A\\s+" )
+		pcreTrailingWhiteSpace = pcreCompile( "\\s+\\Z" )
+		in = pcreReplace(pcreLeadingWhiteSpace in "" 0 )
+		pcreReplace(pcreTrailingWhiteSpace in "" 0 )
+))
+
+procedure(str2bool(input_string "t") let((val)
+	"Converts a case-insensitive 'TRUE' or 'FALSE' string to a boolean
+	 ('t / nil) If it is not a boolean, the string is returned."
+	if(stringp(input_string) && (upperCase(input_string) == "TRUE") then
+		val = 't
+  else if(stringp(input_string) && (upperCase(input_string) == "FALSE") then
+		val = nil
+  else
+	  error("%s is not a boolean, must be \"TRUE\" or \"FALSE\" 
+		         (case insensitive)" input_string)
+  ))
+))
+
+procedure(convertNumber(in "t") let((splitString)
+	"Converts a string to a floating point number if it contains only 
+	 numbers and a decimal point. Converts a string to an integer if it only 
+	 contains numbers. Otherwise if it is non-numeric it returns the original 
+	 string."
+	splitString = parseString(in ".")
+	if(((length(splitString) == 2) && atoi(car(splitString)) && atoi(cadr(splitString))) then
+		atof(in)
+	else if(((length(splitString) == 1) && atoi(in)) then
+		atoi(in)
+	else 
+		in
+	))
+))
+
+procedure(convert(in "t") let((val)
+	"Same as converNumber except it also handles boolean strings. see str2bool"
+	val = convertNumber(in)
+	when(stringp(val)
+		val = str2bool(val))
+	val
+))
+
+procedure(num2str(number "n")
+	"Converts a number to a string.  The number can be an integer
+	 or a floating point number.  Returns the input unchanged 
+	 if it is not an number."
+	cond(
+		(integerp(number) sprintf(nil "%d" number))
+		(floatp(number) sprintf(nil "%f" number))
+		(t	number))
+)
+
+procedure(bool2str(in "g")
+	"Converts a boolean to a string.  If the input is nil, it 
+	 returns 'FALSE', anything else returns 'TRUE'"
+	if(in then
+		"TRUE"
+	else
+		"FALSE")
+)
+
+procedure(startsWith(string prefix "tt")
+	"Checks if the input string begins with the given prefix string.
+	 Returns the suffix if it does end with the given prefix"
+	if(strncmp(string prefix strlen(prefix)) == 0 then
+		substring(string strlen(prefix)+1 strlen(string))
+	else
+		nil)
+)
+
+procedure(endsWith(string suffix "tt")
+	"Checks if the input string ends with the given suffix string.
+	 Returns the prefix if it does end with the given suffix"
+	if(length(suffix) > length(string) then
+		nil
+	else if(substring(string -length(suffix) length(suffix)) == suffix then
+		substring(string 1 length(string)-length(suffix))
+	else
+		nil
+	))
+)
+
+procedure(prefixp(string prefix "tt")
+  "Checks if the input string starts with the given prefix.
+   It is case sensitive."
+  if(strlen(string) >= strlen(prefix) && 
+     substring(string 1 strlen(prefix)) == prefix then
+	  't
+  else
+    nil
+  )
+)
+
+procedure(PathConcat(@rest pathParts "t")
+  "Concatenates each of the string partial paths into a full path by 
+	concatenating them with file seperators,'/', between them"
+	buildString(pathParts "/")
+)
+
+list(nil
+  'emptyp emptyp
+  'split split 
+  'trimWhiteSpace trimWhiteSpace
+  'convertNumber convertNumber
+  'convert convert
+  'str2bool str2bool
+  'num2str num2str
+  'bool2str bool2str
+  'startsWith startsWith
+  'endsWith endsWith
+  'prefixp prefixp
+  'PathConcat PathConcat
+))
+
+Package->New('Str Str
+             ?project Import['Virtue]
+             ?description package_description)
+
+)
