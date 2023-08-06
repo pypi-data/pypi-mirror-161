@@ -1,0 +1,83 @@
+[tool.poetry]
+name = "max-ard"
+version = "1.5.2"
+description = "ARD SDK and CLI tools"
+authors = [
+    "Marc Pfister <marc.pfister@maxar.com>",
+    "Mike Connor <mike.connor@maxar.com>",
+    "Maja Cannavo <maja.cannavo@maxar.com>",
+    "Josie Allamby <josie.allamby@maxar.com>"
+    ]
+readme = "README.md"
+homepage = "https://ard.maxar.com/docs/"
+documentation = "https://ard.maxar.com/docs/sdk"
+exclude = [
+    "tests/*", "docs/*"
+]
+
+[tool.poetry.scripts]
+max-ard = "max_ard.commands.command:max_ard"
+
+[[tool.poetry.source]]
+name = "ard"
+url = "https://packages.ard.maxar.com/"
+secondary = true
+
+[tool.poetry.dependencies]
+python = "^3.7.0"
+rasterio = {version = "^1.2.10", optional = true}
+Fiona = {version = "^1.8.19", optional = true}
+click = "^8.0.0"
+PyJWT = "^2.1.0"
+boto3 = "^1.17.73"
+Shapely = "^1.7.1"
+requests = "^2.25.1"
+requests-oauthlib = "^1.3.0"
+pydantic = "^1.7.4"
+"backports.cached-property" = "^1.0.1"
+s3fs = "^0.4.2"
+requests-futures = "^1.0.0"
+maxar-ard-grid = "^1.2.1"
+pdoc3 = "^0.10.0"
+
+[tool.poetry.extras]
+full = ["rasterio", "Fiona"]
+
+[tool.poetry.dev-dependencies]
+jsonschema = "^3.2.0"
+pyrsistent = "^0.14.11"
+moto = "2.0.7"
+pytest = "^6.2.4"
+jupyter = "^1.0.0"
+notebook = "^6.4.1"
+ipykernel = "^5.5.5"
+coverage = {extras = ["toml"], version = "^6.3.2"}
+pytest-cov = "^2.12.1"
+pytest-xdist = "^2.5.0"
+black = {version = "^22.3", allow-prereleases = true}
+isort = "^5.9.2"
+pre-commit = "^2.15.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 99 # override black's default line-length
+include = "max_ard/*"
+exclude = 'docs/| \.venv/'
+
+[tool.isort]
+# make it compatible with black
+profile = "black"
+skip_gitignore = true
+skip = "poetry.lock"
+
+[tool.pytest.ini_options]
+addopts = "-s -v --cov=max_ard --cov-report html"
+
+[tool.coverage.run]
+omit = ["*__init__.py"]
+
+[tool.coverage.report]
+omit = ["*__init__.py"]
