@@ -1,0 +1,136 @@
+%YAML 1.2
+---
+
+# operator templates
+####################
+
+# rate-to-potential operator for excitatory synapses
+rpo_e:
+  base: model_templates.base_templates.alpha_op
+  equations:
+    replace:
+      r_in: h*m_in/tau
+  variables:
+    h: 3.25e-3
+    tau: 10e-3
+    m_in: input(0.0)
+
+# rate-to-potential operator for inhibitory synapses
+rpo_i:
+  base: rpo_e
+  variables:
+    h: -22e-3
+    tau: 20e-3
+    m_in: input(0.0)
+
+# rate-to-potential operator with an additional input variable for extrinsic inputs
+rpo_e_in:
+  base: rpo_e
+  equations:
+    replace:
+      m_in: (m_in + u)
+  variables:
+    u: input(220.0)
+
+# potential-to-rate operator
+pro:
+  base: model_templates.base_templates.sigmoid_op
+  equations:
+    replace:
+      r: v
+      r_thr: v_thr
+  variables:
+    m_max: 5.0
+    s: 560.0
+    v_thr: 6e-3
+    v: input(0.0)
+
+# full jansen-rit operator
+jrc_op:
+  base: OperatorTemplate
+  equations:
+    - 'd/dt * V_ein = X_ein'
+    - 'd/dt * X_ein =  h_e*c/tau_e * m - V_ein/tau_e^2 - 2.*X_ein/tau_e'
+    - 'd/dt * V_iin = X_iin'
+    - 'd/dt * X_iin =  h_e*c/(ei_ratio*tau_e) * m - V_iin/tau_e^2 - 2.*X_iin/tau_e'
+    - 'd/dt * V_e = X_e'
+    - 'd/dt * X_e =  h_e/tau_e * (c*0.8*m_max*sigmoid(r*(V_ein-V_thr)) + c*m_in/io_ratio + u) - V_e/tau_e^2 - 2.*X_e/tau_e'
+    - 'd/dt * V_i = X_i'
+    - 'd/dt * X_i =  h_i*c/(ei_ratio*tau_i) * m_max*sigmoid(r*(V_iin-V_thr)) - V_i/tau_i^2 - 2.*X_i/tau_i'
+    - 'm = m_max*sigmoid(r*(V_e - V_i - V_thr))'
+  variables:
+    m: output
+    h_e: 3.25e-3
+    tau_e: 10e-3
+    h_i: 22e-3
+    tau_i: 20e-3
+    V_ein: variable
+    X_ein: variable
+    V_iin: variable
+    X_iin: variable
+    V_e: variable
+    X_e: variable
+    V_i: variable
+    X_i: variable
+    m_in: input
+    m_max: 5.
+    r: 560.
+    V_thr: 6e-3
+    c: 135.0
+    ei_ratio: 4.0
+    io_ratio: 3.0
+    u: input(220.0)
+
+
+# node templates
+################
+
+# pyramidal cell population
+PC:
+  base: NodeTemplate
+  operators:
+    - rpo_e_in
+    - rpo_i
+    - pro
+
+# interneuron population
+IN:
+  base: NodeTemplate
+  operators:
+    - rpo_e
+    - pro
+
+# lumped jansen-rit population
+jrc_pop:
+  base: NodeTemplate
+  operators:
+    - jrc_op
+
+# circuit templates
+###################
+
+JRC:
+  base: CircuitTemplate
+  nodes:
+    pc: PC
+    ein: IN
+    iin: IN
+  edges:
+    - [pc/pro/m, ein/rpo_e/m_in, null, {weight: 135.0}]
+    - [pc/pro/m, iin/rpo_e/m_in, null, {weight: 33.75}]
+    - [ein/pro/m, pc/rpo_e_in/m_in, null, {weight: 108.0}]
+    - [iin/pro/m, pc/rpo_i/m_in, null, {weight: 33.75}]
+
+JRC2:
+  base: CircuitTemplate
+  nodes:
+    jrc: jrc_pop
+
+JRC_2delaycoupled:
+  base: CircuitTemplate
+  circuits:
+    jrc1: JRC
+    jrc2: JRC
+  edges:
+    - [jrc1/pc/pro/m, jrc2/pc/rpo_e_in/m_in, null, {weight: 20.0, delay: 0.004, spread: 0.001}]
+    - [jrc2/pc/pro/m, jrc1/pc/rpo_e_in/m_in, null, {weight: 40.0, delay: 0.004, spread: 0.001}]

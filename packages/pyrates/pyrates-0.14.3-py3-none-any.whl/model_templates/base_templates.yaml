@@ -1,0 +1,107 @@
+%YAML 1.2
+---
+
+# operator templates
+####################
+
+# leaky integrator operator
+li_op:
+  base: OperatorTemplate
+  equations: "r' = (r0 - r)/tau + m_in + u"
+  variables:
+    r: output(0.0)
+    r0: 0.0
+    tau: 1.0
+    m_in: input(0.0)
+    u: input(0.0)
+
+# sigmoid transformation
+sigmoid_op:
+  base: OperatorTemplate
+  equations: "m = m_max / (1 + exp(s*(r_thr-r)))"
+  variables:
+    m: output(0.0)
+    m_max: 1.0
+    s: 1.0
+    r_thr: 0.0
+    r: input(0.0)
+
+# hyperbolic tangent transformation
+tanh_op:
+  base: OperatorTemplate
+  equations: "m = tanh(r)"
+  variables:
+    m: output(0.0)
+    r: input(0.0)
+
+# mono-exponential kernel convolution
+monoexp_op:
+  base: OperatorTemplate
+  equations: "v' = -v/tau + r_in"
+  variables:
+    v: output(0.0)
+    tau: 1.0
+    r_in: input(0.0)
+
+# bi-exponential kernel convolution
+biexp_op:
+  base: OperatorTemplate
+  equations:
+    - "v' = x"
+    - "x' = (r_in - x*(tau_r+tau_d) - v)/(tau_r*tau_d)"
+  variables:
+    v: output(0.0)
+    x: variable(0.0)
+    tau_r: 1.0
+    tau_d: 10.0
+    r_in: input(0.0)
+
+# alpha kernel convolution
+alpha_op:
+  base: OperatorTemplate
+  equations:
+    - "v' = x"
+    - "x' = r_in - 2*x/tau - v/tau**2"
+  variables:
+    v: output(0.0)
+    x: variable(0.0)
+    tau: 1.0
+    r_in: input(0.0)
+
+# node templates
+################
+
+# node with a leaky integrator operator
+li_node:
+  base: NodeTemplate
+  operators:
+    - li_op
+
+# node with a sigmoid transformation operator
+sigmoid_node:
+  base: NodeTemplate
+  operators:
+    - sigmoid_op
+
+# node with a sigmoid transformation operator
+tanh_node:
+  base: NodeTemplate
+  operators:
+    - li_op
+    - tanh_op
+
+# node with a leaky integrator and a sigmoid operator
+nonlinear_li_node:
+  base: NodeTemplate
+  operators:
+    - li_op
+    - sigmoid_op
+
+# edge templates
+################
+
+# edge with a sigmoid transformation operator
+sigmoid_edge:
+  base: EdgeTemplate
+  operators:
+    - sigmoid_op

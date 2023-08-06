@@ -1,0 +1,52 @@
+%YAML 1.2
+---
+
+# operator templates
+####################
+
+# stuart-landau equations
+sl_op:
+  base: OperatorTemplate
+  equations:
+    - "d/dt * x = omega*z + z*(1-z^2-x^2)"
+    - "d/dt * z = -omega*x + z*(1-z^2-x^2)"
+  variables:
+    x: output(1.0)
+    z: variable(0.0)
+    omega: 1.0
+
+# sigmoidal transformation of sinusoidal signal
+sigmoid_op:
+  base: OperatorTemplate
+  equations: "m = alpha/(1 + exp(-beta*(x - cos(0.5*omega*t_on))))"
+  variables:
+    m: output
+    alpha: 1.0
+    beta: 100.0
+    omega: 1.0
+    t_on: 0.1
+    x: input
+
+# node templates
+################
+
+# stuart-landau node
+sl_pop:
+  base: NodeTemplate
+  operators:
+    - sl_op
+
+# stuart-landau oscillator with sigmoidal transformation on top
+sl_burst_pop:
+  base: NodeTemplate
+  operators:
+    - sl_op
+    - sigmoid_op
+
+# circuit templates
+###################
+
+sl:
+  base: CircuitTemplate
+  nodes:
+    p: sl_pop
