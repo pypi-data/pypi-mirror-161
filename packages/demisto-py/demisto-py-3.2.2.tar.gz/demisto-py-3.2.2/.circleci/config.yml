@@ -1,0 +1,42 @@
+### =============================================================
+### This configuration file is used by CircleCI build server
+### https://circleci.com/docs/config-sample
+### =============================================================
+version: 2
+jobs:
+  # using tox
+  toxify:
+      machine:
+        image: ubuntu-2004:202201-02
+
+      steps:
+        - checkout
+        - run:
+            name: Setup Python
+            command: |
+              pyenv versions
+              pyenv install 3.9.10
+              pyenv install 3.8.12
+              pyenv global 3.10.2 3.9.10 3.8.12
+        - run:
+            name: tox build
+            command: |
+              pip install tox
+              tox -q
+        - run:
+            name: verify
+            command: |
+              ./verify.sh
+        - run: 
+            name: deploy
+            command: |
+              ./deploy.sh
+
+workflows:
+  version: 2
+  build_and_release:
+    jobs:
+      - toxify:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
