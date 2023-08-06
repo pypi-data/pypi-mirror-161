@@ -1,0 +1,32 @@
+# Signature Sentinels
+#
+# Signatures that should always be considered top of the stack if present
+# in the stack.
+#
+# Note: no regular expressions here.
+
+_purecall
+_sigtramp
+Java_org_mozilla_gecko_GeckoAppShell_reportJavaCrash
+google_breakpad::ExceptionHandler::HandleInvalidParameter
+
+# These mark the top-most interesting frame in a Rust panic. Anything before
+# these is a lot of, "yes, I'm panicking!"
+core::panicking::panic
+core::panicking::panic_bounds_check
+core::panicking::panic_fmt
+std::panicking::begin_panic
+std::panicking::begin_panic<T>
+std::panicking::begin_panic_fmt
+
+# These mark the top-most interesting frame in a lock situation. Anything
+# before this is platform-specific stuff which prevents signatures from
+# grouping.
+mozilla::detail::MutexImpl::lock
+mozilla::detail::MutexImpl::mutexLock
+mozilla::detail::MutexImpl::mutexTryLock
+mozilla::detail::MutexImpl::tryLock
+
+# These mark the top-most interesting frame of a Linux assertion.
+__GI___assert_fail
+__assert_fail
