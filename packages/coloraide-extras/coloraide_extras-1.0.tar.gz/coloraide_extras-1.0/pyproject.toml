@@ -1,0 +1,62 @@
+[build-system]
+requires = [
+    "hatchling>=0.21.1",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "coloraide_extras"
+description = "A color library for Python."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.6"
+authors = [
+    { name = "Isaac Muse", email = "Isaac.Muse@gmail.com" },
+]
+keywords = [
+    "css",
+    "color"
+]
+dynamic = [
+    "classifiers",
+    "dependencies",
+    "version",
+]
+
+[project.urls]
+Homepage = "https://github.com/facelessuser/coloraide-extras"
+
+[tool.hatch.version]
+source = "code"
+path = "coloraide_extras/__meta__.py"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "/coloraide_extras",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/docs/src/markdown/**/*.md",
+    "/docs/src/markdown/**/*.gif",
+    "/docs/src/markdown/**/*.png",
+    "/docs/src/markdown/dictionary/*.txt",
+    "/requirements/*.txt",
+    "/coloraide_extras/**/*.py",
+    "/coloraide_extras/py.typed",
+    "/tests/**/*.py",
+    "/tools/**/*.py",
+    "/.pyspelling.yml",
+    "/.coveragerc",
+    "/mkdocs.yml",
+    "/tox.ini",
+]
+
+[tool.mypy]
+files = [
+    "coloraide_extras"
+]
+strict = true
+show_error_codes = true
+
+[tool.hatch.metadata.hooks.custom]
