@@ -1,0 +1,177 @@
+Metadata-Version: 2.1
+Name: disruptive
+Version: 1.4.2
+Summary: Disruptive Technologies Python API.
+Home-page: https://github.com/disruptive-technologies/disruptive-python
+Author: Disruptive Technologies Research AS
+Author-email: developer-support@disruptive-technologies.com
+License: UNKNOWN
+Project-URL: Documentation, https://developer.disruptive-technologies.com/api/libraries/python/
+Project-URL: Developers Page, https://developer.disruptive-technologies.com/docs/
+Keywords: disruptive,technologies,dt,rest,api
+Platform: UNKNOWN
+Classifier: Natural Language :: English
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests (<3.0.0,>=2.19.0)
+Requires-Dist: pyjwt (<3.0.0,>=2.0.0)
+Provides-Extra: dev
+Requires-Dist: setuptools (>=54.2.0) ; extra == 'dev'
+Requires-Dist: wheel (>=0.36.2) ; extra == 'dev'
+Requires-Dist: pytest (>=6.2.2) ; extra == 'dev'
+Requires-Dist: pytest-mock (>=3.5.1) ; extra == 'dev'
+Requires-Dist: pytest-cov (>=2.11.1) ; extra == 'dev'
+Requires-Dist: mypy (>=0.812) ; extra == 'dev'
+Requires-Dist: flake8 (>=3.9.0) ; extra == 'dev'
+Provides-Extra: extra
+Requires-Dist: pandas (<2.0.0,>=1.3.5) ; extra == 'extra'
+
+# Disruptive Technologies Python Client
+
+![build](https://github.com/disruptive-technologies/python-client/actions/workflows/build.yml/badge.svg)
+[![codecov](https://codecov.io/gh/disruptive-technologies/python-client/branch/main/graph/badge.svg)](https://codecov.io/gh/disruptive-technologies/python-client)
+
+## Documentation
+
+- [Python API Reference](https://developer.disruptive-technologies.com/api/libraries/python/)
+- [Developer Documentation](https://developer.disruptive-technologies.com/docs/)
+
+## Installation
+
+The package can be installed through pip:
+
+```sh
+pip install --upgrade disruptive
+```
+
+or from source:
+
+```sh
+pip install .
+```
+
+### Requirements
+
+- Python 3.7, 3.8, 3.9, 3.10
+
+## Authentication
+
+The package is authenticated by providing [Service Account](https://developer.disruptive-technologies.com/docs/service-accounts/introduction-to-service-accounts) credentials in either of the following ways.
+
+- By setting the following environment variables:
+```bash
+export DT_SERVICE_ACCOUNT_KEY_ID="<SERVICE_ACCOUNT_KEY_ID>"
+export DT_SERVICE_ACCOUNT_SECRET="<SERVICE_ACCOUNT_SECRET>"
+export DT_SERVICE_ACCOUNT_EMAIL="<SERVICE_ACCOUNT_EMAIL>"
+```
+
+- By providing the credentials programmatically:
+```python
+import disruptive as dt
+
+dt.default_auth = dt.Auth.service_account(
+    key_id="<SERVICE_ACCOUNT_KEY_ID>",
+    secret="<SERVICE_ACCOUNT_SECRET>",
+    email="<SERVICE_ACCOUNT_EMAIL>",
+)
+```
+
+See [Python API Authentication](https://developer.disruptive-technologies.com/api/libraries/python/client/authentication.html) for more details.
+
+## Usage
+
+Once authenticated, most functionality can be accessed through resource methods on the following format.
+
+```
+disruptive.<Resource>.<method>()
+```
+
+A few common uses are showcased in the snippet below. See the [Python API Reference](https://developer.disruptive-technologies.com/api/libraries/python/) for full documentation.
+
+```python
+import disruptive as dt
+
+# Fetch a sensor, specified by its ID.
+sensor = dt.Device.get_device('<DEVICE_ID>')
+
+# Printing the returned object will list all attributes.
+print(sensor)
+
+# Set a new label on the sensor.
+dt.Device.set_label(sensor.device_id, sensor.project_id, key='nb', value='99')
+
+# Get touch- and temperature event history for the sensor.
+history = dt.EventHistory.list_events(
+    sensor.device_id,
+    sensor.project_id,
+    event_types=[
+        dt.events.TOUCH,
+        dt.events.TEMPERATURE,
+    ]
+)
+
+# Initiate an event stream for all devices in the sensor's project.
+for event in dt.Stream.event_stream(sensor.project_id):
+    # Print new events data as they arrive.
+    print(event.data)
+```
+
+## Logging
+The simplest method is enabled by setting `disruptive.log_level`.
+```python
+dt.log_level = dt.logging.INFO
+```
+If more fine-grained control is desired, the standard library `logging` can also be used.
+```python
+logging.basicConfig(
+    filename='example.log',
+    format='[%(asctime)s.%(msecs)03d] %(levelname)-8s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+logging.getLogger('disruptive').setLevel(logging.INFO)
+``` 
+For both methods, the standard levels `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL` are supported.
+
+## Examples
+A few [examples](https://developer.disruptive-technologies.com/api/libraries/python/client/examples.html) has been provided. Before running, the required environment variables listed at the start of each example must be set.
+
+```sh
+python examples/example_name.py
+```
+
+## Exceptions
+If a request is unsuccessful or has been provided with invalid parameters, an exception is raised. A list of available exceptions are available in the [API Reference](https://developer.disruptive-technologies.com/api/libraries/python/client/errors.html).
+
+## Development
+
+Set up the development virtualenv environment:
+```
+make
+```
+
+Run unit-tests against the currently active python version:
+```
+make test
+```
+
+Lint the package code using MyPy and flake8:
+```
+make lint
+```
+
+Build the package distribution:
+```
+make build
+```
+
+
