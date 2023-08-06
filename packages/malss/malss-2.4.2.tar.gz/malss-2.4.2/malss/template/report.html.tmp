@@ -1,0 +1,169 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Analysis report</title>
+</head>
+
+<body>
+	<h1 id="top">Results</h1>
+
+	<table border="1" cellspacing="0" cellpadding="5">
+		<tr>
+			<th>Algorithm</th>
+			<th>Cross-validation score</br>({{ scoring }})</th>
+		</tr>
+
+	{%- for algorithm in algorithms %}
+		<tr>
+			<td><a href="#{{ algorithm.name }}">{{ algorithm.name }}</a></td>
+			<td><font color="{% if algorithm.is_best_algorithm %}#FF0000{% else %}#000000{% endif %}">{{ algorithm.best_score|round(3) }}</font></td>
+		</tr>
+	{%- endfor %}
+	</table>
+	<br>
+
+	<details>
+	<summary><font size="+1"><strong>Descriptions (click here)</strong></font></summary>
+	<p>
+		<strong>* Cross-vaidation score:</strong>
+		<ul>
+			<li><a href="http://en.wikipedia.org/wiki/Generalization_error/" target="new">Generalization error</a>: It is important to measure how well a learning machine generalizes to unseen data.</li>
+			<li>Evaluating the quality of the model on the data used to fit the model can lead to <a href="http://en.wikipedia.org/wiki/Overfitting" target="new"><strong>overfitting</strong></a>.</li>
+			<li>Getting more data would help to avoid overfitting, and some machine learning algorithms have hyper parameters that is effective for avoiding overfitting (reguralization parameters).</li>
+			<li>The solution to check overfitting is <a href="http://en.wikipedia.org/wiki/Cross-validation_(statistics)" target="new"><strong>Cross validation</strong></a>.</br>The most common cross validation method is <a href="http://en.wikipedia.org/wiki/Cross-validation_(statistics)#k-fold_cross-validation" target="new"><strong>k-fold cross validation</strong></a>: divide the dataset into k (5 by default in MALSS) parts of (roughly) equal size, then for each of these five parts, train the classifier on the other four and test on the held-out part.</li>
+			<li>You can select an appropriate cross validation method from <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="new">sklearn.cross_validation modules</a>.</br>(5-fold cross validation for regression task or Stratified 5-fold cross validation for the classification task is selected by default).</li>
+		</ul>
+		<strong>* Model evaluation:</strong>
+		<ul>
+			<li>Considering an imbalance ratio of 99 to 1, the accuracy of a classifier that classifies everything as negative is 99%.</br>Obviously, such a classifier may be of no use.</li>
+			<li>You can select an appropriate scoring function from <a href="http://scikit-learn.org/stable/modules/model_evaluation.html" target="new">sklearn.metrics modules</a>.</br>(mean squared error for regression task or f1 score for classification task is selected by default.)</li>
+			<li>All scorer objects in sklearn.metrics follow the convention that higher return values are better than lower return values. Thus, metrics that measure the distance between the model and the data, like <i>mean squared error</i>, are available as <i>neg_mean_squared_error</i>, which returns the negated value of the metric.</li>
+		</ul>
+	</p>
+	</details>
+	<hr>
+
+	<h2>Data summary <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	<ul>
+		<li>Number of rows: {{ data.shape_before[0] }}</li>
+		<li>Number of columns: {{ data.shape_before[1] }} (numerical: {{ data.shape_before[1] - data.del_columns|length }}, categorical: {{ data.del_columns|length }})</li>
+		{%- if data.del_columns|length > 0 %}
+		<ul>
+			<li>Categorical values were encoded to integer features using a <a href="http://scikit-learn.org/stable/modules/preprocessing.html#encoding-categorical-features" target="new">one-of-K scheme</a>.</li>
+		</ul>
+		{%- endif %}
+		{%- if data.col_was_null|length > 0 %}
+		<li>Column {% for col in data.col_was_null %}{{ col }} {% endfor %}had NA values.</li>
+		<ul>
+			<li>NA values were filled in with the most frequent value (categorical), median (integer), mean (float).</li>
+			<li>See also: <a href="http://pandas.pydata.org/pandas-docs/stable/missing_data.html" target="new">missing data</a></li>
+		</ul>
+		{%- endif %}
+	</ul>
+	<details>
+	<summary><font size="+1"><strong>Descriptions (click here)</strong></font></summary>
+	<ul>
+		<li>Data may contain features with a mixture of scales for various quantities.<br>Many machine learning algorithms expect features to have the same scale.<br>For feature scaling, <a href="http://en.wikipedia.org/wiki/Feature_scaling#Standardization" target="new"><strong>standardization</strong></a> is used in default settings.<br>If you don't need feature scaling, set <i>standardize=False</i> in the constructor.</li>
+		<li>Data shuffling is done to avoid overfitting in default settings. If you don't need data shuffling, set <i>shuffle=False</i> in the constructor.</li>
+		<li>A categorical variable is usually transformed into a numerical variable before the analysis. MALSS automatically transform categorical variables into numerical variables using a <a href="http://scikit-learn.org/stable/modules/preprocessing.html#encoding-categorical-features" target="new">one-of-K scheme</a>.<br>
+		    Note that some features (e.g. country code) may have to be handled as the categorical feature even though they look like numerical features.<br>
+			In such case, you need to encode categorical features into numerical features by yourself before setting data to MALSS.<br>
+			<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.get_dummies.html">get_dummies method</a> in pandas library may help you.</li>
+	</ul>
+	</details>
+	<hr>
+
+	{%- for algorithm in algorithms %}
+	{%- if algorithm.link is not none %}
+	<h2 id="{{ algorithm.name }}"><a href="{{ algorithm.link }}">{{ algorithm.name }}</a> <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	{%- else %}
+	<h2 id="{{ algorithm.name }}">{{ algorithm.name }} <font size="-1">[<a href="#top">Back To Top</a>]</font></h2>
+	{%- endif %}
+	<h3>Hyperparameter optimization by <a href="http://en.wikipedia.org/wiki/Hyperparameter_optimization#Grid_search" target="new"><strong>grid search</strong></a></h3>
+	<table border="1" cellspacing="0" cellpadding="5">
+		<tr>
+		{%- for key in algorithm.grid_scores[0][0].keys() %}
+			<th>{{ key }}</th>
+		{%- endfor %}
+			<th>Cross validation score</br>{{ scoring }}</th>
+			<th>SD</th>
+		</tr>
+		{%- for scr in algorithm.grid_scores %}
+		<tr>
+			{%- for val in scr[0].values() %}
+			<td><font color="{% if scr[0] == algorithm.best_params %}#FF0000{% else %}#000000{% endif %}">{{ val }}</font></td>
+			{%- endfor %}
+			<td><font color="{% if scr[0] == algorithm.best_params %}#FF0000{% else %}#000000{% endif %}">{{ scr[1]|round(3) }}</font></td>
+			<td><font color="{% if scr[0] == algorithm.best_params %}#FF0000{% else %}#000000{% endif %}">{{ scr[2]|round(3) }}</font></td>
+		</tr>
+		{%- endfor %}
+	</table>
+	<br>
+
+	<details>
+	<summary><font size="+1"><strong>Descriptions (click here)</strong></font></summary>
+	<p>
+		<ul>
+		    <li>The performance of a model is greatly affected by hyper-parameters that are set manually before training the model.<br>
+			    MALSS optimizes hyper-parameters by using <a href="http://en.wikipedia.org/wiki/Hyperparameter_optimization#Grid_search" target="new"><strong>grid search</strong></a> technique.</li>
+			<li>If the best parameter is at the border of the grid, its range should be expanded.<br>
+			    Often a second, narrower grid is searched centered around the best parameters of the first grid.<br>
+			    You can change the grid by referring to the <a href="https://github.com/canard0328/malss#supervised-learning" target="new"><i>Change algorithm</i> section in the document</a>.</li>
+		</ul>
+	</p>
+	</details>
+
+	{%- if task == "classification" %}
+	<h3>Classification report</h3>
+	<pre>{{ algorithm.classification_report }}</pre>
+	* <a href="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_fscore_support.html" target="new">precision, recall, f1-score, support</a>
+	<ul>
+		<li>Note that above scores were made by closed test (the training data is the same as the test data).</li>
+		<li>Thus, the model may be overfitted.</li>
+	</ul>
+	{%- endif %}
+
+	<h3>Learning curve</h3>
+	<img border="0" src="learning_curve_{{ algorithm.estimator.__class__.__name__ }}.png" height="300" alt="learning_curve">
+
+	<details>
+	<summary><font size="+1"><strong>Descriptions (click here)</strong></font></summary>
+	<p>
+		Learning curve
+		<ul>
+			<li>A learning curve is a plot of the training and cross-validation error as a function of the number of training points.</li>
+			<li>The algorithm shows <strong>high variance</strong> (over-fitting) if:</li>
+			<ul>
+				<li>Cross-validation score still improves as training examples increases.</li>
+				<li>Large gap exists between training and cross-validation score.</li>
+			</ul>
+			<li>The algorithm shows <strong>high bias</strong> (under-fitting) if:</li>
+			<ul>
+				<li>Even training score is unacceptably bad.</li>
+				<li>Small gap exists between training and cross-validation score.</li>
+			</ul>
+		</ul>
+		In the case of <strong>high variance</strong> (over-fitting):
+		<ul>
+			<li>Use fewer features. Using a feature selection technique may be useful and decrease the over-fitting of the estimator.</li>
+			<li>Use more training samples. Adding training samples can reduce the effect of over-fitting and lead to improvements in a high variance estimator.</li>
+		</ul>
+		In the case of <strong>high bias</strong> (under-fitting):
+		<ul>
+			<li>Add more features. Adding these features to the training and test sets can improve a high-bias estimator.</li>
+			<li>Use a more sophisticated model. Adding complexity to the model can help improve bias. For a polynomial fit, this can be accomplished by increasing the degree d. Each learning technique has its own methods of adding complexity.</li>
+			<li>Use fewer samples. Though this will not improve the classification, a high-bias algorithm can attain nearly the same error with a smaller training sample. For algorithms which are computationally expensive, reducing the training sample size can lead to very large improvements in speed.</li>
+		</ul>
+		See also:
+		<ul>
+			<li><a href="http://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff" target="new">Bias-variance tradeoff</a></li>
+		</ul>
+	</p>
+	</details>
+
+	<hr>
+	{%- endfor %}
+	* much of the material in this report was adapted from <a href="http://www.astroml.org/sklearn_tutorial/practical.html" target="new">sklearn tutorials</a>.
+</body>
+</html>
