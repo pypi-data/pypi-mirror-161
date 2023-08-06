@@ -1,0 +1,61 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Edit Document DB Properties
+        <div class="btn-toolbar pull-right">
+            <div class="btn-group">
+                <div (click)="save()" class="btn btn-default btn-sm">Save</div>
+                <div (click)="resetClicked()" class="btn btn-default btn-sm">
+                    Reset
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <th>Model Set Key</th>
+                <th>Name</th>
+                <th>Order</th>
+                <th>Title</th>
+                <th>Header</th>
+                <th>Tooltip</th>
+                <th>Summary</th>
+                <th>Detail</th>
+            </tr>
+            <tr *ngFor="let item of items">
+                <td>
+                    {{ modelSetTitle(item) }}
+                </td>
+                <td>
+                    {{ item.name }}
+                </td>
+                <td>
+                    <input
+                        [(ngModel)]="item.order"
+                        class="form-control input-sm"
+                        type="number"
+                    />
+                </td>
+                <td>
+                    <input
+                        [(ngModel)]="item.title"
+                        class="form-control input-sm"
+                        type="text"
+                    />
+                </td>
+                <td>
+                    <nz-switch [(ngModel)]="item.showInHeader"></nz-switch>
+                </td>
+                <td>
+                    <nz-switch [(ngModel)]="item.showOnTooltip"></nz-switch>
+                </td>
+                <td>
+                    <nz-switch [(ngModel)]="item.showOnSummary"></nz-switch>
+                </td>
+                <td>
+                    <nz-switch [(ngModel)]="item.showOnDetail"></nz-switch>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
