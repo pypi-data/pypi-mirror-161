@@ -1,0 +1,47 @@
+Metadata-Version: 2.1
+Name: xj_dictionary
+Version: 1.0.0
+Summary: 配置模块
+Home-page: UNKNOWN
+License: apache 3.0
+Description: # 安装前必看
+        
+        ## 安装步骤
+        
+        - pip install django_simple_api
+        
+        - 配置 INSTALLED_APPS 添加'django_simple_api;
+        
+        
+        - 配置配置setting   中间件
+          'django.middleware.security.SecurityMiddleware',
+        
+        
+        
+        接口：
+        
+        ```
+        configure：全部配置信息
+        configure/<str:group> 按照分则查询
+        configure/<str:group>/<str:key> 按照分组和key查询
+        ```
+        
+        # SQL
+        
+        ```mysql
+        CREATE TABLE `dictionary_configure` (
+          `id` bigint(20) NOT NULL AUTO_INCREMENT,
+          `group` varchar(128) NOT NULL,
+          `key` varchar(128) NOT NULL,
+          `value` longtext NOT NULL,
+          `description` varchar(255) NOT NULL,
+          PRIMARY KEY (`id`) USING BTREE,
+          UNIQUE KEY `dictionary_configure_group_key_d0e0a692_uniq` (`group`,`key`) USING BTREE,
+          KEY `dictionary_configure_group_09d9ee65` (`group`) USING BTREE,
+          KEY `dictionary_configure_key_52d53a3c` (`key`) USING BTREE
+        ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+        ```
+        
+        
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
