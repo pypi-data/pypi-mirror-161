@@ -1,0 +1,38 @@
+version: 1
+disable_existing_loggers: no
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(module)s:%(lineno)d - %(message)s"
+    datefmt: '%Y-%m-%d %H:%M:%S'
+  fasalFormat:
+    (): fasal_logger.FasalStdlibFormatter
+    datefmt: '%Y-%m-%d %H:%M:%S'
+    extra: {"author": "${USER}"}
+    exclude_fields: [ecs, log.original]
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: fasalFormat
+    stream: ext://sys.stdout
+  file:
+    class : logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: fasalFormat
+    filename: 'logging.example.log'
+    mode: a
+    maxBytes: 1000000  # 1 MB
+    backupCount: 2
+    encoding: utf8
+
+root:
+  level: DEBUG
+  handlers: [console]
+  propogate: no
+
+loggers:
+  fasalLogger:
+    level: DEBUG
+    handlers: [console]
+    propagate: no
