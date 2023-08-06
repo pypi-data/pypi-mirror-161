@@ -1,0 +1,85 @@
+[tox]
+envlist =
+    {{ '{' }}{{ supports | sort | join(',') }}{{ '}' }}-{build,safety,tests}
+    readme
+    secrets
+    {% if style -%}style{%- endif %}
+    {% if docs -%}docs-{dirhtml,doctest,linkcheck,spelling,style}{%- endif %}
+skipsdist = True
+
+[testenv]
+passenv = {% if not closed %}CODECOV* CI{% endif %}
+setenv =
+    coverage{% if not closed %},codecov{% endif %}: MAYBE_COVERAGE = coverage run -m
+    coverage{% if not closed %},codecov{% endif %}: COVERAGE_RCFILE={toxinidir}/.coveragerc
+    coverage{% if not closed %},codecov{% endif %}: COVERAGE_DEBUG_FILE={envtmpdir}/coverage-debug
+    coverage{% if not closed %},codecov{% endif %}: COVERAGE_FILE={envtmpdir}/coverage-data
+changedir = {envtmpdir}
+args_are_paths = false
+commands =
+    {envpython} -m pip install {toxinidir}
+
+    safety: {envpython} -m safety check
+
+    tests,coverage{% if not closed %},codecov{% endif %}: {envpython} -m {env:MAYBE_COVERAGE:} {{ test_runner }} {posargs:{{ tests }}}
+    tests: {envpython} -m doctest {toxinidir}/README.rst
+
+    coverage: {envpython} -m coverage report --show-missing
+    coverage: {envpython} -m coverage html --directory={envtmpdir}/htmlcov
+    {% if not closed %}
+    codecov: {envpython} -m coverage xml -o {envtmpdir}/coverage.xml
+    codecov: codecov --required --disable gcov --file {envtmpdir}/coverage.xml
+    {%- endif %}
+deps =
+    safety: safety
+    {% for each in test_deps -%}
+    tests,coverage{% if not closed %},codecov{% endif %}: {{ each }}
+    {%- endfor %}
+    coverage{% if not closed %},codecov{% endif %}: coverage
+    {% if not closed %}codecov: codecov{%- endif %}
+
+[testenv:build]
+deps = build
+commands = {envpython} -m build {toxinidir} --outdir {envtmpdir}/dist
+
+[testenv:bandit]
+deps = bandit
+commands = {envpython} -m bandit --recursive {{ tests }}
+
+[testenv:readme]
+deps =
+    build
+    twine
+commands =
+    {envpython} -m build --outdir {envtmpdir}/dist {toxinidir}
+    {envpython} -m twine check {envtmpdir}/dist/*
+
+[testenv:secrets]
+deps = detect-secrets
+commands = {envbindir}/detect-secrets scan {toxinidir}
+
+[testenv:style]
+deps =
+    flake8
+    flake8-broken-line
+    flake8-bugbear
+    flake8-commas
+    flake8-quotes
+    flake8-tidy-imports
+commands =
+    {envpython} -m flake8 {posargs} --max-complexity 10 {{ style_paths | join(' ') }}{% if cffi %} {toxinidir}/setup.py{% endif %}{% if docs %} {toxinidir}/docs
+{%- for each in ["dirhtml", "doctest", "linkcheck", "spelling"] %}
+
+[testenv:docs-{{ each }}]
+commands = {envpython} -m sphinx -b {{ each }} {toxinidir}/docs/ {envtmpdir}/build {posargs:-a -n {% if each != 'spelling' %}-q {% endif %}-T -W}
+deps =
+    -r{toxinidir}/docs/requirements.txt
+{%- endfor %}
+
+[testenv:docs-style]
+commands = doc8 {posargs} {toxinidir}/docs
+deps =
+    doc8
+    pygments
+    pygments-github-lexers
+{%- endif %}
