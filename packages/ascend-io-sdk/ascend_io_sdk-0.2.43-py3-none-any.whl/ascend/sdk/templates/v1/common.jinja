@@ -1,0 +1,49 @@
+{% macro dataflow_from_definition(dataflow, dataflow_alias, renderer, ordered_components, classname_map, extract_inline_code, resource_path, base_path) -%}
+
+# dataflow '{{dataflow.id}}'
+## data feed connectors for dataflow '{{dataflow.id}}'
+data_feed_connectors_{{dataflow.id}} = []
+
+{% for data_feed_connector in dataflow.data_feed_connectors %}
+data_feed_connector_{{data_feed_connector.id}} = {{renderer(data_feed_connector, classname_map=classname_map)}}
+data_feed_connectors_{{dataflow.id}}.append(data_feed_connector_{{data_feed_connector.id}})
+
+{% endfor %}
+
+## components for dataflow '{{dataflow.id}}'
+components_{{dataflow.id}} = []
+
+{% for component in ordered_components(dataflow.components) %}
+{% set attribute_overrides = extract_inline_code(component, resource_path, base_path) %}
+component_{{component.id}} = {{ renderer(component, classname_map=classname_map, attribute_overrides=attribute_overrides) | indent(2) }}
+components_{{dataflow.id}}.append(component_{{component.id}})
+
+{% endfor %}
+
+## data feeds for dataflow '{{dataflow.id}}'
+data_feeds_{{dataflow.id}} = []
+
+{% for data_feed in dataflow.data_feeds %}
+data_feed_{{data_feed.id}} = {{renderer(data_feed, classname_map=classname_map)}}
+data_feeds_{{dataflow.id}}.append(data_feed_{{data_feed.id}})
+
+{% endfor %}
+
+## component groups for dataflow '{{dataflow.id}}'
+groups_{{dataflow.id}} = []
+
+{% for group in dataflow.groups %}
+group_{{group.id}} = {{renderer(group, classname_map=classname_map)}}
+groups_{{dataflow.id}}.append(group_{{group.id}})
+
+{% endfor %}
+
+{% set attribute_overrides = {
+      ("components",): "components_{}".format(dataflow.id),
+      ("data_feeds",): "data_feeds_{}".format(dataflow.id),
+      ("data_feed_connectors",): "data_feed_connectors_{}".format(dataflow.id),
+      ("groups",): "groups_{}".format(dataflow.id)
+    }
+-%}
+{{dataflow_alias}} = {{renderer(dataflow, classname_map=classname_map, attribute_overrides=attribute_overrides)}}
+{%- endmacro %}
