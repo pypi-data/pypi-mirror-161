@@ -1,0 +1,4622 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-type" content="text/html; charset=ISO-8859-1" />
+<link rel="stylesheet" href="./pyGanessa.css" type="text/css" />
+<title>./docs/pyGanessa</title>
+<!-- Source: ./ganessa/ -->
+<!-- Generated with ROBODoc Version 4.99.41 (Feb  6 2011) -->
+</head>
+<body>
+<div id="logo">
+<a name="robo_top_of_doc"></a>
+</div> <!-- logo -->
+<h3>TABLE OF CONTENTS</h3>
+<ul>
+<li>1. <a href="#robo0">ganessa.multithread/Functions_mt</a></li>
+<ul>
+<li>1.1. <a href="#robo102">Functions_mt/mp_run</a></li>
+<li>1.2. <a href="#robo103">Functions_mt/required_cpu</a></li>
+</ul>
+<li>2. <a href="#robo1">ganessa.parallel/About</a></li>
+<li>3. <a href="#robo2">ganessa.parallel/Classes_mt</a></li>
+<ul>
+<li>3.1. <a href="#robo34">Classes_mt/MultiProc</a>, <a href="#robo34">run</a>, <a href="#robo34">run_sequential</a></li>
+</ul>
+<li>4. <a href="#robo3">ganessa.plot/functions_plot</a></li>
+<ul>
+<li>4.1. <a href="#robo104">functions_plot/layout</a></li>
+<li>4.2. <a href="#robo105">functions_plot/plotmes</a>, <a href="#robo105">plotmesx</a>, <a href="#robo105">pageplot</a>, <a href="#robo105">pageplotx</a></li>
+</ul>
+<li>5. <a href="#robo4">ganessa.sim&amp;th/About</a></li>
+<li>6. <a href="#robo5">ganessa.sim&amp;th/Classes</a></li>
+<ul>
+<li>6.1. <a href="#robo33">Classes/Graph</a>, <a href="#robo33">extrnodes</a>, <a href="#robo33">adjlinks</a>, <a href="#robo33">adjnodes</a>, <a href="#robo33">propagate</a>, <a href="#robo33">dtree</a>, <a href="#robo33">PURPOSE</a></li>
+</ul>
+<li>7. <a href="#robo6">ganessa.sim&amp;th/Compatibility</a></li>
+<li>8. <a href="#robo7">ganessa.sim&amp;th/Constants</a></li>
+<ul>
+<li>8.1. <a href="#robo37">Constants/BRANCH</a>, <a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">NOEUD</a>, <a href="#robo37">TANK</a>, <a href="#robo37">RESERVOIR</a>, <a href="#robo37">RSV</a></li>
+<li>8.2. <a href="#robo38">Constants/DICT</a></li>
+<li>8.3. <a href="#robo39">Constants/M</a>, <a href="#robo39">NONE</a></li>
+</ul>
+<li>9. <a href="#robo8">ganessa.sim&amp;th/Exceptions</a></li>
+<ul>
+<li>9.1. <a href="#robo36">Exceptions/useExceptions</a>, <a href="#robo36">GanessaError</a>, <a href="#robo36">SimulationError</a>, <a href="#robo36">IsolatedNodeSimulationError</a></li>
+</ul>
+<li>10. <a href="#robo9">ganessa.sim&amp;th/Functions</a></li>
+<ul>
+<li>10.1. <a href="#robo40">Functions/addSHLtype</a>, <a href="#robo40">addSHL</a>, <a href="#robo40">updateSHL</a>, <a href="#robo40">delSHL</a></li>
+<li>10.2. <a href="#robo41">Functions/areas</a></li>
+<li>10.3. <a href="#robo43">Functions/cmd</a>, <a href="#robo43">addcmdw</a>, <a href="#robo43">execute</a>, <a href="#robo43">cmdfile</a></li>
+<li>10.4. <a href="#robo44">Functions/commit</a></li>
+<li>10.5. <a href="#robo45">Functions/cwfold</a></li>
+<li>10.6. <a href="#robo47">Functions/dist2link</a></li>
+<li>10.7. <a href="#robo49">Functions/dll_version</a>, <a href="#robo49">full_version</a></li>
+<li>10.8. <a href="#robo51">Functions/extrnodes</a></li>
+<li>10.9. <a href="#robo54">Functions/gencmd</a>, <a href="#robo54">gencmdw</a>, <a href="#robo54">raw_gencmdw</a>, <a href="#robo54">_gencmdw</a></li>
+<li>10.10. <a href="#robo57">Functions/getall</a></li>
+<li>10.11. <a href="#robo58">Functions/getcodescount</a>, <a href="#robo58">nextcode</a></li>
+<li>10.12. <a href="#robo59">Functions/getdemandbycode</a>, <a href="#robo59">getcodedemandinit</a>, <a href="#robo59">nextcodedemand</a></li>
+<li>10.13. <a href="#robo60">Functions/getid</a></li>
+<li>10.14. <a href="#robo61">Functions/getindex</a>, <a href="#robo61">exists</a></li>
+<li>10.15. <a href="#robo62">Functions/getkeyword</a>, <a href="#robo62">modulekeyword</a>, <a href="#robo62">attrkeyword</a></li>
+<li>10.16. <a href="#robo63">Functions/getvar</a>, <a href="#robo63">getunitname</a>, <a href="#robo63">getunitcoef</a></li>
+<li>10.17. <a href="#robo65">Functions/implemented</a></li>
+<li>10.18. <a href="#robo66">Functions/importEpanet</a>, <a href="#robo66">exportEpanet</a></li>
+<li>10.19. <a href="#robo69">Functions/init</a></li>
+<li>10.20. <a href="#robo70">Functions/is_embedded</a></li>
+<li>10.21. <a href="#robo74">Functions/linkattr</a>, <a href="#robo74">nodeattr</a>, <a href="#robo74">tankattr</a>, <a href="#robo74">linkattrs</a>, <a href="#robo74">nodeattrs</a>, <a href="#robo74">tankattrs</a>, <a href="#robo74">attr</a>, <a href="#robo74">attrs</a>, <a href="#robo74">meanattr</a></li>
+<li>10.22. <a href="#robo75">Functions/linkbbox</a></li>
+<li>10.23. <a href="#robo76">Functions/linkXYZV</a>, <a href="#robo76">branchXYZV</a></li>
+<li>10.24. <a href="#robo78">Functions/loadbin</a></li>
+<li>10.25. <a href="#robo79">Functions/loadres</a></li>
+<li>10.26. <a href="#robo80">Functions/nbobjects</a></li>
+<li>10.27. <a href="#robo81">Functions/nbvertices</a></li>
+<li>10.28. <a href="#robo82">Functions/nlinkattr</a>, <a href="#robo82">nnodeattr</a>, <a href="#robo82">ntankattr</a>, <a href="#robo82">nlinkattrs</a>, <a href="#robo82">nnodeattrs</a>, <a href="#robo82">ntankattrs</a>, <a href="#robo82">nattr</a>, <a href="#robo82">nattrs</a></li>
+<li>10.29. <a href="#robo83">Functions/nodeXYZ</a></li>
+<li>10.30. <a href="#robo85">Functions/quit</a>, <a href="#robo85">close</a></li>
+<li>10.31. <a href="#robo87">Functions/reset</a></li>
+<li>10.32. <a href="#robo88">Functions/resfile</a>, <a href="#robo88">res_filename</a>, <a href="#robo88">model_filename</a></li>
+<li>10.33. <a href="#robo90">Functions/save</a>, <a href="#robo90">savemodel</a></li>
+<li>10.34. <a href="#robo91">Functions/selectlen</a>, <a href="#robo91">select</a></li>
+<li>10.35. <a href="#robo92">Functions/setbatchmode</a></li>
+<li>10.36. <a href="#robo93">Functions/setlang</a></li>
+<li>10.37. <a href="#robo94">Functions/setlinkattr</a>, <a href="#robo94">setbranchattr</a>, <a href="#robo94">setnodeattr</a></li>
+<li>10.38. <a href="#robo95">Functions/shearstr</a></li>
+<li>10.39. <a href="#robo100">Functions/wqtracevectsize</a></li>
+</ul>
+<li>11. <a href="#robo10">ganessa.sim&amp;th/Iterators</a></li>
+<ul>
+<li>11.1. <a href="#robo19">Iterators/Branches</a>, <a href="#robo19">Links</a></li>
+<li>11.2. <a href="#robo20">Iterators/DemandCodes</a></li>
+<li>11.3. <a href="#robo21">Iterators/Demands</a></li>
+<li>11.4. <a href="#robo22">Iterators/Elements</a></li>
+<li>11.5. <a href="#robo24">Iterators/Nodes</a></li>
+<li>11.6. <a href="#robo25">Iterators/Selectid</a>, <a href="#robo25">Selected</a></li>
+<li>11.7. <a href="#robo26">Iterators/Table</a></li>
+<li>11.8. <a href="#robo27">Iterators/TableValues</a></li>
+<li>11.9. <a href="#robo28">Iterators/Tanks</a>, <a href="#robo28">Reservoirs</a></li>
+<li>11.10. <a href="#robo29">Iterators/Unstable</a></li>
+<li>11.11. <a href="#robo30">Iterators/WQSources</a></li>
+</ul>
+<li>12. <a href="#robo11">ganessa.sim/sFunctions</a></li>
+<ul>
+<li>12.1. <a href="#robo106">sFunctions/browseH</a>, <a href="#robo106">browseWQ</a></li>
+<li>12.2. <a href="#robo107">sFunctions/defcalind</a>, <a href="#robo107">getcalind</a></li>
+<li>12.3. <a href="#robo108">sFunctions/full_solveH</a></li>
+<li>12.4. <a href="#robo109">sFunctions/getallminmax</a></li>
+<li>12.5. <a href="#robo110">sFunctions/hstepcount</a>, <a href="#robo110">tslen</a>, <a href="#robo110">mslen</a>, <a href="#robo110">tsval</a>, <a href="#robo110">msval</a>, <a href="#robo110">tsvalbymts</a>, <a href="#robo110">tsinterv</a>, <a href="#robo110">wqtslen</a>, <a href="#robo110">refdate</a></li>
+<li>12.6. <a href="#robo111">sFunctions/inv_summary</a></li>
+<li>12.7. <a href="#robo112">sFunctions/msmooth</a></li>
+<li>12.8. <a href="#robo113">sFunctions/setWQresultfile</a></li>
+<li>12.9. <a href="#robo114">sFunctions/solveH</a></li>
+<li>12.10. <a href="#robo115">sFunctions/stat_quantiles</a>, <a href="#robo115">stat_duration</a></li>
+<li>12.11. <a href="#robo116">sFunctions/tsdemand</a>, <a href="#robo116">tsdevice</a>, <a href="#robo116">tsdemandlen</a>, <a href="#robo116">tsdevicelen</a></li>
+</ul>
+<li>13. <a href="#robo12">ganessa.sim/sIterators</a></li>
+<ul>
+<li>13.1. <a href="#robo31">sIterators/Dynamic_Stats</a></li>
+<li>13.2. <a href="#robo32">sIterators/getMinMax</a></li>
+</ul>
+<li>14. <a href="#robo13">ganessa.sort/About</a></li>
+<li>15. <a href="#robo14">ganessa.sort/sClasses</a></li>
+<ul>
+<li>15.1. <a href="#robo35">sClasses/HeapSort</a></li>
+</ul>
+<li>16. <a href="#robo15">ganessa.th/tFunctions</a></li>
+<ul>
+<li>16.1. <a href="#robo117">tFunctions/solveTH</a></li>
+<li>16.2. <a href="#robo118">tFunctions/symmetric_node</a></li>
+</ul>
+<li>17. <a href="#robo16">ganessa.util/About</a></li>
+<li>18. <a href="#robo17">ganessa.util/functions</a></li>
+<ul>
+<li>18.1. <a href="#robo42">functions/call_until_false</a></li>
+<li>18.2. <a href="#robo46">functions/decode_time</a>, <a href="#robo46">decode_date</a></li>
+<li>18.3. <a href="#robo48">functions/dist_to_poly</a>, <a href="#robo48">dist_p_seg</a>, <a href="#robo48">dist</a>, <a href="#robo48">split_poly_at</a></li>
+<li>18.4. <a href="#robo50">functions/envoi_msg</a></li>
+<li>18.5. <a href="#robo52">functions/FichInfo</a>, <a href="#robo52">banner</a></li>
+<li>18.6. <a href="#robo53">functions/formatting: strf2</a>, <a href="#robo53">strf3</a>, <a href="#robo53">strf2loc</a>, <a href="#robo53">strf3loc</a>, <a href="#robo53">stri</a>, <a href="#robo53">hhmmss</a>, <a href="#robo53">strd</a></li>
+<li>18.7. <a href="#robo55">functions/get_proxy</a></li>
+<li>18.8. <a href="#robo56">functions/get_python_exe</a></li>
+<li>18.9. <a href="#robo64">functions/gfloat</a>, <a href="#robo64">gint</a>, <a href="#robo64">gbool</a></li>
+<li>18.10. <a href="#robo67">functions/IniFile</a>, <a href="#robo67">get</a>, <a href="#robo67">set</a>, <a href="#robo67">getall</a>, <a href="#robo67">setall</a>, <a href="#robo67">save</a></li>
+<li>18.11. <a href="#robo68">functions/IniFile1L</a>, <a href="#robo68">get</a>, <a href="#robo68">set</a>, <a href="#robo68">remove</a>, <a href="#robo68">save</a></li>
+<li>18.12. <a href="#robo71">functions/is_text</a>, <a href="#robo71">myascii</a>, <a href="#robo71">unistr</a>, <a href="#robo71">str2uni</a>, <a href="#robo71">utf2uni</a>, <a href="#robo71">con2uni</a></li>
+<li>18.13. <a href="#robo72">functions/is_wq</a></li>
+<li>18.14. <a href="#robo73">functions/lec_csv</a></li>
+<li>18.15. <a href="#robo77">functions/list2file</a></li>
+<li>18.16. <a href="#robo84">functions/piccolo_context</a></li>
+<li>18.17. <a href="#robo86">functions/quotefilename</a></li>
+<li>18.18. <a href="#robo89">functions/roundval</a>, <a href="#robo89">scaladjust</a></li>
+<li>18.19. <a href="#robo96">functions/toidpic</a></li>
+<li>18.20. <a href="#robo97">functions/update_package</a></li>
+<li>18.21. <a href="#robo98">functions/utf8_bom_encoding</a></li>
+<li>18.22. <a href="#robo99">functions/winstr</a>, <a href="#robo99">utf</a>, <a href="#robo99">ws</a>, <a href="#robo99">aws</a>, <a href="#robo99">codewinfile</a></li>
+<li>18.23. <a href="#robo101">functions/XMLduration</a></li>
+</ul>
+<li>19. <a href="#robo18">ganessa.util/iterators</a></li>
+<ul>
+<li>19.1. <a href="#robo23">iterators/group</a></li>
+</ul>
+</ul>
+<a name="robo0"></a>
+<a name="ganessa2emultithread2fFunctions5fmt"></a>
+<h1>1.  ganessa.multithread/Functions_mt [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo102"></a>
+<a name="Functions5fmt2fmp5frun"></a>
+<h2>1.1.  Functions_mt/mp_run [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo0">Functions_mt</a> ] [ Fonctions ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   This function is provided for legacy <a href="#robo6">Compatibility</a>.
+   parallel.<a href="#robo34">MultiProc</a> should be used instead.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>mp_run</strong>(logprint, tasks [, nb_cpu= -1] [, wait= 0.0] [, use_wpnum= False])
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   see <a href="#robo34">MultiProc</a> and <a href="#robo34">run</a>
+</p>
+<p class="item_name">RESULT</p>
+<p>   this function is <a href="#robo65">implemented</a> as:
+</p>
+<ul><li>   <a href="#robo34">MultiProc</a>(logprint, nb_cpu, wait, use_wpnum).<a href="#robo34">run</a>(tasks)
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   Created 2016.12.14
+</li>
+<li>   Updated 2017.11.14: class interface and optional wpnum argument.
+</li>
+<li>   Updated 2017.11.16: machinery moved to parallel
+</li>
+</ul>
+<p></p>
+<a name="robo103"></a>
+<a name="Functions5fmt2frequired5fcpu"></a>
+<h2>1.2.  Functions_mt/required_cpu [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo0">Functions_mt</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ncpu = <strong>required_cpu</strong>(nb_cpu)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   int nb_cpu: expected number of parallel processes, up to the hardware core count.
+   A negative or null value indicates the number of hardware cores + nb_cpu.
+</p>
+<p class="item_name">RESULT</p>
+<p>   int ncpu: actual number of parallel processes (1 ... max physical core count)
+</p>
+<p class="item_name">EXAMPLE</p>
+<ul><li>   <strong>required_cpu</strong>(-1) returns the hardware core count but one.
+</li>
+</ul>
+<p></p>
+<a name="robo1"></a>
+<a name="ganessa2eparallel2fAbout"></a>
+<h1>2.  ganessa.parallel/About [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   The module ganessa.parallel provides a multitasking (parallel) computing
+   capability based on multiprocessing Process and Queue objects.
+</p>
+<a name="robo2"></a>
+<a name="ganessa2eparallel2fClasses5fmt"></a>
+<h1>3.  ganessa.parallel/Classes_mt [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo34"></a>
+<a name="Classes5fmt2fMultiProc"></a>
+<h2>3.1.  Classes_mt/MultiProc, run,<br />run_sequential [ Objects ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo2">Classes_mt</a> ] [ Objects ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   The <strong>MultiProc</strong> class allows to define and <strong>run</strong> tasks in parallel. A number
+   of N processing instances (nb_cpu provided, default all cores but one)
+   are created; then tasks from the tasks list are dispatched to the processing
+   instances.
+</p>
+
+<p>   An <a href="#robo69">init</a> task (resp. a term task) may be provided; if so it is called by
+   each processing instance before the 1st task (resp. after the last one).
+   If <a href="#robo69">init</a> is not provided,
+   first N tasks are guaranteed to be <strong>run</strong> on distinct instances and
+   can also be used for initialisation purposes. Then each task in the list is
+   associated to the next processing instance available in turn. The execution
+   order is not guaranteed (except the first N tasks if <a href="#robo69">init</a> is not provided).
+</p>
+
+<p>   <strong>run</strong> executes the tasks list in parallel processing instances; <strong>run_sequential</strong>
+   executes the tasks list sequentially, i.e. <a href="#robo69">init</a>, tasks in order, term.
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   mp = <strong>MultiProc</strong>(logprint [, nb_cpu= -1] [, wait= 0.0] [, use_wpnum= False] [, reduce= <a href="#robo39">NONE</a>]
+     [, progress= <a href="#robo39">NONE</a>])
+</li>
+<li>   results, resinit, resterm = mp.<strong>run</strong>(tasks [, <a href="#robo69">init</a>=<a href="#robo39">NONE</a>] [, term= <a href="#robo39">NONE</a>])
+</li>
+<li>   results, resinit, resterm = mp.<strong>run_sequential</strong>(tasks [, <a href="#robo69">init</a>=<a href="#robo39">NONE</a>] [, term= <a href="#robo39">NONE</a>] [, wpnum= <a href="#robo39">NONE</a>])
+</li>
+<li>   comb_results = mp.<strong>run</strong>(tasks [, <a href="#robo69">init</a>=<a href="#robo39">NONE</a>] [, term= <a href="#robo39">NONE</a>])
+</li>
+<li>   comb_results = mp.<strong>run_sequential</strong>(tasks [, <a href="#robo69">init</a>=<a href="#robo39">NONE</a>] [, term= <a href="#robo39">NONE</a>] [, wpnum= <a href="#robo39">NONE</a>])
+</li>
+<li>   ncpu = mp.nmaxcpu
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   function logprint: called by mp.<strong>run</strong> with a single str arg for logging
+</li>
+<li>   int nb_cpu: optional number of parallel processes, up to the hardware core count.
+     A negative value indicates the number of hardware cores + nb_cpu (defaults to -1).
+</li>
+<li>   float wait: wait time (s) before the first task of each processing instance.
+</li>
+<li>   bool use_wpnum: if True, the function called in task list must accept an
+     integer keyword argument wpnum, being equal to the process number (1 ... nb_cpu)
+     in charge of its execution.
+</li>
+<li>   callable progress: function for displaying the overall progression.
+     It is called after every task completion with the completion rank (starting at 0)
+     and the total task count, i.e. progress(i, ntasks) where i in range(ntasks).
+</li>
+<li>   callable reduce: function for reducing the simulation results.
+     the first call to '<a href="#robo69">init</a>' is used to initialise comb_results;
+     then every incoming result is merged in turn (in random order):
+     comb_result = reduce(comb_results, result)
+</li>
+<li>   tasks: list of (func, args) tuples defining the tasks to be <strong>run</strong> as
+     result = func(*args) if use_wpnum is False or not <a href="#robo67">set</a>; or
+     result = func(*args, wpnum= proc_num) otherwise.
+     if func returns a str or unicode, it will be inserted in the log string.
+</li>
+<li>   optionally, func can be a tuple (fun, erfun); erfun(*args) will be called
+     for a return value if fun(*args) raise an exception (added 190416).
+</li>
+<li>   <a href="#robo69">init</a> (optional) tuple (func, args) to be called by every processing instance
+     before any tasks.
+</li>
+<li>   term (optional) tuple (func, args) to be called by every processing instance
+     after all tasks.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int ncpu: number of processing instances.
+</li>
+</ul>
+<p>   When reduce function is not provided:
+</p>
+<ul><li>   results: list of result = func(args), in the original tasks list order.
+</li>
+<li>   resinit: list of results for <a href="#robo69">init</a> calls (empty if <a href="#robo69">init</a> is <a href="#robo39">NONE</a>).
+     Its length is the processing instances count.
+</li>
+<li>   resterm: list of results for term calls (empty if term is <a href="#robo39">NONE</a>).
+     Its length is the processing instances count.
+</li>
+</ul>
+<p>   When reduce function is provided:
+</p>
+<ul><li>   comb_results: reduced results. Roughly reduce(reduce, results, init_result)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   tasks are <strong>run</strong> in parallel by the <a href="#robo67">set</a> of parallel processes: when a process
+     ends up a task, it starts executing the next task available in the list.
+</li>
+<li>   the number of processing instances is available as mp.nmaxcpu
+</li>
+<li>   <strong>run_sequential</strong> is provided for debugging, it loops and <a href="#robo43">execute</a> tasks in turn.
+</li>
+<li>   if the tasks count is smaller than the number of requested cpus, the number
+     of processing instances is reduced to the task count.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   Created 2016.12.14
+</li>
+<li>   Updated 2017.11.14: class interface and optional wpnum argument.
+</li>
+<li>   Updated 2017.11.17: renamed to parallel; added results return list.
+     added <a href="#robo69">init</a> and term options
+</li>
+<li>   Updated 2017.11.20: return values as a tuple of 3 lists for tasks, <a href="#robo69">init</a>, term
+</li>
+<li>   Updated 2017.11.30: added progress method
+</li>
+<li>   Updated 2018.04.18: added reduce method; fix <a href="#robo69">init</a> seq <strong>run</strong> issue.
+</li>
+<li>   Updated 2018.05.14: fix python3 issue
+</li>
+<li>   Updated 2019.04.11: NotImplementedError handling in cpu_count
+</li>
+<li>   Updated 2019.04.16: added erfun handling for return value when fun raises an exception
+</li>
+</ul>
+<p></p>
+<a name="robo3"></a>
+<a name="ganessa2eplot2ffunctions5fplot"></a>
+<h1>4.  ganessa.plot/functions_plot [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo104"></a>
+<a name="functions5fplot2flayout"></a>
+<h2>4.1.  functions_plot/layout [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo3">functions_plot</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Determines the number of pages, lines and columns of a figure
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   npages, nlines, ncols = <strong>layout</strong>(nbplots [, nlmax=6 ] [, ncmax= 4] [, orient= 'h'])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   int nbplots: number of <a href="#robo33">Graph</a> to plot
+</li>
+<li>   int nlmax (optional, default 6): max nb of graphs per column
+</li>
+<li>   int ncmax (optional, default 4): max nb of graphs per line
+</li>
+<li>   char orient (optional, default 'h'): orientation of the <strong>layout</strong> (h or v)
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int npages:  number of pages to plot
+</li>
+<li>   int nlines:  number of lines per page
+</li>
+<li>   int ncols:   number of columns per page
+</li>
+</ul>
+<p></p>
+<p class="item_name">EXAMPLE</p>
+<ul><li>   nf, nl, nc = <strong>layout</strong>(len(mes))
+</li>
+<li>   for i in range(nf):
+</li>
+<li>       <a href="#robo105">plotmes</a>(graphs[i*nl*nc:(i+1)*nl*nc] , ...)
+</li>
+</ul>
+<p></p>
+<a name="robo105"></a>
+<a name="functions5fplot2fplotmes"></a>
+<h2>4.2.  functions_plot/plotmes, plotmesx,<br />pageplot, pageplotx [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo3">functions_plot</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>plotmes</strong> plots one or more time series of the same kind in a single page.
+</li>
+<li>   <strong>plotmesx</strong> plots one or more time series of the same kind on one or more figures.
+     it makes use of <a href="#robo104">layout</a> in order to determine the number of pages.
+</li>
+<li>   <strong>pageplot</strong> plots a <a href="#robo26">Table</a> of time series.
+</li>
+<li>   plot_close allows to clean up matplotlib scraps and should be called
+     before the script ends.
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   <strong>plotmes</strong>(mes, <a href="#robo74">attr</a>  [, nl=3 ]  [, nc=2 ] [, cmt='' ] [, fgname=''] [, inter=True]  [, orient= 'h'])
+</li>
+<li>   <strong>plotmesx</strong>(mes, <a href="#robo74">attr</a> [, nlx=6 ] [, ncx=4 ] [, cmt='' ] [, fgname=''] [, inter=True]  [, orient= 'h'])
+</li>
+<li>   <strong>pageplot</strong>(tsl, title [, nl=3 ] [, nc=2 ] fgname=''] [, inter=True] [, lang='FR']  [, orient= 'h'])
+</li>
+<li>   <strong>pageplotx</strong>(tsl, title [, nlx=3 ] [, ncx=2 ] fgname=''] [, inter=True] [, lang='FR']  [, orient= 'h'])
+</li>
+<li>   plot_close()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   list mes: either a list of element ids, for which the result time series
+     will be retrieved from the result file and plotted in blue. If a measurement is associated
+     with an id, it will also be displayed in red on the same id <a href="#robo33">Graph</a>.
+</li>
+<li>   or a list of (id, ftime, fval), in which case the additional
+     time serie (ftime, fval) will be plotted in green on the id <a href="#robo33">Graph</a> as 'Reference'
+</li>
+<li>   or a list of (id, ftime, fval1, fval2) or (id, ftime1, fval1, ftime2, fval2)
+     which will be plotted fval1 as 'Reference' (green) and fval2 as 'Alternate' (magenta)
+</li>
+<li>   list tsl: list of (id, tvec, vvec [,vvec2]) to be plotted, one per <a href="#robo33">Graph</a>.
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute to be plotted
+    (or <a href="#robo74">attr</a>:DA for residual or <a href="#robo74">attr</a>:DR for relative residual)
+</li>
+<li>   string title: title for <strong>pageplot</strong>(x). If tsl contains 2 data series, title can
+     be given as a tuple (title, legend1, legend2).
+</li>
+<li>   nl, nc: number of lines and columns of plots in the page (<strong>plotmes</strong> and <strong>pageplot</strong> only)
+</li>
+<li>   nlx, ncx: maximum number of lines and columns of plots in the page (<strong>plotmesx</strong> and <strong>pageplotx</strong> only)
+</li>
+<li>   cmt: optional comment appended to the title
+</li>
+<li>   string fgname: output file name - if not nul, the plot will be saved
+     into a filename with extension '.png'.
+</li>
+<li>   bool inter: if False, no plot is displayed
+</li>
+<li>   char orient (optional, default 'h'): orientation of the <a href="#robo104">layout</a> (h or v)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Type of data and units are displayed (in french) in the figure title
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   170426: improvement of x axis labels when time horizon &gt; 24h
+</li>
+<li>   170618 (1.7.6): added <strong>pageplot</strong>
+</li>
+<li>   171120 (1.8.5): added plot_close
+</li>
+<li>   180924 (2.0.1): added orient kw
+</li>
+<li>   181105 (2.0.3): added <strong>pageplotx</strong>
+</li>
+<li>   200103 (2.0.8): plot reference before simulation
+</li>
+<li>   200315 (2.1.1): plot chlorine
+</li>
+<li>   200603 (2.1.3): single (static) measurement plotted as an horizontal line
+</li>
+<li>   200915 (2.1.5): <strong>pageplot</strong>(x) allows multiple ts per <a href="#robo33">Graph</a>.
+</li>
+<li>   210111 (2.1.6): fix an overflow error plotting long TS (&gt; 248 days)
+</li>
+<li>   210301 (2.1.7): optionnally plot bottom &amp; top <a href="#robo37">TANK</a> levels ('*' marker)
+</li>
+<li>   220304 (2.3.0): fix ax.title - replaced with ax.set_title in <strong>pageplot</strong> (3.9+)
+</li>
+</ul>
+<p></p>
+<a name="robo4"></a>
+<a name="ganessa2esim26th2fAbout"></a>
+<h1>5.  ganessa.sim&amp;th/About [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   The module ganessa.sim (resp. ganessa.th) provides a Python interface
+   to Picwin32.dll and Ganessa_SIM.dll (resp. Ganessa_TH.dll) kernel API.
+   It is provided as python wheels:
+</p>
+<pre>    - all versions up to version 2.1.9 (april 2021) are compatible with python 2.7.
+    - from version 2, it is compatible with 32 and 64 bits versions of python 3.6/3.7.
+    - from version 2.1, it is compatible with python 3.7.6 and 3.8.
+    - from version 2.1.5, it is compatible with python 3.9.
+</pre>
+<p>
+   The module name ganessa.sim&amp;th is used for items availble both
+   in .sim and .th environments
+</p>
+<p class="item_name">INSTALLATION</p>
+<p>   python -<a href="#robo39">M</a> pip install [--trusted-host pypi.org] ganessa
+</p>
+
+<p>   The package expects the simulation kernel .dll to be found either
+   in the folders given by %GANESSA_DIR% environment variable (for Ganessa_xx.dll)
+   or %PICCOLO_DIR% (for Picwin32.dll),
+   or in the %PATH% environment variable (either name),
+   or in %LOCALAPPDATA%/Programs folders:
+</p>
+<ul><li>   Safege/Ganessa_&lt;lang&gt;/Ganessa_SIM.dll (or Suez/...)
+</li>
+<li>   Safege/Piccolo_&lt;lang&gt;/Picwin32.dll    (or Suez/...)
+</li>
+<li>   Inetum/Piccolo6_&lt;lang&gt;/Picwin32.dll   (starting with version 2.2.3)
+</li>
+<li>   Gfi Progiciels/Piccolo6_&lt;lang&gt;/Picwin32.dll
+</li>
+</ul>
+<p>   or in one of the Program Files (x86) sub folders (Picalor6 replaces Piccolo6 if needed):
+</p>
+<ul><li>   "Safege/Ganessa_&lt;lang&gt;/Ganessa_xx" (xx = SIM or TH) or
+</li>
+<li>   "Inetum/Piccolo6_&lt;lang&gt;[_ck | _cl]/Picwin32.dll" or
+</li>
+<li>   "Gfi Progiciels/Piccolo6_&lt;lang&gt;[_ck | _cl]/Picwin32.dll" or
+</li>
+<li>   "Adelior/Piccolo5_&lt;lang&gt;/Picwin32.dll"
+</li>
+</ul>
+<p>   in either drive D: or C:
+</p>
+<p class="item_name">USE</p>
+<p>   Syntax:
+</p>
+<ul><li>   import ganessa.sim as pic   (or ganessa.th for Picalor)
+</li>
+<li>   pic.<a href="#robo43">cmdfile</a>('my file.dat')
+</li>
+</ul>
+<p>   Or:
+</p>
+<ul><li>   from ganessa.sim import *
+</li>
+<li>   <a href="#robo43">cmdfile</a>('my file.dat')
+</li>
+</ul>
+<p>
+   the import will perform the following initialisation tasks:
+</p>
+<ul><li>   determines if it runs in python embedded - cf. <a href="#robo70">is_embedded</a>()
+</li>
+<li>   locate Ganessa_xx.dll or Picwin32.dll kernel
+</li>
+<li>   initialise it (if not <a href="#robo34">run</a> in embedded python)
+</li>
+<li>   locate result.bin in a working subdirectory
+</li>
+<li>   bind termination to ctrl+Z
+</li>
+</ul>
+<p></p>
+<p class="item_name">CONTENT</p>
+<p>   The package provides the following content:
+</p>
+<ul><li>   <a href="#robo7">Constants</a> for calling API <a href="#robo17">functions</a>
+</li>
+<li>   <a href="#robo18">iterators</a> for browsing objects and selections
+</li>
+<li>   <a href="#robo17">functions</a> for loading .bin file
+</li>
+<li>   <a href="#robo17">functions</a> for executing command files / command strings / running simulations
+</li>
+<li>   <a href="#robo17">functions</a> and <a href="#robo8">Exceptions</a> for catching simulation errors and retrieving <a href="#robo29">Unstable</a> items
+</li>
+<li>   <a href="#robo8">Exceptions</a>: <a href="#robo36">GanessaError</a>, <a href="#robo36">SimulationError</a>, <a href="#robo36">IsolatedNodeSimulationError</a>
+</li>
+<li>   <a href="#robo17">functions</a> for retrieving individual objects attributes
+</li>
+<li>   <a href="#robo17">functions</a> for retrieving <a href="#robo26">Table</a> entries and object count
+</li>
+<li>   <a href="#robo17">functions</a> for retrieving result or measurements time series
+</li>
+<li>   <a href="#robo17">functions</a> for retrieving min / max / avg values for all objects
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Most of the <a href="#robo17">functions</a> are getter. A few direct setter <a href="#robo17">functions</a> are provided
+     (<a href="#robo94">setlinkattr</a>, setdensity, <a href="#robo107">defcalind</a>, *SHL <a href="#robo17">functions</a>). The general <a href="#robo33">PURPOSE</a>
+     <a href="#robo54">gencmd</a>(w), addcmd(w), <a href="#robo43">cmd</a>, <a href="#robo43">execute</a> and <a href="#robo43">cmdfile</a> can be used to build / <a href="#robo44">commit</a>
+     any other settings with command language (see the Piccolo Reference Manual).
+</li>
+<li>   Commands (passed to <a href="#robo43">cmd</a>, <a href="#robo43">execute</a>, <a href="#robo43">cmdfile</a>) should be built in the language
+     (idiom) of the current version. <a href="#robo62">getkeyword</a>, <a href="#robo62">modulekeyword</a>, <a href="#robo62">attrkeyword</a> allow
+     to retrieve a given keyword in the current idiom; <a href="#robo54">gencmd</a>(w) allow to build a
+     command line in the current idiom.
+</li>
+<li>   A command file may be written in any of English, French or Spanish, the current
+     command language interpreter will switch to the xxx language from _LANG_ xxx
+     command until the end of the file, then switch back to the current language.
+</li>
+<li>   Any suggestion for extending / improving can be mailed to: piccolo@safege.fr
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   The history of the package is:
+</p>
+<ul><li>   1.0.0: (140211) creation of the package for python 2.7
+</li>
+<li>   1.0.3: (140410) <a href="#robo105">plotmesx</a> png takes care of measurement type
+</li>
+<li>   1.0.4: (140702) added demand getter for a demand code or for all
+</li>
+<li>   1.0.5: (140908) added Windows 7 paths 'program files (x86)';
+            added option to <a href="#robo67">get</a> TS by measurement step '<a href="#robo110">tsvalbymts</a>';
+            added '<a href="#robo110">refdate</a>' : retireval of <a href="#robo110">refdate</a>
+</li>
+<li>   1.0.6: (140908) correction to the grid adjustment in <a href="#robo105">plotmes</a> (util)
+</li>
+<li>   1.0.7: (140916) <a href="#robo32">getMinMax</a> can be called with a selection name
+</li>
+<li>   1.0.8: (140925) <a href="#robo90">save</a> function
+</li>
+<li>   1.0.9: (141006)<a href="#robo36">SimulationError</a> exception catching + <a href="#robo90">save</a>(identical to MMI);
+            requires numpy 1.8.1
+</li>
+<li>   1.1.0: (141006) same as 1.0.9 but requires only numpy 1.7.1
+</li>
+<li>   1.1.1: (141016) minor change to <a href="#robo99">codewinfile</a>=<a href="#robo99">winstr</a>
+</li>
+<li>   1.1.2: (141020) added '<a href="#robo43">execute</a>' for multiple commands as strings (\n managed as a separator)
+</li>
+<li>   1.1.3: (141104) disable useoffset for Y axes in 'util.<a href="#robo105">plotmes</a>'
+</li>
+<li>   1.1.4: (141118) handling Picwin32.dll provided by GFI after 18-11-2014 (best 03-12-2014)
+</li>
+<li>   1.1.5: (141205) handling ts &lt; ms in <a href="#robo110">tsvalbymts</a>
+</li>
+<li>   1.1.6: (150127) <a href="#robo83">nodeXYZ</a> added + bugfix in <a href="#robo74">attrs</a> documentation
+</li>
+<li>   1.1.7: (150309) minor grammatical changes
+</li>
+<li>   1.2.0: (150507) change in folder search order (ws7 priority) + language - OK with Picwin32 151203
+</li>
+<li>   1.2.1: (150527) Picalor enabled  as ganessa.th + density and SHL management;
+            (150603) added '<a href="#robo74">meanattr</a>';
+            (150610) added '<a href="#robo40">addSHLtype</a>'
+</li>
+<li>   1.2.2: (150709) bug fix calls <a href="#robo91">select</a>* from <a href="#robo25">Selected</a>
+</li>
+<li>   1.2.3: (150812) bug fix: return value of <a href="#robo106">browseWQ</a>; <a href="#robo57">getall</a>
+</li>
+<li>   1.2.4: (150910) <a href="#robo7">Constants</a> added (WQ, Inverse Pb) + <a href="#robo20">DemandCodes</a>
+</li>
+<li>   1.2.5: (150922) utils: tuning of <a href="#robo105">plotmes</a> subtitle fontsize for large titles
+                      + <a href="#robo7">Constants</a> (MOD, NOD ...) + '<a href="#robo41">areas</a>' function
+</li>
+<li>   1.2.6: (151128) added <a href="#robo116">tsdemand</a> and <a href="#robo116">tsdemandlen</a>, <a href="#robo116">tsdevice</a> and <a href="#robo116">tsdevicelen</a>;
+                     added tables (material, area etc.) access;
+                     utils: added <a href="#robo77">list2file</a>
+</li>
+<li>   1.3.0: (151202) added support for <a href="#robo6">Compatibility</a> with Picwin32 12/2014, 12/2015 and Ganessa;
+            (151206) addl <a href="#robo7">Constants</a> (BRA, DYN, <a href="#robo37">RSV</a>);
+            (151218) reviewed <a href="#robo6">Compatibility</a> with Picwin32 (2015+ -&gt; Piccolo6), (2014 -&gt; Piccolo5)
+</li>
+<li>   1.3.1: (160108) header, footer and suffix optional args for utils.<a href="#robo77">list2file</a>;
+            (160113) added memory allocation error exception (inverse module)
+</li>
+<li>   1.3.2: (160118) added retrieval of problematic devices;
+            (160126) added 'H' <a href="#robo37">TANK</a> attribute in util.<a href="#robo105">plotmes</a>(x)
+</li>
+<li>   1.3.3: (160226) added <a href="#robo61">getindex</a>, <a href="#robo74">tankattrs</a>, <a href="#robo74">linkattr</a> and <a href="#robo74">linkattrs</a>
+</li>
+<li>   1.3.4: (160301) added <a href="#robo7">Constants</a> for inverse pb;
+            (160309) added inverse simulation summary;
+            (160318) added added nxxxxattr and nxxxxatrs function for getting attributes by index;
+            (160325) added file quote as needed in <a href="#robo90">save</a> function;
+            (160329) corrected doc (<a href="#robo91">selectlen</a>/<a href="#robo91">select</a>);
+            (160405) corrected doc, added <a href="#robo76">linkXYZV</a>;
+            (160408) utils: strloc, <a href="#robo53">strf3loc</a>
+</li>
+<li>   1.3.5: (160410) added <a href="#robo69">init</a>(folder)
+</li>
+<li>   1.3.6: (160511) added '<a href="#robo118">symmetric_node</a>' (Ganessa_TH);
+            (160531) reviewed <a href="#robo6">Compatibility</a> with dll versions since 2014.
+</li>
+<li>   1.3.7: (160622) added OpenFileMMI <a href="#robo5">Classes</a>: SelectModel, SelectFile, ExecStatus;
+            (160706) added '<a href="#robo47">dist2link</a>'; added 'util.<a href="#robo48">dist_to_poly</a>' as pure python backup;
+                     OpenFileMMI uses simulation interface from caller, or <a href="#robo39">NONE</a>;
+                     changed all <a href="#robo5">Classes</a> to new style;
+                     added 'len' method to '<a href="#robo25">Selected</a>' and '<a href="#robo22">Elements</a>'; added '<a href="#robo33">Graph</a>'
+</li>
+<li>   1.4.0: (160715) setup changed to build whl from source files;
+            (160719) minor bug fix in util.<a href="#robo105">plotmes</a> - reuse same fig in non interactive mode
+</li>
+<li>   1.4.1: (160820) OpenFileMMI SelectFile with null extension; load error handling
+</li>
+<li>   1.4.2: (160830) added AUTO and QUAL storestep <a href="#robo7">Constants</a>; minor fix in <a href="#robo54">gencmd</a>;
+                     added include_depth optional attribute to '<a href="#robo76">linkXYZV</a>';
+            (160915) added version_2016b in the Picwin32 lookup <a href="#robo26">Table</a>;
+            (160919) added SelectFolder in OpenFileMMI;
+            (160922) added <a href="#robo94">setlinkattr</a> as a synonym of <a href="#robo94">setbranchattr</a>;
+            (160927) intermediate API for Piccolo6 2016 B (dec-2016)
+</li>
+<li>   1.5.0: (161010) added '<a href="#robo62">getkeyword</a>';
+            (161019) minor change in util.<a href="#robo105">plotmes</a>: 160719 patch reviewed for better output;
+            (161124) added '<a href="#robo115">stat_quantiles</a>', '<a href="#robo115">stat_duration</a>', and '<a href="#robo31">Dynamic_Stats</a>'
+</li>
+<li>   1.5.1  (161212) bug fix on ts* <a href="#robo17">functions</a> without result file;
+                     added 'retry' optional argument to <a href="#robo108">full_solveH</a>
+</li>
+<li>   1.5.2  (170105) added folder=option in util.<a href="#robo77">list2file</a>
+            (170110) build with numpy 1.11.0 - compatible with
+</li>
+<li>   1.7.0  (170119) build with BIND(C) instead of DEC$ATTRIBUTE C, REFERENCE;
+                     required with ganessa_SIM &gt; 170117 (renamed API <a href="#robo17">functions</a>);
+            (170125) added fixed_interval to <a href="#robo116">tsdevice</a>, now return float values
+</li>
+<li>   1.7.1  (170221) minor changes in util.<a href="#robo67">IniFile</a> (default encoding <a href="#robo99">utf</a>-8);
+                     switch to unicode_literals in sim&amp;th, util and prot;
+            (170223) added compiled util.<a href="#robo48">dist</a>, util.<a href="#robo48">dist_p_seg</a>, util.<a href="#robo48">dist_to_poly</a>
+</li>
+<li>   1.7.2  (170228) added OpenFileMMI.setlanguage function (FR/US or UK);
+            (170304) fix <a href="#robo32">getMinMax</a>/<a href="#robo109">getallminmax</a> break in 1.7.0
+</li>
+<li>   1.7.3  (170313) added WQ, MOD and LNK <a href="#robo7">Constants</a>; added <a href="#robo38">DICT</a>.END;
+                     added <a href="#robo62">modulekeyword</a> and <a href="#robo62">attrkeyword</a>;
+            (170331) added <a href="#robo95">shearstr</a>; match Piccolo 2017 --&gt; NO !
+</li>
+<li>   1.7.4  (170407) added silent option to <a href="#robo69">init</a>;
+            (170424) added default '@safege.com' domain to util.<a href="#robo50">envoi_msg</a>
+</li>
+<li>   1.7.5  (170426) improved util.<a href="#robo105">plotmes</a>(x) for horizon &gt; 24h;
+            (170512) added module 'multithread';
+            (170515) fix parent.inidir error in OpenFileMMI; added <a href="#robo114">solveH</a>
+</li>
+<li>   1.7.6  (170613) added <a href="#robo7">Constants</a> (STATIC, QUA.VISUSTEP) and util.<a href="#robo23">group</a>;
+                     minor bug fix in <a href="#robo25">Selected</a>, <a href="#robo32">getMinMax</a> and <a href="#robo31">Dynamic_Stats</a>;
+            (170618) added title to OpenFileMMI.SelectFile and SelectFolder;
+                     added util.<a href="#robo105">pageplot</a>;
+            (170620) replaced litteral symbols with <a href="#robo62">attrkeyword</a>();
+            (170627) match Piccolo 2017 (apr 2017);
+</li>
+<li>   1.7.7  (170705) added <a href="#robo45">cwfold</a>;
+            (170707) optional arg for sim&amp;th.<a href="#robo85">close</a>(arg) and prot.<a href="#robo85">close</a>(arg);
+                     added C1 in util.<a href="#robo105">plotmes</a> for chlorine plots;
+</li>
+<li>   1.7.8pr1 (170808) doc update; upload to pypi
+</li>
+<li>   1.7.8  (170817) replaced <a href="#robo67">IniFile</a> with json/xml version
+</li>
+<li>   1.7.9pr1 (170824) prepared for Piccolo 2017b;
+              (170830) added <a href="#robo63">getunitcoef</a>
+</li>
+<li>   1.8.0 (170907) sim.py split into core, core_sim, core_th; changed/fixed path lookup;
+           (170918) added <a href="#robo88">resfile</a>, raw_getcmdw, raw_stat_duration, raw_stat_quantiles
+</li>
+<li>   1.8.1 (171004) added util.<a href="#robo97">update_package</a>
+</li>
+<li>   1.8.2 (171016) added util.<a href="#robo71">str2uni</a> (tries utf8 the cp1252 - reverse from <a href="#robo71">unistr</a>);
+           (171018) minor bug fix for util.<a href="#robo97">update_package</a>;
+           (171103) added sort.<a href="#robo35">HeapSort</a> class and <a href="#robo33">Graph</a>.<a href="#robo33">dtree</a>
+</li>
+<li>   1.8.3 (171109) added error msg when OpenFileMMI is imported before sim or th;
+           (171110) fix _pyganutl import broken in 1.8.0 (util.<a href="#robo48">dist</a>, util.<a href="#robo48">dist_to_poly</a>);
+           (171114) added multithread.<a href="#robo34">MultiProc</a> class
+</li>
+<li>   1.8.4 (171120) bug fix / changed multithread.<a href="#robo34">MultiProc</a>.<a href="#robo34">run</a> return values as 3 lists
+</li>
+<li>   1.8.5 (171120) added util.plot_close to avoid Fatal Python error at exit;
+           (171128) added <a href="#robo75">linkbbox</a> and util.<a href="#robo64">gbool</a>
+</li>
+<li>   1.8.6 (171201) added progress keyword to parallel.<a href="#robo34">MultiProc</a>; <a href="#robo49">full_version</a>;
+                    added util.send_report
+</li>
+<li>   1.8.7 (171208) fix <a href="#robo97">update_package</a> not succeeding in update 'ganessa'
+</li>
+<li>   1.8.8 (171212) improved <a href="#robo97">update_package</a> proxy configuration using .json files;
+                    added Picwin32.dll lookup into PICCOLO_DIR environment variable;
+                    and '_ck' optional folder suffix
+</li>
+<li>   1.8.9 (171220) updated <a href="#robo49">full_version</a>; added UPN lookup in send_report;
+           (180126) added <a href="#robo66">importEpanet</a> and <a href="#robo66">exportEpanet</a>
+</li>
+<li>   1.9.0 (180227) added <a href="#robo71">con2uni</a> for converting console output to unicode (cp850)
+           (180305) fixes related to 2to3: _getdll: environ; util: <a href="#robo99">winstr</a> and <a href="#robo99">utf</a>,
+                    <a href="#robo67">IniFile</a> encoding, cmp_version, added version_as_tuple;
+           (180328) send_report timeout to 2 seconds, added util.<a href="#robo71">is_text</a>;
+                    2 and 3 <a href="#robo6">Compatibility</a> changes for <a href="#robo71">unistr</a>, <a href="#robo71">str2uni</a>, <a href="#robo71">utf2uni</a>, ascii.
+</li>
+<li>   1.9.1 (180418) added a reduce function to parallel.<a href="#robo34">MultiProc</a>; fix seq <a href="#robo34">run</a>
+           (180502) <a href="#robo97">update_package</a> looks for package in current folder
+</li>
+<li>   1.9.2 (180514) fix python3 issue in parallel submodule; minor OpenFileMMI fixes;
+           (180518) fix <a href="#robo97">update_package</a> <a href="#robo6">Compatibility</a> with parallel
+</li>
+<li>   1.9.3 (180525) added epanet2 API and dll (py27 only); fix epanet.getlinknodes;
+           (180530) added util.<a href="#robo99">ws</a>
+</li>
+<li>   1.9.4 (180531) fix <a href="#robo99">utf</a>-8 decoding for <a href="#robo68">IniFile1L</a>;
+           (180604) fix <a href="#robo61">getindex</a>; added <a href="#robo61">exists</a>
+</li>
+<li>   1.9.5 (180607) added epanet2 API and dll (compiled from epanettools 0.4.2);
+           (180608) added an example in README;
+           (180613) plot funcs moved from ganessa.util to ganessa.plot
+</li>
+<li>   1.9.6 (180615) fix sim.<a href="#robo69">init</a> handling non-ascii chars in folder name (uploaded 180621)
+</li>
+<li>   1.9.7 (180705) fix util.<a href="#robo67">IniFile</a> handling non-ascii chars in file name;
+           (180718) fix OpenFileMMI issue with inidir;
+           (180813) added support for Piccolo 2018 (released 2018-07-25) and uploaded
+</li>
+<li>   1.9.8 (180814) 64-bits version for Ganessa_SIM (python 3.6);
+                    minor OpenFileMMI changes (clear_exe, bt_exe_state);
+           (180815) upload wheels for python 3.7 (32 and 64 bits).
+</li>
+<li>   2.0.0 (180816) util.<a href="#robo23">group</a> fix (python 3.7); added verbose param in util.<a href="#robo97">update_package</a>;
+           (180820) added '<a href="#robo100">wqtracevectsize</a>' for returning the max size of WQ;
+                    concentration vector usable for tracing origin of water;
+           (180823) added geojsonfile for writing to geojson; fix minor midfile issue;
+           (180829) added C:/Program Files lookup in x64 env; geojson reader;
+           (180831) release and upload
+</li>
+<li>   2.0.1 (180910) util.<a href="#robo77">list2file</a> minor fix; doc fix; minor <a href="#robo22">Elements</a> changes;
+           (180919) fix ganessa.th break in 2.0.0;
+           (180924) added orient keyword in ganessa.plot <a href="#robo17">functions</a>; slight behavior change
+</li>
+<li>   2.0.2 (181003) added util.<a href="#robo53">strf2loc</a>; doc update;
+           (181011) minor change in sim.seleclen; added util.<a href="#robo42">call_until_false</a>;
+           (181025) minor fix in ganessa.prot;
+           (181030) release and upload
+</li>
+<li>   2.0.3 (181105) added plot.<a href="#robo105">pageplotx</a>; (13) added '.' at head of prot lookup folders;
+           (181119) changed geojson and midfile to conform to shapefile 2.0;
+           (181203) added '_cl' suffix option to the Piccolo lookup folder;
+                    len for <a href="#robo25">Selected</a>, <a href="#robo22">Elements</a> and derived <a href="#robo18">iterators</a>;
+           (181207) fix util.<a href="#robo68">IniFile1L</a>.<a href="#robo90">save</a> with python 3.x;
+           (181209) doc updated; release and upload
+</li>
+<li>   2.0.4 (181218) debug mode for unicode control; util.<a href="#robo67">IniFile</a>.<a href="#robo67">get</a> returns ustr;
+           (181220) OpenFileMMI.ExecStatus.clear: <a href="#robo68">remove</a> 'all' kwarg;
+                    added len to <a href="#robo32">getMinMax</a> and DynamicStats <a href="#robo18">iterators</a>
+</li>
+<li>   2.0.5 (181229) added util.perfs;
+           (190107) handle OpenFileMMI.SelectModel(usedef=False);
+           (190109) changes in <a href="#robo97">update_package</a> permission lookup;
+           (190131) release and (190211) upload
+</li>
+<li>   2.0.6 (190411) minor fix in parallel.<a href="#robo103">required_cpu</a>;
+           (190416) minor evolution to parallel.<a href="#robo34">MultiProc</a>: alternate erfun call on Exception;
+           (190423) release and upload
+</li>
+<li>   2.0.7 (190617) added 'extra_data' keyword to sim.<a href="#robo90">savemodel</a>;
+           (190715) added DYNSTOP <a href="#robo36">SimulationError</a>; minor doc fix;
+           (190819) improved simulation error check in <a href="#robo108">full_solveH</a>, <a href="#robo114">solveH</a>, <a href="#robo117">solveTH</a>;
+           (190821) added util.<a href="#robo56">get_python_exe</a>;
+           (191007) minor fix in OpenFileMMI.SelectFile;
+           (191008) release and upload
+</li>
+<li>   2.0.8 (191015) fix README.rst;
+           (200106) added upstream and downstream methods to sim.<a href="#robo33">Graph</a>;
+           (200204) fix new python 3.8 dll directory search;
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.0.9 (200205) fix prot with python 3.8 dll directory search + minor changes;
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.0 (200214) fix urllib3 requiring proxy scheme in <a href="#robo55">get_proxy</a>;
+           (200220) Piccolo versions 2017+ required for python 3.x+;
+                    fix to dll directory search, related to FlexLM; fix Example.py;
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.1 (200306) new sim.<a href="#robo30">WQSources</a>() iterator;
+           (200313) fix util.<a href="#robo89">scaladjust</a> for range below 1;
+                    fix chlorine (C1) plot.<a href="#robo105">plotmes</a>(x);
+           (200314) add added util.<a href="#robo72">is_wq</a> and sim.<a href="#robo110">wqtslen</a>; fix sim.<a href="#robo110">tsval</a> for WQ TS;
+           (200323) doc fixes; add module constant KW (MOD kw, QUA, INV);
+                    add optional return_type=True kw to sim.<a href="#robo25">Selected</a>;
+           (200324) fix workdir &amp; result file in virtualstore;
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.2 (200506) add util.<a href="#robo67">IniFile</a>.<a href="#robo68">remove</a>;
+           (200511) release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.3 (200603) plot.<a href="#robo105">plotmes</a>: single (static) measurement plotted as an horizontal line;
+           (200604) OpenFileMMI.SelectModel: chdir to model folder to allow relative inner read;
+           (200619) added en2emu sim-like minimal <a href="#robo6">Compatibility</a> module;
+           (200622) added <a href="#robo81">nbvertices</a>() and fake get_labels();
+           (200629) release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.4 (200708) dll lookup in '.';
+           (200819) minor fix on plot.<a href="#robo105">pageplot</a>;
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.5 (200824) replace util.ascii with util.<a href="#robo71">myascii</a>;
+           (200915) plot.<a href="#robo105">pageplot</a>(x) allows multiple ts per <a href="#robo33">Graph</a>; fix <a href="#robo43">cmdfile</a>;
+           (200922) added demand profile query by zone and code/zone (<a href="#robo116">tsdemand</a>);
+           (201109) added util.read_as_idpic;
+           (201119) release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.6 (201221) fix prot error with null path chunks;
+           (201222) fix Ganessa_TH integration not working properly;
+           (210126) added util.<a href="#robo48">split_poly_at</a>; release and upload
+</li>
+<li>   2.1.7 (210301) plot.<a href="#robo105">plotmes</a>(x) plot <a href="#robo37">TANK</a> bottom and top water level when prefixed with '=';
+           (210307) addl single value plot as horizontal line in plot.<a href="#robo105">pageplot</a>;
+           (210310) add util.<a href="#robo98">utf8_bom_encoding</a>(file);
+           (210324) fix util.<a href="#robo48">split_poly_at</a> ValueError: not enough values to unpack (expected 3, got 2);
+                    release and upload (2.7-32 / 3.7 / 3.8 only)
+</li>
+<li>   2.1.8 (210325) added <a href="#robo33">Graph</a>.pop and len(<a href="#robo33">Graph</a>); added SelectModel.update_info;
+                    fix missing .pyd components resulting in suboptimal use of the API;
+                    release and upload (2.7-32 / 3.7 / 3.8 / 3.9)
+</li>
+<li>   2.1.9 (210426) util.<a href="#robo67">IniFile</a> removes the -&lt;maxvers&gt;&lt;minvers&gt; suffix on param <a href="#robo90">save</a>;
+           (210428) prot now seek extensive paths incl. ../SafProdLicMgr, C:/Logiciels etc.;
+           (210429) fix geojson writer (use Transformer, swap return coords);
+           (210430) release and upload (2.7-32 / 3.7 / 3.8 / 3.9) - last 2.7 release
+</li>
+<li>   2.2.0 (210506) fix pypi doc; change _fresult and _workdir lookup;
+           (210517) minor changes to util.<a href="#robo53">strf3</a> and strf2
+           (210527) fix Ws10 using utf8 rather than cp1252 in util
+           (210531) release and upload (3.7 / 3.8)
+</li>
+<li>   2.2.1 (210609) util.send_report include OS version
+           (210610) OpenFileMMI.SelectFile: invisible contour &amp; parent cascade for subframe
+           (210614) Add %localappdata%/Programs/Safege &amp; Suez... to the search path
+           (210616) Add Inetum to the lookup folders for Piccolo
+           (210617) Add update_info(-1) to OpenFileMMI.SelectFile
+           (210618) release and upload (3.7 / 3.8); (210621) upload (3.9) - not passed
+</li>
+<li>   2.2.2 (210621) Add %localappdata%/Programs/Gfi Progiciels &amp; Inetum to the search path
+           (210621) fix README.rst; release and upload (3.7 / 3.8 / 3.9);
+</li>
+<li>   2.2.3 (210623) Minor fix to OpenFileMMI.SelectModel.update_info(-1);
+           (210624) Added <a href="#robo36">IsolatedNodeSimulationError</a> exception;
+           (210701) lookup 'Inetum' folder before 'Gfi Progiciels'; addl TS for plot.<a href="#robo105">plotmes</a>
+           (210702) release and upload 32 (3.5 / 3.6 / 3.7 / 3.8) and 64 (3.7 / 3.8)
+</li>
+<li>   2.2.4 (210705) fix dll search path order with D: partition
+           (210723) OpenFileMMI.SelectModel silent read .dat by default
+           (210819) Handling of python embedding into dll caller (Piccolo.exe) - beta
+           (210823) add sim.<a href="#robo70">is_embedded</a>()
+           (210901) add sim.<a href="#robo49">dll_version</a>() from API = not requiring <a href="#robo69">init</a>(); release and upload (3.8 / 3.9)
+</li>
+<li>   2.2.5 (210913) adaptation to python 3.10;
+           (210914) plot changes (uses- axes and figures rather than default pyplot funcs);
+           (210927) fix util.<a href="#robo55">get_proxy</a> doc and return value;
+           (210929) fix <a href="#robo63">getvar</a> truncate output to 48 (now 256); add <a href="#robo88">model_filename</a>(); util.<a href="#robo97">update_package</a> exits in embedded mode.
+           (211004) OpenFileMMI.SelectModel kwarg show_emb=False hides dialog in embedded mode;
+           (211012) util.<a href="#robo67">IniFile</a> kwarg folder=<a href="#robo39">NONE</a> allows load/<a href="#robo90">save</a> to alternate location;
+           (211013) OpenFileMMI.SelectModel fix chdir error when filename has no dirname;
+           (211020) add OpenFileMMI.SelectFile.setfilename;
+           (211026) add fname property to OpenFileMMI.SelectFile, SelectModel, SelectFolder;
+           (211027) release and upload (3.8 / 3.9 / 3.10)
+</li>
+<li>   2.2.6 (211028) add OpenFileMMI.SelectFolder.add_extra_info; .fname setter;
+           (211106) add type hint to most <a href="#robo17">functions</a>;
+           (211109) fix _<a href="#robo49">dll_version</a> in embedded mode;
+           (211112) add emb_model_folder() function;
+           (211116) minors changes in OpenFileMMI; new util.<a href="#robo84">piccolo_context</a> function for color settings;
+           (211117) release and upload (3.8 / 3.9 / 3.10)
+</li>
+<li>   2.2.7 (211124) fix <a href="#robo72">is_wq</a>() for water hardness (TH or HD or DU); <a href="#robo93">setlang</a> accepts 1 or 2 letter arg;
+           (211126) OpenFileMMI.add_extra_model_info append to previous line if returned text starts with backspace \b;
+           (211216) <a href="#robo110">refdate</a> returns (unicode) str;
+           (211230) release and upload (3.8 / 3.9 / 3.10)
+</li>
+<li>   2.2.8 (220128) fix util <a href="#robo6">Compatibility</a> with windows servers;
+           (220203) dll lookup on E: if it <a href="#robo61">exists</a> and D: does not;
+           (220203) release and upload (3.8 / 3.9 / 3.10) (should have done it yesterday !)
+</li>
+<li>   2.2.9 (220211) fix non ascii str passed to <a href="#robo25">Selected</a> must be bytes2;
+           (220214) fix util.<a href="#robo97">update_package</a>: replace -use-binary with -prefer-binary; -trusted-host pypi.org;
+           (220222) release and upload (3.8 / 3.9 / 3.10)
+</li>
+<li>   2.3.0 (220304) fix plot.<a href="#robo105">pageplot</a>[x] issue with python 3.9+ (ax.title); (220309) tune xscale for t &lt; 1h;
+           (220318) fixed _getdll.AddDllDirectory to allow more than 1 call / <a href="#robo85">close</a> in any order;
+           (220324) <a href="#robo30">WQSources</a> return str;
+           (220419) allow multiple <a href="#robo69">init</a> / <a href="#robo85">close</a> (reloads the dll)
+           (220420) add <a href="#robo25">Selectid</a>(xxx) for <a href="#robo25">Selected</a>(xxx, return_type=False)
+           (220421) minor change to [E:| D:], C: lookup; release and upload (3.8 / 3.9 / 3.10)
+</li>
+<li>   2.3.1 (220428) added proj.FrenchProjMapping to handle symbolic / EPSG mapping
+           (220505) added proj.get_spatial_ref to <a href="#robo67">get</a> SPATIAL-REF from .dat
+           (220701) added SelectFile.set_rw_mode(x) allowing to change read/write mode
+           (220706) added SelectFile(allow_reset=False) creates a button calling .clearfilename()
+           (220719) added util.strf4
+           (220720) added <a href="#robo27">TableValues</a> iterator for getting values from tables
+           (22xxxx) release and upload (3.8 / 3.9 / 3.10)
+</li>
+</ul>
+<p>
+</p>
+<pre>           postponed: &lt;&lt;add epanet 2.2.0 API as _epanet22 - same interface as _epanet2&gt;&gt;.
+</pre>
+<p></p>
+<a name="robo5"></a>
+<a name="ganessa2esim26th2fClasses"></a>
+<h1>6.  ganessa.sim&amp;th/Classes [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <strong>Classes</strong> available to ganessa.sim and ganessa.th
+</p>
+<a name="robo33"></a>
+<a name="Classes2fGraph"></a>
+<h2>6.1.  Classes/Graph, extrnodes,<br />adjlinks, adjnodes,<br />propagate, dtree,<br />PURPOSE [ Objects ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo5">Classes</a> ] [ Objects ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>Graph</strong> = <strong>Graph</strong>([orientation])
+</p>
+<p class="item_name">METHODS</p>
+<ul><li>   from_n, to_n = <strong>Graph</strong>.<strong>extrnodes</strong>(alink): returns the from and to <a href="#robo24">Nodes</a> of alink
+</li>
+<li>   linkset = <strong>Graph</strong>.<strong>adjlinks</strong>(anode): returns <a href="#robo19">Links</a> adjacent to anode as a <a href="#robo67">set</a>
+</li>
+<li>   nodeset = <strong>Graph</strong>.<strong>adjnodes</strong>(anode): returns <a href="#robo24">Nodes</a> adjacent to anode as a <a href="#robo67">set</a>
+</li>
+<li>   plist = <strong>Graph</strong>.oriented_links(anode): returns a list of (<a href="#robo37">LINK</a>, index) tuples
+</li>
+<li>   pairs = <strong>Graph</strong>.adj_links_nodes(<a href="#robo37">NODE</a>): return a <a href="#robo67">set</a> of (<a href="#robo37">LINK</a>, <a href="#robo24">Nodes</a>) tuples
+</li>
+<li>   <a href="#robo37">LINK</a>, from_n, to_n = <strong>Graph</strong>.pop(): <a href="#robo68">remove</a> a <a href="#robo37">LINK</a> and returns it wih from and to <a href="#robo24">Nodes</a>
+</li>
+<li>   slinks, snodes = <strong>Graph</strong>.<strong>propagate</strong>(anode [, maxlen= -1]):
+     returns the sets of <a href="#robo19">Links</a> and <a href="#robo24">Nodes</a> connected to 'anode' by a path of max length 'maxlen'
+</li>
+<li>   <strong>dtree</strong>, slinks = <strong>Graph</strong>.<strong>dtree</strong>(anode [, maxlen= -1]): returns a tree as an ordered <a href="#robo38">DICT</a>
+</li>
+<li>   linkset, nodeset = <strong>Graph</strong>.downstream(anode [, update='Q'] [, maxlen= -1]):
+     returns downstream <a href="#robo22">Elements</a> with respect to 'update' attribute direction (default Q)
+</li>
+<li>   linkset, nodeset = <strong>Graph</strong>.upstream(anode [, update='Q'] [, maxlen= -1]):
+     returns upstream <a href="#robo22">Elements</a> with respect to 'update' attribute direction (default Q)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   str orientation: the attribute sign will be used for orienting the <strong>Graph</strong>.
+     (default <a href="#robo39">NONE</a>, orientation from -&gt; to)
+</li>
+<li>   str alink, anode: <a href="#robo37">LINK</a>, <a href="#robo37">NODE</a> ID
+</li>
+<li>   int maxlen: compute <strong>Graph</strong> propagation up to maxlen steps (&lt;0 if not limited)
+</li>
+<li>   str update: attribute to be used as <a href="#robo37">LINK</a> direction (defaut 'Q'; use '' or <a href="#robo39">NONE</a> to
+     disable direction update)
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   The <strong>Graph</strong> is built from the current model <a href="#robo19">Links</a> and <a href="#robo24">Nodes</a>:
+</p>
+<ul><li>   <a href="#robo67">set</a> linkset: <a href="#robo67">set</a> of adjacent <a href="#robo19">Links</a> ID
+</li>
+<li>   <a href="#robo67">set</a> nodeset: <a href="#robo67">set</a> of adjacent <a href="#robo24">Nodes</a> ID
+</li>
+<li>   plist: list of tuples (ID alink, int idx) where idx is the index
+     of the other <a href="#robo37">NODE</a> in <strong>Graph</strong>.edges[alink] (<strong>Graph</strong>.edges[alink][1-idx] == anode).
+</li>
+<li>   sets slinks, snodes: sets of <a href="#robo19">Links</a> and <a href="#robo24">Nodes</a> ID.
+</li>
+<li>   OrderedDict <strong>dtree</strong>: ordered <a href="#robo38">DICT</a> where key are <a href="#robo37">NODE</a> IDs, values are a <a href="#robo37">LINK</a> ID
+     and a depth integer value. The <a href="#robo37">LINK</a> allows to connect the <a href="#robo37">NODE</a>.
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   first key, value returned by <strong>dtree</strong> is the root <a href="#robo37">NODE</a>, and ('', 0)
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   new in 1.3.7 (160706)
+</li>
+<li>   reviewed 1.7.6 (170620): use <a href="#robo62">attrkeyword</a>() for IN and FN
+</li>
+<li>   reviewed 1.8.2 (171103): added <strong>Graph</strong>.<strong>dtree</strong>
+</li>
+<li>   reviewed 1.8.5 (171128): updated <strong>dtree</strong>, added <strong>Graph</strong>.<strong>adjnodes</strong>
+</li>
+<li>   reviewed 2.0.8 (200106): added revert, upstream, downstream
+                              discard degenerated <a href="#robo19">Links</a> (same from and to <a href="#robo37">NODE</a>)
+                              changed internal representation
+</li>
+<li>   reviewed 2.1.8 (210325): added pop and __len__
+</li>
+</ul>
+<p></p>
+<a name="robo6"></a>
+<a name="ganessa2esim26th2fCompatibility"></a>
+<h1>7.  ganessa.sim&amp;th/Compatibility [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   The installation of pyganessa is compatible with several versions of Picwin32.dll
+  (regular Piccolo / Picalor). Missing <a href="#robo17">functions</a> in older versions should NOT be called.
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>    2014  -&gt; 141203 Piccolo5 -- release 2014
+</li>
+<li>   (2015a -&gt; 151217 Piccolo6 &amp; Picalor6 -- release 2015 (<a href="#robo29">Unstable</a>)) - discarded
+</li>
+<li>    2015  -&gt; 160121 Piccolo6 -- release 2015 sp1
+</li>
+<li>    2016  -&gt; 160419 Piccolo6 &amp; Picalor6 -- release 2016
+</li>
+<li>    2016a -&gt; 160930 Piccolo6 release 2016b (incomplete; compatible with 1.4.2)
+</li>
+<li>    2016b -&gt; 161216 Piccolo6 &amp; Picalor6 -- release 2016b (1.5.0 - 1.5.2)
+</li>
+<li>    2017  -&gt; 170627 Piccolo6 &amp; Picalor6 -- release 2017  (1.7.7 - 1.7.8)
+</li>
+<li>    2017b -&gt; 1709xx Piccolo6 &amp; Picalor6 -- release 2017b (1.8.0 - 1.9.6)
+</li>
+<li>    2018  -&gt; 180725 Piccolo6 &amp; Picalor6 -- release 2018  (1.9.7 - )
+</li>
+<li>    2020  -&gt; 200306 Piccolo6 &amp; Picalor6 -- release 2020  (2.1.1 - )
+</li>
+<li>    2021  -&gt; 2103xx Piccolo6 &amp; Picalor6 -- release 2020b (2.1.1 - )
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   pyganessa is compatible with matching or newer versions of Ganessa_SIM/Ganessa_TH.dll only;
+   except a <strong>Compatibility</strong> break on 170117.
+</p>
+<a name="robo7"></a>
+<a name="ganessa2esim26th2fConstants"></a>
+<h1>8.  ganessa.sim&amp;th/Constants [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   Several categories of <strong>Constants</strong> are available:
+</p>
+<ul><li>   <strong>Constants</strong> defining a type of element: see <a href="#robo37">BRANCH</a> or <a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">RESERVOIR</a> or <a href="#robo37">TANK</a>
+</li>
+<li>   <strong>Constants</strong> defining a command module: <a href="#robo39">M</a>.COM or <a href="#robo39">M</a>.ROOT, <a href="#robo39">M</a>.GEN, <a href="#robo39">M</a>.SIM etc.
+</li>
+<li>   <strong>Constants</strong> defining a command within a module: <a href="#robo39">M</a>.SIM.EXEC
+</li>
+<li>   keywords
+</li>
+</ul>
+<p></p>
+<a name="robo37"></a>
+<a name="Constants2fBRANCH"></a>
+<h2>8.1.  Constants/BRANCH, LINK,<br />NODE, NOEUD,<br />TANK, RESERVOIR,<br />RSV [ Constants ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo7">Constants</a> ] [ Constants ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   Those <a href="#robo7">Constants</a> allow to <a href="#robo91">select</a> one of the three types of model <a href="#robo22">Elements</a>:
+</p>
+<ul><li>   <strong>LINK</strong> or <strong>BRANCH</strong>: <a href="#robo19">Branches</a> <a href="#robo22">Elements</a> such as pipes, pumps, valves
+</li>
+<li>   <strong>NODE</strong> or <strong>NOEUD</strong>
+</li>
+<li>   <strong>TANK</strong> or <strong>RESERVOIR</strong> or or <strong>RSV</strong>
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   <a href="#robo39">M</a>.LNK, <a href="#robo39">M</a>.NOD and <a href="#robo39">M</a>.<strong>RSV</strong> are object <a href="#robo7">Constants</a> for calling <strong>BRANCH</strong>, <strong>NODE</strong> and <strong>RESERVOIR</strong> modules
+</p>
+<a name="robo38"></a>
+<a name="Constants2fDICT"></a>
+<h2>8.2.  Constants/DICT [ Constants ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo7">Constants</a> ] [ Constants ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   The <strong>DICT</strong> class provide a dictionnary tree for keywords
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>DICT</strong>.SYMBOLIC_NAME
+</p>
+<p class="item_name">CONTENT</p>
+<ul><li>   FULLPER: extended simulation (ENCHAINE in French)
+</li>
+<li>   EXPORT
+</li>
+<li>   INSTANT
+</li>
+</ul>
+<p></p>
+<a name="robo39"></a>
+<a name="Constants2fM"></a>
+<h2>8.3.  Constants/M, NONE [ Constants ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo7">Constants</a> ] [ Constants ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   The <strong>M</strong> class provide a dictionnary tree for modules. It provides a
+   hierarchical naming of the commands by modules, for building
+   language-independant commands using  <a href="#robo54">gencmd</a>, <a href="#robo54">gencmdw</a>, <a href="#robo54">_gencmdw</a> <a href="#robo17">functions</a>.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   One of the following:
+</p>
+<ul><li>   <strong>M</strong>.MODULE_SYMBOLIC_NAME
+</li>
+<li>   <strong>M</strong>.MODULE_SYMBOLIC_NAME.COMMAND__SYMBOLIC_NAME or
+</li>
+<li>   <strong>M</strong>.MODULE_SYMBOLIC_NAME..<strong>NONE</strong> or <strong>M</strong>.<strong>NONE</strong> or <strong>M</strong>.VOID
+</li>
+</ul>
+<p></p>
+<p class="item_name">CONTENT</p>
+<p>   The available MODULE_SYMBOLIC_NAME are:
+</p>
+
+<p>   ROOT: modules names: BRA, NOD, <a href="#robo37">RSV</a>, DYN, MOD, SIM, QUA, MES, LAB, FIR, INV, OPT.
+   They can be used in three forms, as first argument for the <a href="#robo17">functions</a> above:
+</p>
+<ul><li>   <strong>M</strong>.ROOT.SIM or <strong>M</strong>.SIM.ROOT: equals the index of the module name
+</li>
+<li>   <strong>M</strong>.SIM: can be used in <a href="#robo54">gencmd</a> and <a href="#robo54">gencmdw</a> only as first argument
+</li>
+</ul>
+<p>
+   GEN: general <a href="#robo33">PURPOSE</a> commands:
+</p>
+<ul><li>   LOAD: load a binary file
+</li>
+<li>   OPEN and <a href="#robo85">close</a>: open and <a href="#robo85">close</a> an output file
+</li>
+<li>   <a href="#robo85">quit</a>: the <a href="#robo85">quit</a> command
+</li>
+<li>   READ: read a command language or data file
+<br>example: <i>gencmd(M.GEN, M.GEN.OPEN, DICT.EXPORT, 'filename.txt')</i>
+</li>
+<li>   EXPORT, <a href="#robo67">save</a>: export or <a href="#robo90">save</a> to a (previously opened) file
+</li>
+<li>   IMPORT: import attributes for a type of element from a file
+</li>
+<li>   FIND: command for retrieving a given period or instant
+</li>
+<li>   MESSAGE: writes a message to the console
+</li>
+<li>   DEFPARAM, DEFVAR: define a positional parameter (%1 ... %9) or variable
+</li>
+<li>   UNIT: redefine units name and coef
+</li>
+<li>   EOF: the end-of-file command
+</li>
+</ul>
+<p>   LNK: <a href="#robo37">LINK</a> commands and submodules, including <a href="#robo37">LINK</a> types (.PIPE .PUMP .NRV .PRV .PSV .FCV .TCV etc.)
+</p>
+
+<p>   NOD: <a href="#robo37">NODE</a> commands and submodules:
+</p>
+<ul><li>   CONS: demand acquisition submodule
+</li>
+<li>   COEF, AREA: demand coefficient by demand type and area
+</li>
+<li>   TOPO: topograpy submodule
+</li>
+</ul>
+<p>   <a href="#robo37">RSV</a>: <a href="#robo37">RESERVOIR</a> command and submodules:
+</p>
+<ul><li>   CHAR: characteristics
+</li>
+<li>   LEVEL: initial level acquisition submodule
+</li>
+</ul>
+<p>   MES: measurement commands:
+</p>
+<ul><li>   SMOOTH: allow to define the smoothing interval
+</li>
+</ul>
+<p>   SIM: simulation commands:
+</p>
+<ul><li>   FILE: define a result file name
+</li>
+<li>   EXEC: runs the simulation
+</li>
+</ul>
+<p>   QUA: Water quality module commands
+</p>
+<p class="item_name">REMARK</p>
+<p>   The above codes are not exhaustive. Please refer to the script.
+</p>
+<a name="robo8"></a>
+<a name="ganessa2esim26th2fExceptions"></a>
+<h1>9.  ganessa.sim&amp;th/Exceptions [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <strong>Exceptions</strong> available to ganessa.sim and ganessa.th
+</p>
+<a name="robo36"></a>
+<a name="Exceptions2fuseExceptions"></a>
+<h2>9.1.  Exceptions/useExceptions, GanessaError,<br />SimulationError, IsolatedNodeSimulationError [ Exceptions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo8">Exceptions</a> ] [ Exceptions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   oldstat = <strong>useExceptions</strong>([status])
+</li>
+<li>   try: ... except <strong>GanessaError</strong>:
+</li>
+<li>   try: ... except <strong>SimulationError</strong> [as exc]:
+</li>
+<li>   try: ... except <strong>IsolatedNodeSimulationError</strong> [as exc]:
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<p>   bool status: if True, errors will raise <a href="#robo8">Exceptions</a>
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   bool oldstat: previous error handling mode
+</li>
+<li>   exception exc: excetion object. The attribute exc.reason will provide
+     additional information on the origin of error
+</li>
+</ul>
+<p></p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <strong>SimulationError</strong> is a derived class of <strong>GanessaError</strong>.
+   <strong>IsolatedNodeSimulationError</strong> is a derived class of <strong>SimulationError</strong>, thrown when a simulation
+   error originates form isolated <a href="#robo24">Nodes</a>.
+</p>
+
+<p>   The simulation error subtypes (exc.reason) are the following:
+</p>
+<ul><li>   SIMERR.ISOL: Isolated <a href="#robo24">Nodes</a>
+</li>
+<li>   SIMERR.SLOW_CV: Slow convergence (convergence not obtained within max iteration count)
+</li>
+<li>   SIMERR.<a href="#robo29">Unstable</a>: Unstability (flip between 2 or more equilibrium points)
+</li>
+<li>   SIMERR.FCTAPP: Equipment(s) or storage(s) do not operate properly;
+     they can be retrieved with the <a href="#robo29">Unstable</a>() iterator
+</li>
+<li>   SIMERR.DIVERGE: Divergence (convergence error increase)
+</li>
+<li>   SIMERR.DYNSTOP: The simulation did not complete
+</li>
+<li>   SIMERR.STRUCT: Structural inconsistency
+</li>
+<li>   SIMERR.MEMALLOC: Memory allocation error (WQ or inverse problem)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Defaults to False: errors do not raise '<strong>GanessaError</strong>' <a href="#robo8">Exceptions</a>. If <a href="#robo67">set</a> to True,
+   errors raise <a href="#robo8">Exceptions</a> with a string name giving the error message and a int reason
+   giving the type of exception.
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   190715: added SIMERR.DYNSTOP
+</li>
+<li>   210624: added <strong>IsolatedNodeSimulationError</strong>
+</li>
+<li>   220415: Piccolo '<a href="#robo85">quit</a>' command terminates
+</li>
+</ul>
+<p></p>
+<a name="robo9"></a>
+<a name="ganessa2esim26th2fFunctions"></a>
+<h1>10.  ganessa.sim&amp;th/Functions [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <strong>Functions</strong> available to ganessa.sim and ganessa.th
+</p>
+<a name="robo40"></a>
+<a name="Functions2faddSHLtype"></a>
+<h2>10.1.  Functions/addSHLtype, addSHL,<br />updateSHL, delSHL [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>addSHLtype</strong>: Add / modify a single head losses (SHL) from the SHL <a href="#robo26">Table</a>
+</li>
+<li>   <strong>addSHL</strong>, <strong>updateSHL</strong>, <strong>delSHL</strong>: Add / modify / delete single head losses (SHL)
+     objects for a given pipe
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>addSHLtype</strong>(shltype, values [, comment])
+</li>
+<li>   istat = <strong>addSHL</strong>(id, shltype, nb)
+</li>
+<li>   istat = <strong>updateSHL</strong>(id, shltype, nb)
+</li>
+<li>   istat = <strong>delSHL</strong>(id [, shltype])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string shltype: type of shl to be added/modified
+</li>
+<li>   float values: direct and reverse SHL coefficients
+</li>
+<li>   string comment: long name of the SHL type
+</li>
+<li>   string id: id of pipe
+</li>
+<li>   int nb: number of SHL of type shltype to be added / updated with
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+ COMMENTS
+   If shltype is not given or is '' for <strong>delSHL</strong> then all SHL are removed from pipe.
+</p>
+<p class="item_name">REMARK</p>
+<ul><li>   these <a href="#robo17">functions</a> require version 2015/12 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<a name="robo41"></a>
+<a name="Functions2fareas"></a>
+<h2>10.2.  Functions/areas [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   return <strong>areas</strong> associated with <a href="#robo24">Nodes</a>/<a href="#robo19">Links</a>
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   area = <strong>areas</strong>(typelt, <a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int typelt: type of object (<a href="#robo37">NODE</a> or <a href="#robo37">LINK</a>)
+</li>
+<li>   str <a href="#robo74">attr</a> (optional): area attribute to be returned (ZN or ZP). Default to 'ZN'
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   counter area: dictionary of <a href="#robo37">NODE</a>/<a href="#robo37">LINK</a> counts by area
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) area are returned as unicode strings.
+</p>
+<a name="robo43"></a>
+<a name="Functions2fcmd"></a>
+<h2>10.3.  Functions/cmd, addcmdw,<br />execute, cmdfile [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>cmd</strong>(scmd)
+</li>
+<li>   istat = <strong>cmdfile</strong>(fname [, args])
+</li>
+<li>   istat = <strong>addcmdw</strong>(scmd)
+</li>
+<li>   istat = <strong>execute</strong>(scmd1 [ ..., scmdn][, dbg= True])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string scmd: command line to be executed
+</li>
+<li>   string fname: data/command file name to be read/executed
+</li>
+<li>   string args: optional argument(s) to the command file, as one single string
+</li>
+<li>   string scmd1: command line(s) to be executed ('\n' is handled as a command delimiter)
+</li>
+<li>   string scmdn: optional command lines(s) to be executed (same as scmd1)
+</li>
+<li>   boolean dbg: optional, makes commands to be echoed in the log file.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>cmd</strong> executes the given command
+</li>
+<li>   <strong>cmdfile</strong> reads/executes the commands from the file.
+</li>
+<li>   <strong>addcmdw</strong> pushes the command onto the command stack.
+</li>
+<li>   <strong>execute</strong> pushes the given commands on the stack and executes them
+</li>
+</ul>
+<p>
+   If an error occurs while reading a file or nested files, the execution stops.
+   If the useException mode is <a href="#robo67">set</a>, the error will raise a <a href="#robo36">GanessaError</a>
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   1.9.6 (180615): convert str to cp1252
+</li>
+<li>   2.1.5 (200915): extend <strong>cmdfile</strong> to allow <strong>cmdfile</strong>(file, arg1, arg2, ..)
+</li>
+</ul>
+<p></p>
+<a name="robo44"></a>
+<a name="Functions2fcommit"></a>
+<h2>10.4.  Functions/commit [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Executes all the commands available on the stack (first in, first executed)
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>commit</strong>()
+</p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARK</p>
+<p>   If an error occurs, the remaining part of the stack is cleared
+</p>
+<a name="robo45"></a>
+<a name="Functions2fcwfold"></a>
+<h2>10.5.  Functions/cwfold [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ret = <strong>cwfold</strong>(folder)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   str folder: folder name where journal (piccolo.jnl) and work files will be created
+</p>
+<p class="item_name">RESULT</p>
+<p>   bool ret: True if folder <a href="#robo61">exists</a>; False otherwise
+</p>
+<p class="item_name">HISTORY</p>
+<p>   introduced in 1.7.7 (170705)
+   * 1.9.6 (180615): fix non-ascii folder str converted to cp1252
+</p>
+<a name="robo47"></a>
+<a name="Functions2fdist2link"></a>
+<h2>10.6.  Functions/dist2link [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the distance and curvilinear abcissae of a point from the given <a href="#robo37">LINK</a>
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   d, s1, s2 = <strong>dist2link</strong>(id, x, y)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of <a href="#robo37">LINK</a> element
+</li>
+<li>   double x, y: coordinates of the point
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   double d: distance of the point to the <a href="#robo37">LINK</a> polyline
+</li>
+<li>   double s1, s2: curvilinear distance of the projection from each extremity
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   introduced in 1.3.7 (160706)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>dist2link</strong> requires version 2016b or higher of Piccolo/Ganessa dll;
+     if not a pure python calculation is made using <a href="#robo76">linkXYZV</a>
+</li>
+<li>   the polyline length is s1 + s2;
+     s1= 0 or s2= 0 when the point projection is outside the polyline
+</li>
+<li>   if the id does not <a href="#robo61">exists</a> the return value is (-1, -1, -1)
+</li>
+</ul>
+<p></p>
+<a name="robo49"></a>
+<a name="Functions2fdll5fversion"></a>
+<h2>10.7.  Functions/dll_version, full_version [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   yyyymmdd = <strong>dll_version</strong>()
+</li>
+<li>   text = <strong>full_version</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int yyyymmdd = dll version()
+</li>
+<li>   str text = <strong>full_version</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Starting with 2.2.4 (210901), if called before <a href="#robo69">init</a>(), <strong>dll_version</strong>() will
+   return the version if the .dll is newer than 210831, 0 otherwise.
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   <strong>dll_version</strong> introduced in 1.8.0 (170907)
+</li>
+<li>   <strong>full_version</strong> introduced in 1.8.6 (171201)
+</li>
+<li>   returns api.<strong>dll_version</strong>() if defined (210901)
+</li>
+</ul>
+<p></p>
+<a name="robo51"></a>
+<a name="Functions2fextrnodes"></a>
+<h2>10.8.  Functions/extrnodes [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the from and to <a href="#robo37">NODE</a> (indexes) form <a href="#robo37">LINK</a> index
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   i_from, i_to = <strong>extrnodes</strong>(i_link)
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int i_link: index of the <a href="#robo37">LINK</a>
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int i_from: index of from <a href="#robo37">NODE</a>
+</li>
+<li>   int i_to:   index of to <a href="#robo37">NODE</a>
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Internal indexes start with 1
+</li>
+<li>   Internal index of an element may change after a simulation
+     or a modification of the model.
+</li>
+</ul>
+<p></p>
+<a name="robo54"></a>
+<a name="Functions2fgencmd"></a>
+<h2>10.9.  Functions/gencmd, gencmdw,<br />raw_gencmdw, _gencmdw [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Those fuctions allow to generate a language independant command line
+   based upon the keywords id of a module and its commands (see <a href="#robo39">M</a>).
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat =  <strong>gencmd</strong> (module, icmd, [word, scmd, extmode])
+</li>
+<li>   istat =  <strong>gencmdw</strong>(module, icmd, [word, scmd, extmode])
+</li>
+<li>   istat = <strong>_gencmdw</strong>(module, icmd, [word, scmd, extmode])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   module: constant id for the module
+</li>
+<li>   icmd:   constant id for the command in the module (or <a href="#robo39">NONE</a>)
+</li>
+<li>   word:   constant id for a keyword (or <a href="#robo39">NONE</a>) (optional)
+</li>
+<li>   scmd:   additional string (optional)
+</li>
+<li>   extmode: if <a href="#robo67">set</a> to 1, the command is appended to the previous one (optional)
+</li>
+<li>   string scmd: command line to be executed
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>gencmd</strong> builds and executes the given command
+</li>
+<li>   <strong>gencmdw</strong> and <strong>_gencmdw</strong> build the command and push it onto the command stack
+</li>
+<li>   <strong>gencmd</strong> and <strong>gencmdw</strong> allow a more flexible entry of the first 2 arguments
+</li>
+<li>   If the useException mode is <a href="#robo67">set</a>, an error will raise a <a href="#robo36">GanessaError</a>
+</li>
+<li>   <strong>raw_gencmdw</strong> is an exported version of <strong>_gencmdw</strong>
+</li>
+</ul>
+<p></p>
+<p class="item_name">EXAMPLES</p>
+<p>   The following are equivalent:
+</p>
+<ul><li>   istat = <strong>_gencmdw</strong>(<a href="#robo39">M</a>.SIM.ROOT, <a href="#robo39">M</a>.SIM.EXEC, <a href="#robo38">DICT</a>.FULLPER)
+</li>
+<li>   istat = <strong>gencmdw</strong>(<a href="#robo39">M</a>.SIM, "EXEC", <a href="#robo38">DICT</a>.FULLPER)
+</li>
+</ul>
+<p>   The following are equivalent:
+</p>
+<ul><li>   istat = <strong>_gencmdw</strong>(<a href="#robo39">M</a>.SIM.ROOT, <a href="#robo39">M</a>.SIM.EXEC, scmd="15:30")
+</li>
+<li>   istat = <strong>gencmdw</strong>(<a href="#robo39">M</a>.SIM, "EXEC", scmd="15:30")
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   1.8.0 (170908): added <strong>raw_gencmdw</strong>
+</p>
+<a name="robo57"></a>
+<a name="Functions2fgetall"></a>
+<h2>10.10.  Functions/getall [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>getall</strong> returns the value for all objects of the given type
+     for all objects of the given type
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   vect = <strong>getall</strong>(typelt, <a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int typelt: type of element (<a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">TANK</a>)
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (result) for which value is requested
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float[] vect: vector of values
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<p>   <strong>getall</strong>(typelt, <a href="#robo74">attr</a>): when typelt =1 (<a href="#robo19">Links</a>), <a href="#robo74">attr</a> can be either a regular attribute
+   ('Q', 'V', 'D', etc.) or a <a href="#robo37">NODE</a>-based attribute such as 'P:<a href="#robo39">M</a>' for mean pressure,
+   'P:G' for geometric mean, 'P:N' for min and 'p:X' for max.
+</p>
+<a name="robo58"></a>
+<a name="Functions2fgetcodescount"></a>
+<h2>10.11.  Functions/getcodescount, nextcode [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>getcodescount</strong>: returns count of used demand codes
+</li>
+<li>   <strong>nextcode</strong>: returns the list of used codes with <a href="#robo37">NODE</a> count
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   ncodes = <strong>getcodescount</strong>(used_only)
+</li>
+<li>   code, demand, count, nbchar  = <strong>nextcode</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   bool used_only: if True, only codes associated with at least
+     one <a href="#robo37">NODE</a> will be returned
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int ncodes: number of codes to be returned
+</li>
+<li>   str code: demand codes
+</li>
+<li>   float demand: total nominal demand for the code
+</li>
+<li>   int count: <a href="#robo37">NODE</a> count
+</li>
+<li>   int nbchar: nb of chars in the demand code string
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   these <a href="#robo17">functions</a> require version 2016 or higher of Piccolo/Ganessa dll
+</li>
+<li>   If the GanSim Dll is too old those function will not return data
+</li>
+<li>   See also the <a href="#robo21">Demands</a>(id) iterator
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) codes are returned as unicode strings.
+</p>
+<a name="robo59"></a>
+<a name="Functions2fgetdemandbycode"></a>
+<h2>10.12.  Functions/getdemandbycode, getcodedemandinit,<br />nextcodedemand [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>getdemandbycode</strong>: returns demand for a given <a href="#robo37">NODE</a> and consumer code by id
+</li>
+<li>   <strong>getcodedemandinit</strong>: initialises and returns the number of pairs
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   demand, istat = <strong>getdemandbycode</strong>(nid, code)
+</li>
+<li>   nbpairs = <strong>getcodedemandinit</strong>(nid)
+</li>
+<li>   code, demand, codelen = <strong>nextcodedemand</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string nid: id of <a href="#robo37">NODE</a>
+</li>
+<li>   string code: code for which demand value is requested
+</li>
+<li>   int nbpairs: number of demand, csm pairs for the <a href="#robo37">NODE</a>
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float demand: value of the demand (0 if not available)
+</li>
+<li>   int istat: return code (0= 0K -1= unknown code 1= unknown <a href="#robo37">NODE</a> 3= dll too old)
+</li>
+<li>   int nbpairs: number of code, demand pairs for the <a href="#robo37">NODE</a>
+</li>
+<li>   string code: demand code
+</li>
+<li>   int codelen: length of code string
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   these <a href="#robo17">functions</a> require version 2016 or higher of the Piccolo/Ganessa dll
+</li>
+<li>   If the GanSim Dll is too old those function will not return data
+</li>
+<li>   See also the <a href="#robo21">Demands</a>(nid) iterator
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) codes are returned as unicode strings.
+</p>
+<a name="robo60"></a>
+<a name="Functions2fgetid"></a>
+<h2>10.13.  Functions/getid [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the id of an element by type and index
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   id = <strong>getid</strong>(typelt, numelt)
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int typelt: type of element
+</li>
+<li>   int numelt: index of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   unicode string id: id of the element
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Internal index starts with 1
+</li>
+<li>   Internal index of an element may change after a simulation or
+     a modification of the model.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids are returned as unicode strings.
+</p>
+<a name="robo61"></a>
+<a name="Functions2fgetindex"></a>
+<h2>10.14.  Functions/getindex, exists [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   num = <strong>getindex</strong>(typelt, sid)
+</li>
+<li>   bret = <strong>exists</strong>(typelt, sid)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   int typelt: type of element
+</li>
+<li>   string sid: ID of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int num: index of element ID (starting at pos 1)
+</li>
+<li>   bool bret: indicates if the element <strong>exists</strong> in the model
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   <strong>getindex</strong> new in 1.3.3 but not working !
+</li>
+<li>   <strong>getindex</strong> fixed in 1.9.4 (180604)
+</li>
+<li>   <strong>exists</strong> created in 1.9.4 (180604)
+</li>
+</ul>
+<p></p>
+<a name="robo62"></a>
+<a name="Functions2fgetkeyword"></a>
+<h2>10.15.  Functions/getkeyword, modulekeyword,<br />attrkeyword [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   <a href="#robo67">get</a> keyword or command name by index  - for building
+   command language independant <a href="#robo17">functions</a>
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   sret = <strong>getkeyword</strong>(code)
+</li>
+<li>   sret = <strong>modulekeyword</strong>(module, submodule)
+</li>
+<li>   sret = <strong>attrkeyword</strong>(<a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   code: int code of the keyword (&gt;0) or global command (&lt;0)
+</li>
+<li>   module: int code of the module (&lt;0 for the submodule alone)
+</li>
+<li>   submodule: int code of the module (0 for the module alone)
+</li>
+<li>   <a href="#robo74">attr</a>: int code of the attribute
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   str sret: trimmed value of the keyword or global command or module submodule
+</p>
+<pre>         (null string if the code or module/submodule is not recognised)
+</pre>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   <strong>getkeyword</strong> introduced in 1.4.2 (161010)
+</li>
+<li>   <strong>modulekeyword</strong> and <strong>attrkeyword</strong> intoduced in 1.7.3 (170313)
+</li>
+<li>   From version 1.9.0 (05/04/2018) results are returned as unicode strings.
+</li>
+</ul>
+<p></p>
+<a name="robo63"></a>
+<a name="Functions2fgetvar"></a>
+<h2>10.16.  Functions/getvar, getunitname,<br />getunitcoef [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the value of a Piccolo expression or variable
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   str_val = <strong>getvar</strong>(expression)
+</li>
+<li>   str_val = <strong>getunitname</strong>(<a href="#robo74">attr</a>)
+</li>
+<li>   coef = <strong>getunitcoef</strong>(<a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string expression: the expression or variable to be returned
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   string str_val: a string containing the expected value
+</li>
+<li>   float coef: a float giving the unit coefficient / internal units
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Unit coefficient of a given attribute can also be returned with
+     the adequate <strong>getvar</strong>('unite.'+<a href="#robo74">attr</a>).
+</li>
+<li>   The unit coefficient is the number of internal units per user units:
+     1 (user unit) = coef (internal unit).
+</li>
+</ul>
+<p>   Internal units are SI units excepted:
+</p>
+<ul><li>   diameter and roughness:  mm
+</li>
+<li>   pressure: mwc
+</li>
+<li>   concentrations: mg/l (or ppm)
+</li>
+<li>   consumed mass (D1): g
+</li>
+</ul>
+<p></p>
+<p class="item_name">EXAMPLE</p>
+<p>    If the user flow unit is 'l/s', since internal flow unit is 'm3/s',
+    <strong>getunitcoef</strong>('Q') returns 0.001
+</p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) info returned as unicode strings.
+</p>
+<a name="robo65"></a>
+<a name="Functions2fimplemented"></a>
+<h2>10.17.  Functions/implemented [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ret = <strong>implemented</strong>(name)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   str name: name of the function or iterator
+</p>
+<p class="item_name">RESULT</p>
+<p>   bool ret: True if implementaed, False if not
+</p>
+<p class="item_name">HISTORY</p>
+<p>   Created 2022-07-21 (2.3.1)
+</p>
+<a name="robo66"></a>
+<a name="Functions2fimportEpanet"></a>
+<h2>10.18.  Functions/importEpanet, exportEpanet [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>importEpanet</strong>(fname)
+</li>
+<li>   istat = <strong>exportEpanet</strong>(fname)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<p>   string fname: file name to import from / export to (should be an .inp)
+</p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARK</p>
+<p>   At import, .inp file is first converted to a .inp_cvt.dat Piccolo file,
+   then this file is read. Syntax error if any will refer to the converted .dat file.
+</p>
+<a name="robo69"></a>
+<a name="Functions2finit"></a>
+<h2>10.19.  Functions/init [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>init</strong>([folder] [, silent=False] [, debug=False])
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   str folder: optional folder name where journal and work files will be created
+   silent: if <a href="#robo67">set</a> to True, most information and warning message will not show
+</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   Initialises the ganessa simulation/command language engine.
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Starting with version 1.3.5, a session should be started by calling <strong>init</strong>() or <strong>init</strong>(folder).
+     however for <a href="#robo6">Compatibility</a> with previous releases where <strong>init</strong> was called at import time,
+     <strong>init</strong> is automatically called at 1st call of <a href="#robo43">cmd</a>, <a href="#robo43">cmdfile</a>, <a href="#robo43">execute</a>, load, <a href="#robo78">loadbin</a>
+</li>
+<li>   A session should be terminated by calling <a href="#robo85">quit</a>() or typing &lt;Ctrl&gt;+Z
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   introduced in 1.3.5
+</li>
+<li>   1.9.6 (180615): fix non-ascii folder str converted to cp1252
+</li>
+</ul>
+<p></p>
+<a name="robo70"></a>
+<a name="Functions2fis5fembedded"></a>
+<h2>10.20.  Functions/is_embedded [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   ret = <strong>is_embedded</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   bool ret: indicates whether python is embedded or not
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   introduced in 2.2.4 (210823)
+</li>
+</ul>
+<p></p>
+<a name="robo74"></a>
+<a name="Functions2flinkattr"></a>
+<h2>10.21.  Functions/linkattr, nodeattr,<br />tankattr, linkattrs,<br />nodeattrs, tankattrs,<br />attr, attrs,<br />meanattr [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>linkattr</strong>, <strong>nodeattr</strong>, rsvattr, <strong>attr</strong>: return numerical attributes
+     of a given element by id
+</li>
+<li>   <strong>linkattrs</strong>, <strong>nodeattrs</strong>, <strong>attrs</strong>: return text attributes of a
+     given element by id
+</li>
+<li>   <strong>meanattr</strong>: return mean attribute of from and to <a href="#robo24">Nodes</a> given by <a href="#robo37">BRANCH</a> id
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   val = <strong>linkattr</strong>(id, <strong>attr</strong>)
+</li>
+<li>   val = <strong>nodeattr</strong>(id, <strong>attr</strong>)
+</li>
+<li>   val = <strong>tankattr</strong>(id, <strong>attr</strong>)
+</li>
+<li>   txt = <strong>linkattrs</strong>(id, <strong>attr</strong>)
+</li>
+<li>   txt = <strong>nodeattrs</strong>(id, <strong>attr</strong>)
+</li>
+<li>   txt = <strong>tankattrs</strong>(id, <strong>attr</strong>)
+</li>
+<li>   val = <strong>attr</strong>[typelt](id, <strong>attr</strong>)
+</li>
+<li>   btxt, sz = <strong>attrs</strong>(typelt, id, <strong>attr</strong>)
+</li>
+<li>   val = <strong>meanattr</strong>(id, <strong>attr</strong>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+<li>   string <strong>attr</strong>: attribute (data or result) for which value is requested
+</li>
+<li>   int typelt: type of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float val: value of the numerical attribute (0. if not available)
+</li>
+<li>   string txt: value of the text attribute (empty string '' if
+     undefined or not available)
+</li>
+<li>   byte btxt: value of the text attribute, as a byte (python3) or str(python2)
+</li>
+<li>   int sz: length of the returned string
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Numerical attributes are returned converted in the actual unit system.
+</li>
+<li>   <a href="#robo37">RESERVOIR</a> text attributes are identical to the underlying <a href="#robo37">NODE</a> id
+</li>
+<li>   <strong>meanattr</strong> requires version 2016 or higher of Piccolo/Ganessa dll
+</li>
+<li>   branchattr, rsvattr and branchattrs are synonyms for <strong>linkattr</strong>, <strong>tankattr</strong> and <strong>linkattrs</strong>
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids and attributes are returned as unicode strings.
+</p>
+<a name="robo75"></a>
+<a name="Functions2flinkbbox"></a>
+<h2>10.22.  Functions/linkbbox [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the <a href="#robo37">LINK</a> bounding box
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   xmin, xmax, ymin, ymax, num = <strong>linkbbox</strong>(id)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int num: <a href="#robo37">LINK</a> internal number (0 if not found)
+</li>
+<li>   double xmin, xmax, ymin, ymax: bounding box
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   Created in 1.8.5 (171128)
+</p>
+<a name="robo76"></a>
+<a name="Functions2flinkXYZV"></a>
+<h2>10.23.  Functions/linkXYZV, branchXYZV [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the XYZ polyline representing a <a href="#robo37">LINK</a>, and eventually
+   an additional <a href="#robo37">NODE</a> attribute
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   vec_x, vec_y, vec_z, vec_v, len = <strong>linkXYZV</strong>(id, [<a href="#robo74">attr</a>], [include_depth])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+<li>   string <a href="#robo74">attr</a>: optional attribute for which value is requested
+</li>
+<li>   bool include_depth: optional attribute, defaults to False
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int len: number of points for the polyline
+</li>
+<li>   double[] vec_x, vec_y: vector of coordinates
+</li>
+<li>   float[] vec_z: vector of interpolated elevations (minus depth if include_depth= True)
+</li>
+<li>   float[] vec_v: vector of interpolated attribute
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   optional argument include_depth introduced in 1.4.2 (160908)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Z and V are interpolated from initial and final <a href="#robo24">Nodes</a>
+</li>
+<li>   if attribute is missing or not recognised vec_v is null.
+</li>
+<li>   if the <a href="#robo37">LINK</a> has no vertice, len=2 and the function returns values
+     from ending <a href="#robo24">Nodes</a>
+</li>
+<li>   if the id does not <a href="#robo61">exists</a> the return value is (<a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, 0)
+</li>
+<li>   <strong>branchXYZV</strong> is a synonym of <strong>linkXYZV</strong>.
+</li>
+</ul>
+<p></p>
+<a name="robo78"></a>
+<a name="Functions2floadbin"></a>
+<h2>10.24.  Functions/loadbin [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Clears (removes) all model objects and loads a binary file
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>loadbin</strong>(fname)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   string fname: binary data/result file name to be loaded
+</p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   The current model is discarded before the new one is loaded.
+</li>
+<li>   If the file content is not a Piccolo binary file an error occurs.
+</li>
+<li>   Binary result files also contain all data describing the model.
+</li>
+<li>   The filename is quoted if necessary
+</li>
+</ul>
+<p></p>
+<a name="robo79"></a>
+<a name="Functions2floadres"></a>
+<h2>10.25.  Functions/loadres [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Loads the default binary result file.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>loadres</strong>()
+</p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARK</p>
+<p>   The current model is discarded before the data corresponding to
+   the last simulation making use of the default result file is loaded.
+</p>
+<a name="robo80"></a>
+<a name="Functions2fnbobjects"></a>
+<h2>10.26.  Functions/nbobjects [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the number of model <a href="#robo22">Elements</a> in the given type
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   nb = <strong>nbobjects</strong>(typelt)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   int typelt: type of element (<a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">TANK</a>)
+</p>
+<p class="item_name">RESULT</p>
+<p>   int nb: number of element in that type
+</p>
+<a name="robo81"></a>
+<a name="Functions2fnbvertices"></a>
+<h2>10.27.  Functions/nbvertices [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the number of <a href="#robo19">Links</a> with vertices (bends)
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   nb = <strong>nbvertices</strong>()
+</p>
+<p class="item_name">RESULT</p>
+<p>   int nb: number of <a href="#robo19">Links</a> with vertices
+</p>
+<a name="robo82"></a>
+<a name="Functions2fnlinkattr"></a>
+<h2>10.28.  Functions/nlinkattr, nnodeattr,<br />ntankattr, nlinkattrs,<br />nnodeattrs, ntankattrs,<br />nattr, nattrs [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>nlinkattr</strong>, <strong>nnodeattr</strong>, nrsvattr, <strong>nattr</strong>: return numerical attributes
+     of a given element by index
+</li>
+<li>   <strong>nlinkattrs</strong>, <strong>nnodeattrs</strong>, <strong>nattrs</strong>: return text attributes of a
+     given element by index
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   val = <strong>nlinkattr</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   val = <strong>nnodeattr</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   val = <strong>ntankattr</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   txt = <strong>nlinkattrs</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   txt = <strong>nnodeattrs</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   txt = <strong>ntankattrs</strong>(num, <a href="#robo74">attr</a>)
+</li>
+<li>   val = <strong>nattr</strong>[typelt](num, <a href="#robo74">attr</a>)
+</li>
+<li>   btxt, sz = <strong>nattrs</strong>(typelt, num, <a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string num: index of element (stating at 1)
+</li>
+<li>   string id_or_num: id or index of element
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (data or result) for which value is requested
+</li>
+<li>   int typelt: type of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float val: value of the numerical attribute (0. if not available)
+</li>
+<li>   string txt: value of the text attribute (empty string '' if
+     undefined or not available)
+</li>
+<li>   int sz: length of the returned string
+</li>
+<li>   byte btxt: value of the text attribute, as a byte (python3) or str(python2)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Numerical attributes are returned converted in the actual unit system.
+</li>
+<li>   <a href="#robo37">TANK</a> text attributes are identical to the underlying <a href="#robo37">NODE</a> id
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids and attributes are returned as unicode strings.
+</p>
+<a name="robo83"></a>
+<a name="Functions2fnodeXYZ"></a>
+<h2>10.29.  Functions/nodeXYZ [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the XYZ coordinates and depth of a <a href="#robo37">NODE</a>
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   x, y, z, dz = <strong>nodeXYZ</strong>(id)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   double x, y: coordinates
+</li>
+<li>   float z, dz: elevation and depth
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>nodeXYZ</strong> requires version 2016 or higher of Piccolo/Ganessa dll
+</li>
+<li>   if the id does not <a href="#robo61">exists</a> the return value is (<a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>)
+</li>
+<li>   In most cases dz is 0.0
+</li>
+</ul>
+<p></p>
+<a name="robo85"></a>
+<a name="Functions2fquit"></a>
+<h2>10.30.  Functions/quit, close [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ret = <strong>quit</strong>([True])
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   optional bool verbose: if <a href="#robo67">set</a> to True, a message is printed.
+   Defaults to False.
+</p>
+<p class="item_name">RESULT</p>
+<p>   text ret: text string telling that he module has been unloaded.
+   Terminates the ganessa session and unloads the module ganessa.sim&amp;th
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>quit</strong>() is automatically called when quitting with &lt;Ctrl&gt;+Z
+</li>
+<li>   <strong>close</strong>() is a synonym for <strong>quit</strong>()
+</li>
+<li>   A session should be terminated by calling <strong>quit</strong>() or typing &lt;Ctrl&gt;+Z
+</li>
+<li>   sys.exit() automatically trigers <strong>quit</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   2.3.0 (220415): do not delete import at <strong>close</strong>, allowing further <a href="#robo69">init</a>
+</li>
+</ul>
+<p></p>
+<a name="robo87"></a>
+<a name="Functions2freset"></a>
+<h2>10.31.  Functions/reset [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Clears (removes) all model objects
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>reset</strong>()
+</p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<a name="robo88"></a>
+<a name="Functions2fresfile"></a>
+<h2>10.32.  Functions/resfile, res_filename,<br />model_filename [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the name of the default binary result file; the model filename.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   name = <strong>resfile</strong>()
+   name = <strong>res_filename</strong>()
+   name = <strong>model_filename</strong>()
+   folder = emb_model_folder()
+</p>
+<p class="item_name">RESULT</p>
+<p>   str name: file name or '' if undefined
+   str folder: folder if called from embedded python or '' if not
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   170919 (1.8.0) Introduced
+</li>
+<li>   210929 (2.2.5) Added <strong>res_filename</strong> and <strong>res_filename</strong>
+</li>
+<li>   211112 (2.2.6) Added emb_model_folder
+</li>
+</ul>
+<p></p>
+<a name="robo90"></a>
+<a name="Functions2fsave"></a>
+<h2>10.33.  Functions/save, savemodel [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>save</strong>(fname [, version])
+</li>
+<li>   istat = <strong>savemodel</strong>(fname [, version] [, extra_data])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string fname: file name to <strong>save</strong> to
+</li>
+<li>   string version: optional version string "x.yz" for writing compatible file format,
+     for text file only.
+</li>
+<li>   list extra_data: list of (selection, attribute_keyword) to be saved.
+     Selection is a string describing a valid selection at <strong>save</strong> time; attribute_keyword
+     is a string name of a valid attribute for import, such as XX, YY, ZZ, K (<a href="#robo19">Links</a>), Z (<a href="#robo24">Nodes</a>).
+     Multiple attributes can be provided separated by blanks.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   '<strong>save</strong>' uses the same procedure as Piccolo MMI.
+</li>
+<li>   '<strong>savemodel</strong>' is pure python and produces the same hydraulic content;
+     exotic options and cost data are not saved.
+</li>
+<li>   If filename ends with '.bin' then data is saved as binary. Otherwise data is
+     saved as text (.dat mode) file.
+</li>
+<li>   If the useException mode is <a href="#robo67">set</a>, any error will raise <a href="#robo36">GanessaError</a> exception.
+</li>
+</ul>
+<p></p>
+<p class="item_name">EXAMPLE</p>
+<p>   <strong>savemodel</strong>('myModel.dat', version='3.95', extra_data=[('<a href="#robo37">NOEUD</a>', 'YY ZZ')])
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   190617: added extra_data keyword parameter to <strong>savemodel</strong> (2.0.7)
+</li>
+</ul>
+<p></p>
+<a name="robo91"></a>
+<a name="Functions2fselectlen"></a>
+<h2>10.34.  Functions/selectlen, select [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>selectlen</strong> returns the number and type of model <a href="#robo22">Elements</a> in the given selection
+</li>
+<li>   <strong>select</strong>: returns the index vector, number and type of <a href="#robo22">Elements</a> in the selection
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   nb, typelt = <strong>selectlen</strong>(sname)
+</li>
+<li>   vect_idx, nb, typelt = <strong>select</strong>(sname)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   string sname: name of selection
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   int nb: number of element in that selection
+</li>
+<li>   int typelt: type of element of that selection
+</li>
+<li>   int vect_idx[]: index vector of <a href="#robo22">Elements</a> in the selection
+</li>
+</ul>
+<p></p>
+<a name="robo92"></a>
+<a name="Functions2fsetbatchmode"></a>
+<h2>10.35.  Functions/setbatchmode [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   oldmode = <strong>setbatchmode</strong>(mode)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   int mode: batch mode to activate
+</p>
+<p class="item_name">RESULT</p>
+<p>   int oldmode: batch mode that was in effect
+</p>
+<p class="item_name">REMARK</p>
+<p>   Defaults to 1 (True)
+</p>
+<a name="robo93"></a>
+<a name="Functions2fsetlang"></a>
+<h2>10.36.  Functions/setlang [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   oldlang = <strong>setlang</strong>(new_lang)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   str new_lang: one of 'English', 'French', 'Spanish'
+</p>
+<p class="item_name">RESULT</p>
+<p>   str old_lang: previous language
+</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   Modifiy the current command language to new_lang (console version and macros only).
+   If the language name is misspelled, it will be ignored withour raising an error.
+</p>
+<p class="item_name">HISTORY</p>
+<p>   introduced in 1.8.0 (170912)
+   reviewed 2.2.7 (211124) : accepts new_lang with at least 1 letter
+</p>
+<a name="robo94"></a>
+<a name="Functions2fsetlinkattr"></a>
+<h2>10.37.  Functions/setlinkattr, setbranchattr,<br />setnodeattr [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>setlinkattr</strong>(id, <a href="#robo74">attr</a>, val)
+</li>
+<li>   istat = <strong>setnodeattr</strong>(id, <a href="#robo74">attr</a>, val)
+</li>
+<li>   istat = <strong>setbranchattr</strong>(id, <a href="#robo74">attr</a>, val)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (data or result) to be <a href="#robo67">set</a> to val
+</li>
+<li>   float val: new value for <a href="#robo74">attr</a>
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status:
+</p>
+<ul><li>   0 if OK
+</li>
+<li>   1 if the attribute is not defined for the type of <a href="#robo37">LINK</a>/<a href="#robo37">NODE</a>
+</li>
+<li>   -1 if the attribute is not recognised
+</li>
+<li>   -2 if the <a href="#robo37">LINK</a>/<a href="#robo37">NODE</a> does not exist
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>setbranchattr</strong> requires version 2015/12 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   <strong>setlinkattr</strong> is a synonym that has been introduced as 22/09/2016
+</li>
+<li>   <strong>setnodeattr</strong> has been introduced on 22/06/2020 (2.1.3)
+</li>
+</ul>
+<p></p>
+<a name="robo95"></a>
+<a name="Functions2fshearstr"></a>
+<h2>10.38.  Functions/shearstr [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the shear stress associated with a velocity for the given pipe
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   val, grad = <strong>shearstr</strong>(id, v)
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string id: id of element
+</li>
+<li>   float v: velocity for which value is requested
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float val: value of the shear stress
+</li>
+<li>   float grad: value of ds/dv
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   val is not defined if id is not a pipe
+</li>
+<li>   requires Piccolo 2017
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   31.03.2017: function created (1.7.3)
+</li>
+</ul>
+<p></p>
+<a name="robo100"></a>
+<a name="Functions2fwqtracevectsize"></a>
+<h2>10.39.  Functions/wqtracevectsize [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo9">Functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>wqtracevectsize</strong> returns the max count of water quality concentrations allowed,
+     including chlorine (C1).
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   n = <strong>wqtracevectsize</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int n: max count
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   One may expect a return value of either 9 (C1 .. C9)
+   or 45 (C1 .. C9 + $0 .. $9 + $A .. $Z).
+</p>
+<p class="item_name">HISTORY</p>
+<p>   introduced 2.0.0 (180820)
+</p>
+<a name="robo10"></a>
+<a name="ganessa2esim26th2fIterators"></a>
+<h1>11.  ganessa.sim&amp;th/Iterators [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <strong>Iterators</strong> available to ganessa.sim and ganessa.th
+</p>
+<a name="robo19"></a>
+<a name="Iterators2fBranches"></a>
+<h2>11.1.  Iterators/Branches, Links [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   for id in <strong>Branches</strong>():
+</li>
+<li>   for id in <strong>Links</strong>():
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   string id: returns each <a href="#robo37">BRANCH</a> id in turn
+</p>
+<p class="item_name">REMARK</p>
+<p>   <strong>Branches</strong> and <strong>Links</strong> are synonyms
+</p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids are returned as unicode strings.
+</p>
+<a name="robo20"></a>
+<a name="Iterators2fDemandCodes"></a>
+<h2>11.2.  Iterators/DemandCodes [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for code, demand, nodecount in <strong>DemandCodes</strong>():
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each demand code and <a href="#robo37">NODE</a> count in turn:
+</p>
+<ul><li>   string code: demand code
+</li>
+<li>   float demand: total demand value for the code
+</li>
+<li>   int count: <a href="#robo37">NODE</a> count associated with the code
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   <strong>DemandCodes</strong> requires version 2016 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   Added 11/09/2015
+</p>
+<a name="robo21"></a>
+<a name="Iterators2fDemands"></a>
+<h2>11.3.  Iterators/Demands [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for code, csm in <strong>Demands</strong>(node_id):
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   string node_id: id of <a href="#robo37">NODE</a>
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each demand code and nominal value for the <a href="#robo37">NODE</a> in turn:
+</p>
+<ul><li>   string code: demand code
+</li>
+<li>   float csm: demand value for this code
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   requires version 2016 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) codes are returned as unicode strings.
+</p>
+<a name="robo22"></a>
+<a name="Iterators2fElements"></a>
+<h2>11.4.  Iterators/Elements [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for id in <strong>Elements</strong>(typelt):
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   int typelt: type element <a href="#robo7">Constants</a> <a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">TANK</a>
+</p>
+<p class="item_name">RESULT</p>
+<p>   string id: id of each element of the given type in turn
+</p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (2018/04/05) ids are returned as unicode strings.
+   From version 2.0.3 (2018/12/03) len <a href="#robo6">Compatibility</a> with python3
+</p>
+<a name="robo24"></a>
+<a name="Iterators2fNodes"></a>
+<h2>11.5.  Iterators/Nodes [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for id in <strong>Nodes</strong>():
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each <a href="#robo37">NODE</a> id in turn
+</p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids are returned as unicode strings.
+</p>
+<a name="robo25"></a>
+<a name="Iterators2fSelectid"></a>
+<h2>11.6.  Iterators/Selectid, Selected [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for id in <strong>Selectid</strong>(select_name):
+   for id, typelt in <strong>Selected</strong>(select_name [, return_type=True]):
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   string select_name: name of a selection
+   bool return_type: if False, the type is not returned (default True)
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns the id [and type] of each element in the selection in turn:
+</p>
+<ul><li>   string id: id of the next element in the selection
+</li>
+<li>   int type: element type (the same for all ids), if return_type is True
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   2.0.3 (2018/12/03) len <a href="#robo6">Compatibility</a> with python3
+</li>
+<li>   2.1.1 (2020/03/20) add return_type optional keyword argument
+</li>
+<li>   2.2.9 (2022/02/11) convert string to ansi for Piccolo <a href="#robo43">cmd</a> language
+</li>
+<li>   2.3.0 (2022/04/20) add <strong>Selectid</strong>(sname) - same behaviour as <strong>Selected</strong>(sname, False)
+</li>
+</ul>
+<p></p>
+<a name="robo26"></a>
+<a name="Iterators2fTable"></a>
+<h2>11.7.  Iterators/Table [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for item, objcount in <strong>Table</strong>(<strong>Table</strong>, typelt):
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string <strong>Table</strong>: requested <strong>Table</strong> (2 char symbol or <strong>Table</strong> name)
+</li>
+<li>   int typelt: type of element (<a href="#robo37">LINK</a> or <a href="#robo37">NODE</a>), if <strong>Table</strong> is ZN or ZP.
+     Defaults to <a href="#robo37">LINK</a>.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   Returns each <strong>Table</strong> entry and associated object count in turn:
+</p>
+<ul><li>   string item: <strong>Table</strong> entry
+</li>
+<li>   int objcount: <a href="#robo37">NODE</a> count associated with the code
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   <strong>Table</strong> requires version 2015/12 or higher of Piccolo/Ganessa dll
+</li>
+<li>   see <a href="#robo27">TableValues</a> for getting values associated with entries
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) items are returned as unicode strings.
+</p>
+<a name="robo27"></a>
+<a name="Iterators2fTableValues"></a>
+<h2>11.8.  Iterators/TableValues [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for item, objcount, vect in <strong>TableValues</strong>(<a href="#robo26">Table</a>):
+</p>
+<p class="item_name">ARGUMENTS</p>
+<p>   string <a href="#robo26">Table</a>: requested <a href="#robo26">Table</a> (2 char symbol or <a href="#robo26">Table</a> name)
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each <a href="#robo26">Table</a> entry and associated object count and values in turn:
+</p>
+<ul><li>   string item: <a href="#robo26">Table</a> entry
+</li>
+<li>   int objcount: <a href="#robo37">NODE</a> count associated with the code
+</li>
+<li>   float vect: vector of values for the entry. 
+</li>
+</ul>
+<p> 
+  The vector size depends on the <a href="#robo26">Table</a>:
+   * diameter (1): internal diameter
+   * material (3): roughness, HW factor C, wave celerity
+   * pipewall (7): WQ characteristics
+   * hydrants (5): nominal flow, nominal pressure, height, diameter, friction coef K
+</p>
+<p class="item_name">REMARK</p>
+<ul><li>   <strong>TableValues</strong> requires version 2022/07/20 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   Created 2022/07/20 (version 2.3.1).
+</p>
+<a name="robo28"></a>
+<a name="Iterators2fTanks"></a>
+<h2>11.9.  Iterators/Tanks, Reservoirs [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   for id in <strong>Tanks</strong>():
+</li>
+<li>   for id in <strong>Reservoirs</strong>():
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   string id: returns each <a href="#robo37">RESERVOIR</a> id in turn
+</p>
+<p class="item_name">HISTORY</p>
+<p>   From version 1.9.0 (05/04/2018) ids are returned as unicode strings.
+</p>
+<a name="robo29"></a>
+<a name="Iterators2fUnstable"></a>
+<h2>11.10.  Iterators/Unstable [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Provide access to the list of <a href="#robo22">Elements</a> which status cannot be determined
+   thus causing a simulation not converge.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   for item, typelt in <strong>Unstable</strong>():
+</p>
+<p class="item_name">ARGUMENTS</p>
+<p>   <a href="#robo39">NONE</a>
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each <strong>Unstable</strong> element in turn:
+</p>
+<ul><li>   string item: element ID
+</li>
+<li>   int typelt: element type
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   <strong>Unstable</strong> requires version 2016 (160118) or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   new in 1.3.2
+</li>
+<li>   From version 1.9.0 (05/04/2018) items are returned as unicode strings.
+</li>
+</ul>
+<p></p>
+<a name="robo30"></a>
+<a name="Iterators2fWQSources"></a>
+<h2>11.11.  Iterators/WQSources [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo10">Iterators</a> ] [ Iterator ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Provide access to the sequence of source items
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   for <a href="#robo37">NODE</a>, code, <a href="#robo74">attr</a>, tvec, cvec, nvec in <strong>WQSources</strong>(<a href="#robo37">NODE</a>=<a href="#robo39">NONE</a>):
+</p>
+<p class="item_name">ARGUMENTS</p>
+<p>   string <a href="#robo37">NODE</a>: specific <a href="#robo37">NODE</a> to look for, or '' for all <a href="#robo24">Nodes</a>.
+</p>
+<p class="item_name">RESULT</p>
+<p>   Returns each source boundary condition in turn:
+</p>
+<ul><li>   string <a href="#robo37">NODE</a>: <a href="#robo37">NODE</a> ID
+</li>
+<li>   string code: code associated to the source (or '' if forcing)
+</li>
+<li>   string <a href="#robo74">attr</a>: WQ attribute (T, C0 ... C9, $0 ... $9, $A ...$ Z)
+</li>
+<li>   float tvec[], cvec[]: time and quantity vector (time serie)
+</li>
+<li>   int nvec : TS size
+</li>
+</ul>
+<p>   If <a href="#robo37">NODE</a> is given (non blank string):
+</p>
+<ul><li>   if it <a href="#robo61">exists</a>, data will be returned for this <a href="#robo37">NODE</a> only
+</li>
+<li>   if the <a href="#robo37">NODE</a> does not <a href="#robo61">exists</a>, the return sequence is empty
+</li>
+</ul>
+<p>   If the <a href="#robo37">NODE</a> is not given, all WQ data will be returned
+</p>
+<p class="item_name">REMARK</p>
+<ul><li>   <strong>WQSources</strong> requires version 2020 (200306) or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   new in 2.1.1
+</li>
+</ul>
+<p></p>
+<a name="robo11"></a>
+<a name="ganessa2esim2fsFunctions"></a>
+<h1>12.  ganessa.sim/sFunctions [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <a href="#robo9">Functions</a> available to ganessa.sim ONLY.
+</p>
+<a name="robo106"></a>
+<a name="sFunctions2fbrowseH"></a>
+<h2>12.1.  sFunctions/browseH, browseWQ [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Retrieves and interpolate results from a given time step or instant:
+</p>
+<ul><li>   <strong>browseH</strong> retrieves hydraulic results
+</li>
+<li>   <strong>browseWQ</strong> retrieves hydraulic
+<b>and</b> water quality results
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   istat = <strong>browseH</strong>(time_step)
+</li>
+<li>   istat = <strong>browseH</strong>(instant)
+</li>
+<li>   istat = <strong>browseWQ</strong>(time_step)
+</li>
+<li>   istat = <strong>browseWQ</strong>(instant)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int time_step: time step to load (seconds)
+</li>
+<li>   string instant: instant to load, in the form hh:mm:ss
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<p>   For hydraulic results, two <a href="#robo67">set</a> of results may be available at a given instant:
+</p>
+<ul><li>   at boudary of time steps, except beginning and end of the simulation,
+     results ending the previous time step and results starting the next time step.
+</li>
+<li>   at internal time steps when a state transition occured (pump start/stop etc.).
+</li>
+</ul>
+<p>   In such a situation the results are those from the end of the previous interval.
+</p>
+<a name="robo107"></a>
+<a name="sFunctions2fdefcalind"></a>
+<h2>12.2.  sFunctions/defcalind, getcalind [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Compute and return calibration indicators
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   <strong>defcalind</strong>(br_threshold, no_threshold, rsv_threshold)
+</li>
+<li>   val, ival = <strong>getcalind</strong>(typelt, numelt)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   br_*** : thresholds for computing indicators
+</li>
+<li>   int typelt: type of element
+</li>
+<li>   string id: id of element
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   val:  percentage of values below threshold
+   ival: indicator rank, from 1 (best) to 4 (worse) (-1 if not defined)
+</p>
+<p class="item_name">REMARK</p>
+<p>   <strong>defcalind</strong> actually compute all indicators; <strong>getcalind</strong> returns them.
+</p>
+<a name="robo108"></a>
+<a name="sFunctions2ffull5fsolveH"></a>
+<h2>12.3.  sFunctions/full_solveH [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Runs the full simulation and loads the result file for browsing results
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>full_solveH</strong>([resultfile] [, silent] [, iverb] [, retry])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string resultfile: if provided, the results will be written in the file
+     instead of the default 'result.bin'. If the file <a href="#robo61">exists</a> it will be superseded.
+     If not it will be created.
+</li>
+<li>   bool silent: if <a href="#robo67">set</a> to True, simulation runs without any output.
+     Optional - if False or not <a href="#robo67">set</a>, leaves 'iverb' unchanged.
+</li>
+<li>   integer iverb: if provided, controls the amount of output during simulation
+     (SIM IVERB parameter). The defaults is -1.
+</li>
+<li>   bool retry: if <a href="#robo67">set</a> to True, the simulation is <a href="#robo34">run</a> again twice if it fails
+     because of isolated <a href="#robo24">Nodes</a>. Optional -  defaults to False
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   Unless explicitely disabled, results are saved to a binary file,
+     which defaults to the file 'result.bin' in the ganessa work directory.
+</li>
+<li>   Binary result files also contain all data describing the model.
+</li>
+<li>   silent=True overrides iverb setting if provided.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   1.5.1: optional argument 'retry' added
+</li>
+<li>   2.0.7: improved error check (19/08/19)
+</li>
+<li>   2.2.3: retry=True retries the simulation twice, in case STOP-ON-APP is OFF (26/06/21)
+</li>
+</ul>
+<p></p>
+<a name="robo109"></a>
+<a name="sFunctions2fgetallminmax"></a>
+<h2>12.4.  sFunctions/getallminmax [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>getallminmax</strong> returns the min, max, average and mindate, maxdate
+     for all objects of the given type
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   vec_min, vec_max, vec_avg, vec_tmin, vec_tmax = <strong>getallminmax</strong>(typelt, <a href="#robo74">attr</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int typelt: type of element (<a href="#robo37">LINK</a>, <a href="#robo37">NODE</a>, <a href="#robo37">TANK</a>)
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (result) for which value is requested
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float[] vec_min, vec_max, vec_avg: min, max and avg values for all <a href="#robo22">Elements</a>
+</li>
+<li>   float[] vec_tmin, vec_tmax: vector of instants where the min, max value is reached
+</li>
+</ul>
+<p></p>
+<a name="robo110"></a>
+<a name="sFunctions2fhstepcount"></a>
+<h2>12.5.  sFunctions/hstepcount, tslen,<br />mslen, tsval,<br />msval, tsvalbymts,<br />tsinterv, wqtslen,<br />refdate [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>hstepcount</strong>: returns the number of user time steps
+</li>
+<li>   <strong>tslen</strong>, <strong>mslen</strong>: return number of <a href="#robo22">Elements</a> in the time serie
+</li>
+<li>   <strong>tsval</strong>, <strong>msval</strong>: return the time series of results and measurements
+</li>
+<li>   <strong>tsvalbymts</strong>: return the time series of results at measurement time steps
+     for a given element type, id and attribute
+</li>
+<li>   <strong>refdate</strong>: return date corresponding to the beginning of simulation
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   hsc = <strong>hstepcount</strong>()
+</li>
+<li>   len = <strong>tslen</strong>()
+</li>
+<li>   len = <strong>mslen</strong>(typelt, id, <a href="#robo74">attr</a>)
+</li>
+<li>   vec_tim, vec_val, len = <strong>tsval</strong>(typelt, id, <a href="#robo74">attr</a>, [interval])
+</li>
+<li>   vec_tim, vec_mes, len = <strong>msval</strong>(typelt, id, <a href="#robo74">attr</a>, [interval])
+</li>
+<li>   vec_tim, vec_val, len = <strong>tsvalbymts</strong>(typelt, id, <a href="#robo74">attr</a>)
+</li>
+<li>   tmin, tmax, len = <strong>tsinterv</strong>()
+</li>
+<li>   len, tmax = <strong>wqtslen</strong>(typelt)
+</li>
+<li>   sdate = <strong>refdate</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   int typelt: type of element
+</li>
+<li>   string id: id of element
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (data or result) for which value is requested
+</li>
+<li>   float interval (optional): if present, requests the time serie
+     at given fixed interval in seconds
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int hsc: number of user time steps
+</li>
+<li>   int len: number of values for the time serie
+</li>
+<li>   float[] vec_tim: vector of instants in seconds
+</li>
+<li>   float[] vec_val: vector of simulated results at the instants vec_tim
+</li>
+<li>   float[] vec_mes: vector of measurements at the instants vec_tim
+</li>
+<li>   float tmin and tmax: first (vec_tim[0]) and last (vec_tim[-1])
+     instants available in the result time series
+</li>
+<li>   string sdate: date time at beginning of the simulation (iso format)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   The time vector is identical for simulation results of all <a href="#robo22">Elements</a> of all types ,
+     and can be much larger than the number of (user) time steps
+</li>
+<li>   two consecutive instants in the time vector for simulation results may
+     be identical at time step boundaries, change status instants etc.
+</li>
+<li>   Each element may have a different measurement time vector form the others
+</li>
+<li>   Measurements time series may have different begin and end dates from results
+</li>
+<li>   Add 'sdate' in order to <a href="#robo67">get</a> absolute date time
+</li>
+<li>   <strong>hstepcount</strong> requires version 2016 or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p> HISTOTY
+  12/12/2016 (1.5.1): bug fix when no simulation result available
+  15/03/2020 (2.1.1): added <strong>wqtslen</strong>; fix <strong>tsval</strong> for WQ ts
+</p>
+<a name="robo111"></a>
+<a name="sFunctions2finv5fsummary"></a>
+<h2>12.6.  sFunctions/inv_summary [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   iter, iter100, fobjmin, fobj100, fobj0, flambda = <strong>inv_summary</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<p>   <a href="#robo39">NONE</a>
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   int iter: number of iterations
+</li>
+<li>   int iter100: number of iterations required to <a href="#robo67">get</a> 1.01 * min
+</li>
+<li>   float fobjmin: minimum value of misfit function
+</li>
+<li>   float fobj100: misfit function at iteration iter100
+</li>
+<li>   float fobj0: misfit function before fitting
+</li>
+<li>   float flambda: Levenberg-Marquardt multiplier
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   <strong>inv_summary</strong> requires version 2016 (160309) or higher of Piccolo/Ganessa dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   new in 1.3.4
+</p>
+<a name="robo112"></a>
+<a name="sFunctions2fmsmooth"></a>
+<h2>12.7.  sFunctions/msmooth [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Defines the smoothing time width for time series of measurements
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>msmooth</strong>(twidth)
+</p>
+<p class="item_name">ARGUMENTS</p>
+<p>   twidth: characteristic time window for smoothing, in seconds
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   The smoothing algorithm is a convolution with exp(-(t/twidth)^2).
+</li>
+<li>   Best results are expected when twidth is in the order of magnitude
+     or larger than the sampling interval.
+</li>
+<li>   call <strong>msmooth</strong>(0.0) in order to cancel smoothing.
+</li>
+</ul>
+<p></p>
+<a name="robo113"></a>
+<a name="sFunctions2fsetWQresultfile"></a>
+<h2>12.8.  sFunctions/setWQresultfile [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Defines the binary result file(s) for WQ simulation.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   <strong>setWQresultfile</strong>([fnode] , [flink])
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   str fnode: name of the <a href="#robo37">NODE</a> WQ result file
+</li>
+<li>   str flink: name of the <a href="#robo37">LINK</a> WQ result file (optional)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   if fnode is omitted, either use <a href="#robo39">NONE</a> or flink=filename
+</li>
+<li>   this command can be used either before running the simulation, for writing
+     the file(s), or afterwards, in order to choose which result file(s) to browse.
+</li>
+</ul>
+<p></p>
+<a name="robo114"></a>
+<a name="sFunctions2fsolveH"></a>
+<h2>12.9.  sFunctions/solveH [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Runs the simulation at a given instant
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <strong>solveH</strong>(time [, retry])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   int or str time: instant to <a href="#robo34">run</a> the simulation - default to 0.
+     if int: time in seconds; if str: time in the format hh:mm[:ss]
+</li>
+<li>   bool silent: if <a href="#robo67">set</a> to True, simulation runs without any output.
+     Optional - if False or not <a href="#robo67">set</a>, leaves 'iverb' unchanged.
+</li>
+<li>   integer iverb: if provided, controls the amount of output during simulation
+     (SIM IVERB parameter). If not <a href="#robo67">set</a>, leaves 'iverb' unchanged.
+</li>
+<li>   bool retry: if <a href="#robo67">set</a> to True, the simulation is <a href="#robo34">run</a> again if it fails
+     because of isolated <a href="#robo24">Nodes</a>. Optional -  defaults to False
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   added 2017.05.15 - version 1.7.5
+</li>
+<li>   changed 2019.04.23 - version 2.0.6 - added a third retry
+</li>
+<li>   changed 2019.08.19 - version 2.0.7 - improved error check
+</li>
+</ul>
+<p></p>
+<a name="robo115"></a>
+<a name="sFunctions2fstat5fquantiles"></a>
+<h2>12.10.  sFunctions/stat_quantiles, stat_duration [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   <strong>stat_quantiles</strong> and <strong>stat_duration</strong> returns stat info associated with result TS
+   of a given attribute for all <a href="#robo22">Elements</a> in a selection.
+   raw_stat_quantiles and raw_stat_duration are pass_thru versions where
+   the selection is provided as its type, buffer and length
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   quantiles = <strong>stat_quantiles</strong>(sel, <a href="#robo74">attr</a>, qtl)
+</li>
+<li>   duration = <strong>stat_duration</strong>(sel, <a href="#robo74">attr</a>, sop, threshold)
+</li>
+<li>   quantiles = raw_stat_quantiles(typelt, <a href="#robo74">attr</a>, qtl, bufsel, nb)
+</li>
+<li>   duration = raw_stat_duration(typelt, <a href="#robo74">attr</a>, sop, threshold, bufsel, nb)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string sel: selection of <a href="#robo22">Elements</a> for which stats are expected
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute over which the stat is computed
+</li>
+<li>   float iterable qtl: quantiles to be computed (0 &lt;= qtl[i] &lt;= 1)
+</li>
+<li>   string sop: comparison operator '&lt;' or '&gt;'
+</li>
+<li>   float threshold: comparison threshold (expressed in attribute unit)
+</li>
+<li>   int typelt: selection object type
+</li>
+<li>   int nb: selection count
+</li>
+<li>   int[] bufsel: selection vector of indices
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float[:,:] quantiles: 2-dim array of quantiles - shape (#sel, #qtl).
+     quantiles[i] is the array of quantiles for the element in position i;
+     quantiles[:, k] is the array of quantile qtl[k] for all <a href="#robo22">Elements</a>
+</li>
+<li>   float[:] duration: array of cumulated duration (att sop threshold) - shape (#sel, ).
+</li>
+</ul>
+<p>   The <a href="#robo17">functions</a> return an empty list if the selection or qtl is empty .
+</p>
+<p class="item_name">EXAMPLE</p>
+<ul><li>   cd = <strong>stat_duration</strong>('<a href="#robo37">BRANCH</a> (d &gt; 500) end', 'V', '&gt;', 0.7)
+</li>
+<li>   qtl = <strong>stat_quantiles</strong>('<a href="#robo37">BRANCH</a> (d &gt; 500) end', 'V', [0.5, 0.95, 1.0])
+     will return median, 95% quantile and maximum for velocity.
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Allowed attributes are:
+</p>
+<ul><li>   <a href="#robo19">Links</a>: flow (Q), velocity (V), head loss (PC / HL), gradient (GR)
+</li>
+<li>   <a href="#robo24">Nodes</a>: Head (HH / CH), pressure (P) and pipe pressure (PP)
+</li>
+<li>   <a href="#robo28">Tanks</a>: level (NC / CL), height (H), volume (CV / VC), volume percentage (V%),
+     flow (Q), filling flow (IQ / QR), draught flow (OQ / QV),
+</li>
+<li>   all: water quality attributes T, C0 ... C9.
+</li>
+</ul>
+<p>   See also: <a href="#robo109">getallminmax</a>, <a href="#robo32">getMinMax</a>, <a href="#robo31">Dynamic_Stats</a>
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   new in 1.5.0 (161124) - should be compatible with 2016b kernel.
+</li>
+<li>   1.8.0 (170908): added raw_stat_quantiles and raw_stat_duration
+</li>
+</ul>
+<p></p>
+<a name="robo116"></a>
+<a name="sFunctions2ftsdemand"></a>
+<h2>12.11.  sFunctions/tsdemand, tsdevice,<br />tsdemandlen, tsdevicelen [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo11">sFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<ul><li>   <strong>tsdemandlen</strong>: returns the number of values in the profile (demand code)
+</li>
+<li>   <strong>tsdevicelen</strong>: returns the number of values in the device state TS
+</li>
+<li>   <strong>tsdemand</strong>: return the profile time series (demand type)
+</li>
+<li>   <strong>tsdevice</strong>: return the device state time series(boundary conditions)
+</li>
+</ul>
+<p></p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   <a href="#robo110">tslen</a> = <strong>tsdemandlen</strong>(code [, zone])
+</li>
+<li>   vec_tim, vec_val, len, mode = <strong>tsdemand</strong>(code, [,zone])
+</li>
+<li>   <a href="#robo110">tslen</a> = <strong>tsdevicelen</strong>(sid[, <a href="#robo74">attr</a>])
+</li>
+<li>   vec_tim, vec_val, len, mode = <strong>tsdevice</strong>(sid [, <a href="#robo74">attr</a>] [, fixed_interval])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   string code: demand type of element
+</li>
+<li>   string zone: area of element
+</li>
+<li>   string sid: device element ID
+</li>
+<li>   string <a href="#robo74">attr</a>: pump attribute (speed or number of units) or ''
+</li>
+<li>   float fixed_interval (optional): if present and &gt; 0, return values at the give time step
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   int <a href="#robo110">tslen</a>: number of values for the time serie (0 if <a href="#robo39">NONE</a>)
+</li>
+<li>   float[] vec_tim: vector of instants in seconds
+</li>
+<li>   float[] vec_val: vector of demand coefficients (not percentages) or settings
+    (for pumps: 0= off, 1 or higher= open/active)
+</li>
+<li>   int mode: type of demand profile (&lt;0 as time series, &gt;0 based on time steps)
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   These <a href="#robo17">functions</a> require version 2016 or higher of Piccolo/Ganessa dll
+</li>
+<li>   Demand zones require version 2020b or higher
+</li>
+<li>   when the demand code or equipment does not exist or has no forcing TS associated,
+     the value (<a href="#robo39">NONE</a>, <a href="#robo39">NONE</a>, 0, 0) is returned.
+</li>
+<li>   The demand coefficient for the demand type 'code' can be retrieved
+     as float(<a href="#robo63">getvar</a>('coefficient:' + code))
+</li>
+<li>   A pump is shut off when the number of units running is 0, even if rotation speed is &gt; 0.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   25.01.2017: added 'fixed_interval' parameter to tsdevide; changed return value to float
+</li>
+<li>   22.09.2020: added the query of demand profile by zone
+</li>
+</ul>
+<p></p>
+<a name="robo12"></a>
+<a name="ganessa2esim2fsIterators"></a>
+<h1>13.  ganessa.sim/sIterators [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <a href="#robo10">Iterators</a> available to ganessa.sim ONLY
+</p>
+<a name="robo31"></a>
+<a name="sIterators2fDynamic5fStats"></a>
+<h2>13.1.  sIterators/Dynamic_Stats [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo12">sIterators</a> ] [ Iterator ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Iterator which returns stat info associated with result TS
+   of a given attribute for all <a href="#robo22">Elements</a> in a selection in turn.
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   for id, retval in <strong>Dynamic_Stats</strong>(sel, <a href="#robo74">attr</a> [, quantile= qtl] [, duration= (sop, threshold)]):
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string sel: selection
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute
+</li>
+<li>   float iterable qtl: quantiles to be computed (0 &lt;= qtl[i] &lt;= 1)
+</li>
+<li>   string sop: comparison operator '&lt;' or '&gt;'
+</li>
+<li>   float threshold: comparison threshold (expressed in attribute unit)
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   Returns the id and type of each element in the selection in turn:
+</p>
+<ul><li>   string id: id of the next element in the selection
+</li>
+<li>   retval: result of the requested stat.
+</li>
+</ul>
+<p>   The return value depends on the input parameters:
+</p>
+<ul><li>   if duration= (sop, threshold) is present, returns the cumulated duration for which attribute (sop) threshold.
+</li>
+<li>   if not, if quantile= qtl is present, returns a numpy array of the quantiles for the element id.
+</li>
+<li>   without duration and quantile keywords, the return value is [minval, maxval, avg] over the result TS.
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   See also <a href="#robo109">getallminmax</a>, <a href="#robo115">stat_quantiles</a>, <a href="#robo115">stat_duration</a>, <a href="#robo32">getMinMax</a>
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   new in 1.5.0 (161124) - should be compatible with 2016b kernel.
+</li>
+<li>   181220: added __len__
+</li>
+</ul>
+<p></p>
+<a name="robo32"></a>
+<a name="sIterators2fgetMinMax"></a>
+<h2>13.2.  sIterators/getMinMax [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo12">sIterators</a> ] [ Iterator ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Returns the id, min, max, avg value reached by the attribute for each object
+   of the given type or selection in turn
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   for id, vmin, vmax, vavg in <strong>getMinMax</strong>(typelt or selection, sattr):
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   int typelt: type element <a href="#robo7">Constants</a> <a href="#robo37">BRANCH</a>, <a href="#robo37">NODE</a>, <a href="#robo37">RESERVOIR</a>
+</li>
+<li>   string selection: name of a selection
+</li>
+<li>   string <a href="#robo74">attr</a>: attribute (result) for which value is requested
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   id, vmin, vmax, vavg: str element id, minimum, maximum and average values
+   for the attribute over the simulation
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>  181220: added len method
+</li>
+</ul>
+<p></p>
+<a name="robo13"></a>
+<a name="ganessa2esort2fAbout"></a>
+<h1>14.  ganessa.sort/About [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   The module ganessa.sort provides sorting <a href="#robo17">functions</a> and <a href="#robo5">Classes</a> used by the Ganessa tools.
+</p>
+<a name="robo14"></a>
+<a name="ganessa2esort2fsClasses"></a>
+<h1>15.  ganessa.sort/sClasses [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo35"></a>
+<a name="sClasses2fHeapSort"></a>
+<h2>15.1.  sClasses/HeapSort [ Objects ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo14">sClasses</a> ] [ Objects ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   hs = <strong>HeapSort</strong>([key]): creates the heap structure.
+</li>
+</ul>
+<p>   Instances provide the following methods:
+</p>
+<ul><li>   hs.<a href="#robo68">remove</a>(item): removes item - raise KeyError if not found
+</li>
+<li>   item, rank = hs.pop(): removes and returns the item of lowest rank.
+</li>
+<li>   hs.push(item [, rank]): inserts or replace item with given rank.
+     If the item is already present, its rank and position are updated.
+</li>
+<li>   hs.update(item [, rank]): same as push but does nothing if rank unchanged
+</li>
+<li>   hs.update_if_lower(item [, rank]): same as push but does nothing if new rank
+     is higher or equal than the actual rank.
+</li>
+<li>   hs.update_if_higher(item [, rank]): same as push but does nothing if new rank
+     is lower or equal than the actual rank.
+</li>
+<li>   count = len(hs): returns the item count in the heap structure
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   optional function key: function allowing to compare items being inserted
+</li>
+<li>   item: item to be pushed / popped
+</li>
+<li>   number rank (optional if key function has been provided to the constructor):
+     defines the ordering of items
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   hs: <strong>HeapSort</strong> class member
+</li>
+<li>   int count: remaining item count in the heap structure.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   Introduced in 1.8.2 (171031)
+</p>
+<a name="robo15"></a>
+<a name="ganessa2eth2ftFunctions"></a>
+<h1>16.  ganessa.th/tFunctions [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">DESCRIPTION</p>
+<p>   <a href="#robo9">Functions</a> available to ganessa.th ONLY
+</p>
+<a name="robo117"></a>
+<a name="tFunctions2fsolveTH"></a>
+<h2>16.1.  tFunctions/solveTH [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo15">tFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Runs the thermo-hydraulic simulation
+</p>
+<p class="item_name">SYNTAX</p>
+<p>   istat = <a href="#robo114">solveH</a>([silent=False [, iverb=-1 [, retry=True]]])
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   bool silent: if <a href="#robo67">set</a> to True, simulation runs without any output.
+     Optional - if False or not <a href="#robo67">set</a>, leaves 'iverb' unchanged.
+</li>
+<li>   integer iverb: if provided, controls the amount of output during simulation
+     (SIM IVERB parameter). If not <a href="#robo67">set</a>, leaves 'iverb' unchanged.
+</li>
+<li>   bool retry: if <a href="#robo67">set</a> to True, the simulation is <a href="#robo34">run</a> again if it fails
+     because of isolated <a href="#robo24">Nodes</a>. Optional - defaults to False
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int istat: error status (0 if OK)
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   added 2017.05.15 - version 1.7.5
+</li>
+<li>   changed 2019.08.19 - version 2.0.7 - improved error check
+</li>
+</ul>
+<p></p>
+<a name="robo118"></a>
+<a name="tFunctions2fsymmetric5fnode"></a>
+<h2>16.2.  tFunctions/symmetric_node [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo15">tFunctions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ids = <strong>symmetric_node</strong>(sid)
+</p>
+<p class="item_name">ARGUMENTS</p>
+<p>   string sid: <a href="#robo37">NODE</a> ID for which the symmetric (counterpart <a href="#robo37">NODE</a> on
+   the other circuit) is looked for
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   string sid: id of the counterpart <a href="#robo37">NODE</a>. '' if not found.
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   always returns '' with Piccolo/Ganessa_SIM
+</li>
+<li>   the counterpart can be found only if the hot and cold circuits are almost symmetric
+</li>
+<li>   <strong>symmetric_node</strong> requires version 2016B (160511) or higher of Picalor/Ganessa TH dll
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   new in 1.3.6
+</p>
+<a name="robo16"></a>
+<a name="ganessa2eutil2fAbout"></a>
+<h1>17.  ganessa.util/About [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   The module ganessa.util provides useful <a href="#robo17">functions</a> used by the Ganessa tools.
+</p>
+<p class="item_name">REMARK</p>
+<p>   Some of the <a href="#robo17">functions</a> must be preceded by  'import ganessa.sim'
+</p>
+<a name="robo17"></a>
+<a name="ganessa2eutil2ffunctions"></a>
+<h1>18.  ganessa.util/functions [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo42"></a>
+<a name="functions2fcall5funtil5ffalse"></a>
+<h2>18.1.  functions/call_until_false [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Calls a function with args until return is false
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   res = <strong>call_until_false</strong>(func, args [, maxcount= -1])
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   callable func: function to be called with args
+</li>
+<li>   args: *args to func
+</li>
+<li>   int maxcount: optional max count (defaults to -1:
+     infinite sequence)
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   tuple of sucessive return values
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Use of this function is meaningful with side-effect <a href="#robo17">functions</a>.
+   The function is repeatedly called with the same argument list; the result
+   is not just duplicated.
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   introduced 2.0.3 (1801011)
+</li>
+</ul>
+<p></p>
+<a name="robo46"></a>
+<a name="functions2fdecode5ftime"></a>
+<h2>18.2.  functions/decode_time, decode_date [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   fval = <strong>decode_time</strong>(input_tstring [, factor])
+</li>
+<li>   dval = <strong>decode_date</strong>(input_dstring)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string input_tstr: duration in the form of float or hh:mm:ss or XML duration string.
+</li>
+<li>   optional float factor: multiplier (default to 1)
+</li>
+<li>   string input_dstr: date in a versatile format YYYY/MM/DD hh:mm:ss or DD/MM/YYYY hh:mm:ss
+     or the iso format YYYY-MM-DDThh:mm:ss where 'T' can be replaced with a blank ' '.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float fval: number of seconds. The result is multiplied by factor only if input_string is a float.
+</li>
+<li>   date dval: date. The exception 'ValueError' is raised if the date cannot be read.
+</li>
+</ul>
+<p></p>
+<a name="robo48"></a>
+<a name="functions2fdist5fto5fpoly"></a>
+<h2>18.3.  functions/dist_to_poly, dist_p_seg,<br />dist, split_poly_at [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Computes the distance of a point (xn, yn) to a polyline or a segment
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   d, s1, s2 = <strong>dist_to_poly</strong>(xn, yn, nbpoly, xpoly, ypoly)
+</li>
+<li>   d, s1, s2 = <strong>dist_to_poly</strong>(xn, yn, points)
+</li>
+<li>   d, s, slength = <strong>dist_p_seg</strong>(xn, yn, x1, y1, x2, y2)
+</li>
+<li>   d = <strong>dist</strong>(x1, y1, x2, y2)
+</li>
+<li>   k, xsplit, ysplit, totlen = <strong>split_poly_at</strong>(xpoly, ypoly, s, nbpoly)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   double xn, yn: point coordinates
+</li>
+<li>   int nbpoly: number of points
+</li>
+<li>   double[] xpoly, ypoly: vertices of the polyline
+     (number of vertices in the polyline &gt;= 2; 2 for a plain segment)
+</li>
+<li>   sequence points: sequence of pairs of float or double
+</li>
+<li>   double x1, y1, x2, y2: coordinates of a segment extremities
+</li>
+<li>   double s: curvilinear position to split at
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   double d: distance of point to the polyline or segment
+</li>
+<li>   double s1, s2: curvilinear position of the point projection on the polyline, from each extremity
+</li>
+<li>   double s: curvilinear position of the point projection on the segment, starting from (x1, y1)
+</li>
+<li>   double slength: length of the segment (x1, y1), (x2, y2)
+</li>
+<li>   int k: rank of splitted segment (0: before or at start; nb: after or at end)
+</li>
+<li>   double xsplit, ysplit: coordinates of the scurvilinear position s on the plyline
+</li>
+<li>   double totlen: total length of the polyline before splitting
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARKS</p>
+<ul><li>   d= 0 means that the point is on the polyline.
+</li>
+<li>   s1&gt;0 and s2&gt;0 means that the point projection is at least on one of the segments.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   1.7.1 (170223) introduced compiled versions of these 3 <a href="#robo17">functions</a>;
+                    pure python versions names are prefixed with '_'
+</li>
+<li>   2.1.6 (210126) added <strong>split_poly_at</strong>
+</li>
+<li>   2.1.7 (210324) fix <strong>split_poly_at</strong> 'ValueError: not enough values to unpack (expected 3, got 2)'
+</li>
+</ul>
+<p></p>
+<a name="robo50"></a>
+<a name="functions2fenvoi5fmsg"></a>
+<h2>18.4.  functions/envoi_msg [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   status = <strong>envoi_msg</strong>(exp, dst, objet, texte [, serveur=smtp.safege.net] [, pwd=<a href="#robo39">NONE</a>])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string exp: adresse expediteur du message
+</li>
+<li>   string dst: adresse destinataire (ou [dst1, dst2 ... ])
+</li>
+<li>   string objet: objet
+</li>
+<li>   string texte: texte du message
+</li>
+<li>   string serveur (optionnel): serveur d'envoi
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   bool status: True si le message est parti sans erreur
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   171201: added pwd kwarg
+</li>
+</ul>
+<p></p>
+<a name="robo52"></a>
+<a name="functions2fFichInfo"></a>
+<h2>18.5.  functions/FichInfo, banner [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   fi = <strong>FichInfo</strong>(filename)
+</li>
+<li>   txt = fi.<strong>banner</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   string filename: input file name - expects the name of the caller '__file__'
+</p>
+<p class="item_name">RESULT</p>
+<p>   a class member containing the following fields and method:
+</p>
+<ul><li>   nom: basename of the input filename without extension
+</li>
+<li>   vers: date of last modification of filename in the form 'YYMMDD'
+</li>
+<li>   pyvers: current version of python 'x.y.z'
+</li>
+<li>   <strong>banner</strong>() returns a string containing all the <a href="#robo22">Elements</a> above
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   180814 (1.9.8): appended '32/64 bits' to <strong>banner</strong> info
+</li>
+</ul>
+<p></p>
+<a name="robo53"></a>
+<a name="functions2fformatting3a20strf2"></a>
+<h2>18.6.  functions/formatting: strf2, strf3,<br />strf2loc, strf3loc,<br />stri, hhmmss,<br />strd [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   txt = strf2(fval)
+</li>
+<li>   txt = <strong>strf3</strong>(fval)
+</li>
+<li>   txt = <strong>stri</strong>(ival)
+</li>
+<li>   hms = <strong>hhmmss</strong>(val [, rounded=False] [, days=False])
+</li>
+<li>   dmy = <strong>strd</strong>(dval)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   int or float val: number of seconds
+</li>
+<li>   int ival: integer input value
+</li>
+<li>   float fval: float input value
+</li>
+<li>   date dval: datetime input value
+</li>
+<li>   bool rounded: round value to the nearest second value
+</li>
+<li>   bool or str days: if True and hours &gt;= 24, then writes d&lt;days&gt;hh:mm:ss
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   string txt: string representation of the input value
+</li>
+<li>   string hms: representation of time in the form 'hh:mm:ss' or 'd&lt;sep&gt;hh:mm:ss'
+     when days=True and fval &gt;= 86400; &lt;sep&gt; is days if days is a str, otherwise ' '.
+</li>
+<li>   string dmy: date time in the isoformat except TZ: YYYY-MM-DDTHH:MM:SS
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<ul><li>   strf2 and <strong>strf3</strong>: values larger that 1 are written with at most 2 or 3 digits after decimal dot.
+</li>
+<li>   <strong>strf2loc</strong> and <strong>strf3loc</strong> use the local decimal dot (. or ,).
+</li>
+<li>   <strong>strd</strong>: the value 'val' is rounded to seconds id rounded= True
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   23/11/2020 (2.1.6): added 'days' keyword to <strong>hhmmss</strong>.
+</p>
+<a name="robo55"></a>
+<a name="functions2fget5fproxy"></a>
+<h2>18.7.  functions/get_proxy [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   proxy = <strong>get_proxy</strong>([folder=<a href="#robo39">NONE</a>] [, default=''])
+</p>
+<p class="item_name">ARGUMENTS</p>
+<ul><li>   optional string folder: folder to search for proxy .json file
+</li>
+<li>   optional string default: default value for proxy
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   string proxy: value of the proxy, False if not found
+</p>
+<p class="item_name">REMARKS</p>
+<p>   The .json configuration files are searched for either a "proxy" key
+   or the first element of the first list. Files names are:
+   'https_proxy', 'Mise_a_jour_packages', 'proxy'.
+</p>
+<p class="item_name">HISTORY</p>
+<p>   1.8.8 (171212) created <strong>get_proxy</strong>
+   2.1.0 (200214) fix urllib3 requiring proxy scheme (http[s]://)
+   2.1.5 (210927) fix kwarg name default in doc; fix return value
+</p>
+<a name="robo56"></a>
+<a name="functions2fget5fpython5fexe"></a>
+<h2>18.8.  functions/get_python_exe [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   name = <strong>get_python_exe</strong>()
+</p>
+<p class="item_name">RESULT</p>
+<p>   str name: path/name to the python executable in use, possibly without extension
+</p>
+<p class="item_name">HISTORY</p>
+<p>   2.0.7 (190821) created
+</p>
+<a name="robo64"></a>
+<a name="functions2fgfloat"></a>
+<h2>18.9.  functions/gfloat, gint,<br />gbool [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   fval = <strong>gfloat</strong>(input_string)
+</li>
+<li>   ival = <strong>gint</strong>(input_string)
+</li>
+<li>   bval = <strong>gbool</strong>(input_string)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   string input_str: string value to be converted to a float or int or bool.
+   The decimal separator can either be '.' or ','.
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   float fval or int ival: numerical value after conversion
+</li>
+<li>   bool bval: semantic boolean value.
+     Unlike bool builtin, <strong>gbool</strong>('False'), <strong>gbool</strong>('n') and <strong>gbool</strong>('0') return False
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<p>   171127: <strong>gbool</strong> added
+</p>
+<a name="robo67"></a>
+<a name="functions2fIniFile"></a>
+<h2>18.10.  functions/IniFile, get,<br />set, getall,<br />setall, save [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   mycfg = <strong>IniFile</strong>(filename, folder=<a href="#robo39">NONE</a>)
+</li>
+<li>   txt = mycfg.<strong>get</strong>(<a href="#robo23">group</a>, key, default)
+</li>
+<li>   obj = mycfg.<strong>getall</strong>(<a href="#robo23">group</a>)
+</li>
+<li>   mycfg.<strong>set</strong>(<a href="#robo23">group</a>, key, value)
+</li>
+<li>   mycfg.<strong>setall</strong>(<a href="#robo23">group</a>, obj)
+</li>
+<li>   value = mycfg.<a href="#robo68">remove</a>(<a href="#robo23">group</a>, key)
+</li>
+<li>   mycfg.<strong>save</strong>(folder=<a href="#robo39">NONE</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string filename: input file name - expects the name of the caller '__file__'
+     in order to <strong>get</strong> the same file path and name with extension .json
+</li>
+<li>   string folder: alternate folder to load from / <strong>save</strong> to
+</li>
+<li>   string <a href="#robo23">group</a>: <a href="#robo23">group</a> of keys
+</li>
+<li>   string key, value: value of key to be stored/retrieved
+</li>
+<li>   object obj: object to be stored; may be a <a href="#robo38">DICT</a> of lists.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   mycfg = <strong>IniFile</strong>(filename): loads the <a href="#robo69">init</a> file and returns the groups of keys
+</li>
+<li>   val = mycfg.<strong>get</strong>(<a href="#robo23">group</a>, key, val) allows to update val if the value of <a href="#robo23">group</a>/key
+     is defined.
+</li>
+<li>   object obj: object retrieved.
+</li>
+<li>   <strong>set</strong>() allows to <strong>set</strong> key with value
+</li>
+<li>   <strong>save</strong>() saves the files back. If folder was given and <a href="#robo61">exists</a>, then the file
+     is saved into that folder instead of the filename folder.
+</li>
+<li>   <a href="#robo68">remove</a>() returns the mapping or <a href="#robo39">NONE</a> if not found
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   Default format changed from .xml to .json in aug 2017;
+     previous settings will be converted.
+</li>
+<li>   <strong>getall</strong> and <strong>setall</strong> added in march 2018.
+</li>
+<li>   180705 (1.9.7) <strong>IniFile</strong> handles non-ascii filenames
+</li>
+<li>   181218 (2.0.4) <strong>get</strong> returns unicode strings
+</li>
+<li>   200506 (2.1.2) <a href="#robo68">remove</a> method
+</li>
+<li>   210426 (2.1.9) <a href="#robo68">remove</a> trailing '-&lt;maxver&gt;&lt;minver&gt;' from the basename
+</li>
+<li>   211012 (2.2.5) add folder kwarg
+</li>
+</ul>
+<p></p>
+<a name="robo68"></a>
+<a name="functions2fIniFile1L"></a>
+<h2>18.11.  functions/IniFile1L, get,<br />set, remove,<br />save [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   mycfg = <strong>IniFile1L</strong>(filename)
+</li>
+<li>   txt = mycfg.<strong>get</strong>(key, default)
+</li>
+<li>   mycfg.<strong>set</strong>(key, value)
+</li>
+<li>   value = mycfg.<strong>remove</strong>(key)
+</li>
+<li>   mycfg.<strong>save</strong>()
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string filename: input file name - expects the name of the caller '__file__'
+     in order to <strong>get</strong> the same file path and name with extension .json
+</li>
+<li>   string key, value: value of key to be stored/retrieved
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   mycfg = <strong>IniFile1L</strong>(filename): loads the <a href="#robo69">init</a> file and returns the keys
+</li>
+<li>   val = mycfg.<strong>get</strong>(key, val) allows to update val if the value of key is defined.
+</li>
+<li>   <strong>set</strong>() allows to <strong>set</strong> key with value
+</li>
+<li>   <strong>save</strong>() saves the files back
+</li>
+<li>   <strong>remove</strong>() returns the mapping or <a href="#robo39">NONE</a> if not found
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   210426 (2.1.9) <strong>remove</strong> trailing '-&lt;maxver&gt;&lt;minver&gt;' from the basename
+</li>
+<li>   210708 (2.2.4) <a href="#robo57">getall</a> and <a href="#robo67">setall</a>
+</li>
+</ul>
+<p></p>
+<a name="robo71"></a>
+<a name="functions2fis5ftext"></a>
+<h2>18.12.  functions/is_text, myascii,<br />unistr, str2uni,<br />utf2uni, con2uni [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   bret = <strong>is_text</strong>(input_str)
+</li>
+<li>   atxt = <strong>myascii</strong>(input_str)
+</li>
+<li>   utxt = <strong>unistr</strong>(input_str)
+</li>
+<li>   utxt = <strong>str2uni</strong>(input_str)
+</li>
+<li>   utxt = <strong>utf2uni</strong>(input_str)
+</li>
+<li>   utxt = <strong>con2uni</strong>(input_str)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   input_str: value to be converted. Can be of any type:
+   non text input are first converted to unicode.
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   bool bret: indicator telling if the object item is a  string (unicode or byte).
+     Equivalent to isinstance(input_str, basestring) in python 2.7
+</li>
+<li>   unicode or string atxt: string of same type as input_str where non-ascii charcacters
+     have been replaced with the best match (i.e. 'é' is replaced with 'e').
+</li>
+<li>   unicode utxt: unicode string decoded from input_str (multiple codecs tried in turn);
+     <strong>unistr</strong> tries 'cp1252', '<a href="#robo99">utf</a>-8', 'cp850', 'iso-8859-1';
+     <strong>str2uni</strong> tries '<a href="#robo99">utf</a>-8', 'cp1252', 'cp850', 'iso-8859-1';
+     tostr acts as <strong>unistr</strong> in python2 and as <strong>str2uni</strong> in python3;
+     <strong>con2uni</strong> tries cp850 then tostr.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   in version 1.9.0, those <a href="#robo17">functions</a> are defined separately for python2 and python3.
+</li>
+<li>   since version 1.9.1, the definitions have been merged.
+</li>
+<li>   since version 2.1.5 (2020/08/24), 'ascii' replaced with '<strong>myascii</strong>'
+</li>
+<li>   since version 2.2.0 (2021/05/27) <strong>myascii</strong> tries several codecs
+</li>
+</ul>
+<p></p>
+<a name="robo72"></a>
+<a name="functions2fis5fwq"></a>
+<h2>18.13.  functions/is_wq [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   bret = <strong>is_wq</strong>(<a href="#robo74">attr</a>, lang=<a href="#robo39">NONE</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   unicode or byte string <a href="#robo74">attr</a>: attribute
+   str lang: kernel lang (default <a href="#robo39">NONE</a>)
+</p>
+<p class="item_name">RESULT</p>
+<p>   bool bret: true if att in T, C0 .. C9, $0 .. $9, $A .. $Z
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   introduced 14.03.2020 - 2.1.1
+</li>
+<li>   added water hardness (TH / HD / DU 24.11.2021 - 2.2.7)
+</li>
+</ul>
+<p></p>
+<a name="robo73"></a>
+<a name="functions2flec5fcsv"></a>
+<h2>18.14.  functions/lec_csv [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   header, content = <strong>lec_csv</strong>(filename [, sep=',']
+   [, skip_before=0] [, skip_after=0] [, as_tuple=False])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string filename: input file name
+</li>
+<li>   string sep: optional column separator. Default ','.
+</li>
+<li>   int skip_before: optional number of lines to be skipped before reading header.
+</li>
+<li>   int skip_after: optional number of lines to be skipped after reading header.
+</li>
+<li>   bool as_tuple: optional bool indicating if records are lists (default) or tuples.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   header: list/tuple of strings read from the 1st line
+</li>
+<li>   content: list of lines, each being a list/tuple of text fields
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   The entire file is read into 'content'
+</p>
+<a name="robo77"></a>
+<a name="functions2flist2file"></a>
+<h2>18.15.  functions/list2file [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   fname = <strong>list2file</strong>(idlist [, header] [, footer] [, folder] [, suffix])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   idlist: list of id (unicode str).
+</li>
+<li>   header: optional string to be placed before the list
+</li>
+<li>   footer: optional string to be placed after the list
+</li>
+<li>   folder: optional folder to create the file (default temp folder).
+</li>
+<li>   suffix: optional string to be used as a suffix for fname. Defaults to 'IDs.txt'
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   str fname: name of a temporary file containing header if any, <a href="#robo22">Elements</a> of idlist,
+   footer if any, one per line.
+</p>
+<a name="robo84"></a>
+<a name="functions2fpiccolo5fcontext"></a>
+<h2>18.16.  functions/piccolo_context [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Reads Context.pic and return colorset and tresholds for given attribute
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   <a href="#robo74">attr</a>, cname, tvals, cvals = <strong>piccolo_context</strong>(fcontext, <a href="#robo74">attr</a>=<a href="#robo39">NONE</a>, verbose=False)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   str fcontext: name of context file
+</li>
+<li>   str <a href="#robo74">attr</a>: attribute to find colorset and thresholds
+</li>
+<li>   bool verbose: for printing lookup messages
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   str <a href="#robo74">attr</a>: attribute found
+</li>
+<li>   str cname: name of colorset
+</li>
+<li>   list tvals: str list of values / float list of thresholds
+</li>
+<li>   list cvals: str list of colors
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   Returns as many colors as str thresholds if <a href="#robo74">attr</a> is alphanumeric;
+   one more color than float thresholds if <a href="#robo74">attr</a> is numeric.
+</p>
+
+<p>   A tuple of <a href="#robo39">NONE</a> is returned in case of failure
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   introduced 2.2.6 (211117)
+</li>
+</ul>
+<p></p>
+<a name="robo86"></a>
+<a name="functions2fquotefilename"></a>
+<h2>18.17.  functions/quotefilename [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   txt = <strong>quotefilename</strong>(name)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   str name: file name
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   string txt: file name quoted with double quotes if it contains a whitespace.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   added 11/09/2015.
+</li>
+</ul>
+<p></p>
+<a name="robo89"></a>
+<a name="functions2froundval"></a>
+<h2>18.18.  functions/roundval, scaladjust [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">PURPOSE</p>
+<p>   Computes a rounded approximation of a float number
+</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   rmin, rbest, rmax = <strong>roundval</strong>(val, reltol= 0.01)
+</li>
+<li>   rval = <strong>scaladjust</strong>(val)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   float val: value to be rounded
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<ul><li>   float rmin, rmax: lower and upper values approximations (rmax - rmin &lt; reltol*|val|)
+</li>
+<li>   float rbest: best approximation (one of rmin, rmax)
+</li>
+<li>   float rval: value rounded at 1., 2. or 5. in the order of magnitude of val.
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   <strong>scaladjust</strong> is used to determine the grid interval for plots as <strong>scaladjust</strong>(0.25*(ymax-ymin))
+ HISTORY:
+   * 20.03.13 (2.1.1) fixed rounding when val &lt; 1
+</p>
+<a name="robo96"></a>
+<a name="functions2ftoidpic"></a>
+<h2>18.19.  functions/toidpic [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   out_str = <strong>toidpic</strong>(input_str)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   unicode or string input_str: string value to be converted to a Piccolo ID
+</p>
+<p class="item_name">RESULT</p>
+<p>   ascii string where blank, comma, equal are replaced with underscore, other
+   non litteral or digit are replaced with minus.
+</p>
+<a name="robo97"></a>
+<a name="functions2fupdate5fpackage"></a>
+<h2>18.20.  functions/update_package [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   stat = <strong>update_package</strong>(package_name [, minvers=''] [, pypi_name=<a href="#robo39">NONE</a>]
+   [, deps= False] [, https_proxy= <a href="#robo39">NONE</a>] [, verbose= True])
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string package_name: name of the package as used in the import statement
+</li>
+<li>   optional string minvers: minimum version required, in the form x.y[.z]
+</li>
+<li>   optional string pypi_name: package name in pypi, if different from package_name
+</li>
+<li>   optional bool deps: <a href="#robo67">set</a> to True to install the dependencies
+</li>
+<li>   optional string https_proxy: url and port of the proxy if required.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   bool stat: true if the package has been installed or updated
+</p>
+<p class="item_name">REMARKS</p>
+<ul><li>   minvers can also be provided as a list or tuple of ints
+</li>
+<li>   proxy lookup starts with HTTPS_PROXY environment variable, then
+     configuration files lookup using <a href="#robo55">get_proxy</a>() function.
+</li>
+</ul>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   1.8.1 (171009) added
+</li>
+<li>   1.8.7 (171208) revised to allow ganessa to update itself
+</li>
+<li>   1.8.8 (171212) proxy config .json files lookup added
+</li>
+<li>   1.9.1 (180502) python3
+</li>
+<li>   1.9.2 (180518) use tempfile for testing access (MT <a href="#robo6">Compatibility</a>)
+</li>
+<li>   2.0.0 (180818) added verbose parameter
+</li>
+<li>   2.0.5 (190109) <a href="#robo68">remove</a> testing access
+</li>
+<li>   2.0.7 (190821) modified python exe lookup for venv <a href="#robo6">Compatibility</a>
+</li>
+<li>   2.0.9 (200205) minor fix in version_as_tuple: <a href="#robo68">remove</a> 4th level (post)
+</li>
+<li>   2.1.5 (210929) exit in embed mode if version inappopriate
+</li>
+<li>   2.2.9 (220214) replace -only-binary with -prefer-binary; add --trusted-host pypi.org
+</li>
+</ul>
+<p></p>
+<a name="robo98"></a>
+<a name="functions2futf85fbom5fencoding"></a>
+<h2>18.21.  functions/utf8_bom_encoding [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   encoding = <strong>utf8_bom_encoding</strong>(filename=<a href="#robo39">NONE</a>)
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   string filename: input file name (defaults to <a href="#robo39">NONE</a>)
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   string encoding:
+</p>
+<pre>    * 'utf_8_sig' if no file argument passed
+    * 'utf_8_sig' if file <a href="#robo61">exists</a> and encoding is utf8-bom
+    * <a href="#robo39">NONE</a> if file does not <a href="#robo61">exists</a> or encoding is not utf8-bom
+</pre>
+<p></p>
+<p class="item_name">HISTORY</p>
+<ul><li>   210310 (2.1.7): creation
+</li>
+<li>   210423 (2.1.9): fix empty file resulting in StopIteration exception
+</li>
+</ul>
+<p></p>
+<a name="robo99"></a>
+<a name="functions2fwinstr"></a>
+<h2>18.22.  functions/winstr, utf,<br />ws, aws,<br />codewinfile [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<ul><li>   out_txt = <strong>winstr</strong>(input_str)
+</li>
+<li>   out_txt = <strong>utf</strong>(input_str)
+</li>
+<li>   out_str = <strong>ws</strong>(input_str)
+</li>
+<li>   out_astr = <strong>aws</strong>(input_str)
+</li>
+</ul>
+<p></p>
+<p class="item_name">ARGUMENT</p>
+<p>   unicode or byte string input_str: string value to be encoded to windows-compatible string
+</p>
+<p class="item_name">RESULT</p>
+<ul><li>   out_txt encoded into Windows-1252 or <strong>utf</strong>-8 (no change if no accent or special character)
+</li>
+<li>   out_str: (unicode) string in python3, Windows-1252 encoded string in python2
+</li>
+<li>   out_astr: (unicode) string in python3, ascii unicode string in python2
+</li>
+</ul>
+<p></p>
+<p class="item_name">REMARK</p>
+<p>   <strong>codewinfile</strong> and <strong>winstr</strong> are synonyms
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   <strong>ws</strong> has been introduced 30.05.2018 - 1.9.3
+</li>
+<li>   <strong>aws</strong> has been introduced 12.06.2018 - 1.9.5
+</li>
+</ul>
+<p></p>
+<a name="robo101"></a>
+<a name="functions2fXMLduration"></a>
+<h2>18.23.  functions/XMLduration [ Fonctions ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo17">functions</a> ] [ Fonctions ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   ival = <strong>XMLduration</strong>(input_string)
+</p>
+<p class="item_name">ARGUMENT</p>
+<p>   string input_str: XML duration string value to be converted to a number of seconds.
+</p>
+
+<p>   The input format is [-]PnYnMnDTnHnMnS where:
+</p>
+<ul><li>   leading 'P' is mandatory,
+</li>
+<li>   at least one duration item must be present
+</li>
+<li>   'T' is mandatory if any hour, minute, second is present
+</li>
+<li>   all items are integers except second that may be either int or float.
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   int ival: number of seconds
+</p>
+<a name="robo18"></a>
+<a name="ganessa2eutil2fiterators"></a>
+<h1>19.  ganessa.util/iterators [ Introduction ]  </h1>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Introduction ]</p>
+<a name="robo23"></a>
+<a name="iterators2fgroup"></a>
+<h2>19.1.  iterators/group [ Iterator ]  </h2>
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ <a href="#robo18">iterators</a> ] [ Iterator ]</p>
+<p class="item_name">SYNTAX</p>
+<p>   for items in <strong>group</strong>(iterable, count= 2):
+</p>
+<p class="item_name">ARGUMENT</p>
+<ul><li>   iterable: iterable
+</li>
+<li>   int count: <strong>group</strong> size
+</li>
+</ul>
+<p></p>
+<p class="item_name">RESULT</p>
+<p>   this iterator allows to return the <a href="#robo22">Elements</a> of iterable grouped
+   by lists of size count. The last list may contain less than <strong>group</strong> <a href="#robo22">Elements</a>
+</p>
+<p class="item_name">HISTORY</p>
+<ul><li>   1.7.6 (170613): iterator added
+</li>
+<li>   2.0.0 (180816): python 3.7 <a href="#robo6">Compatibility</a>
+</li>
+</ul>
+<p></p>
+<div id="footer">
+<p>Generated from ./ganessa/ with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.41 on Thu Jul 21 2022 10:56:09
+</p>
+</div> <!-- footer -->
+</body>
+</html>
