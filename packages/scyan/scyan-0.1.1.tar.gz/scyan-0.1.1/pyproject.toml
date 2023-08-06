@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "scyan"
+version = "0.1.1"
+description = "Single-cell Cytometry Annotation Network"
+documentation = "https://mics_biomathematics.pages.centralesupelec.fr/biomaths/scyan/"
+homepage = "https://mics_biomathematics.pages.centralesupelec.fr/biomaths/scyan/"
+repository = "https://github.com/MICS-Lab/scyan"
+authors = ["Blampey Quentin <quentin.blampey@gmail.com>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+classifiers = [
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering"
+]
+packages = [
+    { include = "scyan" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+FlowIO = "^1.0.1"
+matplotlib = "^3.5.2"
+scipy = "^1.7.3"
+scikit-learn = "^1.1.1"
+seaborn = "^0.11.2"
+llvmlite = "^0.38.1"
+scanpy = "^1.9.1"
+pytorch-lightning = "^1.6.4"
+umap-learn = "^0.5.3"
+FlowUtils = "^1.0.0"
+wandb = {version = "^0.12.20", optional = true}
+hydra-core = {version = "^1.2.0", optional = true}
+hydra-colorlog = {version = "^1.2.0", optional = true}
+hydra-optuna-sweeper = {version = "^1.2.0", optional = true}
+pytest = {version = "^7.1.2", optional = true}
+ipykernel = {version = "^6.15.0", optional = true}
+ipywidgets = {version = "^7.7.1", optional = true}
+isort = {version = "^5.10.1", optional = true}
+black = {version = "^22.6.0", optional = true}
+mkdocs-material = {version = "^8.3.9", optional = true}
+mkdocstrings = {version = "^0.19.0", optional = true}
+mkdocstrings-python = {version = "^0.7.1", optional = true}
+imblearn = {version = "^0.0", optional = true}
+leidenalg = {version = "^0.8.10", optional = true}
+mkdocs-jupyter = {version = "^0.21.0", optional = true}
+
+[tool.poetry.extras]
+dev = ["wandb", "hydra-core", "hydra-colorlog", "hydra-optuna-sweeper", "pytest", "ipykernel", "ipywidgets", "isort", "black", "imblearn"]
+docs = ["mkdocs-material", "mkdocstrings", "mkdocstrings-python", "mkdocs-jupyter"]
+discovery = ["leidenalg"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::UserWarning",
+  "ignore:::.*anndata*"
+]
+
+[tool.black]
+line-length = 90
+include = '\.pyi?$'
+exclude = '''
+/(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+'''
+
+[tool.isort]
+profile = "black"
+skip_glob = ["*/__init__.py"]
