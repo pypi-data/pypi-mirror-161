@@ -1,0 +1,84 @@
+Metadata-Version: 2.1
+Name: yahp
+Version: 0.1.3
+Summary: Yet Another HyperParameter framework
+Home-page: https://github.com/mosaicml/yahp
+Author: MosaicML
+Author-email: team@mosaicml.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: LICENSE_HEADER
+Requires-Dist: PyYAML (>=5.4.1)
+Requires-Dist: ruamel.yaml (>=0.17.10)
+Requires-Dist: docstring-parser (<=0.15,>=0.14.1)
+Requires-Dist: jsonschema (<4.8,>=4.7.2)
+Provides-Extra: all
+Requires-Dist: junitparser (>=2.1.1) ; extra == 'all'
+Requires-Dist: bump2version (>=1.0.1) ; extra == 'all'
+Requires-Dist: sphinxcontrib.katex (>=0.8.6) ; extra == 'all'
+Requires-Dist: yamllint (>=1.26.2) ; extra == 'all'
+Requires-Dist: recommonmark (>=0.7.1) ; extra == 'all'
+Requires-Dist: sphinxext.opengraph (>=0.4.2) ; extra == 'all'
+Requires-Dist: pytest (>=6.2.0) ; extra == 'all'
+Requires-Dist: sphinx (>=4.2.0) ; extra == 'all'
+Requires-Dist: isort (>=5.9.3) ; extra == 'all'
+Requires-Dist: toml (>=0.10.2) ; extra == 'all'
+Requires-Dist: sphinx-copybutton (>=0.4.0) ; extra == 'all'
+Requires-Dist: myst-parser (>=0.15.2) ; extra == 'all'
+Requires-Dist: yapf (>=0.13.0) ; extra == 'all'
+Requires-Dist: sphinx-rtd-theme (>=1.0.0) ; extra == 'all'
+Requires-Dist: sphinx-markdown-tables (>=0.0.15) ; extra == 'all'
+Requires-Dist: pytest-timeout (>=1.4.2) ; extra == 'all'
+Requires-Dist: coverage[toml] (>=5.5) ; extra == 'all'
+Provides-Extra: base
+Provides-Extra: dev
+Requires-Dist: junitparser (>=2.1.1) ; extra == 'dev'
+Requires-Dist: sphinxcontrib.katex (>=0.8.6) ; extra == 'dev'
+Requires-Dist: recommonmark (>=0.7.1) ; extra == 'dev'
+Requires-Dist: pytest (>=6.2.0) ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme (>=1.0.0) ; extra == 'dev'
+Requires-Dist: yapf (>=0.13.0) ; extra == 'dev'
+Requires-Dist: myst-parser (>=0.15.2) ; extra == 'dev'
+Requires-Dist: sphinx-markdown-tables (>=0.0.15) ; extra == 'dev'
+Requires-Dist: coverage[toml] (>=5.5) ; extra == 'dev'
+Requires-Dist: pytest-timeout (>=1.4.2) ; extra == 'dev'
+Requires-Dist: yamllint (>=1.26.2) ; extra == 'dev'
+Requires-Dist: sphinxext.opengraph (>=0.4.2) ; extra == 'dev'
+Requires-Dist: isort (>=5.9.3) ; extra == 'dev'
+Requires-Dist: toml (>=0.10.2) ; extra == 'dev'
+Requires-Dist: sphinx-copybutton (>=0.4.0) ; extra == 'dev'
+Requires-Dist: bump2version (>=1.0.1) ; extra == 'dev'
+Requires-Dist: sphinx (>=4.2.0) ; extra == 'dev'
+
+# YAHP: Yet Another HyperParameter
+
+YAHP introduces yet another hyperparameter management tool.
+
+## Features
+* Utilizes [dataclasses](https://docs.python.org/3.8/library/dataclasses.html) to describe the data model.
+* Supports `int`, `float`, `bool`, `str`, and `Enum`s; along with lists and nullable fields
+* Fields can be optional (with a default) or required
+* Auto-generates YAML templates, serializes the data model to YAML, and loads YAML into the data model.
+* Allows for nested dataclasses -- even with abstract classes
+* Adds an [argparse](https://docs.python.org/3.8/library/argparse.html) CLI
+
+## Getting Started
+
+* See the [simple example](examples/simple) for a simple data model and yaml file.
+* See the [cli example](examples/cli) for an example of the CLI.
+* See the [registry example](examples/registry) for how to use nested dataclasses with inheritance.
+
+## YAHP Command Line
+Whenever `Hparams.create()` is invoked, YAHP adds the following command line options:
+
+* `-h`, `--help`: Print help and exit.
+* `-f`, `--file`": Load data from this YAML file into the Hparams.
+* `-s`, `--save_template`: Generate and dump a YAML template to the specified file (defaults to `stdout`) and exit.
+* `-i`, `--interactive`: Whether to generate the template interactively. Only applicable if `--save_template` is present.
+*  `-c`, `--concise`: Skip adding documentation to the generated YAML. Only applicable if `--save_template` is present.
+*  `-d`, `--dump`: Dump the resulting Hparams to the specified YAML file (defaults to `stdout`) and exit.
