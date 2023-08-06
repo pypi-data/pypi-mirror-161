@@ -1,0 +1,24 @@
+<vars>
+IP_SPACE_MASK = r"(\d{1,3}\.){3}\d{1,3} (\d{1,3}\.){3}\d{1,3}"
+</vars>
+
+<group name="interfaces.{{ name }}**">
+interface {{ name }}
+ duplex {{ duplex }}
+ speed {{ speed }}
+ vlan-type {{ encapsulation }} {{ s_vlan | DIGIT }}
+ qinq termination pe-vid {{ s_vlan | DIGIT }} ce-vid {{ c_vlan | DIGIT }}
+ description {{ description | _line_ }}
+ {{ is_disabled | equal("shutdown") | let(True) }}
+ <group name="ip_addresses*" method="table" itemize="ip_addresses">
+ ip address {{ ip_addresses | re(IP_SPACE_MASK) | to_ip | ip_info }}
+ ip address {{ ip_addresses | re(IP_SPACE_MASK) | to_ip | ip_info }} sub
+ </group>
+ ip binding vpn-instance {{ vrf }}
+ <group name="acls_in*" method="table" itemize="acls_in">
+ traffic-policy {{ acls_in }} inbound
+ </group>
+ <group name="acls_out*" method="table" itemize="acls_out">
+ traffic-policy {{ acls_out }} outbound
+ </group>
+</group>
