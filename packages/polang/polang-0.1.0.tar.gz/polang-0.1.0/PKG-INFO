@@ -1,0 +1,62 @@
+Metadata-Version: 2.1
+Name: polang
+Version: 0.1.0
+Summary: Polang is a simple calulator language for polars data frames.
+Project-URL: Homepage, https://github.com/AlexanderNenninger/polang
+Author-email: Alexander Nenninger <alex.ne.dev@outlook.com>
+License: MIT License
+        
+        Copyright (c) 2022 Alexander Nenninger
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# Polang
+
+*Do not use this with untrusted input!*
+
+*Polang* is a simple arithmetic parser that compiles to [Polars Expressions](https://pola-rs.github.io/polars/py-polars/html/reference/api/polars.Expr.html#polars.Expr).
+
+## But Why?
+
+My usecase is tabular data with a lot of columns that need transformation. 
+
+## Usage
+
+```python
+df = DataFrame({"a": np.linspace(0, 1), "b": np.sin(np.linspace(0, 1))})
+df.select(polang("(sin(a) + b) * 3.2"))
+````
+
+
+
+## Currently Supported Features
+
+ + `+ - * /`
+ + Braces `( )`
+ + Any method of polars expressions.
+
+## Roadmap
+
+ + Macros
+
