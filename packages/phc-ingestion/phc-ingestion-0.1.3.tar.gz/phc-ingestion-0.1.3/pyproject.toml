@@ -1,0 +1,43 @@
+[project]
+name = "phc-ingestion"
+version = "0.1.3"
+description = "Functions for LifeOmic PHC genomic ingestions"
+authors = [
+    { name = "LifeOmic Development", email = "development@lifeomic.com" },
+]
+dependencies = [
+    "lifeomic-logging==0.3.2",
+    "xmltodict==0.13.0",
+    "pyyaml==5.4.1",
+    "natsort==7.1.1",
+    "pysam==0.19.1",
+]
+requires-python = ">=3.9"
+readme = "PYPI.md"
+
+[project.license]
+text = "MIT"
+
+[project.optional-dependencies]
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "black==22.3.0",
+    "pytest==7.1.2",
+    "pytest-cov==2.10.1",
+    "coverage==4.4.2",
+]
+
+[tool.pdm.scripts]
+test = "python3 -m pytest -v --cov-report term-missing --cov=ingestion --log-level=INFO tests/"
+lint = "black --check tests/ ingestion/"
+lint-fix = "black tests/ ingestion/"
+
+[tool.black]
+line-length = 100
+
+[build-system]
+requires = [
+    "pdm-pep517>=0.12.0",
+]
+build-backend = "pdm.pep517.api"
