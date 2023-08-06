@@ -1,0 +1,47 @@
+id_column: well_name
+depth_column: DEPTH
+label_column: AC
+num_filler: 0
+keep_columns:
+  - BS
+  - NEU
+preprocessing_pipeline:
+  set_as_nan: {}
+
+  add_log_features:
+    log_features:
+      - GR
+      - RMED
+      - RDEP
+      - DENC
+
+  add_petrophysical_features:
+    petrophysical_features:
+      - RAVG
+
+  process_wells:
+    gradient_features:
+      - GR
+      - RMED
+      - RDEP
+      - DENC
+    window: 2
+    rolling_features:
+      - GR
+      - RMED
+      - RDEP
+      - DENC
+    depth_column: DEPTH
+
+  scale_curves:
+    curves_to_scale:
+      - RDEP_log
+    scaler_method: MinMaxScaler
+
+  encode_columns:
+    columns_to_encode:
+      - lsuName
+
+  drop_columns:
+    curves_to_drop:
+      - GR
