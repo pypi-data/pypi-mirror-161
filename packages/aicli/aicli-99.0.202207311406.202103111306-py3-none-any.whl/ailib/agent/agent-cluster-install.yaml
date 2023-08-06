@@ -1,0 +1,24 @@
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: test-agent-cluster-install
+  namespace: cluster0
+  annotations:
+    agent-install.openshift.io/install-config-overrides: '{"networking":{"networkType":"%(network_type)s"}}'
+spec:
+  apiVIP: %(api_vip)s
+  ingressVIP: %(ingress_vip)s
+  clusterDeploymentRef:
+    name: %(cluster)s
+  imageSetRef:
+    name: openshift
+  networking:
+    clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
+    serviceNetwork:
+    - 172.30.0.0/16
+  provisionRequirements:
+    controlPlaneAgents: 3
+    workerAgents: 0
+  sshPublicKey: %(ssh_public_key)s
