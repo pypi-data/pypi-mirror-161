@@ -1,0 +1,1 @@
+from rainyday.rainyday import Weather
