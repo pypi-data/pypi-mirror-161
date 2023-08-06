@@ -1,0 +1,2 @@
+class ReduceModuleException(Exception):
+    pass
