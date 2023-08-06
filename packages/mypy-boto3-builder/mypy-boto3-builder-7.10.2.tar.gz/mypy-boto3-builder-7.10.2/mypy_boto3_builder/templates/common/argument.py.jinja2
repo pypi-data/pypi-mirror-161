@@ -1,0 +1,15 @@
+{{ argument.prefix -}}
+{{ argument.name -}}
+{% if argument.type_annotation -%}
+    {{ ': ' -}}
+    {{ argument.type_annotation.render() -}}
+    {% if not argument.required -%}
+        {{ ' = ' -}}
+        {{ argument.default.render() -}}
+    {% endif -%}
+{% else -%}
+    {% if not argument.required -%}
+        {{ '=' -}}
+        {{ argument.default.render() -}}
+    {% endif -%}
+{% endif -%}
