@@ -1,0 +1,145 @@
+Metadata-Version: 2.1
+Name: noloadj
+Version: 1.1.41
+Summary: solving constrained optimization problem for the design of engineering systems
+Author: B. DELINCHANT, L. GERBAUD, F. WURTZ, L.AGOBERT
+Author-email: benoit.delinchant@G2ELab.grenoble-inp.fr
+Classifier: Programming Language :: Python
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Scientific/Engineering
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS.md
+Requires-Dist: Matplotlib (>3.0)
+Requires-Dist: Scipy (>=1.2)
+Requires-Dist: Jax (>=0.3.14)
+Requires-Dist: Jaxlib (>=0.3.14)
+Requires-Dist: Pandas (>=1.3.5)
+
+<!--
+SPDX-FileCopyrightText: 2021 G2Elab / MAGE
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+NoLOAD_Jax: Non Linear Optimization by Automatic Differentiation using Jax
+==========================================================================
+
+We are happy that you will use or develop the NoLOAD_Jax.
+It is an **Open Source** project located on GitLab at https://gricad-gitlab.univ-grenoble-alpes.fr/design_optimization/NoLoad_v2
+It aims at **solving constrained optimization** problem for the design of engineering systems
+
+Project Presentation
+====================
+
+**NoLOAD_Jax:** Please have a look to NoLOAD presentation : https://noloadj.readthedocs.io/en/latest/  
+
+NoLOAD_Jax Community
+====================
+
+Please use the git issues system to report an error: https://gricad-gitlab.univ-grenoble-alpes.fr/design_optimization/NoLoad_v2
+Otherwise you can also contact the developer team using the following email adress: benoit.delinchant@G2ELab.grenoble-inp.fr
+
+Installation Help
+=================
+You can install the library as a user or as a developer. Please follow the corresponding installation steps below.
+
+Prerequisite
+------------
+
+Please install Python 3.6 or later
+https://www.python.org/downloads/
+You must run NoLOAD_Jax on Ubuntu : on Jupyter Notebook on a computer using Ubuntu, or as explained later, using WSL (Windows Subsystem for Linux) if your computer works on Windows.
+As it uses the JAX library, NoLOAD_Jax can run on CPU (Central Processor Unit) or GPU (Graphics Processor Unit), where GPU offers better performances than CPU.
+With WSL only CPU can be used. To use GPU you may run NoLOAD on Ubuntu.
+If you want to use GPU, you need to install CUDA and CuDNN on your computer then tape on Pycharm terminal (where 0.1.XX is your JAX version):
+
+    pip install --upgrade pip
+    pip install --upgrade jax jaxlib==0.1.XX+cuda111 -f https://storage.googleapis.com/jax-releases/jax_releases.html
+    
+If you use GPU, you need to put these lines at the beginning of your "optimization" file to avoid memory issues :
+
+    import os
+    os.environ['XLA_PYTHON_CLIENT_PREALLOCATE']='false'
+    os.environ['XLA_PYTHON_CLIENT_MEM_FRACTION']='0.50'
+    
+    
+How to configure a virtual environment on WSL running with a Ubuntu distribution :
+----------------------
+At first, activate the WSL on you computer and install on it a Ubuntu distribution by following the 6 first steps of the link :
+https://docs.microsoft.com/en-us/windows/wsl/install-win10
+
+Then open WSL.exe using the Windows search bar and tape :
+
+    cd ~
+    sudo apt update
+    sudo apt install python3-pip
+    sudo pip3 install virtualenv
+    python3 -m virtualenv pythonenv
+    
+You can replace "pythonenv" by "venv" or another name of your choice. Then write :
+
+    source pythonenv/bin/activate
+
+You must see a "(pythonenv)" written at the beginning of the command line.
+Now close WSL and open Pycharm in a new project. 
+Go to File/Settings/Project:_name_of_your_project_/Project Interpreter and add a new interpreter.
+Choose WSL option then change the Python interpreter path by /home/_your_username_/pythonenv/bin/python3. (_your_username_ is the login you chose for WSL)
+Close the Settings window. Click on Terminal section at the bottom, and tape on the commande line  :
+
+    source /home/your_username/pythonenv/bin/activate
+
+If you see a "(pythonenv)" written at the beginning of the command line, the configuration is completed and you can run your code now !
+
+Installation as a user
+----------------------
+Please install NoLOAD_Jax with pip using the command prompt.   
+
+If you are admin on Windows or working on a virtual environment
+    
+    pip install noloadj
+
+If you want a local installation or you are not admin
+    
+    pip install --user noloadj
+
+If you are admin on Linux:
+    
+    sudo pip install noloadj
+
+Launch the examples to understand how the NoLOAD_Jax works:
+	
+	python noload/01-UnconstrainedMonoObjective.py
+	python noload/02-ConstrainedMonoObjective.py
+	python noload/03-ConstrainedMultiObjective.py
+	
+Enjoy your time using NoLOAD_Jax !
+
+
+
+Library Installation Requirements
+---------------------------------
+Matplotlib >= 3.0
+Scipy >= 1.2
+Jax >= 0.2.12
+Jaxlib >= 0.1.64
+Numpy >= 1.20.2
+
+
+Main Authors: 
+=============
+B. DELINCHANT, L. GERBAUD, F. WURTZ, L. AGOBERT
+
+
+Partners:
+=========
+Vesta-System: http://vesta-system.fr/
+
+Acknowledgments:
+================
+
+
+Licence
+=======
+This code is under the Apache License, Version 2.0
