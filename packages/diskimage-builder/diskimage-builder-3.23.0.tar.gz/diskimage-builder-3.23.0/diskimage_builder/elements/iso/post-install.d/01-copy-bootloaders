@@ -1,0 +1,59 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+
+set -eux
+set -o pipefail
+
+TMP_BOOTLOADER_DIR=/tmp/bootloader_files
+mkdir -p $TMP_BOOTLOADER_DIR
+
+#fedora
+if [ $DISTRO_NAME = "fedora" ]; then
+    GRUB_FILE="/boot/efi/EFI/fedora/grubx64.efi"
+    SHIM_FILE="/boot/efi/EFI/fedora/shim.efi"
+    SYSLINUX_FILE="/usr/share/syslinux/isolinux.bin"
+    LDLINUX_FILE="/usr/share/syslinux/ldlinux.c32"
+#centos
+elif [ $DISTRO_NAME = "centos" ]; then
+    GRUB_FILE="/boot/efi/EFI/centos/grubx64.efi"
+    SHIM_FILE="/boot/efi/EFI/centos/shimx64-centos.efi"
+    SYSLINUX_FILE="/usr/share/syslinux/isolinux.bin"
+    LDLINUX_FILE="/usr/share/syslinux/ldlinux.c32"
+#debian/ubuntu
+elif [ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]; then
+    GRUB_FILE="/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed"
+    SHIM_FILE="/usr/lib/shim/shimx64.efi.signed"
+    SYSLINUX_FILE="/usr/lib/ISOLINUX/isolinux.bin"
+    LDLINUX_FILE="/usr/lib/syslinux/modules/bios/ldlinux.c32"
+#rhel7
+elif [ $DISTRO_NAME = "rhel7" ]; then
+    GRUB_FILE="/boot/efi/EFI/redhat/grubx64.efi"
+    SHIM_FILE="/boot/efi/EFI/redhat/shim.efi"
+    SYSLINUX_FILE="/usr/share/syslinux/isolinux.bin"
+    LDLINUX_FILE="/usr/share/syslinux/ldlinux.c32"
+#other
+else
+    GRUB_FILE="/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed"
+    SHIM_FILE="/usr/lib/shim/shimx64.efi.signed"
+    SYSLINUX_FILE="/usr/lib/ISOLINUX/isolinux.bin"
+    LDLINUX_FILE="/usr/lib/syslinux/modules/bios/ldlinux.c32"
+fi
+
+cp $GRUB_FILE $TMP_BOOTLOADER_DIR
+cp $SHIM_FILE $TMP_BOOTLOADER_DIR
+cp $SYSLINUX_FILE $TMP_BOOTLOADER_DIR
+
+# On some operating systems signed bootloader packages install
+# files with read permissions for root only, whereas some for all
+# the users.
+chmod --recursive +r $TMP_BOOTLOADER_DIR
+
+# Starting from SYSLINUX 5.00, the isolinux.bin is dependent
+# on ldlinux.c32.
+# http://www.syslinux.org/wiki/index.php/Library_modules
+if [ -f "$LDLINUX_FILE" ]; then
+    cp $LDLINUX_FILE $TMP_BOOTLOADER_DIR
+fi

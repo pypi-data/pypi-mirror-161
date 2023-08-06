@@ -1,0 +1,276 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+# NOTES on pip install functions
+# It's all installed into /usr/local/bin so override any packages, even
+# if installed later.
+# NOTE(dpawlik): The get-pip.py script is not based on master release.
+# Ensure that uses the latest available version.
+
+function install_python3_pip {
+    python3 /tmp/get-pip.py $pip_args
+    python3 -m pip install $pip_args pip
+    pip3 install $pip_args virtualenv
+}
+
+function install_python2_pip {
+    python2 /tmp/get-pip.py $pip_args
+    python2 -m pip install $pip_args pip
+    pip install $pip_args virtualenv
+}
+
+# force things to happen so our assumptions hold
+pip_args="-U --force-reinstall"
+
+if [[ $DISTRO_NAME =~ (opensuse|fedora|centos|centos7|rhel|rhel7) ]]; then
+
+    # Default packages
+    _do_py3=0
+    _extra_repo=''
+    # see notes below on this var...
+    _clear_old_files=0
+    case "$DISTRO_NAME" in
+        centos*|rhel7)
+            # note python2-pip in epel
+            _extra_repo="--enablerepo=epel"
+            packages="python-virtualenv python2-pip"
+            if [[ "$(rpm -q --qf '[%{obsoletes}\n]' python2-setuptools)" == "python-setuptools" ]]; then
+                # If OpenStack release is installed, then python-setuptools is
+                # obsoleted by python2-setuptools
+                packages+=" python2-setuptools"
+            else
+                packages+=" python-setuptools"
+            fi
+            # see notes below
+            _clear_old_files=1
+            ;;
+        fedora)
+            if [[ ${DIB_RELEASE} -gt 30 ]]; then
+                echo "This element is not supported for this version of Fedora"
+                exit 1
+            fi
+            _do_py3=1
+            packages="python2-pip python2-setuptools"
+            packages+=" python3-virtualenv python3-pip python3-setuptools"
+            ;;
+        rhel)
+            case "$DIB_RELEASE" in
+                8)
+                    _do_py3=1
+                    _clear_old_files=0
+                    packages=" python3-virtualenv python3-pip python3-setuptools"
+                    ;;
+                7)
+                    # note python2-pip in epel
+                    _extra_repo="--enablerepo=epel"
+                    _clear_old_files=1
+                    packages="python-virtualenv python2-pip"
+                    if [[ "$(rpm -q --qf '[%{obsoletes}\n]' python2-setuptools)" == "python-setuptools" ]]; then
+                        packages+=" python2-setuptools"
+                    else
+                        packages+=" python-setuptools"
+                    fi
+                    ;;
+            esac
+            ;;
+        opensuse)
+            case "$DIB_RELEASE" in
+                42*)
+                    packages="python-virtualenv python-pip python-setuptools"
+                    _clear_old_files=1
+                    ;;
+                15*)
+                    _do_py3=1
+                    _clear_old_files=1
+                    # python*-six gets dragged in, and then is a
+                    # distutils package and won't uninstall.  put it
+                    # here so it gets cleaned.
+                    packages="python2-virtualenv python2-pip python2-setuptools python2-six"
+                    packages+=" python3-virtualenv python3-pip python3-setuptools python3-six"
+                    ;;
+                tumbleweed)
+                    echo "This element is not supported for this platform"
+                    exit 1
+                    ;;
+            esac
+            ;;
+    esac
+
+    # GENERAL WARNING : mixing packaged python libraries with
+    # pip-installed versions always creates issues.  Upstream
+    # openstack-infra uses this a lot (especially devstack) but be
+    # warned: here be dragons :)
+
+    # Firstly we want to install the system packages.  Otherwise later
+    # on somebody does a "yum install python-virtualenv" and goes and
+    # overwrites the pip installed version with the packaged version,
+    # leading to all sorts of weird version issues.
+    if [[ $DISTRO_NAME = opensuse ]]; then
+        zypper -n install $packages
+    else
+        ${YUM:-yum} ${_extra_repo} install -y $packages
+    fi
+
+    # pip10 onwards (unlike earlier versions) will not uninstall
+    # packages installed by distutils (note this is only a subset of
+    # packages that don't use setuptools for various reasons; the
+    # problem is essentially they do not include a manifest of files
+    # in the package to delete, so pip was just guessing).  We give it
+    # a little help by clearing out the files from the packages we are
+    # about to re-install so pip doesn't think anything is installed.
+    # See: https://github.com/pypa/pip/issues/4805
+    #
+    # This is only necessary on old CentOS and suse -- for complicated
+    # reasons of course.  On Fedora, the Python2 virtualenv packages
+    # are *not* distutils based and pip overwrites them correctly.
+    # For python3, pip has changed to not overwrite system packages (a
+    # long standing difference between Debuntu and Fedora), but a
+    # number of tools run with "python3 -Es" to isolate themselves to
+    # the package installed versions.  So we definitely don't want to
+    # clear the packaged versions out in that case.
+    if [[ ${_clear_old_files} == 1 ]]; then
+        for pkg in $packages; do
+            rpm -ql $pkg | xargs rm -rf
+        done
+    fi
+
+    # install the latest python2 pip; this overwrites packaged pip
+    # NOTE(dpawlik) The get-pip.py script is not base on master release.
+    # Ensure that is uses latest available version.
+    python /tmp/get-pip.py ${pip_args}
+    python -m pip install ${pip_args} pip
+
+    # Install latest setuptools; there is a slight chicken-egg issue in
+    # that pip requires setuptools for some operations like building a
+    # wheel.  But this simple install should be fine.
+    pip install ${pip_args} setuptools
+
+    if [[ $_do_py3 -eq 1 ]]; then
+        # Repeat above for python3
+
+        # python2 on fedora always installs into /usr/bin.  Move pip2
+        # binary out, as we want "pip" in the final image to be
+        # python2 for historical reasons.
+        mv /usr/bin/pip /usr/bin/pip2
+
+        # You would think that installing python3 bits first, then
+        # python2 would work -- alas get-pip.py doesn't seem to leave
+        # python3 alone:
+        #  https://github.com/pypa/pip/issues/4435
+        # NOTE(dpawlik) The get-pip.py script is not base on master release.
+        # Ensure that is uses latest available version.
+        python3 /tmp/get-pip.py ${pip_args}
+        python3 -m pip install ${pip_args} pip
+        pip3 install ${pip_args} setuptools
+
+        # on < 27, this installed pip3 to /usr/bin/pip.  On >=27 it's
+        # /usr/local/bin/pip.  reclaim /usr/bin/pip back to pip2 and
+        # remove the /usr/local/bin/pip (i.e. python3 version) if it
+        # exists, so that "pip" calls pip2 always.  if we want pip3 we
+        # call it explicitly.
+        ln -sf /usr/bin/pip2 /usr/bin/pip
+        rm -f /usr/local/bin/pip
+
+        # So on Fedora, there are now supposed to be two versions of
+        # python3 setuptools installed; the one installed by pip in
+        # /usr/local and the one installed by the system
+        # python3-setuptools rpm package in /usr/local.  The idea is
+        # that packaged python tools use the "system" python (with -Es
+        # flag) and are isolated from pip installs ... except there is
+        # an issue where pip clears out the RPM version files before
+        # installing it's isolated version:
+        #   https://bugzilla.redhat.com/show_bug.cgi?id=1550368
+        #
+        # Thus we need to *reinstall* the RPM version now, so those
+        # files come back and system tools continue to work
+        if [[ $DISTRO_NAME != opensuse ]]; then
+            dnf reinstall -y python3-setuptools
+        fi
+    fi
+
+    # now install latest virtualenv.  it vendors stuff it needs so
+    # doesn't have issues with other system packages.
+
+    # python[2|3]-virtualenv package has installed versioned scripts
+    # (/usr/bin/virtualenv-[2|3]) but upstream does not!  (see [2]).
+    # For consistency, reinstall so we're just left with python2's
+    # version.  Note this is a rather moot point, the usual way we get
+    # a python3 environment is to call "virtualenv -p python3 foo" and
+    # that works to create a python3 virtualenv, even if using
+    # python2's version.  Thus we probably don't *really* need to
+    # "pip3 install virtualenv".  What we don't want is "virtualenv
+    # foo" creating a python3 virtualenv by default, because that
+    # confuses a lot of legacy code.
+    #
+    #[2] http://pkgs.fedoraproject.org/cgit/rpms/python-virtualenv.git/tree/python-virtualenv.spec#n116)
+    pip install ${pip_args} virtualenv
+    mv /usr/bin/virtualenv /usr/bin/virtualenv2
+    if [[ $_do_py3 -eq 1 ]]; then
+        pip3 install ${pip_args} virtualenv
+    fi
+
+    # Reclaim virtualenv to virtualenv2; similar to above, on fedora
+    # >27 the pip3 version has gone into /usr/local/bin; remove it so
+    # only /usr/bin/virtualenv exists
+    ln -sf /usr/bin/virtualenv2 /usr/bin/virtualenv
+    rm -f /usr/local/bin/virtualenv
+
+    # at this point, we should have the latest
+    # pip/setuptools/virtualenv packages for python2 & 3, and
+    # "/usr/bin/pip" and "/usr/bin/virtualenv" should be python2
+    # versions.
+
+    if [[ $DISTRO_NAME = opensuse ]]; then
+        for pkg in virtualenv pip setuptools; do
+            cat - >> /etc/zypp/locks <<EOF
+type: package
+match_type: glob
+case_sensitive: on
+solvable_name: python-$pkg
+EOF
+        done
+    else
+        # Add this to exclude so that we don't install a later package
+        # over it if it updates.  Note that fedora-minimal, bootstrapped
+        # via yum, can have an old yum.conf around, so look for dnf first.
+        if [[ -f /etc/dnf/dnf.conf ]]; then
+            conf=/etc/dnf/dnf.conf
+        elif [[ -f /etc/yum.conf ]]; then
+            conf=/etc/yum.conf
+        else
+            die "No conf to modify?"
+        fi
+        echo "exclude=$packages" >> ${conf}
+    fi
+elif [[ $DISTRO_NAME = gentoo ]]; then
+    packages="dev-python/pip dev-python/virtualenv"
+    emerge -U $packages
+elif [[ $DIB_RELEASE = bullseye ]]; then
+    packages="python3-pip python3-virtualenv"
+    apt-get -y install $packages
+    install_python3_pip
+else
+    # pre-install packages so dependencies are there.  We will
+    # overwrite with latest below.
+    packages="python-pip python-virtualenv"
+
+    # Unfortunately older ubuntu (trusty) doesn't have a
+    # python3-virtualenv package -- it seems it wasn't ready at the
+    # time and you had to use "python -m venv".  Since then virtualenv
+    # has gained 3.4 support so the pip install below will work
+    if [[ ${DIB_PYTHON_VERSION} == 3 ]]; then
+        packages+=" python3-pip python3-virtualenv"
+    fi
+
+    apt-get -y install $packages
+
+    install_python2_pip
+    if [[ ${DIB_PYTHON_VERSION} == 3 ]]; then
+        install_python3_pip
+    fi
+fi

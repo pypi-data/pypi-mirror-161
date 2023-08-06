@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+# gentoo
+if [[ "${DIB_INIT_SYSTEM}" == "openrc" ]]; then
+    rc-update add cloud-config default
+    rc-update add cloud-final default
+    rc-update add cloud-init-local boot
+    rc-update add cloud-init default
+fi
+
+if [[ "${DIB_INIT_SYSTEM}" == "systemd" ]]; then
+    systemctl enable cloud-config.service
+    systemctl enable cloud-final.service
+    systemctl enable cloud-init-local.service
+    systemctl enable cloud-init.service
+fi

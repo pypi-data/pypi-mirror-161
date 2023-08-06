@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+# Cloud images may hard code interfaces so they
+# boot with DHCP.
+
+# RHEL/CentOS/Fedora
+for ifcfg in $(ls /etc/sysconfig/network-scripts/ifcfg-* | grep -v "ifcfg-lo"); do 
+    rm -f $ifcfg
+done
+
+# Ubuntu/Debian
+rm -f /etc/network/interfaces.d/*
+
+# Gentoo
+rm -f /etc/conf.d/net*
+
+# /etc/network/interfaces distributions
+if [ -f "/etc/network/interfaces" ]; then
+    printf "auto lo\niface lo inet loopback\n\n" > /etc/network/interfaces
+    if [ -d "/etc/network/interfaces.d/" ]; then
+        if [ "$DISTRO_NAME" == "ubuntu" ] && [ "$DIB_RELEASE" == "trusty" ]; then
+            printf "source-directory interfaces.d\n\n" >> /etc/network/interfaces
+        else
+            printf "source /etc/network/interfaces.d/*\n\n" >> /etc/network/interfaces
+        fi
+    fi
+fi

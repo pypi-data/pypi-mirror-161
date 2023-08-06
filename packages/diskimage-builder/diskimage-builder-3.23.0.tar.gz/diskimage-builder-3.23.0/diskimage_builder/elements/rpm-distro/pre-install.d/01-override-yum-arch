@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+if [[ "amd64 x86_64" =~ "$ARCH" ]]; then
+    basearch=x86_64
+    arch=x86_64
+elif [[ "$ARCH" = "ppc64" ]]; then
+    basearch=ppc64
+    arch=ppc64
+elif [[ "$ARCH" = "ppc64le" ]]; then
+    basearch=ppc64le
+    arch=ppc64le
+elif [[ "arm64 aarch64" =~ "$ARCH" ]]; then
+    basearch=aarch64
+    arch=aarch64
+else
+    echo "********************"
+    echo "Unknown arch '$ARCH'"
+    echo "********************"
+    exit 1
+fi
+
+if [[ ${YUM} == "dnf" ]]; then
+    mkdir -p /etc/dnf/vars
+    echo $basearch > /etc/dnf/vars/basearch
+    echo $arch > /etc/dnf/vars/arch
+else
+    echo $basearch > /etc/yum/vars/basearch
+    echo $arch > /etc/yum/vars/arch
+fi
+
+if [[ ${DISTRO_NAME} =~ "centos" ]]; then
+    if [[ ${arch} == "x86_64" ]]; then
+        contentdir=centos
+    else
+        contentdir=altarch
+    fi
+    echo $contentdir > /etc/${YUM}/vars/contentdir
+fi

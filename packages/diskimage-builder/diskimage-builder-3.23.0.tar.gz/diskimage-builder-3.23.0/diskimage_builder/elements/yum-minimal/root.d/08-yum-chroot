@@ -1,0 +1,403 @@
+#!/bin/bash
+#
+# Copyright 2015 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+
+# dib-lint: disable=safe_sudo
+
+if [ "${DIB_DEBUG_TRACE:-0}" -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+source $_LIB/common-functions
+
+if [ -f ${TARGET_ROOT}/.extra_settings ] ; then
+    . ${TARGET_ROOT}/.extra_settings
+fi
+ARCH=${ARCH:-x86_64}
+if [ $ARCH = amd64 ]; then
+    ARCH=x86_64
+elif [[ "arm64" == "$ARCH" ]]; then
+    ARCH="aarch64"
+fi
+# Calling elements will need to set DISTRO_NAME and DIB_RELEASE
+# TODO Maybe deal with DIB_DISTRIBUTION_MIRROR
+http_proxy=${http_proxy:-}
+YUM=${YUM:-yum}
+
+WORKING=$(mktemp --tmpdir=${TMP_DIR:-/tmp} -d)
+EACTION="rm -r $WORKING"
+trap "$EACTION" EXIT
+
+YUM_CACHE=$DIB_IMAGE_CACHE/yum
+mkdir -p $YUM_CACHE
+
+# Debian Bullseye and beyond only has DNF locally
+HOST_YUM_DOWNLOADER="yumdownloader"
+HOST_YUM="yum"
+if ! command -v yumdownloader &> /dev/null
+then
+    HOST_YUM_DOWNLOADER="dnf download"
+    HOST_YUM="dnf"
+fi
+
+
+# Note, on Debian/Ubuntu, %_dbpath is set in the RPM macros as
+# ${HOME}/.rpmdb/ -- this makes sense as RPM isn't the system
+# packager.  This path is relative to the "--root" argument
+_RPM="rpm --dbpath=/var/lib/rpm"
+
+# install the [fedora|centos]-[release|repo] packages inside the
+# chroot, which are needed to bootstrap yum/dnf
+#
+# note this runs outside the chroot, where we're assuming the platform
+# has yum/yumdownloader/dnf download
+function _install_repos {
+    local packages
+    local rc
+
+    # pre-install the base system packages via rpm.  We previously
+    # just left it up to yum to drag these in when we "yum install
+    # yum" in the chroot in _install_pkg_manager.  This raised a small
+    # problem that inside the empty chroot yum went ahead and did a
+    # mkdir for /var/run to put some pid file in, which then messed up
+    # the "filesystem" package making /var/run a symlink to /run
+    # ... which leads to odd issues with a running system.
+    #
+    # TODO: these packages still have some small %posttrans stuff that
+    # depends on other packages (see rhbz#1306489) ... maybe the idea
+    # is that they are only installed in one big transaction with the
+    # rest of the system?  but we don't want to use yum to do this
+    # (see above) so ...
+    packages="${DIB_YUM_MINIMAL_BOOTSTRAP_PACKAGES:-} "
+    packages+="basesystem filesystem setup "
+    if [[ ${DISTRO_NAME} = fedora ]]; then
+        packages+="fedora-release-cloud fedora-release-common "
+        packages+="fedora-repos fedora-gpg-keys"
+    elif [[ ${DISTRO_NAME} = centos && ${DIB_RELEASE%-stream} -gt 7 ]]; then
+        packages+="centos-gpg-keys "
+        if [[ "$DIB_RELEASE" =~ (stream) ]]; then
+            packages+="centos-stream-release centos-stream-repos "
+        else
+            packages+="centos-linux-release centos-linux-repos "
+        fi
+    elif [[ ${DISTRO_NAME} == 'openeuler' ]]; then
+        packages+="openEuler-release "
+        packages+="openEuler-repos openEuler-gpg-keys "
+    else
+        # NOTE(ianw) 2022-04-20 : can probably remove when we don't
+        # support centos 7, unlikely anything else ends up here at
+        # this point.
+        packages+="${DISTRO_NAME}-release "
+    fi
+
+    # By default, parent elements (fedora-minimal, centos-minimal)
+    # have a yum.repos.d directory in the element with a default repo;
+    # this is copied to TMP_HOOK_PATH by the usual hook-copying
+    # routines.  In the gate, environment.d files for the funtional
+    # tests will set DIB_YUM_MINIMAL_BOOTSTRAP_REPOS -- this contains
+    # mirrors correct for the region setup by the
+    # dib-setup-gate-mirrors role.
+    local repo=${DIB_YUM_MINIMAL_BOOTSTRAP_REPOS:-}
+    if [[ -z ${repo} ]]; then
+        # take in preference more specific subdirs
+        if [[ -d ${TMP_HOOKS_PATH}/yum.repos.d/${DIB_RELEASE} ]]; then
+            repo=${TMP_HOOKS_PATH}/yum.repos.d/${DIB_RELEASE}
+        else
+            repo=${TMP_HOOKS_PATH}/yum.repos.d
+        fi
+    fi
+
+    # yumdownloader puts repo xml files and such into a directory
+    # ${TMPDIR}/yum-$USER-random.  Since we don't need this once the
+    # initial download happens, redirect TMPDIR for this call so we
+    # can clean it up nicely
+    #
+    # Note that the $releasever for centos-stream is just the major
+    # version.  There is another variable "$stream" that we don't pass
+    local temp_tmp
+    temp_tmp=$(mktemp -d)
+    TMPDIR=${temp_tmp} ${HOST_YUM_DOWNLOADER} --verbose \
+        --releasever=${DIB_RELEASE/-*/} \
+        --setopt=reposdir=$repo \
+        --setopt=cachedir=$temp_tmp \
+        --destdir=$WORKING \
+        ${packages} && rc=$? || rc=$?
+    rm -rf ${temp_tmp}
+    if [[ ${rc} != 0 ]]; then
+        die "Failed to download initial packages: ${packages}"
+    fi
+
+    # --nodeps works around these wanting /bin/sh in some fedora
+    # releases, see rhbz#1265873
+    sudo $_RPM --root $TARGET_ROOT --nodeps -ivh $WORKING/*rpm
+
+    # install the bootstrap mirror repos over the default ones, if
+    # set.  we will remove this at the end so the final image has
+    # regular mirrors
+    if [[ -n ${DIB_YUM_MINIMAL_BOOTSTRAP_REPOS:-} ]]; then
+        for repo in $TARGET_ROOT/etc/yum.repos.d/*.repo; do
+            sudo mv $repo $repo.USING_MIRROR
+        done
+        sudo cp ${DIB_YUM_MINIMAL_BOOTSTRAP_REPOS}/* \
+            $TARGET_ROOT/etc/yum.repos.d/
+    fi
+
+    if [[ -n ${DIB_YUM_MINIMAL_EXTRA_REPOS:-} ]]; then
+        sudo cp ${DIB_YUM_MINIMAL_EXTRA_REPOS}/* \
+            $TARGET_ROOT/etc/yum.repos.d/
+    fi
+
+    # For openEuler, some repos like update are disabled by default.
+    # Ensure all the repo is enabled, so that we get the latest packages.
+    if [[ ${DISTRO_NAME} == 'openeuler' ]]; then
+        sudo sed -i 's/enabled=0/enabled=1/' $TARGET_ROOT/etc/yum.repos.d/*.repo
+    fi
+}
+
+# _install_pkg_manager packages...
+#
+# install the package manager packages.  This is done outside the chroot
+# and with yum from the build system.
+# TODO: one day build systems will be dnf only, but we don't handle
+# that right now
+function _install_pkg_manager {
+    # Install into the chroot, using the gpg keys from the release
+    # rpm's installed in the chroot
+    sudo sed -i "s,/etc/pki/rpm-gpg,$TARGET_ROOT/etc/pki/rpm-gpg,g" \
+        $TARGET_ROOT/etc/yum.repos.d/*repo
+
+    # See notes on $_RPM variable -- we need to override the
+    # $HOME-based dbpath set on debian/ubuntu here.  Unfortunately,
+    # yum does not have a way to override rpm macros from the command
+    # line.  So we modify the user's ~/.rpmmacros to set %_dbpath back
+    # to "/var/lib/rpm" (note, this is taken relative to the
+    # --installroot).
+    #
+    # Also note, we only want this done around this call -- this is
+    # the only place we are using yum outside the chroot, and hence
+    # picking up the base-system's default rpm macros.  For example,
+    # the yumdownloader calls above in _install_repos want to use
+    # ~/.rpmdb/ ... there is nothing in the build-system /var/lib/rpm!
+    #
+    # Another issue we hit is having to set --releasever here.  yum
+    # determines $releasever based on (more or less) "rpm -q
+    # --whatprovides $distroverpkg".  By default, this is
+    # "redhat-release" (fedora-release provides redhat-release) but
+    # some platforms like CentOS override it in /etc/yum.conf (to
+    # centos-release in their case).  You can't override this (see
+    # [1]), but setting --releasever works around this.
+    #
+    # [1] https://bugzilla.redhat.com/show_bug.cgi?id=1287333
+    (
+        flock -w 1200 9 || die "Can not lock .rpmmacros"
+        echo "%_dbpath /var/lib/rpm" >> $HOME/.rpmmacros
+
+        local _lang_pack=""
+        local _extra_pkgs=""
+
+        if [[ $DISTRO_NAME == "fedora" ]] || \
+            [[ $DISTRO_NAME == "centos" && $DIB_RELEASE > "7" ]]; then
+            # glibc from F24 onwards has split locales into "langpack"
+            # packages.  Host yum doesn't understand the
+            # weak-dependencies glibc now uses to get the
+            # minimal-langpack and chooses a random(ish) one that
+            # satisfies the locale dependency (rhbz#1349258).
+            # Work-around this by explicitly requring the minimal and
+            # english (for en_US.UTF-8) pack.
+            _lang_pack="glibc-minimal-langpack glibc-langpack-en"
+        fi
+
+        # Yum has some issues choosing weak dependencies.  It can end
+        # up choosing "coreutils-single" instead of "coreutils" which
+        # causes problems later when a package actually requires
+        # coreutils.  For more info see
+        #  https://bugzilla.redhat.com/show_bug.cgi?id=1286445
+        # Really all we can do is pre-install the right thing
+        _extra_pkgs+="coreutils "
+
+        # Legacy yum reads vars from directory /etc/yum/vars and, unlike dnf,
+        # does not provide setopt=varsdir. So, if $YUM is legacy yum and our
+        # target root is dnf, symlink dnf vars.
+        if [[ ! -d $TARGET_ROOT/etc/yum/vars ]]; then
+            sudo mkdir -p $TARGET_ROOT/etc/yum
+            sudo ln -s $TARGET_ROOT/etc/dnf/vars $TARGET_ROOT/etc/yum/vars
+        fi
+
+        sudo -E ${HOST_YUM} -y \
+            --disableexcludes=all \
+            --setopt=cachedir=$YUM_CACHE/$ARCH/$DIB_RELEASE \
+            --setopt=reposdir=$TARGET_ROOT/etc/yum.repos.d \
+            --releasever=${DIB_RELEASE/-*/} \
+            --installroot $TARGET_ROOT \
+            install $@ ${_lang_pack} ${_extra_pkgs} && rc=$? || rc=$?
+
+        # we may have symlinked yum/vars -> dnf/vars, unset if so
+        sudo unset $TARGET_ROOT/etc/yum/vars 2>/dev/null || true
+
+        # Note we've modified the base system's .rpmmacros.  Ensure we
+        # clean it up *always*
+        # sed makes it easy to remove last line, but not last n lines...
+        sed -i '$ d' $HOME/.rpmmacros; sed -i '$ d' $HOME/.rpmmacros;
+        if [ $rc != 0 ]; then
+            die "Initial yum install to chroot failed!  Can not continue."
+        fi
+    ) 9>$DIB_LOCKFILES/.rpmmacros.dib.lock
+
+    # Set gpg path back because subsequent actions will take place in
+    # the chroot
+    sudo sed -i "s,$TARGET_ROOT/etc/pki/rpm-gpg,/etc/pki/rpm-gpg,g" \
+        $TARGET_ROOT/etc/yum.repos.d/*repo
+}
+
+# Note this is not usually done for root.d elements (see
+# lib/common-functions:mount_proc_dev_sys) but it's important that
+# we have things like /dev/urandom around inside the chroot for
+# the rpm [pre|post]inst scripts within the packages.
+sudo mkdir -p $TARGET_ROOT/proc $TARGET_ROOT/dev $TARGET_ROOT/sys
+sudo mount -t proc none $TARGET_ROOT/proc
+sudo mount --bind /dev $TARGET_ROOT/dev
+sudo mount -t devpts $(mount_dev_pts_options) devpts $TARGET_ROOT/dev/pts
+# Mounting /sys as RO indicates to various systemd things
+# that we are in a container
+sudo mount -o ro -t sysfs none $TARGET_ROOT/sys
+
+# initalize rpmdb
+sudo mkdir -p $TARGET_ROOT/var/lib/rpm
+sudo $_RPM --root $TARGET_ROOT --initdb
+
+# this makes sure that running yum/dnf in the chroot it can get
+# out to download stuff
+sudo mkdir $TARGET_ROOT/etc
+sudo cp /etc/resolv.conf $TARGET_ROOT/etc/resolv.conf
+
+# Bind mount the external yum cache inside the chroot.  Same logic
+# as in the yum element to provide for yum caching copied here
+# because the sequencing is wrong otherwise
+sudo mkdir -p $TMP_MOUNT_PATH/tmp/yum
+sudo mount --bind $YUM_CACHE $TMP_MOUNT_PATH/tmp/yum
+
+_install_repos
+
+# Install package manager
+
+# We are somewhat fighting against the "yum" version on the host to
+# get things installed correctly.  Fedora 27 onwards has a
+# "curl-minimal" package that will get pulled in by default for the
+# initial install (ianw: I think because the yum doesn't understand
+# weak dependencies correctly).  This causes problems later if/when
+# "curl" gets installed (you need to add --allowerasing to let dnf get
+# rid of the old package).  To avoid this, just install the full curl
+# and first up.  On Centos, it's different again and we need to
+# specify libcurl as well, or the minimal libcurl packages come in
+# causing similar problems.  *But* -- we can't also do that on Fedora
+# it seems, as it seems like as part of the Fedora modular updates
+# (https://docs.fedoraproject.org/en-US/modularity/) we can pick up
+# seemingly mismatched libraries.
+if [[ ${DISTRO_NAME} =~ (fedora|openeuler) ]]; then
+    _install_pkg_manager dnf dnf-plugins-core curl
+elif [[ ${DISTRO_NAME} == centos && $DIB_RELEASE > "7" ]]; then
+    _install_pkg_manager dnf dnf-plugins-core curl libcurl
+else
+    _install_pkg_manager yum
+fi
+
+# sort of like run_in_target; but we're not in a phase where that
+# works yet.  strip unnecessary external env vars that can cause
+# problems.
+function _run_chroot {
+    local cmd="$@"
+    sudo -E chroot $TARGET_ROOT env -u TMPDIR sh -c "$cmd"
+}
+
+# The rpmdb has been created by the host RPM.  CentOS 7 only
+# understands bdb-based db's, while the host is (likey as not) a more
+# modern rpm that has created a sqlite db.  These don't share files in
+# common, so to the in-chroot rpm the db just looks empty.  This is a
+# super-weird state that the system is in, because everything is
+# installed and working, but packages don't look like they are.  One
+# consequence of this is that yum's querying to setup the $releasever
+# variable fails and it remains unset.  Because the default .repo
+# files use this we get invalid repo paths for any yum commands.  The
+# easiest way around this seems to be to manually set --releasever=7;
+# this way yum can rebuild itself and recreate the rpmdb as it likes.
+# This is a mess that can hopefully go away when we don't care about
+# CentOS 7.  For this reason, we only do this for CentOS 7, to avoid
+# hiding any problems on other distros.  We only need to do this
+# for these initial steps, after that the db is correct.
+if [[ ${DISTRO_NAME} = centos && ${DIB_RELEASE%-stream} -le 7 ]]; then
+    YUM="${YUM} --releasever=${DIB_RELEASE}"
+fi
+
+# we just installed yum/dnf with "outside" tools (yum/rpm) which
+# might have created /var/lib/[yum|rpm] (etc) that are slighlty
+# incompatible.  Refresh everything with the in-chroot tools
+_run_chroot rpm --rebuilddb
+_run_chroot ${YUM} clean all
+
+# populate the lang reduction macro in the chroot
+echo "%_install_langs C:en_US:en_US.UTF-8" | \
+    sudo tee -a $TARGET_ROOT/etc/rpm/macros.langs > /dev/null
+
+_base_packages="systemd passwd findutils sudo util-linux-ng "
+
+# This package is split out from systemd on >F24, dracut is
+# missing the dependency and will fail to make an initrd without
+# it; see
+#  https://bugzilla.redhat.com/show_bug.cgi?id=1398505
+_base_packages+="systemd-udev "
+
+# bootstrap the environment within the chroot; bring in new
+# metadata with an update and install some base packages we need.
+_run_chroot ${YUM} -y update
+_run_chroot ${YUM} -y \
+    --setopt=cachedir=/tmp/yum/$ARCH/$DIB_RELEASE \
+    install ${_base_packages}
+
+# Put in a dummy /etc/resolv.conf over the temporary one we used
+# to bootstrap.  systemd has a bug/feature [1] that it will assume
+# you want systemd-networkd as the network manager and create a
+# broken symlink to /run/... if the base image doesn't have one.
+# This broken link confuses things like dhclient.
+# [1] https://bugzilla.redhat.com/show_bug.cgi?id=1197204
+echo -e "# This file intentionally left blank\n" | \
+    sudo tee $TARGET_ROOT/etc/resolv.conf
+
+# set the most reliable UTF-8 locale
+echo -e 'LANG="en_US.UTF-8"' | \
+    sudo tee $TARGET_ROOT/etc/locale.conf
+    # default to UTC
+_run_chroot ln -sf /usr/share/zoneinfo/UTC \
+    /etc/localtime
+
+# cleanup
+# TODO : move this into a exit trap; and reconsider how
+# this integrates with the global exit cleanup path.
+sudo umount $TMP_MOUNT_PATH/tmp/yum
+sudo umount $TARGET_ROOT/proc
+sudo umount $TARGET_ROOT/dev/pts
+sudo umount $TARGET_ROOT/dev
+sudo umount $TARGET_ROOT/sys
+
+# RPM doesn't know whether files have been changed since install
+# At this point though, we know for certain that we have changed no
+# config files, so anything marked .rpmnew is just a bug.
+for newfile in $(sudo find $TARGET_ROOT -type f -name '*rpmnew') ; do
+    sudo mv $newfile $(echo $newfile | sed 's/.rpmnew$//')
+done
+
+sudo rm -f ${TARGET_ROOT}/.extra_settings
