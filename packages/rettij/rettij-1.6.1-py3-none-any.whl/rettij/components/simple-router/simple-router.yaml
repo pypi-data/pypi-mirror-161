@@ -1,0 +1,15 @@
+containers:
+  - image: frihsb/rettij_simple-router:2.0
+    name: simple-router
+    securityContext:
+      privileged: true
+      sysctls:
+        # Enable IPv4 and IPv6 forwarding
+        - name: net.ipv4.conf.all.forwarding
+          value: 1
+        - name: net.ipv6.conf.all.forwarding
+          value: 1
+      capabilities:
+        # Add capabilities required by zebra (frr router daemon)
+        add: ["NET_ADMIN", "NET_RAW", "SYS_ADMIN"]
+    tty: true

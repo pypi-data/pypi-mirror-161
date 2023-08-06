@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "rettij Interface Schema",
+  "description": "Schema for a route on a node defined in a topology.yml file of rettij",
+  "@id": "rettij:route_schema",
+  "type": "array",
+  "additionalProperties": false,
+  "required": [
+    "network",
+    "gateway"
+  ],
+  "items": {
+    "properties": {
+      "__line__":{
+      "type": "number",
+      "description": "Line numbers of the parsed topology added by YamlLoaderWithLineNumbers."
+    },
+      "network": {
+        "type": "string",
+        "description": "The network address of the route in CIDR notation.",
+        "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$",
+        "error_msg": "ip-address not valid"
+      },
+      "gateway": {
+        "type": "string",
+        "description": "The ip-address of the gateway-interface.",
+        "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+        "error_msg": "gateway address not valid"
+      },
+      "metric": {
+        "type": "integer",
+        "description": "The routing metric of this route."
+      }
+    }
+  }
+}

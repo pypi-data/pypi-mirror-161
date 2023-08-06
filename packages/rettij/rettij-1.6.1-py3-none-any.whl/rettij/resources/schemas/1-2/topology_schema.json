@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "rettij Topology Schema",
+  "description": "Schema for topology.yml files of rettij",
+  "@id": "rettij:topology_schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "__line__":{
+      "type": "number",
+      "description": "Line numbers of the parsed topology added by YamlLoaderWithLineNumbers."
+    },
+    "type": {
+      "description": "The type of document",
+      "const": "Topology"
+    },
+    "version": {
+      "description": "The topology file format version",
+      "type": "string",
+      "pattern": "^\\d+.\\d+$",
+      "error_msg": "Version number not valid (must be x.x)"
+    },
+    "nodes": {
+      "description": "The nodes that take part in the simulation",
+      "type": "array",
+      "items": {
+        "$ref": "node_schema.json"
+      }
+    },
+    "channels": {
+      "description": "The channels of the simulation",
+      "type": "array",
+      "items": {
+        "$ref": "channel_schema.json"
+      }
+    }
+  }
+}
+

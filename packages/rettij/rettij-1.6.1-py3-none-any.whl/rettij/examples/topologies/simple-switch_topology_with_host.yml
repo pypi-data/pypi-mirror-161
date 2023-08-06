@@ -1,0 +1,64 @@
+# This is an example topology with two clients and the rettij host system integration, connected by a switch.
+version: '1.1'
+
+nodes:
+  - id: client0
+    device: container
+    component: simple-runner
+    interfaces:
+      - id: i0
+        channel: c0
+        ip: 10.1.1.1/24
+        mac: 1A:2B:3C:4D:5E:01
+        data-rate: 1gbps
+    routes:
+      - network: 0.0.0.0/0
+        gateway: 10.1.1.2
+        metric: 50
+  - id: switch0
+    device: switch
+    component: simple-switch
+    interfaces:
+      - id: i0
+        channel: c0
+      - id: i1
+        channel: c1
+      - id: i2
+        channel: c2
+#      - id: i3    # enable this when adding the host bridge
+#        channel: c3
+  - id: client1
+    device: container
+    component: simple-runner
+    interfaces:
+      - id: i0
+        channel: c1
+        ip: 10.1.1.2/24
+        mac: 1A:2B:3C:4D:5E:02
+        data-rate: 1gbps
+    routes:
+      - network: 0.0.0.0/0
+        gateway: 10.1.1.1
+        metric: 50
+  - id: host0
+    device: host
+    component: host
+    interfaces:
+      - id: i0
+        channel: c2
+        ip: 10.1.1.3/24
+        mac: 1A:2B:3C:4D:5E:03
+        data-rate: 1gbps
+#      - id: i1  # enable and adjust this to add the host bridge
+#        channel: c3
+#        external:
+#          interface: ens38
+#          networks:
+#           - 192.168.0.0/24
+#           - 192.168.1.0/24
+
+channels:
+  - id: c0
+    data-rate: 100Mbps
+    delay: 2ms
+

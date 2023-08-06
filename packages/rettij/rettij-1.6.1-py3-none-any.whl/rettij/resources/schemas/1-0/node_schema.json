@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "rettij Node Schema",
+  "description": "Schema for a node defined in a topology.yml file of rettij",
+  "@id": "rettij:node_schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "device",
+    "component"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "device": {
+            "const": "router"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "interfaces": {
+            "items": {
+              "required": [
+                "ip"
+              ]
+            }
+          }
+        },
+        "required": [
+          "interfaces"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "device": {
+            "oneOf": [
+              {
+                "const": "switch"
+              },
+              {
+                "const": "hub"
+              }
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "interfaces"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "__line__":{
+      "type": "number",
+      "description": "Line numbers of the parsed topology added by YamlLoaderWithLineNumbers."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the node.",
+      "pattern": "^(([a-z0-9]|[a-z0-9][a-z0-9\\-]{0,61}[a-z0-9])\\.){0,3}([a-z0-9]|[a-z0-9][a-z0-9\\-]{0,61}[a-z0-9])$"
+    },
+    "device": {
+      "type": "string",
+      "description": "The type of the node.",
+      "pattern": "^(hub|switch|router|container|host)$"
+    },
+    "interfaces": {
+      "description": "The interfaces of the node.",
+      "$ref": "interface_schema.json"
+    },
+    "component": {
+      "type": ["string", "object"],
+      "description": "The component of the node",
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": ["image"]
+      }
+    },
+    "config": {
+      "type": ["object"],
+      "description": "The custom configuration parameters of the node."
+    },
+    "routes": {
+      "description": "The configuration parameter of the node.",
+      "$ref": "route_schema.json"
+    },
+    "data": {
+      "type": "array",
+      "description": "Initial data for the co-simulation."
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# This is a simple example topology with two clients connected by a switch.
+version: '1.0'
+
+nodes:
+  - id: client0
+    device: container
+    component: simple-runner
+    interfaces:
+      - id: i0
+        channel: c0
+        ip: 10.1.1.1/24
+        mac: 1A:2B:3C:4D:5E:01
+  - id: switch0
+    device: switch
+    component: simple-switch
+    interfaces:
+      - id: i0
+        channel: c0
+      - id: i1
+        channel: c1
+  - id: client1
+    device: container
+    component: simple-runner
+    interfaces:
+      - id: i0
+        channel: c1
+        ip: 10.1.1.2/24
+        mac: 1A:2B:3C:4D:5E:02
