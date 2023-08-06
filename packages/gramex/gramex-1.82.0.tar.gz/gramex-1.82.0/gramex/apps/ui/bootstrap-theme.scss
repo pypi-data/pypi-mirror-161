@@ -1,0 +1,23 @@
+// Uses: Bootstrap 4.4.1
+// Change above line when changing Bootstrap or UI Components (to bust gramex.cache)
+
+// Import Google fonts
+{% for font in google_fonts %}
+  @import url("https://fonts.googleapis.com/css?family={{ font }}");
+{% end %}
+
+// Apply variables
+{% for key, val in variables.items() %}
+  ${{ key }}: {% raw val %};
+{% end %}
+
+// Any variable that begins with "color" becomes part of the theme colors.
+// Bootstrap uses $theme-colors to define the color theme.
+$theme-colors: (
+  {% for key in (v for v in variables if v.startswith('color')) %}
+    "{{ key }}": ${{ key }},
+  {% end %}
+);
+
+// Import files
+@import "gramexui.scss";

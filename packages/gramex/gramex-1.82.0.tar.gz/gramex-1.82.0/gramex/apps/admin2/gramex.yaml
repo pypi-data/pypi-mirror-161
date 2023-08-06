@@ -1,0 +1,117 @@
+import:
+  apps/admin2/ui:
+    path: $GRAMEXAPPS/ui/gramex.yaml
+    YAMLURL: $YAMLURL/ui/
+
+url:
+  # webshell.js is in ../admin/ and used by old admin app. Point it it
+  apps/admin2/webshell-static-$*:
+    pattern: /$YAMLURL/(webshell\..*)
+    handler: FileHandler
+    kwargs:
+      path: $YAMLPATH/../admin/
+
+  apps/admin2/home-$*:
+    pattern: /$YAMLURL/([a-z]*)
+    handler: FileHandler
+    kwargs:
+      path: $YAMLPATH/index.html
+      template: true
+      admin_kwargs: $ADMIN_KWARGS
+      auth: $ADMIN_AUTH
+      # Admin panel configuration
+      components:
+        'users':
+          title: Users
+          desc: Add, rename, and manage users and roles
+          color: primary
+          icon: far fa-user
+        'schedule':
+          title: Schedule
+          desc: Preview and run scheduled commands
+          color: dark
+          icon: far fa-clock
+        'alert':
+          title: Alert
+          desc: Manage alert notifications
+          color: warning
+          icon: far fa-envelope
+        'shell':
+          title: Shell
+          desc: Run Python commands within Gramex
+          color: danger
+          icon: fas fa-terminal
+        'info':
+          title: Info
+          desc: Server OS and environment information
+          color: info
+          icon: fas fa-info
+        'config':
+          title: Config
+          desc: View Gramex configuration (gramex.yaml)
+          color: secondary
+          icon: fas fa-wrench
+        'logs':
+          title: Logs
+          desc: Track usage and errors in Gramex
+          color: success
+          icon: fa fa-align-left
+
+  apps/admin2/users-$*:
+    pattern: /$YAMLURL/users-data
+    handler: gramexadmin.AdminFormHandler
+    kwargs:
+      admin_kwargs: $ADMIN_KWARGS
+      auth: $ADMIN_AUTH
+      signup:
+        email_subject: Welcome to your Gramex app!
+        email_text: |
+          Hello {user},
+          You have been signed up with password {password}.
+
+  apps/admin2/auth-rules-$*:
+    pattern: /$YAMLURL/auth-rules
+    handler: gramexadmin.AdminFormHandler
+    kwargs:
+      rules: true
+      admin_kwargs: $ADMIN_KWARGS
+      auth: $ADMIN_AUTH
+
+  app/admin2/schedule-$*:
+    pattern: /$YAMLURL/schedule-data
+    handler: FunctionHandler
+    kwargs:
+      function: gramexadmin.schedule(handler, 'schedule')
+      headers:
+        Content-Type: application/json
+
+  app/admin2/alert-$*:
+    pattern: /$YAMLURL/alert-data
+    handler: FunctionHandler
+    kwargs:
+      function: gramexadmin.schedule(handler, 'alert')
+      headers:
+        Content-Type: application/json
+
+  apps/admin2/webshell-$*:
+    pattern: /$YAMLURL/webshell-data
+    handler: WebSocketHandler
+    kwargs:
+      auth: $ADMIN_AUTH
+      on_message:
+        function: gramexadmin.evaluate(handler, message)
+
+  apps/admin2/info-$*:
+    pattern: /$YAMLURL/info-data
+    handler: FunctionHandler
+    kwargs:
+      function: gramexadmin.system_information
+      auth: $ADMIN_AUTH
+      headers:
+        Content-Type: application/json      # Display as JSON
+
+  apps/admin2/home-static-$*:
+    pattern: /$YAMLURL/(.+)
+    handler: FileHandler
+    kwargs:
+      path: $YAMLPATH/
