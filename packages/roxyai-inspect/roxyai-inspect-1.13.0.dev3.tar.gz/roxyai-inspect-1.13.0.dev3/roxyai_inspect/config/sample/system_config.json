@@ -1,0 +1,78 @@
+// (c) Roxy Corp. 2020-
+// Roxy AI システム設定ファイル
+// ※ JSON 形式に行コメント'//'機能を拡張した形式で記述します。
+// ※ 文字列内の'//'には対応していません。
+// ※ jsonc 形式の他の拡張（/**/コメント、末尾カンマ）には対応していません。
+{
+    // 検査サーバの設定
+    "InspectServer": {
+        // 検査サーバの通信設定
+        "bind_ip": "0.0.0.0",       // TCP接続の待受けIPアドレス（0.0.0.0: 全アドレス許可）
+        "bind_port": 6945,          // TCP接続の待受けポート
+        // 検査結果出力設定
+        "result": {
+            // 結果出力有効（true: 有効、false: 無効＝以下の設定を無視）
+            "output_active": true,
+            // 結果出力のファイルパスと出力内容の設定
+            //     {RootFolder} : プロジェクのルートフォルダ
+            //     {ProductTop} : 製品データのターゲットフォルダ
+            //     {UserFolder} : OSのユーザフォルダ
+            //     {DesktopFolder} : OSのデスクトップフォルダ
+            //     {ResultTop} : 下記の result_top で指定したフォルダ
+            //     {ProductName} : 製品名
+            //     {ModelGroupName} : モデル名＋グループ名
+            //     {ModelName} : モデル名
+            //     {GroupName} : グループ名
+            //     {ModelID} : モデル番号
+            //     {InspectID} : 検査番号（10進数）
+            //     {InspectIDx} : 検査番号（16進数）
+            //     {Result} : 判定結果
+            //     {Date} : 検査実行日
+            //     {Time} : 検査実行時間
+            //     {ImageFile} : 下記の image_file に出力した検査画像ファイルのパス
+            //     {ProbabilityFile} : 下記の probability_file に出力した判定結果の確信度情報ファイルのパス
+            "result_top": "./result/{ProductName}",       // 結果出力先のトップフォルダ
+            "log_file": "{Date}.csv",                                           // 結果ログ一覧（CSV形式）
+            "image_file": "image/{ModelName}/{GroupName}/{InspectID}.jpg",      // 検査画像ファイル
+            "probs_file": "probs/{ModelName}/{GroupName}/{InspectID}.txt",      // 判定結果の確信度情報ファイル
+            // 上記 log_file で指定した結果出力に記録するレコードの内容
+            "log_record": "{Date},{Time},{ModelGroupName},{InspectID},{Result},{ProcessTime},{ImageFile},{ProbabilityFile}"
+        },
+        // 検査サーバのログ出力設定ファイル
+        "logging_conf": {
+            "console_level": "INFO",               // コンソール出力レベル DEBUG < INFO < WARNING < ERROR
+            "file_level": "DEBUG",                  // ファイル出力のレベル DEBUG < INFO < WARNING < ERROR
+            "file_path": "log/inspect_server_log.log",          // ログの出力ファイル名
+            "file_backup_folder": "log/oldLog",     // バックアップを保存するフォルダ
+            "file_backup_days": 90                 // バックアップを保持する日数
+        },
+        // 判定結果の領域毎の確信度の返却タイプ
+        //      "Simple" : OK / NOK / GRAY と確信度を返す（デフォルト）
+        //      "Labeled" : 上記に加えて領域の判定ラベル番号を返す
+        "probability_type": "Labeled",
+        "probability_choice": "NOK,GRAY",
+        "tf_device": "GPU:0",       // 使用するGPU番号0-N "GPU:N" または "CPU:0"
+        "gpu_mem_limit": null       // GPUメモリの利用制限値[MB]（nullは制限なし）
+    },
+    // 分析サーバの設定（分析サーバを利用しない場合には項目を削除）
+    "AnalyzeServer": {
+        // 分析サーバの通信設定
+        "bind_ip": "0.0.0.0",       // TCP接続の待受けIPアドレス（0.0.0.0: 全アドレス許可）
+        "bind_port": 6947,          // TCP接続の待受けポート
+        // 分析サーバのログ出力設定ファイル
+        "logging_conf": {
+            "console_level": "INFO",               // コンソール出力レベル DEBUG < INFO < WARNING < ERROR
+            "file_level": "DEBUG",                  // ファイル出力のレベル DEBUG < INFO < WARNING < ERROR
+            "file_path": "log/inspect_server_log.log",          // ログの出力ファイル名
+            "file_backup_folder": "log/oldLog",     // バックアップを保存するフォルダ
+            "file_backup_days": 90                 // バックアップを保持する日数
+        },
+    },
+    // 共通のプロジェクトのトップフォルダ
+    //      "." : 実行時のカレントフォルダ
+    //      "~" : ユーザのホームフォルダ
+    //      "" : system_config.json の配置されたフォルダの一つ上
+    "root_folder": "",
+    // 共通のプロジェクトの製品データ格納フォルダ
+    "fixed_model": "${ROXY_AI}/roxy-ai-runtime/fixed_model"
+}
