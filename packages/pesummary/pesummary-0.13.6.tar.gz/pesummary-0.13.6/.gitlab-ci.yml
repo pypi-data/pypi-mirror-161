@@ -1,0 +1,473 @@
+include:
+  - project: computing/gitlab-ci-templates
+    file:
+      - conda.yml
+      - python.yml
+
+
+stages:
+  - build
+  - basic
+  - test:base
+  - test:executables
+  - end-to-end
+  - compatibility
+  - coverage
+  - deploy
+
+
+variables:
+  PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
+  XDG_CACHE_HOME: "${CI_PROJECT_DIR}/.cache"
+
+
+cache:
+  key: "${CI_JOB_NAME}"
+  paths:
+    - .cache/pip
+
+
+before_script:
+  - pip install -r requirements.txt
+  - pip install -r testing_requirements.txt
+  - pip install -r optional_requirements.txt
+  - 'apt-get update -y && bash && apt-get -y install pandoc'
+  - export USER=albert.einstein
+
+
+.prepare_testing: &prepare_testing
+  - pip install pesummary-*.tar.*
+  - export BASE=`pwd`
+  - export PESUMMARY_REPO_DIR=${BASE}
+  - export PESUMMARY_TESTING_DIR=`python -c "import pkg_resources; print(pkg_resources.resource_filename('pesummary', 'tests'))"`
+  - mkdir -p _testing
+  - cd _testing
+
+
+.finalise_testing: &finalise_testing
+  - cd ${BASE}
+
+
+.core_workflow: &core_workflow
+  stage: end-to-end
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type workflow -k "Core or core" --pytest_config ${BASE}/setup.cfg
+    - *finalise_testing
+
+
+.gw_workflow: &gw_workflow
+  stage: end-to-end
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type workflow -k "GW or gw" --pytest_config ${BASE}/setup.cfg
+    - *finalise_testing
+
+
+tarball:
+  extends:
+    # https://computing.docs.ligo.org/gitlab-ci-templates/python/#.python:build
+    - .python:build
+  stage: build
+  needs: []
+
+conda:
+  extends:
+    # https://computing.docs.ligo.org/gitlab-ci-templates/conda/#.conda:base
+    - .conda:base
+  stage: build
+  needs: []
+  script:
+    - conda create --name py38 python=3.8
+    - conda activate py38
+    - conda install --file conda_requirements.txt -c conda-forge
+    - python -m pip install .
+
+
+docker:
+  stage: build
+  image: docker:19.03.10
+  variables:
+    PYTHON_VERSION: "3.8"
+  before_script:
+    - apk update
+    - apk add py3-pip
+    - apk add python3
+  script:
+    - python3 containers/write_dockerfile.py --python ${PYTHON_VERSION}
+    - docker build -f containers/Dockerfile-pesummary-python${PYTHON_VERSION/./} -t pesummary-dev/latest . --build-arg installation=./
+    - docker run pesummary-dev/latest summarytest --type imports
+  artifacts:
+    paths:
+      - "containers/Dockerfile-pesummary-python*"
+
+
+executables:
+  stage: basic
+  image: python:3.7
+  needs:
+    - tarball
+  script:
+    - *prepare_testing
+    - summarytest --type executables
+    - *finalise_testing
+
+
+imports:
+  stage: basic
+  image: python:3.7
+  needs:
+    - tarball
+  script:
+    - *prepare_testing
+    - summarytest --type imports
+    - *finalise_testing
+
+
+style:
+  extends:
+    # https://computing.docs.ligo.org/gitlab-ci-templates/python/#.python:flake8
+    - .python:flake8
+  stage: basic
+  needs: []
+
+
+documentation:
+  stage: basic
+  image: python:3.8-buster
+  needs:
+    - tarball
+  script:
+    - pip install pesummary-*.tar.*
+    - 'git lfs version || ( apt-get update -y && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install git-lfs && git lfs install)'
+    - ipython kernel install --user --name=python3
+    - cd docs
+    - make clean
+    - bash build_docs.sh
+  artifacts:
+    paths:
+      - docs/_build/html/
+
+
+examples:
+  stage: basic
+  image: python:3.7
+  needs:
+    - tarball
+  script:
+    - *prepare_testing
+    - summarytest --type examples --repository ${PESUMMARY_REPO_DIR}
+    - *finalise_testing
+  allow_failure: true
+
+
+authors:
+  stage: basic
+  image: python:3.7
+  needs:
+    - tarball
+  script:
+    - curl --request POST --form "token=$CI_EXAMPLES_TRIGGER_TOKEN" --form "variables[TYPE]=authors" --form ref=master https://git.ligo.org/api/v4/projects/3386/trigger/pipeline
+  only:
+    refs:
+      - master@lscsoft/pesummary
+
+
+.base-testing:
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+
+
+.python-3.7-testing:
+  extends: .base-testing
+  image: python:3.7
+  artifacts:
+    paths:
+      - .coverage*
+      - htmlcov/
+      - coverage_badge.svg
+
+
+.python-3.8-testing:
+  extends: .base-testing
+  image: python:3.8
+
+
+.python-3.9-testing:
+  extends: .base-testing
+  image: python:3.9
+
+
+python-3.7-base:
+  extends: .python-3.7-testing
+  stage: test:base
+  script:
+    - *prepare_testing
+    - summarytest -m "not executabletest and not ligoskymaptest and not workflowtest" --type tests --coverage --output ${BASE} --pytest_config ${BASE}/setup.cfg
+    - *finalise_testing
+    - mv _testing/.coverage* .
+    - mv .coverage .coverage_base
+
+
+python-3.7-exe:
+  extends: .python-3.7-testing
+  stage: test:executables
+  script:
+    - *prepare_testing
+    - summarytest -m "executabletest and not ligoskymaptest and not workflowtest" --type tests --coverage --output ${BASE} --pytest_config ${BASE}/setup.cfg
+    - *finalise_testing
+    - mv _testing/.coverage* .
+    - mv .coverage .coverage_exe
+  allow_failure: true
+
+
+python-3.8-base:
+  extends: .python-3.8-testing
+  stage: test:base
+  script:
+    - *prepare_testing
+    - summarytest -m "not executabletest and not ligoskymaptest and not workflowtest" --pytest_config ${BASE}/setup.cfg --type tests
+    - *finalise_testing
+
+
+python-3.8-exe:
+  extends: .python-3.8-testing
+  stage: test:executables
+  script:
+    - *prepare_testing
+    - summarytest -m "executabletest and not ligoskymaptest and not workflowtest" --pytest_config ${BASE}/setup.cfg --type tests
+    - *finalise_testing
+
+
+python-3.9-base:
+  extends: .python-3.9-testing
+  stage: test:base
+  script:
+    - *prepare_testing
+    - summarytest -m "not executabletest and not ligoskymaptest and not workflowtest" --pytest_config ${BASE}/setup.cfg --type tests
+    - *finalise_testing
+
+
+python-3.9-exe:
+  extends: .python-3.9-testing
+  stage: test:executables
+  script:
+    - *prepare_testing
+    - summarytest -m "executabletest and not ligoskymaptest and not workflowtest" --pytest_config ${BASE}/setup.cfg --type tests
+    - *finalise_testing
+
+
+python-3.7-core:
+  <<: *core_workflow
+  image: python:3.7
+
+
+python-3.8-core:
+  <<: *core_workflow
+  image: python:3.8
+
+
+python-3.9-core:
+  <<: *core_workflow
+  image: python:3.9
+
+
+python-3.7-gw:
+  <<: *gw_workflow
+  image: python:3.7
+
+
+python-3.8-gw:
+  <<: *gw_workflow
+  image: python:3.8
+
+
+python-3.9-gw:
+  <<: *gw_workflow
+  image: python:3.9
+
+
+ligo_skymap:
+  extends: .python-3.7-testing
+  stage: compatibility
+  script:
+    - *prepare_testing
+    - summarytest --type skymap --coverage
+    - *finalise_testing
+    - mv _testing/.coverage* .
+    - mv .coverage .coverage_sky
+  only:
+    - schedule
+    - pushes
+
+
+lalinference:
+  stage: compatibility
+  image: python:3.7-buster
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  before_script:
+    - 'git lfs version || ( apt-get update -y && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install git-lfs && git lfs install)'
+  script:
+    - *prepare_testing
+    - summarytest --type lalinference
+    - *finalise_testing
+  only:
+    - schedule
+    - pushes
+
+
+bilby:
+  stage: compatibility
+  image: python:3.7
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type bilby
+    - *finalise_testing
+  only:
+    - schedule
+    - pushes
+
+
+pycbc:
+  stage: compatibility
+  image: python:3.7
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type pycbc
+    - *finalise_testing
+  only:
+    - schedule
+    - pushes
+
+
+GWTC1:
+  stage: compatibility
+  image: python:3.7
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type GWTC1
+    - *finalise_testing
+
+
+GWTC2:
+  stage: compatibility
+  image: python:3.7
+  needs:
+    - tarball
+    - executables
+    - imports
+    - style
+  script:
+    - *prepare_testing
+    - summarytest --type GWTC2
+    - *finalise_testing
+
+
+coverage:
+  extends: .python-3.7-testing
+  stage: coverage
+  needs:
+    - tarball
+    - python-3.7-base
+    - python-3.7-exe
+    - ligo_skymap
+  script:
+    - *prepare_testing
+    - *finalise_testing
+    - coverage combine .coverage_base .coverage_exe .coverage_sky
+    - coverage report
+    - coverage html --directory ./htmlcov/
+    - coverage-badge -o coverage_badge.svg -f
+
+
+build_examples:
+  stage: deploy
+  image: python:3.7
+  script:
+    - curl --request POST --form "token=$CI_EXAMPLES_TRIGGER_TOKEN" --form ref=master https://git.ligo.org/api/v4/projects/3386/trigger/pipeline
+  only:
+    - master@lscsoft/pesummary
+
+
+release:
+  stage: deploy
+  image: python:3.7
+  script:
+    - curl --request POST --form "variables[REPO]=pesummary" --form ref=master --form "token=$CI_RELEASE_TRIGGER_TOKEN" https://git.ligo.org/api/v4/projects/4737/trigger/pipeline
+  only:
+    refs:
+      - master@lscsoft/pesummary
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /Releasing version/
+
+
+pages:
+  stage: deploy
+  image: python:3.7
+  dependencies:
+    - tarball
+    - executables
+    - imports
+    - style
+    - documentation
+    - examples
+    - python-3.7-base
+    - python-3.7-exe
+    - python-3.8-base
+    - python-3.8-exe
+    - python-3.9-base
+    - python-3.9-exe
+    - python-3.7-core
+    - python-3.8-core
+    - python-3.9-core
+    - python-3.7-gw
+    - python-3.8-gw
+    - python-3.9-gw
+    - bilby
+    - lalinference
+    - GWTC1
+    - GWTC2
+    - coverage
+  script:
+    - mkdir public/
+    - mv docs/_build/html/* public/
+    - mv htmlcov/ public/
+    - mv coverage_badge.svg public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - master@lscsoft/pesummary
