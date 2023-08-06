@@ -1,0 +1,23 @@
+<form method="POST" action="{{ url_forurl_for(form.elementary_flask_action_endpoint()) }}"
+      onsubmit="ElementaryFlask.submitForm(this); return false">
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+        {% if field.type not in ('CSRFTokenField', 'SubmitField','HiddenField') %}
+            <div class="form-group">
+                {{ field.label }}
+                {{ field(class="form-control is-invalid" if field.errors else "form-control") }}
+                {% if field.errors %}
+                    <div class="invalid-feedback">
+                        Please provide a valid city.
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% for field in form %}
+        {% if field.type in ('SubmitField',) %}
+            {{ field(class="btn btn-primary") }}
+        {% endif %}
+    {% endfor %}
+
+</form>

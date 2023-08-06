@@ -1,0 +1,66 @@
+<div class="main-sidebar sidebar-dark-primary elevation-4">
+
+    <a href="/" class="brand-link">
+        <img src="{{ elementary_flask_config.logo_src }}" alt="{{ elementary_flask_config.name }} Logo"
+             class="brand-image img-circle elevation-3"
+             style="opacity: .8">
+        <span class="brand-text font-weight-light">{{ elementary_flask_config.default_title }}</span>
+    </a>
+
+    <div class="sidebar">
+
+
+        {#            <div class="form-inline">#}
+        {#                <div class="input-group" data-widget="sidebar-search">#}
+        {#                    <input class="form-control form-control-sidebar" type="search" placeholder="Search"#}
+        {#                           aria-label="Search">#}
+        {#                    <div class="input-group-append">#}
+        {#                        <button class="btn btn-sidebar">#}
+        {#                            <i class="fas fa-search fa-fw"></i>#}
+        {#                        </button>#}
+        {#                    </div>#}
+        {#                </div>#}
+        {#            </div>#}
+
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                data-accordion="false">
+                {% for itm in navigation.navigation_provider.generate_navigation() %}
+                    {% if isinstance(itm,  'NavigationLink') %}
+                        <li class="nav-item">
+                            <a href="{{ itm.get_link() }}" class="nav-link">
+                                {{ itm.icon |render(extra_classes='nav-icon') }}
+                                <p>{{ itm.title }}</p>
+                            </a>
+                        </li>
+                    {% elif isinstance(itm,  'NavigationGroup') %}
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                {{ itm.icon |render(extra_classes='nav-icon') }}
+                                <p>
+                                    {{ itm.title }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                {% for sub_itm in itm.items_list %}
+                                    {% if isinstance(sub_itm,  'NavigationLink') %}
+                                        <li class="nav-item">
+                                            <a href="{{ sub_itm.get_link() }}" class="nav-link">
+                                                {{ sub_itm.icon |render(extra_classes='nav-icon') }}
+                                                <p>{{ sub_itm.title }}</p>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+            </ul>
+        </nav>
+
+    </div>
+
+</div>

@@ -1,0 +1,45 @@
+<form x-cloak
+      x-data='ElementaryFlask.statefulForm({{ form_state| safe }})'
+      @submit.prevent="submitForm"
+      method="POST"
+      action="{{ url_for(form.elementary_flask_action_endpoint()) }}"
+      id="{{ form.elementary_flask_form_id }}">
+    {# TODO: Bootstrap5. This code is only valid for Bootstrap 4#}
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+        {% if field.type not in ('CSRFTokenField', 'SubmitField', 'HiddenField') %}
+            <div class="form-group">
+                <label for="{{ field.id }}">{{ field.label.text }}</label>
+                {{ field(
+                    class="form-control",
+                    **{
+                        "x-model":"formState.data." + field.name,
+                        ":class": "formState.errors.%s ? 'is-invalid': ''"  % field.name,
+                        "aria-describedby": field.id + "_validation",
+                        }) }}
+                <div
+                        id="{{ field.id + "_validation" }}"
+                        class="invalid-feedback"
+                        x-text="{{ "formState.errors." + field.name }}"
+                        x-show="{{ "formState.errors." + field.name }}"
+                ></div>
+                {#                {% if field.errors %}#}
+                {#                    <div class="invalid-feedback">#}
+                {#                        Please provide a valid city.#}
+                {#                    </div>#}
+                {#                {% endif %}#}
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% for field in form %}
+        {% if field.type in ('SubmitField',) %}
+            {{ field(class="btn btn-primary") }}
+        {% endif %}
+    {% endfor %}
+    <div
+            class="alert alert-danger mt-3" role="alert"
+            x-text="formState.errors['']"
+            x-show="formState.errors['']"
+    ></div>
+
+</form>
