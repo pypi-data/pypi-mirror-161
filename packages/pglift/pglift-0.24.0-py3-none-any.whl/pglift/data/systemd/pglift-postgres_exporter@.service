@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus exporter %i database server metrics
+Documentation=https://github.com/prometheus-community/postgres_exporter
+
+[Service]
+{executeas}
+EnvironmentFile=-{configpath}
+ExecStart={execpath} $POSTGRES_EXPORTER_OPTS
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
