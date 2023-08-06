@@ -1,0 +1,53 @@
+{% extends 'podcasts/base.html' %}
+{% load thumbnail podcasts miditags %}
+
+{% block main %}
+    <main class="o-wrapper">
+        <article>
+            <header class="c-post-hero">
+                <div class="c-post-header">
+                    <div class="o-grid">
+                        <div class="o-grid__col o-grid__col--4-4-s{% if object.image %} o-grid__col--2-4-m{% else %}o-grid__col--2-3-m o-grid__col--center{% endif %}">
+                            <div class="c-post-hero__content{% if not object.image %} c-post-hero__content--no-image{% endif %}">
+                                <h1 class="c-post-header__title"><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h1>
+                                <div class="c-post-byline">
+                                    <a href="{{ object.author.get_absolute_url }}" class="c-post-byline__author">
+                                        {% if object.author.photo %}
+                                            <div class="c-post-byline__image-wrap">
+                                                <img class="c-post-byline__image lazyload" data-src="{% thumbnail object.author.photo '64x64' crop=True %}" alt="{{ object.author.name }}" width="32" height="32">
+                                            </div>
+                                        {% endif %}
+
+                                        {{ object.author.name }}
+                                    </a>
+
+                                    <time class="c-post-byline__date" datetime="{{ object.published|date:'Y-m-d' }}" title="{{ object.published|date:'jS F Y' }}">{{ object.published|date:'Y.m.d' }}</time>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if object.image %}
+                            <div class="o-grid__col o-grid__col--4-4-s o-grid__col--2-4-m">
+                                <div class="c-post-hero__media">
+                                    <a href="{{ object.get_absolute_url }}"><img class="c-post-hero__image lazyload" data-src="{% thumbnail object.image '1156x1156' crop=True %}" alt="{{ object.title }}"></a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <div class="o-grid">
+                <div class="o-grid__col o-grid__col--center o-grid__col--4-4-s">
+                    <div class="c-post tag-podcast">
+                        <div class="c-content">
+                            {{ object.body|miditags|markdown }}
+                        </div>
+
+                        {% include 'podcasts/share_buttons.html' %}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+{% endblock main %}
