@@ -1,0 +1,549 @@
+style: "paper"
+
+# font sizes
+xsmall: &xsmall 10
+small: &small 14
+medium: &medium 18
+large: &large 21
+
+# rgb colors
+black: &black "#0e1221"
+blue: &blue "#256fb3"
+green: &green "#0d7034"
+orange: &orange "#ee5c2b"
+light_blue: &light_blue "#3f8dc5"
+yellow: &yellow "#fcbe1f"
+red: &red "#b51133"
+dark_blue: &dark_blue "#001146"
+light_grey: &light_grey "#b5c6cf"
+grey: &grey "#8c94a8"
+dark_grey: &dark_grey "#3f494d"
+white: &white "#ffffff"
+
+rc:
+  axes:
+    facecolor: *white
+    edgecolor: *black
+  figure:
+    # figsize in inches
+    # e.g. 900 x 500 pixels at 72 dpi: 900/72, 500/72 = [12.5, 6.94]
+    figsize: [8.333334, 5.555556] # 600 x 400
+    dpi: 72
+    facecolor: *white
+    edgecolor: *white
+  grid:
+    color: *light_grey
+    linestyle: "dotted"
+    linewidth: 0.5
+    alpha: 0.5
+  savefig:
+    transparent: True
+  legend:
+    loc: "upper right"
+
+line: &line
+  color: *black
+  linestyle: "solid"
+  linewidth: 1
+  markersize: 0
+  markerfacecolor: null
+
+dots: &dots
+  linewidth: 0
+  marker: "o"
+  markersize: 5
+  markerfacecolor: *black
+  markeredgewidth: 0
+  markeredgecolor: *black
+  alpha: 1
+
+fill: &fill
+  facecolor: null
+  edgecolor: *black
+  hatch: "////"
+  linestyle: "dashed"
+  linewidth: 0
+
+bar: &bar
+  facecolor: null
+  edgecolor: *black
+  hatch: "////"
+  linestyle: "solid"
+  linewidth: 0.5
+
+hist: &hist
+  density: True
+  alpha: 1
+  edgecolor: null
+  facecolor: *blue
+  fill: False
+  hatch: "////"
+  linestyle: "solid"
+  linewidth: 1
+
+boxplot: &boxplot
+  boxes:
+    hatch: "///"
+
+line0:
+  <<: *line
+line1:
+  <<: *line
+  color: *blue
+line2:
+  <<: *line
+  color: *green
+line3:
+  <<: *line
+  color: *orange
+line4:
+  <<: *line
+  color: *light_blue
+line5:
+  <<: *line
+  color: *yellow
+line6:
+  <<: *line
+  color: *red
+
+fill0:
+  <<: *fill
+fill1:
+  <<: *fill
+  edgecolor: *blue
+fill2:
+  <<: *fill
+  edgecolor: *green
+fill3:
+  <<: *fill
+  edgecolor: *orange
+fill4:
+  <<: *fill
+  edgecolor: *light_blue
+fill5:
+  <<: *fill
+  edgecolor: *yellow
+fill6:
+  <<: *fill
+  edgecolor: *red
+
+hist0:
+  <<: *hist
+hist1:
+  <<: *hist
+  edgecolor: *blue
+hist2:
+  <<: *hist
+  edgecolor: *green
+hist3:
+  <<: *hist
+  edgecolor: *orange
+hist4:
+  <<: *hist
+  edgecolor: *light_blue
+hist5:
+  <<: *hist
+  edgecolor: *yellow
+hist6:
+  <<: *hist
+  edgecolor: *red
+
+effort:
+  quantity:
+    line:
+      <<: *line
+      zorder: 90
+    fill:
+      <<: *fill
+      zorder: 50
+  distribution:
+    line:
+      <<: *line
+      color: *blue
+      zorder: 89
+    fill:
+      <<: *fill
+      edgecolor: *blue
+      hatch: "\\\\\\\\"
+      zorder: 49
+  skills:
+    line:
+      <<: *line
+      color: *green
+      zorder: 88
+    fill:
+      <<: *fill
+      edgecolor: *green
+      hatch: "||||"
+      zorder: 48
+  qds:
+    line:
+      <<: *line
+      color: *red
+      linewidth: 2
+      zorder: 100
+ease:
+  top:
+    bar:
+      <<: *bar
+      edgecolor: *red
+      zorder: 50
+  bottom:
+    bar:
+      <<: *bar
+      zorder: 49
+  borders:
+    bar:
+      <<: *bar
+      hatch: null
+      linewidth: 1
+      alpha: 1
+      zorder: 51
+  connectors:
+    bar:
+      edgecolor: *black
+      hatch: null
+      linestyle: "dotted"
+      linewidth: 1
+      zorder: 52
+  values:
+    color: *black
+    ha: "center"
+    va: "center"
+    zorder: 80
+
+pattern:
+  residuals:
+    hist:
+      <<: *hist
+    normal:
+      <<: *line
+      color: *blue
+      linestyle: "dashed"
+  line:
+    <<: *line
+    color: *blue
+  observations:
+    <<: *dots
+  bounds:
+    fill:
+      <<: *fill
+      edgecolor: *blue
+    line:
+      <<: *line
+      color: *blue
+      linestyle: "dotted"
+  out_of_bounds:
+    <<: *dots
+    markerfacecolor: *blue
+    markeredgecolor: *blue
+  outliers:
+    <<: *dots
+    marker: "+"
+    markersize: 7
+    markerfacecolor: *red
+    markeredgewidth: 1
+    markeredgecolor: *red
+  statistics:
+    ha: "left"
+    va: "top"
+    zorder: 90
+    size: *xsmall
+
+equal_means:
+  boxplot:
+    <<: *boxplot
+  ci_mean:
+    line:
+      <<: *line
+    vline:
+      <<: *line
+    mean:
+      marker: "o"
+      color: *black
+    fill:
+      edgecolor: *blue
+      facecolor: null
+      hatch: "\\\\\\\\"
+      linewidth: 0
+    min_text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "right"
+      zorder: 0
+    max_text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "left"
+      zorder: 0
+  popmean:
+    line:
+      <<: *line
+      color: *red
+      linestyle: "dashed"
+  title:
+    size: *small
+  suptitle:
+    ha: "left"
+    size: *medium
+equal_variances:
+  hist:
+    density: True
+    alpha: 1
+    edgecolor: *black
+    facecolor: *black
+    fill: False
+    hatch: "//"
+    linestyle: "solid"
+    linewidth: 1
+  text:
+    backgroundcolor: *white
+    va: "center"
+    ha: "left"
+    zorder: 0
+    rotation: 0
+  title:
+    loc: "left"
+    ha: "left"
+    size: *small
+  suptitle:
+    ha: "left"
+    size: *medium
+distribution_plot:
+  dots:
+    <<: *dots
+    markerfacecolor: *red
+    alpha: 0.3
+  line:
+    <<: *line
+  stats:
+    ha: "right"
+    size: *small
+  name:
+    ha: "left"
+    va: "top"
+    size: *small
+datetime:
+  boxplot:
+    <<: *boxplot
+forecast:
+  hist: *hist
+  ci_mean:
+    span:
+      <<: *fill
+      hatch: "\\\\\\\\"
+      edgecolor: *blue
+    line:
+      <<: *line
+      color: *blue
+  bias:
+    text:
+      va: "top"
+      ha: "left"
+      fontsize: *xsmall
+      zorder: 0
+summary:
+  hist:
+    <<: *hist
+  norm:
+    color: *blue
+    linestyle: "dashed"
+    linewidth: 1
+  std:
+    fill:
+      <<: *fill
+      edgecolor: *blue
+    vline:
+      color: *blue
+      linestyle: "dotted"
+      linewidth: 1
+    hline:
+      color: *blue
+      linestyle: "solid"
+      linewidth: 1
+    text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "center"
+  boxplot:
+    <<: *boxplot
+  ci:
+    hline:
+      <<: *line
+    vline:
+      <<: *line
+    dots:
+      <<: *dots
+    min_text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "right"
+      zorder: 0
+    max_text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "left"
+      zorder: 0
+  drop:
+    vline:
+      <<: *line
+      color: *blue
+      linestyle: "dotted"
+control_chart:
+  observations:
+    plot:
+      <<: *line
+      marker: "o"
+      zorder: 50
+    background:
+      marker: null
+      color: *white
+      linewidth: 11
+      zorder: 30
+  limits:
+    fill:
+      <<: *fill
+      zorder: 10
+    hline:
+      color: *grey
+      linestyle: "dashed"
+      linewidth: 1
+      zorder: 1
+  outliers:
+    plot:
+      linewidth: 0
+      marker: "o"
+      markersize: 9
+      markerfacecolor: *white
+      markeredgecolor: *black
+      markeredgewidth: 1
+      zorder: 45
+    background:
+      linewidth: 0
+      marker: "o"
+      markersize: 17
+      markerfacecolor: *white
+      zorder: 40
+  mean:
+    hline:
+      color: *grey
+      linestyle: "dashed"
+      linewidth: 1
+      zorder: 1
+  stats:
+    text:
+      ha: "left"
+      va: "center"
+      zorder: 50
+run_chart:
+  observations:
+    plot:
+      <<: *line
+      marker: "o"
+      zorder: 20
+  runs:
+    fill:
+      <<: *fill
+      linestyle: "dashed"
+      linewidth: 0.5
+  median:
+    hline:
+      <<: *line
+      color: *blue
+      linestyle: "dashed"
+    text:
+      ha: "left"
+      va: "center"
+      zorder: 50
+  runs_about:
+    text:
+      ha: "left"
+      va: "bottom"
+      zorder: 50
+  runs_up_down:
+    text:
+      ha: "left"
+      va: "top"
+      zorder: 50
+process_capability:
+  hist:
+    hist:
+      <<: *hist
+    out_of_range:
+      edgecolor: *red
+      linewidth: 0
+      hatch: "\\\\\\\\"
+    in_range:
+      edgecolor: *black
+      linewidth: 0
+      hatch: "////"
+  norm:
+    overall:
+      <<: *line
+      color: *blue
+      linestyle: "dashed"
+    within:
+      <<: *line
+      color: *red
+      linestyle: "dashed"
+  target:
+    vline:
+      <<: *line
+      color: *blue
+      linestyle: "dotted"
+    text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "center"
+  usl:
+    vline:
+      <<: *line
+      color: *blue
+      linestyle: "dotted"
+    text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "center"
+  lsl:
+    vline:
+      <<: *line
+      color: *blue
+      linestyle: "dotted"
+    text:
+      backgroundcolor: *white
+      va: "center"
+      ha: "center"
+correlation:
+  hist:
+    <<: *hist
+  plot:
+    <<: *dots
+    alpha: 0.3
+    zorder: 50
+  line:
+    <<: *line
+    color: *red
+    zorder: 99
+  text:
+    va: "top"
+    ha: "left"
+    fontsize: *xsmall
+waterfall:
+  border:
+    facecolor: null
+    edgecolor: *black
+    hatch: null
+    linestyle: solid
+    linewidth: 1
+  total:
+    <<: *fill
+  increasing:
+    <<: *fill
+    edgecolor: *blue
+  decreasing:
+    <<: *fill
+    edgecolor: *red
+  connectors:
+    <<: *line
+    linestyle: dotted
+    linewidth: 1
