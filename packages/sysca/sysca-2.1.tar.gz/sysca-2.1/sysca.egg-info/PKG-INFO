@@ -1,0 +1,94 @@
+Metadata-Version: 2.1
+Name: sysca
+Version: 2.1
+Summary: Certificate tool for Sysadmins
+Home-page: https://github.com/markokr/sysca
+Author: Marko Kreen
+Author-email: markokr@gmail.com
+License: ISC
+Keywords: x509,tls,ssl,certificate,authority,command-line,server,authentication
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: ISC License (ISCL)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Security :: Cryptography
+Classifier: Topic :: System :: Systems Administration
+Classifier: Topic :: Utilities
+License-File: LICENSE.txt
+
+SysCA - Certificate tool for Sysadmins
+======================================
+
+Description
+-----------
+
+Easy-to-use command-line tool for certificate management.
+
+Features
+--------
+
+- Simple command-line UI.
+- Good defaults, sets up common extensions automatically.
+- PGP- and password-protected private keys.
+- OCSP and CRL info settings.
+- Supports EC, RSA and DSA keys.
+
+Dependencies
+------------
+
+- Python `cryptography`_ module (version >= 2.1).
+- (Optional) `gpg`_ command-line tool to decrypt files.
+
+.. _cryptography: https://cryptography.io/
+.. _gpg: https://www.gnupg.org/
+
+Summary
+-------
+
+Generate new key::
+
+    sysca new-key              [--password-file TXT_FILE] [--out DST]
+    sysca new-key ec[:<curve>] [--password-file TXT_FILE] [--out DST]
+    sysca new-key rsa[:<bits>] [--password-file TXT_FILE] [--out DST]
+    sysca new-key dsa[:<bits>] [--password-file TXT_FILE] [--out DST]
+
+Create certificate signing request::
+
+    sysca request --key KEY_FILE [--password-file TXT_FILE]
+                  [--subject DN] [--san ALTNAMES]
+                  [--CA] [--path-length DEPTH]
+                  [--usage FLAGS] [--ocsp-url URLS] [--crl-url URLS]
+                  [--issuer-cert-url URLS]
+                  [--out CSR_FN]
+
+Create selfsigned certificate::
+
+    sysca selfsign --key KEY_FILE --days N [--password-file TXT_FILE]
+                  [--subject DN] [--san ALTNAMES]
+                  [--CA] [--path-length DEPTH]
+                  [--usage FLAGS] [--ocsp-url URLS] [--crl-url URLS]
+                  [--issuer-cert-url URLS]
+                  [--out CRT_FN]
+
+Sign certificate signing request::
+
+    sysca sign --ca-key KEY_FILE --ca-info CRT_FILE
+               --request CSR_FILE --days NUM
+               [--out CRT_FN] [--password-file TXT_FILE]
+               [--reset ...]
+
+Create or update CRL file::
+
+    sysca update-crl [--crl CRL_FILE] [--out CRT_FN]
+               --ca-key KEY_FILE --ca-info CRT_FILE [--password-file TXT_FILE]
+               --days NUM [--crl-number NUM] [--delta-crl-number NUM]
+               [--reason REASON_NAME]
+               [--revoke-cert CERT_FILE] ...
+               [--revoke-serial SERIAL] ...
+
+Display contents of CRT, CSR or CRL file::
+
+    sysca show FILE
+
