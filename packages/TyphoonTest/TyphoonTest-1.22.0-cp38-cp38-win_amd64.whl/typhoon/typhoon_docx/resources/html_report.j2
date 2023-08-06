@@ -1,0 +1,900 @@
+<html>
+    <head>
+        <style>
+            @page {
+                size: a4 portrait;
+                margin: 0;
+                @frame cover_page_title_frame {
+                    -pdf-frame-content: cover_page_title;
+                    left: 0pt; width: 595pt; top: 0pt; height: 250pt;
+                }
+
+                @frame cover_page_title_frame {
+                    -pdf-frame-content: cover_page_logo;
+                    left: 0pt; width: 595pt; top: 250pt; height: 150pt;
+                }
+
+                @frame cover_page_image_frame {
+                    -pdf-frame-content: cover_page_image_area;
+                    left: 0pt; width: 595pt; top: 400pt; height: 472pt;
+                }
+            }
+
+            @page content_page {
+                size: a4 portrait;
+
+                @frame header_frame {
+                    -pdf-frame-content: header_content;
+                    left: 35pt; width: 525pt; top: 35pt; height: 120pt;
+                }
+
+                @frame content_frame {
+                    left: 35pt; width: 525pt; top: 155pt; height: 629pt;
+                }
+
+                @frame footer_frame {
+                    -pdf-frame-content: footer_content;
+                    left: 534pt; width: 24pt; top: 784pt; height: 180pt;
+                }
+            }
+
+            .cover-page {
+                width: 595pt;
+                height: 1000pt;
+            }
+
+            .cover-page-title {
+                margin: 0;
+                padding: 0;
+                background-color: #E6E6E6;
+            }
+
+            .cover-page-title .cover-page-title-text {
+                margin: 0;
+                padding: 0;
+            }
+
+            .cover-page-title .cover-page-title-text p {
+                font-size: 54pt;
+                line-height: 54pt;
+                padding: 0;
+                margin: 0;
+                font-weight: 400;
+                color: {{ title_color }};
+                padding-top: 42pt;
+                padding-bottom: 42pt;
+                padding-left: 35pt;
+                padding-right: 35pt;
+            }
+
+            .cover-page-logo {
+                background-color: white;
+                width: 595pt;
+                height: 100pt;
+                margin: 0;
+                padding: 0;
+                padding-left: 20pt;
+            }
+
+            .cover-page-logo .company-logo-image img {
+                margin: 0;
+                height: 120pt;
+                width: 120pt;
+            }
+
+            .cover-page-logo .company-logo-slogan {
+                margin: 0;
+                padding: 0;
+                height: 120pt;
+                width 120pt;
+                vertical-align: middle;
+                margin-left: 30pt;
+            }
+
+            .cover-page-logo .company-logo-slogan p {
+                color: {{ title_color }};
+                font-size: 30pt;
+                line-height: 30pt;
+            }
+
+            .cover-page-image-area {
+                font-size: 0;
+                line-height: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            .cover-page-image {
+                width: 595pt;
+                height: 442pt;
+                padding: 10pt;
+                margin: 0;
+            }
+
+            body {
+                color: #333333;
+            }
+
+            #footer_content {
+                line-height: 6pt;
+                font-size: 6pt;
+                text-align: center;
+                background-color: #E6E6E6;
+                padding-left: 2pt;
+                padding-right: 2pt;
+                padding-top: 2pt;
+                padding-bottom: 0pt;
+            }
+
+            #footer_content div {
+                padding-bottom: 35pt;
+                padding-top: 2pt;
+                padding-left: 0pt;
+                padding-right: 0pt;
+            }
+
+             #footer_content p br {
+                line-height: 1pt;
+             }
+
+            #footer_content p span {
+                font-size: 10pt;
+                line-height: 12pt;
+                font-weight: 700;
+            }
+
+            #header_content {
+                padding: 0;
+                margin: 0;
+                background-color: #E6E6E6;
+            }
+
+
+            #header_content .header-logo img {
+                height: 50pt;
+                width 50pt;
+            }
+
+            #header_content .header-slogan {
+                font-size: 11pt;
+                line-height: 13pt;
+                margin: 0;
+                padding: 0;
+                padding-top: 5pt;
+            }
+
+            #header_content .typhoon-slogan-cell {
+                padding: 8pt;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            p {
+                margin: 0;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: inherit;
+            }
+
+            .status-passed {
+                font-size: 10pt;
+                font-weight: 500;
+                color: rgb(55, 135, 45);
+            }
+
+            .status-failed {
+                font-size: 10pt;
+                font-weight: 500;
+                color: rgb(196, 22, 42);
+            }
+
+            .status-broken {
+                font-size: 10pt;
+                font-weight: 500;
+                color: rgb(224, 180, 0);
+            }
+
+            .status-skipped {
+                font-size: 10pt;
+                font-weight: 500;
+                color: rgb(170, 170, 170);
+            }
+
+            .status-unknown {
+                font-size: 10pt;
+                font-weight: 500;
+                color: rgb(143, 59, 184);
+            }
+
+            .status-passed-result {
+                color: rgb(55, 135, 45);
+                font-size: {{ summary["statistic"]["passed"] | calculate_size }}pt;
+                line-height: {{ summary["statistic"]["passed"] | calculate_size }}pt;
+
+            }
+
+            .status-failed-result {
+                color: rgb(196, 22, 42);
+                font-size: {{ summary["statistic"]["failed"] | calculate_size }}pt;
+                line-height: {{ summary["statistic"]["failed"] | calculate_size }}pt;
+                padding-top: {{ summary["statistic"]["failed"] | calculate_padding }}pt;
+            }
+
+            .status-broken-result {
+                color: rgb(224, 180, 0);
+                font-size: {{ summary["statistic"]["broken"] | calculate_size }}pt;
+                line-height: {{ summary["statistic"]["broken"] | calculate_size }}pt;
+                padding-top: {{ summary["statistic"]["broken"] | calculate_padding }}pt;
+            }
+
+            .status-skipped-result {
+                color: rgb(170, 170, 170);
+                font-size: {{ summary["statistic"]["skipped"] | calculate_size }}pt;
+                line-height: {{ summary["statistic"]["skipped"] | calculate_size }}pt;
+                padding-top: {{ summary["statistic"]["skipped"] | calculate_padding }}pt;
+            }
+
+            .status-unknown-result {
+                color: rgb(143, 59, 184);
+                font-size: {{ summary["statistic"]["unknown"] | calculate_size }}pt;
+                line-height: {{ summary["statistic"]["unknown"] | calculate_size }}pt;
+                padding-top: {{ summary["statistic"]["unknown"] | calculate_padding }}pt;
+            }
+
+            .summary-text {
+                font-size: 32pt;
+                line-height: 36pt;
+                padding-left: 10pt;
+                padding-top: 50pt;
+                padding-bottom: 0pt;
+                margin: 0;
+                font-weight: 400;
+            }
+
+            .gray-block {
+                background-color: #E6E6E6;
+            }
+
+            .separated-block {
+                border-left: 5pt solid white;
+                border-right: 5pt solid white;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .summary-description {
+                font-weight: 400pt;
+                font-size: 15pt;
+                line-height: 15pt;
+            }
+
+            .summary-timestamp {
+                font-size: 10pt;
+                font-weight: 500;
+            }
+
+            .summary-timestamp-cell {
+                vertical-align: top;
+                padding-top: 2pt;
+            }
+
+            .summary-results-cell {
+                vertical-align: top;
+                padding-top: 5pt;
+            }
+
+            .summary-results-number-cell {
+                vertical-align: middle;
+                padding: 0;
+                padding-top: 15pt;
+                padding-bottom: 10pt;
+                line-height: 70pt;
+                font-size: 70pt;
+                font-weight: 400;
+            }
+
+            .summary-results-number-cell span {
+                padding: 0;
+                vertical-align: middle;
+            }
+
+            .toc-table {
+                padding: 0;
+                padding-left: 8pt;
+                padding-right: 8pt;
+                padding-top: 2.5pt;
+                border: 0;
+                font-size: 10pt;
+            }
+
+            .toc-table-wrapper {
+                padding: 0;
+                margin: 0;
+            }
+
+            .separator-row {
+                line-height: 18pt;
+                font-size: 18pt;
+            }
+
+            .separator-row-end {
+                line-height: 3pt;
+                font-size: 3pt;
+            }
+
+            .toc-heading {
+                font-size: 20pt;
+                line-height: 20pt;
+                padding-left: 10pt;
+                padding-top: 50pt;
+                padding-bottom: 0pt;
+                margin: 0;
+                font-weight: 400;
+            }
+
+            .plot-image {
+                height:  280pt;
+                width: 400pt;
+                margin: 0;
+            }
+
+            .table-image {
+                width: 1120px;
+                height: 630px;
+                margin: 0;
+            }
+
+            .test-result-details {
+                font-size: 15pt;
+                line-height: 15pt;
+                font-weight: 500;
+            }
+
+            .test-result-details-label {
+                font-size: 15pt;
+                line-height: 15pt;
+            }
+
+            .test-result-details-cell {
+                padding-top: 7pt;
+                padding-bottom: 7pt;
+            }
+
+            p.wrapped-paragraph {
+                margin: 0;
+                -pdf-keep-with-next: true;
+            }
+            p.separator { -pdf-keep-with-next: false; font-size: 6pt; }
+
+            pre {
+                margin: 0;
+            }
+
+            .pre-status-message {
+                padding-left: 12pt;
+            }
+
+            .step-secondary-label {
+                font-size: 13pt;
+                line-height: 13pt;
+            }
+
+            .step-text {
+                font-size: 10pt;
+                line-height: 10pt;
+            }
+
+            .test-step-cell {
+                padding-top: 2pt;
+                padding-bottom: 2pt;
+            }
+
+            .test-step-first-cell {
+                padding-top: 7pt;
+                padding-bottom: 2pt;
+            }
+
+            th.col_heading, th.row_heading, th.blank {
+                background: white;
+                table-layout: auto;
+                border: 3px solid black;
+                text-align: center;
+                font-family: Verdana;
+                border-collapse: collapse;
+                padding: 2px;
+            }
+
+            td.data {
+                width: 4rem;
+                height: 2rem;
+                border: 1px solid black;
+                text-align: center;
+                font-family: Verdana;
+                border-collapse: collapse;
+                padding: 2px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="cover-page">
+            <div class="cover-page-title" id="cover_page_title">
+                <div class="cover-page-title-text">
+                    <p>{{ title }}</p>
+                </div>
+            </div>
+            <div class="cover-page-logo" id="cover_page_logo">
+                <table>
+                    <tr>
+                        <td colspan="3">
+                            <span class="company-logo-image" >
+                                <img src="{{ logo_path }}" />
+                            </span>
+                        </td>
+                        <td colspan="9">
+                            <span class="company-logo-slogan">
+                                <p>{{ slogan }}</p>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="cover-page-image-area" id="cover_page_image_area">
+                <img src="{{ cover_image }}" class="cover-page-image" />
+            </div>
+        </div>
+        <pdf:nexttemplate name="content_page" />
+        <pdf:nextpage />
+        <div id="header_content">
+            <table>
+                <tr>
+                    <td style="border-right: 3pt solid white;">
+                        <div class="gray-block">
+                            <img src="{{ typhoon_logo }}" class="header-logo" />
+                        </div>
+                    </td>
+                    <td class="typhoon-slogan-cell gray-block">
+                        <div class="gray-block">
+                            <p class="header-slogan"><b>Test</b><br/>Design<br/>Deploy</p>
+                        </div>
+                    </td>
+                    <td colspan="7">&nbsp;</td>
+                </tr>
+            </table>
+        </div>
+        <div id="footer_content">
+            <div>
+                <p>&nbsp; page &nbsp;<br/><br/>
+                    <span> <pdf:pagenumber> </span>
+                </p>
+            </div>
+        </div>
+        <div>
+            <p class="summary-text">Test session summary</p>
+            <table>
+                <tr style="border-bottom: 5pt solid white;">
+                    <td colspan="5" class="gray-block text-center summary-timestamp-cell">Started at<br/>
+                        <span class="summary-timestamp">{{ summary["time"]["start"] | timestamp }}</span>
+                    </td>
+                    <td colspan="5" class="gray-block text-center separated-block summary-timestamp-cell">Finished at<br/>
+                        <span class="summary-timestamp">{{ summary["time"]["stop"] | timestamp }}</span>
+                    </td>
+                    <td colspan="5" class="gray-block text-center summary-timestamp-cell">Duration<br/>
+                        <span class="summary-timestamp">{{ summary["time"]["duration"] | duration }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="gray-block text-center summary-results-cell">
+                        <span class="summary-timestamp">Passed tests</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-cell separated-block">
+                        <span class="summary-timestamp">Failed tests</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-cell">
+                        <span class="summary-timestamp">Broken tests</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-cell separated-block">
+                        <span class="summary-timestamp">Skipped tests</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-cell">
+                        <span class="summary-timestamp">Unknown tests</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="gray-block text-center summary-results-number-cell">
+                        <span class="status-passed-result">{{ summary["statistic"]["passed"] }}</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-number-cell separated-block">
+                        <span class="status-failed-result">{{ summary["statistic"]["failed"] }}</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-number-cell">
+                        <span class="status-broken-result">{{ summary["statistic"]["broken"] }}</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-number-cell separated-block">
+                        <span class="status-skipped-result">{{ summary["statistic"]["skipped"] }}</span>
+                    </td>
+                    <td colspan="3" class="gray-block text-center summary-results-number-cell">
+                        <span class="status-unknown-result">{{ summary["statistic"]["unknown"] }}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="toc">
+            <p class="toc-heading">Table of contents</p>
+            <div class="gray-block toc-table-wrapper">
+                <table class="gray-block toc-table">
+                    <thead>
+                        <tr class="separator-row"><th colspan="24">&nbsp;</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for suite in suites['children'] %}
+                            {% set suites_loop = loop %}
+                            <tr>
+                                <td colspan="24">
+                                    <a href="#{{ suite['uid'] }}">{{ suites_loop.index }}. Suite: <b>{{ suite['name'] | wrap_toc_text }}</b> </a>
+                                </td>
+                            </tr>
+                            {% for test in suite['children'] %}
+                                {% set tests_loop = loop %}
+                                <tr>
+                                    <td></td>
+                                    <td colspan="23">
+                                        <a href="#{{ suite['uid'] }}_{{ test['uid'] }}">{{ suites_loop.index }}.{{ tests_loop.index }}. Test: <b>{{ test['name'] | wrap_toc_text }}</b> </a>
+                                    </td>
+                                </tr>
+                                {% for case in test['children'] %}
+                                    {% set cases_loop = loop %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td colspan="18">
+                                            <a href="#{{ suite['uid'] }}_{{ test['uid'] }}_{{ case['uid'] }}">{{ suites_loop.index }}.{{ tests_loop.index }}.{{ cases_loop.index }}. Test case: <b>{{ case['name'] | wrap_toc_text }}</b> </a>
+                                        </td>
+                                        <td colspan="4"><span style="float:right;" class="status-{{ case['status'] }}"><a href="#{{ suite['uid'] }}_{{ test['uid'] }}_{{ case['uid'] }}">{{ case['status'] }}</a></span></td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                        <tr class="separator-row-end"><th colspan="24">&nbsp;</th></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <pdf:nextpage />
+        <div>
+            {% for suite in suites['children'] %}
+                {% set suites_loop = loop %}
+                {% for test in suite['children'] %}
+                    {% set tests_loop = loop %}
+                    {% for case in test['children'] %}
+                        {% set cases_loop = loop %}
+                        <div>
+                            <table class="test-details-table">
+                                <tr>
+                                <tr>
+                                    <td colspan="3" class="test-result-details-cell">
+                                        <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Suite:</span>
+                                    </td>
+                                    <td colspan="12" class="test-result-details-cell">
+                                        {% if (suites_loop.index == 1) and (tests_loop.index == 1) and (cases_loop.index == 1) %}
+                                            <a name="{{ suite['uid'] }}">
+                                                <span class="test-result-details">{{ suite['name'] | wrap_details_text }}</span>
+                                            </a>
+                                        {% else %}
+                                            <span class="test-result-details">{{ suite['name'] | wrap_details_text }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 5pt solid white;">
+                                    <td colspan="3" class="test-result-details-cell">
+                                        <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Test:</span>
+                                    </td>
+                                    <td colspan="12" class="test-result-details-cell">
+                                         {% if (tests_loop.index == 1) and (cases_loop.index == 1) %}
+                                            <a name="{{ suite['uid'] }}_{{ test['uid'] }}">
+                                                <span class="test-result-details">{{ test['name'] | wrap_details_text }}</span>
+                                            </a>
+                                        {% else %}
+                                            <span class="test-result-details">{{ test['name'] | wrap_details_text }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 5pt solid white;">
+                                    <td colspan="3" class="gray-block test-result-details-cell">
+                                        <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Test case:</span>
+                                    </td>
+                                    <td colspan="12" class="gray-block test-result-details-cell">
+                                        <a name="{{ suite['uid'] }}_{{ test['uid'] }}_{{ case['uid'] }}">
+                                            <span class="test-result-details">{{ case['name'] | wrap_details_text }}</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 5pt solid white;">
+                                    <td colspan="5" class="gray-block text-center summary-timestamp-cell">Started at<br/>
+                                        <span class="summary-timestamp">{{ case["time"]["start"] | timestamp }}</span>
+                                    </td>
+                                    <td colspan="5" class="gray-block text-center separated-block summary-timestamp-cell">Finished at<br/>
+                                        <span class="summary-timestamp">{{ case["time"]["stop"] | timestamp }}</span>
+                                    </td>
+                                    <td colspan="5" class="gray-block text-center summary-timestamp-cell">Duration<br/>
+                                        <span class="summary-timestamp">{{ case["time"]["duration"] | duration }}</span>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 5pt solid white;">
+                                    <td colspan="3" class="gray-block test-result-details-cell">
+                                        <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Status:</span>
+                                    </td>
+                                    <td colspan="12" class="gray-block test-result-details-cell">
+                                        <span class="status-{{ case['status'] }} test-result-details">{{ case['status'] }} </span>
+                                    </td>
+                                </tr>
+                                {% if case['parameters'] |length > 0 %}
+                                    <tr style="border-bottom: 5pt solid white;">
+                                        <td colspan="3" class="gray-block test-result-details-cell">
+                                            <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Parameters:</span>
+                                        </td>
+                                        <td colspan="12" class="gray-block test-result-details-cell">
+                                            <span class="test-result-details"><p class="wrapped-paragraph">
+                                                 {% for i in range(case['parameters'] |length) %}
+                                                    {{ case['parameters'][i]['name'] }}: {{ case['parameters'][i]['value'] }}{% if i < (case['parameters'] |length - 1) %},{% endif %}
+                                                {% endfor %}</p>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if case['description'] |length > 0 %}
+                                    <tr>
+                                        <td colspan="3" class="gray-block test-result-details-cell">
+                                            <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Description:</span>
+                                        </td>
+                                        <td colspan="12" class="gray-block test-result-details-cell">
+                                            <span class="summary-description">
+                                                <p class="wrapped-paragraph"> {{ case['description'] }} </p>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if case['status'] != "skipped" %}
+                                    {% if 'statusMessage' in case %}
+                                        <tr class="separator-row">
+                                            <td colspan="15">&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="15" class="test-result-details-cell">
+                                                <span class="status-failed test-result-details">&nbsp; &nbsp; &nbsp; Error message:</span><br />
+                                                <span class="summary-timestamp"><pre class="pre-status-message">{{ case['statusMessage'] | trim_text }}</pre></span>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if 'statusTrace' in case %}
+                                        {% if not skip_trace %}
+                                            <tr>
+                                                <td colspan="15" class="test-result-details-cell">
+                                                    <span class="status-failed test-result-details">&nbsp; &nbsp; &nbsp; Error message trace:</span><br />
+                                                    <span><pre>{{ case['statusTrace'] | trim_text }}</pre></span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if not skip_steps %}
+                                        {% if check_stage_existence(case, 'beforeStages') or check_stage_existence(case, 'afterStages') or check_stage_existence(case, 'testStage')  %}
+                                            <tr>
+                                                <td colspan="15" class="test-step-first-cell">
+                                                    <span class="test-result-details-label">&nbsp; &nbsp; &nbsp; Steps:</span>
+                                                </td>
+                                             </tr>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if check_stage_existence(case, 'beforeStages') %}
+                                        {% if not skip_steps %}
+                                            <tr>
+                                                <td class="test-step-cell">
+                                                    <span class="step-text">&nbsp;</span>
+                                                </td>
+                                                <td colspan="14" class="test-step-cell">
+                                                    <span class="step-secondary-label">&nbsp; &nbsp; &nbsp; Setup steps:</span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        {% for stage in case['beforeStages'] %}
+                                            {% for step in stage['steps'] %}
+                                                {% if not skip_steps %}
+                                                    <tr>
+                                                       <td colspan="2" class="test-step-cell">
+                                                           <span class="step-text">&nbsp;</span>
+                                                       </td>
+                                                       <td colspan="13" class="test-step-cell">
+                                                           <span class="step-text">Step: {{ step['name'] }}</span>
+                                                       </td>
+                                                    </tr>
+                                                {% endif %}
+                                                {% if 'attachments' in step %}
+                                                    {% if not skip_plots %}
+                                                        {% for attachment in step['attachments'] %}
+                                                            {% if 'image' in attachment['type'] %}
+                                                                <tr>
+                                                                    <td colspan="2" class="test-step-cell">
+                                                                        <span class="step-text">&nbsp;</span>
+                                                                    </td>
+                                                                    <td colspan="13" class="test-step-cell">
+                                                                        {% if '_table.html' in attachment['source'] %}
+                                                                            <img src="{{ attachment['source'] }}" class="table-image">
+                                                                        {% else %}
+                                                                            <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                        {% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% if 'attachments' in case['beforeStages'] %}
+                                            {% if not skip_plots %}
+                                                {% for attachment in case['beforeStages']['attachments'] %}
+                                                    {% if 'image' in attachment['type'] %}
+                                                        <tr>
+                                                            <td colspan="2" class="test-step-cell">
+                                                                <span class="step-text">&nbsp;</span>
+                                                            </td>
+                                                            <td colspan="13" class="test-step-cell">
+                                                                {% if '_table.html' in attachment['source'] %}
+                                                                    <img src="{{ attachment['source'] }}" class="table-image">
+                                                                {% else %}
+                                                                    <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if 'testStage' in case %}
+                                        {% if not skip_steps %}
+                                            <tr>
+                                                <td class="test-step-cell">
+                                                    <span class="step-text">&nbsp;</span>
+                                                </td>
+                                                <td colspan="14" class="test-step-cell">
+                                                    <span class="step-secondary-label">&nbsp; &nbsp; &nbsp; Test steps:</span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        {% for step in case['testStage']['steps'] %}
+                                            {% if not skip_steps %}
+                                                <tr>
+                                                   <td colspan="2" class="test-step-cell">
+                                                       <span class="step-text">&nbsp;</span>
+                                                   </td>
+                                                   <td colspan="13" class="test-step-cell">
+                                                       <span class="step-text">Step: {{ step['name'] }}</span>
+                                                   </td>
+                                                </tr>
+                                            {% endif %}
+                                            {% if not skip_plots %}
+                                                {% for attachment in step['attachments'] %}
+                                                    {% if 'image' in attachment['type'] %}
+                                                        <tr>
+                                                            <td colspan="2" class="test-step-cell">
+                                                                <span class="step-text">&nbsp;</span>
+                                                            </td>
+                                                            <td colspan="13" class="test-step-cell">
+                                                                {% if '_table.html' in attachment['source'] %}
+                                                                    <img src="{{ attachment['source'] }}" class="table-image">
+                                                                {% else %}
+                                                                    <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if 'attachments' in case['testStage'] %}
+                                            {% if not skip_plots %}
+                                                {% for attachment in case['testStage']['attachments'] %}
+                                                    {% if 'image' in attachment['type'] %}
+                                                        <tr>
+                                                            <td colspan="2" class="test-step-cell">
+                                                                <span class="step-text">&nbsp;</span>
+                                                            </td>
+                                                            <td colspan="13" class="test-step-cell">
+                                                                {% if '_table.html' in attachment['source'] %}
+                                                                    <img src="{{ attachment['source'] }}" class="table-image">
+                                                                {% else %}
+                                                                    <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if check_stage_existence(case, 'afterStages') %}
+                                        {% if not skip_steps %}
+                                            <tr>
+                                                <td class="test-step-cell">
+                                                    <span class="step-text">&nbsp;</span>
+                                                </td>
+                                                <td colspan="14" class="test-step-cell">
+                                                    <span class="step-secondary-label">&nbsp; &nbsp; &nbsp; After steps:</span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        {% for stage in case['afterStages'] %}
+                                            {% for step in stage['steps'] %}
+                                                {% if not skip_steps %}
+                                                    <tr>
+                                                       <td colspan="2" class="test-step-cell">
+                                                           <span class="step-text">&nbsp;</span>
+                                                       </td>
+                                                       <td colspan="13" class="test-step-cell">
+                                                           <span class="step-text">Step: {{ step['name'] }}</span>
+                                                       </td>
+                                                    </tr>
+                                                {% endif %}
+                                                {% if not skip_plots %}
+                                                    {% for attachment in step['attachments'] %}
+                                                        {% if 'image' in attachment['type'] %}
+                                                            <tr>
+                                                                <td colspan="2" class="test-step-cell">
+                                                                    <span class="step-text">&nbsp;</span>
+                                                                </td>
+                                                                <td colspan="13" class="test-step-cell">
+                                                                    {% if '_table.html' in attachment['source'] %}
+                                                                        <img src="{{ attachment['source'] }}" class="table-image">
+                                                                    {% else %}
+                                                                        <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% if 'attachments' in case['afterStages'] %}
+                                            {% if not skip_plots %}
+                                                {% for attachment in case['afterStages']['attachments'] %}
+                                                    {% if 'image' in attachment['type'] %}
+                                                        <tr>
+                                                            <td colspan="2" class="test-step-cell">
+                                                                <span class="step-text">&nbsp;</span>
+                                                            </td>
+                                                            <td colspan="13" class="test-step-cell">
+                                                                {% if '_table.html' in attachment['source'] %}
+                                                                    <img src="{{ attachment['source'] }}" class="table-image">
+                                                                {% else %}
+                                                                    <img src="{{ attachment['source'] }}" class="plot-image">
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                             </table>
+                        </div>
+                        <pdf:nextpage />
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </body>
+</html>
