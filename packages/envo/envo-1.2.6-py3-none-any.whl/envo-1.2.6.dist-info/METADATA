@@ -1,0 +1,166 @@
+Metadata-Version: 2.1
+Name: envo
+Version: 1.2.6
+Summary: Smart Environments handling - Define command hooks, file hooks and env variables in python and activate hot reloaded shells.
+License: Apache 2.0
+Author: Damian Krystkiewicz
+Author-email: damian.krystkiewicz@gmail.com
+Requires-Python: >=3.6.2,<4.0
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Shells
+Requires-Dist: colorama
+Requires-Dist: dataclasses (>=0.7,<0.9); python_version < "3.7"
+Requires-Dist: envium (>=1.0.0,<2.0.0)
+Requires-Dist: fire (>=0,<1)
+Requires-Dist: globmatch (>=2,<3)
+Requires-Dist: loguru (>=0,<1)
+Requires-Dist: prompt_toolkit (==3.0.26)
+Requires-Dist: pygments (>=2,<3)
+Requires-Dist: rhei (>=0,<1)
+Requires-Dist: rich
+Requires-Dist: typing-extensions (>=3.7.4,<4.0.0); python_version < "3.8"
+Requires-Dist: watchdog (>=2,<3)
+Requires-Dist: xonsh (>=0.11.0,<0.12.0); python_version < "3.8"
+Requires-Dist: xonsh (>=0.12,<0.13); python_version >= "3.8"
+Project-URL: homepage, https://gitlab.com/plasma-opensource/envo
+Description-Content-Type: text/x-rst
+
+===========================================
+envo - smart environment variables handling
+===========================================
+
+Define environmental variables in python and activate hot reloaded shells for them.
+
+Features
+--------
+* Initialisation of variables in a given directory (creates common variables file too)
+
+.. code-block::
+
+    user@pc:/project$ envo local --init  # creates local environment python files
+
+* Easy and dynamic handling in .py files (See documentation to learn more)
+* Provides addons like handling virtual environments
+
+.. code-block::
+
+    user@pc:/project$ envo local --init=venv  # will add .venv to PATH
+
+* Automatic env variables generation based on defined python variables
+* Hot reload. Activated shell will reload environmental variables when files change.
+* Activating shells for a given environment
+
+.. code-block::
+
+    user@pc:/project$ envo local
+    🐣(project)user@pc:/project$
+    🐣(project)user@pc:/project$ exit
+    user@pc:/project$ envo prod
+    🔥(project)user@pc:/project$
+
+
+* Saving variables to a regular .env file
+
+.. code-block::
+
+    user@pc:/project$ envo local --save
+
+* Printing variables (handy for non interactive CLIs like CI or docker)
+
+.. code-block::
+
+    user@pc:/project$ envo local --dry-run
+
+* Detects undefined variables.
+* Perfect for switching kubernetes contexts and devops tasks
+
+
+Example
+#######
+Initialising environment
+
+.. code-block::
+
+    user@pc:/project$ envo local --init
+
+
+Will create :code:`env_comm.py` and :code:`env_local.py`
+
+.. code-block:: python
+
+    # env_comm.py
+    @dataclass
+    class ProjectEnvComm(Env):
+        @dataclass
+        class Python(BaseEnv):
+            version: str
+
+        class Meta:
+            raw = ["kubeconfig"]  # disable namespacing
+
+        python: Python
+        number: int
+        kubeconfig: Path
+        # Add more variables here
+
+        def __init__(self) -> None:
+            super().__init__(root=Path(os.path.realpath(__file__)).parent)
+            self.name = "proj"
+            self.python = self.Python(version="3.8.2")
+            self.kubeconfig = self.root / f"{self.stage}/kubeconfig.yaml"
+
+    # env_local.py
+    @dataclass
+    class ProjectEnv(ProjectEnvComm):
+        def __init__(self) -> None:
+            self.stage = "test"
+            self.emoji = "🛠️"
+            super().__init__()
+
+            self.number = 12
+
+    Env = ProjectEnv
+
+Example usage:
+
+.. code-block::
+
+    user@pc:/project$ envo  # short for "envo local"
+    🐣(project)user@pc:/project$ echo $PROJ_PYTHON_VERSION
+    3.8.2
+    🐣(project)user@pc:/project$echo $PROJ_NUMBER
+    12
+
+
+TODO:
+Major:
+* Refactor start_in
+* Add file hooks
+* Add bootstrap (versioning etc)
+* add error line number
+
+Minor:
+* Shell should highlight envo commands on green
+* Unnecessary prompt rendered again aftet Ctr-d (only on xonsh?)
+* work on public/private fields and methods
+* add examples
+* print hooks for repr
+* Add reload command
+
+Bugs:
+* exiting while env loading yields Attribute Error
+
+Improvements:
+* type checking ?
+

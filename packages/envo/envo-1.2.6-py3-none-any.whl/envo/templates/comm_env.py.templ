@@ -1,0 +1,49 @@
+import envo
+from pathlib import Path
+
+root = Path(__file__).parent.absolute()
+envo.add_source_roots([root])
+
+from typing import List, Dict, Any, Optional, Tuple
+
+from envo import Env
+
+# Declare your command namespaces here
+# like this:
+# my_namespace = Namespace("my_namespace")
+
+
+class {{ class_name }}(Env):
+    class Meta(Env.Meta):
+        root: Path = root
+        name: str = "{{ name }}"
+        emoji: str = "{{ emoji }}"
+        verbose_run: bool = False
+        load_env_vars: bool = False
+
+    class Environ(Env.Environ):
+        # Declare your env variables here
+        ...
+
+    class Ctx(Env.Ctx):
+        # Declare your context here
+        ...
+
+    class Secrets(Env.Secrets):
+        # Declare your secrets here
+        ...
+
+    e: Environ
+    ctx: Ctx
+    secrets: Secrets
+
+    # Declare your variables here
+    def init(self) -> None:
+        super().init()
+        # Define your variables here
+
+    # Define your commands, hooks and properties here
+
+
+{{ this_env }} = {{ class_name }}
+
