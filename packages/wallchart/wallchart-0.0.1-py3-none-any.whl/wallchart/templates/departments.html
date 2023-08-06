@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2 class="p-2 text-left display-5">Departments ({{ department_count }})</h2>
+{% for unit_name, departments in  units | groupby("unit_name") %}
+<h3>{{ unit_name }}</h3>
+<table class="table table-striped table-hover">
+    <tr>
+        <th scope="col" class="col-7">Name</th>
+        <th scope="col" class="col-1">Members</th>
+	<th scope="col" class="col-1">{{ latest_test_name }}</th>
+        <th scope="col">Chair(s)</th>
+    </tr>
+    {% for department in departments %}
+    {% set worker_count = department.none + ([department.members, department.latest] | max) %}
+    {% if worker_count > 0 %}
+    <tr>
+        <td>
+            <a href="{{ url_for('department', department_slug=department.slug) }}">
+                {% if department.alias %}
+                <b>{{ department.alias }}</b> ({{ department.name }})
+                {% else %}
+                <b>{{ department.name }}</b>
+                {% endif %}
+		({{ worker_count }})
+            </a>
+        </td>
+        <td>
+            {% if worker_count > 0 %}
+            {% set percentage = ( department.members / worker_count * 100) | round(2) %}
+            {% endif %}
+            <meter style="height: 25px;" low="50" high="80" max="100" optimum="100" value="{{ percentage }}"
+		    title="{{ department.members }}&#x2F;{{ worker_count}} completed">{{ department.members }} / {{department.worker_count }}
+	    </meter>
+        </td>
+        <td>
+            {% if worker_count > 0 %}
+            {% set percentage = ( department.latest / worker_count * 100) | round(2) %}
+            {% endif %}
+            <meter style="height: 25px;" low="50" high="80" max="100" optimum="100" value="{{ percentage }}"
+		    title="{{ department.latest }}&#x2F;{{ worker_count }} completed">
+	    </meter>
+        </td>
+        <td>
+
+		{% for chair in department.chairs %}
+		{% if not chair.unit_chair_id %}
+		<a href="{{ url_for("worker", worker_id=chair.id) }}">
+		    {%- if chair.preferred_name %}
+		    {{ chair.preferred_name }} ({{ chair.name }})
+		    {% else %}
+		    {{ chair.name }}
+		    {% endif %}
+		</a>
+		{% endif %}
+		{% endfor %}
+	</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+{% endfor %}
+
+<h3>Empty Departments</h3>
+<p>
+    All workers of these departments are organized in different departments
+</p>
+<table class="table table-striped table-hover">
+    <tr>
+        <th scope="col">Name</th>
+    </tr>
+    {% for department in units %}
+    {% if department.worker_count == 0 %}
+    <tr>
+        <td>
+            <a href="{{ url_for('department', department_slug=department.slug) }}">
+                {% if department.alias %}
+                <b>{{ department.alias }}</b> ({{ department.name }})
+                {% else %}
+                <b>{{ department.name }}</b>
+                {% endif %}
+            </a>
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+{% endblock %}
