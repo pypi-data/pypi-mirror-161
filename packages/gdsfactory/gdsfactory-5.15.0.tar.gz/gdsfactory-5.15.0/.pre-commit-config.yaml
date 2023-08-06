@@ -1,0 +1,117 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 08b4be84be2d74173246b7c9b6c22212a6c15a2d
+    hooks:
+      - id: check-yaml
+        exclude: ^(conda\.recipe/meta\.yaml|conda_build/templates/.*\.yaml|docs/click/meta\.yaml|conda/meta\.yaml)
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: requirements-txt-fixer
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: 0.10.0
+    hooks:
+      - id: unimport
+        args: [--remove, --include-star-import]
+  - repo: https://github.com/pycqa/isort
+    rev: 12cc5fbd67eebf92eb2213b03c07b138ae1fb448
+    hooks:
+      - id: isort
+        files: gdsfactory/.*
+        args: [--profile, black, --filter-files]
+
+  - repo: https://github.com/psf/black
+    rev: ca0dbb8fa6cca8c1fc2650cde9e71402c03a3324
+    hooks:
+      - id: black
+
+  # - repo: https://github.com/omnilib/ufmt
+  #   rev: v2.0.0b1
+  #   hooks:
+  #     - id: ufmt
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 97fa90cc5be84868c9fa11b838b36f89a2af01e5
+    hooks:
+      - id: blacken-docs
+        additional_dependencies: [black==22.3.0]
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 21d3c70d676007470908d39b73f0521d39b3b997
+    hooks:
+      - id: flake8
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.0
+    hooks:
+      - id: nbstripout
+        files: .ipynb
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.3
+    hooks:
+      - id: pyupgrade
+        args: [--py37-plus, --keep-runtime-typing]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: 6cddcde8aeebdf97a9cb649c1d5fc70d520dd417
+    hooks:
+      - id: codespell
+        args: ["-L TE,TE/TM,te,ba,FPR,fpr_spacing,ro,nd"]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: ff37419597c6dcb0a9e705067d3ac44d7543eb53
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: dc89c436469616a7c48293ec60c8e21e9d95be08 # Use the ref you want to point at
+    hooks:
+      - id: python-use-type-annotations
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 97501817e621db9975dfa6a2a1d36370942d1812
+    hooks:
+      - id: bandit
+        args: [--exit-zero]
+        # ignore all tests, not just tests data
+        exclude: ^tests/
+  # - repo: https://github.com/PyCQA/pylint
+  #   rev: v2.14.1
+  #   hooks:
+  #     - id: pylint
+  #       args: [--exit-zero]
+  # - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  #   rev: 6565d773ca281682d7062d4c0be74538cc474cc9
+  #   hooks:
+  #     - id: pretty-format-java
+  #       args: [--autofix]
+  #     - id: pretty-format-kotlin
+  #       args: [--autofix]
+  #     - id: pretty-format-yaml
+  #       args: [--autofix, --indent, "2"]
+  # - repo: https://github.com/adrienverge/yamllint.git
+  #   rev: v1.21.0 # or higher tag
+  #   hooks:
+  #       - id: yamllint
+  #         args: [--format, parsable, --strict]
+  # - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  #   rev: 0.1.0 # or specific tag
+  #   hooks:
+  #       - id: yamlfmt
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "214c33306afe17f1cc7d2d55e4da705b6ebe0627"
+  #   hooks:
+  #     - id: mypy
+  #       exclude: ^(docs/|example-plugin/|tests/fixtures)
+  #       additional_dependencies:
+  #         - "pydantic"
+  # - repo: https://github.com/terrencepreilly/darglint
+  #   rev: master
+  #   hooks:
+  #       - id: darglint
+  #
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: ""
+  #   hooks:
+  #       - id: pydocstyle
+  # - repo: https://github.com/asottile/reorder_python_imports
+  #   rev: 2b2f0c74acdb3de316e23ceb7dd0d7945c354050
+  #   hooks:
+  #     - id: reorder-python-imports
