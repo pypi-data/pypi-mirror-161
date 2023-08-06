@@ -1,0 +1,210 @@
+import re
+from typing import Sequence, Dict, Any, List
+
+import regex
+from sqlfluff.core import Lexer, Parser, Linter, SQLBaseError
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.parser import RegexLexer, CodeSegment
+from sqlfluff.core.parser.segments import BaseSegment
+
+from easy_sql.sql_linter.rules import __all__
+from easy_sql.sql_linter.sql_linter_reportor import LintReporter
+from easy_sql.sql_processor.funcs import FuncRunner
+from easy_sql.sql_processor.report import SqlProcessorReporter
+from easy_sql.sql_processor.step import StepFactory, Step
+
+
+class SqlLinter:
+    def __init__(self, sql: str, include_rules: [str] = None, exclude_rules: [str] = None):
+        self.origin_sql = sql
+        self.fixed_sql_list = []
+        self.supported_backend = ['spark', 'postgres', 'clickhouse', 'bigquery']
+        self.step_list = self._get_step_list()
+        self.include_rules = include_rules
+        self.exclude_rules = exclude_rules
+        self.reporter = LintReporter()
+
+    def _parse_backend(self, sql: str):
+        sql_lines = sql.split('\n')
+        backend = None
+        for line in sql_lines:
+            if re.match(r'^-- \s*backend:.*$', line):
+                backend = line[line.index('backend:') + len('backend:'):].strip()
+                break
+
+        if backend is None:
+            backend = "spark"
+            self.reporter.report_warning("Backend cannot be found in sql, will use default backend spark")
+
+        if backend not in self.supported_backend:
+            raise Exception(
+                f'Unsupported backend `${backend}`, all supported backends are: ' + ",".join(self.supported_backend))
+
+        self.reporter.report_message(f"Use backend: {backend}")
+        self.fixed_sql_list.append("-- backend: " + backend)
+        return backend
+
+    def _get_step_list(self):
+        reporter = SqlProcessorReporter(report_task_id='sql_linter')
+        func_runner = FuncRunner()
+        step_factory = StepFactory(reporter, func_runner)
+        step_list = step_factory.create_from_sql(self.origin_sql)
+        return step_list
+
+    def _get_dialect_from_backend(self, backend: str = None) -> str:
+        backend = backend or self._parse_backend(self.origin_sql)
+        if backend == "spark":
+            return "sparksql"
+        if backend == "bigquery":
+            return "bigquery"
+        if backend == "clickhouse":
+            # TODO: so far do not have clickhouse in sql fluff
+            return "ansi"
+        if backend == "postgres":
+            return "postgres"
+        raise Exception("backend type so far is not supported for lint check")
+
+    @staticmethod
+    def _update_included_rule_for_config(config: Dict[str, Any], dialect: str = None, rules=None):
+        if rules is None:
+            rules = []
+        if len(rules) > 0:
+            config['core']['rules'] = ",".join(rules)
+        else:
+            if dialect in ["bigquery"]:
+                config['core']['rules'] = "core," + dialect
+            else:
+                config['core']['rules'] = "core"
+
+    @staticmethod
+    def _update_excluded_rule_for_config(config: Dict[str, Any], rules: [str] = None):
+        if rules is not None:
+            config['core']['exclude_rules'] = ",".join(rules)
+        else:
+            config['core']['exclude_rules'] = None
+
+    def _check_parsable(self, root_segment: BaseSegment) -> bool:
+        segment_list = [root_segment]
+        while len(segment_list) > 0:
+            check_segment = segment_list[0]
+            segment_list.remove(check_segment)
+            if check_segment.is_type("unparsable"):
+                self.reporter.report_warning("Unparsable segment found: " + check_segment.raw)
+                return False
+            elif check_segment.segments:
+                segment_list = segment_list + list(check_segment.segments)
+        return True
+
+    def _check_lexable(self, tokens: Sequence[BaseSegment]) -> bool:
+        for i, token in enumerate(tokens):
+            if token.is_type("unlexable"):
+                self.reporter.report_warning("Unlexable segment found: " + str(token.raw_segments))
+                return False
+        return True
+
+    def _lint_step_sql(self, step: Step, lexer: Lexer, parser: Parser, linter: Linter, log_error: bool) -> List[SQLBaseError]:
+        self.fixed_sql_list.append(step.target_config.step_config_str)
+        if step.select_sql:
+            if step.is_template_statement():
+                self.fixed_sql_list.append(step.select_sql + "\n")
+                self.reporter.report_message("Skip template sql for this step.")
+            else:
+                sql = step.select_sql + "\n"
+                tokens, _ = lexer.lex(sql)
+                parsed = parser.parse(tokens)
+
+                if self._check_lexable(tokens) and self._check_parsable(parsed):
+                    result = linter.lint(parsed)
+                    if log_error:
+                        self.reporter.report_list_of_violations(result, step.target_config.line_no)
+                    fixed_tree, violation = linter.fix(parsed)
+                    self.fixed_sql_list.append(fixed_tree.raw)
+                    return result
+                else:
+                    self.fixed_sql_list.append(step.select_sql)
+
+    def _prepare_lexer(self, dialect: str):
+        lexer = Lexer(dialect=dialect)
+
+        # Add regex mather to lexer to enable easy sql
+        easy_sql_function = RegexLexer('easy_sql_function', r'\${[^\s,]+\(.+\)}', CodeSegment)
+        easy_sql_variable = RegexLexer('easy_sql_variable', r'\${[^\s,]+}', CodeSegment)
+        easy_sql_template = RegexLexer('easy_sql_template', r'@{[^{]+}', CodeSegment)
+        three_quote_string = RegexLexer('three_quote_string', r'""".*"""', CodeSegment)
+        lexer.lexer_matchers.insert(0, easy_sql_variable)
+        lexer.lexer_matchers.insert(0, easy_sql_function)
+        lexer.lexer_matchers.insert(0, easy_sql_template)
+        lexer.lexer_matchers.insert(0, three_quote_string)
+        return lexer
+
+    def _prepare_parser(self, dialect: str):
+        parser = Parser(dialect=dialect)
+        # Let parser recognize all function/variables/template into nakedIdentifier
+        # which will be given grammar when given context
+        identifier_segement = parser.config.get("dialect_obj")._library["NakedIdentifierSegment"]
+        template = identifier_segement.template + r"|@{[^{]+}|[\$]{[\s\S]+}|\"[\s\S]+\""
+        identifier_segement.template = template
+        # For sqlfluff > 1.0, template is compiled and cached, so we need to update it as well.
+        if identifier_segement._template is not None:
+            identifier_segement._template = regex.compile(template, regex.IGNORECASE)
+        return parser
+
+    def _lint_for_easy_sql(self, backend: str, log_error: bool = True, config_path: str = None) -> List[SQLBaseError]:
+        lint_result = []
+        dialect = self._get_dialect_from_backend(backend)
+        lexer = self._prepare_lexer(dialect)
+        parser = self._prepare_parser(dialect)
+        linter = self._prepare_linter(dialect, config_path)
+        step_count = 0
+        self.fixed_sql_list = self._parser_sql_header()
+        for step_no, step in enumerate(self.step_list):
+            step_count = step_count + 1
+            if log_error:
+                self.reporter.report_message("=== Check step {} at line {} ===".format(step_no + 1, step.target_config.line_no))
+            step_result = self._lint_step_sql(step, lexer, parser, linter, log_error)
+            if step_result:
+                lint_result = lint_result + step_result
+        return lint_result
+
+    def _lint_for_normal_sql(self, backend: str, log_error: bool = True, config_path: str = None) -> List[SQLBaseError]:
+        self.fixed_sql_list = []
+        dialect = self._get_dialect_from_backend(backend)
+        lexer = Lexer(dialect=dialect)
+        parser = Parser(dialect=dialect)
+        linter = self._prepare_linter(dialect, config_path=config_path)
+        tokens, _ = lexer.lex(self.origin_sql)
+        parsed = parser.parse(tokens)
+        lint_result = linter.lint(parsed)
+        fixed_tree, violation = linter.fix(parsed)
+        if log_error:
+            self.reporter.report_list_of_violations(lint_result)
+        self.fixed_sql_list.append(fixed_tree.raw)
+        return lint_result
+
+    def _parser_sql_header(self):
+        line_no = self.step_list[0].target_config.line_no
+        return self.origin_sql.split("\n")[:line_no - 1]
+
+    def _prepare_linter(self, dialect: str, config_path: str = None):
+        if config_path:
+            config = FluffConfig.from_path(config_path)
+        else:
+            default_config_dict = FluffConfig(require_dialect=False)._configs
+            default_config_dict['rules']['L019'] = {'comma_style': 'leading'}
+            default_config_dict['rules']['L014'] = {'extended_capitalisation_policy': 'lower'}
+            default_config_dict['core']['dialect'] = dialect
+            self._update_included_rule_for_config(default_config_dict, dialect=dialect, rules=self.include_rules)
+            self._update_excluded_rule_for_config(default_config_dict, rules=self.exclude_rules)
+            config = FluffConfig(configs=default_config_dict)
+        linter = Linter(config=config, user_rules=__all__)
+        return linter
+
+    def lint(self, backend: str, log_error: bool = True, easysql: bool = True, config_path: str = None) -> List[SQLBaseError]:
+        if easysql:
+            return self._lint_for_easy_sql(backend, log_error, config_path=config_path)
+        else:
+            return self._lint_for_normal_sql(backend, log_error, config_path=config_path)
+
+    def fix(self, backend: str, log_linter_error: bool = False, easy_sql: bool = True, config_path: str = None):
+        self.lint(backend, log_linter_error, easy_sql, config_path=config_path)
+        return "\n".join(self.fixed_sql_list)
