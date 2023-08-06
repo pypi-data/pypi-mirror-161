@@ -1,0 +1,125 @@
+Metadata-Version: 2.1
+Name: pysymbolic
+Version: 1.0.0
+Summary: PDDL symbolic library
+Author-email: Toki Migimatsu <takatoki@cs.stanford.edu>
+License: MIT License        
+        Copyright (c) 2020 Toki Migimatsu        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.        
+Project-URL: Homepage, https://github.com/tmigimatsu/symbolic
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+[![Builds](https://github.com/tmigimatsu/symbolic/actions/workflows/builds.yaml/badge.svg)](https://github.com/tmigimatsu/symbolic/actions/workflows/builds.yaml)
+[![Tests](https://github.com/tmigimatsu/symbolic/actions/workflows/tests.yaml/badge.svg)](https://github.com/tmigimatsu/symbolic/actions/workflows/tests.yaml)
+[![Docs](https://github.com/tmigimatsu/symbolic/actions/workflows/docs.yaml/badge.svg)](https://github.com/tmigimatsu/symbolic/actions/workflows/docs.yaml)
+
+# symbolic
+
+`symbolic` is a C++/Python library for parsing and manipulating [Planning Domain
+Definition Language (PDDL)](https://planning.wiki/_citedpapers/pddl1998.pdf)
+symbols for AI planning. This library is built upon
+[VAL](https://github.com/KCL-Planning/VAL), a C++ library for validating PDDL
+specifications.
+
+See the documentation for `symbolic`
+[here](https://tmigimatsu.github.io/symbolic/).
+
+## Installation
+
+The Python library can be installed via `pip`:
+```
+pip install pysymbolic
+```
+
+To compile the C++ library, follow the instructions below.
+
+This library is written in C++ with Python bindings automatically generated with
+[pybind11](https://github.com/pybind/pybind11). It has been tested on
+Ubuntu 18.04, Ubuntu 20.04, and macOS 10.15 Catalina.
+
+Compilation requirements:
+- `cmake >= 3.11`
+- C++17 support (`gcc >= 7`, `clang >= 7`).
+
+See [Updating CMake](#updating-cmake) for details on how to install the latest
+`cmake`. Ubuntu 20.04 comes with a sufficient version of `cmake` out of the box.
+
+### C++ only
+
+The C++ portion of `symbolic` is header-only, but to add `symbolic` as a
+`cmake` dependency, you can run the following:
+```sh
+mkdir build
+cmake -B build
+```
+
+### Python only
+
+Use `pip` to install `symbolic` in your virtual environment.
+```sh
+pip install .
+```
+
+You can now import the `symbolic` package in Python.
+```py
+import symbolic
+```
+
+### C++ and Python
+
+An in-place `pip` install will run the appropriate CMake command to build
+`symbolic` locally in the `./build` folder. This will give you access to the
+`cmake` configuration files for C++ as well as the `symbolic` package in
+Python.
+```sh
+pip install -e .
+```
+
+## Updating CMake
+
+### Ubuntu 18.04
+
+The simplest way to install the latest version of `cmake` is through `pip`:
+```sh
+pip install cmake
+```
+
+You can also install it through `apt`:
+```sh
+sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates gnupg wget
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+sudo apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ bionic main'
+sudo apt-get update && sudo apt-get install -y cmake kitware-archive-keyring
+sudo rm /etc/apt/trusted.gpg.d/kitware.gpg
+```
+
+### macOS
+
+Install `cmake` through Homebrew:
+```sh
+brew install cmake
+```
+
+Or through `pip`:
+```sh
+pip3 install cmake
+```
