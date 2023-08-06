@@ -1,0 +1,37 @@
+siemens
+=======
+
+Module contents
+---------------
+
+.. automodule:: dicom_parser.utils.siemens
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Subpackages
+-----------
+
+.. toctree::
+
+   dicom_parser.utils.siemens.csa
+
+Submodules
+----------
+
+dicom\_parser.utils.siemens.mosaic module
+-----------------------------------------
+
+.. automodule:: dicom_parser.utils.siemens.mosaic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dicom\_parser.utils.siemens.private\_tags module
+------------------------------------------------
+
+.. automodule:: dicom_parser.utils.siemens.private_tags
+   :members:
+   :undoc-members:
+   :show-inheritance:
