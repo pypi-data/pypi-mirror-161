@@ -1,0 +1,81 @@
+name: erc1155_client
+author: fetchai
+version: 0.28.0
+type: skill
+description: The erc1155 client interacts with the erc1155 deployer to conduct an
+  atomic swap.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeid73sgd24psits3e6ktrxrwwin7zd6xb7adxsplxi5bizlrxk5bom
+  __init__.py: bafybeidi6meicrc6tyeokv42f5u7xymlgfy2eua5ueuxmqv272oouhqehu
+  behaviours.py: bafybeicwzknkh5tpogbqe5vaz52wxkkwqnb54giktpydns6o7fkwrxcqme
+  dialogues.py: bafybeif7tegamwzgfeviq5ehq547gp3fvufcq2wwpx2vliu7ivz373sthm
+  handlers.py: bafybeifaqwn3tweuawo65yn3ek6mfun2zu54qtoa2sqyndyvmsk7rkdi7i
+  strategy.py: bafybeifudijy3opr6srw5kik3x3rmv6f75dts2pcqtlhjwkkzcafpad4em
+fingerprint_ignore_patterns: []
+connections:
+- fetchai/ledger:0.19.0:bafybeiasrzkbxzadi6vt35ucaa5yp4b4wbv6g44le3tuhcecjpnzp24mzq
+contracts:
+- fetchai/erc1155:0.22.0:bafybeidt3wg6cmdd6xjw6appgnb2umx2ixdwwaubdvkle2bcd6gxcx2wue
+protocols:
+- fetchai/contract_api:1.0.0:bafybeibtegb5bkxjh45a2mpjmymdgyoljt4bdimpspskmpvon3bu6gwzcm
+- fetchai/default:1.0.0:bafybeibvtmpfzlig3ngtz6x2omc2rlx5knltnunbmg37tih5wlxnrfszvm
+- fetchai/fipa:1.0.0:bafybeigdyz2p6yzx2jmnhyukcyxk25nkevmzwplyde7trtsq4txdxboose
+- fetchai/ledger_api:1.0.0:bafybeiardigq2zupq2zmyv4i4wjydflzwyz7bl6xhxxcwtiesevqss5fae
+- fetchai/oef_search:1.0.0:bafybeieytybenjlkcdzmqw2u6xzl26jtoe4fjlzxifqy3ollobtq4k33ii
+- open_aea/signing:1.0.0:bafybeighvx4vpsyspffggewidvkfq3lqbse6ap4tdewd6j5bs73ifnuaui
+skills: []
+behaviours:
+  search:
+    args:
+      search_interval: 5
+    class_name: SearchBehaviour
+handlers:
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  fipa:
+    args: {}
+    class_name: FipaHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  oef_search:
+    args: {}
+    class_name: OefSearchHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+models:
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  default_dialogues:
+    args: {}
+    class_name: DefaultDialogues
+  fipa_dialogues:
+    args: {}
+    class_name: FipaDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  oef_search_dialogues:
+    args: {}
+    class_name: OefSearchDialogues
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  strategy:
+    args:
+      location:
+        latitude: 51.5194
+        longitude: 0.127
+      search_query:
+        constraint_type: ==
+        search_key: seller_service
+        search_value: erc1155_contract
+      search_radius: 5.0
+    class_name: Strategy
+dependencies: {}
+is_abstract: false

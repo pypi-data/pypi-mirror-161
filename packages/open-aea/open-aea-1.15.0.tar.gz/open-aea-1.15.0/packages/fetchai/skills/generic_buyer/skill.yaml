@@ -1,0 +1,87 @@
+name: generic_buyer
+author: fetchai
+version: 0.26.0
+type: skill
+description: The weather client skill implements the skill to purchase weather data.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeig3rwpeqh5kdr2iflvy72vkfmby3sl4ulb3sbblt5lndvogvlblme
+  __init__.py: bafybeic6biuigdmylscufxz6suvtkxems27j2cns3h36e53gxlm5hihvza
+  behaviours.py: bafybeif6hnk74lkvkc6aurfngrhe35idvatgcqfgped4l3d4e3nektoh44
+  dialogues.py: bafybeigyzu2uvp2dmj7wpjlcqlablr2wibnlkxhwyxzetizsaz5lifooea
+  handlers.py: bafybeifdytrtxifnxuzcml4plgqttkuknwlavmskc6gyy3xt4vujwwxjg4
+  strategy.py: bafybeidzwda36osegdqljxoxcj5ljds5k62iuti73qu2ghzl6nubadmaxe
+fingerprint_ignore_patterns: []
+connections:
+- fetchai/ledger:0.19.0:bafybeiasrzkbxzadi6vt35ucaa5yp4b4wbv6g44le3tuhcecjpnzp24mzq
+contracts: []
+protocols:
+- fetchai/default:1.0.0:bafybeibvtmpfzlig3ngtz6x2omc2rlx5knltnunbmg37tih5wlxnrfszvm
+- fetchai/fipa:1.0.0:bafybeigdyz2p6yzx2jmnhyukcyxk25nkevmzwplyde7trtsq4txdxboose
+- fetchai/ledger_api:1.0.0:bafybeiardigq2zupq2zmyv4i4wjydflzwyz7bl6xhxxcwtiesevqss5fae
+- fetchai/oef_search:1.0.0:bafybeieytybenjlkcdzmqw2u6xzl26jtoe4fjlzxifqy3ollobtq4k33ii
+- open_aea/signing:1.0.0:bafybeighvx4vpsyspffggewidvkfq3lqbse6ap4tdewd6j5bs73ifnuaui
+skills: []
+behaviours:
+  search:
+    args:
+      search_interval: 5
+    class_name: GenericSearchBehaviour
+  transaction:
+    args:
+      max_processing: 420
+      transaction_interval: 2
+    class_name: GenericTransactionBehaviour
+handlers:
+  fipa:
+    args: {}
+    class_name: GenericFipaHandler
+  ledger_api:
+    args: {}
+    class_name: GenericLedgerApiHandler
+  oef_search:
+    args: {}
+    class_name: GenericOefSearchHandler
+  signing:
+    args: {}
+    class_name: GenericSigningHandler
+models:
+  default_dialogues:
+    args: {}
+    class_name: DefaultDialogues
+  fipa_dialogues:
+    args: {}
+    class_name: FipaDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  oef_search_dialogues:
+    args: {}
+    class_name: OefSearchDialogues
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  strategy:
+    args:
+      is_ledger_tx: true
+      location:
+        latitude: 51.5194
+        longitude: 0.127
+      max_negotiations: 1
+      max_quantity: 100
+      max_tx_fee: 1
+      max_unit_price: 20
+      min_quantity: 1
+      search_query:
+        constraint_type: ==
+        search_key: seller_service
+        search_value: generic_service
+      search_radius: 5.0
+      service_id: generic_service
+      stop_searching_on_result: true
+    class_name: GenericStrategy
+dependencies:
+  open-aea-ledger-fetchai:
+    version: <2.0.0,>=1.0.0
+is_abstract: true
