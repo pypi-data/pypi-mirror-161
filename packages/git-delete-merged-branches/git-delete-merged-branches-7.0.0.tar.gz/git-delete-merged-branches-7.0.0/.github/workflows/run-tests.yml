@@ -1,0 +1,27 @@
+# Copyright (C) 2020 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under GPL v3 or later
+
+name: Run the test suite
+
+on:
+- pull_request
+- push
+
+jobs:
+  run-tests:
+    name: Run the test suite
+    strategy:
+      matrix:
+        python-version: [3.7, '3.10']  # no particular need for in-between versions
+        runs-on: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+    - uses: actions/checkout@v3.0.2
+    - uses: actions/setup-python@v4.1.0
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Run the test suite
+      run: |
+        set -e
+        python --version
+        python setup.py test
