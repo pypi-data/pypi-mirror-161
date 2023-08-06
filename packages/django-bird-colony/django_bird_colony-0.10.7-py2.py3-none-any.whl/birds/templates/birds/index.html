@@ -1,0 +1,75 @@
+{% extends "base_view.html" %}
+{% load widget_tweaks %}
+
+{% block title %} meliza-lab : bird colony {% endblock %}
+
+{% block content %}
+
+This web application allows you to access the animal database. Here are some things you can do:
+
+<h3>Find an animal</h3>
+
+<form class="form-horizontal" action="{% url 'birds:animals' %}" method="get" role="form">
+  <div class="form-group">
+    <div class="col-sm-2">
+      <input type="text" name="color" class="form-control" placeholder="Band color" id="id_color">
+    </div>
+    <div class="col-sm-2">
+      <input type="number" name="band" step="any" class="form-control" placeholder="Band number" id="id_band">
+    </div>
+    <div class="col-sm-2">
+      <input type="text" name="uuid" step="any" class="form-control" placeholder="UUID (beginning)" id="id_uuid">
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <span class="glyphicon glyphicon-search"></span> Search
+    </button>
+  </div>
+</form>
+
+
+<h3>Lists</h3>
+
+<p><a href="{% url 'birds:animals' %}?living=True&available=True">all the available birds</a></p>
+<p><a href="{% url 'birds:animals' %}?living=True">all the living birds</a></p>
+<p><a href="{% url 'birds:animals' %}">all the birds</a></p>
+<p><a href="{% url 'birds:pairings_active' %}">all active pairs</a>
+<p><a href="{% url 'birds:pairings' %}">all pairs</a></p>
+<p><a href="{% url 'birds:events' %}">all events</a></p>
+<p><a href="{% url 'birds:sampletypes' %}">sample types</a></p>
+
+<h3>Summary Reports</h3>
+
+<p><a href="{% url 'birds:nest-summary' %}">nest report</a></p>
+<p><a href="{% url 'birds:location-summary' %}">birds in each location</a></p>
+<p><a href="{% url 'birds:event_summary' today.year today.month %}">events for this month</a></p>
+<p><a href="{% url 'birds:event_summary' lastmonth.year lastmonth.month %}">events for last month</a></p>
+
+<h3>Data Entry Forms</h3>
+
+<p><a href="{% url 'birds:nest-check' %}">enter nest check for today</a></p>
+<p><a href="{% url 'birds:new_animal' %}">add new bird</a></p>
+<p><a href="{% url 'birds:new_band' %}">add a band for an existing bird</a>
+
+<p>Note: add samples and events for birds from the bird's page.</p>
+
+<h3>API</h3>
+
+<p>You can also query the database using the HTTP API. Specify query parameters using the URL.</p>
+
+<h4>Entry Points</h4>
+
+<p><a href="{% url 'birds:animals_api' %}">{% url 'birds:animals_api' %}</a> retrieves a list of animals. Supported query parameters are <code>uuid</code>, <code>color</code>, <code>band</code>, <code>species</code>, <code>sex</code>, <code>plumage</code>, <code>available</code>, <code>reserved_by</code>. Most text-based query parameters are case-insensitive and will do partial matches. <code>{% url 'birds:animals_api' %}my-uuid/</code> retrieves the record for a single animal by by uuid. This includes some additional information not returned by the list query.</p>
+
+<p><a href="{% url 'birds:events_api' %}">{% url 'birds:events_api' %}</a> retrieves a list of events. Supported query parameters: <code>animal</code> (uuid), <code>color</code>, <code>band</code>, <code>species</code>, <code>location</code>, <code>entered_by</code>, <code>description</code>.</p>
+
+<p><a href="{% url 'birds:pedigree_api' %}">{% url 'birds:pedigree_api' %}</a> retrieves a list of birds and parents with sex and heritable traits (e.g. plumage). By default, this only includes birds that are living (leaves) or that have children (stems). Set <code>restrict=False</code> to include all animals.</p>
+
+
+<h4>Examples</h4>
+
+<p><code>curl http://my.domain{% url 'birds:animals_api' %}?species=zebf&available=True</code> will retrieve all available (unreserved) zebra finches.</p>
+
+<p><code>curl http://my.domain{% url 'birds:events_api' %}?animal=bd0dcfc1</code> will retrieve all the events for the bird whose uuid begins with <code>bd0dcfc1</code>.</p>
+
+
+{% endblock %}

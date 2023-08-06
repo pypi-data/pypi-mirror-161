@@ -1,0 +1,160 @@
+{% extends "base_view.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %} meliza-lab : bird colony : add bird {% endblock title%}
+
+{% block css %}
+    <link href="{% static 'local/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'local/js/moment.min.js' %}"></script>
+<script src="{% static 'local/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+  $(function () {
+  $('#datetimepicker1').datetimepicker({ pickTime: false});
+  $('#datetimepicker2').datetimepicker({ pickTime: false});
+  });
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">New bird entry</h3>
+  </div>
+  <div class="panel-body">
+    <form action="{% url 'birds:new_animal' %}" class="form-horizontal" method="post" role="form">
+      {% csrf_token %}
+      <p><strong>Instructions</strong>: This form is for adding a single banded
+      bird to the database. For birds hatched in the breeding colony, determine
+      hatch date in a clutch using the nest observation sheet. Parents are
+      required, and species will be inferred from the parents.</p>
+
+      <p>Zebra finches should be banded between 12 to 18 days of age. If you've
+        already added the bird to the database (for example, using the
+        <a href="{% url 'birds:clutch' %}">new clutch</a> form), use the
+        <a href="{% url 'birds:new_band' %}">new band</a> form instead.</p>
+
+      <p>For birds acquired by other methods (including capture), parents are
+      not required, but species must be set manually.</p>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-group {% if form.acq_status.errors %}has-error{% endif %}">
+        <label for="id_acq_status" class="col-sm-2 control-label">Acquisition method</label>
+        <div class="col-sm-5">
+          {% render_field form.acq_status class+="form-control" %}
+        </div>
+      </div>
+
+
+      <div class="form-group {% if form.acq_date.errors %}has-error{% endif %}">
+        <label for="id_acq_date" class="col-sm-2 control-label">Acquisition date</label>
+        <div class="col-sm-3">
+          <div class="input-group date" id="datetimepicker1">
+            {% render_field form.acq_date class+="form-control" data-format="MM/dd/YYYY" %}
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group {% if form.species.errors %}has-error{% endif %}">
+        <label for="id_species" class="col-sm-2 control-label">Species</label>
+        <div class="col-sm-5">
+          {% render_field form.species class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.sex.errors %}has-error{% endif %}">
+        <label for="id_sex" class="col-sm-2 control-label">Sex</label>
+        <div class="col-sm-5">
+          {% render_field form.sex class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.plumage.errors %}has-error{% endif %}">
+        <label for="id_plumage" class="col-sm-2 control-label">Plumage</label>
+        <div class="col-sm-5">
+          {% render_field form.plumage class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.sire.errors %}has-error{% endif %}">
+        <label for="id_sire" class="col-sm-2 control-label">Sire</label>
+        <div class="col-sm-5">
+          {% render_field form.sire class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.dam.errors %}has-error{% endif %}">
+        <label for="id_dam" class="col-sm-2 control-label">Dam</label>
+        <div class="col-sm-5">
+          {% render_field form.dam class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.banding_date.errors %}has-error{% endif %}">
+        <label for="id_banding_date" class="col-sm-2 control-label">Banding date</label>
+        <div class="col-sm-3">
+          <div class="input-group date" id="datetimepicker2">
+            {% render_field form.banding_date class+="form-control" data-format="MM/dd/YYYY" %}
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group {% if form.band_color.errors %}has-error{% endif %}">
+        <label for="id_band_color" class="col-sm-2 control-label">Band color</label>
+        <div class="col-sm-5">
+          {% render_field form.band_color class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.band_number.errors %}has-error{% endif %}">
+        <label for="id_band_number" class="col-sm-2 control-label">Band number</label>
+        <div class="col-sm-3">
+          {% render_field form.band_number class+="form-control" %}
+        </div>
+      </div>
+
+
+      <div class="form-group {% if form.location.errors %}has-error{% endif %}">
+        <label for="id_location" class="col-sm-2 control-label">Location</label>
+        <div class="col-sm-5">
+          {% render_field form.location class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.comments.errors %}has-error{% endif %}">
+        <label for="id_comments" class="col-sm-2 control-label">Comments</label>
+        <div class="col-sm-5">
+          {% render_field form.comments class+="form-control" rows="3"%}
+        </div>
+      </div>
+
+      <div class="form-group {% if form.user.errors %}has-error{% endif %}">
+        <label for="id_user" class="col-sm-2 control-label">Entered by</label>
+        <div class="col-sm-3">
+          {% render_field form.user class+="form-control" %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-default">Add bird</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}
