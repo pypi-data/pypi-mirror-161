@@ -1,0 +1,44 @@
+Metadata-Version: 2.1
+Name: requests-curl-antitls
+Version: 0.1.0rc3
+Summary: the requests package which passed ja3
+Home-page: https://github.com/ycq0125/pycurl
+Author: spike
+Author-email: 2466857975@qq.com
+Maintainer: synodriver
+License: GPLv3
+Keywords: requests,curl,antitls
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Operating System :: POSIX
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: requests
+Requires-Dist: pycurl-antitls (>=7.45.3rc1)
+
+# requests which pass through tls
+
+### 安装
+- pip install requests-curl-antitls
+- 执行以下脚本
+
+```python
+# 如果有多个虚拟环境，刚才哪个python安装的curl，就用哪个python执行这个
+import sys
+import os
+
+base = os.path.join(sys.prefix, "lib", "libcurl-impersonate-chrome.so")
+
+with open(base, "rb") as inp, open("/usr/lib/libcurl-impersonate-chrome.so.4","wb") as out:
+    data = inp.read()
+    out.write(data)
+```
+
