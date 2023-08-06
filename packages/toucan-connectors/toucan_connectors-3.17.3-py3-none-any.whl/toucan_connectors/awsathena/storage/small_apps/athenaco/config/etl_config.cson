@@ -1,0 +1,54 @@
+DATA_PROVIDERS: [
+  {
+    type: 'AWSAthena'
+    name: 'athe'
+    aws_access_key_id: 'AKIA6I5VRK2SER3ELBHE'
+    secrets_storage_version: '1'
+    s3_output_bucket: 's3://toucantoco-weaverbird-athena-integration-tests/output/'
+    region_name: 'eu-west-3'
+  }
+]
+DATA_SOURCES: [
+  {
+    name: 'athe'
+    domain: 'test'
+    query_object:
+      schema: 'AWSAthenaDefaultSchema'
+      table: 'beers_tiny'
+      columns: [
+        'price_per_l'
+        'alcohol_degree'
+        'name'
+        'cost'
+        'beer_kind'
+        'volume_ml'
+        'brewing_date'
+      ]
+    database: 'weaverbird-athena-integration-tests'
+    query: 'SELECT \"price_per_l\", \"alcohol_degree\", \"name\", \"cost\", \"beer_kind\", \"volume_ml\", \"brewing_date\" FROM \"beers_tiny\"'
+  }
+  {
+    name: 'athe'
+    domain: 'ttte'
+    query_object:
+      schema: 'AWSAthenaDefaultSchema'
+      table: 'beers_tiny'
+      columns: [
+        'price_per_l'
+        'alcohol_degree'
+        'name'
+        'cost'
+        'beer_kind'
+        'volume_ml'
+        'brewing_date'
+      ]
+    database: 'weaverbird-athena-integration-tests'
+    query: 'SELECT \"price_per_l\", \"alcohol_degree\", \"name\", \"cost\", \"beer_kind\", \"volume_ml\", \"brewing_date\" FROM \"beers_tiny\"'
+  }
+]
+PIPELINE: []
+MONGO_INDEXES: []
+DF_MAX_CELLS: 200000
+PERMISSIONS_DATA: {}
+CAST_DATES_TO_STRING_AT_INSERTION: false
+REMOVE_METADATA_COLUMNS: true
