@@ -1,0 +1,154 @@
+use super::*;
+use polars_core::series::ops::NullBehavior;
+
+#[test]
+fn test_filter_sort_diff_2984() -> Result<()> {
+    // make sort that sort doest not oob if filter returns no values
+    let df = df![
+    "group"=> ["A" ,"A", "A", "B", "B", "B", "B"],
+    "id"=> [1, 2, 1, 4, 5, 4, 6],
+    ]?;
+
+    let out = df
+        .lazy()
+        // don't use stable in this test, it hides wrong state
+        .groupby([col("group")])
+        .agg([col("id")
+            .filter(col("id").lt(lit(3)))
+            .sort(false)
+            .diff(1, Default::default())
+            .sum()])
+        .sort("group", Default::default())
+        .collect()?;
+
+    assert_eq!(Vec::from(out.column("id")?.i32()?), &[Some(1), None]);
+    Ok(())
+}
+
+#[test]
+fn test_filter_after_tail() -> Result<()> {
+    let df = df![
+        "a" => ["foo", "foo", "bar"],
+        "b" => [1, 2, 3]
+    ]?;
+
+    let out = df
+        .lazy()
+        .groupby_stable([col("a")])
+        .tail(Some(1))
+        .filter(col("b").eq(lit(3)))
+        .with_predicate_pushdown(false)
+        .collect()?;
+
+    let expected = df![
+        "a" => ["bar"],
+        "b" => [3]
+    ]?;
+    assert!(out.frame_equal(&expected));
+
+    Ok(())
+}
+
+#[test]
+#[cfg(feature = "unique_counts")]
+fn test_list_arithmetic_in_groupby() -> Result<()> {
+    // specifically make the amount of groups equal to df height.
+    let df = df![
+        "a" => ["foo", "ham", "bar"],
+        "b" => [1, 2, 3]
+    ]?;
+
+    let out = df
+        .lazy()
+        .groupby_stable([col("a")])
+        .agg([
+            col("b").list().alias("original"),
+            (col("b").list() * lit(2)).alias("mult_lit"),
+            (col("b").list() / lit(2)).alias("div_lit"),
+            (col("b").list() - lit(2)).alias("min_lit"),
+            (col("b").list() + lit(2)).alias("plus_lit"),
+            (col("b").list() % lit(2)).alias("mod_lit"),
+            (lit(1) + col("b").list()).alias("lit_plus"),
+            (col("b").unique_counts() + count()).alias("plus_count"),
+        ])
+        .collect()?;
+
+    let cols = ["mult_lit", "div_lit", "plus_count"];
+    let out = out.explode(&cols)?.select(&cols)?;
+
+    assert!(out.frame_equal(&df![
+        "mult_lit" => [2, 4, 6],
+        "div_lit"=> [0, 1, 1],
+        "plus_count" => [2 as IdxSize, 2, 2]
+    ]?));
+
+    Ok(())
+}
+
+#[test]
+fn test_filter_diff_arithmetic() -> Result<()> {
+    let df = df![
+        "user" => [1, 1, 1, 1, 2],
+        "group" => [1, 2, 1, 1, 2],
+        "value" => [1, 5, 14, 17, 20]
+    ]?;
+
+    let out = df
+        .lazy()
+        .groupby([col("user")])
+        .agg([(col("value")
+            .filter(col("group").eq(lit(1)))
+            .diff(1, Default::default())
+            * lit(2))
+        .alias("diff")])
+        .sort("user", Default::default())
+        .explode([col("diff")])
+        .collect()?;
+
+    let out = out.column("diff")?;
+    assert_eq!(out, &Series::new("diff", &[None, Some(26), Some(6), None]));
+
+    Ok(())
+}
+
+#[test]
+fn test_groupby_lit_agg() -> Result<()> {
+    let df = df![
+        "group" => [1, 2, 1, 1, 2],
+    ]?;
+
+    let out = df
+        .lazy()
+        .groupby([col("group")])
+        .agg([lit("foo").alias("foo")])
+        .collect()?;
+
+    assert_eq!(out.column("foo")?.dtype(), &DataType::Utf8);
+
+    Ok(())
+}
+
+#[test]
+fn test_groupby_agg_list_with_not_aggregated() -> Result<()> {
+    let df = df![
+    "group" => ["a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b"],
+    "value" => [0, 2, 3, 6, 2, 4, 7, 9, 3, 4, 6, 7, ],
+    ]?;
+
+    let out = df
+        .lazy()
+        .groupby([col("group")])
+        .agg([when(col("value").diff(1, NullBehavior::Ignore).gt_eq(0))
+            .then(col("value").diff(1, NullBehavior::Ignore))
+            .otherwise(col("value"))])
+        .sort("group", Default::default())
+        .collect()?;
+
+    let out = out.column("value")?;
+    let out = out.explode()?;
+    assert_eq!(
+        out,
+        Series::new("value", &[0, 2, 1, 3, 2, 2, 7, 2, 3, 1, 2, 1])
+    );
+    Ok(())
+}
